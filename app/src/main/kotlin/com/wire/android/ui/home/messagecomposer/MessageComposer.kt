@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,8 +63,10 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.KeyboardHelper
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
@@ -81,27 +84,59 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.KeyboardHeight
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit
 ) {
-    when (messageComposerState.inputState) {
-        MessageCompositionInputState.ACTIVE -> {
-            ActiveMessageComposer(
-                messageComposerState = messageComposerState,
-                messageListContent = messageListContent,
-                onTransitionToInActive = messageComposerState::toInActive
-            )
-        }
+    with(messageComposerState) {
+        when (messageComposerState.interactionAvailability) {
+            InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
+            InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
+            InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
+                MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
 
-        MessageCompositionInputState.INACTIVE -> {
-            InActiveMessageComposer(
-                messageComposerState = messageComposerState,
-                messageListContent = messageListContent,
-                onTransitionToActive = messageComposerState::toActive
-            )
+            InteractionAvailability.ENABLED -> {
+                EnabledMessageComposerInput(messageComposerState, messageListContent)
+            }
+        }
+    }
+}
+
+@Composable
+fun EnabledMessageComposerInput(
+    messageComposerState: MessageComposerState,
+    messageListContent: @Composable () -> Unit
+) {
+    with(messageComposerState) {
+        Row {
+            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+            if (isClassifiedConversation) {
+                Box(Modifier.wrapContentSize()) {
+                    VerticalSpace.x8()
+                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                }
+            }
+            when (messageComposerState.inputState) {
+                MessageCompositionInputState.ACTIVE -> {
+                    ActiveMessageComposer(
+                        messageComposerState = messageComposerState,
+                        messageListContent = messageListContent,
+                        onTransitionToInActive = messageComposerState::toInActive
+                    )
+                }
+
+                MessageCompositionInputState.INACTIVE -> {
+                    InActiveMessageComposer(
+                        messageComposerState = messageComposerState,
+                        messageListContent = messageListContent,
+                        onTransitionToActive = messageComposerState::toActive
+                    )
+                }
+            }
         }
     }
 }
@@ -224,6 +259,7 @@ private fun ActiveMessageComposer(
                                 }
                                 .background(color = colorsScheme().backgroundVariant)
                                 .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
+
                         ) {
                             messageListContent()
                             if (messageComposition.value.mentions.isNotEmpty()) {
@@ -245,6 +281,8 @@ private fun ActiveMessageComposer(
                                 inputFocused = inputFocused,
                                 messageCompositionInputState = inputType,
                                 messageCompositionInputSize = inputSize,
+                                securityClassificationType = SecurityClassificationType.CLASSIFIED,
+                                interactionAvailability = InteractionAvailability.BLOCKED_USER,
                                 onMessageTextChanged = ::onMessageTextChanged,
                                 onSendButtonClicked = { },
                                 onFocused = ::onInputFocused,
@@ -398,6 +436,8 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 @Composable
 private fun MessageComposerInput(
     inputFocused: Boolean,
+    securityClassificationType: SecurityClassificationType,
+    interactionAvailability: InteractionAvailability,
     messageCompositionInputState: MessageCompositionInputType,
     messageCompositionInputSize: MessageCompositionInputSize,
     onMessageTextChanged: (TextFieldValue) -> Unit,
@@ -523,182 +563,6 @@ fun MessageComposerTextInput(
     )
 }
 
-//@Suppress("ComplexMethod", "ComplexCondition")
-//@Composable
-//private fun MessageComposer(
-//    messagesContent: @Composable () -> Unit,
-//    messageComposerState: MessageComposerState,
-//    isFileSharingEnabled: Boolean,
-//    interactionAvailability: InteractionAvailability,
-//    membersToMention: List<Contact>,
-//    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
-//    securityClassificationType: SecurityClassificationType,
-//    tempWritableImageUri: Uri?,
-//    tempWritableVideoUri: Uri?,
-//    onSendButtonClicked: () -> Unit,
-//    onEditSaveButtonClicked: () -> Unit,
-//    onMentionPicked: (Contact) -> Unit,
-//    onPingClicked: () -> Unit,
-//    onShowSelfDeletionOption: () -> Unit,
-//    showSelfDeletingOption: Boolean
-//) {
-//    Surface(color = colorsScheme().messageComposerBackgroundColor) {
-//        val transition = updateTransition(
-//            targetState = messageComposerState.messageComposeInputState,
-//            label = stringResource(R.string.animation_label_message_compose_input_state_transition)
-//        )
-//
-//        BoxWithConstraints(Modifier.fillMaxSize()) {
-//            val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-//
-//            Column(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .height(currentScreenHeight)
-//            ) {
-//
-//                // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
-//                var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
-//                val isKeyboardVisible = KeyboardHelper.isKeyboardVisible()
-//                if (isKeyboardVisible) {
-//                    val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
-//                    val notKnownAndCalculated = keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
-//                    val knownAndDifferent = keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
-//                    if (notKnownAndCalculated || knownAndDifferent) {
-//                        keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
-//                    }
-//                }
-//                val attachmentOptionsVisible = messageComposerState.messageComposeInputState.attachmentOptionsDisplayed
-//                        && !isKeyboardVisible
-//                        && interactionAvailability == InteractionAvailability.ENABLED
-//
-//                // Whenever the user closes the keyboard manually that is not clicking outside of the input text field
-//                // but for example pressing the back button when the keyboard is visible
-//                LaunchedEffect(isKeyboardVisible) {
-//                    if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
-//                        if (!messageComposerState.messageComposeInputState.isEditMessage) {
-//                            messageComposerState.toInactive()
-//                        }
-//                        messageComposerState.focusManager.clearFocus()
-//                    }
-//                }
-//
-//                Column(
-//                    Modifier
-//                        .weight(1f)
-//                        .fillMaxWidth()
-//                ) {
-//                    Box(
-//                        Modifier
-//                            .pointerInput(Unit) {
-//                                detectTapGestures(
-//                                    onPress = {
-//                                        messageComposerState.focusManager.clearFocus()
-//                                        messageComposerState.toInactive()
-//                                    },
-//                                    onDoubleTap = { /* Called on Double Tap */ },
-//                                    onLongPress = { /* Called on Long Press */ },
-//                                    onTap = { /* Called on Tap */ }
-//                                )
-//                            }
-//                            .background(color = colorsScheme().backgroundVariant)
-//                            .fillMaxWidth()
-//                            .weight(1f)
-//                    ) {
-//                        messagesContent()
-//                        if (membersToMention.isNotEmpty()) {
-//                            MembersMentionList(
-//                                membersToMention = membersToMention,
-//                                onMentionPicked = onMentionPicked
-//                            )
-//                        }
-//                    }
-//
-//                    MessageComposerInput(
-//                        transition = transition,
-//                        interactionAvailability = interactionAvailability,
-//                        isFileSharingEnabled = isFileSharingEnabled,
-//                        securityClassificationType = securityClassificationType,
-//                        messageComposeInputState = messageComposerState.messageComposeInputState,
-//                        quotedMessageData = messageComposerState.quotedMessageData,
-//                        membersToMention = membersToMention,
-//                        inputFocusRequester = messageComposerState.inputFocusRequester,
-//                        showSelfDeletingOption = showSelfDeletingOption,
-//                        actions = remember(messageComposerState) {
-//                            MessageComposerInputActions(
-//                                onMessageTextChanged = messageComposerState::setMessageTextValue,
-//                                onMentionPicked = onMentionPicked,
-//                                onSendButtonClicked = onSendButtonClicked,
-//                                onToggleFullScreen = messageComposerState::toggleFullScreen,
-//                                onCancelReply = messageComposerState::cancelReply,
-//                                startMention = messageComposerState::startMention,
-//                                onPingClicked = onPingClicked,
-//                                onInputFocusChanged = { isFocused ->
-//                                    messageComposerState.messageComposeInputFocusChange(isFocused)
-//                                    if (isFocused) {
-//                                        messageComposerState.toActive()
-//                                        messageComposerState.hideAttachmentOptions()
-//                                    }
-//                                },
-//                                onAdditionalOptionButtonClicked = {
-//                                    messageComposerState.focusManager.clearFocus()
-//                                    messageComposerState.toActive()
-//                                    messageComposerState.showAttachmentOptions()
-//                                },
-//                                onEditSaveButtonClicked = onEditSaveButtonClicked,
-//                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
-//                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption
-//                            )
-//                        }
-//                    )
-//                }
-//
-//                // Box wrapping for additional options content
-//                // we want to offset the AttachmentOptionsComponent equal to where
-//                // the device keyboard is displayed, so that when the keyboard is closed,
-//                // we get the effect of overlapping it
-//                if (attachmentOptionsVisible) {
-//                    AttachmentOptions(
-//                        onAttachmentPicked = remember {
-//                            {
-//                                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-//                                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
-//                                }?.selfDeletionDuration?.value
-//                                onAttachmentPicked(it, expireAfter)
-//                            }
-//                        },
-//                        isFileSharingEnabled = isFileSharingEnabled,
-//                        tempWritableImageUri = tempWritableImageUri,
-//                        tempWritableVideoUri = tempWritableVideoUri,
-//                        modifier = Modifier
-//                            .height(keyboardHeight.height)
-//                            .fillMaxWidth()
-//                            .background(colorsScheme().messageComposerBackgroundColor)
-//                    )
-//                }
-//                // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
-//                // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
-//                // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
-//                else if (!messageComposerState.messageComposeInputState.attachmentOptionsDisplayed && !isKeyboardVisible &&
-//                    keyboardHeight is KeyboardHeight.Known && messageComposerState.messageComposeInputState.inputFocused &&
-//                    interactionAvailability == InteractionAvailability.ENABLED
-//                ) {
-//                    Box(
-//                        modifier = Modifier
-//                            .height(keyboardHeight.height)
-//                            .fillMaxWidth()
-//                    )
-//                }
-//            }
-//        }
-//    }
-//
-//    BackHandler(messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
-//        messageComposerState.hideAttachmentOptions()
-//        messageComposerState.toInactive()
-//    }
-//}
-//
 @Composable
 private fun MembersMentionList(
     membersToMention: List<Contact>,

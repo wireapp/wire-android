@@ -103,6 +103,9 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
+    <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
+    <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
+    <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
@@ -983,10 +986,11 @@
 
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Your account was used on</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Manage Devices</string>
     <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Switch Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s joined the conversation</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s joined the conversation</string>

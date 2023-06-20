@@ -249,7 +249,7 @@ fun PreviewWireDialog() {
                         fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
                         fontStyle = MaterialTheme.wireTypography.body01.fontStyle
                     )
-                    withStyle(style) { append("text") }
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
                 },
             ) {
                 WirePasswordTextField(

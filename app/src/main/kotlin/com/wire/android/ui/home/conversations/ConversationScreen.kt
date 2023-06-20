@@ -79,6 +79,7 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -291,7 +292,7 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
-    onSendMessage: (SendMessageBundle) -> Unit,
+    onSendMessage: (MessageComposition) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
@@ -468,7 +469,7 @@ private fun ConversationScreenContent(
     audioMessagesState: Map<String, AudioState>,
     messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,
-    onSendMessage: (SendMessageBundle) -> Unit,
+    onSendMessage: (MessageComposition) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -518,7 +519,8 @@ private fun ConversationScreenContent(
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
-        }
+        },
+        onSendMessage = onSendMessage
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

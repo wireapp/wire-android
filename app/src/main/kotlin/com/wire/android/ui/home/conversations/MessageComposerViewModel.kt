@@ -53,6 +53,7 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -207,71 +208,71 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(sendMessageBundle: SendMessageBundle) {
-        viewModelScope.launch {
-            sendTextMessage(
-                conversationId = conversationId,
-                text = sendMessageBundle.message,
-                mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
-                quotedMessageId = sendMessageBundle.quotedMessageId
-            )
-        }
+    fun sendMessage(messageComposition: MessageComposition) {
+//        viewModelScope.launch {
+//            sendTextMessage(
+//                conversationId = conversationId,
+//                text = sendMessageBundle.message,
+//                mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
+//                quotedMessageId = sendMessageBundle.quotedMessageId
+//            )
+//        }
     }
 
     fun sendEditMessage(editMessageBundle: EditMessageBundle) {
-        viewModelScope.launch {
-            sendEditTextMessage(
-                conversationId = conversationId,
-                originalMessageId = editMessageBundle.originalMessageId,
-                text = editMessageBundle.newContent,
-                mentions = editMessageBundle.newMentions.map { it.intoMessageMention() },
-            )
-        }
+//        viewModelScope.launch {
+//            sendEditTextMessage(
+//                conversationId = conversationId,
+//                originalMessageId = editMessageBundle.originalMessageId,
+//                text = editMessageBundle.newContent,
+//                mentions = editMessageBundle.newMentions.map { it.intoMessageMention() },
+//            )
+//        }
     }
 
     fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                attachmentBundle?.run {
-                    when (assetType) {
-                        AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                                kaliumFileSystem,
-                                attachmentBundle.dataPath
-                            )
-                            sendAssetMessage(
-                                conversationId = conversationId,
-                                assetDataPath = dataPath,
-                                assetName = fileName,
-                                assetWidth = imgWidth,
-                                assetHeight = imgHeight,
-                                assetDataSize = dataSize,
-                                assetMimeType = mimeType
-                            )
-                        }
-
-                        AttachmentType.VIDEO,
-                        AttachmentType.GENERIC_FILE,
-                        AttachmentType.AUDIO -> {
-                            try {
-                                sendAssetMessage(
-                                    conversationId = conversationId,
-                                    assetDataPath = dataPath,
-                                    assetName = fileName,
-                                    assetMimeType = mimeType,
-                                    assetDataSize = dataSize,
-                                    assetHeight = null,
-                                    assetWidth = null
-                                )
-                            } catch (e: OutOfMemoryError) {
-                                appLogger.e("There was an OutOfMemory error while uploading the asset")
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//        viewModelScope.launch {
+//            withContext(dispatchers.io()) {
+//                attachmentBundle?.run {
+//                    when (assetType) {
+//                        AttachmentType.IMAGE -> {
+//                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+//                                kaliumFileSystem,
+//                                attachmentBundle.dataPath
+//                            )
+//                            sendAssetMessage(
+//                                conversationId = conversationId,
+//                                assetDataPath = dataPath,
+//                                assetName = fileName,
+//                                assetWidth = imgWidth,
+//                                assetHeight = imgHeight,
+//                                assetDataSize = dataSize,
+//                                assetMimeType = mimeType
+//                            )
+//                        }
+//
+//                        AttachmentType.VIDEO,
+//                        AttachmentType.GENERIC_FILE,
+//                        AttachmentType.AUDIO -> {
+//                            try {
+//                                sendAssetMessage(
+//                                    conversationId = conversationId,
+//                                    assetDataPath = dataPath,
+//                                    assetName = fileName,
+//                                    assetMimeType = mimeType,
+//                                    assetDataSize = dataSize,
+//                                    assetHeight = null,
+//                                    assetWidth = null
+//                                )
+//                            } catch (e: OutOfMemoryError) {
+//                                appLogger.e("There was an OutOfMemory error while uploading the asset")
+//                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     fun sendPing() {

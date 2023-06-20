@@ -54,9 +54,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
-
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -64,17 +64,25 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerState,
-    messageListContent: @Composable () -> Unit
+    messageListContent: @Composable () -> Unit,
+    onSendMessage: (MessageComposition) -> Unit
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
             InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
-                MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
+                MessageComposerClassifiedBanner(
+                    securityClassificationType = securityClassificationType,
+                    paddingValues = PaddingValues(vertical = dimensions().spacing16x)
+                )
 
             InteractionAvailability.ENABLED -> {
-                EnabledMessageComposer(messageComposerState, messageListContent)
+                EnabledMessageComposer(
+                    messageComposerState = messageComposerState,
+                    messageListContent = messageListContent,
+                    onSendButtonClicked = { onSendMessage(messageComposition) }
+                )
             }
         }
     }
@@ -83,7 +91,8 @@ fun MessageComposer(
 @Composable
 private fun EnabledMessageComposer(
     messageComposerState: MessageComposerState,
-    messageListContent: @Composable () -> Unit
+    messageListContent: @Composable () -> Unit,
+    onSendButtonClicked: () -> Unit
 ) {
     with(messageComposerState) {
         Row {
@@ -99,7 +108,8 @@ private fun EnabledMessageComposer(
                     ActiveMessageComposer(
                         messageComposerState = messageComposerState,
                         messageListContent = messageListContent,
-                        onTransitionToInActive = messageComposerState::toInActive
+                        onTransitionToInActive = messageComposerState::toInActive,
+                        onSendButtonClicked = onSendButtonClicked
                     )
                 }
 
@@ -175,7 +185,8 @@ private fun InActiveMessageComposer(
 private fun ActiveMessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
-    onTransitionToInActive: () -> Unit
+    onTransitionToInActive: () -> Unit,
+    onSendButtonClicked: () -> Unit
 ) {
     with(messageComposerState) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
@@ -238,9 +249,11 @@ private fun ActiveMessageComposer(
                             Modifier.wrapContentSize()
                         ) {
                             val fillRemainingSpaceOrWrapContent =
-                                if (inputSize == MessageCompositionInputSize.COLLAPSED)
+                                if (inputSize == MessageCompositionInputSize.COLLAPSED) {
                                     Modifier.wrapContentHeight()
-                                else Modifier.weight(1f)
+                                } else {
+                                    Modifier.weight(1f)
+                                }
 
                             ActiveMessageComposerInput(
                                 inputFocused = inputFocused,
@@ -249,7 +262,7 @@ private fun ActiveMessageComposer(
                                 securityClassificationType = SecurityClassificationType.CLASSIFIED,
                                 interactionAvailability = InteractionAvailability.BLOCKED_USER,
                                 onMessageTextChanged = ::onMessageTextChanged,
-                                onSendButtonClicked = { },
+                                onSendButtonClicked = onSendButtonClicked,
                                 onFocused = ::onInputFocused,
                                 onCollapseButtonClicked = ::toggleFullScreenInput,
                                 modifier = fillRemainingSpaceOrWrapContent
@@ -264,12 +277,12 @@ private fun ActiveMessageComposer(
                     }
 
                     val additionalOptionSubMenuVisible =
-                        additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
-                                && !KeyboardHelper.isKeyboardVisible()
+                        additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
+                                !KeyboardHelper.isKeyboardVisible()
 
                     val isTransitionToOpenKeyboardOngoing =
-                        additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
-                                && !KeyboardHelper.isKeyboardVisible()
+                        additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
+                                !KeyboardHelper.isKeyboardVisible()
 
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
@@ -300,4 +313,3 @@ private fun ActiveMessageComposer(
         }
     }
 }
-

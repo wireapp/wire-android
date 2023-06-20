@@ -22,7 +22,6 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,18 +78,13 @@ class MessageComposerState(
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
-    var messageComposition = mutableStateOf(
-        MessageComposition(
-            selfDeletionTimer = selfDeletionTimer
-        )
-    )
-        private set
+    val messageCompositionHolder = MessageCompositionHolder(MessageComposition.DEFAULT)
 
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
     var inputType: MessageCompositionInputType by mutableStateOf(
-        MessageCompositionInputType.Composing(messageComposition)
+        MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
     )
         private set
 
@@ -122,7 +116,7 @@ class MessageComposerState(
                 quotedContent = quotedContent
             )
 
-            messageComposition.update {
+            messageCompositionHolder.messageComposition.update {
                 it.copy(
                     messageTextFieldValue = TextFieldValue(""),
                     quotedMessage = quotedMessage
@@ -131,7 +125,7 @@ class MessageComposerState(
 
             inputFocused = true
             inputType = MessageCompositionInputType.Composing(
-                messageCompositionState = messageComposition
+                messageCompositionState = messageCompositionHolder.messageComposition
             )
         }
     }
@@ -167,7 +161,7 @@ class MessageComposerState(
         }
 
     fun cancelReply() {
-        messageComposition.update {
+        messageCompositionHolder.messageComposition.update {
             it.copy(
                 quotedMessage = null
             )
@@ -190,7 +184,7 @@ class MessageComposerState(
     }
 
     fun toEdit(editMessageText: String) {
-        messageComposition.update {
+        messageCompositionHolder.messageComposition.update {
             it.copy(
                 messageTextFieldValue = TextFieldValue(editMessageText)
             )
@@ -198,18 +192,18 @@ class MessageComposerState(
 
         inputFocused = true
         inputType = MessageCompositionInputType.Editing(
-            messageCompositionState = messageComposition,
-            messageCompositionSnapShot = messageComposition.value
+            messageCompositionState = messageCompositionHolder.messageComposition,
+            messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
         )
     }
 
     fun toSelfDeleting() {
         inputFocused = true
-        inputType = MessageCompositionInputType.SelfDeleting(messageComposition, onShowEphemeralOptionsMenu)
+        inputType = MessageCompositionInputType.SelfDeleting(messageCompositionHolder.messageComposition, onShowEphemeralOptionsMenu)
     }
 
     fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
-        messageComposition.update {
+        messageCompositionHolder.messageComposition.update {
             it.copy(
                 messageTextFieldValue = messageTextFieldValue
             )
@@ -217,7 +211,7 @@ class MessageComposerState(
     }
 
     fun onInputFocused() {
-        inputType = MessageCompositionInputType.Composing(messageComposition)
+        inputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
         inputFocused = true
     }
 
@@ -229,47 +223,47 @@ class MessageComposerState(
         }
     }
 
-    fun startMention() {
-        val beforeSelection = messageComposition.value.messageTextFieldValue.text
-            .subSequence(0, messageComposition.value.messageTextFieldValue.selection.min)
-            .run {
-                if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
-                    this.toString()
-                } else {
-                    StringBuilder(this)
-                        .append(String.WHITE_SPACE)
-                        .toString()
-                }
-            }
-
-        val afterSelection = messageComposition.value.messageText
-            .subSequence(
-                messageComposition.value.messageTextFieldValue.selection.max,
-                messageComposition.value.messageTextFieldValue.text.length
-            )
-
-        val resultText = StringBuilder(beforeSelection)
-            .append(String.MENTION_SYMBOL)
-            .append(afterSelection)
-            .toString()
-
-        val newSelection = TextRange(beforeSelection.length + 1)
-
-        messageComposition.update { it.copy(messageTextFieldValue = TextFieldValue(resultText, newSelection)) }
-    }
-
-    fun addMention(contact: Contact) {
-        val mention = UiMention(
-            start = messageComposition.value.messageTextFieldValue.currentMentionStartIndex(),
-            length = contact.name.length + 1, // +1 cause there is an "@" before it
-            userId = UserId(contact.id, contact.domain),
-            handler = String.MENTION_SYMBOL + contact.name
-        )
-
-        insertMentionIntoText(mention)
-
-        messageComposition.update { it.copy(mentions = it.mentions.plus(mention).sortedBy { it.start }) }
-    }
+//    fun startMention() {
+//        val beforeSelection = messageCompositionHolder.value.messageTextFieldValue.text
+//            .subSequence(0, messageCompositionHolder.value.messageTextFieldValue.selection.min)
+//            .run {
+//                if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
+//                    this.toString()
+//                } else {
+//                    StringBuilder(this)
+//                        .append(String.WHITE_SPACE)
+//                        .toString()
+//                }
+//            }
+//
+//        val afterSelection = messageCompositionHolder.value.messageText
+//            .subSequence(
+//                messageCompositionHolder.value.messageTextFieldValue.selection.max,
+//                messageCompositionHolder.value.messageTextFieldValue.text.length
+//            )
+//
+//        val resultText = StringBuilder(beforeSelection)
+//            .append(String.MENTION_SYMBOL)
+//            .append(afterSelection)
+//            .toString()
+//
+//        val newSelection = TextRange(beforeSelection.length + 1)
+//
+//        messageCompositionHolder.update { it.copy(messageTextFieldValue = TextFieldValue(resultText, newSelection)) }
+//    }
+//
+//    fun addMention(contact: Contact) {
+//        val mention = UiMention(
+//            start = messageCompositionHolder.value.messageTextFieldValue.currentMentionStartIndex(),
+//            length = contact.name.length + 1, // +1 cause there is an "@" before it
+//            userId = UserId(contact.id, contact.domain),
+//            handler = String.MENTION_SYMBOL + contact.name
+//        )
+//
+//        insertMentionIntoText(mention)
+//
+//        messageCompositionHolder.update { it.copy(mentions = it.mentions.plus(mention).sortedBy { it.start }) }
+//    }
 
 
     private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
@@ -291,48 +285,48 @@ class MessageComposerState(
         return text
     }
 
-    private fun insertMentionIntoText(mention: UiMention) {
-        val beforeMentionText = messageComposition.value.messageTextFieldValue.text
-            .subSequence(0, mention.start)
-        val afterMentionText = messageComposition.value.messageTextFieldValue.text
-            .subSequence(
-                messageComposition.value.messageTextFieldValue.selection.max,
-                messageComposition.value.messageTextFieldValue.text.length
-            )
-        val resultText = StringBuilder()
-            .append(beforeMentionText)
-            .append(mention.handler)
-            .apply {
-                if (!afterMentionText.startsWith(String.WHITE_SPACE)) append(String.WHITE_SPACE)
-            }
-            .append(afterMentionText)
-            .toString()
-
-        // + 1 cause we add space after mention and move selector there
-        val newSelection = TextRange(beforeMentionText.length + mention.handler.length + 1)
-        messageComposition.update { it.copy(messageTextFieldValue = TextFieldValue(resultText, newSelection)) }
-    }
-
-    private fun updateMentionsIfNeeded(newText: TextFieldValue) {
-        val updatedMentions = mutableSetOf<UiMention>()
-        messageComposition.value.mentions.forEach { mention ->
-            if (newText.text.length >= mention.start + mention.length) {
-                val substringInMentionPlace = newText.text.substring(mention.start, mention.start + mention.length)
-                if (substringInMentionPlace == mention.handler) {
-                    updatedMentions.add(mention)
-                    return@forEach
-                }
-            }
-
-            val prevMentionEnd = updatedMentions.lastOrNull()?.let { it.start + it.length } ?: 0
-            val newIndexOfMention = newText.text.indexOf(mention.handler, prevMentionEnd)
-            if (newIndexOfMention >= 0) {
-                updatedMentions.add(mention.copy(start = newIndexOfMention))
-            }
-        }
-
-        messageComposition.update { it.copy(mentions = updatedMentions.toList()) }
-    }
+//    private fun insertMentionIntoText(mention: UiMention) {
+//        val beforeMentionText = messageCompositionHolder.value.messageTextFieldValue.text
+//            .subSequence(0, mention.start)
+//        val afterMentionText = messageCompositionHolder.value.messageTextFieldValue.text
+//            .subSequence(
+//                messageCompositionHolder.value.messageTextFieldValue.selection.max,
+//                messageCompositionHolder.value.messageTextFieldValue.text.length
+//            )
+//        val resultText = StringBuilder()
+//            .append(beforeMentionText)
+//            .append(mention.handler)
+//            .apply {
+//                if (!afterMentionText.startsWith(String.WHITE_SPACE)) append(String.WHITE_SPACE)
+//            }
+//            .append(afterMentionText)
+//            .toString()
+//
+//        // + 1 cause we add space after mention and move selector there
+//        val newSelection = TextRange(beforeMentionText.length + mention.handler.length + 1)
+//        messageCompositionHolder.update { it.copy(messageTextFieldValue = TextFieldValue(resultText, newSelection)) }
+//    }
+//
+//    private fun updateMentionsIfNeeded(newText: TextFieldValue) {
+//        val updatedMentions = mutableSetOf<UiMention>()
+//        messageCompositionHolder.value.mentions.forEach { mention ->
+//            if (newText.text.length >= mention.start + mention.length) {
+//                val substringInMentionPlace = newText.text.substring(mention.start, mention.start + mention.length)
+//                if (substringInMentionPlace == mention.handler) {
+//                    updatedMentions.add(mention)
+//                    return@forEach
+//                }
+//            }
+//
+//            val prevMentionEnd = updatedMentions.lastOrNull()?.let { it.start + it.length } ?: 0
+//            val newIndexOfMention = newText.text.indexOf(mention.handler, prevMentionEnd)
+//            if (newIndexOfMention >= 0) {
+//                updatedMentions.add(mention.copy(start = newIndexOfMention))
+//            }
+//        }
+//
+//        messageCompositionHolder.update { it.copy(mentions = updatedMentions.toList()) }
+//    }
 
     private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
 //        if (text.selection.min != text.selection.max) {
@@ -362,45 +356,6 @@ class MessageComposerState(
 
 }
 
-data class MessageComposition(
-    val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
-    val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
-    val mentions: List<UiMention> = emptyList(),
-    val selfDeletionTimer: SelfDeletionTimer
-) {
-    companion object {
-        val DEFAULT = MessageComposition(
-            messageTextFieldValue = TextFieldValue(text = ""),
-            quotedMessage = null,
-            mentions = emptyList(),
-            selfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO)
-        )
-    }
-
-    val messageText: String
-        get() = messageTextFieldValue.text
-}
-
-fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
-    val currentValue = value
-    value = block(currentValue)
-}
-
-private fun TextFieldValue.currentMentionStartIndex(): Int {
-    val lastIndexOfAt = text.lastIndexOf(String.MENTION_SYMBOL, selection.min - 1)
-
-    return when {
-        (lastIndexOfAt <= 0) ||
-                (
-                        text[lastIndexOfAt - 1].toString() in listOf(
-                            String.WHITE_SPACE,
-                            String.NEW_LINE_SYMBOL
-                        )
-                        ) -> lastIndexOfAt
-
-        else -> -1
-    }
-}
 
 fun MessageMention.toUiMention(originalText: String) = UiMention(
     start = this.start,

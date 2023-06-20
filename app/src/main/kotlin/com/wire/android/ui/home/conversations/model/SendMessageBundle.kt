@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.model
 
-import com.wire.android.ui.home.messagecomposer.model.UiMention
+import com.wire.android.ui.home.messagecomposer.UiMention
 
 data class SendMessageBundle(
     val message: String,

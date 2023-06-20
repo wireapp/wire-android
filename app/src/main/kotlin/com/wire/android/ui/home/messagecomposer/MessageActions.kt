@@ -63,7 +63,6 @@ fun MessageSendActions(
     }
 }
 
-
 @Composable
 fun SelfDeletingActions(
     selfDeletionTimer: SelfDeletionTimer,

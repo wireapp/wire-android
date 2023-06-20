@@ -29,8 +29,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -45,7 +43,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.UseCameraAndWriteStorageRequestFlow
 import com.wire.android.util.permission.UseCameraRequestFlow

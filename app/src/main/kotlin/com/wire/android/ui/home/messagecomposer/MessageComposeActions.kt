@@ -20,23 +20,10 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,8 +34,6 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 //@OptIn(ExperimentalAnimationApi::class)

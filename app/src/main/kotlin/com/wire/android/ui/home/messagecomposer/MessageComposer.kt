@@ -72,7 +72,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.messagecomposer.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState

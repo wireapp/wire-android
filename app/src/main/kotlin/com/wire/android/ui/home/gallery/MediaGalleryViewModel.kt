@@ -74,8 +74,7 @@ class MediaGalleryViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
     private val fileManager: FileManager,
-    private val deleteMessage: DeleteMessageUseCase,
-    private val getMessageByIdUseCase: GetMessageByIdUseCase
+    private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
     val imageAsset: ImageAsset.PrivateAsset =
         savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(

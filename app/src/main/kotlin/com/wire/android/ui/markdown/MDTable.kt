@@ -71,7 +71,7 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (row[rowIndex].isHeader) MaterialTheme.wireColorScheme.outline else MaterialTheme.wireColorScheme.background)
+                    .background(if (row.firstOrNull()?.isHeader == true) MaterialTheme.wireColorScheme.outline else MaterialTheme.wireColorScheme.background)
             ) {
                 for (columnIndex in 0 until columnCount) {
                     MarkdownText(

@@ -28,6 +28,7 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import org.commonmark.node.Image as nodeImage
@@ -37,6 +38,7 @@ fun MDImage(image: nodeImage) {
     val context = LocalContext.current
     val imageLoader = ImageLoader.Builder(context)
         .components {
+            add(SvgDecoder.Factory())
             if (SDK_INT >= Build.VERSION_CODES.P) {
                 add(ImageDecoderDecoder.Factory())
             } else {

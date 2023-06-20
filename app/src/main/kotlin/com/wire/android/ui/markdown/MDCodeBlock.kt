@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.IndentedCodeBlock
 
@@ -36,6 +37,7 @@ import org.commonmark.node.IndentedCodeBlock
 fun MDIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
     Text(
         text = indentedCodeBlock.literal,
+        style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
@@ -53,6 +55,7 @@ fun MDIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
 fun MDFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
     Text(
         text = fencedCodeBlock.literal,
+        style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()

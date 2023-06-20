@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.messagecomposer.attachment
+package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.annotation.DrawableRes
@@ -59,27 +57,6 @@ import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 import com.wire.android.util.ui.KeyboardHeight
-
-@Composable
-fun AttachmentOptions(
-    onAttachmentPicked: (UriAsset) -> Unit,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier
-    ) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
-        AttachmentOptionsComponent(
-            onAttachmentPicked,
-            tempWritableImageUri,
-            tempWritableVideoUri,
-            isFileSharingEnabled,
-        )
-    }
-}
 
 @Composable
 fun AttachmentOptionsComponent(
@@ -125,49 +102,6 @@ fun AttachmentOptionsComponent(
         }
     }
 }
-
-//@Composable
-//private fun AttachmentOptionsComponent(
-//    onAttachmentPicked: (UriAsset) -> Unit,
-//    tempWritableImageUri: Uri?,
-//    tempWritableVideoUri: Uri?,
-//    isFileSharingEnabled: Boolean,
-//    modifier: Modifier = Modifier
-//) {
-//    val attachmentOptions = buildAttachmentOptionItems(
-//        isFileSharingEnabled,
-//        tempWritableImageUri,
-//        tempWritableVideoUri,
-//        onAttachmentPicked
-//    )
-//
-//    BoxWithConstraints(Modifier.fillMaxSize()) {
-//        val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
-//        val minColumnWidth: Dp = dimensions().spacing80x
-//        val minPadding: Dp = dimensions().spacing8x
-//        val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
-//        val params by remember(fullWidth, visibleAttachmentOptions.size) {
-//            derivedStateOf {
-//                calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
-//            }
-//        }
-//        val (columns, contentPadding) = params
-//
-//        LazyVerticalGrid(
-//            columns = columns,
-//            modifier = modifier.fillMaxSize(),
-//            contentPadding = contentPadding,
-//            verticalArrangement = Arrangement.SpaceEvenly,
-//            horizontalArrangement = Arrangement.Center
-//        ) {
-//            visibleAttachmentOptions.forEach { option ->
-//                if (option.shouldShow) {
-//                    item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
-//                }
-//            }
-//        }
-//    }
-//}
 
 private fun calculateGridParams(minPadding: Dp, minColumnWidth: Dp, fullWidth: Dp, itemsCount: Int): Pair<GridCells, PaddingValues> {
     val availableWidth = fullWidth - (minPadding * 2)

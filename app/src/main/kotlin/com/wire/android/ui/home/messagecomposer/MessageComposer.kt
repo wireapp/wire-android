@@ -72,7 +72,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
+import com.wire.android.ui.home.messagecomposer.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
@@ -107,7 +107,7 @@ fun MessageComposer(
 }
 
 @Composable
-fun EnabledMessageComposerInput(
+private fun EnabledMessageComposerInput(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit
 ) {
@@ -522,7 +522,7 @@ private fun MessageComposerInput(
 }
 
 @Composable
-fun MessageComposerTextInput(
+private fun MessageComposerTextInput(
     inputFocused: Boolean,
     colors: WireTextFieldColors,
     singleLine: Boolean,

@@ -38,7 +38,12 @@ class SelfDeletionTimerHelper(private val context: Context) {
         return if (expirationStatus is ExpirationStatus.Expirable) {
             with(expirationStatus) {
                 val timeLeft = calculateTimeLeft(selfDeletionStatus, expireAfter)
-                SelfDeletionTimerState.Expirable(context.resources, timeLeft, expireAfter, selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started)
+                SelfDeletionTimerState.Expirable(
+                    context.resources,
+                    timeLeft,
+                    expireAfter,
+                    selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started
+                )
             }
         } else {
             SelfDeletionTimerState.NotExpirable
@@ -73,7 +78,7 @@ class SelfDeletionTimerHelper(private val context: Context) {
             private val resources: Resources,
             timeLeft: Duration,
             private val expireAfter: Duration,
-            val timerStarted : Boolean
+            val timerStarted: Boolean
         ) : SelfDeletionTimerState() {
             companion object {
                 /**

@@ -21,7 +21,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
@@ -35,9 +34,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
-import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
@@ -49,6 +49,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
+import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -60,7 +61,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -68,15 +68,19 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {
 
     @Test
@@ -122,21 +126,21 @@ class WireActivityViewModelTest {
 
     @Test
     fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and customBackEnd dialog is shown`() {
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .arrange()
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent())
+        viewModel.handleDeepLink(mockedIntent())
 
-            coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-            assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-            assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
     }
 
     @Test
     fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome customBackEnd dialog is shown`() {
-            val (arrangement, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
             .arrange()
@@ -227,40 +231,40 @@ class WireActivityViewModelTest {
 
     @Test
     fun `given Intent with MigrationLogin, when currentSession is absent, then startNavigation is Welcome and navigate to Login`() {
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(DeepLinkResult.MigrationLogin("handle"))
-                .arrange()
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.MigrationLogin("handle"))
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent())
+        viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.Login.getRouteWithArgs(listOf("handle")),
-                        BackStackMode.UPDATE_EXISTED
-                    )
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(listOf("handle")),
+                    BackStackMode.UPDATE_EXISTED
                 )
+            )
         }
     }
 
     @Test
     fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is Home and navigate to call is called`() {
-            val conversationsId = ConversationId("val", "dom")
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(DeepLinkResult.IncomingCall(conversationsId))
-                .arrange()
+        val conversationsId = ConversationId("val", "dom")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.IncomingCall(conversationsId))
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent())
+        viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationsId)))
-                )
-            }
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationsId)))
+            )
+        }
     }
 
     @Test
@@ -563,11 +567,12 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the current user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
-            .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
+            .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
 
         assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),
+            NewClientsData.CurrentUser(listOf(NewClientInfo.fromClient(TestClient.CLIENT)), USER_ID),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -576,19 +581,61 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the other user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
-            .withNewClient(NewClientResult.InOtherAccount(TestClient.CLIENT, USER_ID, "name", "handle"))
+            .withNewClient(NewClientResult.InOtherAccount(listOf(TestClient.CLIENT), USER_ID, "name", "handle"))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
 
         assertEquals(
-            NewClientData.OtherUser(
-                TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!,
-                TestClient.CLIENT.displayName(),
+            NewClientsData.OtherUser(
+                listOf(NewClientInfo.fromClient(TestClient.CLIENT)),
                 USER_ID,
                 "name",
                 "handle"
             ),
             viewModel.globalAppState.newClientDialog
         )
+    }
+
+    @Test
+    fun `given newClient is registered when current screen does not allow dialog, then remember NewClient dialog state`() = runTest {
+        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+        val newClientFlow = MutableSharedFlow<NewClientResult>()
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(newClientFlow)
+            .withCurrentScreen(currentScreenFlow)
+            .arrange()
+
+        currentScreenFlow.value = CurrentScreen.ImportMedia
+        newClientFlow.emit(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.globalAppState.newClientDialog)
+    }
+
+    @Test
+    fun `given newClient is registered when current screen changed to ImportMedea, then remember NewClient dialog state`() {
+        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+            .withCurrentScreen(currentScreenFlow)
+            .arrange()
+
+        currentScreenFlow.value = CurrentScreen.ImportMedia
+
+        assertEquals(null, viewModel.globalAppState.newClientDialog)
+    }
+
+    @Test
+    fun `when dismissNewClientsDialog is called, then cleared NewClients for user`() {
+        val (arrangement, viewModel) = Arrangement()
+            .arrange()
+
+        viewModel.dismissNewClientsDialog(USER_ID)
+
+        coVerify(exactly = 1) { arrangement.clearNewClientsForUser(USER_ID) }
     }
 
     private class Arrangement {
@@ -652,6 +699,12 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeNewClients: ObserveNewClientsUseCase
 
+        @MockK
+        lateinit var clearNewClientsForUser: ClearNewClientsForUserUseCase
+
+        @MockK
+        lateinit var currentScreenManager: CurrentScreenManager
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -667,7 +720,9 @@ class WireActivityViewModelTest {
                 servicesManager = servicesManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
-                observeNewClients = observeNewClients
+                observeNewClients = observeNewClients,
+                clearNewClientsForUser = clearNewClientsForUser,
+                currentScreenManager = currentScreenManager,
             )
         }
 
@@ -740,6 +795,14 @@ class WireActivityViewModelTest {
 
         fun withNewClient(result: NewClientResult) = apply {
             coEvery { observeNewClients() } returns flowOf(result)
+        }
+
+        fun withNewClient(resultFlow: Flow<NewClientResult>) = apply {
+            coEvery { observeNewClients() } returns resultFlow
+        }
+
+        fun withCurrentScreen(currentScreenFlow: StateFlow<CurrentScreen>) = apply {
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
         }
 
         fun arrange() = this to viewModel

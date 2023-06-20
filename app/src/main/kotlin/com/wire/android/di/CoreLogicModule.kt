@@ -1116,6 +1116,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideClearNewClientsForUser(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().clearNewClientsForUser
+
+    @ViewModelScoped
+    @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

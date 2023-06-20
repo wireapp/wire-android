@@ -317,13 +317,13 @@ class MessageComposerViewModel @Inject constructor(
     private fun setFileSharingStatus() {
         // TODO: handle restriction when sending assets
         viewModelScope.launch {
-            when (isFileSharingEnabled().state) {
+            messageComposerViewState = when (isFileSharingEnabled().state) {
                 FileSharingStatus.Value.Disabled,
                 is FileSharingStatus.Value.EnabledSome ->
-                    messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = false)
+                    messageComposerViewState.copy(isFileSharingEnabled = false)
 
                 FileSharingStatus.Value.EnabledAll ->
-                    messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = true)
+                    messageComposerViewState.copy(isFileSharingEnabled = true)
             }
         }
     }

@@ -21,7 +21,6 @@
 package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
-import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
@@ -61,8 +60,7 @@ class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatcherProvider: DispatcherProvider,
-    private val migrationManager: MigrationManager,
-    @ApplicationScope private val coroutineScope: CoroutineScope
+    private val migrationManager: MigrationManager
 ) {
 
     private val logger by lazy { appLogger.withFeatureId(SYNC) }
@@ -73,12 +71,12 @@ class ConnectionPolicyManager @Inject constructor(
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
             combine(
-                currentScreenManager.isAppOnForegroundFlow(),
+                currentScreenManager.isAppVisibleFlow(),
                 migrationManager.isMigrationCompletedFlow(),
                 ::Pair
-            ).collect { (isOnForeground, isMigrationCompleted) ->
+            ).collect { (isVisible, isMigrationCompleted) ->
                 if (isMigrationCompleted) {
-                    setPolicyForSessions(allValidSessions(), isOnForeground)
+                    setPolicyForSessions(allValidSessions(), isVisible)
                 }
             }
         }
@@ -122,9 +120,9 @@ class ConnectionPolicyManager @Inject constructor(
     private suspend fun UserSessionScope.downgradePolicyIfNeeded(
         userId: UserId
     ) {
-        val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().first()
-        logger.d("$TAG isAppOnForeground = $isAppOnForeground")
-        if (!isAppOnForeground) {
+        val isAppVisible = currentScreenManager.isAppVisibleFlow().first()
+        logger.d("$TAG isAppVisible = $isAppVisible")
+        if (!isAppVisible) {
             logger.d("$TAG ${userId.toString().obfuscateId()} Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
@@ -132,10 +130,10 @@ class ConnectionPolicyManager @Inject constructor(
 
     private suspend fun setPolicyForSessions(
         userIdList: List<QualifiedID>,
-        wasUIInitialized: Boolean
+        isAppVisible: Boolean
     ) = userIdList.forEach { userId ->
         val isWebSocketEnabled = coreLogic.getSessionScope(userId).getPersistentWebSocketStatus()
-        val connectionPolicy = if (wasUIInitialized) {
+        val connectionPolicy = if (isAppVisible) {
             ConnectionPolicy.KEEP_ALIVE
         } else {
             if (!isWebSocketEnabled) {

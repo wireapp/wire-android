@@ -170,6 +170,41 @@ data class MessageComposerState(
         inputFocusRequester.requestFocus()
     }
 
+    fun showRichTextEditingOptions() = changeRichTextEditingOptionsVisibility(true)
+    fun hideRichTextEditingOptions() = changeRichTextEditingOptionsVisibility(false)
+
+    private fun changeRichTextEditingOptionsVisibility(show: Boolean) {
+        (messageComposeInputState as? MessageComposeInputState.Active)?.let { activeState ->
+            when (val currentType = activeState.type) {
+                is MessageComposeInputType.NewMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            richTextFormattingOptionsDisplayed = show,
+                            attachmentOptionsDisplayed = false
+                        )
+                    )
+                }
+
+                is MessageComposeInputType.EditMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            richTextFormattingOptionsDisplayed = show
+                        )
+                    )
+                }
+
+                is MessageComposeInputType.SelfDeletingMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            richTextFormattingOptionsDisplayed = show,
+                            attachmentOptionsDisplayed = false
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     fun showAttachmentOptions() = changeAttachmentOptionsVisibility(true)
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {
@@ -178,7 +213,8 @@ data class MessageComposerState(
                 is MessageComposeInputType.NewMessage -> {
                     messageComposeInputState = activeState.copy(
                         type = currentType.copy(
-                            attachmentOptionsDisplayed = newValue
+                            attachmentOptionsDisplayed = newValue,
+                            richTextFormattingOptionsDisplayed = false
                         )
                     )
                 }
@@ -186,7 +222,8 @@ data class MessageComposerState(
                 is MessageComposeInputType.SelfDeletingMessage -> {
                     messageComposeInputState = activeState.copy(
                         type = currentType.copy(
-                            attachmentOptionsDisplayed = newValue
+                            attachmentOptionsDisplayed = newValue,
+                            richTextFormattingOptionsDisplayed = false
                         )
                     )
                 }

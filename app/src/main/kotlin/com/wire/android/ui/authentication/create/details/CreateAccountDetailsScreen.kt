@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,6 +32,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,12 +57,14 @@ import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -134,8 +136,7 @@ private fun DetailsContent(
                 state = listState,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
-                modifier = Modifier
-                    .weight(weight = 1f)
+                modifier = Modifier.weight(1f)
             ) {
                 item {
                     Text(
@@ -277,17 +278,21 @@ private fun DetailsContent(
                 keyboardController?.show()
             }
 
-            WirePrimaryButton(
-                modifier = Modifier
-                    .padding(MaterialTheme.wireDimensions.spacing16x)
-                    .fillMaxWidth()
-                    .imePadding(),
-                text = stringResource(R.string.label_continue),
-                onClick = onContinuePressed,
-                fillMaxWidth = true,
-                loading = state.loading,
-                state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-            )
+            Surface(
+                shadowElevation = scrollState.rememberBottomBarElevationState().value,
+                color = MaterialTheme.wireColorScheme.background
+            ) {
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
+                        .fillMaxWidth(),
+                    text = stringResource(R.string.label_continue),
+                    onClick = onContinuePressed,
+                    fillMaxWidth = true,
+                    loading = state.loading,
+                    state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                )
+            }
         }
     }
     if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError) {

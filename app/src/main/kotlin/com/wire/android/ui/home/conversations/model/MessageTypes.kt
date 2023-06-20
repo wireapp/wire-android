@@ -20,7 +20,7 @@
 
 package com.wire.android.ui.home.conversations.model
 
-import android.text.util.Linkify
+import android.content.res.Resources
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,10 +34,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
@@ -45,32 +45,53 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
+import com.wire.android.ui.markdown.DisplayMention
+import com.wire.android.ui.markdown.MarkdownDocument
+import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
+import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
+import org.commonmark.Extension
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
+import org.commonmark.ext.gfm.tables.TablesExtension
+import org.commonmark.node.Document
+import org.commonmark.parser.Parser
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
     messageBody: MessageBody,
+    isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
-    LinkifyText(
-        text = messageBody.message,
-        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
-        color = MaterialTheme.colorScheme.onBackground,
-        onLongClick = onLongClick,
+    val (displayMentions, text) = mapToDisplayMentions(messageBody.message, LocalContext.current.resources)
+
+    val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
+        color = if (isAvailable) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
         style = MaterialTheme.wireTypography.body01,
+        colorScheme = MaterialTheme.wireColorScheme,
+        typography = MaterialTheme.wireTypography,
+        mentions = displayMentions,
+        onLongClick = onLongClick,
         onOpenProfile = onOpenProfile
     )
+
+    val extensions: List<Extension> = listOf(
+        StrikethroughExtension.builder().requireTwoTildes(true).build(),
+        TablesExtension.create()
+    )
+
+    MarkdownDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -143,4 +164,33 @@ internal fun MessageGenericAsset(
         shouldFillMaxWidth,
         isImportedMediaAsset
     )
+}
+
+/**
+ * Maps all mentions to DisplayMention in order to find them easier after converting
+ * to markdown document as positions changes due to markdown characters.
+ *
+ * @param uiText: UIText - Message to be displayed as UIText
+ * @param resources: Resources - To be able to get String out of UIText message
+ * @return Pair<List<DisplayMention>, String>
+ */
+private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
+    return if (uiText is UIText.DynamicString) {
+        val stringBuilder: StringBuilder = StringBuilder(uiText.value)
+        val mentions = uiText.mentions.sortedBy { it.start }.reversed()
+        val mentionList = mentions.map {
+            val mentionName = uiText.value.substring(it.start, it.start + it.length)
+            stringBuilder.insert(it.start + it.length, MENTION_MARK)
+            stringBuilder.insert(it.start, MENTION_MARK)
+            DisplayMention(
+                it.userId,
+                it.length,
+                it.isSelfMention,
+                mentionName
+            )
+        }.reversed()
+        Pair(mentionList, stringBuilder.toString())
+    } else {
+        Pair(listOf(), uiText.asString(resources))
+    }
 }

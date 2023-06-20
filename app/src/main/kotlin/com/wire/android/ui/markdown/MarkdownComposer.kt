@@ -79,7 +79,6 @@ fun MDBlockChildren(parent: Node, nodeData: NodeData) {
 
             is FencedCodeBlock -> MDFencedCodeBlock(child)
             is IndentedCodeBlock -> MDIndentedCodeBlock(child)
-            is Image -> MDImage(child)
             is BulletList -> MDBulletList(child, updatedNodeData)
             is OrderedList -> MDOrderedList(child, updatedNodeData)
             is TableBlock -> MDTable(child, updatedNodeData) {
@@ -117,7 +116,11 @@ fun inlineChildren(
             }
 
             is Image -> {
-                annotatedString.appendInlineContent(TAG_IMAGE_URL, child.destination)
+                updatedMentions = appendLinksAndMentions(
+                    annotatedString,
+                    child.destination,
+                    nodeData.copy(mentions = updatedMentions)
+                )
             }
 
             is Emphasis -> {

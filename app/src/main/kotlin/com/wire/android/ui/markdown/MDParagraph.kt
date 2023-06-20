@@ -26,15 +26,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.Document
-import org.commonmark.node.Image
 import org.commonmark.node.Paragraph
 
 @Composable
 fun MDParagraph(paragraph: Paragraph, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
-    if (paragraph.firstChild is Image && paragraph.firstChild == paragraph.lastChild) {
-        // Paragraph with single image
-        MDImage(paragraph.firstChild as Image)
-    } else {
         val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
             val annotatedString = buildAnnotatedString {
@@ -50,5 +45,4 @@ fun MDParagraph(paragraph: Paragraph, nodeData: NodeData, onMentionsUpdate: (Lis
                 onOpenProfile = nodeData.onOpenProfile
             )
         }
-    }
 }

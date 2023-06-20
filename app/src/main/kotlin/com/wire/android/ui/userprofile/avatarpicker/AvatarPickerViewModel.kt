@@ -144,5 +144,4 @@ class AvatarPickerViewModel @Inject constructor(
         object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
         object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))
     }
-
 }

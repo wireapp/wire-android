@@ -76,7 +76,6 @@ fun NewConversationRouter(
             modifier = Modifier.padding(internalPadding)
         ) {
 
-
             composable(
                 route = NewConversationNavigationItem.SearchListNavHostScreens.route,
                 content = {
@@ -150,6 +149,4 @@ fun NewConversationRouter(
             snackbarHostState.showSnackbar(it.asString(context.resources))
         }
     }
-
-
 }

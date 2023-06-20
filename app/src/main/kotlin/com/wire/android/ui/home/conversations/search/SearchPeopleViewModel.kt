@@ -239,7 +239,7 @@ abstract class KnownPeopleSearchViewModel : SearchServicesViewModel() {
     abstract suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact>
 }
 
-abstract class SearchPeopleViewModel: ViewModel() {
+abstract class SearchPeopleViewModel : ViewModel() {
     companion object {
         const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L
     }

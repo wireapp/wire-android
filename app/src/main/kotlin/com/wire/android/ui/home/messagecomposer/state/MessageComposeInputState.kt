@@ -81,23 +81,40 @@ sealed class MessageComposeInputState {
 
     val isExpanded: Boolean
         get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
+
     val attachmentOptionsDisplayed: Boolean
         get() = (this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed)
                 || (this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && this.type.attachmentOptionsDisplayed)
 
     val isEditMessage: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage
+
     val editSaveButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
+        get() = this is Active
+                && this.type is MessageComposeInputType.EditMessage
                 && messageText.text != this.type.originalText
+                && messageText.text.trim().isNotBlank()
+
     val sendButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
+        get() = this is Active
+                && this.type is MessageComposeInputType.NewMessage
+                && messageText.text.trim().isNotBlank()
 
     val sendEphemeralMessageButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && messageText.text.trim().isNotBlank()
+        get() = this is Active
+                && this.type is MessageComposeInputType.SelfDeletingMessage
+                && messageText.text.trim().isNotBlank()
 
     val isEphemeral: Boolean
         get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
+
+    val isRichTextFormattingOptionsDisplayed: Boolean
+        get() = (this is Active && this.type is MessageComposeInputType.NewMessage
+                && this.type.richTextFormattingOptionsDisplayed)
+                || (this is Active && this.type is MessageComposeInputType.EditMessage
+                && this.type.richTextFormattingOptionsDisplayed)
+                || (this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
+                && this.type.richTextFormattingOptionsDisplayed)
 }
 
 enum class MessageComposeInputSize {
@@ -112,19 +129,22 @@ sealed class MessageComposeInputType {
     @Stable
     data class NewMessage(
         val attachmentOptionsDisplayed: Boolean = false,
+        val richTextFormattingOptionsDisplayed: Boolean = false
     ) : MessageComposeInputType()
 
     @Stable
     data class EditMessage(
         val messageId: String,
         val originalText: String,
+        val richTextFormattingOptionsDisplayed: Boolean = false
     ) : MessageComposeInputType()
 
     @Stable
     data class SelfDeletingMessage(
         val selfDeletionDuration: SelfDeletionDuration,
         val isEnforced: Boolean,
-        val attachmentOptionsDisplayed: Boolean = false
+        val attachmentOptionsDisplayed: Boolean = false,
+        val richTextFormattingOptionsDisplayed: Boolean = false
     ) : MessageComposeInputType()
 }
 

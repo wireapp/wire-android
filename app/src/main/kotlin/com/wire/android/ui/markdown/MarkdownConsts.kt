@@ -14,20 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.markdown
 
-package com.wire.android.ui.common.divider
-
-import androidx.compose.material3.Divider
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.common.colorsScheme
-
-@Composable
-fun WireDivider(color: Color = colorsScheme().divider, modifier: Modifier = Modifier) {
-    Divider(color = color, thickness = Dp.Hairline, modifier = modifier)
+object MarkdownConsts {
+    const val TAG_URL = "linkTag"
+    const val TAG_MENTION = "mentionTag"
+    const val MENTION_MARK = "&&"
+    const val BULLET_MARK = "\u2022"
 }

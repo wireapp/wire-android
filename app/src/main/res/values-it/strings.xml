@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">Versione dell\'applicazione: %s</string>
-    <string name="build_variant_name">Variante: %s</string>
+    <string name="app_version">Versione dell\'applicazione</string>
+    <string name="build_variant_name">Variante</string>
     <string name="label_new">Nuovo</string>
     <string name="label_login">Accedi</string>
     <string name="label_ok">OK</string>
@@ -831,12 +831,12 @@ URL del backend:
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">ID del client</string>
     <string name="label_device_id">ID dispositivo: %1$s</string>
-    <string name="label_code_commit_id">Hash del commit: %1$s</string>
+    <string name="label_code_commit_id">Hash del commit</string>
     <string name="label_client_id">ID del client: %1$s</string>
     <string name="label_client_added_time">AGGIUNTO</string>
-    <string name="label_client_device_id">ID DEL DISPOSITIVO</string>
-    <string name="label_key_packages_count">Numero di pacchetti di chiavi: %1$s</string>
-    <string name="label_mls_client_id">MLS-ID del client: %1$s</string>
+    <string name="label_client_device_id">ID del dispostitivo</string>
+    <string name="label_key_packages_count">Numero di pacchetti di chiavi</string>
+    <string name="label_mls_client_id">MLS ID del client</string>
     <string name="conversation_empty_list_description">Connettiti con altre persone o crea un nuovo gruppo per iniziare a collaborare!</string>
     <string name="conversation_empty_list_title">Benvenuto &#128075;</string>
     <string name="label_no_conversation_found">Nessuna conversazione trovata.</string>
@@ -940,10 +940,11 @@ URL del backend:
     <string name="guest_room_link_disabled">La generazione di link ospiti &#232; stata disabilitata per tutti gli amministratori di gruppo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Il tuo account &#232; stato utilizzato su</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Gestisci dispositivi</string>
     <string name="new_device_dialog_other_user_title">Il tuo account \"%1$s (@%2$s)\" &#232; stato utilizzato su:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Cambia Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s si è unito alla conversazione</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s si è unito alla conversazione</string>

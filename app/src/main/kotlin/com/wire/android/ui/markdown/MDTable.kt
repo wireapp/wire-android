@@ -66,7 +66,7 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<
     val columnCount = tableData.firstOrNull()?.size ?: 0
 
     // Create a table
-    Column {
+    Column(modifier = Modifier.padding(bottom = dimensions().spacing8x)) {
         tableData.forEach { row ->
             Row(
                 modifier = Modifier

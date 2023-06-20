@@ -366,13 +366,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             blockingState = otherUser.BlockState,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
-                    title = state.fullName,
+                    title = otherUser.name.orEmpty(),
                     conversationId = conversation.id,
                     mutingConversationState = conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
-                        state.userAvatarAsset,
+                        userAvatarAsset,
                         userId,
-                        state.blockingState
+                        otherUser.BlockState
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
                     selfRole = Conversation.Member.Role.Member

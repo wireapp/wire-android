@@ -56,7 +56,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
@@ -64,9 +65,9 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -98,13 +99,12 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.util.DateTimeUtil
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -131,13 +131,12 @@ private const val AGGREGATION_TIME_WINDOW: Int = 30000
 )
 @Composable
 fun ConversationScreen(
-    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
-    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    navigator: Navigator,
+    conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
+    conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
+    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>
@@ -151,9 +150,6 @@ fun ConversationScreen(
     }
     val uiState = messageComposerViewModel.messageComposerViewState
 
-    LaunchedEffect(messageComposerViewModel.savedStateHandle) {
-        messageComposerViewModel.checkPendingActions()
-    }
     LaunchedEffect(Unit) {
         conversationInfoViewModel.observeConversationDetails()
     }
@@ -216,9 +212,8 @@ fun ConversationScreen(
                 showDialog,
                 startCallAudioPermissionCheck,
                 coroutineScope,
-                conversationInfoViewModel.conversationInfoViewState.conversationType,
-                commonTopAppBarViewModel::openOngoingCallScreen
-            )
+                conversationInfoViewModel.conversationInfoViewState.conversationType
+            ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = { messageId, emoji ->
@@ -306,7 +301,7 @@ private fun startCallIfPossible(
     startCallAudioPermissionCheck: CallingAudioRequestFlow,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
-    onOpenOngoingCallScreen: () -> Unit
+    onOpenOngoingCallScreen: (ConversationId) -> Unit
 ) {
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
@@ -318,7 +313,7 @@ private fun startCallIfPossible(
                     ConversationScreenDialogType.NONE
                 }
                 ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen()
+                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId)
                     ConversationScreenDialogType.NONE
                 }
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL

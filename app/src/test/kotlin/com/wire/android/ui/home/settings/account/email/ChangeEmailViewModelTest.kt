@@ -4,10 +4,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.VerifyEmailScreenDestination
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailState
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
 import com.wire.kalium.logic.NetworkFailure
@@ -17,6 +13,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -38,16 +35,10 @@ class ChangeEmailViewModelTest {
                 .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.VerificationEmailSent)
                 .arrange()
 
-            viewModel.onSaveClicked()
+            viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
 
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(
-                        VerifyEmailScreenDestination(newEmail),
-                        BackStackMode.REMOVE_CURRENT
-                    )
-                )
-            }
+            verify(exactly = 1) { arrangement.onSuccess(eq(newEmail)) }
+            verify(exactly = 0) { arrangement.onNoChange() }
         }
 
     @Test
@@ -57,11 +48,10 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.NoChange)
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
 
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
-        }
+        verify(exactly = 0) { arrangement.onSuccess(any()) }
+        verify(exactly = 1) { arrangement.onNoChange() }
     }
 
     @Test
@@ -71,11 +61,14 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse)
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
 
         assertEquals(ChangeEmailState.EmailError.TextFieldError.AlreadyInUse, viewModel.state.error)
 
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) {
+            arrangement.onSuccess(any())
+            arrangement.onNoChange()
+        }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -86,11 +79,14 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.GenericFailure(NetworkFailure.NoNetworkConnection(IOException())))
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
 
         assertEquals(ChangeEmailState.EmailError.TextFieldError.Generic, viewModel.state.error)
 
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) {
+            arrangement.onSuccess(any())
+            arrangement.onNoChange()
+        }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -101,24 +97,29 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.InvalidEmail)
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
 
         assertEquals(ChangeEmailState.EmailError.TextFieldError.InvalidEmail, viewModel.state.error)
 
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) {
+            arrangement.onSuccess(any())
+            arrangement.onNoChange()
+        }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
     private class Arrangement {
 
         @MockK
-        lateinit var navigationManager: NavigationManager
-
-        @MockK
         lateinit var updateEmail: UpdateEmailUseCase
 
         @MockK
         lateinit var self: GetSelfUserUseCase
+
+        @MockK(relaxed = true)
+        lateinit var onSuccess: (email: String) -> Unit
+        @MockK(relaxed = true)
+        lateinit var onNoChange: () -> Unit
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -128,7 +129,6 @@ class ChangeEmailViewModelTest {
         }
 
         private val viewModel = ChangeEmailViewModel(
-            navigationManager,
             updateEmail,
             self
         )

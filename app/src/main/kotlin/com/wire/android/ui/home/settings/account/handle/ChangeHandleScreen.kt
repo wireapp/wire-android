@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -55,13 +56,16 @@ import com.wire.android.ui.theme.wireTypography
 @RootNavGraph
 @Destination
 @Composable
-fun ChangeHandleScreen(viewModel: ChangeHandleViewModel = hiltViewModel()) {
+fun ChangeHandleScreen(
+    navigator: Navigator,
+    viewModel: ChangeHandleViewModel = hiltViewModel()
+) {
     ChangeHandleContent(
         state = viewModel.state,
         onHandleChanged = viewModel::onHandleChanged,
         onHandleErrorAnimated = viewModel::onHandleErrorAnimated,
-        onBackPressed = viewModel::onBackPressed,
-        onSaveClicked = viewModel::onSaveClicked,
+        onBackPressed = navigator::navigateBack,
+        onSaveClicked = { viewModel.onSaveClicked(navigator::navigateBack) },
         onErrorDismiss = viewModel::onErrorDismiss
     )
 }

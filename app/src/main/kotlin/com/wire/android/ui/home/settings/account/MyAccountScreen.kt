@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
@@ -46,7 +47,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -63,16 +63,13 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination
 @Composable
 fun MyAccountScreen(
-    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    viewModel: MyAccountViewModel = hiltViewModel(),
     resultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>
 ) {
     val snackbarHostState = remember { SnackbarHostState() }

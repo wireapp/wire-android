@@ -140,7 +140,7 @@ class InitiatingCallViewModelTest {
             MockKAnnotations.init(this)
             every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
 
-            coEvery { navigationManager.navigateBack(any()) } returns Unit
+            coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
         }
 

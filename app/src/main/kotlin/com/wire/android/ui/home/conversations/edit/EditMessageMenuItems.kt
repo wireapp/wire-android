@@ -130,7 +130,7 @@ fun EditMessageMenuItems(
         )
     } else {
         TextMessageEditMenuItems(
-            isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
+            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
             isUploading = message.isPending,
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,

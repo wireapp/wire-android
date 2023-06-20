@@ -228,14 +228,14 @@ data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val mentions: List<Contact> = emptyList(),
-    val selfDeletionDuration: Duration = Duration.ZERO
+    val selfDeletionTimer: SelfDeletionTimer
 ) {
     companion object {
         val DEFAULT = MessageComposition(
             messageTextFieldValue = TextFieldValue(text = ""),
             quotedMessage = null,
             mentions = emptyList(),
-            selfDeletionDuration = Duration.ZERO
+            selfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO)
         )
     }
 

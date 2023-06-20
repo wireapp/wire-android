@@ -153,10 +153,10 @@ private fun InActiveMessageComposer(
                     }
 
                     MessageComposerTextInput(
-                        inputFocused = inputFocused,
+                        inputFocused = false,
                         colors = inputType.inputTextColor(),
                         messageText = inputType.messageCompositionState.value.messageTextFieldValue,
-                        onMessageTextChanged = {},
+                        onMessageTextChanged = { },
                         singleLine = false,
                         onFocusChanged = { isFocused ->
                             if (isFocused) {
@@ -456,7 +456,8 @@ private fun MessageComposerInput(
                         )
 
                         is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
-                            sendButtonEnabled = true,
+                            selfDeletionTimer = messageCompositionInputState.messageCompositionState.value.selfDeletionTimer,
+                            sendButtonEnabled = messageCompositionInputState.isSendButtonEnabled,
                             onSendButtonClicked = onSendButtonClicked,
                             onChangeSelfDeletionClicked = messageCompositionInputState::showSelfDeletingTimeOption
                         )

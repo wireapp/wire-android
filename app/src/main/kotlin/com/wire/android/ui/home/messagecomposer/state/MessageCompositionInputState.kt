@@ -32,7 +32,6 @@ import com.wire.android.ui.common.textfield.wireTextFieldColors
 sealed class MessageCompositionInputType(
     val messageCompositionState: MutableState<MessageComposition>
 ) {
-
     @Composable
     open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,
@@ -78,6 +77,10 @@ sealed class MessageCompositionInputType(
                 focusColor = Color.Transparent,
                 placeholderColor = colorsScheme().primary
             )
+
+        val isSendButtonEnabled by derivedStateOf {
+            messageCompositionState.value.messageText.isNotBlank()
+        }
 
         fun showSelfDeletingTimeOption() {
             onShowEphemeralOptionsMenu()

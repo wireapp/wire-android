@@ -24,7 +24,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,10 +40,13 @@ import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 
 @Composable
 fun MessageSendActions(
@@ -59,18 +67,19 @@ fun MessageSendActions(
 
 @Composable
 fun SelfDeletingActions(
+    selfDeletionTimer: SelfDeletionTimer,
     sendButtonEnabled: Boolean,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = "test",
+            text = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.toString(),
             style = typography().label02,
             color = colorsScheme().primary,
             modifier = Modifier
                 .padding(horizontal = dimensions().spacing16x)
-                .clickable(enabled = true) {
+                .clickable(enabled = !selfDeletionTimer.isEnforced) {
                     // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
                     onChangeSelfDeletionClicked()
                 }
@@ -90,6 +99,52 @@ fun SelfDeletingActions(
 }
 
 @Composable
+fun MessageEditActions(
+    editButtonEnabled: Boolean = false,
+    onEditSaveButtonClicked: () -> Unit = { },
+    onEditCancelButtonClicked: () -> Unit = { },
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentSize()
+    ) {
+
+        Box( // we need to wrap it because button is smaller than minimum touch size so compose will add paddings to it to be 48dp anyway
+            modifier = Modifier.size(width = dimensions().spacing64x, height = dimensions().spacing56x),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            WireTertiaryIconButton(
+                onButtonClicked = onEditCancelButtonClicked,
+                iconResource = R.drawable.ic_close,
+                contentDescription = R.string.content_description_close_button,
+                shape = CircleShape,
+                minHeight = dimensions().spacing40x,
+                minWidth = dimensions().spacing40x,
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier.size(width = dimensions().spacing64x, height = dimensions().spacing56x),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            WirePrimaryIconButton(
+                onButtonClicked = onEditSaveButtonClicked,
+                iconResource = R.drawable.ic_check_tick,
+                contentDescription = R.string.content_description_edit_the_message,
+                state = if (editButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                colors = wireSendPrimaryButtonColors(),
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
+                shape = CircleShape,
+                minHeight = dimensions().spacing40x,
+                minWidth = dimensions().spacing40x,
+            )
+        }
+    }
+}
+
+@Composable
 private fun SendButton(
     isEnabled: Boolean,
     onSendButtonClicked: () -> Unit
@@ -105,6 +160,18 @@ private fun SendButton(
         minHeight = dimensions().spacing40x,
         minWidth = dimensions().spacing40x
     )
+}
+
+@Preview
+@Composable
+fun PreviewMessageEditActionsEnabled() {
+    MessageEditActions(true, {}, {})
+}
+
+@Preview
+@Composable
+fun PreviewMessageEditActionsDisabled() {
+    MessageEditActions(false, {}, {})
 }
 
 @Preview

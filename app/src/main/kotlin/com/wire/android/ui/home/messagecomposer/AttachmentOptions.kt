@@ -258,6 +258,7 @@ private data class AttachmentOptionItem(
 @Composable
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
+
     AttachmentOptionsComponent(
         {},
         isFileSharingEnabled = true,

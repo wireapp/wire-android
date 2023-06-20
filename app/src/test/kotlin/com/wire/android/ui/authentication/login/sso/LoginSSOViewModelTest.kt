@@ -78,10 +78,13 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
+import okio.IOException
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -432,7 +435,7 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given backend switch confirmed, when the new server have NO default sso code, then initiate sso login`() {
+    fun `given backend switch confirmed, when the new server have NO default sso code, then do not initiate sso login`() {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)
@@ -444,6 +447,37 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { fetchSSOSettings.invoke() }
 
         coVerify(exactly = 0) { ssoInitiateLoginUseCase.invoke(any()) }
+    }
+
+    @Test
+    fun `given error, when checking for server default SSO code, then do not initiate sso login`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Failure(CoreFailure.Unknown(IOException()))
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
+        coVerify(exactly = 1) { fetchSSOSettings.invoke() }
+
+        coVerify(exactly = 0) { ssoInitiateLoginUseCase.invoke(any()) }
+    }
+
+    @Test
+    fun `given error, when doing domain lookup, then error state is updated`() {
+        val expected = CoreFailure.Unknown(IOException())
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Failure(expected)
+        loginViewModel.onSSOCodeChange(TextFieldValue("email@wire.com"))
+
+        runTest { loginViewModel.domainLookupFlow() }
+
+        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
+        loginViewModel.loginState.customServerDialogState shouldBe null
+        assertTrue(loginViewModel.loginState.loginError is LoginError.DialogError.GenericError)
+        assertEquals(expected, (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure)
+        assertFalse(loginViewModel.loginState.ssoLoginLoading)
     }
 
     companion object {

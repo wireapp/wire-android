@@ -20,8 +20,6 @@
 
 package com.wire.android.ui.home.gallery
 
-import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 

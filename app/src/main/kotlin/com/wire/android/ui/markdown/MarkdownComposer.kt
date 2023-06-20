@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import com.wire.android.ui.common.SpannableStr
+import com.wire.android.ui.common.LinkSpannableString
 import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownConsts.TAG_URL
 import com.wire.kalium.logic.data.message.mention.MessageMention
@@ -54,12 +54,12 @@ import org.commonmark.node.ThematicBreak
 import org.commonmark.node.Text as nodeText
 
 @Composable
-fun MDDocument(document: Document, nodeData: NodeData) {
-    MDBlockChildren(document, nodeData)
+fun MarkdownDocument(document: Document, nodeData: NodeData) {
+    MarkdownBlockChildren(document, nodeData)
 }
 
 @Composable
-fun MDBlockChildren(parent: Node, nodeData: NodeData) {
+fun MarkdownBlockChildren(parent: Node, nodeData: NodeData) {
     var child = parent.firstChild
 
     var updateMentions = nodeData.mentions
@@ -67,19 +67,19 @@ fun MDBlockChildren(parent: Node, nodeData: NodeData) {
     while (child != null) {
         val updatedNodeData = nodeData.copy(mentions = updateMentions)
         when (child) {
-            is Document -> MDDocument(child, updatedNodeData)
-            is BlockQuote -> MDBlockQuote(child, updatedNodeData)
-            is ThematicBreak -> MDThematicBreak()
-            is Heading -> MDHeading(child, updatedNodeData)
-            is Paragraph -> MDParagraph(child, updatedNodeData) {
+            is Document -> MarkdownDocument(child, updatedNodeData)
+            is BlockQuote -> MarkdownBlockQuote(child, updatedNodeData)
+            is ThematicBreak -> MarkdownThematicBreak()
+            is Heading -> MarkdownHeading(child, updatedNodeData)
+            is Paragraph -> MarkdownParagraph(child, updatedNodeData) {
                 updateMentions = it
             }
 
-            is FencedCodeBlock -> MDFencedCodeBlock(child)
-            is IndentedCodeBlock -> MDIndentedCodeBlock(child)
-            is BulletList -> MDBulletList(child, updatedNodeData)
-            is OrderedList -> MDOrderedList(child, updatedNodeData)
-            is TableBlock -> MDTable(child, updatedNodeData) {
+            is FencedCodeBlock -> MarkdownFencedCodeBlock(child)
+            is IndentedCodeBlock -> MarkdownIndentedCodeBlock(child)
+            is BulletList -> MarkdownBulletList(child, updatedNodeData)
+            is OrderedList -> MarkdownOrderedList(child, updatedNodeData)
+            is TableBlock -> MarkdownTable(child, updatedNodeData) {
                 updateMentions = it
             }
         }
@@ -227,7 +227,7 @@ fun appendLinksAndMentions(
         listOf()
     }
 
-    val linkInfos = SpannableStr.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
+    val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
     val append = buildAnnotatedString {
         append(stringBuilder)

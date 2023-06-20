@@ -19,41 +19,30 @@ package com.wire.android.ui.markdown
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.Document
-import org.commonmark.node.Heading
+import org.commonmark.node.Paragraph
 
 @Composable
-@Suppress("MagicNumber")
-fun MDHeading(heading: Heading, nodeData: NodeData) {
-    val style: TextStyle? = when (heading.level) {
-        1 -> nodeData.typography.title01
-        2 -> nodeData.typography.title01
-        3 -> nodeData.typography.title01
-        4 -> nodeData.typography.title01
-        5 -> nodeData.typography.title01
-        6 -> nodeData.typography.title01
-        else -> null
-    }
-
-    if (style != null) {
-        val padding = if (heading.parent is Document) dimensions().spacing8x else dimensions().spacing0x
+fun MarkdownParagraph(paragraph: Paragraph, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
+        val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
-            val text = buildAnnotatedString {
-                inlineChildren(heading, this, nodeData)
+            val annotatedString = buildAnnotatedString {
+                pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+                val updatedMentions = inlineChildren(paragraph, this, nodeData)
+                onMentionsUpdate(updatedMentions)
+                pop()
             }
             MarkdownText(
-                annotatedString = text,
-                style = style,
+                annotatedString,
+                style = nodeData.style,
                 onLongClick = nodeData.onLongClick,
                 onOpenProfile = nodeData.onOpenProfile
             )
         }
-    } else {
-        MDBlockChildren(heading, nodeData)
-    }
 }

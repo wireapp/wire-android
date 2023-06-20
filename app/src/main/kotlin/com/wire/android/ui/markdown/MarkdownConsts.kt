@@ -19,7 +19,7 @@ package com.wire.android.ui.markdown
 
 object MarkdownConsts {
     const val TAG_URL = "linkTag"
-    const val TAG_IMAGE_URL = "imageUrl"
     const val TAG_MENTION = "mentionTag"
     const val MENTION_MARK = "&&"
+    const val BULLET_MARK = "\u2022"
 }

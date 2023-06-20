@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.markdown.MarkdownConsts.BULLET_MARK
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.BulletList
 import org.commonmark.node.Document
@@ -32,12 +33,11 @@ import org.commonmark.node.Node
 import org.commonmark.node.OrderedList
 
 @Composable
-fun MDBulletList(bulletList: BulletList, nodeData: NodeData) {
-    val marker = "\u2022"
-    MDListItems(bulletList, nodeData) {
+fun MarkdownBulletList(bulletList: BulletList, nodeData: NodeData) {
+    MarkdownListItems(bulletList, nodeData) {
         val text = buildAnnotatedString {
             pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
-            append("$marker ")
+            append("$BULLET_MARK ")
             inlineChildren(it, this, nodeData)
             pop()
         }
@@ -50,10 +50,10 @@ fun MDBulletList(bulletList: BulletList, nodeData: NodeData) {
 }
 
 @Composable
-fun MDOrderedList(orderedList: OrderedList, nodeData: NodeData) {
+fun MarkdownOrderedList(orderedList: OrderedList, nodeData: NodeData) {
     var number = orderedList.startNumber
     val delimiter = orderedList.delimiter
-    MDListItems(orderedList, nodeData) {
+    MarkdownListItems(orderedList, nodeData) {
         val text = buildAnnotatedString {
             pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
             append("${number++}$delimiter ")
@@ -70,7 +70,7 @@ fun MDOrderedList(orderedList: OrderedList, nodeData: NodeData) {
 }
 
 @Composable
-fun MDListItems(listBlock: ListBlock, nodeData: NodeData, item: @Composable (node: Node) -> Unit) {
+fun MarkdownListItems(listBlock: ListBlock, nodeData: NodeData, item: @Composable (node: Node) -> Unit) {
     val bottom = if (listBlock.parent is Document) dimensions().spacing8x else dimensions().spacing0x
     val start = if (listBlock.parent is Document) dimensions().spacing0x else dimensions().spacing8x
     Column(modifier = Modifier.padding(start = start, bottom = bottom)) {
@@ -79,8 +79,8 @@ fun MDListItems(listBlock: ListBlock, nodeData: NodeData, item: @Composable (nod
             var child = listItem.firstChild
             while (child != null) {
                 when (child) {
-                    is BulletList -> MDBulletList(child, nodeData)
-                    is OrderedList -> MDOrderedList(child, nodeData)
+                    is BulletList -> MarkdownBulletList(child, nodeData)
+                    is OrderedList -> MarkdownOrderedList(child, nodeData)
                     else -> item(child)
                 }
                 child = child.next

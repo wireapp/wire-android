@@ -34,7 +34,7 @@ import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.IndentedCodeBlock
 
 @Composable
-fun MDIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
+fun MarkdownIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
     Text(
         text = indentedCodeBlock.literal,
         style = MaterialTheme.wireTypography.body01,
@@ -52,7 +52,7 @@ fun MDIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
 }
 
 @Composable
-fun MDFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
+fun MarkdownFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
     Text(
         text = fencedCodeBlock.literal,
         style = MaterialTheme.wireTypography.body01,

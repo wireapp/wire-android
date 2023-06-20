@@ -34,7 +34,7 @@ import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.BlockQuote
 
 @Composable
-fun MDBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
+fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
     val color = MaterialTheme.wireColorScheme.onBackground
     val xOffset = dimensions().spacing12x.value
     Column(modifier = Modifier
@@ -51,7 +51,7 @@ fun MDBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
         var child = blockQuote.firstChild
         while (child != null) {
             when (child) {
-                is BlockQuote -> MDBlockQuote(child, nodeData)
+                is BlockQuote -> MarkdownBlockQuote(child, nodeData)
                 else -> {
                     val text = buildAnnotatedString {
                         pushStyle(

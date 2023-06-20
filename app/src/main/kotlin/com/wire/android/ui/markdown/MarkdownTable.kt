@@ -36,7 +36,7 @@ import org.commonmark.ext.gfm.tables.TableHead
 import org.commonmark.node.Node
 
 @Composable
-fun MDTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
+fun MarkdownTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
     val tableData = mutableListOf<List<RowData>>()
     var child = tableBlock.firstChild
 

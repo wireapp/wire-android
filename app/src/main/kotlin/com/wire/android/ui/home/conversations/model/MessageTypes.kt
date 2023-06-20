@@ -46,7 +46,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
-import com.wire.android.ui.markdown.MDDocument
+import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
@@ -91,7 +91,7 @@ internal fun MessageBody(
         TablesExtension.create()
     )
 
-    MDDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
+    MarkdownDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
 }
 
 @OptIn(ExperimentalFoundationApi::class)

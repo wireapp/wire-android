@@ -97,16 +97,16 @@ data class LinkInfo(
     val end: Int
 )
 
-class SpannableStr(source: CharSequence) : SpannableString(source) {
+class LinkSpannableString(source: CharSequence) : SpannableString(source) {
     companion object {
         fun getLinkInfos(text: String, mask: Int): List<LinkInfo> {
-            val spannableStr = SpannableStr(text)
+            val linkSpannableString = LinkSpannableString(text)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Linkify.addLinks(spannableStr, mask) { str: String -> URLSpan(str) }
+                Linkify.addLinks(linkSpannableString, mask) { str: String -> URLSpan(str) }
             } else {
-                Linkify.addLinks(spannableStr, mask)
+                Linkify.addLinks(linkSpannableString, mask)
             }
-            return spannableStr.linkInfos
+            return linkSpannableString.linkInfos
         }
     }
 

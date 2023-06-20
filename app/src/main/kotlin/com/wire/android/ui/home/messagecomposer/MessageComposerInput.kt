@@ -147,7 +147,12 @@ private fun EnabledMessageComposerInput(
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
                 onPingClicked = actions.onPingClicked,
                 onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
-                showSelfDeletingOption = showSelfDeletingOption
+                showSelfDeletingOption = showSelfDeletingOption,
+                onRichTextEditingButtonClicked = actions.onRichTextEditingButtonClicked,
+                onCloseRichTextEditingButtonClicked = actions.onCloseRichTextEditingButtonClicked,
+                onRichTextEditingHeaderButtonClicked = actions.toRichTextEditingHeader,
+                onRichTextEditingBoldButtonClicked = actions.toRichTextEditingBold,
+                onRichTextEditingItalicButtonClicked = actions.toRichTextEditingItalic
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
@@ -275,7 +280,12 @@ data class MessageComposerInputActions(
     val onEditCancelButtonClicked: () -> Unit = {},
     val onPingClicked: () -> Unit = {},
     val onSelfDeletionOptionButtonClicked: () -> Unit = { },
-    val onSendSelfDeletingMessageClicked: () -> Unit = {}
+    val onSendSelfDeletingMessageClicked: () -> Unit = {},
+    val onRichTextEditingButtonClicked: () -> Unit = {},
+    val onCloseRichTextEditingButtonClicked: () -> Unit = {},
+    val toRichTextEditingHeader: () -> Unit = {},
+    val toRichTextEditingBold: () -> Unit = {},
+    val toRichTextEditingItalic: () -> Unit = {}
 )
 
 @Composable
@@ -314,5 +324,12 @@ fun PreviewEnabledMessageComposerInputActiveExpanded() {
 @Preview
 @Composable
 fun PreviewEnabledMessageComposerInputActiveEdit() {
-    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "")))
+    generatePreviewWithState(
+        MessageComposeInputState.Active(
+            type = MessageComposeInputType.EditMessage(
+                "",
+                ""
+            )
+        )
+    )
 }

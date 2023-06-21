@@ -175,7 +175,7 @@ class MessageCompositionHolder(
     }
 
     fun setMentions(mentions: List<Contact>) {
-        messageComposition.update { it.copy(mentions = mentions) }
+        messageComposition.update { it.copy(mentionSearchResult = mentions) }
     }
 
 }
@@ -184,7 +184,7 @@ data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val selectedMentions: List<UiMention> = emptyList(),
-    val mentions: List<Contact> = emptyList(),
+    val mentionSearchResult: List<Contact> = emptyList(),
     val selfDeletionTimer: SelfDeletionTimer
 ) {
     companion object {

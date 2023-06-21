@@ -238,9 +238,9 @@ private fun ActiveMessageComposer(
 
                         ) {
                             messageListContent()
-                            if (messageComposition.mentions.isNotEmpty()) {
+                            if (messageComposition.mentionSearchResult.isNotEmpty()) {
                                 MembersMentionList(
-                                    membersToMention = messageComposition.mentions,
+                                    membersToMention = messageComposition.mentionSearchResult,
                                     onMentionPicked = { }
                                 )
                             }

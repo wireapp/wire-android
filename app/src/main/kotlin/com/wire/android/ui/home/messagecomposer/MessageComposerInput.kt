@@ -251,6 +251,7 @@ fun ActiveMessageComposerInput(
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onCollapseButtonClicked: () -> Unit,
+    onCancelReplyButtonClicked: () -> Unit,
     onFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -269,7 +270,7 @@ fun ActiveMessageComposerInput(
                 Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                     QuotedMessagePreview(
                         quotedMessageData = quotedMessage,
-                        onCancelReply = {}
+                        onCancelReply = onCancelReplyButtonClicked
                     )
                 }
             }

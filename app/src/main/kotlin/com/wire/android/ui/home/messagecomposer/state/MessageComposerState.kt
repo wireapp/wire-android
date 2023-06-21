@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
+@Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerState(
     isFileSharingEnabled: Boolean = true,
@@ -61,6 +62,7 @@ fun rememberMessageComposerState(
     }
 }
 
+@Suppress("LongParameterList")
 class MessageComposerState(
     context: Context,
     val isFileSharingEnabled: Boolean = true,

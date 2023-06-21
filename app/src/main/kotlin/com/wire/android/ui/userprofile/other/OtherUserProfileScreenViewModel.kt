@@ -325,7 +325,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail

@@ -84,7 +84,10 @@ fun EnterRestorePasswordDialog(
             title = stringResource(R.string.backup_label_enter_password),
             text = stringResource(R.string.backup_dialog_restore_backup_password_message),
             onDismiss = onCancelBackupRestore,
-            properties = wireDialogPropertiesBuilder(false, false),
+            properties = wireDialogPropertiesBuilder(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            ),
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = onCancelBackupRestore,
                 text = stringResource(id = R.string.label_cancel),

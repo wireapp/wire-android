@@ -43,7 +43,10 @@ internal fun CustomBEDeeplinkDialog(
     with(wireActivityViewModel) {
         WireDialog(
             title = stringResource(R.string.custom_backend_dialog_title),
-            properties = wireDialogPropertiesBuilder(false, false),
+            properties = wireDialogPropertiesBuilder(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            ),
             text = LocalContext.current.resources.stringWithStyledArgs(
                 R.string.custom_backend_dialog_body,
                 MaterialTheme.wireTypography.body01,

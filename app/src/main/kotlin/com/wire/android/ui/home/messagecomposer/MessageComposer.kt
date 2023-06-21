@@ -260,11 +260,11 @@ private fun ActiveMessageComposer(
                                 messageCompositionInputState = inputType,
                                 messageCompositionInputSize = inputSize,
                                 securityClassificationType = SecurityClassificationType.CLASSIFIED,
-                                interactionAvailability = InteractionAvailability.BLOCKED_USER,
                                 onMessageTextChanged = ::onMessageTextChanged,
                                 onSendButtonClicked = onSendButtonClicked,
                                 onFocused = ::onInputFocused,
                                 onCollapseButtonClicked = ::toggleFullScreenInput,
+                                onCancelReplyButtonClicked = ::cancelReply,
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(

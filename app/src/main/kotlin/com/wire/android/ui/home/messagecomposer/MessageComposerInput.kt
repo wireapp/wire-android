@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,14 +56,17 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -245,7 +249,6 @@ fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerF
 fun ActiveMessageComposerInput(
     inputFocused: Boolean,
     securityClassificationType: SecurityClassificationType,
-    interactionAvailability: InteractionAvailability,
     messageCompositionInputState: MessageCompositionInputType,
     messageCompositionInputSize: MessageCompositionInputSize,
     onMessageTextChanged: (TextFieldValue) -> Unit,
@@ -259,6 +262,14 @@ fun ActiveMessageComposerInput(
         Column(
             modifier = modifier
         ) {
+            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+            if (isClassifiedConversation) {
+                Box(Modifier.wrapContentSize()) {
+                    VerticalSpace.x8()
+                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                }
+            }
+            Divider(color = MaterialTheme.wireColorScheme.outline)
             CollapseButton(
                 onCollapseClick = {
                     onCollapseButtonClicked()

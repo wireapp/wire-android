@@ -42,7 +42,8 @@ internal class NavigationUtilsTest {
         val mockIsSelfAsset = "true"
         val mockIsEphemeral = "false"
 
-        val correctImagePrivateAssetString = "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset:$mockIsEphemeral"
+        val correctImagePrivateAssetString =
+            "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset:$mockIsEphemeral"
 
         // When
         val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset(mockk(), qualifiedIdMapper)

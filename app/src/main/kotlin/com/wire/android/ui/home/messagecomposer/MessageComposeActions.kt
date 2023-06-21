@@ -137,17 +137,12 @@ private fun AddMentionAction(onButtonClicked: () -> Unit) {
 
 @Composable
 private fun PingAction(onButtonClicked: () -> Unit) {
-    var isSelected by remember { mutableStateOf(false) }
-
     WireSecondaryIconButton(
-        onButtonClicked = {
-            isSelected = !isSelected
-            onButtonClicked()
-        },
+        onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
+        state = WireButtonState.Default
     )
 }
 

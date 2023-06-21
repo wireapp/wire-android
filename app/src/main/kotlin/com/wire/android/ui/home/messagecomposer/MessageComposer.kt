@@ -54,7 +54,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.util.ui.KeyboardHeight
@@ -65,7 +64,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 fun MessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
-    onSendMessage: (MessageComposition) -> Unit
+    onSendMessage: (com.wire.android.ui.home.messagecomposer.state.SendMessageBundle) -> Unit
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
@@ -81,7 +80,7 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     messageComposerState = messageComposerState,
                     messageListContent = messageListContent,
-                    onSendButtonClicked = { onSendMessage(messageComposition) }
+                    onSendButtonClicked = { onSendMessage(messageComposition.toMessageBundle()) }
                 )
             }
         }
@@ -264,7 +263,7 @@ private fun ActiveMessageComposer(
                             AdditionalOptionsMenu(
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
                                 onAttachmentOptionClicked = if (messageComposerState.isFileSharingEnabled) {
-                                    ::toggleAttachmentOption
+                                    ::toggleAttachmentOptions
                                 } else {
                                     null
                                 },

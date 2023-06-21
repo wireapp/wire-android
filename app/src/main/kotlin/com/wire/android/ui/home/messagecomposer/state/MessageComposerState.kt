@@ -133,12 +133,19 @@ class MessageComposerState(
         messageCompositionHolder.setMessageText(messageTextFieldValue)
     }
 
-}
+    fun toggleAttachmentOptions() {
+        additionalOptionsSubMenuState = if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+            AdditionalOptionSubMenuState.Hidden
+        } else {
+            AdditionalOptionSubMenuState.AttachFile
+        }
+
+    }
 
 
-fun MessageMention.toUiMention(originalText: String) = UiMention(
-    start = this.start,
-    length = this.length,
-    userId = this.userId,
-    handler = originalText.substring(start, start + length)
-)
+    fun MessageMention.toUiMention(originalText: String) = UiMention(
+        start = this.start,
+        length = this.length,
+        userId = this.userId,
+        handler = originalText.substring(start, start + length)
+    )

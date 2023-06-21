@@ -52,6 +52,7 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.messagecomposer.state.SendMessageBundle
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -205,7 +206,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(messageComposition: MessageComposition) {
+    fun sendMessage(messageComposition: SendMessageBundle) {
 //        viewModelScope.launch {
 //            sendTextMessage(
 //                conversationId = conversationId,

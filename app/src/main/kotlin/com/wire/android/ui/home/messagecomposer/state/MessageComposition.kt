@@ -276,6 +276,9 @@ data class MessageComposition(
         return result.toList()
     }
 
+    fun toMessageBundle(): SendMessageBundle {
+        return SendMessageBundle.Ping
+    }
 }
 
 fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
@@ -296,4 +299,8 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
         else -> -1
     }
+}
+
+sealed class SendMessageBundle() {
+    object Ping : SendMessageBundle()
 }

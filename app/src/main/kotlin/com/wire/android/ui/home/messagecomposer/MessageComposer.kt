@@ -165,7 +165,7 @@ private fun InActiveMessageComposer(
                 ) {
                     Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                         AdditionalOptionButton(
-                            isSelected = false,
+                            isSelected = additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile,
                             isEnabled = isFileSharingEnabled,
                             onClick = { onTransitionToActive(true) }
                         )

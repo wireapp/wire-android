@@ -25,7 +25,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +41,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun MessageComposeActions(
+    isAdditionalOptionsButtonSelected: Boolean,
     isEditMessage: Boolean,
     isFileSharingEnabled: Boolean = true,
     onMentionButtonClicked: () -> Unit,
@@ -59,16 +63,17 @@ fun MessageComposeActions(
     ) {
         with(localFeatureVisibilityFlags) {
             if (!isEditMessage) AdditionalOptionButton(
+                isSelected = isAdditionalOptionsButtonSelected,
                 isEnabled = isFileSharingEnabled,
                 onClick = onAdditionalOptionButtonClicked
             )
             RichTextEditingAction(onRichEditingButtonClicked)
-            if (!isEditMessage && EmojiIcon) AddEmojiAction()
+            if (!isEditMessage && EmojiIcon) AddEmojiAction({})
             if (!isEditMessage && GifIcon) AddGifAction(onGifButtonClicked)
             if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
                 onButtonClicked = onSelfDeletionOptionButtonClicked
             )
-            if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingButtonClicked)
+            if (!isEditMessage && PingIcon) PingAction(onPingButtonClicked)
             AddMentionAction(onMentionButtonClicked)
         }
     }
@@ -85,11 +90,14 @@ private fun RichTextEditingAction(onButtonClicked: () -> Unit) {
 }
 
 @Composable
-private fun AddEmojiAction() {
-
+private fun AddEmojiAction(onButtonClicked: () -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
 
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = {
+            isSelected = !isSelected
+            onButtonClicked()
+        },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_emoticon,
         contentDescription = R.string.content_description_conversation_send_emoticon
@@ -97,11 +105,14 @@ private fun AddEmojiAction() {
 }
 
 @Composable
-private fun AddGifAction(onPingClicked: () -> Unit) {
-
+private fun AddGifAction(onButtonClicked: () -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
 
     WireSecondaryIconButton(
-        onButtonClicked = onButtonClicked,
+        onButtonClicked = {
+            isSelected = !isSelected
+            onButtonClicked()
+        },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_gif,
         contentDescription = R.string.content_description_conversation_send_gif
@@ -109,10 +120,14 @@ private fun AddGifAction(onPingClicked: () -> Unit) {
 }
 
 @Composable
-private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) {
+private fun AddMentionAction(onButtonClicked: () -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
 
     WireSecondaryIconButton(
-        onButtonClicked = onButtonClicked,
+        onButtonClicked = {
+            isSelected = !isSelected
+            onButtonClicked()
+        },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_mention,
         contentDescription = R.string.content_description_conversation_mention_someone,
@@ -121,19 +136,30 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 }
 
 @Composable
-private fun PingAction(onPingClicked: () -> Unit) {
+private fun PingAction(onButtonClicked: () -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
+
     WireSecondaryIconButton(
-        onButtonClicked = onPingClicked,
+        onButtonClicked = {
+            isSelected = !isSelected
+            onButtonClicked()
+        },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_ping,
-        contentDescription = R.string.content_description_ping_everyone
+        contentDescription = R.string.content_description_ping_everyone,
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
 
 @Composable
-fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
+fun SelfDeletingMessageAction(onButtonClicked: () -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
+
     WireSecondaryIconButton(
-        onButtonClicked = onButtonClicked,
+        onButtonClicked = {
+            isSelected = !isSelected
+            onButtonClicked()
+        },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_timer,
         contentDescription = R.string.content_description_ping_everyone,
@@ -151,11 +177,11 @@ fun PreviewMessageActionsBox() {
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        AdditionalOptionButton(isEnabled = true, onClick = {})
+        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
         RichTextEditingAction({})
-        AddEmojiAction()
-        AddGifAction(false, {})
-        AddMentionAction(isSelected = false, addMentionAction = {})
+        AddEmojiAction({})
+        AddGifAction({})
+        AddMentionAction({})
         PingAction {}
     }
 }

@@ -53,10 +53,10 @@ fun rememberMessageComposerState(
         MessageComposerState(
             context = context,
             isFileSharingEnabled = isFileSharingEnabled,
-            selfDeletionTimer = selfDeletionTimer,
             interactionAvailability = interactionAvailability,
             securityClassificationType = securityClassificationType,
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
+            selfDeletionTimer = selfDeletionTimer,
             searchMentions = searchMentions
         )
     }
@@ -66,10 +66,10 @@ fun rememberMessageComposerState(
 class MessageComposerState(
     context: Context,
     val isFileSharingEnabled: Boolean = true,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     private val onShowEphemeralOptionsMenu: () -> Unit,
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     searchMentions: (String) -> Unit
 ) {
 
@@ -129,6 +129,7 @@ class MessageComposerState(
 
     fun toEdit(editMessageText: String) {
         messageCompositionHolder.setMessageText(TextFieldValue(editMessageText))
+
         inputFocused = true
         inputType = MessageCompositionInputType.Editing(
             messageCompositionState = messageCompositionHolder.messageComposition,

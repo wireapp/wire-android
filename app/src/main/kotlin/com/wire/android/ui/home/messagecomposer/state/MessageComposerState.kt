@@ -142,10 +142,10 @@ class MessageComposerState(
 
     }
 
-
     fun MessageMention.toUiMention(originalText: String) = UiMention(
         start = this.start,
         length = this.length,
         userId = this.userId,
         handler = originalText.substring(start, start + length)
     )
+}

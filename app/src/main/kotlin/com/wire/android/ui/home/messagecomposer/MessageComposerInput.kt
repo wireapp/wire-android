@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,7 +40,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -157,82 +161,99 @@ fun ActiveMessageComposerInput(
     modifier: Modifier = Modifier
 ) {
     with(messageCompositionInputStateHolder) {
-        Column(
-            modifier = modifier
-        ) {
-            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-            if (isClassifiedConversation) {
-                Box(Modifier.wrapContentSize()) {
-                    VerticalSpace.x8()
-                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-                }
-            }
-            Divider(color = MaterialTheme.wireColorScheme.outline)
-            CollapseButton(
-                onCollapseClick = messageCompositionInputStateHolder::toggleInputSize
+        Box {
+            var currentSelectedLineIndex by remember { mutableStateOf(0) }
+            var cursorCoordinateY by remember { mutableStateOf(0F) }
 
-            )
-
-            val quotedMessage = messageComposition.quotedMessage
-            if (quotedMessage != null) {
-                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                    QuotedMessagePreview(
-                        quotedMessageData = quotedMessage,
-                        onCancelReply = messageCompositionInputStateHolder::cancelReply
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                verticalAlignment = Alignment.Bottom
+            Column(
+                modifier = modifier
             ) {
-                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
-                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-                    MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                }.weight(1f)
-
-                MessageComposerTextInput(
-                    inputFocused = inputFocused,
-                    colors = inputType.inputTextColor(),
-                    messageText = messageComposition.messageTextFieldValue,
-                    onMessageTextChanged = onMessageTextChanged,
-                    singleLine = false,
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) messageCompositionInputStateHolder.onFocused()
-                    },
-                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
-                )
-                Row(Modifier.wrapContentSize()) {
-                    when (val type = inputType) {
-                        is MessageCompositionInputType.Composing -> MessageSendActions(
-                            onSendButtonClicked = onSendButtonClicked,
-                            sendButtonEnabled = type.isSendButtonEnabled
-                        )
-
-                        is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
-                            selfDeletionTimer = messageComposition.selfDeletionTimer,
-                            sendButtonEnabled = type.isSendButtonEnabled,
-                            onSendButtonClicked = onSendButtonClicked,
-                            onChangeSelfDeletionClicked = type::showSelfDeletingTimeOption
-                        )
-
-                        else -> {}
+                val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+                if (isClassifiedConversation) {
+                    Box(Modifier.wrapContentSize()) {
+                        VerticalSpace.x8()
+                        SecurityClassificationBanner(securityClassificationType = securityClassificationType)
                     }
                 }
-            }
-            when (val type = inputType) {
-                is MessageCompositionInputType.Editing -> {
-                    MessageEditActions(
-                        onEditSaveButtonClicked = { },
-                        onEditCancelButtonClicked = { },
-                        editButtonEnabled = type.isEditButtonEnabled
-                    )
+                Divider(color = MaterialTheme.wireColorScheme.outline)
+                CollapseButton(
+                    onCollapseClick = messageCompositionInputStateHolder::toggleInputSize
+
+                )
+
+                val quotedMessage = messageComposition.quotedMessage
+                if (quotedMessage != null) {
+                    Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                        QuotedMessagePreview(
+                            quotedMessageData = quotedMessage,
+                            onCancelReply = messageCompositionInputStateHolder::cancelReply
+                        )
+                    }
                 }
 
-                else -> {}
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
+                        MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                        MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+                    }.weight(1f)
+
+                    MessageComposerTextInput(
+                        inputFocused = inputFocused,
+                        colors = inputType.inputTextColor(),
+                        messageText = messageComposition.messageTextFieldValue,
+                        onMessageTextChanged = onMessageTextChanged,
+                        singleLine = false,
+                        onFocusChanged = { isFocused ->
+                            if (isFocused) messageCompositionInputStateHolder.onFocused()
+                        },
+                        onSelectedLineIndexChanged = { currentSelectedLineIndex = it },
+                        onLineBottomYCoordinateChanged = { cursorCoordinateY = it },
+                        modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
+                    )
+
+                    Row(Modifier.wrapContentSize()) {
+                        when (val type = inputType) {
+                            is MessageCompositionInputType.Composing -> MessageSendActions(
+                                onSendButtonClicked = onSendButtonClicked,
+                                sendButtonEnabled = type.isSendButtonEnabled
+                            )
+
+                            is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
+                                selfDeletionTimer = messageComposition.selfDeletionTimer,
+                                sendButtonEnabled = type.isSendButtonEnabled,
+                                onSendButtonClicked = onSendButtonClicked,
+                                onChangeSelfDeletionClicked = type::showSelfDeletingTimeOption
+                            )
+
+                            else -> {}
+                        }
+                    }
+                }
+                when (val type = inputType) {
+                    is MessageCompositionInputType.Editing -> {
+                        MessageEditActions(
+                            onEditSaveButtonClicked = { },
+                            onEditCancelButtonClicked = { },
+                            editButtonEnabled = type.isEditButtonEnabled
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+            val mentionSearchResult = messageComposition.mentionSearchResult
+            if (mentionSearchResult.isNotEmpty() && inputSize == MessageCompositionInputSize.EXPANDED) {
+                DropDownMentionsSuggestions(
+                    currentSelectedLineIndex = currentSelectedLineIndex,
+                    cursorCoordinateY = cursorCoordinateY,
+                    membersToMention = mentionSearchResult,
+                    onMentionPicked = {}
+                )
             }
         }
     }
@@ -358,18 +379,16 @@ fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationT
 private fun CollapseButton(
     onCollapseClick: () -> Unit
 ) {
+    val isCollapsed by remember { mutableStateOf(false) }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-//        val collapseButtonRotationDegree by animateFloatAsState(
-//            label = stringResource(R.string.animation_label_button_rotation_degree_transition)
-//        ) { state ->
-//            if (state.isExpanded) 180f
-//            else 0f
-//        }
+        val collapseButtonRotationDegree by animateFloatAsState(targetValue = if (isCollapsed) 180f else 0f)
+
         IconButton(
             onClick = onCollapseClick,
             modifier = Modifier.size(20.dp)
@@ -378,7 +397,7 @@ private fun CollapseButton(
                 painter = painterResource(id = R.drawable.ic_collapse),
                 contentDescription = stringResource(R.string.content_description_drop_down_icon),
                 tint = colorsScheme().onSecondaryButtonDisabled,
-                modifier = Modifier.rotate(180f)
+                modifier = Modifier.rotate(collapseButtonRotationDegree)
             )
         }
     }

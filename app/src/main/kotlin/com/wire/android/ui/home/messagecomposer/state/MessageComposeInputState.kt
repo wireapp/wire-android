@@ -51,7 +51,6 @@ enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val 
     FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_long_label, 4, 4), UIText.StringResource(R.string.four_weeks_short_label));
 
     companion object {
-
         // list which will filter [OneMinute] for release builds because it is only for testing purposes
         fun customValues(): List<SelfDeletionDuration> = values()
             .filter { !(!BuildConfig.DEVELOPER_FEATURES_ENABLED && it == OneMinute) }

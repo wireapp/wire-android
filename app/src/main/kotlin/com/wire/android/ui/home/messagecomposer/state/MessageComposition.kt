@@ -301,6 +301,6 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
     }
 }
 
-sealed class SendMessageBundle() {
+sealed class SendMessageBundle{
     object Ping : SendMessageBundle()
 }

@@ -333,7 +333,7 @@ private fun ConversationScreen(
     )
 
     LaunchedEffect(messageComposerViewState.mentionSearchResult) {
-        messageComposerState.updateMentionSearchResult(messageComposerViewState.mentionSearchResult)
+        messageComposerState.setMentionSearchResult(messageComposerViewState.mentionSearchResult)
     }
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {

@@ -178,6 +178,7 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(mentionSearchResult = mentions) }
     }
 
+
 }
 
 data class MessageComposition(

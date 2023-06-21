@@ -172,7 +172,7 @@ private fun InActiveMessageComposer(
                     }
 
                     InActiveMessageComposerInput(
-                        messageText = inputType.messageCompositionState.value.messageTextFieldValue,
+                        messageText = messageComposition.messageTextFieldValue,
                         onMessageComposerFocused = { onTransitionToActive(false) }
                     )
                 }
@@ -256,15 +256,9 @@ private fun ActiveMessageComposer(
                                 }
 
                             ActiveMessageComposerInput(
-                                inputFocused = inputFocused,
-                                messageCompositionInputState = inputType,
-                                messageCompositionInputSize = inputSize,
-                                securityClassificationType = SecurityClassificationType.CLASSIFIED,
+                                messageCompositionInputStateHolder = messageCompositionInputStateHolder,
                                 onMessageTextChanged = ::onMessageTextChanged,
                                 onSendButtonClicked = onSendButtonClicked,
-                                onFocused = ::onInputFocused,
-                                onCollapseButtonClicked = ::toggleFullScreenInput,
-                                onCancelReplyButtonClicked = ::cancelReply,
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(

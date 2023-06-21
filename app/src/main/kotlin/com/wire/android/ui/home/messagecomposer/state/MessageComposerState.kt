@@ -68,44 +68,29 @@ class MessageComposerState(
     val isFileSharingEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    private val onShowEphemeralOptionsMenu: () -> Unit,
+    onShowEphemeralOptionsMenu: () -> Unit,
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     searchMentions: (String) -> Unit
 ) {
+    private val messageCompositionHolder = MessageCompositionHolder(
+        context = context,
+        requestMentions = searchMentions
+    )
 
-    private val messageCompositionHolder = MessageCompositionHolder(context, searchMentions)
+    val messageCompositionInputStateHolder =
+        MessageCompositionInputStateHolder(
+            selfDeletionTimer = selfDeletionTimer,
+            messageCompositionHolder = messageCompositionHolder,
+            securityClassificationType = securityClassificationType,
+            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+        )
+
+    val inputState get() = messageCompositionInputStateHolder.inputState
+
+    val inputSize get() = messageCompositionInputStateHolder.inputSize
 
     val messageComposition
         get() = messageCompositionHolder.messageComposition.value
-
-    var inputFocused: Boolean by mutableStateOf(false)
-        private set
-
-    var inputType: MessageCompositionInputType by mutableStateOf(
-        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
-            MessageCompositionInputType.SelfDeleting(
-                messageCompositionState = messageCompositionHolder.messageComposition,
-                onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
-            )
-        } else {
-            MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
-        }
-    )
-        private set
-
-    var inputState: MessageCompositionInputState by mutableStateOf(
-        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
-            MessageCompositionInputState.ACTIVE
-        } else {
-            MessageCompositionInputState.INACTIVE
-        }
-    )
-        private set
-
-    var inputSize by mutableStateOf(
-        MessageCompositionInputSize.COLLAPSED
-    )
-        private set
 
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
         AdditionalOptionSubMenuState.Hidden
@@ -113,13 +98,11 @@ class MessageComposerState(
         private set
 
     fun toInActive() {
-        inputFocused = false
-        inputState = MessageCompositionInputState.INACTIVE
+        messageCompositionInputStateHolder.toInActive()
     }
 
     fun toActive(showAttachmentOption: Boolean) {
-        inputFocused = !showAttachmentOption
-        inputState = MessageCompositionInputState.ACTIVE
+        messageCompositionInputStateHolder.toActive(!showAttachmentOption)
         additionalOptionsSubMenuState = if (showAttachmentOption) {
             AdditionalOptionSubMenuState.AttachFile
         } else {
@@ -129,57 +112,20 @@ class MessageComposerState(
 
     fun toEdit(editMessageText: String) {
         messageCompositionHolder.setMessageText(TextFieldValue(editMessageText))
+        messageCompositionInputStateHolder.toEdit()
 
-        inputFocused = true
-        inputType = MessageCompositionInputType.Editing(
-            messageCompositionState = messageCompositionHolder.messageComposition,
-            messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
-        )
     }
 
     fun toSelfDeleting() {
-        inputFocused = true
-        inputType = MessageCompositionInputType.SelfDeleting(
-            messageCompositionState = messageCompositionHolder.messageComposition,
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
-        )
+        messageCompositionInputStateHolder.toSelfDeleting()
     }
 
     fun toReply(message: UIMessage.Regular) {
         messageCompositionHolder.setReply(message)
-
-        inputFocused = true
-        inputType = MessageCompositionInputType.Composing(
-            messageCompositionState = messageCompositionHolder.messageComposition
-        )
+        messageCompositionInputStateHolder.toReply()
     }
 
-    fun cancelReply() {
-        messageCompositionHolder.clearReply()
-    }
-
-    fun toggleFullScreenInput() {
-        inputSize = if (inputSize == MessageCompositionInputSize.COLLAPSED) {
-            MessageCompositionInputSize.EXPANDED
-        } else {
-            MessageCompositionInputSize.COLLAPSED
-        }
-    }
-
-    fun toggleAttachmentOption() {
-        additionalOptionsSubMenuState = if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-            AdditionalOptionSubMenuState.Hidden
-        } else {
-            AdditionalOptionSubMenuState.AttachFile
-        }
-    }
-
-    fun onInputFocused() {
-        inputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
-        inputFocused = true
-    }
-
-    fun updateMentionSearchResult(mentionSearchResult: List<Contact>) {
+    fun setMentionSearchResult(mentionSearchResult: List<Contact>) {
         messageCompositionHolder.setMentionsSearchResult(mentionSearchResult)
     }
 

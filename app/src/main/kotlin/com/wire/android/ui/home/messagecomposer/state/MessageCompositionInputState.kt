@@ -27,7 +27,96 @@ import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import kotlin.time.Duration
 
+
+class MessageCompositionInputStateHolder(
+    selfDeletionTimer: SelfDeletionTimer,
+    private val messageCompositionHolder: MessageCompositionHolder,
+     val securityClassificationType: SecurityClassificationType,
+    private val onShowEphemeralOptionsMenu: () -> Unit
+) {
+    val messageComposition: MessageComposition
+        get() = messageCompositionHolder.messageComposition.value
+
+    var inputFocused: Boolean by mutableStateOf(false)
+        private set
+
+    var inputType: MessageCompositionInputType by mutableStateOf(
+        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputType.SelfDeleting(
+                messageCompositionState = messageCompositionHolder.messageComposition,
+                onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+            )
+        } else {
+            MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
+        }
+    )
+        private set
+
+    var inputState: MessageCompositionInputState by mutableStateOf(
+        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputState.ACTIVE
+        } else {
+            MessageCompositionInputState.INACTIVE
+        }
+    )
+        private set
+
+    var inputSize by mutableStateOf(
+        MessageCompositionInputSize.COLLAPSED
+    )
+        private set
+
+
+    fun toEdit() {
+        inputFocused = true
+        inputType = MessageCompositionInputType.Editing(
+            messageCompositionState = messageCompositionHolder.messageComposition,
+            messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
+        )
+    }
+
+    fun toInActive() {
+        inputFocused = false
+        inputState = MessageCompositionInputState.INACTIVE
+    }
+
+    fun toActive(isFocused: Boolean) {
+        inputFocused = isFocused
+        inputState = MessageCompositionInputState.ACTIVE
+    }
+
+    fun toSelfDeleting() {
+        inputFocused = true
+        inputType = MessageCompositionInputType.SelfDeleting(
+            messageCompositionState = messageCompositionHolder.messageComposition,
+            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+        )
+    }
+
+    fun toReply() {
+        inputFocused = true
+        inputType = MessageCompositionInputType.Composing(
+            messageCompositionState = messageCompositionHolder.messageComposition
+        )
+    }
+
+    fun toggleInputSize() {
+
+    }
+
+    fun cancelReply() {
+
+    }
+
+    fun onFocused() {
+
+    }
+
+}
 
 sealed class MessageCompositionInputType(
     val messageCompositionState: MutableState<MessageComposition>

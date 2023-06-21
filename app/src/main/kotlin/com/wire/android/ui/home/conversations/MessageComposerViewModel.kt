@@ -137,7 +137,7 @@ class MessageComposerViewModel @Inject constructor(
     )
         private set
 
-    private val conversationId: ConversationId = qualifiedIdMapper.fromStringToQualifiedID(
+    val conversationId: ConversationId = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 

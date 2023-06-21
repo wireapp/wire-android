@@ -226,11 +226,11 @@ class MessageComposerViewModelTest {
         val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
         // When
-            viewModel.attachmentPicked(mockedUri)
+        viewModel.attachmentPicked(mockedUri)
 
-            // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+        // Then
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
     }
 
     @Test
@@ -250,11 +250,11 @@ class MessageComposerViewModelTest {
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
             // When
-                viewModel.attachmentPicked(mockedUri)
+            viewModel.attachmentPicked(mockedUri)
 
-                // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-                assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+            // Then
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
     @Test
@@ -321,11 +321,11 @@ class MessageComposerViewModelTest {
         )
 
         // When
-            viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment)
 
-            // Then
-            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
+        // Then
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
     }
 
     @Test

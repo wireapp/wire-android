@@ -95,7 +95,7 @@ internal class NavigationUtilsTest {
                 domain = mockQualifiedIdDomain
             ), mockMessageId, true, true
         )
-        val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId:true"
+        val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId:true:true"
 
         // When
         val mappedImagePrivateAsset = actualPrivateAssetImage.toString()

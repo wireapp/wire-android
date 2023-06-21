@@ -83,6 +83,7 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.8.1"
         const val fragment = "1.5.6"
+        const val commonmark = "0.21.0"
         const val compose = "1.4.1"
         const val composeCompiler = "1.4.6"
         const val composeMaterial3 = "1.1.0"
@@ -185,6 +186,12 @@ object Libraries {
     object Paging {
         const val runtime = "androidx.paging:paging-runtime:${Versions.paging3}"
         const val compose = "androidx.paging:paging-compose:${Versions.paging3Compose}"
+    }
+
+    object CommonMark {
+        const val core =            "org.commonmark:commonmark:${Versions.commonmark}"
+        const val strikethrough =   "org.commonmark:commonmark-ext-gfm-strikethrough:${Versions.commonmark}"
+        const val tables =          "org.commonmark:commonmark-ext-gfm-tables:${Versions.commonmark}"
     }
 }
 

@@ -942,10 +942,11 @@ URL del backend:
     <string name="guest_room_link_disabled">La generación de enlaces de invitado ahora está desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú, elimina el dispositivo y restablece tu contraseña.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nDesde: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nSi no fuiste tú, elimina el dispositivo y restablece tu contraseña.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú elimina el dispositivo (navega a \"Administrar dispositivos\" en la sección Configuración de esta cuenta) y restablece tu contraseña.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nSi no fuiste tú elimina el dispositivo (navega a \"Administrar dispositivos\" en la sección Configuración de esta cuenta) y restablece tu contraseña.</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>

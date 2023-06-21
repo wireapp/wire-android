@@ -220,7 +220,7 @@ class WireActivity : AppCompatActivity() {
             viewModel.globalAppState.newClientDialog,
             viewModel::openDeviceManager,
             viewModel::switchAccount,
-            viewModel::dismissNewClientDialog
+            viewModel::dismissNewClientsDialog
         )
     }
 
@@ -333,28 +333,35 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun newClientDialog(
-        data: NewClientData?,
+        data: NewClientsData?,
         openDeviceManager: () -> Unit,
         switchAccount: (UserId) -> Unit,
-        dismiss: () -> Unit
+        dismiss: (UserId) -> Unit
     ) {
         data?.let {
-            val date = data.date.formatMediumDateTime() ?: ""
             val title: String
             val text: String
             val btnText: String
             val btnAction: () -> Unit
+            val dismissAction: () -> Unit = { dismiss(data.userId) }
+            val devicesList = data.clientsInfo.map {
+                stringResource(
+                    R.string.new_device_dialog_message_defice_info,
+                    it.date.formatMediumDateTime() ?: "",
+                    it.deviceInfo.asString()
+                )
+            }.joinToString("")
             when (data) {
-                is NewClientData.OtherUser -> {
+                is NewClientsData.OtherUser -> {
                     title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
-                    text = stringResource(R.string.new_device_dialog_other_user_message, date, data.deviceInfo.asString())
+                    text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccount(data.userId) }
                 }
 
-                is NewClientData.CurrentUser -> {
+                is NewClientsData.CurrentUser -> {
                     title = stringResource(R.string.new_device_dialog_current_user_title)
-                    text = stringResource(R.string.new_device_dialog_current_user_message, date, data.deviceInfo.asString())
+                    text = stringResource(R.string.new_device_dialog_current_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_current_user_btn)
                     btnAction = openDeviceManager
                 }
@@ -362,10 +369,10 @@ class WireActivity : AppCompatActivity() {
             WireDialog(
                 title = title,
                 text = text,
-                onDismiss = dismiss,
+                onDismiss = dismissAction,
                 optionButton1Properties = WireDialogButtonProperties(
                     onClick = {
-                        dismiss()
+                        dismissAction()
                         btnAction()
                     },
                     text = btnText,
@@ -373,10 +380,9 @@ class WireActivity : AppCompatActivity() {
                 ),
                 optionButton2Properties = WireDialogButtonProperties(
                     text = stringResource(id = R.string.label_ok),
-                    onClick = dismiss,
+                    onClick = dismissAction,
                     type = WireDialogButtonType.Primary
-                ),
-                properties = DialogProperties(usePlatformDefaultWidth = true)
+                )
             )
         }
     }

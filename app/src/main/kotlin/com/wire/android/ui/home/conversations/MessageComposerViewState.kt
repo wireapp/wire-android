@@ -31,7 +31,7 @@ data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
-    val mentionsToSelect: List<Contact> = listOf(),
+    val mentionSearchResult: List<Contact> = listOf(),
     val assetTooLargeDialogState: AssetTooLargeDialogState = AssetTooLargeDialogState.Hidden,
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
 )

@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.ImageAsset.PrivateAsset
@@ -50,7 +49,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
-import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
@@ -85,7 +83,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
@@ -303,7 +300,7 @@ class MessageComposerViewModel @Inject constructor(
     fun mentionMember(searchQuery: String?) {
         viewModelScope.launch(dispatchers.io()) {
             messageComposerViewState = messageComposerViewState.copy(
-                mentionsToSelect = if (searchQuery == null) {
+                mentionSearchResult = if (searchQuery == null) {
                     listOf()
                 } else {
                     val members = membersToMention(conversationId, searchQuery)

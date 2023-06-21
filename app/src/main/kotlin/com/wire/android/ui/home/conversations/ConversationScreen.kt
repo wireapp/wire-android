@@ -332,8 +332,8 @@ private fun ConversationScreen(
         requestMentions = requestMentions
     )
 
-    LaunchedEffect(messageComposerViewState.mentionsToSelect) {
-        messageComposerState.updateMentionSearchResult(messageComposerViewState.mentionsToSelect)
+    LaunchedEffect(messageComposerViewState.mentionSearchResult) {
+        messageComposerState.updateMentionSearchResult(messageComposerViewState.mentionSearchResult)
     }
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -419,7 +419,7 @@ private fun ConversationScreen(
             Box(modifier = Modifier.padding(internalPadding)) {
                 ConversationScreenContent(
                     interactionAvailability = messageComposerViewState.interactionAvailability,
-                    membersToMention = messageComposerViewState.mentionsToSelect,
+                    membersToMention = messageComposerViewState.mentionSearchResult,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
                     isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,

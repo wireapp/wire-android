@@ -40,7 +40,7 @@ internal class NavigationUtilsTest {
         val mockConversationIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
         val mockIsSelfAsset = "true"
-        val mockIsEphemeral = "false"
+        val mockIsEphemeral = "true"
 
         val correctImagePrivateAssetString =
             "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset:$mockIsEphemeral"
@@ -53,6 +53,7 @@ internal class NavigationUtilsTest {
         assertEquals(privateImgAsset.conversationId.domain, mockConversationIdDomain)
         assertEquals(privateImgAsset.messageId, mockMessageId)
         assertEquals(privateImgAsset.isSelfAsset, mockIsSelfAsset.toBoolean())
+        assertEquals(privateImgAsset.isEphemeral, mockIsEphemeral.toBoolean())
     }
 
     @Test
@@ -92,7 +93,7 @@ internal class NavigationUtilsTest {
             QualifiedID(
                 value = mockQualifiedIdValue,
                 domain = mockQualifiedIdDomain
-            ), mockMessageId, true
+            ), mockMessageId, true, true
         )
         val expectedPrivateAssetImage = "$mockQualifiedIdValue@$mockQualifiedIdDomain:$mockMessageId:true"
 

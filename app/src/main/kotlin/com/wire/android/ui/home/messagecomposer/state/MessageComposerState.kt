@@ -65,11 +65,11 @@ fun rememberMessageComposerState(
 @Suppress("LongParameterList", "TooManyFunctions")
 class MessageComposerState(
     context: Context,
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     val isFileSharingEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     onShowEphemeralOptionsMenu: () -> Unit,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     searchMentions: (String) -> Unit
 ) {
     private val messageCompositionHolder = MessageCompositionHolder(
@@ -113,7 +113,6 @@ class MessageComposerState(
     fun toEdit(editMessageText: String) {
         messageCompositionHolder.setMessageText(TextFieldValue(editMessageText))
         messageCompositionInputStateHolder.toEdit()
-
     }
 
     fun toSelfDeleting() {
@@ -122,7 +121,7 @@ class MessageComposerState(
 
     fun toReply(message: UIMessage.Regular) {
         messageCompositionHolder.setReply(message)
-        messageCompositionInputStateHolder.toReply()
+        messageCompositionInputStateHolder.toComposing()
     }
 
     fun setMentionSearchResult(mentionSearchResult: List<Contact>) {
@@ -139,7 +138,6 @@ class MessageComposerState(
         } else {
             AdditionalOptionSubMenuState.AttachFile
         }
-
     }
 
     fun MessageMention.toUiMention(originalText: String) = UiMention(

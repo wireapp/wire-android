@@ -74,63 +74,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputTyp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-
-
-//@Composable
-//private fun EnabledMessageComposerInput(
-//    transition: Transition<MessageComposeInputState>,
-//    securityClassificationType: SecurityClassificationType,
-//    messageComposeInputState: MessageComposeInputState,
-//    quotedMessageData: UIQuotedMessage.UIQuotedData?,
-//    membersToMention: List<Contact>,
-//    actions: MessageComposerInputActions,
-//    inputFocusRequester: FocusRequester,
-//    isFileSharingEnabled: Boolean,
-//    showSelfDeletingOption: Boolean
-//) {
-//    Box {
-//        var currentSelectedLineIndex by remember { mutableStateOf(0) }
-//        var cursorCoordinateY by remember { mutableStateOf(0F) }
-//        Column {
-//            MessageComposeInput(
-//                transition = transition,
-//                messageComposeInputState = messageComposeInputState,
-//                quotedMessageData = quotedMessageData,
-//                securityClassificationType = securityClassificationType,
-//                onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-//                onLineBottomCoordinateChange = { cursorCoordinateY = it },
-//                actions = actions,
-//                inputFocusRequester = inputFocusRequester,
-//                isFileSharingEnabled = isFileSharingEnabled,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .let {
-//                        if (messageComposeInputState.isExpanded) it.weight(1f)
-//                        else it.wrapContentHeight()
-//                    }
-//            )
-//            MessageComposeActionsBox(
-//                transition = transition,
-//                isMentionActive = membersToMention.isNotEmpty(),
-//                isFileSharingEnabled = isFileSharingEnabled,
-//                startMention = actions.startMention,
-//                onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
-//                modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-//                onPingClicked = actions.onPingClicked,
-//                onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
-//                showSelfDeletingOption = true,
-//                onGifButtonClicked = {}
-//            )
-//        }
-//        if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
-//            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, actions.onMentionPicked)
-//        }
-//    }
-//}
-//
-
 
 @Composable
 fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerFocused: () -> Unit) {
@@ -178,7 +122,6 @@ fun ActiveMessageComposerInput(
                 Divider(color = MaterialTheme.wireColorScheme.outline)
                 CollapseButton(
                     onCollapseClick = messageCompositionInputStateHolder::toggleInputSize
-
                 )
 
                 val quotedMessage = messageComposition.quotedMessage
@@ -246,13 +189,14 @@ fun ActiveMessageComposerInput(
                     else -> {}
                 }
             }
+
             val mentionSearchResult = messageComposition.mentionSearchResult
             if (mentionSearchResult.isNotEmpty() && inputSize == MessageCompositionInputSize.EXPANDED) {
                 DropDownMentionsSuggestions(
                     currentSelectedLineIndex = currentSelectedLineIndex,
                     cursorCoordinateY = cursorCoordinateY,
                     membersToMention = mentionSearchResult,
-                    onMentionPicked = {}
+                    onMentionPicked = messageCompositionInputStateHolder::addMentionToMessage
                 )
             }
         }

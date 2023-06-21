@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
@@ -34,8 +35,8 @@ import kotlin.time.Duration
 
 class MessageCompositionInputStateHolder(
     selfDeletionTimer: SelfDeletionTimer,
-    private val messageCompositionHolder: MessageCompositionHolder,
     val securityClassificationType: SecurityClassificationType,
+    private val messageCompositionHolder: MessageCompositionHolder,
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
     val messageComposition: MessageComposition
@@ -71,14 +72,6 @@ class MessageCompositionInputStateHolder(
         private set
 
 
-    fun toEdit() {
-        inputFocused = true
-        inputType = MessageCompositionInputType.Editing(
-            messageCompositionState = messageCompositionHolder.messageComposition,
-            messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
-        )
-    }
-
     fun toInActive() {
         inputFocused = false
         inputState = MessageCompositionInputState.INACTIVE
@@ -89,6 +82,14 @@ class MessageCompositionInputStateHolder(
         inputState = MessageCompositionInputState.ACTIVE
     }
 
+    fun toEdit() {
+        inputFocused = true
+        inputType = MessageCompositionInputType.Editing(
+            messageCompositionState = messageCompositionHolder.messageComposition,
+            messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
+        )
+    }
+
     fun toSelfDeleting() {
         inputFocused = true
         inputType = MessageCompositionInputType.SelfDeleting(
@@ -97,7 +98,7 @@ class MessageCompositionInputStateHolder(
         )
     }
 
-    fun toReply() {
+    fun toComposing() {
         inputFocused = true
         inputType = MessageCompositionInputType.Composing(
             messageCompositionState = messageCompositionHolder.messageComposition
@@ -118,6 +119,10 @@ class MessageCompositionInputStateHolder(
 
     fun onFocused() {
 
+    }
+
+    fun addMentionToMessage(contact: Contact) {
+        messageCompositionHolder.addMention(contact)
     }
 
 }

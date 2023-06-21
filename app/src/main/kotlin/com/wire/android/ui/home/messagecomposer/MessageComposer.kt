@@ -240,7 +240,7 @@ private fun ActiveMessageComposer(
                             messageListContent()
                             if (messageComposition.mentions.isNotEmpty()) {
                                 MembersMentionList(
-                                    membersToMention = emptyList(),
+                                    membersToMention = messageComposition.mentions,
                                     onMentionPicked = { }
                                 )
                             }

@@ -37,7 +37,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
-class MessageCompositionHolder(private val context: Context) {
+class MessageCompositionHolder(
+    private val context: Context,
+    private val requestMentions: (String) -> Unit
+) {
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
 
@@ -100,6 +103,9 @@ class MessageCompositionHolder(private val context: Context) {
         }
 
     fun setMessageText(messageTextFieldValue: TextFieldValue) {
+        updateMentionsIfNeeded(messageTextFieldValue)
+        requestMentionSuggestionIfNeeded(messageTextFieldValue)
+
         messageComposition.update {
             it.copy(
                 messageTextFieldValue = messageTextFieldValue
@@ -120,39 +126,34 @@ class MessageCompositionHolder(private val context: Context) {
         )
 
         messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
-        messageComposition.update { it.copy(mentions = it.mentions.plus(mention).sortedBy { it.start }) }
+        messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
     }
 
     private fun updateMentionsIfNeeded(messageText: TextFieldValue) {
-        messageComposition.update { it.copy(mentions = it.getMentions(messageText)) }
+        messageComposition.update { it.copy(selectedMentions = it.updateMentions(messageText)) }
     }
 
     private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
-//        if (text.selection.min != text.selection.max) {
-//            _mentionQueryFlowState.value = null
-//            return
-//        } else {
-//            mentions.firstOrNull { text.selection.min in it.start..it.start + it.length }?.let {
-//                _mentionQueryFlowState.value = null
-//                return
-//            }
-//        }
-//
-//        val currentMentionStartIndex = text.currentMentionStartIndex()
-//
-//        if (currentMentionStartIndex >= 0) {
-//            // +1 cause need to remove @ symbol at the begin of string
-//            val textBetweenAtAndSelection = text.text.subSequence(currentMentionStartIndex + 1, text.selection.min)
-//            if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
-//                _mentionQueryFlowState.value = textBetweenAtAndSelection.toString()
-//            } else {
-//                _mentionQueryFlowState.value = null
-//            }
-//        } else {
-//            _mentionQueryFlowState.value = null
-//        }
-    }
+        if (text.selection.min != text.selection.max) {
+            return
+        } else {
+            val mentions = messageComposition.value.selectedMentions
+            mentions.firstOrNull { text.selection.min in it.start..it.start + it.length }?.let {
+                return
+            }
+        }
 
+        val currentMentionStartIndex = text.currentMentionStartIndex()
+
+        if (currentMentionStartIndex >= 0) {
+            // +1 cause need to remove @ symbol at the begin of string
+            val textBetweenAtAndSelection = text.text.subSequence(currentMentionStartIndex + 1, text.selection.min)
+            if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
+
+                requestMentions(textBetweenAtAndSelection.toString())
+            }
+        }
+    }
 
     private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
         // For now there is a known issue in Compose
@@ -172,19 +173,25 @@ class MessageCompositionHolder(private val context: Context) {
         //        )
         return text
     }
+
+    fun setMentions(mentions: List<Contact>) {
+        messageComposition.update { it.copy(mentions = mentions) }
+    }
+
 }
 
 data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
-    val mentions: List<UiMention> = emptyList(),
+    val selectedMentions: List<UiMention> = emptyList(),
+    val mentions: List<Contact> = emptyList(),
     val selfDeletionTimer: SelfDeletionTimer
 ) {
     companion object {
         val DEFAULT = MessageComposition(
             messageTextFieldValue = TextFieldValue(text = ""),
             quotedMessage = null,
-            mentions = emptyList(),
+            selectedMentions = emptyList(),
             selfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO)
         )
     }
@@ -246,10 +253,10 @@ data class MessageComposition(
         return TextFieldValue(resultText, newSelection)
     }
 
-    fun getMentions(newMessageText: TextFieldValue): List<UiMention> {
+    fun updateMentions(newMessageText: TextFieldValue): List<UiMention> {
         val result = mutableSetOf<UiMention>()
 
-        mentions.forEach { mention ->
+        selectedMentions.forEach { mention ->
             if (newMessageText.text.length >= mention.start + mention.length) {
                 val substringInMentionPlace = newMessageText.text.substring(mention.start, mention.start + mention.length)
                 if (substringInMentionPlace == mention.handler) {
@@ -267,7 +274,6 @@ data class MessageComposition(
 
         return result.toList()
     }
-
 
 }
 

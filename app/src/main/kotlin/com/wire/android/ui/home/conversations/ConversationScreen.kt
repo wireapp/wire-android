@@ -73,7 +73,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
-import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
@@ -221,7 +220,8 @@ fun ConversationScreen(
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
-        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage
+        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
+        requestMentions = messageComposerViewModel::mentionMember
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -317,7 +317,8 @@ private fun ConversationScreen(
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onFailedMessageRetryClicked: (String) -> Unit
+    onFailedMessageRetryClicked: (String) -> Unit,
+    requestMentions: (String) -> Unit
 ) {
     val context = LocalContext.current
     val conversationScreenState = rememberConversationScreenState()
@@ -327,8 +328,13 @@ private fun ConversationScreen(
         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
         securityClassificationType = messageComposerViewState.securityClassificationType,
         selfDeletionTimer = messageComposerViewState.selfDeletionTimer,
-        onShowEphemeralOptionsMenu = { conversationScreenState.showSelfDeletionContextMenu() }
+        onShowEphemeralOptionsMenu = { conversationScreenState.showSelfDeletionContextMenu() },
+        requestMentions = requestMentions
     )
+
+    LaunchedEffect(messageComposerViewState.mentionsToSelect) {
+        messageComposerState.updateMentions(messageComposerViewState.mentionsToSelect)
+    }
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
         // We need to check if we come from the media gallery screen and the user triggered any action there like reply
@@ -721,6 +727,7 @@ fun PreviewConversationScreen() {
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
-        onFailedMessageRetryClicked = {}
+        onFailedMessageRetryClicked = {},
+        requestMentions =  {}
     )
 }

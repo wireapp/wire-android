@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -42,7 +43,8 @@ fun rememberMessageComposerState(
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    onShowEphemeralOptionsMenu: () -> Unit
+    onShowEphemeralOptionsMenu: () -> Unit,
+    requestMentions: (String) -> Unit
 ): MessageComposerState {
     val context = LocalContext.current
 
@@ -53,21 +55,23 @@ fun rememberMessageComposerState(
             selfDeletionTimer = selfDeletionTimer,
             interactionAvailability = interactionAvailability,
             securityClassificationType = securityClassificationType,
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
+            requestMentions = requestMentions
         )
     }
 }
 
 class MessageComposerState(
-    private val context: Context,
+    context: Context,
     val isFileSharingEnabled: Boolean = true,
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    private val onShowEphemeralOptionsMenu: () -> Unit
+    private val onShowEphemeralOptionsMenu: () -> Unit,
+    requestMentions: (String) -> Unit
 ) {
 
-    private val messageCompositionHolder = MessageCompositionHolder(context)
+    private val messageCompositionHolder = MessageCompositionHolder(context, requestMentions)
 
     val messageComposition
         get() = messageCompositionHolder.messageComposition.value
@@ -95,18 +99,8 @@ class MessageComposerState(
     )
         private set
 
-    fun toReply(message: UIMessage.Regular) {
-        messageCompositionHolder.setReply(message)
-
-        inputFocused = true
-        inputType = MessageCompositionInputType.Composing(
-            messageCompositionState = messageCompositionHolder.messageComposition
-        )
-    }
-
-    fun cancelReply() {
-        messageCompositionHolder.clearReply()
-    }
+    var mentions: List<Contact> by mutableStateOf(emptyList())
+        private set
 
     fun toInActive() {
         inputFocused = false
@@ -140,13 +134,17 @@ class MessageComposerState(
         )
     }
 
-    fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
-        messageCompositionHolder.setMessageText(messageTextFieldValue)
+    fun toReply(message: UIMessage.Regular) {
+        messageCompositionHolder.setReply(message)
+
+        inputFocused = true
+        inputType = MessageCompositionInputType.Composing(
+            messageCompositionState = messageCompositionHolder.messageComposition
+        )
     }
 
-    fun onInputFocused() {
-        inputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
-        inputFocused = true
+    fun cancelReply() {
+        messageCompositionHolder.clearReply()
     }
 
     fun toggleFullScreenInput() {
@@ -155,6 +153,19 @@ class MessageComposerState(
         } else {
             MessageCompositionInputSize.COLLAPSED
         }
+    }
+
+    fun onInputFocused() {
+        inputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
+        inputFocused = true
+    }
+
+    fun updateMentions(mentionsToSelect: List<Contact>) {
+        messageCompositionHolder.setMentions(mentionsToSelect)
+    }
+
+    fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
+        messageCompositionHolder.setMessageText(messageTextFieldValue)
     }
 
 }

@@ -17,45 +17,15 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-
-// TODO: think about extracting attachmentOptionsDisplayed to something more global
-@Stable
-sealed class MessageComposeInputType {
-
-    @Stable
-    data class NewMessage(
-        val attachmentOptionsDisplayed: Boolean = false,
-        val richTextFormattingOptionsDisplayed: Boolean = false
-    ) : MessageComposeInputType()
-
-    @Stable
-    data class EditMessage(
-        val messageId: String,
-        val originalText: String,
-        val richTextFormattingOptionsDisplayed: Boolean = false
-    ) : MessageComposeInputType()
-
-    @Stable
-    data class SelfDeletingMessage(
-        val selfDeletionDuration: SelfDeletionDuration,
-        val isEnforced: Boolean,
-        val attachmentOptionsDisplayed: Boolean = false,
-        val richTextFormattingOptionsDisplayed: Boolean = false
-    ) : MessageComposeInputType()
-}
 
 @Suppress("MagicNumber")
 enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val shortLabel: UIText) {

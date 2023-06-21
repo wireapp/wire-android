@@ -35,7 +35,7 @@ import kotlin.time.Duration
 class MessageCompositionInputStateHolder(
     selfDeletionTimer: SelfDeletionTimer,
     private val messageCompositionHolder: MessageCompositionHolder,
-     val securityClassificationType: SecurityClassificationType,
+    val securityClassificationType: SecurityClassificationType,
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
     val messageComposition: MessageComposition
@@ -105,11 +105,15 @@ class MessageCompositionInputStateHolder(
     }
 
     fun toggleInputSize() {
-
+        inputSize = if (inputSize == MessageCompositionInputSize.COLLAPSED) {
+            MessageCompositionInputSize.EXPANDED
+        } else {
+            MessageCompositionInputSize.COLLAPSED
+        }
     }
 
     fun cancelReply() {
-
+        messageCompositionHolder.clearReply()
     }
 
     fun onFocused() {

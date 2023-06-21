@@ -79,7 +79,6 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.SendMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
@@ -426,7 +425,7 @@ private fun ConversationScreen(
                     isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
-                    conversationState = messageComposerViewState,
+                    messageComposerViewState = messageComposerViewState,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                     messageComposerState = messageComposerState,
                     messages = conversationMessagesViewState.messages,
@@ -473,7 +472,7 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
-    conversationState: MessageComposerViewState,
+    messageComposerViewState: MessageComposerViewState,
     audioMessagesState: Map<String, AudioState>,
     messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,

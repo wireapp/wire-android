@@ -236,7 +236,7 @@ class MediaGalleryViewModelTest {
 
         init {
             // Tests setup
-            val dummyPrivateAsset = "some-conversationId:some-message-id:true"
+            val dummyPrivateAsset = "some-conversationId:some-message-id:true:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns dummyConversationId

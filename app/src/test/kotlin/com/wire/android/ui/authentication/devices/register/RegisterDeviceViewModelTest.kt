@@ -63,9 +63,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class RegisterDeviceViewModelTest {
 
     @MockK
-    private lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var registerClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
@@ -73,6 +70,9 @@ class RegisterDeviceViewModelTest {
 
     @MockK
     lateinit var userDataStore: UserDataStore
+
+    @MockK(relaxed = true)
+    lateinit var registerDeviceActions: RegisterDeviceActions
 
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
 
@@ -83,7 +83,6 @@ class RegisterDeviceViewModelTest {
         coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
         every { userDataStore.initialSyncCompleted } returns flowOf(true)
         registerDeviceViewModel = RegisterDeviceViewModel(
-            navigationManager,
             registerClientUseCase,
             isPasswordRequiredUseCase,
             userDataStore
@@ -113,7 +112,7 @@ class RegisterDeviceViewModelTest {
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
         registerDeviceViewModel.state.loading shouldBeEqualTo false
-        registerDeviceViewModel.onContinue()
+        registerDeviceViewModel.onContinue(registerDeviceActions)
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
         registerDeviceViewModel.state.loading shouldBeEqualTo true
     }
@@ -129,16 +128,15 @@ class RegisterDeviceViewModelTest {
             )
         } returns RegisterClientResult.Success(CLIENT)
 
-        coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { registerDeviceViewModel.onContinue() }
+        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
 
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            registerDeviceActions.onRegistered(true)
         }
     }
 
@@ -150,16 +148,15 @@ class RegisterDeviceViewModelTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
-        coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { registerDeviceViewModel.onContinue() }
+        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
 
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination))
+            registerDeviceActions.onTooManyClients()
         }
     }
 
@@ -169,7 +166,7 @@ class RegisterDeviceViewModelTest {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.InvalidCredentials.InvalidPassword
 
-        runTest { registerDeviceViewModel.onContinue() }
+        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
 
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.InvalidCredentialsError::class
     }
@@ -180,7 +177,7 @@ class RegisterDeviceViewModelTest {
         coEvery { registerClientUseCase(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
-        runTest { registerDeviceViewModel.onContinue() }
+        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
 
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         val error = registerDeviceViewModel.state.error as RegisterDeviceError.GenericError
@@ -193,7 +190,7 @@ class RegisterDeviceViewModelTest {
         coEvery { registerClientUseCase(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
-        runTest { registerDeviceViewModel.onContinue() }
+        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
 
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         registerDeviceViewModel.onErrorDismiss()

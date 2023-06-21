@@ -86,8 +86,6 @@ class UserDebugViewModel
         }
     }
 
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
     //region Private
 
     private fun observeLoggingState() {

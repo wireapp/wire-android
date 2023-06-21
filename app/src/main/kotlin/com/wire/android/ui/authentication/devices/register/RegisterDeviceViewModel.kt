@@ -27,12 +27,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -45,7 +39,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterDeviceViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore,
@@ -54,7 +47,7 @@ class RegisterDeviceViewModel @Inject constructor(
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
         private set
 
-    init {
+    fun init(actions: RegisterDeviceActions) {
         runBlocking {
             updateState(state.copy(loading = true))
             isPasswordRequired().let {
@@ -71,7 +64,7 @@ class RegisterDeviceViewModel @Inject constructor(
             }
             when (state.isPasswordRequired) {
                 true -> {}
-                false -> registerClient(null)
+                false -> registerClient(null, actions)
             }
         }
     }
@@ -86,7 +79,7 @@ class RegisterDeviceViewModel @Inject constructor(
         updateErrorState(RegisterDeviceError.None)
     }
 
-    private suspend fun registerClient(password: String?) {
+    private suspend fun registerClient(password: String?, actions: RegisterDeviceActions) {
         updateState(state.copy(loading = true, continueEnabled = false))
         when (val registerDeviceResult = registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
@@ -94,10 +87,8 @@ class RegisterDeviceViewModel @Inject constructor(
                 capabilities = null,
             )
         )) {
-            is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
-            is RegisterClientResult.Success -> {
-                navigateAfterRegisterClientSuccess()
-            }
+            is RegisterClientResult.Failure.TooManyClients -> actions.onTooManyClients()
+            is RegisterClientResult.Success -> actions.onRegistered(userDataStore.initialSyncCompleted.first())
 
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 loading = false,
@@ -118,28 +109,22 @@ class RegisterDeviceViewModel @Inject constructor(
         }
     }
 
-    fun onContinue() {
+    fun onContinue(actions: RegisterDeviceActions) {
         viewModelScope.launch {
-            registerClient(state.password.text)
+            registerClient(state.password.text, actions)
         }
     }
 
-    fun updateErrorState(error: RegisterDeviceError) {
+    private fun updateErrorState(error: RegisterDeviceError) {
         updateState(state.copy(error = error))
     }
 
-    fun updateState(newState: RegisterDeviceState) {
+    private fun updateState(newState: RegisterDeviceState) {
         state = newState
     }
-
-    private suspend fun navigateToRemoveDevicesScreen() = navigationManager.navigate(
-        NavigationCommand(RemoveDeviceScreenDestination)
-    )
-
-    private suspend fun navigateAfterRegisterClientSuccess() =
-        if (userDataStore.initialSyncCompleted.first()) {
-            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        } else {
-            navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
 }
+
+data class RegisterDeviceActions(
+    val onTooManyClients: () -> Unit,
+    val onRegistered: (initialSyncCompleted: Boolean) -> Unit
+)

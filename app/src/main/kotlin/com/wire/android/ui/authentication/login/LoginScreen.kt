@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -57,6 +58,9 @@ import com.google.accompanist.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.navigation.smoothSlideInFromRight
 import com.wire.android.navigation.smoothSlideOutFromLeft
@@ -76,6 +80,9 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -88,12 +95,21 @@ import kotlinx.coroutines.launch
     navArgsDelegate = LoginNavArgs::class
 )
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navigator: Navigator) {
     val loginViewModel: LoginViewModel = hiltViewModel()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 
     LoginContent(
-        onBackPressed = { loginViewModel.navigateBack() },
+        navigator::navigateBack,
+         { initialSyncCompleted ->
+            navigator.navigate(
+                NavigationCommand(
+                    if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        },
+        { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
         loginViewModel,
         loginEmailViewModel,
         ssoLoginResult = loginViewModel.ssoLoginResult
@@ -104,6 +120,8 @@ fun LoginScreen() {
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
@@ -114,17 +132,21 @@ private fun LoginContent(
             navController = navController,
             startDestination = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
         ) {
+
+
             composable(
                 route = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route,
                 enterTransition = { smoothSlideInFromRight() },
                 exitTransition = { smoothSlideOutFromLeft() },
-                content = { MainLoginContent(onBackPressed, viewModel, loginEmailViewModel, ssoLoginResult) }
+                content = {
+                    MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded,viewModel, loginEmailViewModel, ssoLoginResult)
+                }
             )
             composable(
                 route = LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route,
                 enterTransition = { smoothSlideInFromRight() },
                 exitTransition = { smoothSlideOutFromLeft() },
-                content = { LoginEmailVerificationCodeScreen(loginEmailViewModel) }
+                content = { LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel) }
             )
         }
     }
@@ -146,6 +168,8 @@ private fun LoginContent(
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
@@ -214,8 +238,8 @@ private fun MainLoginContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
+                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
@@ -350,6 +374,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme(isPreview = true) {
-        MainLoginContent(onBackPressed = { }, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent({}, {}, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

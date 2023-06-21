@@ -32,7 +32,6 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -76,7 +75,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
@@ -214,20 +212,13 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() {
+    fun hangUpCall(onCompleted: () -> Unit) {
         viewModelScope.launch {
-            stopVideo()
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun hangUpCall() {
-        viewModelScope.launch {
-            navigateBack()
             endCall(conversationId)
             // we need to update mute state to false, so if the user re-join the call te mic will will be muted
             muteCall(conversationId, false)
             callRinger.stop()
+            onCompleted()
         }
     }
 

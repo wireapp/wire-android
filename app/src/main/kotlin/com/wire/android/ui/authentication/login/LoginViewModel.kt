@@ -33,10 +33,8 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -54,7 +52,6 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider,
     private val userDataStoreProvider: UserDataStoreProvider
@@ -104,7 +101,7 @@ open class LoginViewModel @Inject constructor(
         clearLoginErrors()
     }
 
-    private fun clearLoginErrors() {
+    fun clearLoginErrors() {
         clearSSOLoginError()
         clearEmailLoginError()
     }
@@ -115,11 +112,6 @@ open class LoginViewModel @Inject constructor(
 
     fun clearEmailLoginError() {
         updateEmailLoginError(LoginError.None)
-    }
-
-    fun onTooManyDevicesError() {
-        clearLoginErrors()
-        navigateToRemoveDevicesScreen()
     }
 
     suspend fun registerClient(
@@ -138,22 +130,8 @@ open class LoginViewModel @Inject constructor(
         )
     }
 
-    @VisibleForTesting
-    fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
-        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()) {
-            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        } else {
-            navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
-    }
-
-    fun navigateBack() = viewModelScope.launch {
-        navigationManager.navigateBack()
-    }
-
-    private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
-        navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
-    }
+    internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean =
+        userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()
 
     fun updateTheApp() {
         // todo : update the app after releasing on the store

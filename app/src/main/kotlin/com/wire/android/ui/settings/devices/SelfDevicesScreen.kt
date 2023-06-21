@@ -43,11 +43,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.folderWithElements
@@ -55,14 +58,17 @@ import com.wire.android.util.extension.folderWithElements
 @RootNavGraph
 @Destination
 @Composable
-fun SelfDevicesScreen(viewModel: SelfDevicesViewModel = hiltViewModel()) {
+fun SelfDevicesScreen(
+    navigator: Navigator,
+    viewModel: SelfDevicesViewModel = hiltViewModel()
+) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     SelfDevicesScreenContent(
         snackbarHostState = snackbarHostState,
         state = viewModel.state,
-        onNavigateBack = viewModel::navigateBack,
-        onDeviceClick = viewModel::navigateToDevice
+        onNavigateBack = navigator::navigateBack,
+        onDeviceClick = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId))) }
     )
 }
 

@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,6 +43,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -51,6 +55,7 @@ import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 
 @RootNavGraph
@@ -59,16 +64,26 @@ import com.wire.android.ui.theme.wireDimensions
 )
 @Composable
 fun InitiatingCallScreen(
+    navigator: Navigator,
+    navArgs: CallingNavArgs,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        initiatingCallViewModel.init(
+            onCallClosed = navigator::navigateBack,
+            onCallEstablished = {
+                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
+            }
+        )
+    }
     with(sharedCallingViewModel) {
         InitiatingCallContent(
             callState = callState,
             toggleMute = ::toggleMute,
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
-            onHangUpCall = initiatingCallViewModel::hangUpCall,
+            onHangUpCall = { initiatingCallViewModel.hangUpCall(navigator::navigateBack) },
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview
         )
@@ -147,5 +162,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallScreen()
+    InitiatingCallContent(CallState(), {}, {}, {}, {}, {}, {})
 }

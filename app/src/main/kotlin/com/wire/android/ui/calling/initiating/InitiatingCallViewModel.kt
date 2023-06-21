@@ -47,7 +47,6 @@ import javax.inject.Inject
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
@@ -61,15 +60,15 @@ class InitiatingCallViewModel @Inject constructor(
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
     private var wasCallHangUp: Boolean = false
 
-    init {
+    fun init(onCallClosed: () -> Unit, onCallEstablished: () -> Unit) {
         viewModelScope.launch {
             launch { initiateCall() }
-            launch { observeStartedCall() }
-            launch { observeClosedCall() }
+            launch { observeStartedCall(onCallEstablished) }
+            launch { observeClosedCall(onCallClosed) }
         }
     }
 
-    private suspend fun observeStartedCall() {
+    private suspend fun observeStartedCall(onEstablished: () -> Unit) {
         observeEstablishedCalls()
             .map { calls -> calls.map { it.conversationId } }
             .distinctUntilChanged()
@@ -77,35 +76,31 @@ class InitiatingCallViewModel @Inject constructor(
                 conversationIds.find { convId ->
                     convId == conversationId
                 }?.let {
-                    onCallEstablished()
+                    onCallEstablished(onEstablished)
                 }
             }
     }
 
-    private suspend fun observeClosedCall() {
+    private suspend fun observeClosedCall(onCallClosed: () -> Unit) {
         isLastCallClosed(
             conversationId = conversationId,
             startedTime = callStartTime
         ).collect { isCurrentCallClosed ->
             if (isCurrentCallClosed && wasCallHangUp.not()) {
+                stopRingerAndMarkCallAsHangedUp()
                 onCallClosed()
             }
         }
     }
 
-    private fun onCallClosed() {
-        navigateBack()
+    private fun stopRingerAndMarkCallAsHangedUp() {
+        wasCallHangUp = true
         callRinger.stop()
     }
 
-    private suspend fun onCallEstablished() {
+    private fun onCallEstablished(onEstablished: () -> Unit) {
         callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = OngoingCallScreenDestination(initiatingCallNavArgs.conversationId),
-                backStackMode = BackStackMode.REMOVE_CURRENT
-            )
-        )
+        onEstablished()
     }
 
     internal suspend fun initiateCall() {
@@ -118,16 +113,11 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() = viewModelScope.launch {
-        wasCallHangUp = true
-        navigationManager.navigateBack()
-    }
-
-    fun hangUpCall() = viewModelScope.launch {
+    fun hangUpCall(onCompleted: () -> Unit) = viewModelScope.launch {
         launch { endCall(conversationId) }
         launch {
-            callRinger.stop()
-            navigateBack()
+            stopRingerAndMarkCallAsHangedUp()
+            onCompleted()
         }
     }
 }

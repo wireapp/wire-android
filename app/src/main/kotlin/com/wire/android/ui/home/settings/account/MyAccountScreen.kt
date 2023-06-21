@@ -47,6 +47,9 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -54,6 +57,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
+import com.wire.android.ui.destinations.ChangeEmailScreenDestination
+import com.wire.android.ui.destinations.ChangeHandleScreenDestination
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
@@ -69,6 +74,7 @@ import kotlinx.coroutines.launch
 @Destination
 @Composable
 fun MyAccountScreen(
+    navigator: Navigator,
     viewModel: MyAccountViewModel = hiltViewModel(),
     resultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>
 ) {
@@ -76,9 +82,15 @@ fun MyAccountScreen(
     val scope = rememberCoroutineScope()
     with(viewModel.myAccountState) {
         MyAccountContent(
-            accountDetailItems = mapToUISections(viewModel, this),
+            accountDetailItems = mapToUISections(
+                viewModel = viewModel,
+                state = this,
+                navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
+                navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
+                navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) }
+                ),
             forgotPasswordUrl = this.changePasswordUrl,
-            onNavigateBack = viewModel::navigateBack,
+            onNavigateBack = navigator::navigateBack,
             snackbarHostState = snackbarHostState,
         )
     }
@@ -105,22 +117,28 @@ fun MyAccountScreen(
 }
 
 @Stable
-private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState): List<AccountDetailsItem> {
+private fun mapToUISections(
+    viewModel: MyAccountViewModel,
+    state: MyAccountState,
+    navigateToChangeDisplayName: () -> Unit,
+    navigateToChangeHandle: () -> Unit,
+    navigateToChangeEmail: () -> Unit
+): List<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
             if (fullName.isNotBlank()) {
-                DisplayName(fullName, clickableActionIfPossible(state.isReadOnlyAccount) { viewModel.navigateToChangeDisplayName() })
+                DisplayName(fullName, clickableActionIfPossible(state.isReadOnlyAccount, navigateToChangeDisplayName))
             } else {
                 null
             },
             if (userName.isNotBlank()) {
-                Username("@$userName", clickableActionIfPossible(!state.isEditHandleAllowed) { viewModel.navigateToChangeHandle() })
+                Username("@$userName", clickableActionIfPossible(!state.isEditHandleAllowed, navigateToChangeHandle))
             } else {
                 null
             },
             if (email.isNotBlank()) Email(
                 email,
-                clickableActionIfPossible(!state.isEditEmailAllowed) { viewModel.navigateToChangeEmail() }) else null,
+                clickableActionIfPossible(!state.isEditEmailAllowed, navigateToChangeEmail)) else null,
             if (teamName.isNotBlank()) Team(teamName) else null,
             if (domain.isNotBlank()) Domain(domain) else null
         )

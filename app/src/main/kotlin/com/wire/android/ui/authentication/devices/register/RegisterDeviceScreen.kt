@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -46,6 +47,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
@@ -60,6 +63,9 @@ import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -70,12 +76,25 @@ fun RegisterDeviceScreen(navigator: Navigator) {
     val viewModel: RegisterDeviceViewModel = hiltViewModel()
     val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
+    val registerDeviceActions = remember(navigator) {
+        RegisterDeviceActions(
+            onTooManyClients = { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination)) },
+            onRegistered = { initialSyncCompleted -> navigator.navigate(
+                    NavigationCommand(
+                        destination = if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+                        backStackMode = BackStackMode.CLEAR_WHOLE
+                    )
+                )
+            }
+        )
+    }
+    viewModel.init(registerDeviceActions)
     clearAutofillTree()
     RegisterDeviceContent(
         state = viewModel.state,
         clearSessionState = clearSessionState,
         onPasswordChange = viewModel::onPasswordChange,
-        onContinuePressed = viewModel::onContinue,
+        onContinuePressed = { viewModel.onContinue(registerDeviceActions) },
         onErrorDismiss = viewModel::onErrorDismiss,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
         onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
@@ -171,6 +190,7 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
         state = when (state.error) {
             is RegisterDeviceError.InvalidCredentialsError ->
                 WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
+
             else -> WireTextFieldState.Default
         },
         imeAction = ImeAction.Done,

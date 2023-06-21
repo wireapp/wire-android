@@ -30,12 +30,6 @@ import androidx.work.WorkManager
 import com.wire.android.appLogger
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.android.workmanager.worker.enqueueMigrationWorker
 import com.wire.android.workmanager.worker.enqueueSingleUserMigrationWorker
@@ -48,7 +42,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MigrationViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val getCurrentSession: CurrentSessionUseCase,
     private val workManager: WorkManager,
     savedStateHandle: SavedStateHandle,
@@ -80,13 +73,8 @@ class MigrationViewModel @Inject constructor(
             migrationManager.dismissMigrationFailureNotification()
             when (getCurrentSession()) {
                 is CurrentSessionResult.Failure.Generic,
-                CurrentSessionResult.Failure.SessionNotFound -> navigateToLogin(userHandle)
-                is CurrentSessionResult.Success -> navigationManager.navigate(
-                    NavigationCommand(
-                        HomeScreenDestination,
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
+                CurrentSessionResult.Failure.SessionNotFound -> state = MigrationState.LoginRequired(userHandle)
+                is CurrentSessionResult.Success -> state = MigrationState.Success(true)
             }
         }
     }
@@ -94,7 +82,7 @@ class MigrationViewModel @Inject constructor(
     fun finish() {
         viewModelScope.launch {
             migrationManager.dismissMigrationFailureNotification()
-            navigateAfterMigration()
+            updateStateAfterMigration()
         }
     }
 
@@ -118,7 +106,7 @@ class MigrationViewModel @Inject constructor(
 
     private suspend fun handleMigrationResult(data: MigrationData) {
         when (data) {
-            is MigrationData.Result.Success -> navigateAfterMigration()
+            is MigrationData.Result.Success -> updateStateAfterMigration()
             is MigrationData.Progress -> state = MigrationState.InProgress(data.type)
             is MigrationData.Result.Failure -> state = when (data) {
                 is MigrationData.Result.Failure.Account.Any -> {
@@ -144,19 +132,13 @@ class MigrationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navigateAfterMigration() {
+    private suspend fun updateStateAfterMigration() {
         when (getCurrentSession()) {
             is CurrentSessionResult.Success ->
-                navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                state = MigrationState.Success(true)
 
             else ->
-                navigationManager.navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                state = MigrationState.Success(false)
         }
-    }
-
-    private suspend fun navigateToLogin(userHandle: String) {
-        navigationManager.navigate(
-            NavigationCommand(LoginScreenDestination(userHandle), BackStackMode.CLEAR_WHOLE)
-        )
     }
 }

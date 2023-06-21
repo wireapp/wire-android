@@ -25,14 +25,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.SettingUpWireScreenContent
+import com.wire.android.ui.destinations.HomeScreenDestination
 
 @RootNavGraph
 @Destination
 @Composable
-fun InitialSyncScreen(viewModel: InitialSyncViewModel = hiltViewModel()) {
+fun InitialSyncScreen(
+    navigator: Navigator,
+    viewModel: InitialSyncViewModel = hiltViewModel()
+) {
     SettingUpWireScreenContent()
     LaunchedEffect(Unit) {
-        viewModel.waitUntilSyncIsCompleted()
+        viewModel.waitUntilSyncIsCompleted {
+            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+        }
     }
 }

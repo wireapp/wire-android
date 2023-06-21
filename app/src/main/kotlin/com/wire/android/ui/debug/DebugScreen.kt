@@ -44,6 +44,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.util.getMimeType
@@ -54,12 +55,14 @@ import java.io.File
 @RootNavGraph
 @Destination
 @Composable
-fun DebugScreen() {
-    UserDebugContent()
+fun DebugScreen(navigator: Navigator) {
+    UserDebugContent(
+        onNavigationPressed = navigator::navigateBack
+    )
 }
 
 @Composable
-private fun UserDebugContent() {
+private fun UserDebugContent(onNavigationPressed: () -> Unit) {
 
     val userDebugViewModel: UserDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
@@ -70,7 +73,7 @@ private fun UserDebugContent() {
                 title = stringResource(R.string.label_debug_title),
                 elevation = 0.dp,
                 navigationIconType = NavigationIconType.Back,
-                onNavigationPressed = userDebugViewModel::navigateBack
+                onNavigationPressed = onNavigationPressed
             )
         }
     ) { internalPadding ->

@@ -42,6 +42,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
@@ -57,6 +59,8 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.dialogErrorStrings
 
 @RootNavGraph
@@ -68,13 +72,20 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     val state: RemoveDeviceState = viewModel.state
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
 
+    fun navigateAfterSuccess(initialSyncCompleted: Boolean) = navigator.navigate(
+        NavigationCommand(
+            destination = if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+            backStackMode = BackStackMode.CLEAR_WHOLE
+        )
+    )
+
     clearAutofillTree()
     RemoveDeviceContent(
         state = state,
         clearSessionState = clearSessionState,
-        onItemClicked = viewModel::onItemClicked,
+        onItemClicked = { viewModel.onItemClicked(it) { navigateAfterSuccess(it) } },
         onPasswordChange = viewModel::onPasswordChange,
-        onRemoveConfirm = viewModel::onRemoveConfirmed,
+        onRemoveConfirm = { viewModel.onRemoveConfirmed { navigateAfterSuccess(it) } },
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,

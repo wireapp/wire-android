@@ -45,9 +45,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class LoginViewModelTest {
 
     @MockK
-    private lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
@@ -72,17 +69,9 @@ class LoginViewModelTest {
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginViewModel(
             savedStateHandle,
-            navigationManager,
             clientScopeProviderFactory,
             authServerConfigProvider,
             userDataStoreProvider
         )
-    }
-
-    @Test
-    fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() {
-        coEvery { navigationManager.navigateBack() } returns Unit
-        loginViewModel.navigateBack()
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 }

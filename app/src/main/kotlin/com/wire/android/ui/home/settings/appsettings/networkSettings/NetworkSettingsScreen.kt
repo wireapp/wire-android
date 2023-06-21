@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
@@ -41,9 +42,12 @@ import com.wire.android.ui.home.conversations.details.options.SwitchState
 @RootNavGraph
 @Destination
 @Composable
-fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = hiltViewModel()) {
+fun NetworkSettingsScreen(
+    navigator: Navigator,
+    networkSettingsViewModel: NetworkSettingsViewModel = hiltViewModel()
+) {
     NetworkSettingsScreenContent(
-        onBackPressed = networkSettingsViewModel::navigateBack,
+        onBackPressed = navigator::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it) },
         backendName = networkSettingsViewModel.backendName

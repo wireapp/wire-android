@@ -41,6 +41,9 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -53,6 +56,7 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
@@ -63,20 +67,27 @@ import com.wire.kalium.logic.data.call.ConversationType
 )
 @Composable
 fun IncomingCallScreen(
+    navigator: Navigator,
+    navArgs: CallingNavArgs,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
+    fun navigateToOngoingCall(): Unit = navigator.navigate(
+        NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT_AND_REPLACE)
+    )
 
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
-        { incomingCallViewModel.acceptCall() },
-        { incomingCallViewModel.declineCall() }
+        {
+            incomingCallViewModel.acceptCall(::navigateToOngoingCall)
+        },
+        { incomingCallViewModel.declineCall(navigator::navigateBack) }
     )
 
     with(incomingCallViewModel) {
         if (incomingCallState.shouldShowJoinCallAnywayDialog) {
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::acceptCallAnyway
+                onConfirm = { acceptCallAnyway(::navigateToOngoingCall) }
             )
         }
     }
@@ -87,7 +98,7 @@ fun IncomingCallScreen(
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
-            declineCall = incomingCallViewModel::declineCall,
+            declineCall = { incomingCallViewModel.declineCall(navigator::navigateBack) },
             acceptCall = { audioPermissionCheck.launch() },
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview
@@ -213,5 +224,5 @@ private fun AudioBluetoothPermissionCheckFlow(
 @Preview
 @Composable
 fun PreviewIncomingCallScreen() {
-    IncomingCallScreen()
+    IncomingCallContent(CallState(), {}, {}, {}, {}, {}, {}, {})
 }

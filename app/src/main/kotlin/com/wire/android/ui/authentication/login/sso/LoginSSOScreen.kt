@@ -46,6 +46,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
@@ -53,6 +56,9 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
@@ -64,6 +70,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginSSOScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -72,14 +80,17 @@ fun LoginSSOScreen(
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
 
     LaunchedEffect(ssoLoginResult) {
-        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+        loginSSOViewModel.handleSSOResult(ssoLoginResult, onSuccess)
     }
     LoginSSOContent(
         scrollState = scrollState,
         loginState = loginSSOViewModel.loginState,
         onCodeChange = loginSSOViewModel::onSSOCodeChange,
         onDialogDismiss = loginSSOViewModel::onDialogDismiss,
-        onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
+        onRemoveDeviceOpen = {
+            loginSSOViewModel.clearLoginErrors()
+            onRemoveDeviceNeeded()
+        },
         // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = suspend { loginSSOViewModel.login() },
         scope = scope,
@@ -106,11 +117,16 @@ private fun LoginSSOContent(
     serverTitle: String
 ) {
     Column(
-        modifier = Modifier.fillMaxHeight().verticalScroll(scrollState).padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+            .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
         SSOCodeInput(
-            modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             ssoCode = loginState.ssoCode,
             onCodeChange = onCodeChange,
             error = when (loginState.loginError) {
@@ -162,7 +178,9 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth().testTag("ssoLoginButton")
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("ssoLoginButton")
         )
     }
 }

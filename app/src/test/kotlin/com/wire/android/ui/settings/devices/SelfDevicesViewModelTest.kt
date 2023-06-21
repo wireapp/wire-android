@@ -23,14 +23,12 @@
 package com.wire.android.ui.settings.devices
 
 import com.wire.android.framework.TestClient
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,6 +38,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Test
 
+
+@OptIn(ExperimentalCoroutinesApi::class)
 class SelfDevicesViewModelTest {
 
     @Test
@@ -56,8 +56,6 @@ class SelfDevicesViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var observeClientsByUserId: ObserveClientsByUserIdUseCase
@@ -72,7 +70,6 @@ class SelfDevicesViewModelTest {
 
         private val viewModel by lazy {
             SelfDevicesViewModel(
-                navigationManager = navigationManager,
                 observeClientList = observeClientsByUserId,
                 currentAccountId = selfId,
                 currentClientIdUseCase = currentClientId,
@@ -84,8 +81,6 @@ class SelfDevicesViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             val scheduler = TestCoroutineScheduler()
             Dispatchers.setMain(StandardTestDispatcher(scheduler))
-
-            coEvery { navigationManager.navigate(command = any()) } returns Unit
         }
 
         fun arrange() = this to viewModel

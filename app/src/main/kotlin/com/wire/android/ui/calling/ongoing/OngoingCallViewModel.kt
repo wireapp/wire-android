@@ -28,7 +28,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.navArgs
@@ -49,7 +48,6 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val currentScreenManager: CurrentScreenManager,
@@ -61,17 +59,17 @@ class OngoingCallViewModel @Inject constructor(
     var shouldShowDoubleTapToast by mutableStateOf(false)
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 
-    init {
+    fun init(onClose: () -> Unit) {
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
                 // We start observing once we have an ongoing call
-                observeCurrentCall()
+                observeCurrentCall(onClose)
             }
         }
         showDoubleTapToast()
     }
 
-    private suspend fun observeCurrentCall() {
+    private suspend fun observeCurrentCall(onClose: () -> Unit) {
         establishedCalls()
             .distinctUntilChanged()
             .collect { calls ->
@@ -80,7 +78,7 @@ class OngoingCallViewModel @Inject constructor(
                 val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
                 val isOnBackground = currentScreen is CurrentScreen.InBackground
                 if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
-                    navigateBack()
+                    onClose()
                 }
             }
     }
@@ -126,10 +124,6 @@ class OngoingCallViewModel @Inject constructor(
 
     fun hideDoubleTapToast() {
         shouldShowDoubleTapToast = false
-    }
-
-    private suspend fun navigateBack() {
-        navigationManager.navigateBack()
     }
 
     companion object {

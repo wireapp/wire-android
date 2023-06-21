@@ -127,7 +127,7 @@ enum class HomeNavigationItem(
         title = R.string.settings_screen_title,
         icon = R.drawable.ic_settings,
         content =
-        { { SettingsScreen() } }
+        { homeState -> { SettingsScreen(homeState.navigator) } }
     ),
 
     Vault(

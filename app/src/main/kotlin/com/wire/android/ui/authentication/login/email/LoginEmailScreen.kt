@@ -55,6 +55,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
@@ -66,6 +69,9 @@ import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -77,6 +83,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginEmailScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -91,8 +99,13 @@ fun LoginEmailScreen(
         onUserIdentifierChange = loginEmailViewModel::onUserIdentifierChange,
         onPasswordChange = loginEmailViewModel::onPasswordChange,
         onDialogDismiss = loginEmailViewModel::onDialogDismiss,
-        onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
-        onLoginButtonClick = loginEmailViewModel::login,
+        onRemoveDeviceOpen = {
+            loginEmailViewModel.clearLoginErrors()
+            onRemoveDeviceNeeded()
+        },
+        onLoginButtonClick = {
+            loginEmailViewModel.login(onSuccess)
+        },
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope

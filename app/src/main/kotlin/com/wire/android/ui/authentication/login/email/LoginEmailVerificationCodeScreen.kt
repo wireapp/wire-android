@@ -36,6 +36,9 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.Logo
@@ -43,15 +46,18 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.ui.UIText
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
     viewModel: LoginEmailViewModel = hiltViewModel()
 ) = LoginEmailVerificationCodeContent(
     viewModel.secondFactorVerificationCodeState,
     viewModel.loginState.emailLoginLoading,
-    viewModel::onCodeChange,
+    { viewModel.onCodeChange(it, onSuccess) },
     viewModel::onCodeResend,
     viewModel::onCodeVerificationBackPress
 )
@@ -67,15 +73,19 @@ private fun LoginEmailVerificationCodeContent(
 ) {
     BackHandler { onBackPressed() }
     ConstraintLayout(
-        modifier = modifier.fillMaxSize().padding(dimensions().spacing32x)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(dimensions().spacing32x)
     ) {
         val (main, logo) = createRefs()
         Logo(
-            modifier = Modifier.height(dimensions().spacing24x).constrainAs(logo) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }
+            modifier = Modifier
+                .height(dimensions().spacing24x)
+                .constrainAs(logo) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                }
         )
         MainContent(
             codeState = verificationCodeState,

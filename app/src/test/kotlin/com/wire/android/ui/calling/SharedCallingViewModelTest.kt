@@ -27,7 +27,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -51,7 +50,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -66,9 +67,6 @@ class SharedCallingViewModelTest {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    private lateinit var navigationManager: NavigationManager
 
     @MockK
     private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
@@ -124,6 +122,9 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase
 
+    @MockK(relaxed = true)
+    private lateinit var onCompleted: () -> Unit
+
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
@@ -138,7 +139,6 @@ class SharedCallingViewModelTest {
 
         sharedCallingViewModel = SharedCallingViewModel(
             savedStateHandle = savedStateHandle,
-            navigationManager = navigationManager,
             conversationDetails = observeConversationDetails,
             allCalls = allCalls,
             endCall = endCall,
@@ -263,11 +263,12 @@ class SharedCallingViewModelTest {
         coEvery { muteCall(any(), false) } returns Unit
         every { callRinger.stop() } returns Unit
 
-        runTest { sharedCallingViewModel.hangUpCall() }
+        runTest { sharedCallingViewModel.hangUpCall(onCompleted) }
 
         coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { muteCall(any(), false) }
         coVerify(exactly = 1) { callRinger.stop() }
+        verify(exactly = 1) { onCompleted() }
     }
 
     @Test

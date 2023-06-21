@@ -42,7 +42,6 @@ import org.junit.jupiter.api.extension.ExtensionContext
  * Annotating the class with
  * @ExtendWith(NavigationTestExtension::class)
  */
-@ExperimentalCoroutinesApi
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
         mockkStatic("com.wire.android.ui.NavArgsGettersKt")

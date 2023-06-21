@@ -21,8 +21,8 @@
 package com.wire.android.ui.calling.initiating
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.navArgs
@@ -51,36 +51,24 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class InitiatingCallViewModelTest {
-
-    private val dispatcher = StandardTestDispatcher()
-
-    @BeforeEach
-    fun setup() {
-        Dispatchers.setMain(dispatcher)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest(dispatcher) {
+    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withEndingCall()
             .arrange()
 
         // When
-        viewModel.hangUpCall()
+        viewModel.hangUpCall(arrangement.onCompleted)
         advanceUntilIdle()
 
         // Then
         with(arrangement) {
             coVerify(exactly = 1) { endCall(any()) }
             coVerify(exactly = 1) { callRinger.stop() }
-            coVerify(exactly = 1) { navigationManager.navigateBack() }
+            coVerify(exactly = 1) { onCompleted() }
         }
     }
 
@@ -120,13 +108,12 @@ class InitiatingCallViewModelTest {
         @MockK
         lateinit var endCall: EndCallUseCase
 
-        @MockK
-        lateinit var navigationManager: NavigationManager
+        @MockK(relaxed = true)
+        lateinit var onCompleted: () -> Unit
 
         val initiatingCallViewModel by lazy {
             InitiatingCallViewModel(
                 savedStateHandle = savedStateHandle,
-                navigationManager = navigationManager,
                 observeEstablishedCalls = establishedCalls,
                 startCall = startCall,
                 endCall = endCall,
@@ -139,21 +126,17 @@ class InitiatingCallViewModelTest {
             val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             MockKAnnotations.init(this)
             every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
-
-            coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
         }
 
         fun withEndingCall(): Arrangement = apply {
             coEvery { endCall(any()) } returns Unit
             every { callRinger.stop() } returns Unit
-            coEvery { navigationManager.navigateBack() } returns Unit
         }
 
         fun withNoInternetConnection(): Arrangement = apply {
             coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
-            coEvery { navigationManager.navigateBack() } returns Unit
         }
 
         fun arrange() = this to initiatingCallViewModel

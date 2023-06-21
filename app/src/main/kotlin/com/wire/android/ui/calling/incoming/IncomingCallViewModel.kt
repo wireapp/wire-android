@@ -53,7 +53,6 @@ import javax.inject.Inject
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
@@ -66,16 +65,17 @@ class IncomingCallViewModel @Inject constructor(
     private val incomingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = incomingCallNavArgs.conversationId
 
-    lateinit var observeIncomingCallJob: Job
-    var establishedCallConversationId: ConversationId? = null
+    private lateinit var observeIncomingCallJob: Job
+    private var establishedCallConversationId: ConversationId? = null
 
     var incomingCallState by mutableStateOf(IncomingCallState())
+        private set
 
-    init {
+    fun init(onCallClosed: () -> Unit) {
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
             observeIncomingCallJob = launch {
-                observeIncomingCall()
+                observeIncomingCall(onCallClosed)
             }
             launch {
                 observeEstablishedCall()
@@ -95,30 +95,24 @@ class IncomingCallViewModel @Inject constructor(
             }
     }
 
-    private suspend fun observeIncomingCall() {
+    private suspend fun observeIncomingCall(onCallClosed: () -> Unit) {
         incomingCalls().distinctUntilChanged().collect { calls ->
             calls.find { call -> call.conversationId == conversationId }.also {
                 if (it == null) {
+                    callRinger.stop()
                     onCallClosed()
                 }
             }
         }
     }
 
-    private fun onCallClosed() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-            callRinger.stop()
-        }
-    }
-
-    fun declineCall() {
+    fun declineCall(onCallDeclined: () -> Unit) {
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
             launch { rejectCall(conversationId = conversationId) }
             launch {
-                navigationManager.navigateBack()
                 callRinger.stop()
+                onCallDeclined()
             }
         }
     }
@@ -131,7 +125,7 @@ class IncomingCallViewModel @Inject constructor(
         incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = false)
     }
 
-    fun acceptCallAnyway() {
+    fun acceptCallAnyway(onAccepted: () -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
@@ -139,11 +133,11 @@ class IncomingCallViewModel @Inject constructor(
                 muteCall(it, false)
                 delay(DELAY_END_CALL)
             }
-            acceptCall()
+            acceptCall(onAccepted)
         }
     }
 
-    fun acceptCall() {
+    fun acceptCall(onAccepted: () -> Unit) {
         viewModelScope.launch {
             if (incomingCallState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
@@ -154,13 +148,7 @@ class IncomingCallViewModel @Inject constructor(
                 observeIncomingCallJob.cancel()
 
                 acceptCall(conversationId = conversationId)
-
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = OngoingCallScreenDestination(incomingCallNavArgs.conversationId),
-                        backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                    )
-                )
+                onAccepted()
             }
         }
     }

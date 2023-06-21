@@ -189,6 +189,9 @@ data class MessageComposition(
         )
     }
 
+    val messageText: String
+        get() = messageTextFieldValue.text
+
     fun mentionSelection(): TextFieldValue {
         val beforeSelection = messageTextFieldValue.text
             .subSequence(0, messageTextFieldValue.selection.min)
@@ -265,8 +268,6 @@ data class MessageComposition(
         return result.toList()
     }
 
-    val messageText: String
-        get() = messageTextFieldValue.text
 
 }
 

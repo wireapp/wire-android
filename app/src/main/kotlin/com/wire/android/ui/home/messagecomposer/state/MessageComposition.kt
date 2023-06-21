@@ -174,7 +174,7 @@ class MessageCompositionHolder(
         return text
     }
 
-    fun setMentions(mentions: List<Contact>) {
+    fun setMentionsSearchResult(mentions: List<Contact>) {
         messageComposition.update { it.copy(mentionSearchResult = mentions) }
     }
 

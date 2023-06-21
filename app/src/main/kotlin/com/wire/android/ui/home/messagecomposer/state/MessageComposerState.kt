@@ -112,9 +112,6 @@ class MessageComposerState(
     )
         private set
 
-    var mentions: List<Contact> by mutableStateOf(emptyList())
-        private set
-
     fun toInActive() {
         inputFocused = false
         inputState = MessageCompositionInputState.INACTIVE
@@ -168,13 +165,21 @@ class MessageComposerState(
         }
     }
 
+    fun toggleAttachmentOption() {
+        additionalOptionsSubMenuState = if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+            AdditionalOptionSubMenuState.Hidden
+        } else {
+            AdditionalOptionSubMenuState.AttachFile
+        }
+    }
+
     fun onInputFocused() {
         inputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
         inputFocused = true
     }
 
-    fun updateMentions(mentionsToSelect: List<Contact>) {
-        messageCompositionHolder.setMentions(mentionsToSelect)
+    fun updateMentionSearchResult(mentionSearchResult: List<Contact>) {
+        messageCompositionHolder.setMentionsSearchResult(mentionSearchResult)
     }
 
     fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {

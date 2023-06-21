@@ -333,7 +333,7 @@ private fun ConversationScreen(
     )
 
     LaunchedEffect(messageComposerViewState.mentionsToSelect) {
-        messageComposerState.updateMentions(messageComposerViewState.mentionsToSelect)
+        messageComposerState.updateMentionSearchResult(messageComposerViewState.mentionsToSelect)
     }
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {

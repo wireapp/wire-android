@@ -269,7 +269,7 @@ private fun ActiveMessageComposer(
                             )
                             AdditionalOptionsMenu(
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
-                                onAttachmentOptionClicked = {},
+                                onAttachmentOptionClicked = if (messageComposerState.isFileSharingEnabled) ::toggleAttachmentOption else null,
                                 onGifOptionClicked = { },
                                 onPingOptionClicked = { },
                             )

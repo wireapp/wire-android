@@ -55,8 +55,9 @@ fun AdditionalOptionButton(isSelected: Boolean = false, isEnabled: Boolean, onCl
 
 @Composable
 fun AdditionalOptionsMenu(
-    onOnSelfDeletingOptionClicked: () -> Unit,
-    onAttachmentOptionClicked: () -> Unit,
+    onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
+    onAttachmentOptionClicked: (() -> Unit)? = null,
+    onMentionButtonClicked: (() -> Unit)? = null,
     onGifOptionClicked: () -> Unit,
     onPingOptionClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -67,12 +68,12 @@ fun AdditionalOptionsMenu(
         when (additionalOptionState) {
             is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
-                    isMentionActive = true,
-                    isFileSharingEnabled = true,
-                    onMentionButtonClicked = onOnSelfDeletingOptionClicked,
-                    onAttachmentOptionClicked = onAttachmentOptionClicked,
+                    isMentionActive = onMentionButtonClicked != null,
+                    isFileSharingEnabled = onAttachmentOptionClicked != null,
+                    onMentionButtonClicked = onMentionButtonClicked ?: {},
+                    onAttachmentOptionClicked = onAttachmentOptionClicked ?: {},
                     onGifButtonClicked = onGifOptionClicked,
-                    onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked,
+                    onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
                     onPingClicked = onPingOptionClicked,
                     showSelfDeletingOption = true,

@@ -31,6 +31,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -42,6 +43,7 @@ internal fun CustomBEDeeplinkDialog(
     with(wireActivityViewModel) {
         WireDialog(
             title = stringResource(R.string.custom_backend_dialog_title),
+            properties = wireDialogPropertiesBuilder(false, false),
             text = LocalContext.current.resources.stringWithStyledArgs(
                 R.string.custom_backend_dialog_body,
                 MaterialTheme.wireTypography.body01,

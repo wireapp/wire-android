@@ -82,12 +82,23 @@ class MessageComposerState(
         private set
 
     var inputType: MessageCompositionInputType by mutableStateOf(
-        MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
+        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputType.SelfDeleting(
+                messageCompositionState = messageCompositionHolder.messageComposition,
+                onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+            )
+        } else {
+            MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
+        }
     )
         private set
 
     var inputState: MessageCompositionInputState by mutableStateOf(
-        MessageCompositionInputState.INACTIVE
+        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputState.ACTIVE
+        } else {
+            MessageCompositionInputState.INACTIVE
+        }
     )
         private set
 

@@ -79,6 +79,24 @@ fun MessageComposeActions(
     }
 }
 
+
+@Composable
+fun EditMessageComposeActions(
+    onRichEditingButtonClicked: () -> Unit,
+    onMentionButtonClicked: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing56x)
+    ) {
+        RichTextEditingAction(onRichEditingButtonClicked)
+        AddMentionAction(onMentionButtonClicked)
+    }
+}
+
 @Composable
 private fun RichTextEditingAction(onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(

@@ -329,7 +329,7 @@ private fun ConversationScreen(
         securityClassificationType = messageComposerViewState.securityClassificationType,
         selfDeletionTimer = messageComposerViewState.selfDeletionTimer,
         onShowEphemeralOptionsMenu = { conversationScreenState.showSelfDeletionContextMenu() },
-        requestMentions = requestMentions
+        searchMentions = requestMentions
     )
 
     LaunchedEffect(messageComposerViewState.mentionSearchResult) {

@@ -45,7 +45,7 @@ fun rememberMessageComposerState(
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     onShowEphemeralOptionsMenu: () -> Unit,
-    requestMentions: (String) -> Unit
+    searchMentions: (String) -> Unit
 ): MessageComposerState {
     val context = LocalContext.current
 
@@ -57,12 +57,12 @@ fun rememberMessageComposerState(
             interactionAvailability = interactionAvailability,
             securityClassificationType = securityClassificationType,
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
-            requestMentions = requestMentions
+            searchMentions = searchMentions
         )
     }
 }
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class MessageComposerState(
     context: Context,
     val isFileSharingEnabled: Boolean = true,
@@ -70,10 +70,10 @@ class MessageComposerState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     private val onShowEphemeralOptionsMenu: () -> Unit,
-    requestMentions: (String) -> Unit
+    searchMentions: (String) -> Unit
 ) {
 
-    private val messageCompositionHolder = MessageCompositionHolder(context, requestMentions)
+    private val messageCompositionHolder = MessageCompositionHolder(context, searchMentions)
 
     val messageComposition
         get() = messageCompositionHolder.messageComposition.value

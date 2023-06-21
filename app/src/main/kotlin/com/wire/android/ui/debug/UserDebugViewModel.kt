@@ -28,7 +28,6 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
@@ -52,7 +51,6 @@ data class UserDebugState(
 class UserDebugViewModel
 @Inject constructor(
     @CurrentAccount val currentAccount: UserId,
-    private val navigationManager: NavigationManager,
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val globalDataStore: GlobalDataStore

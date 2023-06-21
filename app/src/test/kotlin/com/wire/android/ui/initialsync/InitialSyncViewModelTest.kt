@@ -25,7 +25,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase

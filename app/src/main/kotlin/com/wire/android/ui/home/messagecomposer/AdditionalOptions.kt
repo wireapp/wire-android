@@ -42,7 +42,9 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun AdditionalOptionButton(isSelected: Boolean = false, isEnabled: Boolean, onClick: () -> Unit) {
+fun AdditionalOptionButton(isEnabled: Boolean, onClick: () -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
+
     WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = R.drawable.ic_add,

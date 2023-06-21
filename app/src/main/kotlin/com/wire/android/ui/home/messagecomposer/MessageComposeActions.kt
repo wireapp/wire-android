@@ -35,11 +35,9 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+
 @Composable
 fun MessageComposeActions(
-    selfDeletingOptionSelected: Boolean,
-    attachmentOptionsDisplayed: Boolean,
-    isMentionsSelected: Boolean,
     isEditMessage: Boolean,
     isFileSharingEnabled: Boolean = true,
     onMentionButtonClicked: () -> Unit,
@@ -61,19 +59,17 @@ fun MessageComposeActions(
     ) {
         with(localFeatureVisibilityFlags) {
             if (!isEditMessage) AdditionalOptionButton(
-                isSelected = attachmentOptionsDisplayed,
                 isEnabled = isFileSharingEnabled,
                 onClick = onAdditionalOptionButtonClicked
             )
             RichTextEditingAction(onRichEditingButtonClicked)
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
-            if (!isEditMessage && GifIcon) AddGifAction(true, onGifButtonClicked)
+            if (!isEditMessage && GifIcon) AddGifAction(onGifButtonClicked)
             if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
-                isSelected = selfDeletingOptionSelected,
                 onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingButtonClicked)
-            AddMentionAction(isMentionsSelected, onMentionButtonClicked)
+            AddMentionAction(onMentionButtonClicked)
         }
     }
 }
@@ -90,6 +86,8 @@ private fun RichTextEditingAction(onButtonClicked: () -> Unit) {
 
 @Composable
 private fun AddEmojiAction() {
+
+
     WireSecondaryIconButton(
         onButtonClicked = {},
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -99,10 +97,8 @@ private fun AddEmojiAction() {
 }
 
 @Composable
-private fun AddGifAction(isSelected: Boolean, onPingClicked: () -> Unit) {
-    val onButtonClicked = remember(isSelected) {
-        { if (!isSelected) onPingClicked() }
-    }
+private fun AddGifAction(onPingClicked: () -> Unit) {
+
 
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
@@ -114,9 +110,7 @@ private fun AddGifAction(isSelected: Boolean, onPingClicked: () -> Unit) {
 
 @Composable
 private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) {
-    val onButtonClicked = remember(isSelected) {
-        { if (!isSelected) addMentionAction() }
-    }
+
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -157,7 +151,7 @@ fun PreviewMessageActionsBox() {
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
+        AdditionalOptionButton(isEnabled = true, onClick = {})
         RichTextEditingAction({})
         AddEmojiAction()
         AddGifAction(false, {})

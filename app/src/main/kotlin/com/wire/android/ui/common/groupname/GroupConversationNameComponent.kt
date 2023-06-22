@@ -122,7 +122,7 @@ fun GroupNameScreen(
                             )
                         }
                     }
-                    if (mode == CREATION && mlsEnabled) {
+                    if (mode == CREATION) {
                         WireDropDown(
                             items =
                             ConversationOptions.Protocol.values().map { it.name },

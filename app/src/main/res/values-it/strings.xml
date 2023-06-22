@@ -539,6 +539,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
     <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>

@@ -159,7 +159,6 @@ fun OtherProfileScreenContent(
     bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
     val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
         {
-            bottomSheetEventsHandler.loadConversationBottomSheetContent()
             bottomSheetState.toConversation()
             openBottomSheet()
         }
@@ -301,7 +300,7 @@ private fun TopBarHeader(
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
-            if (state.connectionState in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+            if (state.conversationSheetContent != null) {
                 MoreOptionIcon(openConversationBottomSheet)
             }
         }

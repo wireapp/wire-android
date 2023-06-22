@@ -19,32 +19,29 @@ package com.wire.android.ui.home.conversations.edit
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.edit.DeleteItemMenuOption
-import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
-import com.wire.android.ui.edit.OpenAssetExternallyOption
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.edit.ReactionOption
+import com.wire.android.ui.edit.ReplyMessageOption
 
 @Composable
-fun EphemeralMessageEditMenuItems(
-    message: UIMessage.Regular,
+fun TextMessageEditMenuItems(
+    isEphemeral: Boolean,
+    isUploading: Boolean,
+    onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
-    onDownloadAsset: () -> Unit,
-    onOpenAsset: () -> Unit,
-    onDeleteMessage: () -> Unit
+    onReplyClick: () -> Unit,
+    onCopyClick: () -> Unit,
+    onReactionClick: (String) -> Unit,
+    onEditClick: (() -> Unit)? = null
 ): List<@Composable () -> Unit> {
-    val isAvailable = message.isAvailable
-    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
-            || message.messageContent is UIMessageContent.ImageMessage
-            || message.messageContent is UIMessageContent.AudioAssetMessage
-    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
-
     return buildList {
-        if (isAvailable) {
+        if (!isUploading) {
+            if (!isEphemeral) add { ReactionOption(onReactionClick) }
             add { MessageDetailsMenuOption(onDetailsClick) }
-            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAsset) }
-            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAsset) }
-            add { DeleteItemMenuOption(onDeleteMessage) }
+            if (!isEphemeral) add { CopyItemMenuOption(onCopyClick) }
+            if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
+            if (!isEphemeral && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
         }
+        add { DeleteItemMenuOption(onDeleteClick) }
     }
 }

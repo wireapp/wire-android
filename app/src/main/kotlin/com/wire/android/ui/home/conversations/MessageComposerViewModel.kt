@@ -372,13 +372,13 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun navigateToGallery(messageId: String, isSelfMessage: Boolean) {
+    fun navigateToGallery(messageId: String, isSelfMessage: Boolean, isEphemeral: Boolean) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.Gallery.getRouteWithArgs(
                         listOf(
-                            PrivateAsset(wireSessionImageLoader, conversationId, messageId, isSelfMessage)
+                            PrivateAsset(wireSessionImageLoader, conversationId, messageId, isSelfMessage, isEphemeral)
                         )
                     )
                 )

@@ -14,20 +14,30 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.markdown
 
-package com.wire.android.ui.common.divider
-
-import androidx.compose.material3.Divider
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.common.colorsScheme
+import androidx.compose.ui.text.TextStyle
+import com.wire.android.ui.theme.WireColorScheme
+import com.wire.android.ui.theme.WireTypography
+import com.wire.kalium.logic.data.user.UserId
 
-@Composable
-fun WireDivider(color: Color = colorsScheme().divider, modifier: Modifier = Modifier) {
-    Divider(color = color, thickness = Dp.Hairline, modifier = modifier)
-}
+data class NodeData(
+    val modifier: Modifier = Modifier,
+    val color: Color = Color.Unspecified,
+    val style: TextStyle,
+    val colorScheme: WireColorScheme,
+    val typography: WireTypography,
+    val mentions: List<DisplayMention>,
+    val onLongClick: (() -> Unit)? = null,
+    val onOpenProfile: (String) -> Unit
+)
+
+data class DisplayMention(
+    val userId: UserId,
+    val length: Int,
+    val isSelfMention: Boolean,
+    val mentionUserName: String
+)

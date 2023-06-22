@@ -50,13 +50,15 @@ sealed class UIMessage(
         val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
     ) : UIMessage(header, source) {
-        val isTextMessage = messageContent is UIMessageContent.TextMessage
         val isDeleted: Boolean = header.messageStatus.isDeleted
         val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
         val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
         val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
+        val isAssetMessage = messageContent is UIMessageContent.AssetMessage
+        || messageContent is UIMessageContent.ImageMessage
+        || messageContent is UIMessageContent.AudioAssetMessage
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
     }
 

@@ -14,20 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.markdown
 
-package com.wire.android.ui.common.divider
-
-import androidx.compose.material3.Divider
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun WireDivider(color: Color = colorsScheme().divider, modifier: Modifier = Modifier) {
-    Divider(color = color, thickness = Dp.Hairline, modifier = modifier)
+fun MarkdownThematicBreak() {
+    WireDivider(MaterialTheme.wireColorScheme.outline, modifier = Modifier.padding(vertical = dimensions().spacing8x))
 }

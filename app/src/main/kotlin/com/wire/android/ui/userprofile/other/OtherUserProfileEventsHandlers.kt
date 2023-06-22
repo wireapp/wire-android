@@ -81,7 +81,6 @@ interface OtherUserProfileBottomSheetEventsHandler {
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
     fun onMoveConversationToArchive(conversationId: ConversationId? = null)
     fun onClearConversationContent(dialogState: DialogState)
-    fun loadConversationBottomSheetContent()
 
     companion object {
         @Suppress("TooManyFunctions")
@@ -92,7 +91,6 @@ interface OtherUserProfileBottomSheetEventsHandler {
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun onMoveConversationToArchive(conversationId: ConversationId?) {}
             override fun onClearConversationContent(dialogState: DialogState) {}
-            override fun loadConversationBottomSheetContent() {}
         }
     }
 }

@@ -56,6 +56,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
+import com.wire.android.ui.home.messagecomposer.state.SendMessageBundle
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -64,7 +65,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 fun MessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
-    onSendMessage: (com.wire.android.ui.home.messagecomposer.state.SendMessageBundle) -> Unit
+    onSendMessage: (SendMessageBundle) -> Unit
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
@@ -102,7 +103,7 @@ private fun EnabledMessageComposer(
                     SecurityClassificationBanner(securityClassificationType = securityClassificationType)
                 }
             }
-            when (messageComposerState.inputState) {
+            when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
                         messageComposerState = messageComposerState,
@@ -164,7 +165,7 @@ private fun InActiveMessageComposer(
                 ) {
                     Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                         AdditionalOptionButton(
-                            isSelected = additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile,
+                            isSelected = false,
                             isEnabled = isFileSharingEnabled,
                             onClick = { onTransitionToActive(true) }
                         )
@@ -240,7 +241,9 @@ private fun ActiveMessageComposer(
                             if (messageComposition.mentionSearchResult.isNotEmpty()) {
                                 MembersMentionList(
                                     membersToMention = messageComposition.mentionSearchResult,
-                                    onMentionPicked = { }
+                                    onMentionPicked = { pickedMention ->
+                                        addMentionToTextMessage(pickedMention)
+                                    }
                                 )
                             }
                         }
@@ -248,7 +251,7 @@ private fun ActiveMessageComposer(
                             Modifier.wrapContentSize()
                         ) {
                             val fillRemainingSpaceOrWrapContent =
-                                if (inputSize == MessageCompositionInputSize.COLLAPSED) {
+                                if (messageCompositionInputStateHolder.inputSize == MessageCompositionInputSize.COLLAPSED) {
                                     Modifier.wrapContentHeight()
                                 } else {
                                     Modifier.weight(1f)
@@ -261,29 +264,23 @@ private fun ActiveMessageComposer(
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
+                                additionalOptionsStateHolder = additionalOptionsStateHolder,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
-                                onAttachmentOptionClicked = if (messageComposerState.isFileSharingEnabled) {
-                                    { toggleAttachmentOptions() }
-                                } else {
-                                    null
-                                },
-                                onGifOptionClicked = { },
-                                onPingOptionClicked = { },
                             )
                         }
                     }
 
                     val additionalOptionSubMenuVisible =
-                        additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
+                        additionalOptionsStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
                                 !KeyboardHelper.isKeyboardVisible()
 
                     val isTransitionToOpenKeyboardOngoing =
-                        additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
+                        additionalOptionsStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
                                 !KeyboardHelper.isKeyboardVisible()
 
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
-                            additionalOptionsState = additionalOptionsSubMenuState,
+                            additionalOptionsState = additionalOptionsStateHolder.additionalOptionsSubMenuState,
                             modifier = Modifier
                                 .height(keyboardHeight.height)
                                 .fillMaxWidth()
@@ -304,7 +301,7 @@ private fun ActiveMessageComposer(
                     }
                 }
             }
-            BackHandler(additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
+            BackHandler(additionalOptionsStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
                 onTransitionToInActive()
             }
         }

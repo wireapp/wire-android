@@ -38,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -55,11 +56,12 @@ fun AdditionalOptionButton(isSelected: Boolean, isEnabled: Boolean, onClick: () 
 
 @Composable
 fun AdditionalOptionsMenu(
+    additionalOptionsStateHolder: AdditionalOptionStateHolder,
     onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
     onAttachmentOptionClicked: (() -> Unit)? = null,
     onMentionButtonClicked: (() -> Unit)? = null,
-    onGifOptionClicked: () -> Unit,
-    onPingOptionClicked: () -> Unit,
+    onGifOptionClicked: (() -> Unit)? = null,
+    onPingOptionClicked: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
@@ -71,11 +73,11 @@ fun AdditionalOptionsMenu(
                     isMentionActive = onMentionButtonClicked != null,
                     isFileSharingEnabled = onAttachmentOptionClicked != null,
                     onMentionButtonClicked = onMentionButtonClicked ?: {},
-                    onAttachmentOptionClicked = onAttachmentOptionClicked ?: {},
-                    onGifButtonClicked = onGifOptionClicked,
+                    onAttachmentOptionClicked = { additionalOptionsStateHolder.toggleAttachmentOptions() },
+                    onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
-                    onPingClicked = onPingOptionClicked,
+                    onPingClicked = onPingOptionClicked ?: {},
                     showSelfDeletingOption = true,
                     modifier = Modifier.background(Color.Black)
                 )

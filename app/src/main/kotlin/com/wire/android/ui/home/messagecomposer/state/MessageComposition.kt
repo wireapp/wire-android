@@ -20,6 +20,8 @@ package com.wire.android.ui.home.messagecomposer.state
 import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
@@ -39,7 +41,8 @@ import kotlin.time.Duration
 
 class MessageCompositionHolder(
     private val context: Context,
-    private val requestMentions: (String) -> Unit
+    private val mentionStyle: SpanStyle,
+    private val searchMentions: (String) -> Unit
 ) {
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
@@ -108,29 +111,14 @@ class MessageCompositionHolder(
 
         messageComposition.update {
             it.copy(
-                messageTextFieldValue = messageTextFieldValue
+                messageTextFieldValue = applyMentionStylesIntoText(messageTextFieldValue)
             )
         }
     }
 
-    fun startMention() {
-        messageComposition.update { it.copy(messageTextFieldValue = it.mentionSelection()) }
-    }
-
-    fun addMention(contact: Contact) {
-        val mention = UiMention(
-            start = messageComposition.value.messageTextFieldValue.currentMentionStartIndex(),
-            length = contact.name.length + 1, // +1 cause there is an "@" before it
-            userId = UserId(contact.id, contact.domain),
-            handler = String.MENTION_SYMBOL + contact.name
-        )
-
-        messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
-        messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
-    }
 
     private fun updateMentionsIfNeeded(messageText: TextFieldValue) {
-        messageComposition.update { it.copy(selectedMentions = it.updateMentions(messageText)) }
+        messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
     }
 
     private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
@@ -150,9 +138,29 @@ class MessageCompositionHolder(
             val textBetweenAtAndSelection = text.text.subSequence(currentMentionStartIndex + 1, text.selection.min)
             if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
 
-                requestMentions(textBetweenAtAndSelection.toString())
+                searchMentions(textBetweenAtAndSelection.toString())
             }
         }
+    }
+
+    fun startMention() {
+        messageComposition.update { it.copy(messageTextFieldValue = it.mentionSelection()) }
+    }
+
+    fun setMentions(mentions: List<UiMention>) {
+        messageComposition.update { it.copy(selectedMentions = mentions) }
+    }
+
+    fun addMention(contact: Contact) {
+        val mention = UiMention(
+            start = messageComposition.value.messageTextFieldValue.currentMentionStartIndex(),
+            length = contact.name.length + 1, // +1 cause there is an "@" before it
+            userId = UserId(contact.id, contact.domain),
+            handler = String.MENTION_SYMBOL + contact.name
+        )
+
+        messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
+        messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
     }
 
     private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
@@ -164,13 +172,10 @@ class MessageCompositionHolder(
 //            AnnotatedString.Range(mentionSpanStyle, mention.start, mention.start + mention.length)
 //        }
 
-        //        return text.copy(
-        //            annotatedString = AnnotatedString(
-        //                text.annotatedString.text,
-        //                spanStyles,
-        //                text.annotatedString.paragraphStyles
-        //            )
-        //        )
+        val spanStyles = messageComposition.value.selectedMentions.map { mention ->
+            AnnotatedString.Range(mentionStyle, mention.start, mention.start + mention.length)
+        }
+
         return text
     }
 
@@ -254,7 +259,7 @@ data class MessageComposition(
         return TextFieldValue(resultText, newSelection)
     }
 
-    fun updateMentions(newMessageText: TextFieldValue): List<UiMention> {
+    fun getSelectedMentions(newMessageText: TextFieldValue): List<UiMention> {
         val result = mutableSetOf<UiMention>()
 
         selectedMentions.forEach { mention ->
@@ -301,6 +306,6 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
     }
 }
 
-sealed class SendMessageBundle{
+sealed class SendMessageBundle {
     object Ping : SendMessageBundle()
 }

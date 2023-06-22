@@ -21,16 +21,19 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -49,6 +52,11 @@ fun rememberMessageComposerState(
 ): MessageComposerState {
     val context = LocalContext.current
 
+    val mentionStyle = SpanStyle(
+        color = MaterialTheme.wireColorScheme.onPrimaryVariant,
+        background = MaterialTheme.wireColorScheme.primaryVariant
+    )
+
     return remember {
         MessageComposerState(
             context = context,
@@ -57,6 +65,7 @@ fun rememberMessageComposerState(
             securityClassificationType = securityClassificationType,
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             selfDeletionTimer = selfDeletionTimer,
+            mentionStyle = mentionStyle,
             searchMentions = searchMentions
         )
     }
@@ -69,12 +78,14 @@ class MessageComposerState(
     val isFileSharingEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
+    val mentionStyle: SpanStyle,
     onShowEphemeralOptionsMenu: () -> Unit,
     searchMentions: (String) -> Unit
 ) {
     private val messageCompositionHolder = MessageCompositionHolder(
         context = context,
-        requestMentions = searchMentions
+        mentionStyle = mentionStyle,
+        searchMentions = searchMentions
     )
 
     val messageCompositionInputStateHolder =
@@ -85,17 +96,11 @@ class MessageComposerState(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
         )
 
-    val inputState get() = messageCompositionInputStateHolder.inputState
-
-    val inputSize get() = messageCompositionInputStateHolder.inputSize
+    val additionalOptionsStateHolder = AdditionalOptionStateHolder()
 
     val messageComposition
         get() = messageCompositionHolder.messageComposition.value
 
-    var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-        AdditionalOptionSubMenuState.Hidden
-    )
-        private set
 
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()
@@ -103,15 +108,17 @@ class MessageComposerState(
 
     fun toActive(showAttachmentOption: Boolean) {
         messageCompositionInputStateHolder.toActive(!showAttachmentOption)
-        additionalOptionsSubMenuState = if (showAttachmentOption) {
-            AdditionalOptionSubMenuState.AttachFile
+        if (showAttachmentOption) {
+            additionalOptionsStateHolder.showAdditionalOptionsMenu()
         } else {
-            AdditionalOptionSubMenuState.Hidden
+            additionalOptionsStateHolder.hideAdditionalOptionsMenu()
         }
     }
 
-    fun toEdit(editMessageText: String) {
+    fun toEdit(editMessageText: String, mentions: List<MessageMention>) {
         messageCompositionHolder.setMessageText(TextFieldValue(editMessageText))
+        messageCompositionHolder.setMentions(mentions.map { it.toUiMention(editMessageText) })
+
         messageCompositionInputStateHolder.toEdit()
     }
 
@@ -128,16 +135,12 @@ class MessageComposerState(
         messageCompositionHolder.setMentionsSearchResult(mentionSearchResult)
     }
 
-    fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
-        messageCompositionHolder.setMessageText(messageTextFieldValue)
+    fun addMentionToTextMessage(contact: Contact) {
+        messageCompositionHolder.addMention(contact)
     }
 
-    fun toggleAttachmentOptions() {
-        additionalOptionsSubMenuState = if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-            AdditionalOptionSubMenuState.Hidden
-        } else {
-            AdditionalOptionSubMenuState.AttachFile
-        }
+    fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
+        messageCompositionHolder.setMessageText(messageTextFieldValue)
     }
 
     fun MessageMention.toUiMention(originalText: String) = UiMention(

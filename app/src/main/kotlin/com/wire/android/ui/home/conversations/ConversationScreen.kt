@@ -75,8 +75,6 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
-import com.wire.android.ui.home.conversations.model.SendMessageBundle
-
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
@@ -376,7 +374,7 @@ private fun ConversationScreen(
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = messageComposerState::toReply,
-                onEditClick = { _, messageText, _ -> messageComposerState.toEdit(messageText) },
+                onEditClick = { _, messageText, mentions -> messageComposerState.toEdit(messageText, mentions) },
                 onShareAssetClick = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)

@@ -18,6 +18,11 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
+
 sealed class AdditionalOptionMenuState {
     object AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState()
 
@@ -31,4 +36,27 @@ enum class AdditionalOptionSubMenuState {
     AttachImage,
     Emoji,
     Gif;
+}
+
+class AdditionalOptionStateHolder {
+    var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
+        AdditionalOptionSubMenuState.Hidden
+    )
+        private set
+
+    fun showAdditionalOptionsMenu() {
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
+    }
+
+    fun hideAdditionalOptionsMenu() {
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
+    }
+
+    fun toggleAttachmentOptions() {
+        additionalOptionsSubMenuState = if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+            AdditionalOptionSubMenuState.Hidden
+        } else {
+            AdditionalOptionSubMenuState.AttachFile
+        }
+    }
 }

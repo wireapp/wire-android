@@ -56,8 +56,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
@@ -91,11 +93,14 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @RootNavGraph
 @Destination
 @Composable
-fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+fun SelfUserProfileScreen(
+    navigator: Navigator,
+    viewModelSelf: SelfUserProfileViewModel = hiltViewModel()
+) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
-        logout = viewModelSelf::logout,
+        logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
         onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
         onEditClick = viewModelSelf::editProfile,
         onStatusClicked = viewModelSelf::changeStatusClick,
@@ -105,7 +110,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::switchAccount,
+        onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
         isUserInCall = viewModelSelf::isUserInCall
     )
 }

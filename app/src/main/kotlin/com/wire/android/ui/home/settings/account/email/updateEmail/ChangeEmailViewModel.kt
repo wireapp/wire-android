@@ -25,10 +25,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.util.VisibleForTesting
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.VerifyEmailScreenDestination
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,7 +34,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChangeEmailViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val updateEmail: UpdateEmailUseCase,
     private val getSelf: GetSelfUserUseCase,
 ) : ViewModel() {
@@ -53,16 +48,16 @@ class ChangeEmailViewModel @Inject constructor(
 
     private var currentEmail: String? = null
 
-    init {
+    fun init(onSelfNotFound: () -> Unit) {
         viewModelScope.launch {
             getSelf().firstOrNull()?.email?.let {
                 currentEmail = it
                 state = state.copy(email = TextFieldValue(it))
-            } ?: onBackPressed()
+            } ?: onSelfNotFound()
         }
     }
 
-    fun onSaveClicked() {
+    fun onSaveClicked(onSuccess: (email: String) -> Unit, onNoChange: () -> Unit) {
         state = state.copy(saveEnabled = false, isEmailTextEditEnabled = false)
         viewModelScope.launch {
             when (updateEmail(state.email.text)) {
@@ -87,20 +82,9 @@ class ChangeEmailViewModel @Inject constructor(
                         error = ChangeEmailState.EmailError.TextFieldError.Generic
                     )
 
-                is UpdateEmailUseCase.Result.Success.VerificationEmailSent -> onUpdateEmailSuccess()
-                is UpdateEmailUseCase.Result.Success.NoChange -> onBackPressed()
+                is UpdateEmailUseCase.Result.Success.VerificationEmailSent -> onSuccess(state.email.text)
+                is UpdateEmailUseCase.Result.Success.NoChange -> onNoChange()
             }
-        }
-    }
-
-    private fun onUpdateEmailSuccess() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    VerifyEmailScreenDestination(state.email.text),
-                    BackStackMode.REMOVE_CURRENT
-                )
-            )
         }
     }
 
@@ -130,11 +114,5 @@ class ChangeEmailViewModel @Inject constructor(
 
     fun onEmailErrorAnimated() {
         state = state.copy(animatedEmailError = false)
-    }
-
-    fun onBackPressed() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
     }
 }

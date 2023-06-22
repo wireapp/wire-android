@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.util.VisibleForTesting
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
@@ -33,11 +34,11 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
@@ -81,8 +82,11 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -108,7 +112,6 @@ class WireActivityViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
-    private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -117,11 +120,16 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
-    private val currentScreenManager: CurrentScreenManager,
+    private val currentScreenManager: CurrentScreenManager
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
+
+    var navigator: WireActivityNavigator = WireActivityNavigator(viewModelScope)
+        @VisibleForTesting set
+
+    private val navigationSwitchAccountActions = NavigationSwitchAccountActions(navigator::navigate)
 
     private val observeUserId = currentSessionFlow()
         .onEach {
@@ -239,7 +247,8 @@ class WireActivityViewModel @Inject constructor(
     fun navigateToNextAccountOrWelcome() {
         viewModelScope.launch {
             globalAppState = globalAppState.copy(blockUserUI = null)
-            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
+                .callAction(navigationSwitchAccountActions)
         }
     }
 
@@ -308,6 +317,7 @@ class WireActivityViewModel @Inject constructor(
     fun switchAccount(userId: UserId) {
         viewModelScope.launch {
             accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+                .callAction(navigationSwitchAccountActions)
             openDeviceManager()
         }
     }
@@ -364,7 +374,7 @@ class WireActivityViewModel @Inject constructor(
 
     private fun navigateTo(command: NavigationCommand) {
         viewModelScope.launch {
-            navigationManager.navigate(command)
+            navigator.navigate(command)
         }
     }
 
@@ -554,3 +564,9 @@ data class GlobalAppState(
     // This field is not used in Compose, only for storing and using latter.
     val newClientDialogRemembered: NewClientData? = null,
 )
+
+class WireActivityNavigator(private val scope: CoroutineScope) {
+    private val _navigationCommands = MutableSharedFlow<NavigationCommand>()
+    val navigationCommands: SharedFlow<NavigationCommand> = _navigationCommands
+    fun navigate(command: NavigationCommand) { scope.launch { _navigationCommands.emit(command) } }
+}

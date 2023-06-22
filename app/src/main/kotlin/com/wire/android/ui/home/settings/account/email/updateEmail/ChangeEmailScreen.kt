@@ -46,6 +46,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -56,6 +59,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.VerifyEmailScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -63,13 +67,21 @@ import com.wire.android.ui.theme.wireTypography
 @RootNavGraph
 @Destination
 @Composable
-fun ChangeEmailScreen(viewModel: ChangeEmailViewModel = hiltViewModel()) {
+fun ChangeEmailScreen(
+    navigator: Navigator,
+    viewModel: ChangeEmailViewModel = hiltViewModel()
+) {
     ChangeEmailContent(
         state = viewModel.state,
         onEmailChange = viewModel::onEmailChange,
         onEmailErrorAnimated = viewModel::onEmailErrorAnimated,
-        onBackPressed = viewModel::onBackPressed,
-        onSaveClicked = viewModel::onSaveClicked
+        onBackPressed = navigator::navigateBack,
+        onSaveClicked = {
+            viewModel.onSaveClicked(
+                onSuccess = { navigator.navigate(NavigationCommand(VerifyEmailScreenDestination(it), BackStackMode.REMOVE_CURRENT)) },
+                onNoChange = navigator::navigateBack
+            )
+        }
     )
 }
 

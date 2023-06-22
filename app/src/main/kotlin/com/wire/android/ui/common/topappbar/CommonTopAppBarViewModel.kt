@@ -26,9 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -54,7 +51,6 @@ abstract class CommonTopAppBarBaseViewModel : ViewModel()
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic,
@@ -112,18 +108,6 @@ class CommonTopAppBarViewModel @Inject constructor(
             Connectivity.WAITING_CONNECTION -> ConnectivityUIState.Info.WaitingConnection
             Connectivity.CONNECTING -> ConnectivityUIState.Info.Connecting
             Connectivity.CONNECTED -> ConnectivityUIState.Info.None
-        }
-    }
-
-    fun openOngoingCallScreen() {
-        (connectivityState.info as? ConnectivityUIState.Info.EstablishedCall)?.conversationId?.let { convId ->
-            viewModelScope.launch {
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = OngoingCallScreenDestination(convId)
-                    )
-                )
-            }
         }
     }
 

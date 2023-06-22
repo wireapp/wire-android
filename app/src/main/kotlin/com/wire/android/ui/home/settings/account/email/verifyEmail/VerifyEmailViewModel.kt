@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +32,6 @@ import javax.inject.Inject
 @HiltViewModel
 class VerifyEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,
-    private val navigationManager: NavigationManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -41,24 +39,10 @@ class VerifyEmailViewModel @Inject constructor(
         private set
 
     private val verifyEmailNavArgs: VerifyEmailNavArgs = savedStateHandle.navArgs()
-    val newEmail: String? = verifyEmailNavArgs.newEmail
+    val newEmail: String = verifyEmailNavArgs.newEmail
 
-    init {
-        if (newEmail == null) {
-            viewModelScope.launch {
-                navigationManager.navigateBack()
-            }
-        }
-    }
-
-    fun onBackPressed() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun onResendVerificationEmailClicked() {
-        newEmail?.let {
+    fun onResendVerificationEmailClicked(onNoChange: () -> Unit) {
+        newEmail.let {
             state = state.copy(isResendEmailEnabled = false)
             viewModelScope.launch {
                 when (updateEmail(newEmail)) {
@@ -68,7 +52,7 @@ class VerifyEmailViewModel @Inject constructor(
                     UpdateEmailUseCase.Result.Success.VerificationEmailSent -> { /*no-op*/
                     }
 
-                    UpdateEmailUseCase.Result.Success.NoChange -> onBackPressed()
+                    UpdateEmailUseCase.Result.Success.NoChange -> onNoChange()
                 }
                 state = state.copy(isResendEmailEnabled = true)
             }

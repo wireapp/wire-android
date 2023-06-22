@@ -27,9 +27,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.ContactSearchResult
 import com.wire.android.ui.home.conversations.search.KnownPeopleSearchViewModel
@@ -37,13 +34,11 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleState
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
-import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.publicuser.ConversationMemberExcludedOptions
 import com.wire.kalium.logic.data.publicuser.SearchUsersOptions
-import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
@@ -74,11 +69,8 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val searchServicesByName: SearchServicesByNameUseCase,
     private val dispatchers: DispatcherProvider,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    savedStateHandle: SavedStateHandle,
-    navigationManager: NavigationManager
-) : KnownPeopleSearchViewModel(
-    navigationManager = navigationManager
-) {
+    savedStateHandle: SavedStateHandle
+) : KnownPeopleSearchViewModel() {
 
     private val addMembersSearchNavArgs: AddMembersSearchNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = addMembersSearchNavArgs.conversationId
@@ -170,7 +162,7 @@ class AddMembersToConversationViewModel @Inject constructor(
         )
     }
 
-    fun addMembersToConversation() {
+    fun addMembersToConversation(onCompleted: () -> Unit) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 // TODO: addMembersToConversationUseCase does not handle failure
@@ -179,23 +171,7 @@ class AddMembersToConversationViewModel @Inject constructor(
                     userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
                 )
             }
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun onServiceClicked(contact: Contact) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = ServiceDetailsScreenDestination(
-                            BotService(
-                                id = contact.id,
-                                provider = contact.domain
-                            ),
-                            conversationId
-                    )
-                )
-            )
+            onCompleted()
         }
     }
 }

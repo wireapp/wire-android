@@ -26,11 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -40,7 +36,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase
 ) : ViewModel() {
@@ -69,7 +64,7 @@ class WelcomeViewModel @Inject constructor(
                 when (it) {
                     is GetAllSessionsResult.Success -> {
                         isThereActiveSession =
-                            it.sessions.filterIsInstance<AccountInfo.Valid>().isNullOrEmpty().not()
+                            it.sessions.filterIsInstance<AccountInfo.Valid>().isEmpty().not()
                     }
                     is GetAllSessionsResult.Failure.Generic -> {}
                     GetAllSessionsResult.Failure.NoSessionFound -> {
@@ -79,30 +74,6 @@ class WelcomeViewModel @Inject constructor(
             }
         }
     }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun isProxyEnabled() = state.apiProxy != null
-
-    fun goToLogin() {
-        navigate(NavigationCommand(LoginScreenDestination()))
-    }
-
-    fun goToCreateEnterpriseAccount() {
-        navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
-    }
-
-    fun goToCreatePrivateAccount() {
-        navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination()))
-    }
-
-    private fun navigate(navigationCommand: NavigationCommand) {
-        viewModelScope.launch {
-            navigationManager.navigate(navigationCommand)
-        }
-    }
 }
+
+fun ServerConfig.Links.isProxyEnabled() = this.apiProxy != null

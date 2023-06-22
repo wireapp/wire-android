@@ -32,7 +32,6 @@ import com.wire.kalium.logger.obfuscateId
 
 internal fun NavController.navigateToItem(command: NavigationCommand) {
     appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")
-    currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
     navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
@@ -69,21 +68,6 @@ private fun NavController.popBackStack(
         val startId = entry.destination.id
         popBackStack(startId, inclusive)
     }
-}
-
-/**
- * @return true if the stack was popped at least once and the user has been navigated to another destination,
- * false otherwise
- */
-internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boolean {
-    previousBackStackEntry?.let {
-        it.savedStateHandle.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
-        arguments?.let { arguments ->
-            appLogger.d("Destination is ${it.destination}")
-            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments.toMap()
-        }
-    }
-    return popBackStack()
 }
 
 internal fun NavDestination.toDestination(): Destination? =

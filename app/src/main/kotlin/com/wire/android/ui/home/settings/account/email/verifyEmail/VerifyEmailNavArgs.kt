@@ -19,5 +19,5 @@ package com.wire.android.ui.home.settings.account.email.verifyEmail
 
 // TODO: should be encoded? URLEncoder.encode(it, UTF_8.name())
 data class VerifyEmailNavArgs(
-    val newEmail: String? = null
+    val newEmail: String
 )

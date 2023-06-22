@@ -21,11 +21,7 @@
 package com.wire.android.feature
 
 import com.wire.android.di.AuthServerConfigProvider
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -36,99 +32,91 @@ import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
-import org.mockito.Mock
+import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountSwitchUseCaseTest {
 
+    private val testScope = TestScope()
+
     @Suppress("MaxLineLength")
     @Test
-    fun givenCurrentSessionIsValid_whenSwitchingToAccountIsCalled_thenUpdateCurrentSessionAndTheUserIsNavigatedToHome() =
-        runTest {
-            val expectedNavigationCommand = NavigationCommand(
-                HomeScreenDestination,
-                BackStackMode.CLEAR_WHOLE
-            )
+    fun givenCurrentSessionIsValid_whenSwitchingToAccountIsCalled_thenUpdateCurrentSessionAndReturnSuccessSwitchedToAnotherAccount() =
+        testScope.runTest {
+            val expectedResult = SwitchAccountResult.SwitchedToAnotherAccount
 
             val (arrangement, switchAccount) =
-                Arrangement()
+                Arrangement(testScope)
                     .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
                     .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
-                    .withNavigation(expectedNavigationCommand)
                     .arrange()
 
-            switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_VALID_2.userId))
+            val result = switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_VALID_2.userId))
 
+            assertEquals(expectedResult, result)
             coVerify(exactly = 1) {
                 arrangement.currentSession()
                 arrangement.updateCurrentSession(any())
-                arrangement.navigationManager.navigate(expectedNavigationCommand)
-                arrangement.navigationManager.navigate(any())
             }
         }
 
     @Suppress("MaxLineLength")
     @Test
-    fun givenCurrentSessionIsValidAndNoOtherSessions_whenSwitchToNextAccountOrWelcome_thenUpdateCurrentSessionAndNavigateToWelcome() =
-        runTest {
-            val expectedNavigationCommand = NavigationCommand(
-                WelcomeScreenDestination,
-                BackStackMode.CLEAR_WHOLE
-            )
+    fun givenCurrentSessionIsValidAndNoOtherSessions_whenTryToSwitchToNextAccount_thenUpdateCurrentSessionAndReturnSuccessNoMoreAccounts() =
+        testScope.runTest {
+            val expectedResult = SwitchAccountResult.NoOtherAccountToSwitch
 
+            val serverConfig = newServerConfig(1)
             val (arrangement, switchAccount) =
-                Arrangement()
+                Arrangement(testScope)
                     .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
                     .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
                     .withGetAllSessions(GetAllSessionsResult.Success(emptyList()))
-                    .withNavigation(expectedNavigationCommand)
+                    .withServerConfigForAccount(ServerConfigForAccountUseCase.Result.Success(serverConfig))
                     .arrange()
 
-            switchAccount(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+            val result = switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
 
+            assertEquals(expectedResult, result)
             coVerify(exactly = 1) {
                 arrangement.currentSession()
-                arrangement.updateCurrentSession(any())
-                arrangement.navigationManager.navigate(expectedNavigationCommand)
-                arrangement.navigationManager.navigate(any())
+                arrangement.updateCurrentSession(null)
+                arrangement.authServerProvider.updateAuthServer(serverConfig)
             }
         }
 
     @Test
-    fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne() = runTest {
+    fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne() = testScope.runTest {
         val currentAccount = ACCOUNT_INVALID_3
         val switchTO = ACCOUNT_VALID_2
 
-        val expectedNavigationCommand = NavigationCommand(
-            HomeScreenDestination,
-            BackStackMode.CLEAR_WHOLE
-        )
+        val expectedResult = SwitchAccountResult.SwitchedToAnotherAccount
 
         val (arrangement, switchAccount) =
-            Arrangement()
+            Arrangement(testScope)
                 .withGetCurrentSession(CurrentSessionResult.Success(currentAccount))
                 .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
                 .withGetAllSessions(GetAllSessionsResult.Success(emptyList()))
-                .withNavigation(expectedNavigationCommand)
                 .withDeleteSession(currentAccount.userId, DeleteSessionUseCase.Result.Success)
                 .arrange()
 
-        switchAccount(SwitchAccountParam.SwitchToAccount(switchTO.userId))
+        val result = switchAccount(SwitchAccountParam.SwitchToAccount(switchTO.userId))
+        testScope.advanceUntilIdle()
 
+        assertEquals(expectedResult, result)
         coVerify(exactly = 1) {
             arrangement.currentSession()
-            arrangement.updateCurrentSession(null)
-            arrangement.updateCurrentSession(any())
-            arrangement.navigationManager.navigate(expectedNavigationCommand)
-            arrangement.navigationManager.navigate(any())
+            arrangement.updateCurrentSession(switchTO.userId)
             arrangement.deleteSession(currentAccount.userId)
-            arrangement.deleteSession(any())
         }
     }
 
@@ -137,48 +125,42 @@ class AccountSwitchUseCaseTest {
         val ACCOUNT_VALID_2 = AccountInfo.Valid(UserId("userId_valid_2", "domain_valid_2"))
         val ACCOUNT_INVALID_3 =
             AccountInfo.Invalid(UserId("userId_invalid_3", "domain_invalid_3"), LogoutReason.SELF_SOFT_LOGOUT)
-        val ACCOUNT_INVALID_4 =
-            AccountInfo.Invalid(UserId("userId_invalid_4", "domain_invalid_4"), LogoutReason.SELF_SOFT_LOGOUT)
     }
 
-    private class Arrangement {
+    private class Arrangement(val testScope: TestScope) {
 
-        @Mock
+        @MockK
         lateinit var updateCurrentSession: UpdateCurrentSessionUseCase
 
-        @Mock
-        lateinit var navigationManager: NavigationManager
-
-        @Mock
+        @MockK
         lateinit var getSessions: GetSessionsUseCase
 
-        @Mock
+        @MockK
         lateinit var currentSession: CurrentSessionUseCase
 
-        @Mock
+        @MockK
         lateinit var deleteSession: DeleteSessionUseCase
 
-        @Mock
+        @MockK
         lateinit var serverConfigForAccount: ServerConfigForAccountUseCase
 
-        @Mock
+        @MockK
         lateinit var authServerProvider: AuthServerConfigProvider
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+        }
 
         @OptIn(ExperimentalCoroutinesApi::class)
         var accountSwitchUseCase: AccountSwitchUseCase = AccountSwitchUseCase(
             updateCurrentSession,
-            navigationManager,
             getSessions,
             currentSession,
             deleteSession,
             authServerProvider,
             serverConfigForAccount,
-            TestScope()
+            testScope
         )
-
-        fun withUpdateCurrentSession(userId: UserId, result: UpdateCurrentSessionUseCase.Result) = apply {
-            coEvery { updateCurrentSession(userId) } returns result
-        }
 
         fun withGetAllSessions(result: GetAllSessionsResult) = apply {
             coEvery { getSessions() } returns result
@@ -192,12 +174,12 @@ class AccountSwitchUseCaseTest {
             coEvery { updateCurrentSession(any()) } returns result
         }
 
-        fun withNavigation(command: NavigationCommand) = apply {
-            coEvery { navigationManager.navigate(command) } returns Unit
-        }
-
         fun withDeleteSession(userId: UserId, result: DeleteSessionUseCase.Result) = apply {
             coEvery { deleteSession(userId) } returns result
+        }
+
+        fun withServerConfigForAccount(result: ServerConfigForAccountUseCase.Result) = apply {
+            coEvery { serverConfigForAccount(any()) } returns result
         }
 
         fun arrange() = this to accountSwitchUseCase

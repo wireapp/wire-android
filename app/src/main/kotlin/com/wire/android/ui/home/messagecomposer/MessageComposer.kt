@@ -265,7 +265,8 @@ private fun ActiveMessageComposer(
                             AdditionalOptionsMenu(
                                 additionalOptionsStateHolder = additionalOptionsStateHolder,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
-                                onMentionButtonClicked = { messageCompositionHolder.startMention() }
+                                onMentionButtonClicked = messageCompositionHolder::startMention,
+                                onRichTextButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                             )
                         }
                     }

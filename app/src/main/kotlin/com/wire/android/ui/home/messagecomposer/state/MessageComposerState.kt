@@ -85,8 +85,7 @@ class MessageComposerState(
         searchMentions = searchMentions
     )
 
-    val messageCompositionInputStateHolder =
-        MessageCompositionInputStateHolder(
+    val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
             selfDeletionTimer = selfDeletionTimer,
             messageCompositionHolder = messageCompositionHolder,
             securityClassificationType = securityClassificationType,

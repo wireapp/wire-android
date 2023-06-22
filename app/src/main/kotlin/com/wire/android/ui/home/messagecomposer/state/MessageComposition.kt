@@ -24,6 +24,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.getSelectedText
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -46,6 +47,9 @@ class MessageCompositionHolder(
     private val mentionStyle: SpanStyle,
     private val searchMentions: (String) -> Unit
 ) {
+    private companion object {
+        const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
+    }
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
 
@@ -192,6 +196,60 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(editMessageId = messageId) }
     }
 
+    fun addOrRemoveMessageMarkdown(
+        markdown: RichTextMarkdown,
+    ) {
+        val originalValue = messageComposition.value.messageTextFieldValue
+
+        val isHeader = markdown == RichTextMarkdown.Header
+
+        val range = originalValue.selection
+        val selectedText = originalValue.getSelectedText()
+        val stringBuilder = StringBuilder(originalValue.annotatedString)
+        val markdownLength = markdown.value.length
+        val markdownLengthComplete =
+            if (isHeader) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
+
+        val rangeEnd = if (selectedText.contains(markdown.value)) {
+            // Remove Markdown
+            stringBuilder.replace(
+                range.start,
+                range.end,
+                selectedText.toString().replace(markdown.value, String.EMPTY)
+            )
+
+            range.end - markdownLengthComplete
+        } else {
+            // Add Markdown
+            stringBuilder.insert(range.start, markdown.value)
+            if (isHeader.not()) stringBuilder.insert(range.end + markdownLength, markdown.value)
+
+            range.end + markdownLengthComplete
+        }
+
+        val (selectionStart, selectionEnd) = if (range.start == range.end) {
+            if (isHeader) Pair(rangeEnd, rangeEnd)
+            else {
+                val middleMarkdownRange = rangeEnd - markdownLength
+                Pair(middleMarkdownRange, middleMarkdownRange)
+            }
+        } else {
+            Pair(range.start, rangeEnd)
+        }
+
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = TextFieldValue(
+                    text = stringBuilder.toString(),
+                    selection = TextRange(
+                        start = selectionStart,
+                        end = selectionEnd
+                    )
+                )
+            )
+        }
+    }
+
     private fun MessageMention.toUiMention(originalText: String) = UiMention(
         start = this.start,
         length = this.length,
@@ -332,11 +390,11 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
     return when {
         (lastIndexOfAt <= 0) || (
-            text[lastIndexOfAt - 1].toString() in listOf(
-                String.WHITE_SPACE,
-                String.NEW_LINE_SYMBOL
-            )
-            ) -> lastIndexOfAt
+                text[lastIndexOfAt - 1].toString() in listOf(
+                    String.WHITE_SPACE,
+                    String.NEW_LINE_SYMBOL
+                )
+                ) -> lastIndexOfAt
 
         else -> -1
     }
@@ -364,3 +422,9 @@ sealed class ComposableMessageBundle : MessageBundle {
 }
 
 object Ping : MessageBundle
+
+enum class RichTextMarkdown(val value: String) {
+    Bold("# "),
+    Header("**"),
+    Italic("_")
+}

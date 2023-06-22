@@ -40,6 +40,7 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
@@ -53,7 +54,6 @@ fun AdditionalOptionButton(isSelected: Boolean, isEnabled: Boolean, onClick: () 
     )
 }
 
-
 @Composable
 fun AdditionalOptionsMenu(
     additionalOptionsStateHolder: AdditionalOptionStateHolder,
@@ -62,6 +62,7 @@ fun AdditionalOptionsMenu(
     onMentionButtonClicked: (() -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null,
     onPingOptionClicked: (() -> Unit)? = null,
+    onRichTextButtonClicked: (RichTextMarkdown) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
@@ -85,9 +86,9 @@ fun AdditionalOptionsMenu(
 
             is AdditionalOptionMenuState.RichTextEditing -> {
                 RichTextOptions(
-                    onRichTextHeaderButtonClicked = {},
-                    onRichTextBoldButtonClicked = {},
-                    onRichTextItalicButtonClicked = {},
+                    onRichTextHeaderButtonClicked = { onRichTextButtonClicked(RichTextMarkdown.Header) },
+                    onRichTextBoldButtonClicked = { onRichTextButtonClicked(RichTextMarkdown.Bold) },
+                    onRichTextItalicButtonClicked = { onRichTextButtonClicked(RichTextMarkdown.Italic) },
                     onCloseRichTextEditingButtonClicked = {
                         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
                     }

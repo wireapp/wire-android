@@ -55,13 +55,15 @@ sealed class UIMessage(
         val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
     ) : UIMessage(header, source) {
-        val isTextMessage = messageContent is UIMessageContent.TextMessage
         val isDeleted: Boolean = header.messageStatus.isDeleted
         val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
         val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
         val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
+        val isAssetMessage = messageContent is UIMessageContent.AssetMessage
+        || messageContent is UIMessageContent.ImageMessage
+        || messageContent is UIMessageContent.AudioAssetMessage
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
     }
 
@@ -361,6 +363,11 @@ sealed class UIMessageContent {
         )
 
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
+        class MLSWrongEpochWarning : SystemMessage(
+            iconResId = R.drawable.ic_info,
+            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
+            isSmallIcon = true
+        )
 
         data class ConversationMessageCreated(
             val author: UIText,

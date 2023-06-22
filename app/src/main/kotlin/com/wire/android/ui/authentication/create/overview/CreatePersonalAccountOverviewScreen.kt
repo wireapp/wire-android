@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
@@ -62,7 +63,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Destination
 @Composable
 fun CreatePersonalAccountOverviewScreen(
-    viewModel: CreateAccountOverviewViewModel,
+    viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
     with(CreateAccountFlowType.CreatePersonalAccount) {
@@ -86,7 +87,7 @@ fun CreatePersonalAccountOverviewScreen(
 @Destination
 @Composable
 fun CreateTeamAccountOverviewScreen(
-    viewModel: CreateAccountOverviewViewModel,
+    viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
     with(CreateAccountFlowType.CreateTeam) {

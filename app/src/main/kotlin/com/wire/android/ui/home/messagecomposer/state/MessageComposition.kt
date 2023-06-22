@@ -28,6 +28,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
@@ -35,11 +36,9 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import okio.Path
 import kotlin.time.Duration
 
 class MessageCompositionHolder(
@@ -140,9 +139,11 @@ class MessageCompositionHolder(
 
         if (currentMentionStartIndex >= 0) {
             // +1 cause need to remove @ symbol at the begin of string
-            val textBetweenAtAndSelection = messageText.text.subSequence(currentMentionStartIndex + 1, messageText.selection.min)
+            val textBetweenAtAndSelection = messageText.text.subSequence(
+                currentMentionStartIndex + 1,
+                messageText.selection.min
+            )
             if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
-
                 searchMentions(textBetweenAtAndSelection.toString())
             }
         }
@@ -284,7 +285,10 @@ data class MessageComposition(
 
         selectedMentions.forEach { mention ->
             if (newMessageText.text.length >= mention.start + mention.length) {
-                val substringInMentionPlace = newMessageText.text.substring(mention.start, mention.start + mention.length)
+                val substringInMentionPlace = newMessageText.text.substring(
+                    mention.start,
+                    mention.start + mention.length
+                )
                 if (substringInMentionPlace == mention.handler) {
                     result.add(mention)
                     return@forEach
@@ -302,11 +306,13 @@ data class MessageComposition(
     }
 
     fun toMessageBundle(): ComposableMessageBundle {
-        if (editMessageId != null && editMessage != null) return ComposableMessageBundle.EditMessageBundle(
-            originalMessageId = editMessageId,
-            newContent = editMessage.text,
-            newMentions = selectedMentions
-        )
+        if (editMessageId != null && editMessage != null) {
+            return ComposableMessageBundle.EditMessageBundle(
+                originalMessageId = editMessageId,
+                newContent = editMessage.text,
+                newMentions = selectedMentions
+            )
+        }
 
         return ComposableMessageBundle.SendTextMessageBundle(
             message = messageTextFieldValue.text,
@@ -314,7 +320,6 @@ data class MessageComposition(
             quotedMessageId = quotedMessageId
         )
     }
-
 }
 
 fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
@@ -327,11 +332,11 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
     return when {
         (lastIndexOfAt <= 0) || (
-                text[lastIndexOfAt - 1].toString() in listOf(
-                    String.WHITE_SPACE,
-                    String.NEW_LINE_SYMBOL
-                )
-                ) -> lastIndexOfAt
+            text[lastIndexOfAt - 1].toString() in listOf(
+                String.WHITE_SPACE,
+                String.NEW_LINE_SYMBOL
+            )
+            ) -> lastIndexOfAt
 
         else -> -1
     }
@@ -339,20 +344,23 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
 interface MessageBundle
 sealed class ComposableMessageBundle : MessageBundle {
-    data class EditMessageBundle(val originalMessageId: String, val newContent: String, val newMentions: List<UiMention>) :
+    data class EditMessageBundle(
+        val originalMessageId: String,
+        val newContent: String,
+        val newMentions: List<UiMention>
+    ) :
         ComposableMessageBundle()
 
-    data class SendTextMessageBundle(val message: String, val mentions: List<UiMention>, val quotedMessageId: String? = null) :
+    data class SendTextMessageBundle(
+        val message: String,
+        val mentions: List<UiMention>,
+        val quotedMessageId: String? = null
+    ) :
         ComposableMessageBundle()
 
-    data class SendAttachmentBundle(
-        val assetType: AttachmentType,
-        val dataPath: Path,
-        val fileName: String,
-        val dataSize: Long,
-        val mimeType: String,
+    data class AttachmentPickedBundle(
+        val attachmentUri: UriAsset
     ) : ComposableMessageBundle()
-
 }
 
 object Ping : MessageBundle

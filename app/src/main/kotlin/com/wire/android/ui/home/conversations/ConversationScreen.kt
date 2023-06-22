@@ -509,8 +509,7 @@ private fun ConversationScreenContent(
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
-        },
-        onSendMessage = onSendMessage
+        }
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented
@@ -687,7 +686,6 @@ fun PreviewConversationScreen() {
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
-
         onDeleteMessage = { _, _ -> },
         onAttachmentPicked = { _ -> },
         onAssetItemClicked = { },
@@ -698,14 +696,12 @@ fun PreviewConversationScreen() {
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = { },
         onResetSessionClick = { _, _ -> },
-
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessagesViewModel = hiltViewModel(),
-
         onSelfDeletingMessageRead = {},
         currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
         onNewSelfDeletingMessagesStatus = {},

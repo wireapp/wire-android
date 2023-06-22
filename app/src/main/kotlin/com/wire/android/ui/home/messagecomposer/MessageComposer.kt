@@ -64,8 +64,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerState,
-    messageListContent: @Composable () -> Unit,
-    onSendMessage: (MessageBundle) -> Unit
+    messageListContent: @Composable () -> Unit
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
@@ -81,9 +80,7 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     messageComposerState = messageComposerState,
                     messageListContent = messageListContent,
-                    onSendButtonClicked = {
-                       sendMessage(onSendMessage)
-                    }
+                    onSendButtonClicked = ::sendMessage
                 )
             }
         }

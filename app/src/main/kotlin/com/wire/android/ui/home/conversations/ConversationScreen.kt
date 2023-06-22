@@ -186,7 +186,11 @@ fun ConversationScreen(
         onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
+            messageComposerViewModel.navigateToGallery(
+                messageId = message.header.messageId,
+                isSelfMessage = isSelfMessage,
+                isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+            )
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
         onStartCall = {
@@ -353,14 +357,14 @@ private fun ConversationScreen(
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = messageComposerState::reply,
                 onEditClick = messageComposerState::toEditMessage,
-                onShareAsset = {
+                onShareAssetClick = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
                         conversationScreenState.hideContextMenu()
                     }
                 },
-                onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
-                onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset
+                onDownloadAssetClick = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset
             )
         }
 

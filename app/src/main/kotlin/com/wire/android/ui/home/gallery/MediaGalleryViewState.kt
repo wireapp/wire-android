@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 
 data class MediaGalleryViewState(
     val screenTitle: String? = null,
+    val isEphemeral: Boolean = false,
     val onSnackbarMessage: MediaGallerySnackbarMessages? = null,
     val deleteMessageDialogsState: DeleteMessageDialogsState = DeleteMessageDialogsState.States(
         forYourself = DeleteMessageDialogActiveState.Hidden,

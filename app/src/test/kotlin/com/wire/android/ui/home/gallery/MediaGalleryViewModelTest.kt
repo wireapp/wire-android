@@ -102,7 +102,7 @@ class MediaGalleryViewModelTest {
 
         // Then
         coVerify(exactly = 1) {
-            arrangement.getImageData.invoke(mockedConversation.conversation.id, viewModel.imageAssetId.messageId)
+            arrangement.getImageData.invoke(mockedConversation.conversation.id, viewModel.imageAsset.messageId)
             arrangement.fileManager.saveToExternalStorage(any(), dummyDataPath, mockedImage.size.toLong(), any(), any())
         }
     }
@@ -236,7 +236,7 @@ class MediaGalleryViewModelTest {
 
         init {
             // Tests setup
-            val dummyPrivateAsset = "some-conversationId:some-message-id:true"
+            val dummyPrivateAsset = "some-conversationId:some-message-id:true:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns dummyConversationId

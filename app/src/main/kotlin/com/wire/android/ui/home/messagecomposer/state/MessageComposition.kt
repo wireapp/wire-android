@@ -35,6 +35,7 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
@@ -147,10 +148,6 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(messageTextFieldValue = it.mentionSelection()) }
     }
 
-    fun setMentions(mentions: List<UiMention>) {
-        messageComposition.update { it.copy(selectedMentions = mentions) }
-    }
-
     fun addMention(contact: Contact) {
         val mention = UiMention(
             start = messageComposition.value.messageTextFieldValue.currentMentionStartIndex(),
@@ -183,7 +180,17 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(mentionSearchResult = mentions) }
     }
 
+    fun setEditText(editMessageText: String, mentions: List<MessageMention>) {
+        messageComposition.update { it.copy(messageTextFieldValue = (TextFieldValue(editMessageText))) }
+        messageComposition.update { it.copy(selectedMentions = mentions.map { it.toUiMention(editMessageText) }) }
+    }
 
+    private fun MessageMention.toUiMention(originalText: String) = UiMention(
+        start = this.start,
+        length = this.length,
+        userId = this.userId,
+        handler = originalText.substring(start, start + length)
+    )
 }
 
 data class MessageComposition(

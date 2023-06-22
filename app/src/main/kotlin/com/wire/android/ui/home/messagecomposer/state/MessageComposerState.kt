@@ -82,7 +82,7 @@ class MessageComposerState(
     onShowEphemeralOptionsMenu: () -> Unit,
     searchMentions: (String) -> Unit
 ) {
-    private val messageCompositionHolder = MessageCompositionHolder(
+    val messageCompositionHolder = MessageCompositionHolder(
         context = context,
         mentionStyle = mentionStyle,
         searchMentions = searchMentions
@@ -101,7 +101,6 @@ class MessageComposerState(
     val messageComposition
         get() = messageCompositionHolder.messageComposition.value
 
-
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()
     }
@@ -116,9 +115,7 @@ class MessageComposerState(
     }
 
     fun toEdit(editMessageText: String, mentions: List<MessageMention>) {
-        messageCompositionHolder.setMessageText(TextFieldValue(editMessageText))
-        messageCompositionHolder.setMentions(mentions.map { it.toUiMention(editMessageText) })
-
+        messageCompositionHolder.setEditText(editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit()
     }
 
@@ -131,22 +128,4 @@ class MessageComposerState(
         messageCompositionInputStateHolder.toComposing()
     }
 
-    fun setMentionSearchResult(mentionSearchResult: List<Contact>) {
-        messageCompositionHolder.setMentionsSearchResult(mentionSearchResult)
-    }
-
-    fun addMentionToTextMessage(contact: Contact) {
-        messageCompositionHolder.addMention(contact)
-    }
-
-    fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
-        messageCompositionHolder.setMessageText(messageTextFieldValue)
-    }
-
-    fun MessageMention.toUiMention(originalText: String) = UiMention(
-        start = this.start,
-        length = this.length,
-        userId = this.userId,
-        handler = originalText.substring(start, start + length)
-    )
 }

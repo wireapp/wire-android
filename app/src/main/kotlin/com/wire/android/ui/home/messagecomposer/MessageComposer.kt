@@ -242,7 +242,7 @@ private fun ActiveMessageComposer(
                                 MembersMentionList(
                                     membersToMention = messageComposition.mentionSearchResult,
                                     onMentionPicked = { pickedMention ->
-                                        addMentionToTextMessage(pickedMention)
+                                        messageCompositionHolder.addMention(pickedMention)
                                     }
                                 )
                             }
@@ -259,13 +259,14 @@ private fun ActiveMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageCompositionInputStateHolder = messageCompositionInputStateHolder,
-                                onMessageTextChanged = ::onMessageTextChanged,
+                                onMessageTextChanged = { messageCompositionHolder.setMessageText(it) },
                                 onSendButtonClicked = onSendButtonClicked,
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
                                 additionalOptionsStateHolder = additionalOptionsStateHolder,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
+                                onMentionButtonClicked = { messageCompositionHolder.startMention() }
                             )
                         }
                     }

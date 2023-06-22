@@ -541,6 +541,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s hat selbstlöschende Nachrichten für alle **ausgeschaltet**</string>
     <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>

@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
+@Suppress("TooManyFunctions")
 class SystemMessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {

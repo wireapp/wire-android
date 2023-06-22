@@ -188,28 +188,33 @@ private fun WireDialogContent(
                 }
             }
 
-            if (buttonsHorizontalAlignment)
+            if (buttonsHorizontalAlignment) {
                 Row(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     dismissButtonProperties.getButton(Modifier.weight(1f))
-                    if (dismissButtonProperties != null)
+                    if (dismissButtonProperties != null) {
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     optionButton1Properties.getButton(Modifier.weight(1f))
-                    if (optionButton2Properties != null)
+                    if (optionButton2Properties != null) {
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     optionButton2Properties.getButton(Modifier.weight(1f))
                 }
-            else
+            } else {
                 Column(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     optionButton1Properties.getButton()
 
-                    if (optionButton2Properties != null)
+                    if (optionButton2Properties != null) {
                         Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     optionButton2Properties.getButton()
 
-                    if (dismissButtonProperties != null)
+                    if (dismissButtonProperties != null) {
                         Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     dismissButtonProperties.getButton()
                 }
+            }
         }
     }
 }

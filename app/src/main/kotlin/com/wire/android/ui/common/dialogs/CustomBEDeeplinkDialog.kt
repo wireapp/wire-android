@@ -77,5 +77,4 @@ internal fun CustomBEDeeplinkDialog(
     }
 }
 
-
 data class CustomBEDeeplinkDialogState(val serverLinks: ServerConfig.Links = ServerConfig.DEFAULT, val shouldShowDialog: Boolean = false)

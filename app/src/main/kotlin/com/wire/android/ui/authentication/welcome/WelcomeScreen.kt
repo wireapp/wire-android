@@ -81,8 +81,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.CreatePersonalAccountScreenDestination
-import com.wire.android.ui.destinations.CreateTeamScreenDestination
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -178,7 +178,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreateTeamScreenDestination))
+                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
                         }
                     }
                 }
@@ -195,7 +195,7 @@ private fun WelcomeContent(
                                 )
                             )
                         } else {
-                            navigate(NavigationCommand(CreatePersonalAccountScreenDestination))
+                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
                         }
                     }
                 )

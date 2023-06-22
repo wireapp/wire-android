@@ -74,9 +74,9 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
-import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
-import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState

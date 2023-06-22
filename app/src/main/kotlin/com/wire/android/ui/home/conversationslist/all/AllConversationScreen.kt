@@ -36,30 +36,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.destinations.ConversationBottomSheetDestination
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationBottomSheetNavArg
 import com.wire.android.ui.home.conversationslist.common.ConversationList
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 
+@HomeNavGraph(start = true)
+@Destination
 @Composable
 fun AllConversationScreen(
-    conversations: ImmutableMap<ConversationFolder, List<ConversationItem>>,
-    hasNoConversations: Boolean,
+    navigator: DestinationsNavigator,
     viewModel: ConversationListViewModel = hiltViewModel(),
-    onEditConversation: (ConversationItem) -> Unit,
-    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit = {},
+    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit = {},
 ) {
+
+    val hasNoConversations = false
+
     val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
 
@@ -75,10 +80,31 @@ fun AllConversationScreen(
     } else {
         ConversationList(
             lazyListState = lazyListState,
-            conversationListItems = conversations,
+            conversationListItems = viewModel.conversationListState.foldersWithConversations,
             searchQuery = "",
             onOpenConversation = viewModel::openConversation,
-            onEditConversation = onEditConversation,
+            onEditConversation = {
+                navigator.navigate(
+                    ConversationBottomSheetDestination(
+                        ConversationBottomSheetNavArg(
+                            conversationName = viewModel.getConversationName(it),
+                            connectionState = viewModel.getConnectionState(it),
+                            userId = viewModel.getUserId(it),
+                            isGroup = viewModel.isAGroup(it),
+                            assetId = viewModel.getAssetId(it),
+                            conversationId = it.conversationId,
+                            mutingConversationState = MutedConversationStatus.AllAllowed,
+                            isTeamConversation = viewModel.isTeamConversation(it.teamId),
+                            canEditConversation = viewModel.canEditNotifications(it),
+                            canDeleteGroup = viewModel.canDeleteGroup(it),
+                            canLeaveGroup = viewModel.canLeaveTheGroup(it),
+                            canBlockUser = viewModel.canBlockUser(it),
+                            canUnblockUser = viewModel.canUnblockUser(it),
+                        )
+                    )
+                )
+//                onEditConversation
+            },
             onOpenUserProfile = viewModel::openUserProfile,
             onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
             onJoinCall = {
@@ -125,26 +151,33 @@ fun ConversationListEmptyStateScreen() {
         )
     }
 }
-@Preview
-@Composable
-fun PreviewAllConversationScreen() {
-    AllConversationScreen(
-        conversations = persistentMapOf(),
-        hasNoConversations = false,
-        onEditConversation = {},
-        onOpenConversationNotificationsSettings = {}
-    )
-}
 
-@Preview
-@Composable
-fun ConversationListEmptyStateScreenPreview() {
-    AllConversationScreen(
-        conversations = persistentMapOf(),
-        hasNoConversations = true,
-        onEditConversation = {},
-        onOpenConversationNotificationsSettings = {}
-    )
-}
+//val onEditConversationItem: (ConversationItem) -> Unit = remember {
+//    { conversationItem ->
+//        openConversationBottomSheet(
+//            conversationItem = conversationItem
+//        )
+//    }
+//}
+
+//@Preview
+//@Composable
+//fun PreviewAllConversationScreen() {
+//    AllConversationScreen(
+//        conversations = persistentMapOf(),
+//        onEditConversation = {},
+//        onOpenConversationNotificationsSettings = {}
+//    )
+//}
+
+//@Preview
+//@Composable
+//fun ConversationListEmptyStateScreenPreview() {
+//    AllConversationScreen(
+//        conversations = persistentMapOf(),
+//        onEditConversation = {},
+//        onOpenConversationNotificationsSettings = {}
+//    )
+//}
 
 private const val TAG = "AllConversationScreen"

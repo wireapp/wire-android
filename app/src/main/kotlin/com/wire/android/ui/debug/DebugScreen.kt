@@ -131,7 +131,7 @@ data class DebugContentState(
     fun shareLogs() {
         val dir = File(logPath).parentFile
         val fileUris = context.getUrisOfFilesInDirectory(dir)
-        val intent = context.multipleFileSharingIntent(fileUris)
+        val intent = multipleFileSharingIntent(fileUris)
         // The first log file is simply text, not compressed. Get its mime type separately
         // and set it as the mime type for the intent.
         intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"

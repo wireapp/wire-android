@@ -25,8 +25,8 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationItemType
@@ -34,11 +34,12 @@ import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.settings.SettingsScreen
 import com.wire.android.ui.home.vault.VaultScreen
 
+// TODO To remove
 internal fun navigateToItemInHome(
     navController: NavController,
-    item: HomeNavigationItem
+    direction: Direction
 ) {
-    navController.navigate(item.route) {
+    navController.navigate(direction.route) {
         navController.graph.startDestinationRoute?.let { route ->
             popUpTo(route) {
                 saveState = true
@@ -148,15 +149,15 @@ enum class HomeNavigationItem(
 
     val withBottomTabs: Boolean get() = bottomTabItems.contains(this)
 
-    fun toBottomNavigationItemData(notificationAmount: Long): WireBottomNavigationItemData =
-        WireBottomNavigationItemData(icon, tabName, notificationAmount, route)
+//    fun toBottomNavigationItemData(notificationAmount: Int): WireBottomNavigationItemData =
+//        WireBottomNavigationItemData(icon, tabName, notificationAmount, route)
 
     val itemName: String get() = ITEM_NAME_PREFIX + this.name
 
     companion object {
         // TODO uncomment when CallsScreen and MentionScreen will be implemented
-//         val bottomTabItems = listOf(Conversations, Calls, Mentions)
-        val bottomTabItems = listOf<HomeNavigationItem>()
+         val bottomTabItems = listOf(Conversations, Calls, Mentions)
+//        val bottomTabItems = listOf<HomeNavigationItem>()
 
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
         private val map: Map<String, HomeNavigationItem> = HomeNavigationItem.values().associateBy { it.route }

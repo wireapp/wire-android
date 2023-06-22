@@ -38,27 +38,42 @@ fun ClearConversationContentDialog(
     onClearConversationContent: (DialogState) -> Unit
 ) {
     VisibilityState(dialogState) {
-        WireDialog(
-            title = stringResource(R.string.dialog_clear_content_title),
-            text = stringResource(R.string.dialog_clear_content_text, stringResource(it.conversationTypeDetail.labelResource)),
-            buttonsHorizontalAlignment = true,
+        ClearContentDialog(
+            groupType = it.conversationTypeDetail.labelResource,
+            isLoading = isLoading,
             onDismiss = dialogState::dismiss,
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = dialogState::dismiss,
-                text = stringResource(id = R.string.label_cancel),
-                state = WireButtonState.Default
-            ),
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onClearConversationContent(it) },
-                text = stringResource(R.string.dialog_clear_content_option),
-                type = WireDialogButtonType.Primary,
-                state =
-                if (isLoading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Error,
-                loading = isLoading
-            )
+            onClear = { onClearConversationContent(it) }
         )
     }
+}
+
+@Composable
+fun ClearContentDialog(
+    groupType: Int,
+    isLoading: Boolean,
+    onDismiss: () -> Unit,
+    onClear: () -> Unit
+) {
+    WireDialog(
+        title = stringResource(R.string.dialog_clear_content_title),
+        text = stringResource(R.string.dialog_clear_content_text, stringResource(groupType)),
+        buttonsHorizontalAlignment = true,
+        onDismiss = onDismiss,
+        dismissButtonProperties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(id = R.string.label_cancel),
+            state = WireButtonState.Default
+        ),
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onClear,
+            text = stringResource(R.string.dialog_clear_content_option),
+            type = WireDialogButtonType.Primary,
+            state =
+            if (isLoading)
+                WireButtonState.Disabled
+            else
+                WireButtonState.Error,
+            loading = isLoading
+        )
+    )
 }

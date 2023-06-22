@@ -20,8 +20,10 @@
 
 package com.wire.android.ui.common
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,11 +37,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,17 +54,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.appCurrentDestinationAsState
+import com.wire.android.ui.bottombar.BottomBarDestination
+import com.wire.android.ui.destinations.Destination
+import com.wire.android.ui.startAppDestination
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun WireBottomNavigationBar(
-    items: List<WireBottomNavigationItemData>,
-    navController: NavController
+//    items: List<WireBottomNavigationItemData>,
+    navController: NavController,
+    onBottomBarItemClick: (Direction) -> Unit
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentDestination: Destination = navController.appCurrentDestinationAsState().value
+        ?: NavGraphs.home.startAppDestination
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -69,7 +83,7 @@ fun WireBottomNavigationBar(
         shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            items.forEachIndexed { index, item ->
+            BottomBarDestination.values().forEachIndexed { index, item ->
                 val modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
@@ -79,24 +93,27 @@ fun WireBottomNavigationBar(
                         bottom = MaterialTheme.wireDimensions.bottomNavigationVerticalPadding,
                         start = if (index == 0) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
                         else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding,
-                        end = if (index == items.lastIndex) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
+                        end = if (index == BottomBarDestination.values().lastIndex) MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding
                         else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding
                     )
 
-                WireBottomNavigationItem(
-                    data = item,
-                    selected = currentRoute == item.route,
-                    modifier = modifier
-                ) {
-                    navController.navigate(item.route) {
-                        popUpTo(0) {
-                            saveState = true
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
+
+                    Log.d("navigation", "WireBottomNavigationBar: route = ${item.direction}")
+                    WireBottomNavigationItem(
+                        data = WireBottomNavigationItemData(
+                            icon = item.icon,
+                            title = item.label,
+                            notificationAmount = 0,
+                            direction = item.direction
+                        ),
+                        selected = currentDestination == item.direction,
+                        modifier = modifier
+                    ) {
+                        Log.d("navigation", "WireBottomNavigationBar: clicked navController = $navController")
+                        Log.d("navigation", "WireBottomNavigationBar: clicked item = $it")
+                        onBottomBarItemClick(it.direction)
                     }
-                }
+
             }
         }
     }
@@ -167,6 +184,6 @@ fun WireBottomNavigationItem(
 data class WireBottomNavigationItemData(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
-    val notificationAmount: Long,
-    val route: String,
+    val notificationAmount: Int,
+    val direction: Direction,
 )

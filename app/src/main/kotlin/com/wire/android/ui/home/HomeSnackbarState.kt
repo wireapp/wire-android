@@ -25,7 +25,6 @@ sealed class HomeSnackbarState {
     object None : HomeSnackbarState()
     data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackbarState()
     data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackbarState()
-
     class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
     object MutingOperationError : HomeSnackbarState()
     object BlockingUserOperationError : HomeSnackbarState()

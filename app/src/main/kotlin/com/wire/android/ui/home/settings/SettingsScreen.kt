@@ -31,14 +31,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
 
+@HomeNavGraph
+@Destination
 @Composable
 fun SettingsScreen(
     lazyListState: LazyListState = rememberLazyListState(),

@@ -14,60 +14,52 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.conversationslist.mention
+package com.wire.android.ui.home.call
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
+import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import androidx.compose.foundation.lazy.rememberLazyListState
 
+@HomeNavGraph
+@Destination
 @Composable
-fun MentionScreen(
-    unreadMentions: List<ConversationItem> = emptyList(),
-    allMentions: List<ConversationItem> = emptyList(),
-    onMentionItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationItem) -> Unit,
-    onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
+fun CallsScreen(
+    missedCalls: List<ConversationItem> = emptyList(),
+    callHistory: List<ConversationItem> = emptyList(),
+    onEditConversationItem: (ConversationItem) -> Unit = {},
+    onOpenUserProfile: (UserId) -> Unit = { },
 ) {
     val lazyListState = rememberLazyListState()
 
-    MentionContent(
+    CallContent(
         lazyListState = lazyListState,
-        unreadMentions = unreadMentions,
-        allMentions = allMentions,
-        onMentionItemClick = onMentionItemClick,
+        missedCalls = missedCalls,
+        callHistory = callHistory,
         onEditConversationItem = onEditConversationItem,
-        onOpenUserProfile = onOpenUserProfile,
-        openConversationNotificationsSettings = openConversationNotificationsSettings,
-        onJoinCall = onJoinCall
+        onOpenUserProfile = onOpenUserProfile
     )
 }
 
 @Composable
-private fun MentionContent(
+fun CallContent(
     lazyListState: LazyListState,
-    unreadMentions: List<ConversationItem>,
-    allMentions: List<ConversationItem>,
-    onMentionItemClick: (ConversationId) -> Unit,
+    missedCalls: List<ConversationItem>,
+    callHistory: List<ConversationItem>,
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -75,35 +67,33 @@ private fun MentionContent(
         modifier = Modifier.fillMaxSize()
     ) {
         folderWithElements(
-            header = context.getString(R.string.mention_label_unread_mentions),
-            items = unreadMentions.associateBy { it.conversationId.toString() }
-        ) { unreadMention ->
+            header = context.getString(R.string.calls_label_missed_calls),
+            items = missedCalls.associateBy { it.conversationId.toString() }
+        ) { missedCall ->
             ConversationItemFactory(
-                conversation = unreadMention,
-                openConversation = onMentionItemClick,
+                conversation = missedCall,
+                openConversation = {},
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall,
+                openNotificationsOptions = { },
+                joinCall = {},
                 searchQuery = ""
             )
         }
 
         folderWithElements(
-            header = context.getString(R.string.mention_label_all_mentions),
-            items = allMentions.associateBy { it.conversationId.toString() }
-        ) { mention ->
+            header = context.getString(R.string.calls_label_calls_history),
+            items = callHistory.associateBy { it.conversationId.toString() }
+        ) { callHistory ->
             ConversationItemFactory(
-                conversation = mention,
-                openConversation = onMentionItemClick,
+                conversation = callHistory,
+                openConversation = {},
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall,
-                searchQuery = ""
+                openNotificationsOptions = {},
+                joinCall = { },
+                searchQuery = " "
             )
         }
     }
 }
-
-

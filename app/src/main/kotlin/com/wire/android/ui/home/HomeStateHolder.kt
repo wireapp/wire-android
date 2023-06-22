@@ -18,11 +18,8 @@
  *
  */
 
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package com.wire.android.ui.home
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -37,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.navigateToItemInHome
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
@@ -103,8 +101,8 @@ class HomeStateHolder(
         }
     }
 
-    fun navigateTo(homeNavigationItem: HomeNavigationItem) {
-        navigateToItemInHome(navController, homeNavigationItem)
+    fun navigateTo(direction: Direction) {
+        navigateToItemInHome(navController, direction)
     }
 }
 

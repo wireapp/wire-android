@@ -14,25 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.navigation
 
-package com.wire.android.ui.home.archive
+import com.ramcosta.composedestinations.annotation.NavGraph
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.ui.common.UnderConstructionScreen
-
-@Destination
-@Composable
-fun ArchiveScreen() {
-    UnderConstructionScreen(screenName = "ArchiveScreen")
-}
-
-@Preview(showBackground = false)
-@Composable
-fun PreviewArchiveScreen() {
-    ArchiveScreen()
-}
+@RootNavGraph
+@NavGraph
+annotation class HomeNavGraph(
+    val start: Boolean = false
+)

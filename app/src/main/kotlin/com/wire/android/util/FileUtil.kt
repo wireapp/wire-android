@@ -268,12 +268,9 @@ fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataS
 fun saveFileDataToMediaFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, assetMimeType: String, context: Context): Uri? =
     context.saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType)
 
-fun Context.multipleFileSharingIntent(uris: ArrayList<Uri>): Intent {
-
-    val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
-    return intent
+fun multipleFileSharingIntent(uris: ArrayList<Uri>) = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
 }
 
 fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
@@ -386,13 +383,10 @@ fun isText(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("text/")
 }
 
-@Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
-
-    if (Build.VERSION.SDK_INT >= 26) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
     }
-
     return null
 }
 

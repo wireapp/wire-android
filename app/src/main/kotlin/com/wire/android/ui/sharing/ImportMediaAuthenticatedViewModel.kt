@@ -29,9 +29,9 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.parseConversationEventType
-import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.ui.home.conversationslist.all.parseConversationEventType
+import com.wire.android.ui.home.conversationslist.all.parsePrivateConversationEventType
+import com.wire.android.ui.home.conversationslist.all.showLegalHoldIndicator
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil

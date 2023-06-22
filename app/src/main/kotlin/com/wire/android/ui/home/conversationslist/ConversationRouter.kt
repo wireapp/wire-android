@@ -29,43 +29,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
-import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.call.CallsScreen
+import com.wire.android.ui.home.conversations.details.dialog.BlockUserDialogContent
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
-import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
-import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
-import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
-import com.wire.android.ui.home.conversationslist.call.CallsScreen
-import com.wire.android.ui.home.conversationslist.mention.MentionScreen
+import com.wire.android.ui.home.conversations.details.dialog.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.LeaveConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.UnblockUserDialogContent
+import com.wire.android.ui.home.conversationslist.all.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
+import com.wire.android.ui.home.mention.MentionScreen
 import kotlinx.coroutines.flow.MutableSharedFlow
 
+// TODO To remove
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the BottomSheet
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
+@Destination
 @Composable
 fun ConversationRouterHomeBridge(
-    conversationItemType: ConversationItemType,
+    conversationItemType: ConversationItemType = ConversationItemType.ALL_CONVERSATIONS,
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onOpenBottomSheet: () -> Unit,
     onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
-    isBottomSheetVisible: () -> Boolean
+    isBottomSheetVisible: () -> Boolean,
+    viewModel: ConversationListViewModel = hiltViewModel()
 ) {
-    val viewModel: ConversationListViewModel = hiltViewModel()
 
     val conversationRouterHomeState = rememberConversationRouterState(
         initialConversationItemType = conversationItemType,
@@ -159,23 +162,21 @@ fun ConversationRouterHomeBridge(
 
         with(viewModel.conversationListState) {
             when (conversationRouterHomeState.conversationItemType) {
-                ConversationItemType.ALL_CONVERSATIONS ->
-                    AllConversationScreen(
-                        conversations = foldersWithConversations,
-                        hasNoConversations = hasNoConversations,
-                        onEditConversation = onEditConversationItem,
-                        onOpenConversationNotificationsSettings = onEditNotifications,
-                    )
+                ConversationItemType.ALL_CONVERSATIONS -> {
+//                    AllConversationScreen(
+//                        conversations = foldersWithConversations,
+//                        hasNoConversations = hasNoConversations,
+//                        onEditConversation = onEditConversationItem,
+//                        onOpenConversationNotificationsSettings = onEditNotifications,
+//                    )
+                }
 
                 ConversationItemType.CALLS ->
                     CallsScreen(
                         missedCalls = missedCalls,
                         callHistory = callHistory,
-                        onCallItemClick = viewModel::openConversation,
                         onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = viewModel::openUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
+                        onOpenUserProfile = viewModel::openUserProfile
                     )
 
                 ConversationItemType.MENTIONS ->
@@ -185,8 +186,7 @@ fun ConversationRouterHomeBridge(
                         onMentionItemClick = viewModel::openConversation,
                         onEditConversationItem = onEditConversationItem,
                         onOpenUserProfile = viewModel::openUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
+                        openConversationNotificationsSettings = onEditNotifications
                     )
 
                 ConversationItemType.SEARCH -> {

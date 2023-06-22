@@ -22,6 +22,7 @@ package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +33,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -42,44 +44,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.NavHostController
+import androidx.navigation.plusAssign
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.ModalBottomSheetLayout
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
+import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.Direction
+import com.ramcosta.composedestinations.spec.NavHostEngine
+import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.navigation.isExternalRoute
+import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.bottombar.BottomBarDestination
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
-import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.destinations.AllConversationScreenDestination
+import com.wire.android.ui.destinations.ConversationBottomSheetDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
-import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.conversationslist.all.ConversationListViewModel
+import com.wire.android.ui.drawer.HomeDrawer
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @RootNavGraph
 @Destination(
     style = WakeUpScreenPopUpNavigationAnimation::class
@@ -93,6 +108,12 @@ fun HomeScreen(
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
 ) {
+    val navHostEngine = rememberAnimatedNavHostEngine(
+        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
+    )
+    val navHostController = navHostEngine.rememberNavController()
+
+    val context = LocalContext.current
     homeViewModel.checkRequirements()
     featureFlagNotificationViewModel.loadInitialSync()
     val homeScreenState = rememberHomeScreenState()
@@ -143,10 +164,18 @@ fun HomeScreen(
     HomeContent(
         homeState = homeState,
         homeStateHolder = homeScreenState,
+        navHostController = navHostController,
+        navHostEngine = navHostEngine,
         conversationListState = conversationListViewModel.conversationListState,
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
-        navigateToItem = homeViewModel::navigateTo
+        navigateToItem = {
+            if (it.isExternalRoute()) {
+                CustomTabsHelper.launchUrl(context, it.route)
+            } else {
+                navHostController.navigate(it)
+            }
+        },
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {
@@ -184,6 +213,7 @@ fun HomeScreen(
             is NavResult.Canceled -> {
                 appLogger.i("Error with receiving navigation back args from OtherUserProfile in ConversationScreen")
             }
+
             is NavResult.Value -> {
                 homeScreenState.setSnackBarState(HomeSnackbarState.SuccessConnectionIgnoreRequest(result.value))
             }
@@ -191,15 +221,23 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun HomeContent(
     homeState: HomeState,
     homeStateHolder: HomeStateHolder,
     conversationListState: ConversationListState,
+    navHostController: NavHostController,
+    navHostEngine: NavHostEngine,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
-    navigateToItem: (Direction) -> Unit
+    navigateToItem: (Direction) -> Unit,
 ) {
+
+
+    val bottomSheetNavigator = rememberBottomSheetNavigator()
+    navHostController.navigatorProvider += bottomSheetNavigator
+
     with(homeStateHolder) {
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -213,9 +251,12 @@ fun HomeContent(
                     HomeDrawer(
                         // TODO: logFilePath does not belong in the UI logic
                         logFilePath = homeState.logFilePath,
-                        currentRoute = currentNavigationItem.route,
+                        currentRoute = navHostController.currentDestination?.route,
                         navigateToHomeItem = ::navigateTo,
-                        navigateToItem = navigateToItem,
+                        navigateToItem = {
+                            navigateToItem(it)
+                            closeDrawer()
+                        },
                         onCloseDrawer = ::closeDrawer
                     )
                 }
@@ -224,115 +265,145 @@ fun HomeContent(
             content = {
                 with(currentNavigationItem) {
 
-                    CollapsingTopBarScaffold(
-                        snapOnFling = false,
-                        keepElevationWhenCollapsed = true,
-                        topBarHeader = { elevation ->
-                            Column(modifier = Modifier.animateContentSize()) {
-                                AnimatedVisibility(visible = !searchBarState.isSearchActive) {
-                                    HomeTopBar(
-                                        avatarAsset = homeState.avatarAsset,
-                                        status = homeState.status,
-                                        title = stringResource(currentNavigationItem.title),
-                                        elevation = elevation,
-                                        onHamburgerMenuClick = ::openDrawer,
-                                        onNavigateToSelfUserProfile = onSelfUserClick
+                    ModalBottomSheetLayout(
+                        bottomSheetNavigator = bottomSheetNavigator,
+                        // other configuration for you bottom sheet screens, like:
+                        sheetShape = RoundedCornerShape(16.dp),
+                    ) {
+                        CollapsingTopBarScaffold(
+                            snapOnFling = false,
+                            keepElevationWhenCollapsed = true,
+                            topBarHeader = { elevation ->
+                                Column(modifier = Modifier.animateContentSize()) {
+                                    AnimatedVisibility(visible = !searchBarState.isSearchActive) {
+
+                                        HomeTopBar(
+                                            avatarAsset = homeState.avatarAsset,
+                                            status = homeState.status,
+                                            title = stringResource(currentNavigationItem.title),
+                                            elevation = elevation,
+                                            onHamburgerMenuClick = ::openDrawer,
+                                            onNavigateToSelfUserProfile = onSelfUserClick
+                                        )
+                                    }
+                                }
+                            },
+                            snackbarHost = {
+                                SwipeDismissSnackbarHost(
+                                    hostState = snackBarHostState,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
+                            topBarCollapsing = {
+                                val currentDestination = navHostController.currentDestinationAsState().value
+                                val shouldBeVisible = currentDestination is AllConversationScreenDestination ||
+                                        currentDestination is ConversationBottomSheetDestination
+                                if (shouldBeVisible) {
+                                    SearchTopBar(
+                                        isSearchActive = searchBarState.isSearchActive,
+                                        searchBarHint = stringResource(R.string.search_bar_conversations_hint),
+                                        searchQuery = searchBarState.searchQuery,
+                                        onSearchQueryChanged = searchBarState::searchQueryChanged,
+                                        onInputClicked = searchBarState::openSearch,
+                                        onCloseSearchClicked = searchBarState::closeSearch,
                                     )
                                 }
-                            }
-                        },
-                        snackbarHost = {
-                            SwipeDismissSnackbarHost(
-                                hostState = snackBarHostState,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        },
-                        topBarCollapsing = {
-                            if (currentNavigationItem.isSearchable) {
-                                SearchTopBar(
-                                    isSearchActive = searchBarState.isSearchActive,
-                                    searchBarHint = stringResource(R.string.search_bar_conversations_hint),
-                                    searchQuery = searchBarState.searchQuery,
-                                    onSearchQueryChanged = searchBarState::searchQueryChanged,
-                                    onInputClicked = searchBarState::openSearch,
-                                    onCloseSearchClicked = searchBarState::closeSearch,
+                            },
+                            content = {
+
+                                /**
+                                 * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
+                                 * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
+                                 * compositions in the round they are to be disposed. More here:
+                                 * https://github.com/google/accompanist/issues/1487
+                                 * https://issuetracker.google.com/issues/268422136
+                                 * https://issuetracker.google.com/issues/254645321
+                                 */
+//                            if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+//                                NavHost(
+//                                    navController = navController,
+//                                    // For now we only support Conversations screen
+//                                    startDestination = HomeNavigationItem.Conversations.route
+//                                ) {
+//                                    HomeNavigationItem.values()
+//                                        .forEach { item ->
+//                                            composable(
+//                                                route = item.route,
+//                                                content = item.content(homeStateHolder)
+//                                            )
+//                                        }
+//                                }
+//                            }
+
+                                DestinationsNavHost(
+                                    navGraph = NavGraphs.home,
+                                    engine = navHostEngine,
+                                    navController = navHostController,
                                 )
-                            }
-                        },
-                        content = {
-                            /**
-                             * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
-                             * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
-                             * compositions in the round they are to be disposed. More here:
-                             * https://github.com/google/accompanist/issues/1487
-                             * https://issuetracker.google.com/issues/268422136
-                             * https://issuetracker.google.com/issues/254645321
-                             */
-                            if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-                                NavHost(
-                                    navController = navController,
-                                    // For now we only support Conversations screen
-                                    startDestination = HomeNavigationItem.Conversations.route
+
+                            },
+                            floatingActionButton = {
+                                val currentDestination = navHostController.currentDestinationAsState().value
+                                val bottomBarDestinations = BottomBarDestination.values().map { it.direction.route }
+                                val shouldBeVisible = currentDestination?.let {
+                                    currentDestination.route in bottomBarDestinations && !searchBarState.isSearchActive
+                                } ?: false
+                                AnimatedVisibility(
+                                    visible = shouldBeVisible,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
                                 ) {
-                                    HomeNavigationItem.values()
-                                        .forEach { item ->
-                                            composable(
-                                                route = item.route,
-                                                content = item.content(homeStateHolder)
+                                    FloatingActionButton(
+                                        text = stringResource(R.string.label_new),
+                                        icon = {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.ic_conversation),
+                                                contentDescription = stringResource(R.string.content_description_new_conversation),
+                                                contentScale = ContentScale.FillBounds,
+                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                                modifier = Modifier
+                                                    .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                                                    .size(dimensions().fabIconSize)
                                             )
-                                        }
+                                        },
+                                        onClick = onNewConversationClick
+                                    )
+                                }
+                            },
+                            bottomBar = {
+                                val currentDestination = navHostController.currentDestinationAsState().value
+                                val bottomBarDestinations = BottomBarDestination.values().map { it.direction.route }
+                                val shouldBeVisible = currentDestination?.let {
+                                    currentDestination.route in bottomBarDestinations
+                                } ?: false
+                                AnimatedVisibility(
+                                    visible = shouldBeVisible,
+                                    enter = slideInVertically(initialOffsetY = { it }),
+                                    exit = slideOutVertically(targetOffsetY = { it }),
+                                ) {
+                                    WireBottomNavigationBar(
+//                                    items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
+//                                        conversationListState = conversationListState
+//                                    ),
+                                        navController = navHostController
+                                    ) {
+                                        navHostController.navigate(it)
+                                    }
                                 }
                             }
-                        },
-                        floatingActionButton = {
-                            AnimatedVisibility(
-                                visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                            ) {
-                                FloatingActionButton(
-                                    text = stringResource(R.string.label_new),
-                                    icon = {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_conversation),
-                                            contentDescription = stringResource(R.string.content_description_new_conversation),
-                                            contentScale = ContentScale.FillBounds,
-                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                            modifier = Modifier
-                                                .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                                                .size(dimensions().fabIconSize)
-                                        )
-                                    },
-                                    onClick = onNewConversationClick
-                                )
-                            }
-                        },
-                        bottomBar = {
-                            AnimatedVisibility(
-                                visible = currentNavigationItem.withBottomTabs,
-                                enter = slideInVertically(initialOffsetY = { it }),
-                                exit = slideOutVertically(targetOffsetY = { it }),
-                            ) {
-                                WireBottomNavigationBar(
-                                    items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
-                                        conversationListState = conversationListState
-                                    ),
-                                    navController = navController
-                                )
-                            }
-                        }
-                    )
+                        )
+                    }
 
-                    WireModalSheetLayout(
-                        sheetState = bottomSheetState,
-                        coroutineScope = coroutineScope,
-                        // we want to render "nothing" instead of doing a if/else check
-                        // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
-                        // or render it without WireModalSheetLayout to avoid
-                        // recomposing the homeContent() when homeBottomSheetContent
-                        // changes from null to "something"
-                        sheetContent = homeBottomSheetContent ?: { }
-                    )
+//                    WireModalSheetLayout(
+//                        sheetState = bottomSheetState,
+//                        coroutineScope = coroutineScope,
+//                        // we want to render "nothing" instead of doing a if/else check
+//                        // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
+//                        // or render it without WireModalSheetLayout to avoid
+//                        // recomposing the homeContent() when homeBottomSheetContent
+//                        // changes from null to "something"
+//                        sheetContent = homeBottomSheetContent ?: { }
+//                    )
                 }
             }
         )
@@ -385,14 +456,14 @@ private fun handleSnackBarMessage(
     }
 }
 
-@Composable
-private fun List<HomeNavigationItem>.toBottomNavigationItems(
-    conversationListState: ConversationListState
-): List<WireBottomNavigationItemData> = map { homeNavigationItem ->
-    when (homeNavigationItem) {
-        HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(conversationListState.newActivityCount)
-        HomeNavigationItem.Calls -> homeNavigationItem.toBottomNavigationItemData(conversationListState.missedCallsCount)
-        HomeNavigationItem.Mentions -> homeNavigationItem.toBottomNavigationItemData(conversationListState.unreadMentionsCount)
-        else -> homeNavigationItem.toBottomNavigationItemData(0L)
-    }
-}
+//@Composable
+//private fun List<HomeNavigationItem>.toBottomNavigationItems(
+//    conversationListState: ConversationListState
+//): List<WireBottomNavigationItemData> = map { homeNavigationItem ->
+//    when (homeNavigationItem) {
+//        HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(conversationListState.newActivityCount)
+//        HomeNavigationItem.Calls -> homeNavigationItem.toBottomNavigationItemData(conversationListState.missedCallsCount)
+//        HomeNavigationItem.Mentions -> homeNavigationItem.toBottomNavigationItemData(conversationListState.unreadMentionsCount)
+//        else -> homeNavigationItem.toBottomNavigationItemData(0)
+//    }
+//}

@@ -21,8 +21,10 @@
 package com.wire.android.ui.common.bottomsheet.conversation
 
 import MutingOptionsSheetContent
+import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -34,6 +36,8 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.parcelize.Parcelize
+
 
 @Composable
 fun ConversationSheetContent(
@@ -50,25 +54,30 @@ fun ConversationSheetContent(
     closeBottomSheet: () -> Unit = {},
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
+    val conversationSheetState: ConversationSheetState = remember { ConversationSheetState() }
+//    val conversationSheetState = rememberConversationSheetState(
+//        conversationItem = conversationSheetContentViewModel.navArg.conversationItem,
+//        conversationOptionNavigation = ConversationOptionNavigation.Home
+//    )
     // it may be null as initial state
     if (conversationSheetState.conversationSheetContent == null) return
 
     when (conversationSheetState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {
-            ConversationMainSheetContent(
-                conversationSheetContent = conversationSheetState.conversationSheetContent!!,
-// TODO(profile): enable when implemented
-//
-//                addConversationToFavourites = addConversationToFavourites,
-//                moveConversationToFolder = moveConversationToFolder,
-//                moveConversationToArchive = moveConversationToArchive,
-                clearConversationContent = clearConversationContent,
-                blockUserClick = blockUser,
-                unblockUserClick = unblockUser,
-                leaveGroup = leaveGroup,
-                deleteGroup = deleteGroup,
-                navigateToNotification = conversationSheetState::toMutingNotificationOption
-            )
+//            ConversationMainSheetContent(
+//                conversationSheetContent = conversationSheetState.conversationSheetContent!!,
+//// TODO(profile): enable when implemented
+////
+////                addConversationToFavourites = addConversationToFavourites,
+////                moveConversationToFolder = moveConversationToFolder,
+////                moveConversationToArchive = moveConversationToArchive,
+//                clearConversationContent = clearConversationContent,
+//                blockUserClick = blockUser,
+//                unblockUserClick = unblockUser,
+//                leaveGroup = leaveGroup,
+//                deleteGroup = deleteGroup,
+//                navigateToNotification = conversationSheetState::toMutingNotificationOption
+//            )
         }
 
         ConversationOptionNavigation.MutingNotificationOption -> {
@@ -118,6 +127,18 @@ sealed class ConversationTypeDetail {
         get() = if (this is Group) R.string.group_label else R.string.conversation_label
 }
 
+//data class HomeConversationSheetContent(
+//    val title: String,
+//    val conversationId: ConversationId,
+//    val mutingConversationState: MutedConversationStatus,
+//    val isTeamConversation: Boolean,
+//    val canEditConversation: Boolean,
+//    val canDeleteGroup: Boolean,
+//    val canLeaveGroup: Boolean,
+//    val canBlockUser: Boolean,
+//    val canUnblockUser: Boolean
+//)
+
 data class ConversationSheetContent(
     val title: String,
     val conversationId: ConversationId,
@@ -125,29 +146,29 @@ data class ConversationSheetContent(
     val conversationTypeDetail: ConversationTypeDetail,
     val selfRole: Conversation.Member.Role?,
     val isTeamConversation: Boolean
-) {
+)  {
 
-    private val isSelfUserMember: Boolean get() = selfRole != null
-
-    fun canEditNotifications(): Boolean = isSelfUserMember
-            && ((conversationTypeDetail is ConversationTypeDetail.Private
-            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
-            || conversationTypeDetail is ConversationTypeDetail.Group)
-
-    fun canDeleteGroup(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Group &&
-                selfRole == Conversation.Member.Role.Admin &&
-                conversationTypeDetail.isCreator && isTeamConversation
-
-    fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
-
-    fun canBlockUser(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
-
-    fun canUnblockUser(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
-
-    fun canAddToFavourite(): Boolean =
-        (conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
-                || conversationTypeDetail is ConversationTypeDetail.Group
+//    private val isSelfUserMember: Boolean get() = selfRole != null
+//
+//    fun canEditNotifications(): Boolean = isSelfUserMember
+//            && ((conversationTypeDetail is ConversationTypeDetail.Private
+//            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
+//            || conversationTypeDetail is ConversationTypeDetail.Group)
+//
+//    fun canDeleteGroup(): Boolean =
+//        conversationTypeDetail is ConversationTypeDetail.Group &&
+//                selfRole == Conversation.Member.Role.Admin &&
+//                conversationTypeDetail.isCreator && isTeamConversation
+//
+//    fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
+//
+//    fun canBlockUser(): Boolean =
+//        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
+//
+//    fun canUnblockUser(): Boolean =
+//        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
+//
+//    fun canAddToFavourite(): Boolean =
+//        (conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
+//                || conversationTypeDetail is ConversationTypeDetail.Group
 }

@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.common.dialogs
+package com.wire.android.ui.home.conversations.details.dialog
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -31,6 +29,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
@@ -43,31 +42,46 @@ fun UnblockUserDialogContent(
     onUnblock: (UserId) -> Unit = { }
 ) {
     VisibilityState(dialogState) { state ->
-        WireDialog(
-            title = stringResource(id = R.string.unblock_user_dialog_title),
-            text = LocalContext.current.resources.stringWithStyledArgs(
-                R.string.unblock_user_dialog_body,
-                MaterialTheme.wireTypography.body01,
-                MaterialTheme.wireTypography.body02,
-                colorsScheme().onBackground,
-                colorsScheme().onBackground,
-                state.userName
-            ),
+        UnBlockUserDialog(
+            isLoading = isLoading,
+            userName = state.userName,
             onDismiss = dialogState::dismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onUnblock(state.userId) },
-                text = stringResource(id = R.string.unblock_user_dialog_confirm_button),
-                type = WireDialogButtonType.Primary,
-                state = if (isLoading)
-                    WireButtonState.Disabled
-                else
-                    WireButtonState.Default,
-            ),
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = dialogState::dismiss,
-                text = stringResource(id = android.R.string.cancel),
-                type = WireDialogButtonType.Secondary,
-            )
+            onBlock = { onUnblock(state.userId) }
         )
     }
+}
+
+@Composable
+fun UnBlockUserDialog(
+    isLoading: Boolean,
+    userName: String,
+    onDismiss: () -> Unit,
+    onBlock: () -> Unit
+) {
+    WireDialog(
+        title = stringResource(id = R.string.unblock_user_dialog_title),
+        text = LocalContext.current.resources.stringWithStyledArgs(
+            R.string.unblock_user_dialog_body,
+            MaterialTheme.wireTypography.body01,
+            MaterialTheme.wireTypography.body02,
+            colorsScheme().onBackground,
+            colorsScheme().onBackground,
+            userName
+        ),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onBlock,
+            text = stringResource(id = R.string.unblock_user_dialog_confirm_button),
+            type = WireDialogButtonType.Primary,
+            state = if (isLoading)
+                WireButtonState.Disabled
+            else
+                WireButtonState.Default,
+        ),
+        dismissButtonProperties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(id = android.R.string.cancel),
+            type = WireDialogButtonType.Secondary,
+        )
+    )
 }

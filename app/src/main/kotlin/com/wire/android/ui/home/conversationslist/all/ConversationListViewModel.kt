@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,8 +40,10 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -51,6 +51,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -61,7 +62,9 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UnreadEventType
+import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -79,7 +82,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
-import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
@@ -191,9 +193,9 @@ class ConversationListViewModel @Inject constructor(
             allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
             foldersWithConversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
-            newActivityCount = 0L,
-            unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
-            missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
+            newActivityCount = 0,
+            unreadMentionsCount = 0, // TODO: needs to be implemented on Kalium side
+            missedCallsCount = 0 // TODO: needs to be implemented on Kalium side
         )
     }
 
@@ -410,9 +412,9 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             requestInProgress = true
             when (withContext(dispatcher.io()) { deleteTeamConversation(groupDialogState.conversationId) }) {
-                is Result.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
-                Result.Failure.NoTeamFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
-                Result.Success -> homeSnackBarState.emit(
+                is DeleteTeamConversationUseCase.Result.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
+                DeleteTeamConversationUseCase.Result.Failure.NoTeamFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
+                DeleteTeamConversationUseCase.Result.Success -> homeSnackBarState.emit(
                     HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName)
                 )
             }
@@ -475,6 +477,59 @@ class ConversationListViewModel @Inject constructor(
             homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
     }
+
+    fun getUserId(conversationItem: ConversationItem): UserId? = when (conversationItem) {
+        is ConversationItem.PrivateConversation -> conversationItem.userId
+        else -> null
+    }
+
+    fun isAGroup(conversationItem: ConversationItem) = conversationItem is ConversationItem.GroupConversation
+
+    fun getConversationName(conversationItem: ConversationItem): String = when (conversationItem) {
+        is ConversationItem.GroupConversation -> conversationItem.groupName
+        is ConversationItem.PrivateConversation -> conversationItem.conversationInfo.name
+        is ConversationItem.ConnectionConversation -> conversationItem.conversationInfo.name
+    }
+
+    fun getConnectionState(conversationItem: ConversationItem): ConnectionState? = when (conversationItem) {
+        is ConversationItem.PrivateConversation -> {
+            if (conversationItem.blockingState == BlockingState.BLOCKED)
+                ConnectionState.BLOCKED
+            null
+        }
+
+        else -> null
+    }
+
+    fun getAssetId(conversationItem: ConversationItem): AssetId? = when (conversationItem) {
+        is ConversationItem.PrivateConversation -> conversationItem.userAvatarData.asset?.userAssetId!!
+        else -> null
+    }
+
+    fun isTeamConversation(teamId: TeamId?): Boolean = teamId != null
+
+    fun canEditNotifications(conversationItem: ConversationItem): Boolean =
+        ((conversationItem is ConversationItem.PrivateConversation
+                && (conversationItem.blockingState != BlockingState.BLOCKED))
+                || conversationItem is ConversationItem.GroupConversation && conversationItem.isSelfUserMember)
+
+    fun canDeleteGroup(conversationItem: ConversationItem): Boolean =
+        conversationItem is ConversationItem.GroupConversation &&
+                conversationItem.selfMemberRole == Conversation.Member.Role.Admin &&
+                conversationItem.isSelfUserCreator && conversationItem.isTeamConversation
+
+    fun canLeaveTheGroup(conversationItem: ConversationItem): Boolean =
+        conversationItem is ConversationItem.GroupConversation && conversationItem.isSelfUserMember
+
+    fun canBlockUser(conversationItem: ConversationItem): Boolean =
+        conversationItem is ConversationItem.PrivateConversation && conversationItem.blockingState == BlockingState.NOT_BLOCKED
+
+    fun canUnblockUser(conversationItem: ConversationItem): Boolean =
+        conversationItem is ConversationItem.PrivateConversation && conversationItem.blockingState == BlockingState.BLOCKED
+
+    fun canAddToFavourite(conversationItem: ConversationItem): Boolean =
+        (conversationItem is ConversationItem.PrivateConversation && conversationItem.blockingState != BlockingState.BLOCKED)
+                || conversationItem is ConversationItem.GroupConversation
 
     companion object {
         const val DELAY_END_CALL = 200L

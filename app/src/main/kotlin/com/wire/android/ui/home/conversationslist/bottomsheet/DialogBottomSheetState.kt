@@ -14,25 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.conversationslist.bottomsheet
 
-package com.wire.android.ui.home.archive
-
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.ui.common.UnderConstructionScreen
-
-@Destination
-@Composable
-fun ArchiveScreen() {
-    UnderConstructionScreen(screenName = "ArchiveScreen")
-}
-
-@Preview(showBackground = false)
-@Composable
-fun PreviewArchiveScreen() {
-    ArchiveScreen()
-}
+data class DialogBottomSheetState(
+    val showBlockUserDialog: Boolean = false,
+    val showUnblockUserDialog: Boolean = false,
+    val showDeleteConversationDialog: Boolean = false,
+    val showLeaveConversationDialog: Boolean = false,
+    val showClearContentDialog: Boolean = false,
+    val isLoading: Boolean = false
+)

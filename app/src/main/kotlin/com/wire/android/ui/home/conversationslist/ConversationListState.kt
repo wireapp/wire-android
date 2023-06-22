@@ -38,9 +38,9 @@ data class ConversationListState(
     val callHistory: ImmutableList<ConversationItem> = persistentListOf(),
     val unreadMentions: ImmutableList<ConversationItem> = persistentListOf(),
     val allMentions: ImmutableList<ConversationItem> = persistentListOf(),
-    val newActivityCount: Long = 0,
-    val missedCallsCount: Long = 0,
-    val unreadMentionsCount: Long = 0,
+    val newActivityCount: Int = 0,
+    val missedCallsCount: Int = 0,
+    val unreadMentionsCount: Int = 0,
     val hasEstablishedCall: Boolean = false,
     val shouldShowJoinAnywayDialog: Boolean = false
 ) {

@@ -22,8 +22,10 @@ package com.wire.android.ui.home.vault
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.ui.common.UnderConstructionScreen
 
+@Destination
 @Composable
 fun VaultScreen() {
     UnderConstructionScreen(screenName = "VaultScreen")

@@ -72,9 +72,9 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.home.conversations.details.dialog.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
+import com.wire.android.ui.home.conversations.details.dialog.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost

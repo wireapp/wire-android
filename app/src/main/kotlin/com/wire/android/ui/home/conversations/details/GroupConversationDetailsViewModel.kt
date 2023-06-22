@@ -64,7 +64,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeU
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
-import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -211,9 +210,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             requestInProgress = true
             when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-                is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
-                Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
-                Result.Success -> {
+                is DeleteTeamConversationUseCase.Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
+                DeleteTeamConversationUseCase.Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
+                DeleteTeamConversationUseCase.Result.Success -> {
                     onSuccess()
                 }
             }

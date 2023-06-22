@@ -30,13 +30,10 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
@@ -91,7 +88,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
@@ -152,14 +148,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         }
                     }
                 }
-        }
-    }
-
-    override fun onDeviceClick(device: Device) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(DeviceDetailsScreenDestination(userId, device.clientId))
-            )
         }
     }
 
@@ -385,6 +373,4 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             state = state.copy(securityClassificationType = result)
         }
     }
-
-    override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }

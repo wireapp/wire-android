@@ -60,9 +60,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
-import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -71,17 +70,15 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -91,8 +88,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navigator: Navigator,
-    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    homeViewModel: HomeViewModel = hiltViewModel(),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,

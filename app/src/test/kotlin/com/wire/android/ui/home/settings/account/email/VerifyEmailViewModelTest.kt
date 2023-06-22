@@ -20,7 +20,6 @@ package com.wire.android.ui.home.settings.account.email
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
 import com.wire.android.ui.navArgs
@@ -30,6 +29,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -42,30 +42,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VerifyEmailViewModelTest {
 
     @Test
-    fun `given updateEmail returns Success NoChange, when onVerifyEmail is called, then navigate back`() = runTest {
+    fun `given updateEmail returns Success NoChange, when onVerifyEmail is called, then call onNoChange`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNewEmail("newEmail")
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.NoChange)
             .arrange()
 
-        viewModel.onResendVerificationEmailClicked()
+        viewModel.onResendVerificationEmailClicked(arrangement.onNoChange)
 
+        verify(exactly = 1) { arrangement.onNoChange() }
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
             arrangement.updateEmail(any())
-        }
-    }
-
-    @Test
-    fun `when new email is Missing, then navigate back`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNewEmail(null)
-            .arrange()
-
-        viewModel.onResendVerificationEmailClicked()
-
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
         }
     }
 
@@ -75,16 +62,16 @@ class VerifyEmailViewModelTest {
         lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
-        lateinit var navigationManager: NavigationManager
-
-        @MockK
         lateinit var updateEmail: UpdateEmailUseCase
+
+        @MockK(relaxed = true)
+        lateinit var onNoChange: () -> Unit
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun withNewEmail(email: String?) = apply {
+        fun withNewEmail(email: String) = apply {
             every { savedStateHandle.navArgs<VerifyEmailNavArgs>() } returns VerifyEmailNavArgs(newEmail = email)
         }
 
@@ -94,7 +81,6 @@ class VerifyEmailViewModelTest {
 
         fun arrange() = this to VerifyEmailViewModel(
             updateEmail,
-            navigationManager,
             savedStateHandle
         )
     }

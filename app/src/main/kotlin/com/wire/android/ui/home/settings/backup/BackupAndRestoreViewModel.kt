@@ -30,10 +30,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -59,7 +55,6 @@ import javax.inject.Inject
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val importBackup: RestoreBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
@@ -250,14 +245,6 @@ class BackupAndRestoreViewModel
     private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {
         state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(progress))
     }
-
-    fun navigateToConversations() {
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
-    }
-
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"

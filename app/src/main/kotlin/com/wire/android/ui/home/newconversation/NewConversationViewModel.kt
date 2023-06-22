@@ -27,18 +27,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
-import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
@@ -64,8 +61,7 @@ class NewConversationViewModel @Inject constructor(
     contactMapper: ContactMapper,
     isMLSEnabled: IsMLSEnabledUseCase,
     dispatchers: DispatcherProvider,
-    sendConnectionRequest: SendConnectionRequestUseCase,
-    navigationManager: NavigationManager
+    sendConnectionRequest: SendConnectionRequestUseCase
 ) : SearchAllPeopleViewModel(
     getAllKnownUsers = getAllKnownUsers,
     sendConnectionRequest = sendConnectionRequest,
@@ -73,7 +69,6 @@ class NewConversationViewModel @Inject constructor(
     searchPublicUsers = searchPublicUsers,
     contactMapper = contactMapper,
     dispatcher = dispatchers,
-    navigationManager = navigationManager,
     getAllServices = getAllServices
 ) {
 
@@ -116,17 +111,17 @@ class NewConversationViewModel @Inject constructor(
         groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = false)
     }
 
-    fun onAllowGuestsClicked() {
+    fun onAllowGuestsClicked(onCreated: (ConversationId) -> Unit) {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(true)
-        createGroupForTeamAccounts(false)
+        createGroupForTeamAccounts(false, onCreated)
     }
 
-    fun onNotAllowGuestClicked() {
+    fun onNotAllowGuestClicked(onCreated: (ConversationId) -> Unit) {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(false)
         removeGuestsIfNotAllowed()
-        createGroupForTeamAccounts(false)
+        createGroupForTeamAccounts(false, onCreated)
     }
 
     private fun removeGuestsIfNotAllowed() {
@@ -154,10 +149,10 @@ class NewConversationViewModel @Inject constructor(
         return false
     }
 
-    fun createGroup() {
+    fun createGroup(onCreated: (ConversationId) -> Unit) {
         newGroupState.isSelfTeamMember?.let {
             if (it) {
-                createGroupForTeamAccounts(true)
+                createGroupForTeamAccounts(true, onCreated)
             } else {
                 // Personal Account
                 createGroupForPersonalAccounts()
@@ -182,7 +177,7 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
-    private fun createGroupForTeamAccounts(shouldCheckGuests: Boolean = true) {
+    private fun createGroupForTeamAccounts(shouldCheckGuests: Boolean = true, onCreated: (ConversationId) -> Unit) {
         if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
@@ -201,30 +196,27 @@ class NewConversationViewModel @Inject constructor(
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
                 )
             )
-            handleNewGroupCreationResult(result)
+            handleNewGroupCreationResult(result)?.let(onCreated)
         }
     }
 
-    private suspend fun handleNewGroupCreationResult(result: CreateGroupConversationUseCase.Result) {
-        when (result) {
+    private fun handleNewGroupCreationResult(result: CreateGroupConversationUseCase.Result): ConversationId? {
+        return when (result) {
             is CreateGroupConversationUseCase.Result.Success -> {
                 newGroupState = newGroupState.copy(isLoading = false)
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = ConversationScreenDestination(result.conversation.id),
-                        backStackMode = BackStackMode.REMOVE_CURRENT
-                    )
-                )
+                result.conversation.id
             }
 
             CreateGroupConversationUseCase.Result.SyncFailure -> {
                 appLogger.d("Can't create group due to SyncFailure")
                 groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.LackingConnection)
+                null
             }
 
             is CreateGroupConversationUseCase.Result.UnknownFailure -> {
                 appLogger.w("Error while creating a group ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.Unknown)
+                null
             }
         }
     }

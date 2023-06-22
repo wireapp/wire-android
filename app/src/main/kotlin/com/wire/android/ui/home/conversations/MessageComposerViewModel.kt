@@ -31,12 +31,9 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
@@ -177,17 +174,6 @@ class MessageComposerViewModel @Inject constructor(
     private fun fetchConversationClassificationType() = viewModelScope.launch {
         observeSecurityClassificationLabel(conversationId).collect { classificationType ->
             messageComposerViewState = messageComposerViewState.copy(securityClassificationType = classificationType)
-        }
-    }
-
-    internal fun checkPendingActions() {
-        // Check if there are messages to delete
-        val messageToDeleteId = savedStateHandle.getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
-
-        val messageToDeleteIsSelf = savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
-
-        if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
-            showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
     }
 

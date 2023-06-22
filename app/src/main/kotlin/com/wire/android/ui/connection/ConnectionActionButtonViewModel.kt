@@ -30,15 +30,12 @@ import com.wire.android.model.ActionableState
 import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
 import com.wire.android.model.updateState
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -70,13 +67,12 @@ interface ConnectionActionButtonViewModel {
     fun onAcceptConnectionRequest()
     fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit)
     fun onUnblockUser()
-    fun onOpenConversation()
+    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit)
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConnectionActionButtonViewModelImpl @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -189,7 +185,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onOpenConversation() {
+    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {
         viewModelScope.launch {
             state = state.performAction()
             when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
@@ -198,13 +194,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                     state = state.finishAction()
                 }
 
-                is CreateConversationResult.Success ->
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = ConversationScreenDestination(result.conversation.id),
-                            backStackMode = BackStackMode.UPDATE_EXISTED
-                        )
-                    )
+                is CreateConversationResult.Success -> onSuccess(result.conversation.id)
             }
         }
     }
@@ -222,5 +212,5 @@ class ConnectionActionButtonPreviewModel(private val state: ActionableState<Conn
     override fun onAcceptConnectionRequest() {}
     override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
     override fun onUnblockUser() {}
-    override fun onOpenConversation() {}
+    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
 }

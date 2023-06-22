@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -58,7 +59,6 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -85,8 +85,6 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
@@ -96,8 +94,7 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun GroupConversationDetailsScreen(
-    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    viewModel: GroupConversationDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
 ) {

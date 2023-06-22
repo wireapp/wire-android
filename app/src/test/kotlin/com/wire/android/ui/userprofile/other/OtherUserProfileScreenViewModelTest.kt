@@ -57,16 +57,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class OtherUserProfileScreenViewModelTest {
 
     @Test
-    fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-            .arrange()
-
-        viewModel.navigateBack()
-
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
-    }
-
-    @Test
     fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
@@ -82,7 +72,6 @@ class OtherUserProfileScreenViewModelTest {
             // then
             coVerify {
                 arrangement.observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
-                arrangement.navigationManager wasNot Called
             }
             assertEquals(groupState, expected)
             assertEquals(viewModel.state.conversationId, CONVERSATION_ID)
@@ -101,7 +90,6 @@ class OtherUserProfileScreenViewModelTest {
         // then
         coVerify {
             arrangement.observeConversationRoleForUserUseCase(any(), any()) wasNot Called
-            arrangement.navigationManager wasNot Called
         }
         assertEquals(groupState, null)
     }
@@ -123,7 +111,6 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
-                    arrangement.navigationManager wasNot Called
                 }
                 expectNoEvents()
             }
@@ -146,7 +133,6 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
-                    arrangement.navigationManager wasNot Called
                 }
                 assertEquals(OtherUserProfileInfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
             }

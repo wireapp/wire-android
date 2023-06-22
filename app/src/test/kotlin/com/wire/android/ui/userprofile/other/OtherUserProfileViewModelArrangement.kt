@@ -25,7 +25,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs
@@ -57,8 +56,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 
 internal class OtherUserProfileViewModelArrangement {
-    @MockK
-    lateinit var navigationManager: NavigationManager
 
     @MockK
     lateinit var savedStateHandle: SavedStateHandle
@@ -110,7 +107,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
-            navigationManager,
             TestDispatcherProvider(),
             updateConversationMutedStatus,
             blockUser,
@@ -153,7 +149,6 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(
             OtherUserProfileScreenViewModelTest.CONVERSATION
         )
-        coEvery { navigationManager.navigate(command = any()) } returns Unit
         coEvery { getOtherUserSecurityClassificationLabel(any()) } returns SecurityClassificationType.NONE
     }
 

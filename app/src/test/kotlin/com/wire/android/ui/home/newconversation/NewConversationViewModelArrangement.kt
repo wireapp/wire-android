@@ -20,14 +20,12 @@
 
 package com.wire.android.ui.home.newconversation
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -105,9 +103,6 @@ internal class NewConversationViewModelArrangement {
     }
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var searchPublicUsers: SearchPublicUsersUseCase
 
     @MockK
@@ -135,10 +130,10 @@ internal class NewConversationViewModelArrangement {
     lateinit var isSelfTeamMember: IsSelfATeamMemberUseCaseImpl
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     private lateinit var getAllServices: ObserveAllServicesUseCase
+
+    @MockK(relaxed = true)
+    lateinit var onGroupCreated: (ConversationId) -> Unit
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
@@ -198,7 +193,6 @@ internal class NewConversationViewModelArrangement {
 
     private val viewModel by lazy {
         NewConversationViewModel(
-            navigationManager = navigationManager,
             searchPublicUsers = searchPublicUsers,
             searchKnownUsers = searchKnownUsers,
             getAllKnownUsers = getAllKnownUsers,

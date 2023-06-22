@@ -116,12 +116,12 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
             .withIsSelfTeamMember(true)
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.LackingConnection
@@ -129,12 +129,12 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given unknown failure, when creating group, then should update options state with unknown error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
             .withIsSelfTeamMember(true)
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.Unknown
@@ -142,11 +142,11 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
             .withIsSelfTeamMember(true)
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error.shouldBeNull()
@@ -158,7 +158,7 @@ class NewConversationViewModelTest {
             .withIsSelfTeamMember(false)
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error.shouldBeNull()
@@ -186,7 +186,7 @@ class NewConversationViewModelTest {
             .withGuestEnabled(true)
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error.shouldBeNull()

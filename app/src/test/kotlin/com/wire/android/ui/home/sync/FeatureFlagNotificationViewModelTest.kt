@@ -127,7 +127,7 @@ class FeatureFlagNotificationViewModelTest {
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { navigationManager.navigateBack(any()) } returns Unit
+            coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()

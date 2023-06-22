@@ -27,16 +27,16 @@ import kotlinx.coroutines.flow.SharedFlow
 class NavigationManager {
 
     private val _navigateState = MutableSharedFlow<NavigationCommand?>()
-    private val _navigateBack = MutableSharedFlow<Map<String, Any>>()
+    private val _navigateBack = MutableSharedFlow<Unit>()
     var navigateState: SharedFlow<NavigationCommand?> = _navigateState
-    var navigateBack: SharedFlow<Map<String, Any>> = _navigateBack
+    var navigateBack: SharedFlow<Unit> = _navigateBack
 
     suspend fun navigate(command: NavigationCommand) {
         _navigateState.emit(command)
     }
 
-    suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
-        _navigateBack.emit(previousBackStackPassedArgs)
+    suspend fun navigateBack() {
+        _navigateBack.emit(Unit)
     }
 }
 

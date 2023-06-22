@@ -34,24 +34,33 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.newconversation.common.NewConversationNavigationItem
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 
 @RootNavGraph
 @Destination
 @Composable
-fun NewConversationRouter() {
-    val newConversationViewModel: NewConversationViewModel = hiltViewModel()
-    val newConversationNavController = rememberTrackingAnimatedNavController() {
-        NewConversationNavigationItem.fromRoute(
-        it
-    )?.itemName
-    }
+fun NewConversationRouter(
+    navigator: Navigator,
+    newConversationViewModel: NewConversationViewModel = hiltViewModel()
+) {
+    val newConversationNavController = rememberTrackingAnimatedNavController() { NewConversationNavigationItem.fromRoute(it)?.itemName }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    fun navigateToGroup(conversationId: ConversationId): Unit =
+        navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT))
 
     Scaffold(
         snackbarHost = {
@@ -66,6 +75,7 @@ fun NewConversationRouter() {
             startDestination = NewConversationNavigationItem.SearchListNavHostScreens.route,
             modifier = Modifier.padding(internalPadding)
         ) {
+
             composable(
                 route = NewConversationNavigationItem.SearchListNavHostScreens.route,
                 content = {
@@ -75,7 +85,12 @@ fun NewConversationRouter() {
                             newConversationNavController.navigate(
                                 NewConversationNavigationItem.NewGroupNameScreen.route
                             )
-                        }
+                        },
+                        onClose = navigator::navigateBack,
+                        onOpenUserProfile = { contact: Contact ->
+                            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
+                                .let { navigator.navigate(NavigationCommand(it)) }
+                        },
                     )
                 }
             )
@@ -92,7 +107,7 @@ fun NewConversationRouter() {
                                     NewConversationNavigationItem.GroupOptionsScreen.route
                                 )
                             } else {
-                                newConversationViewModel.createGroup()
+                                newConversationViewModel.createGroup(::navigateToGroup)
                             }
                         },
                         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
@@ -104,14 +119,14 @@ fun NewConversationRouter() {
                 content = {
                     GroupOptionScreen(
                         onBackPressed = newConversationNavController::popBackStack,
-                        onCreateGroup = newConversationViewModel::createGroup,
+                        onCreateGroup = { newConversationViewModel.createGroup(::navigateToGroup) },
                         groupOptionState = newConversationViewModel.groupOptionsState,
                         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
                         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
                         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
                         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
-                        onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
-                        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
+                        onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
+                        onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
                         onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
                     )
                 }

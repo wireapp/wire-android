@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -72,7 +73,10 @@ import okio.Path
 @RootNavGraph
 @Destination
 @Composable
-fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
+fun AvatarPickerScreen(
+    navigator: Navigator,
+    viewModel: AvatarPickerViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
 
     val targetAvatarPath = viewModel.defaultAvatarPath
@@ -92,8 +96,8 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
     AvatarPickerContent(
         viewModel = viewModel,
         state = state,
-        onCloseClick = viewModel::navigateBack,
-        onSaveClick = viewModel::uploadNewPickedAvatarAndBack
+        onCloseClick = navigator::navigateBack,
+        onSaveClick = { viewModel.uploadNewPickedAvatar(navigator::navigateBack) }
     )
 }
 

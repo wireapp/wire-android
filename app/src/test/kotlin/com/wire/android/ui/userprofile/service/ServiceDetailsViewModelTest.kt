@@ -24,7 +24,6 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.navArgs
@@ -61,25 +60,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class ServiceDetailsViewModelTest {
-
-    @Test
-    fun `given user clicks on navigate back, then navigates back`() = runTest {
-        // given
-        val (arrangement, viewModel) = Arrangement()
-            .withService(service = BOT_SERVICE)
-            .withServiceDetails(serviceDetails = SERVICE_DETAILS)
-            .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-            .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
-            .arrange()
-
-        // when
-        viewModel.navigateBack()
-
-        // then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
-        }
-    }
 
     @Test
     fun `given user opens service details screen, when service is member of conversation, then data is loaded correctly`() =
@@ -302,8 +282,6 @@ class ServiceDetailsViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var observeSelfUser: GetSelfUserUseCase
@@ -333,7 +311,6 @@ class ServiceDetailsViewModelTest {
 
         private val viewModel by lazy {
             ServiceDetailsViewModel(
-                navigationManager,
                 TestDispatcherProvider(),
                 observeSelfUser,
                 getServiceById,
@@ -350,7 +327,6 @@ class ServiceDetailsViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            coEvery { navigationManager.navigate(command = any()) } returns Unit
             coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         }
 

@@ -17,18 +17,13 @@
  */
 package com.wire.android.ui.home.conversations.search
 
-import com.wire.android.navigation.NavigationManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class SearchServicesViewModel(
-    navigationManager: NavigationManager
-) : SearchPeopleViewModel(
-    navigationManager = navigationManager
-) {
+abstract class SearchServicesViewModel : SearchPeopleViewModel() {
 
     protected val servicesSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->

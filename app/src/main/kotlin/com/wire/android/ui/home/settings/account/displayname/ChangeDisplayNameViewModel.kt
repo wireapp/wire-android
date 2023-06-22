@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -42,7 +41,6 @@ import javax.inject.Inject
 class ChangeDisplayNameViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateDisplayName: UpdateDisplayNameUseCase,
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -119,10 +117,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
 
     fun onNameErrorAnimated() {
         displayNameState = displayNameState.copy(animatedNameError = false)
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
     }
 
     companion object {

@@ -117,26 +117,27 @@ class MessageCompositionHolder(
         }
     }
 
-
     private fun updateMentionsIfNeeded(messageText: TextFieldValue) {
         messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
     }
 
-    private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
-        if (text.selection.min != text.selection.max) {
+    private fun requestMentionSuggestionIfNeeded(messageText: TextFieldValue) {
+        if (messageText.selection.min != messageText.selection.max) {
+            messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
             return
         } else {
             val mentions = messageComposition.value.selectedMentions
-            mentions.firstOrNull { text.selection.min in it.start..it.start + it.length }?.let {
+            mentions.firstOrNull { messageText.selection.min in it.start..it.start + it.length }?.let {
+                messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
                 return
             }
         }
 
-        val currentMentionStartIndex = text.currentMentionStartIndex()
+        val currentMentionStartIndex = messageText.currentMentionStartIndex()
 
         if (currentMentionStartIndex >= 0) {
             // +1 cause need to remove @ symbol at the begin of string
-            val textBetweenAtAndSelection = text.text.subSequence(currentMentionStartIndex + 1, text.selection.min)
+            val textBetweenAtAndSelection = messageText.text.subSequence(currentMentionStartIndex + 1, messageText.selection.min)
             if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
 
                 searchMentions(textBetweenAtAndSelection.toString())
@@ -158,6 +159,7 @@ class MessageCompositionHolder(
 
         messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
         messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
+        messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
     }
 
     private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {

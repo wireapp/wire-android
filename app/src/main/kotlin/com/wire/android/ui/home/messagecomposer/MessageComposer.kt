@@ -302,6 +302,7 @@ private fun ActiveMessageComposer(
                     }
                 }
             }
+
             BackHandler(additionalOptionsStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
                 onTransitionToInActive()
             }

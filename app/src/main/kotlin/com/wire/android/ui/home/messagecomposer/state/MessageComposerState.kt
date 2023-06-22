@@ -23,16 +23,10 @@ package com.wire.android.ui.home.messagecomposer.state
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.messagecomposer.UiMention
-import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -48,7 +42,8 @@ fun rememberMessageComposerState(
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     onShowEphemeralOptionsMenu: () -> Unit,
-    searchMentions: (String) -> Unit
+    searchMentions: (String) -> Unit,
+    onSendMessage: (MessageBundle) -> Unit
 ): MessageComposerState {
     val context = LocalContext.current
 
@@ -66,7 +61,8 @@ fun rememberMessageComposerState(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             selfDeletionTimer = selfDeletionTimer,
             mentionStyle = mentionStyle,
-            searchMentions = searchMentions
+            searchMentions = searchMentions,
+            onSendMessage = onSendMessage
         )
     }
 }
@@ -80,7 +76,8 @@ class MessageComposerState(
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val mentionStyle: SpanStyle,
     onShowEphemeralOptionsMenu: () -> Unit,
-    searchMentions: (String) -> Unit
+    searchMentions: (String) -> Unit,
+    private val onSendMessage: (MessageBundle) -> Unit
 ) {
     val messageCompositionHolder = MessageCompositionHolder(
         context = context,
@@ -114,8 +111,8 @@ class MessageComposerState(
         }
     }
 
-    fun toEdit(editMessageText: String, mentions: List<MessageMention>) {
-        messageCompositionHolder.setEditText(editMessageText, mentions)
+    fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
+        messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit()
     }
 
@@ -126,6 +123,11 @@ class MessageComposerState(
     fun toReply(message: UIMessage.Regular) {
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
+    }
+
+    fun sendMessage() {
+        onSendMessage(messageComposition.toMessageBundle())
+        messageCompositionHolder.clear()
     }
 
 }

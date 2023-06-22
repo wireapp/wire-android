@@ -87,7 +87,9 @@ fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerF
             placeholderColor = colorsScheme().secondaryText
         ),
         messageText = messageText,
-        onMessageTextChanged = { },
+        onMessageTextChanged = {
+            // non functional
+        },
         singleLine = false,
         onFocusChanged = { isFocused ->
             if (isFocused) {

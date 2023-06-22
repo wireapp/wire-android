@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.ImageAsset.PrivateAsset
@@ -51,8 +52,9 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
-import com.wire.android.ui.home.messagecomposer.state.SendMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.MessageBundle
+import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -84,6 +86,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
@@ -206,77 +209,75 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(messageComposition: SendMessageBundle) {
-//        viewModelScope.launch {
-//            sendTextMessage(
-//                conversationId = conversationId,
-//                text = sendMessageBundle.message,
-//                mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
-//                quotedMessageId = sendMessageBundle.quotedMessageId
-//            )
-//        }
-    }
-
-    fun sendEditMessage(editMessageBundle: EditMessageBundle) {
-//        viewModelScope.launch {
-//            sendEditTextMessage(
-//                conversationId = conversationId,
-//                originalMessageId = editMessageBundle.originalMessageId,
-//                text = editMessageBundle.newContent,
-//                mentions = editMessageBundle.newMentions.map { it.intoMessageMention() },
-//            )
-//        }
-    }
-
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
-//        viewModelScope.launch {
-//            withContext(dispatchers.io()) {
-//                attachmentBundle?.run {
-//                    when (assetType) {
-//                        AttachmentType.IMAGE -> {
-//                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-//                                kaliumFileSystem,
-//                                attachmentBundle.dataPath
-//                            )
-//                            sendAssetMessage(
-//                                conversationId = conversationId,
-//                                assetDataPath = dataPath,
-//                                assetName = fileName,
-//                                assetWidth = imgWidth,
-//                                assetHeight = imgHeight,
-//                                assetDataSize = dataSize,
-//                                assetMimeType = mimeType
-//                            )
-//                        }
-//
-//                        AttachmentType.VIDEO,
-//                        AttachmentType.GENERIC_FILE,
-//                        AttachmentType.AUDIO -> {
-//                            try {
-//                                sendAssetMessage(
-//                                    conversationId = conversationId,
-//                                    assetDataPath = dataPath,
-//                                    assetName = fileName,
-//                                    assetMimeType = mimeType,
-//                                    assetDataSize = dataSize,
-//                                    assetHeight = null,
-//                                    assetWidth = null
-//                                )
-//                            } catch (e: OutOfMemoryError) {
-//                                appLogger.e("There was an OutOfMemory error while uploading the asset")
-//                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-    }
-
-    fun sendPing() {
+    fun sendMessage(messagebundle: MessageBundle) {
         viewModelScope.launch {
-            pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-            sendKnockUseCase(conversationId = conversationId, hotKnock = false)
+            withContext(dispatchers.io()) {
+                when (messagebundle) {
+                    is ComposableMessageBundle.EditMessageBundle -> {
+                        sendEditTextMessage(
+                            conversationId = conversationId,
+                            originalMessageId = messagebundle.originalMessageId,
+                            text = messagebundle.newContent,
+                            mentions = messagebundle.newMentions.map { it.intoMessageMention() },
+                        )
+                    }
+
+                    is ComposableMessageBundle.SendAttachmentBundle -> {
+                        messagebundle.run {
+                            when (assetType) {
+                                AttachmentType.IMAGE -> {
+                                    val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                                        kaliumFileSystem,
+                                        messagebundle.dataPath
+                                    )
+                                    sendAssetMessage(
+                                        conversationId = conversationId,
+                                        assetDataPath = dataPath,
+                                        assetName = fileName,
+                                        assetWidth = imgWidth,
+                                        assetHeight = imgHeight,
+                                        assetDataSize = dataSize,
+                                        assetMimeType = mimeType
+                                    )
+                                }
+
+                                AttachmentType.VIDEO,
+                                AttachmentType.GENERIC_FILE,
+                                AttachmentType.AUDIO -> {
+                                    try {
+                                        sendAssetMessage(
+                                            conversationId = conversationId,
+                                            assetDataPath = dataPath,
+                                            assetName = fileName,
+                                            assetMimeType = mimeType,
+                                            assetDataSize = dataSize,
+                                            assetHeight = null,
+                                            assetWidth = null
+                                        )
+                                    } catch (e: OutOfMemoryError) {
+                                        appLogger.e("There was an OutOfMemory error while uploading the asset")
+                                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    is ComposableMessageBundle.SendTextMessageBundle -> {
+                        sendTextMessage(
+                            conversationId = conversationId,
+                            text = messagebundle.message,
+                            mentions = messagebundle.mentions.map { it.intoMessageMention() },
+                            quotedMessageId = messagebundle.quotedMessageId
+                        )
+                    }
+
+                    Ping -> {
+                        pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
+                        sendKnockUseCase(conversationId = conversationId, hotKnock = false)
+                    }
+                }
+            }
         }
     }
 
@@ -394,7 +395,7 @@ class MessageComposerViewModel @Inject constructor(
             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle)
+//                sendAttachmentMessage(assetBundle)
             } else {
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }

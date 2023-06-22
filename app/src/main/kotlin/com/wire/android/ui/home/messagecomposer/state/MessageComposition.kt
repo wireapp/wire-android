@@ -35,9 +35,11 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import okio.Path
 import kotlin.time.Duration
 
 class MessageCompositionHolder(
@@ -64,7 +66,8 @@ class MessageCompositionHolder(
             messageComposition.update {
                 it.copy(
                     messageTextFieldValue = TextFieldValue(""),
-                    quotedMessage = quotedMessage
+                    quotedMessage = quotedMessage,
+                    quotedMessageId = message.header.messageId
                 )
             }
         }
@@ -182,9 +185,10 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(mentionSearchResult = mentions) }
     }
 
-    fun setEditText(editMessageText: String, mentions: List<MessageMention>) {
+    fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
         messageComposition.update { it.copy(messageTextFieldValue = (TextFieldValue(editMessageText))) }
         messageComposition.update { it.copy(selectedMentions = mentions.map { it.toUiMention(editMessageText) }) }
+        messageComposition.update { it.copy(editMessageId = messageId) }
     }
 
     private fun MessageMention.toUiMention(originalText: String) = UiMention(
@@ -193,11 +197,18 @@ class MessageCompositionHolder(
         userId = this.userId,
         handler = originalText.substring(start, start + length)
     )
+
+    fun clear() {
+        messageComposition.update { MessageComposition.DEFAULT }
+    }
 }
 
 data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
+    val editMessageId: String? = null,
+    val editMessage: TextFieldValue? = null,
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
+    val quotedMessageId: String? = null,
     val selectedMentions: List<UiMention> = emptyList(),
     val mentionSearchResult: List<Contact> = emptyList(),
     val selfDeletionTimer: SelfDeletionTimer
@@ -290,9 +301,20 @@ data class MessageComposition(
         return result.toList()
     }
 
-    fun toMessageBundle(): SendMessageBundle {
-        return SendMessageBundle.Ping
+    fun toMessageBundle(): ComposableMessageBundle {
+        if (editMessageId != null && editMessage != null) return ComposableMessageBundle.EditMessageBundle(
+            originalMessageId = editMessageId,
+            newContent = editMessage.text,
+            newMentions = selectedMentions
+        )
+
+        return ComposableMessageBundle.SendTextMessageBundle(
+            message = messageTextFieldValue.text,
+            mentions = selectedMentions,
+            quotedMessageId = quotedMessageId
+        )
     }
+
 }
 
 fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
@@ -315,6 +337,22 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
     }
 }
 
-sealed class SendMessageBundle {
-    object Ping : SendMessageBundle()
+interface MessageBundle
+sealed class ComposableMessageBundle : MessageBundle {
+    data class EditMessageBundle(val originalMessageId: String, val newContent: String, val newMentions: List<UiMention>) :
+        ComposableMessageBundle()
+
+    data class SendTextMessageBundle(val message: String, val mentions: List<UiMention>, val quotedMessageId: String? = null) :
+        ComposableMessageBundle()
+
+    data class SendAttachmentBundle(
+        val assetType: AttachmentType,
+        val dataPath: Path,
+        val fileName: String,
+        val dataSize: Long,
+        val mimeType: String,
+    ) : ComposableMessageBundle()
+
 }
+
+object Ping : MessageBundle

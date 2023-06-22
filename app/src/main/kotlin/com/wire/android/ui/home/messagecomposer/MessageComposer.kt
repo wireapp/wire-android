@@ -56,7 +56,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
-import com.wire.android.ui.home.messagecomposer.state.SendMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -65,7 +65,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 fun MessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
-    onSendMessage: (SendMessageBundle) -> Unit
+    onSendMessage: (MessageBundle) -> Unit
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
@@ -81,7 +81,9 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     messageComposerState = messageComposerState,
                     messageListContent = messageListContent,
-                    onSendButtonClicked = { onSendMessage(messageComposition.toMessageBundle()) }
+                    onSendButtonClicked = {
+                       sendMessage(onSendMessage)
+                    }
                 )
             }
         }

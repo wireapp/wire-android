@@ -68,7 +68,7 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
         val isSelfAsset: Boolean,
         val isEphemeral: Boolean = false,
     ) : ImageAsset(imageLoader) {
-        override fun toString(): String = "$conversationId:$messageId:$isSelfAsset:$isEphemeral "
+        override fun toString(): String = "$conversationId:$messageId:$isSelfAsset:$isEphemeral"
         override val uniqueKey: String
             get() = toString()
     }

@@ -62,7 +62,7 @@ object ScriptPlugins {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.8.22"
+        const val kotlin = "1.8.21"
         const val coroutines = "1.7.1"
         const val jetpack = "1.1.0"
         const val constraintLayout = "2.1.4"
@@ -74,7 +74,7 @@ object Libraries {
         const val fragment = "1.5.6"
         const val commonmark = "0.21.0"
         const val compose = "1.4.1"
-        const val composeCompiler = "1.4.6"
+        const val composeCompiler = "1.4.7"
         const val composeMaterial3 = "1.1.0"
         const val composeActivity = "1.6.1"
         const val composeNavigation = "2.5.3"

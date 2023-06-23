@@ -59,17 +59,20 @@ class OngoingCallViewModel @Inject constructor(
     var shouldShowDoubleTapToast by mutableStateOf(false)
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 
-    fun init(onClose: () -> Unit) {
+    var state by mutableStateOf(OngoingCallState())
+        private set
+
+    init {
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
                 // We start observing once we have an ongoing call
-                observeCurrentCall(onClose)
+                observeCurrentCall()
             }
         }
         showDoubleTapToast()
     }
 
-    private suspend fun observeCurrentCall(onClose: () -> Unit) {
+    private suspend fun observeCurrentCall() {
         establishedCalls()
             .distinctUntilChanged()
             .collect { calls ->
@@ -78,7 +81,7 @@ class OngoingCallViewModel @Inject constructor(
                 val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
                 val isOnBackground = currentScreen is CurrentScreen.InBackground
                 if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
-                    onClose()
+                    state = state.copy(flowState = OngoingCallState.FlowState.CallClosed)
                 }
             }
     }

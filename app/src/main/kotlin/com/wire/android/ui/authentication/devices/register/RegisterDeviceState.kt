@@ -26,13 +26,16 @@ import com.wire.kalium.logic.CoreFailure
 data class RegisterDeviceState(
     val password: TextFieldValue = TextFieldValue(""),
     val continueEnabled: Boolean = false,
-    val loading: Boolean = false,
-    val isPasswordRequired: Boolean = false,
-    val error: RegisterDeviceError = RegisterDeviceError.None
+    val flowState: RegisterDeviceFlowState = RegisterDeviceFlowState.Default
 )
-
 sealed class RegisterDeviceError {
-    object None : RegisterDeviceError()
     object InvalidCredentialsError : RegisterDeviceError()
     data class GenericError(val coreFailure: CoreFailure) : RegisterDeviceError()
+}
+sealed class RegisterDeviceFlowState {
+    object Default : RegisterDeviceFlowState()
+    object Loading : RegisterDeviceFlowState()
+    object TooManyDevices : RegisterDeviceFlowState()
+    data class Success(val initialSyncCompleted: Boolean) : RegisterDeviceFlowState()
+    data class Error(val error: RegisterDeviceError) : RegisterDeviceFlowState()
 }

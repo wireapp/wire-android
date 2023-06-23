@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -76,30 +75,29 @@ fun RegisterDeviceScreen(navigator: Navigator) {
     val viewModel: RegisterDeviceViewModel = hiltViewModel()
     val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
-    val registerDeviceActions = remember(navigator) {
-        RegisterDeviceActions(
-            onTooManyClients = { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination)) },
-            onRegistered = { initialSyncCompleted -> navigator.navigate(
-                    NavigationCommand(
-                        destination = if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
-                        backStackMode = BackStackMode.CLEAR_WHOLE
-                    )
-                )
-            }
-        )
-    }
-    viewModel.init(registerDeviceActions)
     clearAutofillTree()
-    RegisterDeviceContent(
-        state = viewModel.state,
-        clearSessionState = clearSessionState,
-        onPasswordChange = viewModel::onPasswordChange,
-        onContinuePressed = { viewModel.onContinue(registerDeviceActions) },
-        onErrorDismiss = viewModel::onErrorDismiss,
-        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
-        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
-    )
+    when (val flowState = viewModel.state.flowState) {
+        is RegisterDeviceFlowState.Success -> {
+            navigator.navigate(
+                NavigationCommand(
+                    destination = if (flowState.initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+                    backStackMode = BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
+        is RegisterDeviceFlowState.TooManyDevices -> navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination))
+        else ->
+            RegisterDeviceContent(
+                state = viewModel.state,
+                clearSessionState = clearSessionState,
+                onPasswordChange = viewModel::onPasswordChange,
+                onContinuePressed = viewModel::onContinue,
+                onErrorDismiss = viewModel::onErrorDismiss,
+                onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+                onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
+                onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
+            )
+    }
 }
 
 @Composable
@@ -166,7 +164,7 @@ private fun RegisterDeviceContent(
                 text = stringResource(R.string.label_add_device),
                 onClick = onContinuePressed,
                 fillMaxWidth = true,
-                loading = state.loading,
+                loading = state.flowState is RegisterDeviceFlowState.Loading,
                 state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,8 +173,8 @@ private fun RegisterDeviceContent(
             )
         }
     }
-    if (state.error is RegisterDeviceError.GenericError) {
-        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    if (state.flowState is RegisterDeviceFlowState.Error && state.flowState.error is RegisterDeviceError.GenericError) {
+        CoreFailureErrorDialog(state.flowState.error.coreFailure, onErrorDismiss)
     }
 }
 
@@ -187,7 +185,7 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
     WirePasswordTextField(
         value = state.password,
         onValueChange = onPasswordChange,
-        state = when (state.error) {
+        state = when ((state.flowState as? RegisterDeviceFlowState.Error)?.error) {
             is RegisterDeviceError.InvalidCredentialsError ->
                 WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
 

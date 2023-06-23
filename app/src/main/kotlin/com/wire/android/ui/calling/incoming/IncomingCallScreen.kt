@@ -68,41 +68,45 @@ import com.wire.kalium.logic.data.call.ConversationType
 @Composable
 fun IncomingCallScreen(
     navigator: Navigator,
-    navArgs: CallingNavArgs,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
-    fun navigateToOngoingCall(): Unit = navigator.navigate(
-        NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT_AND_REPLACE)
-    )
-
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
-        {
-            incomingCallViewModel.acceptCall(::navigateToOngoingCall)
-        },
-        { incomingCallViewModel.declineCall(navigator::navigateBack) }
+        incomingCallViewModel::acceptCall,
+        incomingCallViewModel::declineCall
     )
 
     with(incomingCallViewModel) {
         if (incomingCallState.shouldShowJoinCallAnywayDialog) {
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = { acceptCallAnyway(::navigateToOngoingCall) }
+                onConfirm = ::acceptCallAnyway
             )
         }
     }
 
-    with(sharedCallingViewModel) {
-        IncomingCallContent(
-            callState = callState,
-            toggleMute = { sharedCallingViewModel.toggleMute(true) },
-            toggleSpeaker = ::toggleSpeaker,
-            toggleVideo = ::toggleVideo,
-            declineCall = { incomingCallViewModel.declineCall(navigator::navigateBack) },
-            acceptCall = { audioPermissionCheck.launch() },
-            onVideoPreviewCreated = ::setVideoPreview,
-            onSelfClearVideoPreview = ::clearVideoPreview
+    when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
+        is IncomingCallState.FlowState.CallClosed,
+        is IncomingCallState.FlowState.CallDeclined -> navigator.navigateBack()
+        is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
+            NavigationCommand(
+                OngoingCallScreenDestination(flowState.conversationId),
+                BackStackMode.REMOVE_CURRENT_AND_REPLACE
+            )
         )
+        is IncomingCallState.FlowState.Default ->
+            with(sharedCallingViewModel) {
+                IncomingCallContent(
+                    callState = callState,
+                    toggleMute = { sharedCallingViewModel.toggleMute(true) },
+                    toggleSpeaker = ::toggleSpeaker,
+                    toggleVideo = ::toggleVideo,
+                    declineCall = incomingCallViewModel::declineCall,
+                    acceptCall = audioPermissionCheck::launch,
+                    onVideoPreviewCreated = ::setVideoPreview,
+                    onSelfClearVideoPreview = ::clearVideoPreview
+                )
+            }
     }
 }
 

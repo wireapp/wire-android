@@ -26,11 +26,6 @@ object AndroidSdk {
     const val target = compile
 }
 
-object AndroidNdk {
-    const val version = "22.1.7171670"
-    const val cMakeVersion = "3.18.1"
-}
-
 object AndroidClient {
     const val appId = "com.wire.android"
     const val namespace = appId
@@ -65,21 +60,15 @@ object ScriptPlugins {
     const val spotless = "scripts.spotless"
 }
 
-object Repositories {
-    const val sonatypeReleases = "https://oss.sonatype.org/content/repositories/releases"
-    const val sonatypeSnapshots = "https://oss.sonatype.org/content/repositories/snapshots"
-}
-
 object Libraries {
     object Versions {
-        const val kotlin = "1.8.20"
-        const val coroutines = "1.6.1-native-mt"
+        const val kotlin = "1.8.22"
+        const val coroutines = "1.7.1"
         const val jetpack = "1.1.0"
         const val constraintLayout = "2.1.4"
         const val ktx = "1.8.0"
         const val material = "1.5.0"
         const val pinEditText = "1.2.3"
-        const val sqlLiteJdbc = "3.36.0"
         const val desugaring = "1.1.5"
         const val workManager = "2.8.1"
         const val fragment = "1.5.6"
@@ -211,15 +200,14 @@ object TestLibraries {
         const val testRules = "1.4.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
-        const val turbine = "0.7.0"
+        const val turbine = "1.0.0"
         const val okio = "3.2.0"
     }
 
     object Espresso {
         const val core                = "androidx.test.espresso:espresso-core:${Versions.espresso}"
         const val intents             = "androidx.test.espresso:espresso-intents:${Versions.espresso}"
-        //Androidx isn't support yet: https://github.com/android/android-test/issues/492
-        const val accessibility       = "com.android.support.test.espresso:espresso-accessibility:${Versions.espresso}"
+        const val accessibility       = "androidx.test.espresso:espresso-accessibility:${Versions.espresso}"
     }
 
     const val junit4            = "junit:junit:${Versions.junit4}"

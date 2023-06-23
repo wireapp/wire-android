@@ -110,6 +110,7 @@ class RegisterDeviceViewModelTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
+        coEvery { navigationManager.navigate(any()) } returns Unit
 
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
@@ -169,6 +170,7 @@ class RegisterDeviceViewModelTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.InvalidCredentials.InvalidPassword
+        coEvery { navigationManager.navigate(any()) } returns Unit
 
         runTest { registerDeviceViewModel.onContinue() }
 

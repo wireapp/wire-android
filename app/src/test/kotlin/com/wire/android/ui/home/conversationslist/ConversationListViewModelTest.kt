@@ -57,6 +57,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -110,6 +111,9 @@ class ConversationListViewModelTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
+
+        coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
+        coEvery { observeConversationListDetailsUseCase.invoke() } returns emptyFlow()
 
         mockUri()
         conversationListViewModel =

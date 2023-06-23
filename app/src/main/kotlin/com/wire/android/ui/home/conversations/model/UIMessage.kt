@@ -58,6 +58,9 @@ sealed class UIMessage(
         val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
+        val isAssetMessage = messageContent is UIMessageContent.AssetMessage
+                || messageContent is UIMessageContent.ImageMessage
+                || messageContent is UIMessageContent.AudioAssetMessage
     }
 
     data class System(

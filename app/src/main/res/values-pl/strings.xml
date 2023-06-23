@@ -125,6 +125,7 @@
     <string name="content_description_image_message">Wiadomo&#347;&#263; z obrazkiem</string>
     <string name="content_description_file_message">Wiadomo&#347;&#263; z plikiem</string>
     <string name="content_description_ping_everyone">Zaczep</string>
+    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Zako&#324;cz rozmow&#281;</string>
     <string name="content_description_calling_accept_call">Odbierz po&#322;&#261;czenie</string>
     <string name="content_description_calling_decline_call">Odrzu&#263; po&#322;&#261;czenie</string>

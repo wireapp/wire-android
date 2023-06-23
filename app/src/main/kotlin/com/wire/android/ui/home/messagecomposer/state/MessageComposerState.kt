@@ -79,6 +79,7 @@ class MessageComposerState(
     searchMentions: (String) -> Unit,
     private val onSendMessage: (MessageBundle) -> Unit
 ) {
+
     val messageCompositionHolder = MessageCompositionHolder(
         context = context,
         mentionStyle = mentionStyle,

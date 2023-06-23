@@ -167,6 +167,7 @@ class MessageCompositionHolder(
 
         messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
         messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
+
         messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
     }
 
@@ -249,6 +250,9 @@ class MessageCompositionHolder(
             )
         }
     }
+    fun clear() {
+        messageComposition.update { MessageComposition.DEFAULT }
+    }
 
     private fun MessageMention.toUiMention(originalText: String) = UiMention(
         start = this.start,
@@ -256,10 +260,6 @@ class MessageCompositionHolder(
         userId = this.userId,
         handler = originalText.substring(start, start + length)
     )
-
-    fun clear() {
-        messageComposition.update { MessageComposition.DEFAULT }
-    }
 }
 
 data class MessageComposition(

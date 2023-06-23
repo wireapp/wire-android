@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.call
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs

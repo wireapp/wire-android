@@ -166,4 +166,3 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
     }
     return msg to actionLabel
 }
-

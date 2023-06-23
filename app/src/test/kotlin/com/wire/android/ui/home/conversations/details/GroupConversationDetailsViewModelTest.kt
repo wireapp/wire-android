@@ -26,7 +26,6 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
@@ -504,9 +503,6 @@ internal class GroupConversationDetailsViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -548,7 +544,6 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
-            navigationManager = navigationManager,
             dispatcher = TestDispatcherProvider(),
             observerSelfUser = observerSelfUser,
             observeConversationDetails = observeConversationDetails,

@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
@@ -39,7 +38,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MessageDetailsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
 ) : SavedStateViewModel(savedStateHandle) {
@@ -78,9 +76,5 @@ class MessageDetailsViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun navigateBack() = viewModelScope.launch {
-        navigationManager.navigateBack()
     }
 }

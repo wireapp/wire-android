@@ -27,16 +27,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.destinations.AddMembersSearchRouterDestination
-import com.wire.android.ui.destinations.EditConversationNameScreenDestination
-import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
-import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
-import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
@@ -86,7 +78,6 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -101,14 +92,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase
-) : GroupConversationParticipantsViewModel(
-    savedStateHandle, navigationManager, observeConversationMembers
-), GroupConversationDetailsBottomSheetEventsHandler {
+) : GroupConversationParticipantsViewModel(savedStateHandle, observeConversationMembers), GroupConversationDetailsBottomSheetEventsHandler {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
+    val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
 
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
         private set
@@ -330,25 +319,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         _groupOptionsState.value = newState
     }
 
-    fun navigateToFullParticipantsList() = viewModelScope.launch {
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = GroupConversationAllParticipantsScreenDestination(conversationId)
-            )
-        )
-    }
-
-    fun navigateToAddParticipants() = viewModelScope.launch {
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = AddMembersSearchRouterDestination(
-                    conversationId,
-                    groupOptionsState.value.isServicesAllowed
-                )
-            )
-        )
-    }
-
     override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
@@ -401,45 +371,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
-    }
-
-    fun navigateToEditGroupName() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = EditConversationNameScreenDestination(conversationId)
-                )
-            )
-        }
-    }
-
-    fun navigateToEditSelfDeletingMessagesScreen() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = EditSelfDeletingMessagesScreenDestination(conversationId)
-                )
-            )
-        }
-    }
-
-    fun navigateToEditGuestAccessScreen() {
-        if (groupOptionsState.value.isUpdatingAllowed) {
-            viewModelScope.launch {
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = EditGuestAccessScreenDestination(
-                            conversationId,
-                            EditGuestAccessParams(
-                                groupOptionsState.value.isGuestAllowed,
-                                groupOptionsState.value.isServicesAllowed,
-                                groupOptionsState.value.isUpdatingGuestAllowed
-                            )
-                        )
-                    )
-                )
-            }
-        }
     }
 
     companion object {

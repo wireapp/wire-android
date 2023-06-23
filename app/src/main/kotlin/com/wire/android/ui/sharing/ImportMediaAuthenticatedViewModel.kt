@@ -20,11 +20,6 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -81,7 +76,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val fileManager: FileManager,
-    private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
@@ -260,15 +254,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         return matchingConversations
     }
 
-    fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
-        navigationManager.navigate(
-            NavigationCommand(
-                HomeScreenDestination,
-                BackStackMode.REMOVE_CURRENT
-            )
-        )
-    }
-
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
         appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
@@ -317,7 +302,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
     }
 
-    fun checkRestrictionsAndSendImportedMedia() = viewModelScope.launch(dispatchers.default()) {
+    fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) = viewModelScope.launch(dispatchers.default()) {
         val conversation = importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
         val assetsToSend = importMediaState.importedAssets
 
@@ -347,7 +332,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 jobs.add(job)
             }
             jobs.joinAll()
-            navigateToConversation(conversation.conversationId)
+            onSent(conversation.conversationId)
         }
     }
 
@@ -382,15 +367,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 newSelfDeletionTimer = importMediaState.selfDeletingTimer
             )
         }
-
-    private suspend fun navigateToConversation(conversationId: ConversationId) {
-        navigationManager.navigate(
-            NavigationCommand(
-                ConversationScreenDestination(conversationId),
-                backStackMode = BackStackMode.CLEAR_TILL_START
-            )
-        )
-    }
 
     fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {
         importMediaState.selectedConversationItem.size

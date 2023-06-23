@@ -28,7 +28,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
@@ -61,7 +60,6 @@ import javax.inject.Inject
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     wireSessionImageLoader: WireSessionImageLoader,
-    private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -87,10 +85,10 @@ class MediaGalleryViewModel @Inject constructor(
         viewModelScope,
         imageAssetId.conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone ->
+    ) { messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit ->
         deleteMessage(conversationId = imageAssetId.conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
             .onFailure { onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError) }
-            .onSuccess { navigateBack() }
+            .onSuccess { onDeleted() }
     }
 
     init {
@@ -162,12 +160,6 @@ class MediaGalleryViewModel @Inject constructor(
 
     internal fun onSaveError() {
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloadError)
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
     }
 
     fun deleteCurrentImage() {

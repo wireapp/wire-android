@@ -54,9 +54,6 @@ class ConversationCallViewModelTest {
     private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
     @MockK
-    private lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var joinCall: AnswerCallUseCase
 
     @MockK
@@ -67,6 +64,9 @@ class ConversationCallViewModelTest {
 
     @MockK
     private lateinit var isConferenceCallingEnabled: IsEligibleToStartCallUseCase
+
+    @MockK(relaxed = true)
+    private lateinit var onAnswered: (conversationId: ConversationId) -> Unit
 
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
@@ -80,7 +80,6 @@ class ConversationCallViewModelTest {
             savedStateHandle = savedStateHandle,
             observeOngoingCalls = observeOngoingCalls,
             observeEstablishedCalls = observeEstablishedCalls,
-            navigationManager = navigationManager,
             answerCall = joinCall,
             endCall = endCall,
             observeSyncState = observeSyncState,
@@ -104,13 +103,12 @@ class ConversationCallViewModelTest {
         conversationCallViewModel.conversationCallViewState =
             conversationCallViewModel.conversationCallViewState.copy(hasEstablishedCall = false)
 
-        coEvery { navigationManager.navigate(command = any()) } returns Unit
         coEvery { joinCall(conversationId = any()) } returns Unit
 
-        conversationCallViewModel.joinOngoingCall()
+        conversationCallViewModel.joinOngoingCall(onAnswered)
 
         coVerify(exactly = 1) { joinCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+        coVerify(exactly = 1) { onAnswered(any()) }
         assertEquals(false, conversationCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
     }
 
@@ -119,7 +117,7 @@ class ConversationCallViewModelTest {
         conversationCallViewModel.conversationCallViewState =
             conversationCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
 
-        conversationCallViewModel.joinOngoingCall()
+        conversationCallViewModel.joinOngoingCall(onAnswered)
 
         assertEquals(true, conversationCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
         coVerify(inverse = true) { joinCall(conversationId = any()) }
@@ -132,7 +130,7 @@ class ConversationCallViewModelTest {
         conversationCallViewModel.establishedCallConversationId = ConversationId("value", "Domain")
         coEvery { endCall(any()) } returns Unit
 
-        conversationCallViewModel.joinAnyway()
+        conversationCallViewModel.joinAnyway(onAnswered)
 
         coVerify(exactly = 1) { endCall(any()) }
     }

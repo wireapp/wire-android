@@ -25,14 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.destinations.InitiatingCallScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -55,7 +52,6 @@ class ConversationCallViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val navigationManager: NavigationManager,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -95,28 +91,24 @@ class ConversationCallViewModel @Inject constructor(
             }
     }
 
-    fun joinAnyway() {
+    fun joinAnyway(onAnswered: (conversationId: ConversationId) -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
             }
-            joinOngoingCall()
+            joinOngoingCall(onAnswered)
         }
     }
 
-    fun joinOngoingCall() {
+    fun joinOngoingCall(onAnswered: (conversationId: ConversationId) -> Unit) {
         viewModelScope.launch {
             if (conversationCallViewState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
             } else {
                 dismissJoinCallAnywayDialog()
                 answerCall(conversationId = conversationId)
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = OngoingCallScreenDestination(conversationId)
-                    )
-                )
+                onAnswered(conversationId)
             }
         }
     }
@@ -129,16 +121,12 @@ class ConversationCallViewModel @Inject constructor(
         conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = false)
     }
 
-    fun navigateToInitiatingCallScreen() {
+    fun endEstablishedCallIfAny(onCompleted: () -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
             }
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = InitiatingCallScreenDestination(conversationId)
-                )
-            )
+            onCompleted()
         }
     }
 

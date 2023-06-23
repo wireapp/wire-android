@@ -56,9 +56,6 @@ class ConversationInfoViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -71,7 +68,6 @@ class ConversationInfoViewModelArrangement {
         ConversationInfoViewModel(
             qualifiedIdMapper,
             savedStateHandle,
-            navigationManager,
             observeConversationDetails,
             observerSelfUser,
             wireSessionImageLoader,

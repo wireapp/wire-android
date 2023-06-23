@@ -43,6 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -60,6 +62,7 @@ import com.wire.android.util.shareViaIntent
 )
 @Composable
 fun EditGuestAccessScreen(
+    navigator: Navigator,
     editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
@@ -68,7 +71,7 @@ fun EditGuestAccessScreen(
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = scrollState.rememberTopBarElevationState().value,
-            onNavigationPressed = editGuestAccessViewModel::navigateBack,
+            onNavigationPressed = navigator::navigateBack,
             title = stringResource(id = R.string.conversation_options_guests_label)
         )
     }, snackbarHost = {
@@ -197,5 +200,5 @@ fun EditGuestAccessScreen(
 @Preview
 @Composable
 fun PreviewEditGuestAccessScreen() {
-    EditGuestAccessScreen()
+    EditGuestAccessScreen(rememberNavigator {})
 }

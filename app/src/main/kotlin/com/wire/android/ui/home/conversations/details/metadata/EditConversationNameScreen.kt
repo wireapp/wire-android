@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.groupname.GroupNameScreen
 
 @RootNavGraph
@@ -33,6 +34,7 @@ import com.wire.android.ui.common.groupname.GroupNameScreen
 )
 @Composable
 fun EditConversationNameScreen(
+    navigator: Navigator,
     viewModel: EditConversationMetadataViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<Boolean>
 ) {
@@ -48,7 +50,7 @@ fun EditConversationNameScreen(
                 )
                 resultNavigator.navigateBack()
             },
-            onBackPressed = ::navigateBack
+            onBackPressed = navigator::navigateBack
         )
     }
 }

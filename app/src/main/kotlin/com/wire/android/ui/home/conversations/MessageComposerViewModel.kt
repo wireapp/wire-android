@@ -31,10 +31,7 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
@@ -84,7 +81,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MessageComposerViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
@@ -133,7 +129,7 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone ->
+    ) { messageId, deleteForEveryone, _ ->
         deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
             .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
     }
@@ -335,22 +331,6 @@ class MessageComposerViewModel @Inject constructor(
     fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
         messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
         persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun navigateToGallery(messageId: String, isSelfMessage: Boolean) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = MediaGalleryScreenDestination(conversationId, messageId, isSelfMessage)
-                )
-            )
-        }
     }
 
     fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {

@@ -26,7 +26,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -63,9 +62,6 @@ class ConversationMessagesViewModelArrangement {
     private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
@@ -100,7 +96,6 @@ class ConversationMessagesViewModelArrangement {
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
-            navigationManager,
             savedStateHandle,
             observeConversationDetails,
             getMessageAsset,

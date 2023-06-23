@@ -58,6 +58,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -72,9 +73,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ConversationListViewModelTest {
 
     private lateinit var conversationListViewModel: ConversationListViewModel
-
-    @MockK
-    lateinit var navigationManager: NavigationManager
 
     @MockK
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
@@ -109,6 +107,9 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
+    @MockK(relaxed = true)
+    private lateinit var onJoined: (ConversationId) -> Unit
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -116,7 +117,6 @@ class ConversationListViewModelTest {
         mockUri()
         conversationListViewModel =
             ConversationListViewModel(
-                navigationManager = navigationManager,
                 dispatcher = TestDispatcherProvider(),
                 updateConversationMutedStatus = updateConversationMutedStatus,
                 answerCall = joinCall,
@@ -144,40 +144,13 @@ class ConversationListViewModelTest {
     }
 
     @Test
-    fun `given a conversations list, when opening a new conversation, then should delegate call to manager to NewConversation`() = runTest {
-        conversationListViewModel.openNewConversation()
-
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NewConversationRouterDestination)) }
-    }
-
-    @Test
-    fun `given a conversations list, when opening a conversation, then should delegate call to manager to Conversation with args`() =
-        runTest {
-            conversationListViewModel.openConversation(conversationItem.conversationId)
-
-            coVerify(exactly = 1) {
-                navigationManager.navigate(
-                    NavigationCommand(
-                        ConversationScreenDestination(conversationId)
-                    )
-                )
-            }
-        }
-
-    @Test
     fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() = runTest {
         coEvery { joinCall(any()) } returns Unit
 
-        conversationListViewModel.joinOngoingCall(conversationId = conversationId)
+        conversationListViewModel.joinOngoingCall(conversationId = conversationId, onJoined = onJoined)
 
         coVerify(exactly = 1) { joinCall(conversationId = conversationId) }
-        coVerify(exactly = 1) {
-            navigationManager.navigate(
-                NavigationCommand(
-                    OngoingCallScreenDestination(conversationId)
-                )
-            )
-        }
+        verify(exactly = 1) { onJoined(conversationId) }
     }
 
     @Test
@@ -216,13 +189,12 @@ class ConversationListViewModelTest {
     fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() {
         conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = false)
 
-        coEvery { navigationManager.navigate(command = any()) } returns Unit
         coEvery { joinCall(conversationId = any()) } returns Unit
 
-        conversationListViewModel.joinOngoingCall(conversationId)
+        conversationListViewModel.joinOngoingCall(conversationId, onJoined)
 
         coVerify(exactly = 1) { joinCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+        coVerify(exactly = 1) { onJoined(any()) }
         assertEquals(false, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
     }
 
@@ -230,7 +202,7 @@ class ConversationListViewModelTest {
     fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() {
         conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = true)
 
-        conversationListViewModel.joinOngoingCall(conversationId)
+        conversationListViewModel.joinOngoingCall(conversationId, onJoined)
 
         assertEquals(true, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
         coVerify(inverse = true) { joinCall(conversationId = any()) }
@@ -242,7 +214,7 @@ class ConversationListViewModelTest {
         conversationListViewModel.establishedCallConversationId = ConversationId("value", "Domain")
         coEvery { endCall(any()) } returns Unit
 
-        conversationListViewModel.joinAnyway(conversationId)
+        conversationListViewModel.joinAnyway(conversationId, onJoined)
 
         coVerify(exactly = 1) { endCall(any()) }
     }

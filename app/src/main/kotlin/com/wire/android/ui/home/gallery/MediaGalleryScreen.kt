@@ -40,6 +40,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -60,6 +61,7 @@ import com.wire.android.util.ui.openDownloadFolder
 )
 @Composable
 fun MediaGalleryScreen(
+    navigator: Navigator,
     mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>
 ) {
@@ -81,13 +83,13 @@ fun MediaGalleryScreen(
                 MediaGalleryScreenTopAppBar(
                     title = screenTitle
                         ?: stringResource(R.string.media_gallery_default_title_name),
-                    onCloseClick = mediaGalleryViewModel::navigateBack,
+                    onCloseClick = navigator::navigateBack,
                     onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
                 )
             },
             content = { internalPadding ->
                 Box(modifier = Modifier.padding(internalPadding)) {
-                    MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
+                    MediaGalleryContent(navigator, mediaGalleryViewModel, mediaGalleryScreenState)
                 }
             },
             snackbarHost = {
@@ -149,7 +151,7 @@ fun MediaGalleryScreen(
 }
 
 @Composable
-fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
+fun MediaGalleryContent(navigator: Navigator, viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
     val context = LocalContext.current
     val uiState = viewModel.mediaGalleryViewState
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
@@ -184,7 +186,8 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
 
     DeleteMessageDialog(
         state = uiState.deleteMessageDialogsState,
-        actions = viewModel.deleteMessageHelper
+        actions = viewModel.deleteMessageHelper,
+        onDeleted = navigator::navigateBack
     )
 }
 

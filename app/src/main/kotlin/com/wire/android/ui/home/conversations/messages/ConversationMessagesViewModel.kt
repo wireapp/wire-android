@@ -31,10 +31,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
@@ -75,7 +72,6 @@ import kotlin.math.max
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
@@ -240,17 +236,6 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
-        appLogger.i("[$TAG][openMessageDetails] - isSelfMessage: $isSelfMessage")
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = MessageDetailsScreenDestination(conversationId, messageId, isSelfMessage)
-                )
-            )
-        }
-    }
-
     fun onResetSession(userId: UserId, clientId: String?) {
         viewModelScope.launch {
             when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
@@ -305,7 +290,7 @@ class ConversationMessagesViewModel @Inject constructor(
         lastImageMessageShownOnGallery = message
     }
 
-    fun onReply(messageId: String): UIMessage.Regular? {
+    fun getAndResetLastFullscreenMessage(messageId: String): UIMessage.Regular? {
         lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
             // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
             updateImageOnFullscreenMode(null)
@@ -318,25 +303,12 @@ class ConversationMessagesViewModel @Inject constructor(
         return null
     }
 
-    fun onMessageDetailClick(messageId: String, isSelfAsset: Boolean) {
-        lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
-            // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
-            updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
-            // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
-            // is not the same one that the one we are showing its details
-            if (onFullscreenMessage.header.messageId == messageId) {
-                openMessageDetails(messageId, isSelfAsset)
-            }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
         conversationAudioMessagePlayer.close()
     }
 
     private companion object {
-        const val TAG = "ConversationMessagesViewModel"
         const val DEFAULT_ASSET_NAME = "Wire File"
     }
 }

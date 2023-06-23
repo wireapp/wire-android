@@ -31,14 +31,8 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.NewConversationRouterDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
@@ -98,7 +92,6 @@ import javax.inject.Inject
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
@@ -272,36 +265,6 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun openConversation(conversationId: ConversationId) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = ConversationScreenDestination(conversationId)
-                )
-            )
-        }
-    }
-
-    fun openNewConversation() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NewConversationRouterDestination
-                )
-            )
-        }
-    }
-
-    fun openUserProfile(profileId: UserId) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = OtherUserProfileScreenDestination(userId = profileId)
-                )
-            )
-        }
-    }
-
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
@@ -314,17 +277,17 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun joinAnyway(conversationId: ConversationId) {
+    fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
             }
-            joinOngoingCall(conversationId)
+            joinOngoingCall(conversationId, onJoined)
         }
     }
 
-    fun joinOngoingCall(conversationId: ConversationId) {
+    fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         this.conversationId = conversationId
         viewModelScope.launch {
             if (conversationListState.hasEstablishedCall) {
@@ -332,11 +295,7 @@ class ConversationListViewModel @Inject constructor(
             } else {
                 dismissJoinCallAnywayDialog()
                 answerCall(conversationId = conversationId)
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = OngoingCallScreenDestination(conversationId)
-                    )
-                )
+                onJoined(conversationId)
             }
         }
     }

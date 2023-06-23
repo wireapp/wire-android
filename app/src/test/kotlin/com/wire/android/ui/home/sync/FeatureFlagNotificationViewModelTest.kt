@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.sync
 
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
@@ -127,7 +126,6 @@ class FeatureFlagNotificationViewModelTest {
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
@@ -144,9 +142,6 @@ class FeatureFlagNotificationViewModelTest {
 
         @MockK
         lateinit var markSelfDeletingStatusAsNotified: MarkSelfDeletionStatusAsNotifiedUseCase
-
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,

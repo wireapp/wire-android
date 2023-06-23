@@ -125,6 +125,7 @@
     <string name="content_description_image_message">Bildmeddelande</string>
     <string name="content_description_file_message">Arkivera meddelandet</string>
     <string name="content_description_ping_everyone">Pinga</string>
+    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Lägg på samtalet</string>
     <string name="content_description_calling_accept_call">Acceptera samtal</string>
     <string name="content_description_calling_decline_call">Neka samtal</string>

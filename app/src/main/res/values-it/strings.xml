@@ -125,6 +125,7 @@
     <string name="content_description_image_message">Messaggio con immagine</string>
     <string name="content_description_file_message">Messaggio con file</string>
     <string name="content_description_ping_everyone">Ping</string>
+    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Chiudi la chiamata</string>
     <string name="content_description_calling_accept_call">Accetta la chiamata</string>
     <string name="content_description_calling_decline_call">Rifiuta la chiamata</string>

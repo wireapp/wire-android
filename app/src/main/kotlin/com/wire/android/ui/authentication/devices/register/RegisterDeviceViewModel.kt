@@ -54,12 +54,11 @@ class RegisterDeviceViewModel @Inject constructor(
                 state = state.copy(flowState = RegisterDeviceFlowState.Default)
                 when (it) {
                     is IsPasswordRequiredUseCase.Result.Failure -> {
-                        updateFlowState(RegisterDeviceFlowState.Error(RegisterDeviceError.GenericError(it.cause)))
+                        updateFlowState(RegisterDeviceFlowState.Error.GenericError(it.cause))
                     }
 
                     is IsPasswordRequiredUseCase.Result.Success -> {
-                        if (!it.value)
-                            registerClient(null)
+                        if (!it.value) registerClient(null)
                     }
                 }
             }
@@ -91,12 +90,12 @@ class RegisterDeviceViewModel @Inject constructor(
 
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 continueEnabled = true,
-                flowState = RegisterDeviceFlowState.Error(RegisterDeviceError.GenericError(registerDeviceResult.genericFailure))
+                flowState = RegisterDeviceFlowState.Error.GenericError(registerDeviceResult.genericFailure)
             )
 
             is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
                 continueEnabled = true,
-                flowState = RegisterDeviceFlowState.Error(RegisterDeviceError.InvalidCredentialsError)
+                flowState = RegisterDeviceFlowState.Error.InvalidCredentialsError
             )
 
             is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */ }

@@ -173,8 +173,8 @@ private fun RegisterDeviceContent(
             )
         }
     }
-    if (state.flowState is RegisterDeviceFlowState.Error && state.flowState.error is RegisterDeviceError.GenericError) {
-        CoreFailureErrorDialog(state.flowState.error.coreFailure, onErrorDismiss)
+    if (state.flowState is RegisterDeviceFlowState.Error.GenericError) {
+        CoreFailureErrorDialog(state.flowState.coreFailure, onErrorDismiss)
     }
 }
 
@@ -185,10 +185,8 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
     WirePasswordTextField(
         value = state.password,
         onValueChange = onPasswordChange,
-        state = when ((state.flowState as? RegisterDeviceFlowState.Error)?.error) {
-            is RegisterDeviceError.InvalidCredentialsError ->
-                WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
-
+        state = when (state.flowState) {
+            is RegisterDeviceFlowState.Error.InvalidCredentialsError -> WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
             else -> WireTextFieldState.Default
         },
         imeAction = ImeAction.Done,

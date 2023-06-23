@@ -28,14 +28,13 @@ data class RegisterDeviceState(
     val continueEnabled: Boolean = false,
     val flowState: RegisterDeviceFlowState = RegisterDeviceFlowState.Default
 )
-sealed class RegisterDeviceError {
-    object InvalidCredentialsError : RegisterDeviceError()
-    data class GenericError(val coreFailure: CoreFailure) : RegisterDeviceError()
-}
 sealed class RegisterDeviceFlowState {
     object Default : RegisterDeviceFlowState()
     object Loading : RegisterDeviceFlowState()
     object TooManyDevices : RegisterDeviceFlowState()
     data class Success(val initialSyncCompleted: Boolean) : RegisterDeviceFlowState()
-    data class Error(val error: RegisterDeviceError) : RegisterDeviceFlowState()
+    sealed class Error : RegisterDeviceFlowState() {
+        object InvalidCredentialsError : Error()
+        data class GenericError(val coreFailure: CoreFailure) : Error()
+    }
 }

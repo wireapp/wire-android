@@ -66,9 +66,6 @@ class RegisterDeviceViewModelTest {
     @MockK
     lateinit var userDataStore: UserDataStore
 
-    @MockK(relaxed = true)
-    lateinit var registerDeviceActions: RegisterDeviceActions
-
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
 
     @BeforeEach
@@ -88,28 +85,14 @@ class RegisterDeviceViewModelTest {
     fun `given empty string, when entering the password to register, then button is disabled`() {
         registerDeviceViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
-        registerDeviceViewModel.state.loading shouldBeEqualTo false
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Default::class
     }
 
     @Test
     fun `given non-empty string, when entering the password to register, then button is disabled`() {
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
-        registerDeviceViewModel.state.loading shouldBeEqualTo false
-    }
-
-    @Test
-    fun `given button is clicked, when registering the client, then show loading`() {
-        coEvery {
-            registerClientUseCase(any())
-        } returns RegisterClientResult.Success(CLIENT)
-
-        registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
-        registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
-        registerDeviceViewModel.state.loading shouldBeEqualTo false
-        registerDeviceViewModel.onContinue(registerDeviceActions)
-        registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
-        registerDeviceViewModel.state.loading shouldBeEqualTo true
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Default::class
     }
 
     @Test
@@ -125,14 +108,12 @@ class RegisterDeviceViewModelTest {
 
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
+        runTest { registerDeviceViewModel.onContinue() }
 
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
-        coVerify(exactly = 1) {
-            registerDeviceActions.onRegistered(true)
-        }
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Success::class
     }
 
     @Test
@@ -145,14 +126,12 @@ class RegisterDeviceViewModelTest {
         } returns RegisterClientResult.Failure.TooManyClients
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
+        runTest { registerDeviceViewModel.onContinue() }
 
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
-        coVerify(exactly = 1) {
-            registerDeviceActions.onTooManyClients()
-        }
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.TooManyDevices::class
     }
 
     @Test
@@ -161,9 +140,10 @@ class RegisterDeviceViewModelTest {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.InvalidCredentials.InvalidPassword
 
-        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
+        runTest { registerDeviceViewModel.onContinue() }
 
-        registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.InvalidCredentialsError::class
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error::class
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error::class
     }
 
     @Test
@@ -172,10 +152,10 @@ class RegisterDeviceViewModelTest {
         coEvery { registerClientUseCase(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
-        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
+        runTest { registerDeviceViewModel.onContinue() }
 
-        registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
-        val error = registerDeviceViewModel.state.error as RegisterDeviceError.GenericError
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error.GenericError::class
+        val error = registerDeviceViewModel.state.flowState as RegisterDeviceFlowState.Error.GenericError
         error.coreFailure shouldBe networkFailure
     }
 
@@ -185,11 +165,11 @@ class RegisterDeviceViewModelTest {
         coEvery { registerClientUseCase(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
-        runTest { registerDeviceViewModel.onContinue(registerDeviceActions) }
+        runTest { registerDeviceViewModel.onContinue() }
 
-        registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error.GenericError::class
         registerDeviceViewModel.onErrorDismiss()
-        registerDeviceViewModel.state.error shouldBe RegisterDeviceError.None
+        registerDeviceViewModel.state.flowState shouldBe RegisterDeviceFlowState.Default
     }
 
     companion object {

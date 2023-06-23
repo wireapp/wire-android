@@ -38,7 +38,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Test
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class SelfDevicesViewModelTest {
 

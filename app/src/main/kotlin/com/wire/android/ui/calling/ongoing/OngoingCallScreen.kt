@@ -119,7 +119,6 @@ fun OngoingCallScreen(
                 BackHandler(enabled = isCameraOn, navigator::navigateBack)
             }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

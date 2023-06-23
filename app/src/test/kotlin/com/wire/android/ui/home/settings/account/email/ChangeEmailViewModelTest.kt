@@ -13,12 +13,11 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okio.IOException
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -35,10 +34,12 @@ class ChangeEmailViewModelTest {
                 .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.VerificationEmailSent)
                 .arrange()
 
-            viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
+            viewModel.onSaveClicked()
 
-            verify(exactly = 1) { arrangement.onSuccess(eq(newEmail)) }
-            verify(exactly = 0) { arrangement.onNoChange() }
+            assertTrue {
+                viewModel.state.flowState is ChangeEmailState.FlowState.Success
+                        && (viewModel.state.flowState as ChangeEmailState.FlowState.Success).newEmail == newEmail
+            }
         }
 
     @Test
@@ -48,10 +49,9 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.NoChange)
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
+        viewModel.onSaveClicked()
 
-        verify(exactly = 0) { arrangement.onSuccess(any()) }
-        verify(exactly = 1) { arrangement.onNoChange() }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.NoChange }
     }
 
     @Test
@@ -61,14 +61,9 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse)
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
+        viewModel.onSaveClicked()
 
-        assertEquals(ChangeEmailState.EmailError.TextFieldError.AlreadyInUse, viewModel.state.error)
-
-        coVerify(exactly = 0) {
-            arrangement.onSuccess(any())
-            arrangement.onNoChange()
-        }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -79,14 +74,9 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.GenericFailure(NetworkFailure.NoNetworkConnection(IOException())))
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
+        viewModel.onSaveClicked()
 
-        assertEquals(ChangeEmailState.EmailError.TextFieldError.Generic, viewModel.state.error)
-
-        coVerify(exactly = 0) {
-            arrangement.onSuccess(any())
-            arrangement.onNoChange()
-        }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.Generic }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -97,14 +87,9 @@ class ChangeEmailViewModelTest {
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.InvalidEmail)
             .arrange()
 
-        viewModel.onSaveClicked(arrangement.onSuccess, arrangement.onNoChange)
+        viewModel.onSaveClicked()
 
-        assertEquals(ChangeEmailState.EmailError.TextFieldError.InvalidEmail, viewModel.state.error)
-
-        coVerify(exactly = 0) {
-            arrangement.onSuccess(any())
-            arrangement.onNoChange()
-        }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -115,11 +100,6 @@ class ChangeEmailViewModelTest {
 
         @MockK
         lateinit var self: GetSelfUserUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onSuccess: (email: String) -> Unit
-        @MockK(relaxed = true)
-        lateinit var onNoChange: () -> Unit
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

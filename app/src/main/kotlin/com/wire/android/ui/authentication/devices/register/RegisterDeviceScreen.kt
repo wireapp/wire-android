@@ -186,7 +186,8 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
         value = state.password,
         onValueChange = onPasswordChange,
         state = when (state.flowState) {
-            is RegisterDeviceFlowState.Error.InvalidCredentialsError -> WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
+            is RegisterDeviceFlowState.Error.InvalidCredentialsError ->
+                WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
             else -> WireTextFieldState.Default
         },
         imeAction = ImeAction.Done,

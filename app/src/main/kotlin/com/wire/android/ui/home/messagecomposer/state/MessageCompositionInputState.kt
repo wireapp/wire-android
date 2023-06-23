@@ -71,7 +71,6 @@ class MessageCompositionInputStateHolder(
     )
         private set
 
-
     fun toInActive() {
         inputFocused = false
         inputState = MessageCompositionInputState.INACTIVE
@@ -119,10 +118,6 @@ class MessageCompositionInputStateHolder(
 
     fun onFocused() {
 
-    }
-
-    fun addMentionToMessage(contact: Contact) {
-        messageCompositionHolder.addMention(contact)
     }
 
 }

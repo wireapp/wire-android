@@ -71,6 +71,7 @@ import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
@@ -103,6 +104,7 @@ fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerF
 fun ActiveMessageComposerInput(
     messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     onMessageTextChanged: (TextFieldValue) -> Unit,
+    onMentionPicked : (Contact) -> Unit,
     onSendButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -198,7 +200,7 @@ fun ActiveMessageComposerInput(
                     currentSelectedLineIndex = currentSelectedLineIndex,
                     cursorCoordinateY = cursorCoordinateY,
                     membersToMention = mentionSearchResult,
-                    onMentionPicked = messageCompositionInputStateHolder::addMentionToMessage
+                    onMentionPicked = onMentionPicked
                 )
             }
         }

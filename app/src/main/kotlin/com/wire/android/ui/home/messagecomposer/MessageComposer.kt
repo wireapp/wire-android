@@ -260,6 +260,9 @@ private fun ActiveMessageComposer(
                                 messageCompositionInputStateHolder = messageCompositionInputStateHolder,
                                 onMessageTextChanged = { messageCompositionHolder.setMessageText(it) },
                                 onSendButtonClicked = onSendButtonClicked,
+                                onMentionPicked = { pickedMention ->
+                                    messageCompositionHolder.addMention(pickedMention)
+                                },
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(

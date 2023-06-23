@@ -125,6 +125,7 @@
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
+    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>

@@ -125,6 +125,7 @@
     <string name="content_description_image_message">Képüzenet</string>
     <string name="content_description_file_message">Fájlüzenet</string>
     <string name="content_description_ping_everyone">Kopogás</string>
+    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Hívás befejezése</string>
     <string name="content_description_calling_accept_call">Hívás fogadása</string>
     <string name="content_description_calling_decline_call">Hívás elutasítása</string>

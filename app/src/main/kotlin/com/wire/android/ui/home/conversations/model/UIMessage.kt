@@ -344,6 +344,11 @@ sealed class UIMessageContent {
         )
 
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
+        class MLSWrongEpochWarning : SystemMessage(
+            iconResId = R.drawable.ic_info,
+            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
+            isSmallIcon = true
+        )
 
         data class ConversationMessageCreated(
             val author: UIText,

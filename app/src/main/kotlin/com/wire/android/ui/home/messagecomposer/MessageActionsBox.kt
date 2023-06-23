@@ -222,7 +222,7 @@ fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) 
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_timer,
-        contentDescription = R.string.content_description_ping_everyone,
+        contentDescription = R.string.content_description_self_deleting_message_timer,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }

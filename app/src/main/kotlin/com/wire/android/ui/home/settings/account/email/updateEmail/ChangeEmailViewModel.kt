@@ -48,42 +48,46 @@ class ChangeEmailViewModel @Inject constructor(
 
     private var currentEmail: String? = null
 
-    fun init(onSelfNotFound: () -> Unit) {
+    init {
         viewModelScope.launch {
             getSelf().firstOrNull()?.email?.let {
                 currentEmail = it
                 state = state.copy(email = TextFieldValue(it))
-            } ?: onSelfNotFound()
+            } ?: run {
+                state = state.copy(flowState = ChangeEmailState.FlowState.Error.SelfUserNotFound)
+            }
         }
     }
 
-    fun onSaveClicked(onSuccess: (email: String) -> Unit, onNoChange: () -> Unit) {
-        state = state.copy(saveEnabled = false, isEmailTextEditEnabled = false)
+    fun onSaveClicked() {
+        state = state.copy(saveEnabled = false, isEmailTextEditEnabled = false, flowState = ChangeEmailState.FlowState.Loading)
         viewModelScope.launch {
             when (updateEmail(state.email.text)) {
                 UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse -> state =
                     state.copy(
                         isEmailTextEditEnabled = true,
                         saveEnabled = false,
-                        error = ChangeEmailState.EmailError.TextFieldError.AlreadyInUse
+                        flowState = ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse,
                     )
 
                 UpdateEmailUseCase.Result.Failure.InvalidEmail -> state =
                     state.copy(
                         isEmailTextEditEnabled = true,
                         saveEnabled = false,
-                        error = ChangeEmailState.EmailError.TextFieldError.InvalidEmail
+                        flowState = ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail
                     )
 
                 is UpdateEmailUseCase.Result.Failure.GenericFailure -> state =
                     state.copy(
                         isEmailTextEditEnabled = true,
                         saveEnabled = false,
-                        error = ChangeEmailState.EmailError.TextFieldError.Generic
+                        flowState = ChangeEmailState.FlowState.Error.TextFieldError.Generic
                     )
 
-                is UpdateEmailUseCase.Result.Success.VerificationEmailSent -> onSuccess(state.email.text)
-                is UpdateEmailUseCase.Result.Success.NoChange -> onNoChange()
+                is UpdateEmailUseCase.Result.Success.VerificationEmailSent ->
+                    state = state.copy(flowState = ChangeEmailState.FlowState.Success(state.email.text))
+                is UpdateEmailUseCase.Result.Success.NoChange ->
+                    state = state.copy(flowState = ChangeEmailState.FlowState.NoChange)
             }
         }
     }
@@ -101,13 +105,13 @@ class ChangeEmailViewModel @Inject constructor(
             cleanEmail == currentEmail -> state = state.copy(
                 saveEnabled = false,
                 email = newEmail,
-                error = ChangeEmailState.EmailError.None
+                flowState = ChangeEmailState.FlowState.Default
             )
 
             else -> state = state.copy(
                 saveEnabled = isValidEmail,
                 email = newEmail,
-                error = ChangeEmailState.EmailError.None
+                flowState = ChangeEmailState.FlowState.Default
             )
         }
     }

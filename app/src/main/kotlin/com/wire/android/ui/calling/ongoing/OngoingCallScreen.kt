@@ -91,33 +91,33 @@ fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(Unit) {
-        ongoingCallViewModel.init(navigator::navigateBack)
-    }
-
-    with(sharedCallingViewModel.callState) {
-        OngoingCallContent(
-            conversationName = conversationName,
-            participants = participants,
-            isMuted = isMuted ?: true,
-            isCameraOn = isCameraOn,
-            isSpeakerOn = isSpeakerOn,
-            isCbrEnabled = isCbrEnabled,
-            isOnFrontCamera = isOnFrontCamera,
-            classificationType = securityClassificationType,
-            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
-            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
-            toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
-            toggleVideo = sharedCallingViewModel::toggleVideo,
-            flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = sharedCallingViewModel::setVideoPreview,
-            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-            navigateBack = navigator::navigateBack,
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
-        )
-        BackHandler(enabled = isCameraOn, navigator::navigateBack)
+    when (ongoingCallViewModel.state.flowState) {
+        OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
+        OngoingCallState.FlowState.Default ->
+            with(sharedCallingViewModel.callState) {
+                OngoingCallContent(
+                    conversationName = conversationName,
+                    participants = participants,
+                    isMuted = isMuted ?: true,
+                    isCameraOn = isCameraOn,
+                    isSpeakerOn = isSpeakerOn,
+                    isCbrEnabled = isCbrEnabled,
+                    isOnFrontCamera = isOnFrontCamera,
+                    classificationType = securityClassificationType,
+                    shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+                    toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+                    toggleMute = sharedCallingViewModel::toggleMute,
+                    hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
+                    toggleVideo = sharedCallingViewModel::toggleVideo,
+                    flipCamera = sharedCallingViewModel::flipCamera,
+                    setVideoPreview = sharedCallingViewModel::setVideoPreview,
+                    clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+                    navigateBack = navigator::navigateBack,
+                    requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+                    hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
+                )
+                BackHandler(enabled = isCameraOn, navigator::navigateBack)
+            }
     }
 }
 

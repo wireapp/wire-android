@@ -132,13 +132,12 @@ private fun LoginContent(
             startDestination = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
         ) {
 
-
             composable(
                 route = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route,
                 enterTransition = { smoothSlideInFromRight() },
                 exitTransition = { smoothSlideOutFromLeft() },
                 content = {
-                    MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded,viewModel, loginEmailViewModel, ssoLoginResult)
+                    MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)
                 }
             )
             composable(

@@ -15,19 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.incoming
+package com.wire.android.ui.calling.initiating
 
-import com.wire.kalium.logic.data.id.ConversationId
-
-data class IncomingCallState(
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinCallAnywayDialog: Boolean = false,
+data class InitiatingCallState(
     val flowState: FlowState = FlowState.Default
 ) {
     sealed interface FlowState {
         object Default : FlowState
         object CallClosed : FlowState
-        object CallDeclined : FlowState
-        data class CallAccepted(val conversationId: ConversationId) : FlowState
+        object CallEstablished : FlowState
+        object CallHungUp : FlowState
     }
 }

@@ -40,6 +40,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -55,15 +56,15 @@ class InitiatingCallViewModelTest {
             .arrange()
 
         // When
-        viewModel.hangUpCall(arrangement.onCompleted)
+        viewModel.hangUpCall()
         advanceUntilIdle()
 
         // Then
         with(arrangement) {
             coVerify(exactly = 1) { endCall(any()) }
             coVerify(exactly = 1) { callRinger.stop() }
-            coVerify(exactly = 1) { onCompleted() }
         }
+        assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallHungUp }
     }
 
     @Test
@@ -101,9 +102,6 @@ class InitiatingCallViewModelTest {
 
         @MockK
         lateinit var endCall: EndCallUseCase
-
-        @MockK(relaxed = true)
-        lateinit var onCompleted: () -> Unit
 
         val initiatingCallViewModel by lazy {
             InitiatingCallViewModel(

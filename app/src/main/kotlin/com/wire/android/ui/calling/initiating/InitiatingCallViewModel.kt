@@ -20,6 +20,9 @@
 
 package com.wire.android.ui.calling.initiating
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -56,15 +59,18 @@ class InitiatingCallViewModel @Inject constructor(
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
     private var wasCallHangUp: Boolean = false
 
-    fun init(onCallClosed: () -> Unit, onCallEstablished: () -> Unit) {
+    var state by mutableStateOf(InitiatingCallState())
+        private set
+
+    init {
         viewModelScope.launch {
             launch { initiateCall() }
-            launch { observeStartedCall(onCallEstablished) }
-            launch { observeClosedCall(onCallClosed) }
+            launch { observeStartedCall() }
+            launch { observeClosedCall() }
         }
     }
 
-    private suspend fun observeStartedCall(onEstablished: () -> Unit) {
+    private suspend fun observeStartedCall() {
         observeEstablishedCalls()
             .map { calls -> calls.map { it.conversationId } }
             .distinctUntilChanged()
@@ -72,31 +78,31 @@ class InitiatingCallViewModel @Inject constructor(
                 conversationIds.find { convId ->
                     convId == conversationId
                 }?.let {
-                    onCallEstablished(onEstablished)
+                    onCallEstablished()
                 }
             }
     }
 
-    private suspend fun observeClosedCall(onCallClosed: () -> Unit) {
+    private suspend fun observeClosedCall() {
         isLastCallClosed(
             conversationId = conversationId,
             startedTime = callStartTime
         ).collect { isCurrentCallClosed ->
             if (isCurrentCallClosed && wasCallHangUp.not()) {
-                stopRingerAndMarkCallAsHangedUp()
-                onCallClosed()
+                stopRingerAndMarkCallAsHungUp()
+                state = state.copy(flowState = InitiatingCallState.FlowState.CallClosed)
             }
         }
     }
 
-    private fun stopRingerAndMarkCallAsHangedUp() {
+    private fun stopRingerAndMarkCallAsHungUp() {
         wasCallHangUp = true
         callRinger.stop()
     }
 
-    private fun onCallEstablished(onEstablished: () -> Unit) {
+    private fun onCallEstablished() {
         callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
-        onEstablished()
+        state = state.copy(flowState = InitiatingCallState.FlowState.CallEstablished)
     }
 
     internal suspend fun initiateCall() {
@@ -109,11 +115,11 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    fun hangUpCall(onCompleted: () -> Unit) = viewModelScope.launch {
+    fun hangUpCall() = viewModelScope.launch {
         launch { endCall(conversationId) }
         launch {
-            stopRingerAndMarkCallAsHangedUp()
-            onCompleted()
+            stopRingerAndMarkCallAsHungUp()
+            state = state.copy(flowState = InitiatingCallState.FlowState.CallHungUp)
         }
     }
 }

@@ -47,84 +47,68 @@ class RegisterDeviceViewModel @Inject constructor(
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
         private set
 
-    fun init(actions: RegisterDeviceActions) {
+    init {
         runBlocking {
-            updateState(state.copy(loading = true))
+            state = state.copy(flowState = RegisterDeviceFlowState.Loading)
             isPasswordRequired().let {
-                updateState(state.copy(loading = false))
+                state = state.copy(flowState = RegisterDeviceFlowState.Default)
                 when (it) {
                     is IsPasswordRequiredUseCase.Result.Failure -> {
-                        updateErrorState(RegisterDeviceError.GenericError(it.cause))
+                        updateFlowState(RegisterDeviceFlowState.Error.GenericError(it.cause))
                     }
 
                     is IsPasswordRequiredUseCase.Result.Success -> {
-                        updateState(state.copy(isPasswordRequired = it.value))
+                        if (!it.value) registerClient(null)
                     }
                 }
-            }
-            when (state.isPasswordRequired) {
-                true -> {}
-                false -> registerClient(null, actions)
             }
         }
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
         if (state.password != newText) {
-            updateState(state.copy(password = newText, error = RegisterDeviceError.None, continueEnabled = newText.text.isNotEmpty()))
+            state = state.copy(password = newText, flowState = RegisterDeviceFlowState.Default, continueEnabled = newText.text.isNotEmpty())
         }
     }
 
     fun onErrorDismiss() {
-        updateErrorState(RegisterDeviceError.None)
+        updateFlowState(RegisterDeviceFlowState.Default)
     }
 
-    private suspend fun registerClient(password: String?, actions: RegisterDeviceActions) {
-        updateState(state.copy(loading = true, continueEnabled = false))
+    private suspend fun registerClient(password: String?) {
+        state = state.copy(flowState = RegisterDeviceFlowState.Loading, continueEnabled = false)
         when (val registerDeviceResult = registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = null,
             )
         )) {
-            is RegisterClientResult.Failure.TooManyClients -> actions.onTooManyClients()
-            is RegisterClientResult.Success -> actions.onRegistered(userDataStore.initialSyncCompleted.first())
+            is RegisterClientResult.Failure.TooManyClients ->
+                updateFlowState(RegisterDeviceFlowState.TooManyDevices)
+            is RegisterClientResult.Success ->
+                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first()))
 
             is RegisterClientResult.Failure.Generic -> state = state.copy(
-                loading = false,
                 continueEnabled = true,
-                error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
+                flowState = RegisterDeviceFlowState.Error.GenericError(registerDeviceResult.genericFailure)
             )
 
             is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
-                loading = false,
                 continueEnabled = true,
-                error = RegisterDeviceError.InvalidCredentialsError
+                flowState = RegisterDeviceFlowState.Error.InvalidCredentialsError
             )
 
-            is RegisterClientResult.Failure.PasswordAuthRequired -> state = state.copy(
-                loading = false,
-                isPasswordRequired = true
-            )
+            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */ }
         }
     }
 
-    fun onContinue(actions: RegisterDeviceActions) {
+    fun onContinue() {
         viewModelScope.launch {
-            registerClient(state.password.text, actions)
+            registerClient(state.password.text)
         }
     }
 
-    private fun updateErrorState(error: RegisterDeviceError) {
-        updateState(state.copy(error = error))
-    }
-
-    private fun updateState(newState: RegisterDeviceState) {
-        state = newState
+    private fun updateFlowState(flowState: RegisterDeviceFlowState) {
+        state = state.copy(flowState = flowState)
     }
 }
-
-data class RegisterDeviceActions(
-    val onTooManyClients: () -> Unit,
-    val onRegistered: (initialSyncCompleted: Boolean) -> Unit
-)

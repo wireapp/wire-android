@@ -308,7 +308,7 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an active call, when clearVideoPreview is called, then clear the video preview and update video state to STOPPED`() = runTest {
+    fun `given an active call, when clearVideoPreview is called, then update video state to STOPPED`() = runTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 

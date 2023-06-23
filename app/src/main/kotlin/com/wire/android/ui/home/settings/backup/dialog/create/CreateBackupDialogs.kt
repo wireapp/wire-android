@@ -45,6 +45,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -98,6 +99,10 @@ fun CreateBackupDialog(
     WireDialog(
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        ),
         optionButton1Properties = WireDialogButtonProperties(
             onClick = {
                 onSaveBackup()

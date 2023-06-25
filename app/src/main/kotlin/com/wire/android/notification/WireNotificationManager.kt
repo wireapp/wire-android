@@ -93,9 +93,8 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun observeNotificationsAndCallsWhileRunning(
         userIds: List<UserId>,
-        scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
-    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingWhileRunningJobs)
+        scope: CoroutineScope
+    ) = observeNotificationsAndCalls(userIds, scope, observingWhileRunningJobs)
 
     /**
      * Observes all the Message and Call notifications persistently.
@@ -103,9 +102,8 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun observeNotificationsAndCallsPersistently(
         userIds: List<UserId>,
-        scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
-    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingPersistentlyJobs)
+        scope: CoroutineScope
+    ) = observeNotificationsAndCalls(userIds, scope, observingPersistentlyJobs)
 
     /**
      * Become online, process all the Pending events,
@@ -192,7 +190,7 @@ class WireNotificationManager @Inject constructor(
             appLogger.d("$TAG checking the calls once, but calls are already observed, no need to start a new job")
             null
         } else {
-            scope.launch { observeIncomingCalls(userId, MutableStateFlow(CurrentScreen.InBackground)) {} }
+            scope.launch { observeIncomingCalls(userId) }
         }
     }
 
@@ -225,7 +223,6 @@ class WireNotificationManager @Inject constructor(
     private suspend fun observeNotificationsAndCalls(
         userIds: List<UserId>,
         scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit,
         observingJobs: HashMap<UserId, ObservingJobs>
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
@@ -255,7 +252,7 @@ class WireNotificationManager @Inject constructor(
                         observeCurrentScreenAndHideNotifications(currentScreenState, userId)
                     },
                     incomingCallsJob = scope.launch(dispatcherProvider.default()) {
-                        observeIncomingCalls(userId, currentScreenState, doIfCallCameAndAppVisible)
+                        observeIncomingCalls(userId)
                     },
                     messagesJob = scope.launch(dispatcherProvider.default()) {
                         observeMessageNotifications(userId, currentScreenState)
@@ -300,9 +297,7 @@ class WireNotificationManager @Inject constructor(
      * so we can decide: should we show notification, or run a @param[doIfCallCameAndAppVisible]
      */
     private suspend fun observeIncomingCalls(
-        userId: UserId,
-        currentScreenState: StateFlow<CurrentScreen>,
-        doIfCallCameAndAppVisible: (Call) -> Unit
+        userId: UserId
     ) {
         appLogger.d("$TAG observe incoming calls")
 
@@ -310,18 +305,7 @@ class WireNotificationManager @Inject constructor(
             .calls
             .getIncomingCalls()
             .collect { calls ->
-                val isCurrentUserReceiver = coreLogic.getGlobalScope().session.currentSession().let {
-                    (it is CurrentSessionResult.Success && it.accountInfo.userId == userId)
-                }
-                if (currentScreenState.value != CurrentScreen.InBackground && isCurrentUserReceiver) {
-                    calls.firstOrNull()?.run {
-                        appLogger.d("$TAG got some call while app is visible")
-                        doIfCallCameAndAppVisible(this)
-                    }
-                    callNotificationManager.hideIncomingCallNotification()
-                } else {
-                    callNotificationManager.handleIncomingCallNotifications(calls, userId)
-                }
+                callNotificationManager.handleIncomingCallNotifications(calls, userId)
             }
     }
 

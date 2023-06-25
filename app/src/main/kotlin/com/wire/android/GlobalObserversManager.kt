@@ -1,14 +1,10 @@
 package com.wire.android
 
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
-import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -28,7 +24,6 @@ class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
-    private val navigationManager: NavigationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -62,18 +57,10 @@ class GlobalObserversManager @Inject constructor(
                     // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
                     .filter { userId -> persistentStatuses.none { it.userId == userId && it.isPersistentWebSocketEnabled } }
                     .run {
-                        notificationManager.observeNotificationsAndCallsWhileRunning(this, scope) {
-                            openIncomingCall(it.conversationId)
-                        }
+                        notificationManager.observeNotificationsAndCallsWhileRunning(this, scope)
                     }
                 // it would be nice to call all the notification observations in one place,
                 // but we can't start PersistentWebSocketService here, to avoid ForegroundServiceStartNotAllowedException
             }
-    }
-
-    private fun openIncomingCall(conversationId: ConversationId) {
-        scope.launch {
-            navigationManager.navigate(NavigationCommand(IncomingCallScreenDestination(conversationId)))
-        }
     }
 }

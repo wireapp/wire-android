@@ -15,18 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.create.overview
 
-import androidx.lifecycle.ViewModel
-import com.wire.android.di.AuthServerConfigProvider
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+package com.wire.android.ui.authentication.create.common
 
-@HiltViewModel
-class CreateAccountOverviewViewModel @Inject constructor(
-    private val authServerConfigProvider: AuthServerConfigProvider,
-) : ViewModel() {
-    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
-    fun learnMoreUrl(): String = authServerConfigProvider.authServer.value.pricing
-}
+import com.ramcosta.composedestinations.annotation.NavGraph
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+
+@RootNavGraph
+@NavGraph
+annotation class CreatePersonalAccountNavGraph(
+    val start: Boolean = false
+)
+
+@RootNavGraph
+@NavGraph
+annotation class CreateTeamAccountNavGraph(
+    val start: Boolean = false
+)

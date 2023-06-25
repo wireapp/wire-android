@@ -36,9 +36,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -218,7 +216,6 @@ class WireNotificationManager @Inject constructor(
      * Notify user and mark Conversations as notified when it's needed.
      * @param userIds List<QualifiedID> of Users that we need to observe notifications for
      * @param scope CoroutineScope used for observing CurrentScreen
-     * @param doIfCallCameAndAppVisible action that should be done when incoming call comes and app is in foreground
      */
     private suspend fun observeNotificationsAndCalls(
         userIds: List<UserId>,
@@ -293,8 +290,6 @@ class WireNotificationManager @Inject constructor(
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
      * Can be used for listening for the Notifications when the app is running.
      * @param userId QualifiedID of User that we want to observe for
-     * @param currentScreenState StateFlow that informs which screen is currently visible,
-     * so we can decide: should we show notification, or run a @param[doIfCallCameAndAppVisible]
      */
     private suspend fun observeIncomingCalls(
         userId: UserId

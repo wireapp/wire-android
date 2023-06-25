@@ -47,11 +47,11 @@
     <string name="label_message_edit_sent_remotely_failure">Az üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgáló nem üzemel.</string>
     <string name="label_message_receive_failure">Letöltési hiba</string>
     <string name="label_message_decryption_failure_message">Az üzenetet nem sikerült dekódolni.</string>
-    <string name="label_message_decryption_failure_informative_message">Próbálja meg visszaállítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
+    <string name="label_message_decryption_failure_informative_message">Próbálja meg újraindítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
     <string name="label_message_knock">%s kopogott</string>
     <string name="label_try_again">Próbálja meg újra</string>
-    <string name="label_reset_session">Munkamenet visszaállítása</string>
-    <string name="label_reset_session_success">Munkamenet sikeresen visszaállítva</string>
+    <string name="label_reset_session">Munkamenet újraindítása</string>
+    <string name="label_reset_session_success">Munkamenet sikeresen újraindítva</string>
     <string name="label_federated_membership">Szövetséges</string>
     <string name="label_update">Frissítés</string>
     <string name="label_close">Bezárás</string>
@@ -541,7 +541,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **ki**kapcsolta az önmegsemmisítő üzenetek időzítőjét mindenki számára</string>
     <string name="label_system_message_deactivated">deaktivált</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Az MLS csoportkulcs tudtunkon kívül frissült. Ezt a kiszolgálók közötti üzenetvesztés vagy programhiba okozhatta. Automatikusan újracsatlakoztunk a beszélgetéshez, de Önnek elveszhettek üzenetei.</string>
     <string name="label_system_message_receipt_mode_on">be</string>
     <string name="label_system_message_receipt_mode_off">ki</string>
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
@@ -807,7 +807,7 @@
     <string name="settings_myaccount_email">E-MAIL</string>
     <string name="settings_myaccount_team">CSAPAT</string>
     <string name="settings_myaccount_domain">TARTOMÁNY</string>
-    <string name="settings_myaccount_reset_password">Jelszó visszaállítása</string>
+    <string name="settings_myaccount_reset_password">Jelszó megváltozatása</string>
     <!--Settings, My Account > Display name -->
     <string name="settings_myaccount_display_name_title">Profilneve</string>
     <string name="settings_myaccount_display_name_description">Mások a profilnevét – amit a Wire-ben nem csak egy személy viselhet – látják beszélgetésekben, hívásokban és a felhasználókeresőben.</string>
@@ -955,11 +955,11 @@
     <string name="guest_room_link_disabled">Hivatkozások létrehozása mostantól tiltott minden csoportadminisztrátornak</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Fiókja legutóbbi használata:</string>
-    <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nErről: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nHa ez nem Ön volt, törölje az eszközt, és változtassa meg a jelszavát.</string>
     <string name="new_device_dialog_current_user_btn">Eszközök kezelése</string>
     <string name="new_device_dialog_other_user_title">Az Ön “%1$s (@%2$s)” fiókja legutóbbi használata:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nHa ez nem Ön volt, törölje az eszközt (menjen az “Eszközök kezelése” rovatba a fiók Beállítások menüjében), és változtassa meg a jelszavát.</string>
     <string name="new_device_dialog_other_user_btn">Fiók váltása</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s csatlakozott a beszélgetéshez</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s csatlakozott a beszélgetéshez</string>
@@ -967,7 +967,7 @@
     <string name="label_client_unverified">Nincs ellenőrizve</string>
     <string name="label_self_client_verification_description">Saját eszköze ellenőrzéséhez vesse össze ezt a kulcs ujjlenyomatot egy másik eszközön található azonos kulcs ujjlenyomattal.</string>
     <string name="label_client_verification_description">Ellenőrizze, hogy ez az eszköz ujjlenyomat egyezik-e a(z) %s eszközén látható ujjlenyomattal.</string>
-    <string name="label_fingerprint_description">Ha az ujjlenyomatok nem egyeznek, állítsa vissza a munkamenet, így mindkét oldalon új titkosítási kulcsok jönnek létre.</string>
+    <string name="label_fingerprint_description">Ha az ujjlenyomatok nem egyeznek, indítsa újra a munkamenet, így mindkét oldalon új titkosítási kulcsok jönnek létre.</string>
     <string name="label_self_fingerprint_description">Ossza meg ezt a kulcs ujjlenyomatot a beszélgetés többi résztvevőjével, így ők ellenőrizhetik azt, és meggyőződhetnek arról, hogy a beszélgetés biztonságos.</string>
     <string name="unknown_user_name">ismeretlen</string>
     <string name="device_name_unknown">Ismeretlen eszköz</string>

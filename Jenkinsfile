@@ -98,7 +98,7 @@ pipeline {
                         String flavor = x
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
-                        String changeBranchIfMissing = handleChangeBranch(env.CHANGE_BRANCH)
+                        String definedChangeBranch = handleChangeBranch(env.CHANGE_BRANCH)
                         dynamicStages[stageName] = {
                             node {
                                 stage(stageName) {
@@ -106,7 +106,7 @@ pipeline {
                                             job: 'AR-build-pipeline',
                                             parameters: [
                                                     string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
-                                                    string(name: 'CHANGE_BRANCH', value: changeBranchIfMissing),
+                                                    string(name: 'CHANGE_BRANCH', value: definedChangeBranch),
                                                     string(name: 'BUILD_TYPE', value: buildType),
                                                     string(name: 'FLAVOR', value: flavor),
                                                     booleanParam(name: 'UPLOAD_TO_S3', value: true),

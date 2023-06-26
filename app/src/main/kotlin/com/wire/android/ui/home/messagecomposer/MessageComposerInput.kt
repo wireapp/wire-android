@@ -78,7 +78,10 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerFocused: () -> Unit) {
+fun InActiveMessageComposerInput(
+    messageText: TextFieldValue,
+    onMessageComposerFocused: () -> Unit
+) {
     MessageComposerTextInput(
         inputFocused = false,
         colors = wireTextFieldColors(
@@ -104,9 +107,9 @@ fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerF
 fun ActiveMessageComposerInput(
     messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     onMessageTextChanged: (TextFieldValue) -> Unit,
-    onMentionPicked : (Contact) -> Unit,
+    onMentionPicked: (Contact) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onChangeSelfDeletionClicked : () -> Unit,
+    onChangeSelfDeletionClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     with(messageCompositionInputStateHolder) {
@@ -323,12 +326,11 @@ fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationT
 }
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun CollapseButton(
     onCollapseClick: () -> Unit
 ) {
-    val isCollapsed by remember { mutableStateOf(false) }
+    var isCollapsed by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -339,7 +341,10 @@ private fun CollapseButton(
         val collapseButtonRotationDegree by animateFloatAsState(targetValue = if (isCollapsed) 180f else 0f)
 
         IconButton(
-            onClick = onCollapseClick,
+            onClick = {
+                isCollapsed = !isCollapsed
+                onCollapseClick()
+            },
             modifier = Modifier.size(20.dp)
         ) {
             Icon(

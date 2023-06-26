@@ -24,6 +24,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
@@ -37,7 +38,17 @@ fun NavigationGraph(
     startDestination: Route,
 ) {
     val navHostEngine = rememberAnimatedNavHostEngine(
-        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
+        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING,
+        defaultAnimationsForNestedNavGraph = mapOf(
+            NavGraphs.createPersonalAccount to NestedNavGraphDefaultAnimations(
+                enterTransition = { smoothSlideInFromRight() },
+                exitTransition = { smoothSlideOutFromLeft() }
+            ),
+            NavGraphs.createTeamAccount to NestedNavGraphDefaultAnimations(
+                enterTransition = { smoothSlideInFromRight() },
+                exitTransition = { smoothSlideOutFromLeft() }
+            )
+        )
     )
 
     DestinationsNavHost(

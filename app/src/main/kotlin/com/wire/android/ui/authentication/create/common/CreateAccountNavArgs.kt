@@ -15,18 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.create.overview
+package com.wire.android.ui.authentication.create.common
 
-import androidx.lifecycle.ViewModel
-import com.wire.android.di.AuthServerConfigProvider
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import android.os.Parcelable
+import com.wire.android.util.EMPTY
+import kotlinx.parcelize.Parcelize
 
-@HiltViewModel
-class CreateAccountOverviewViewModel @Inject constructor(
-    private val authServerConfigProvider: AuthServerConfigProvider,
-) : ViewModel() {
-    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
-    fun learnMoreUrl(): String = authServerConfigProvider.authServer.value.pricing
-}
+@Parcelize
+data class CreateAccountNavArgs(
+    val flowType: CreateAccountFlowType,
+    val userRegistrationInfo: UserRegistrationInfo = UserRegistrationInfo()
+) : Parcelable
+
+@Parcelize
+data class UserRegistrationInfo(
+    val email: String = String.EMPTY,
+    val firstName: String = String.EMPTY,
+    val lastName: String = String.EMPTY,
+    val password: String = String.EMPTY,
+    val teamName: String = String.EMPTY,
+    val teamIcon: String = "default"
+) : Parcelable

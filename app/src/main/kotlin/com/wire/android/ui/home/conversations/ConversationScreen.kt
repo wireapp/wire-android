@@ -330,7 +330,6 @@ private fun ConversationScreen(
         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
         securityClassificationType = messageComposerViewState.securityClassificationType,
         selfDeletionTimer = messageComposerViewState.selfDeletionTimer,
-        searchMentions = requestMentions,
         onSendMessage = { onSendMessage(it) },
     )
 
@@ -442,6 +441,7 @@ private fun ConversationScreen(
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
+                    onSearchMentionQueryChanged = requestMentions
                 )
             }
             MenuModalSheetLayout(
@@ -480,7 +480,8 @@ private fun ConversationScreenContent(
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit
+    onChangeSelfDeletionClicked: () -> Unit,
+    onSearchMentionQueryChanged : (String) -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -511,6 +512,7 @@ private fun ConversationScreenContent(
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
         },
+        onSearchMentionQueryChanged = onSearchMentionQueryChanged,
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
     )
 

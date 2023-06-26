@@ -56,7 +56,6 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
-import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -65,7 +64,8 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 fun MessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit
+    onChangeSelfDeletionClicked: () -> Unit,
+    onSearchMentionQueryChanged: (String) -> Unit,
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
@@ -82,7 +82,8 @@ fun MessageComposer(
                     messageComposerState = messageComposerState,
                     messageListContent = messageListContent,
                     onSendButtonClicked = ::sendMessage,
-                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    onSearchMentionQueryChanged = onSearchMentionQueryChanged
                 )
             }
         }
@@ -94,7 +95,8 @@ private fun EnabledMessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit
+    onChangeSelfDeletionClicked: () -> Unit,
+    onSearchMentionQueryChanged: (String) -> Unit
 ) {
     with(messageComposerState) {
         Row {
@@ -112,7 +114,8 @@ private fun EnabledMessageComposer(
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerState::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
-                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
+                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                        onSearchMentionQueryChanged = onSearchMentionQueryChanged
                     )
                 }
 
@@ -190,6 +193,7 @@ private fun ActiveMessageComposer(
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
+    onSearchMentionQueryChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
     with(messageComposerState) {
@@ -263,7 +267,7 @@ private fun ActiveMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageCompositionInputStateHolder = messageCompositionInputStateHolder,
-                                onMessageTextChanged = { messageCompositionHolder.setMessageText(it) },
+                                onMessageTextChanged = { messageCompositionHolder.setMessageText(it, onSearchMentionQueryChanged) },
                                 onSendButtonClicked = onSendButtonClicked,
                                 onMentionPicked = { pickedMention ->
                                     messageCompositionHolder.addMention(pickedMention)

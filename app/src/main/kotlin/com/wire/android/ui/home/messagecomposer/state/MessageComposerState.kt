@@ -41,7 +41,6 @@ fun rememberMessageComposerState(
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    searchMentions: (String) -> Unit,
     onSendMessage: (MessageBundle) -> Unit
 ): MessageComposerState {
     val context = LocalContext.current
@@ -59,7 +58,6 @@ fun rememberMessageComposerState(
             securityClassificationType = securityClassificationType,
             selfDeletionTimer = selfDeletionTimer,
             mentionStyle = mentionStyle,
-            searchMentions = searchMentions,
             onSendMessage = onSendMessage
         )
     }
@@ -73,14 +71,12 @@ class MessageComposerState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val mentionStyle: SpanStyle,
-    searchMentions: (String) -> Unit,
     private val onSendMessage: (MessageBundle) -> Unit
 ) {
 
     val messageCompositionHolder = MessageCompositionHolder(
         context = context,
-        mentionStyle = mentionStyle,
-        searchMentions = searchMentions
+        mentionStyle = mentionStyle
     )
 
     val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(

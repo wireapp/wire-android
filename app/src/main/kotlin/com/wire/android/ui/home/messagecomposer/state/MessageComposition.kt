@@ -44,8 +44,7 @@ import kotlin.time.Duration
 
 class MessageCompositionHolder(
     private val context: Context,
-    private val mentionStyle: SpanStyle,
-    private val searchMentions: (String) -> Unit
+    private val mentionStyle: SpanStyle
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
@@ -112,9 +111,9 @@ class MessageCompositionHolder(
             }
         }
 
-    fun setMessageText(messageTextFieldValue: TextFieldValue) {
+    fun setMessageText(messageTextFieldValue: TextFieldValue, searchMentions: (String) -> Unit) {
         updateMentionsIfNeeded(messageTextFieldValue)
-        requestMentionSuggestionIfNeeded(messageTextFieldValue)
+        requestMentionSuggestionIfNeeded(messageTextFieldValue,searchMentions)
 
         messageComposition.update {
             it.copy(
@@ -127,7 +126,7 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
     }
 
-    private fun requestMentionSuggestionIfNeeded(messageText: TextFieldValue) {
+    private fun requestMentionSuggestionIfNeeded(messageText: TextFieldValue, searchMentions: (String) -> Unit) {
         if (messageText.selection.min != messageText.selection.max) {
             messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
             return

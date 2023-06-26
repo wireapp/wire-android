@@ -120,9 +120,7 @@ class MessageCompositionInputStateHolder(
 
 }
 
-sealed class MessageCompositionInputType(
-    val messageCompositionState: MutableState<MessageComposition>
-) {
+sealed class MessageCompositionInputType{
     @Composable
     open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,
@@ -134,7 +132,7 @@ sealed class MessageCompositionInputType(
     @Composable
     open fun backgroundColor(): Color = colorsScheme().messageComposerBackgroundColor
 
-    class Composing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState) {
+    class Composing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType() {
 
         val isSendButtonEnabled by derivedStateOf {
             messageCompositionState.value.messageText.isNotBlank()
@@ -145,7 +143,7 @@ sealed class MessageCompositionInputType(
     class Editing(
         messageCompositionState: MutableState<MessageComposition>,
         val messageCompositionSnapShot: MessageComposition
-    ) : MessageCompositionInputType(messageCompositionState) {
+    ) : MessageCompositionInputType() {
 
         @Composable
         override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
@@ -158,7 +156,7 @@ sealed class MessageCompositionInputType(
 
     class SelfDeleting(
         messageCompositionState: MutableState<MessageComposition>,
-    ) : MessageCompositionInputType(messageCompositionState) {
+    ) : MessageCompositionInputType() {
         @Composable
         override fun inputTextColor() =
             wireTextFieldColors(

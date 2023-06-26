@@ -107,6 +107,7 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -1173,4 +1174,12 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetServiceByIdUseCase =
         coreLogic.getSessionScope(currentAccount).service.getServiceById
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeleteAccountUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): DeleteAccountUseCase =
+        coreLogic.getSessionScope(currentAccount).users.deleteAccount
 }

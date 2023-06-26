@@ -50,7 +50,9 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -107,6 +109,12 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
+    @MockK
+    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
+    @MockK
+    private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -127,6 +135,8 @@ class ConversationListViewModelTest {
                 wireSessionImageLoader = wireSessionImageLoader,
                 endCall = endCall,
                 observeEstablishedCalls = observeEstablishedCalls,
+                refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
+                refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
                 userTypeMapper = UserTypeMapper(),
             )
 

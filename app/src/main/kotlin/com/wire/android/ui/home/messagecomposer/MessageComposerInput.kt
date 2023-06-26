@@ -231,7 +231,6 @@ private fun MessageComposerTextInput(
         else focusManager.clearFocus()
     }
 
-
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,

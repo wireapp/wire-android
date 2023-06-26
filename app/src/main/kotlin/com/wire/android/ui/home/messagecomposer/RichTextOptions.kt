@@ -81,8 +81,7 @@ private fun HeaderButton(
     WireSecondaryIconButton(
         onButtonClicked = onRichTextHeaderButtonClicked,
         iconResource = R.drawable.ic_rich_text_header,
-        contentDescription = R.string.content_description_close_button,
-        iconModifier = modifier,
+        contentDescription = R.string.content_description_conversation_rich_text_header,
         modifier = modifier
             .padding(start = dimensions().spacing8x),
         shape = RoundedCornerShape(
@@ -102,8 +101,7 @@ private fun BoldButton(
     WireSecondaryIconButton(
         onButtonClicked = onRichTextBoldButtonClicked,
         iconResource = R.drawable.ic_rich_text_bold,
-        contentDescription = R.string.content_description_close_button,
-        iconModifier = modifier,
+        contentDescription = R.string.content_description_conversation_rich_text_bold,
         modifier = modifier,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.spacing0x,
@@ -122,8 +120,7 @@ private fun ItalicButton(
     WireSecondaryIconButton(
         onButtonClicked = onRichTextItalicButtonClicked,
         iconResource = R.drawable.ic_rich_text_italic,
-        contentDescription = R.string.content_description_close_button,
-        iconModifier = modifier,
+        contentDescription = R.string.content_description_conversation_rich_text_italic,
         modifier = modifier,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.spacing0x,

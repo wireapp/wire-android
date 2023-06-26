@@ -138,8 +138,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     Column(modifier.wrapContentSize()) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
         MessageComposeActions(
-            false,
-            false,
+            isAdditionalOptionsButtonSelected = false,
+            isEditMessage = false,
             onMentionButtonClicked = onMentionButtonClicked,
             onAdditionalOptionButtonClicked = onAttachmentOptionClicked,
             onPingButtonClicked = onPingClicked,

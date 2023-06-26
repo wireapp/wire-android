@@ -63,6 +63,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerState,
+    securityClassificationType: SecurityClassificationType,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
@@ -120,7 +121,7 @@ private fun EnabledMessageComposer(
                 }
 
                 MessageCompositionInputState.INACTIVE -> {
-                    InActiveMessageComposer(
+                    InactiveMessageComposer(
                         messageComposerState = messageComposerState,
                         messageListContent = messageListContent,
                         onTransitionToActive = messageComposerState::toActive
@@ -132,7 +133,7 @@ private fun EnabledMessageComposer(
 }
 
 @Composable
-private fun InActiveMessageComposer(
+private fun InactiveMessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
     onTransitionToActive: (Boolean) -> Unit

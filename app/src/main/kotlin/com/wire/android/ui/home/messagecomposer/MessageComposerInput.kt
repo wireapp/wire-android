@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

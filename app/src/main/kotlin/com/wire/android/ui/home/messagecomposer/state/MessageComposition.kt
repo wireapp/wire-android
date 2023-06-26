@@ -77,7 +77,10 @@ class MessageCompositionHolder(
 
     fun clearReply() {
         messageComposition.update {
-            it.copy(quotedMessage = null)
+            it.copy(
+                quotedMessage = null,
+                quotedMessageId = null
+            )
         }
     }
 
@@ -113,7 +116,7 @@ class MessageCompositionHolder(
 
     fun setMessageText(messageTextFieldValue: TextFieldValue, searchMentions: (String) -> Unit) {
         updateMentionsIfNeeded(messageTextFieldValue)
-        requestMentionSuggestionIfNeeded(messageTextFieldValue,searchMentions)
+        requestMentionSuggestionIfNeeded(messageTextFieldValue, searchMentions)
 
         messageComposition.update {
             it.copy(
@@ -249,6 +252,7 @@ class MessageCompositionHolder(
             )
         }
     }
+
     fun clear() {
         messageComposition.update { MessageComposition.DEFAULT }
     }

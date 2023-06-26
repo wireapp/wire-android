@@ -53,7 +53,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.util.ui.KeyboardHeight
@@ -62,25 +62,24 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun MessageComposer(
-    messageComposerState: MessageComposerState,
-    securityClassificationType: SecurityClassificationType,
+    messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
 ) {
-    with(messageComposerState) {
-        when (messageComposerState.interactionAvailability) {
-            InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
-            InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
+    with(messageComposerStateHolder) {
+        when (messageComposerViewState.interactionAvailability) {
+            InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(messageComposerViewState.securityClassificationType)
+            InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(messageComposerViewState.securityClassificationType)
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
                 MessageComposerClassifiedBanner(
-                    securityClassificationType = securityClassificationType,
+                    securityClassificationType = messageComposerViewState.securityClassificationType,
                     paddingValues = PaddingValues(vertical = dimensions().spacing16x)
                 )
 
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
-                    messageComposerState = messageComposerState,
+                    messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
                     onSendButtonClicked = ::sendMessage,
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -93,27 +92,27 @@ fun MessageComposer(
 
 @Composable
 private fun EnabledMessageComposer(
-    messageComposerState: MessageComposerState,
+    messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit
 ) {
-    with(messageComposerState) {
+    with(messageComposerStateHolder) {
         Row {
-            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-            if (isClassifiedConversation) {
+//            val isClassifiedConversation = securityClassificationType !=
+            if (true) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
-                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                    SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.NONE)
                 }
             }
             when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
-                        messageComposerState = messageComposerState,
+                        messageComposerStateHolder = messageComposerStateHolder,
                         messageListContent = messageListContent,
-                        onTransitionToInActive = messageComposerState::toInActive,
+                        onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged
@@ -122,9 +121,9 @@ private fun EnabledMessageComposer(
 
                 MessageCompositionInputState.INACTIVE -> {
                     InactiveMessageComposer(
-                        messageComposerState = messageComposerState,
+                        messageComposerState = messageComposerStateHolder,
                         messageListContent = messageListContent,
-                        onTransitionToActive = messageComposerState::toActive
+                        onTransitionToActive = messageComposerStateHolder::toActive
                     )
                 }
             }
@@ -134,7 +133,7 @@ private fun EnabledMessageComposer(
 
 @Composable
 private fun InactiveMessageComposer(
-    messageComposerState: MessageComposerState,
+    messageComposerState: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onTransitionToActive: (Boolean) -> Unit
 ) {
@@ -173,7 +172,7 @@ private fun InactiveMessageComposer(
                     Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                         AdditionalOptionButton(
                             isSelected = false,
-                            isEnabled = isFileSharingEnabled,
+                            isEnabled = false,
                             onClick = { onTransitionToActive(true) }
                         )
                     }
@@ -190,14 +189,14 @@ private fun InactiveMessageComposer(
 
 @Composable
 private fun ActiveMessageComposer(
-    messageComposerState: MessageComposerState,
+    messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
-    with(messageComposerState) {
+    with(messageComposerStateHolder) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
@@ -277,7 +276,7 @@ private fun ActiveMessageComposer(
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
-                                additionalOptionsStateHolder = additionalOptionsStateHolder,
+                                additionalOptionsStateHolder = additionalOptionStateHolder,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
                                 onMentionButtonClicked = messageCompositionHolder::startMention,
                                 onRichTextButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
@@ -286,16 +285,16 @@ private fun ActiveMessageComposer(
                     }
 
                     val additionalOptionSubMenuVisible =
-                        additionalOptionsStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
+                        additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
                                 !KeyboardHelper.isKeyboardVisible()
 
                     val isTransitionToOpenKeyboardOngoing =
-                        additionalOptionsStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
+                        additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
                                 !KeyboardHelper.isKeyboardVisible()
 
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
-                            additionalOptionsState = additionalOptionsStateHolder.additionalOptionsSubMenuState,
+                            additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             modifier = Modifier
                                 .height(keyboardHeight.height)
                                 .fillMaxWidth()
@@ -317,7 +316,7 @@ private fun ActiveMessageComposer(
                 }
             }
 
-            BackHandler(additionalOptionsStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
+            BackHandler(additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
                 onTransitionToInActive()
             }
         }

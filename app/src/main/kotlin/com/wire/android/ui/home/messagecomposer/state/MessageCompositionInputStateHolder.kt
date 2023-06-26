@@ -27,16 +27,12 @@ import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
-import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlin.time.Duration
 
 
 class MessageCompositionInputStateHolder(
-    selfDeletionTimer: SelfDeletionTimer,
-    val securityClassificationType: SecurityClassificationType,
     private val messageCompositionHolder: MessageCompositionHolder,
+    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
+    defaultInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
     val messageComposition: MessageComposition
         get() = messageCompositionHolder.messageComposition.value
@@ -44,25 +40,10 @@ class MessageCompositionInputStateHolder(
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
-    var inputType: MessageCompositionInputType by mutableStateOf(
-        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
-            MessageCompositionInputType.SelfDeleting(
-                messageCompositionState = messageCompositionHolder.messageComposition,
-
-            )
-        } else {
-            MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
-        }
-    )
+    var inputType: MessageCompositionInputType by mutableStateOf(defaultInputType)
         private set
 
-    var inputState: MessageCompositionInputState by mutableStateOf(
-        if (selfDeletionTimer.toDuration() > Duration.ZERO) {
-            MessageCompositionInputState.ACTIVE
-        } else {
-            MessageCompositionInputState.INACTIVE
-        }
-    )
+    var inputState: MessageCompositionInputState by mutableStateOf(defaultInputState)
         private set
 
     var inputSize by mutableStateOf(
@@ -120,7 +101,7 @@ class MessageCompositionInputStateHolder(
 
 }
 
-sealed class MessageCompositionInputType{
+sealed class MessageCompositionInputType {
     @Composable
     open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,

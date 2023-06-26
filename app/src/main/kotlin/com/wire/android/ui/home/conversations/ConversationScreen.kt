@@ -79,9 +79,9 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
@@ -238,7 +238,7 @@ fun ConversationScreen(
         hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
     )
     AssetTooLargeDialog(
-        dialogState = messageComposerViewModel.messageComposerViewState.assetTooLargeDialogState,
+        dialogState = messageComposerViewModel.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
 }
@@ -325,17 +325,9 @@ private fun ConversationScreen(
     val context = LocalContext.current
     val conversationScreenState = rememberConversationScreenState()
 
-    val messageComposerState = rememberMessageComposerState(
-        interactionAvailability = messageComposerViewState.interactionAvailability,
-        isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
-        securityClassificationType = messageComposerViewState.securityClassificationType,
-        selfDeletionTimer = messageComposerViewState.selfDeletionTimer,
-        onSendMessage = { onSendMessage(it) },
+    val messageComposerState = rememberMessageComposerStateHolder(
+        messageComposerViewState = messageComposerViewState
     )
-
-    LaunchedEffect(messageComposerViewState.mentionSearchResult) {
-        messageComposerState.messageCompositionHolder.setMentionsSearchResult(messageComposerViewState.mentionSearchResult)
-    }
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
         // We need to check if we come from the media gallery screen and the user triggered any action there like reply
@@ -461,7 +453,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
-    messageComposerState: MessageComposerState,
+    messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
@@ -481,7 +473,7 @@ private fun ConversationScreenContent(
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
-    onSearchMentionQueryChanged : (String) -> Unit
+    onSearchMentionQueryChanged: (String) -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -490,7 +482,7 @@ private fun ConversationScreenContent(
     }
 
     MessageComposer(
-        messageComposerState = messageComposerState,
+        messageComposerStateHolder = messageComposerStateHolder,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,

@@ -154,6 +154,8 @@ class MessageComposerViewModel @Inject constructor(
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
+    var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(AssetTooLargeDialogState.Hidden)
+
     init {
         initTempWritableVideoUri()
         initTempWritableImageUri()
@@ -246,13 +248,13 @@ class MessageComposerViewModel @Inject constructor(
                                         }
                                     }
 
-                                    messageComposerViewState = messageComposerViewState.copy(
-                                        assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                                            assetType = assetBundle.assetType,
-                                            maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                                            savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                                        )
+
+                                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                                        assetType = assetBundle.assetType,
+                                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
                                     )
+
                                 }
                             } else {
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
@@ -445,12 +447,11 @@ class MessageComposerViewModel @Inject constructor(
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
                 }
 
-                messageComposerViewState = messageComposerViewState.copy(
-                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                        assetType = assetBundle.assetType,
-                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                    )
+
+                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                    assetType = assetBundle.assetType,
+                    maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
                 )
             }
         } else {
@@ -459,7 +460,7 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun hideAssetTooLargeError() {
-        messageComposerViewState = messageComposerViewState.copy(assetTooLargeDialogState = AssetTooLargeDialogState.Hidden)
+       assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
     }
 
     companion object {

@@ -20,29 +20,21 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlin.time.Duration
 
 @Suppress("LongParameterList")
 @Composable
-fun rememberMessageComposerState(
-    isFileSharingEnabled: Boolean = true,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
-    interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
-    securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    onSendMessage: (MessageBundle) -> Unit
-): MessageComposerState {
+fun rememberMessageComposerStateHolder(
+    messageComposerViewState: MessageComposerViewState
+): MessageComposerStateHolder {
     val context = LocalContext.current
 
     val mentionStyle = SpanStyle(
@@ -50,45 +42,39 @@ fun rememberMessageComposerState(
         background = MaterialTheme.wireColorScheme.primaryVariant
     )
 
-    return remember {
-        MessageComposerState(
+    val messageCompositionHolder = remember {
+        MessageCompositionHolder(
             context = context,
-            isFileSharingEnabled = isFileSharingEnabled,
-            interactionAvailability = interactionAvailability,
-            securityClassificationType = securityClassificationType,
-            selfDeletionTimer = selfDeletionTimer,
-            mentionStyle = mentionStyle,
-            onSendMessage = onSendMessage
+            mentionStyle = mentionStyle
+        )
+    }
+
+    val additionalOptionStateHolder = remember {
+        AdditionalOptionStateHolder()
+    }
+
+    return remember(messageComposerViewState) {
+        val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+            messageCompositionHolder = messageCompositionHolder,
+        )
+
+        MessageComposerStateHolder(
+            messageComposerViewState = messageComposerViewState,
+            messageCompositionInputStateHolder = messageCompositionInputStateHolder,
+            messageCompositionHolder = messageCompositionHolder,
+            additionalOptionStateHolder = additionalOptionStateHolder,
         )
     }
 }
 
-@Suppress("LongParameterList", "TooManyFunctions")
-class MessageComposerState(
-    context: Context,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
-    val isFileSharingEnabled: Boolean = true,
-    val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    val mentionStyle: SpanStyle,
-    private val onSendMessage: (MessageBundle) -> Unit
+class MessageComposerStateHolder(
+    val messageComposerViewState: MessageComposerViewState,
+    val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
+    val messageCompositionHolder: MessageCompositionHolder,
+    val additionalOptionStateHolder: AdditionalOptionStateHolder
 ) {
 
-    val messageCompositionHolder = MessageCompositionHolder(
-        context = context,
-        mentionStyle = mentionStyle
-    )
-
-    val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-            selfDeletionTimer = selfDeletionTimer,
-            messageCompositionHolder = messageCompositionHolder,
-            securityClassificationType = securityClassificationType,
-        )
-
-    val additionalOptionsStateHolder = AdditionalOptionStateHolder()
-
-    val messageComposition
-        get() = messageCompositionHolder.messageComposition.value
+    val messageComposition = messageCompositionHolder.messageComposition.value
 
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()
@@ -97,9 +83,9 @@ class MessageComposerState(
     fun toActive(showAttachmentOption: Boolean) {
         messageCompositionInputStateHolder.toActive(!showAttachmentOption)
         if (showAttachmentOption) {
-            additionalOptionsStateHolder.showAdditionalOptionsMenu()
+            additionalOptionStateHolder.showAdditionalOptionsMenu()
         } else {
-            additionalOptionsStateHolder.hideAdditionalOptionsMenu()
+            additionalOptionStateHolder.hideAdditionalOptionsMenu()
         }
     }
 
@@ -118,8 +104,9 @@ class MessageComposerState(
     }
 
     fun sendMessage() {
-        onSendMessage(messageComposition.toMessageBundle())
+//        onSendMessage(messageComposition.toMessageBundle())
         messageCompositionHolder.clear()
     }
 
 }
+

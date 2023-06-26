@@ -32,7 +32,6 @@ data class MessageComposerViewState(
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
-    val assetTooLargeDialogState: AssetTooLargeDialogState = AssetTooLargeDialogState.Hidden,
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
 )
 

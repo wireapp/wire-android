@@ -41,7 +41,6 @@ fun rememberMessageComposerState(
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    onShowEphemeralOptionsMenu: () -> Unit,
     searchMentions: (String) -> Unit,
     onSendMessage: (MessageBundle) -> Unit
 ): MessageComposerState {
@@ -58,7 +57,6 @@ fun rememberMessageComposerState(
             isFileSharingEnabled = isFileSharingEnabled,
             interactionAvailability = interactionAvailability,
             securityClassificationType = securityClassificationType,
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             selfDeletionTimer = selfDeletionTimer,
             mentionStyle = mentionStyle,
             searchMentions = searchMentions,
@@ -75,7 +73,6 @@ class MessageComposerState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val mentionStyle: SpanStyle,
-    onShowEphemeralOptionsMenu: () -> Unit,
     searchMentions: (String) -> Unit,
     private val onSendMessage: (MessageBundle) -> Unit
 ) {
@@ -90,7 +87,6 @@ class MessageComposerState(
             selfDeletionTimer = selfDeletionTimer,
             messageCompositionHolder = messageCompositionHolder,
             securityClassificationType = securityClassificationType,
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
         )
 
     val additionalOptionsStateHolder = AdditionalOptionStateHolder()

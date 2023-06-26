@@ -37,7 +37,6 @@ class MessageCompositionInputStateHolder(
     selfDeletionTimer: SelfDeletionTimer,
     val securityClassificationType: SecurityClassificationType,
     private val messageCompositionHolder: MessageCompositionHolder,
-    private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
     val messageComposition: MessageComposition
         get() = messageCompositionHolder.messageComposition.value
@@ -49,7 +48,7 @@ class MessageCompositionInputStateHolder(
         if (selfDeletionTimer.toDuration() > Duration.ZERO) {
             MessageCompositionInputType.SelfDeleting(
                 messageCompositionState = messageCompositionHolder.messageComposition,
-                onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+
             )
         } else {
             MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
@@ -92,8 +91,7 @@ class MessageCompositionInputStateHolder(
     fun toSelfDeleting() {
         inputFocused = true
         inputType = MessageCompositionInputType.SelfDeleting(
-            messageCompositionState = messageCompositionHolder.messageComposition,
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
+            messageCompositionState = messageCompositionHolder.messageComposition
         )
     }
 
@@ -160,7 +158,6 @@ sealed class MessageCompositionInputType(
 
     class SelfDeleting(
         messageCompositionState: MutableState<MessageComposition>,
-        private val onShowEphemeralOptionsMenu: () -> Unit
     ) : MessageCompositionInputType(messageCompositionState) {
         @Composable
         override fun inputTextColor() =
@@ -174,12 +171,7 @@ sealed class MessageCompositionInputType(
         val isSendButtonEnabled by derivedStateOf {
             messageCompositionState.value.messageText.isNotBlank()
         }
-
-        fun showSelfDeletingTimeOption() {
-            onShowEphemeralOptionsMenu()
-        }
     }
-
 
 }
 

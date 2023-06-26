@@ -64,7 +64,8 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerState,
-    messageListContent: @Composable () -> Unit
+    messageListContent: @Composable () -> Unit,
+    onChangeSelfDeletionClicked: () -> Unit
 ) {
     with(messageComposerState) {
         when (messageComposerState.interactionAvailability) {
@@ -80,7 +81,8 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     messageComposerState = messageComposerState,
                     messageListContent = messageListContent,
-                    onSendButtonClicked = ::sendMessage
+                    onSendButtonClicked = ::sendMessage,
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
                 )
             }
         }
@@ -91,7 +93,8 @@ fun MessageComposer(
 private fun EnabledMessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onChangeSelfDeletionClicked: () -> Unit
 ) {
     with(messageComposerState) {
         Row {
@@ -108,7 +111,8 @@ private fun EnabledMessageComposer(
                         messageComposerState = messageComposerState,
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerState::toInActive,
-                        onSendButtonClicked = onSendButtonClicked
+                        onSendButtonClicked = onSendButtonClicked,
+                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
                     )
                 }
 
@@ -185,6 +189,7 @@ private fun ActiveMessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit,
+    onChangeSelfDeletionClicked: () -> Unit,
     onSendButtonClicked: () -> Unit
 ) {
     with(messageComposerState) {
@@ -263,6 +268,7 @@ private fun ActiveMessageComposer(
                                 onMentionPicked = { pickedMention ->
                                     messageCompositionHolder.addMention(pickedMention)
                                 },
+                                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(

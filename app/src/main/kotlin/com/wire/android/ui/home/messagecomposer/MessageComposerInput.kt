@@ -106,6 +106,7 @@ fun ActiveMessageComposerInput(
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onMentionPicked : (Contact) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onChangeSelfDeletionClicked : () -> Unit,
     modifier: Modifier = Modifier
 ) {
     with(messageCompositionInputStateHolder) {
@@ -174,7 +175,7 @@ fun ActiveMessageComposerInput(
                                 selfDeletionTimer = messageComposition.selfDeletionTimer,
                                 sendButtonEnabled = type.isSendButtonEnabled,
                                 onSendButtonClicked = onSendButtonClicked,
-                                onChangeSelfDeletionClicked = type::showSelfDeletingTimeOption
+                                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
                             )
 
                             else -> {}

@@ -43,12 +43,21 @@
     <string name="label_user_deleted">Usuni&#281;te</string>
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
-    <string name="label_message_sent_remotely_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana, poniewa&#380; &#347;rodowisko %s wydaje si&#281; by&#263; niedost&#281;pne.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend %s appears to be offline.</string>
+    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">B&#322;&#261;d Pobierania</string>
     <string name="label_message_decryption_failure_message">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; odszyfrowana.</string>
     <string name="label_message_decryption_failure_informative_message">Spr&#243;buj zresetowa&#263; sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania.</string>
     <string name="label_message_knock">%s zaczepi&#322;(a)</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <plurals name="label_message_partial_delivery_x_participants_from_backend">
+        <item quantity="one">1 participant from %2$s</item>
+        <item quantity="few">%1$d participants from %2$s</item>
+        <item quantity="many">%1$d participants from %2$s</item>
+        <item quantity="other">%1$d participants from %2$s</item>
+    </plurals>
     <string name="label_try_again">Spr&#243;buj ponownie</string>
     <string name="label_reset_session">Zresetuj sesj&#281;</string>
     <string name="label_reset_session_success">Sesja zosta&#322;a pomy&#347;lnie zresetowana.</string>
@@ -60,6 +69,8 @@
     <string name="label_show">Poka&#380;</string>
     <string name="label_show_all">Poka&#380; wszystko</string>
     <string name="label_show_less">Poka&#380; mniej</string>
+    <string name="label_show_details">Show Details</string>
+    <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Edytowano %s</string>
     <string name="label_on">W&#322;&#261;czone</string>
     <string name="label_off">Wy&#322;&#261;czone</string>
@@ -371,7 +382,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="member_name_you_label_titlecase">Ty</string>
     <string name="member_name_you_label_lowercase">ty</string>
     <string name="label_add_participants">Dodaj uczestnik&#243;w</string>
-    <string name="username_unavailable_label">Nazwa u&#380;ytkownika niedost&#281;pna</string>
+    <string name="username_unavailable_label">Name not available</string>
     <string name="conversation_details_title">Szczeg&#243;&#322;y rozmowy</string>
     <string name="conversation_details_options_tab">OPCJE</string>
     <string name="conversation_details_participants_tab">UCZESTNICY</string>
@@ -550,6 +561,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
+    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group as the backend of %2$s could not be reached.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>

@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOn
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
-import io.mockk.coEvery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -49,6 +48,7 @@ class ConversationInfoViewModelTest {
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
+            .withMentionedUserId(TestUser.SELF_USER.id)
             .arrange()
         // When
         val result = viewModel.mentionedUserData(TestUser.SELF_USER.id.toString())
@@ -63,8 +63,8 @@ class ConversationInfoViewModelTest {
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
+            .withMentionedUserId(TestUser.OTHER_USER.id)
             .arrange()
-        coEvery { arrangement.qualifiedIdMapper.fromStringToQualifiedID(TestUser.OTHER_USER.id.toString()) } returns TestUser.OTHER_USER.id
         // When
         val result = viewModel.mentionedUserData(TestUser.OTHER_USER.id.toString())
         // Then

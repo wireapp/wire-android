@@ -36,6 +36,11 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
 sealed class UIMessage(
@@ -69,6 +74,9 @@ sealed class UIMessage(
     ) : UIMessage(header, source) {
         val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
         val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
+        val singleUserAddFailed: Boolean =
+            messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
     }
 }
 
@@ -190,15 +198,23 @@ sealed class UIMessageContent {
      */
     object IncompleteAssetMessage : UIMessageContent()
 
-    data class TextMessage(val messageBody: MessageBody) : Regular()
+    interface PartialDeliverable {
+        val deliveryStatus: DeliveryStatusContent
+    }
+
+    data class TextMessage(
+        val messageBody: MessageBody,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     object Deleted : Regular()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
-        val assetName: String
-    ) : Regular()
+        val assetName: String,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     @Stable
     data class AssetMessage(
@@ -207,8 +223,9 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     data class ImageMessage(
         val assetId: AssetId,
@@ -216,8 +233,9 @@ sealed class UIMessageContent {
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     @Stable
     data class AudioAssetMessage(
@@ -226,8 +244,9 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
@@ -369,6 +388,15 @@ sealed class UIMessageContent {
             R.drawable.ic_contact,
             R.string.label_system_message_conversation_started_with_members
         )
+
+        data class MemberFailedToAdd(
+            val memberNames: Map<String, List<UIText>>
+        ) : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_failed_add_members_details
+        ) {
+            val usersCount = memberNames.values.flatten().size
+        }
     }
 }
 
@@ -416,4 +444,21 @@ enum class MessageSource {
 
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
+}
+
+@Stable
+sealed interface DeliveryStatusContent {
+    class PartialDelivery(
+        val failedRecipients: ImmutableList<UIText> = persistentListOf(),
+        val noClients: ImmutableMap<String, List<UIText>> = persistentMapOf(),
+    ) : DeliveryStatusContent {
+        val hasFailures: Boolean
+            get() = totalUsersWithFailures > 0
+
+        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList() }
+        val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
+        val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
+    }
+
+    object CompleteDelivery : DeliveryStatusContent
 }

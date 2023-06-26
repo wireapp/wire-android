@@ -25,7 +25,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,9 +58,15 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
+import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -73,29 +78,48 @@ import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
+@CreatePersonalAccountNavGraph
+@CreateTeamAccountNavGraph
+@Destination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
-fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfig: ServerConfig.Links) {
-    EmailContent(
-        state = viewModel.emailState,
-        onEmailChange = viewModel::onEmailChange,
-        onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = { viewModel.onEmailContinue() },
-        onLoginPressed = viewModel::openLogin,
-        onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
-        onTermsAccept = { viewModel.onTermsAccept() },
-        onErrorDismiss = viewModel::onEmailErrorDismiss,
-        tosUrl = viewModel.tosUrl(),
-        serverConfig = serverConfig
-    )
+fun CreateAccountEmailScreen(
+    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator
+) {
+    with(createAccountEmailViewModel) {
+        EmailContent(
+            state = emailState,
+            onEmailChange = ::onEmailChange,
+            onBackPressed = { navigator.navigateUp() },
+            onContinuePressed = ::onEmailContinue,
+            onLoginPressed = {
+                navigator.navigate(LoginScreenDestination()) {
+                    if (createAccountEmailViewModel.isPersonalAccountFlow) {
+                        popUpTo(CreatePersonalAccountOverviewScreenDestination.route) { inclusive = true }
+                    } else {
+                        popUpTo(CreateTeamAccountOverviewScreenDestination.route) { inclusive = true }
+                    }
+                }
+            },
+            onTermsDialogDismiss = ::onTermsDialogDismiss,
+            onTermsAccept = ::onTermsAccept,
+            onErrorDismiss = ::onEmailErrorDismiss,
+            tosUrl = tosUrl(),
+            serverConfig = serverConfig
+        )
+    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun EmailContent(
     state: CreateAccountEmailViewState,

@@ -43,12 +43,19 @@
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
-    <string name="label_message_sent_remotely_failure">Die Nachricht konnte nicht gesendet werden, da das Backend %s offline zu sein scheint.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend %s appears to be offline.</string>
+    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
     <string name="label_message_knock">%s haben gepingt</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <plurals name="label_message_partial_delivery_x_participants_from_backend">
+        <item quantity="one">1 participant from %2$s</item>
+        <item quantity="other">%1$d participants from %2$s</item>
+    </plurals>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_reset_session">Session zurücksetzen</string>
     <string name="label_reset_session_success">Sitzung erfolgreich zurückgesetzt</string>
@@ -60,6 +67,8 @@
     <string name="label_show">Anzeigen</string>
     <string name="label_show_all">Alle anzeigen</string>
     <string name="label_show_less">Weniger anzeigen</string>
+    <string name="label_show_details">Show Details</string>
+    <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
     <string name="label_on">EIN</string>
     <string name="label_off">AUS</string>
@@ -373,7 +382,7 @@
     <string name="member_name_you_label_titlecase">Sie</string>
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
-    <string name="username_unavailable_label">Name nicht verfügbar</string>
+    <string name="username_unavailable_label">Name not available</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
@@ -548,6 +557,8 @@
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
+    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group as the backend of %2$s could not be reached.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>

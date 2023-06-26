@@ -43,12 +43,19 @@
     <string name="label_user_deleted">Cancellato</string>
     <string name="label_message_sent_failure">Il messaggio non pu&#242; essere inviato a causa di problemi di connessione.</string>
     <string name="label_message_edit_sent_failure">Il messaggio modificato non pu&#242; essere inviato a causa di problemi di connessione.</string>
-    <string name="label_message_sent_remotely_failure">Il messaggio non pu&#242; essere inviato, in quanto il %s sembra essere offline.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend %s appears to be offline.</string>
+    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">Errore di download</string>
     <string name="label_message_decryption_failure_message">Il messaggio non pu&#242; essere decifrato.</string>
     <string name="label_message_decryption_failure_informative_message">Prova a re-impostare la sessione per generare nuove chiavi di cifratura.</string>
     <string name="label_message_knock">%s ha effettuato un ping.</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <plurals name="label_message_partial_delivery_x_participants_from_backend">
+        <item quantity="one">1 participant from %2$s</item>
+        <item quantity="other">%1$d participants from %2$s</item>
+    </plurals>
     <string name="label_try_again">Riprova</string>
     <string name="label_reset_session">Resetta Sessione</string>
     <string name="label_reset_session_success">Sessione resettata con successo</string>
@@ -60,6 +67,8 @@
     <string name="label_show">Mostra</string>
     <string name="label_show_all">Mostra tutto</string>
     <string name="label_show_less">Mostra meno</string>
+    <string name="label_show_details">Show Details</string>
+    <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Modificato il %s</string>
     <string name="label_on">ACCESO</string>
     <string name="label_off">SPENTO</string>
@@ -369,7 +378,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="member_name_you_label_titlecase">Tu</string>
     <string name="member_name_you_label_lowercase">tu</string>
     <string name="label_add_participants">Aggiungi partecipanti</string>
-    <string name="username_unavailable_label">Nome utente non disponibile</string>
+    <string name="username_unavailable_label">Name not available</string>
     <string name="conversation_details_title">Dettagli della conversazione</string>
     <string name="conversation_details_options_tab">OPZIONI</string>
     <string name="conversation_details_participants_tab">PARTICIPANTI</string>
@@ -546,6 +555,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
     <string name="label_system_message_conversation_started_by_other">%1$s ha avviato la conversazione</string>
     <string name="label_system_message_conversation_started_with_members">Con %1$s</string>
+    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group as the backend of %2$s could not be reached.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Hai aggiunto un partecipante alla conversazione</item>

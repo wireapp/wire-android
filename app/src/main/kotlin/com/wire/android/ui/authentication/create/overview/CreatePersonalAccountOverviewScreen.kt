@@ -42,30 +42,69 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
+import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
+@CreatePersonalAccountNavGraph(start = true)
+@Destination
 @Composable
-fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serverConfig: ServerConfig.Links) {
-    OverviewContent(
-        onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = viewModel::onOverviewContinue,
-        serverConfig = serverConfig,
-        overviewParams = CreateAccountOverviewParams(
-            title = stringResource(id = viewModel.type.titleResId),
-            contentTitle = viewModel.type.overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
-            contentText = stringResource(id = viewModel.type.overviewResources.overviewContentTextResId),
-            contentIconResId = viewModel.type.overviewResources.overviewContentIconResId,
-            learnMoreText = stringResource(id = viewModel.type.overviewResources.overviewLearnMoreTextResId),
-            learnMoreUrl = viewModel.learnMoreUrl()
+fun CreatePersonalAccountOverviewScreen(
+    viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator
+) {
+    with(CreateAccountFlowType.CreatePersonalAccount) {
+        OverviewContent(
+            onBackPressed = { navigator.navigateUp() },
+            onContinuePressed = { navigator.navigate(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))) },
+            serverConfig = viewModel.serverConfig,
+            overviewParams = CreateAccountOverviewParams(
+                title = stringResource(id = titleResId),
+                contentTitle = overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
+                contentText = stringResource(id = overviewResources.overviewContentTextResId),
+                contentIconResId = overviewResources.overviewContentIconResId,
+                learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
+                learnMoreUrl = viewModel.learnMoreUrl()
+            )
         )
-    )
+    }
+}
+
+@CreateTeamAccountNavGraph(start = true)
+@Destination
+@Composable
+fun CreateTeamAccountOverviewScreen(
+    viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator
+) {
+    with(CreateAccountFlowType.CreateTeam) {
+        OverviewContent(
+            onBackPressed = { navigator.navigateUp() },
+            onContinuePressed = { navigator.navigate(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))) },
+            serverConfig = viewModel.serverConfig,
+            overviewParams = CreateAccountOverviewParams(
+                title = stringResource(id = titleResId),
+                contentTitle = overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
+                contentText = stringResource(id = overviewResources.overviewContentTextResId),
+                contentIconResId = overviewResources.overviewContentIconResId,
+                learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
+                learnMoreUrl = viewModel.learnMoreUrl()
+            )
+        )
+    }
 }
 
 @Composable

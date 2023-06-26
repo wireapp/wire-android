@@ -33,7 +33,6 @@ data class ChangeEmailState(
         data class Success(val newEmail: String) : FlowState
         object NoChange : FlowState
         sealed interface Error : FlowState {
-            object None : Error
             object SelfUserNotFound : Error
             sealed interface TextFieldError : Error {
                 object AlreadyInUse : TextFieldError

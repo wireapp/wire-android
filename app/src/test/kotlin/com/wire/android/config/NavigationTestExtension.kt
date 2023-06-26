@@ -22,7 +22,6 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkObject
 import io.mockk.unmockkStatic
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -42,7 +41,6 @@ import org.junit.jupiter.api.extension.ExtensionContext
  * Annotating the class with
  * @ExtendWith(NavigationTestExtension::class)
  */
-@ExperimentalCoroutinesApi
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
         mockkStatic("com.wire.android.ui.NavArgsGettersKt")

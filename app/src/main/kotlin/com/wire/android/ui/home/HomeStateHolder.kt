@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.navigateToItemInHome
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -55,7 +56,8 @@ class HomeStateHolder(
     val bottomSheetState: WireModalSheetState,
     val currentNavigationItem: HomeNavigationItem,
     val snackBarHostState: SnackbarHostState,
-    val searchBarState: SearchBarState
+    val searchBarState: SearchBarState,
+    val navigator: Navigator
 ) {
 
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
@@ -111,6 +113,7 @@ class HomeStateHolder(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberHomeScreenState(
+    navigator: Navigator, // TODO: remove when we have HomeNavigation refactored
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberTrackingAnimatedNavController() { HomeNavigationItem.fromRoute(it)?.itemName },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
@@ -133,7 +136,8 @@ fun rememberHomeScreenState(
             bottomSheetState,
             currentNavigationItem,
             snackBarHostState,
-            searchBarState
+            searchBarState,
+            navigator
         )
     }
 

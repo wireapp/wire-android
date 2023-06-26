@@ -24,11 +24,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.client.Client
@@ -63,9 +58,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class RegisterDeviceViewModelTest {
 
     @MockK
-    private lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var registerClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
@@ -83,7 +75,6 @@ class RegisterDeviceViewModelTest {
         coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
         every { userDataStore.initialSyncCompleted } returns flowOf(true)
         registerDeviceViewModel = RegisterDeviceViewModel(
-            navigationManager,
             registerClientUseCase,
             isPasswordRequiredUseCase,
             userDataStore
@@ -94,28 +85,14 @@ class RegisterDeviceViewModelTest {
     fun `given empty string, when entering the password to register, then button is disabled`() {
         registerDeviceViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
-        registerDeviceViewModel.state.loading shouldBeEqualTo false
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Default::class
     }
 
     @Test
     fun `given non-empty string, when entering the password to register, then button is disabled`() {
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
-        registerDeviceViewModel.state.loading shouldBeEqualTo false
-    }
-
-    @Test
-    fun `given button is clicked, when registering the client, then show loading`() {
-        coEvery {
-            registerClientUseCase(any())
-        } returns RegisterClientResult.Success(CLIENT)
-
-        registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
-        registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
-        registerDeviceViewModel.state.loading shouldBeEqualTo false
-        registerDeviceViewModel.onContinue()
-        registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
-        registerDeviceViewModel.state.loading shouldBeEqualTo true
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Default::class
     }
 
     @Test
@@ -129,7 +106,6 @@ class RegisterDeviceViewModelTest {
             )
         } returns RegisterClientResult.Success(CLIENT)
 
-        coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { registerDeviceViewModel.onContinue() }
@@ -137,9 +113,7 @@ class RegisterDeviceViewModelTest {
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
-        coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Success::class
     }
 
     @Test
@@ -150,7 +124,6 @@ class RegisterDeviceViewModelTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
-        coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { registerDeviceViewModel.onContinue() }
@@ -158,9 +131,7 @@ class RegisterDeviceViewModelTest {
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
-        coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination))
-        }
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.TooManyDevices::class
     }
 
     @Test
@@ -171,7 +142,8 @@ class RegisterDeviceViewModelTest {
 
         runTest { registerDeviceViewModel.onContinue() }
 
-        registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.InvalidCredentialsError::class
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error::class
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error::class
     }
 
     @Test
@@ -182,8 +154,8 @@ class RegisterDeviceViewModelTest {
 
         runTest { registerDeviceViewModel.onContinue() }
 
-        registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
-        val error = registerDeviceViewModel.state.error as RegisterDeviceError.GenericError
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error.GenericError::class
+        val error = registerDeviceViewModel.state.flowState as RegisterDeviceFlowState.Error.GenericError
         error.coreFailure shouldBe networkFailure
     }
 
@@ -195,9 +167,9 @@ class RegisterDeviceViewModelTest {
 
         runTest { registerDeviceViewModel.onContinue() }
 
-        registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
+        registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Error.GenericError::class
         registerDeviceViewModel.onErrorDismiss()
-        registerDeviceViewModel.state.error shouldBe RegisterDeviceError.None
+        registerDeviceViewModel.state.flowState shouldBe RegisterDeviceFlowState.Default
     }
 
     companion object {

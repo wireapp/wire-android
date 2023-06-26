@@ -34,13 +34,8 @@ import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
-import com.wire.android.ui.destinations.AppSettingsScreenDestination
-import com.wire.android.ui.destinations.AvatarPickerScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -80,7 +75,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
-    private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetSelfTeamUseCase,
@@ -201,8 +195,6 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
     fun logout(wipeData: Boolean, switchAccountActions: SwitchAccountActions) {
         viewModelScope.launch {
             userProfileState = userProfileState.copy(isLoggingOut = true)
@@ -233,7 +225,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    fun addAccount() {
+    fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
         viewModelScope.launch {
             // the total number of accounts is otherAccounts + 1 for the current account
             val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < kaliumConfigs.maxAccount
@@ -249,13 +241,7 @@ class SelfUserProfileViewModel @Inject constructor(
                     is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
                 }
             authServerConfigProvider.updateAuthServer(selfServerLinks)
-            navigationManager.navigate(NavigationCommand(WelcomeScreenDestination))
-        }
-    }
-
-    fun editProfile() {
-        viewModelScope.launch { // TODO change to "Your Account Settings" when implemented
-            navigationManager.navigate(NavigationCommand(AppSettingsScreenDestination))
+            onSucceeded()
         }
     }
 
@@ -310,12 +296,6 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun clearErrorMessage() {
         userProfileState = userProfileState.copy(errorMessageCode = null)
-    }
-
-    fun onChangeProfilePictureClicked() {
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(AvatarPickerScreenDestination))
-        }
     }
 
     sealed class ErrorCodes {

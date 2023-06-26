@@ -14,23 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.calling.initiating
 
-package com.wire.android.ui.home.settings
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
-class SettingsViewModel
-@Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
-    fun navigateTo(item: Direction) = viewModelScope.launch { navigationManager.navigate(NavigationCommand(item)) }
+data class InitiatingCallState(
+    val flowState: FlowState = FlowState.Default
+) {
+    sealed interface FlowState {
+        object Default : FlowState
+        object CallClosed : FlowState
+        object CallEstablished : FlowState
+        object CallHungUp : FlowState
+    }
 }

@@ -27,12 +27,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.HomeScreenDestination
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -45,7 +39,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterDeviceViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore,
@@ -56,65 +49,56 @@ class RegisterDeviceViewModel @Inject constructor(
 
     init {
         runBlocking {
-            updateState(state.copy(loading = true))
+            state = state.copy(flowState = RegisterDeviceFlowState.Loading)
             isPasswordRequired().let {
-                updateState(state.copy(loading = false))
+                state = state.copy(flowState = RegisterDeviceFlowState.Default)
                 when (it) {
                     is IsPasswordRequiredUseCase.Result.Failure -> {
-                        updateErrorState(RegisterDeviceError.GenericError(it.cause))
+                        updateFlowState(RegisterDeviceFlowState.Error.GenericError(it.cause))
                     }
 
                     is IsPasswordRequiredUseCase.Result.Success -> {
-                        updateState(state.copy(isPasswordRequired = it.value))
+                        if (!it.value) registerClient(null)
                     }
                 }
-            }
-            when (state.isPasswordRequired) {
-                true -> {}
-                false -> registerClient(null)
             }
         }
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
         if (state.password != newText) {
-            updateState(state.copy(password = newText, error = RegisterDeviceError.None, continueEnabled = newText.text.isNotEmpty()))
+            state = state.copy(password = newText, flowState = RegisterDeviceFlowState.Default, continueEnabled = newText.text.isNotEmpty())
         }
     }
 
     fun onErrorDismiss() {
-        updateErrorState(RegisterDeviceError.None)
+        updateFlowState(RegisterDeviceFlowState.Default)
     }
 
     private suspend fun registerClient(password: String?) {
-        updateState(state.copy(loading = true, continueEnabled = false))
+        state = state.copy(flowState = RegisterDeviceFlowState.Loading, continueEnabled = false)
         when (val registerDeviceResult = registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = null,
             )
         )) {
-            is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
-            is RegisterClientResult.Success -> {
-                navigateAfterRegisterClientSuccess()
-            }
+            is RegisterClientResult.Failure.TooManyClients ->
+                updateFlowState(RegisterDeviceFlowState.TooManyDevices)
+            is RegisterClientResult.Success ->
+                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first()))
 
             is RegisterClientResult.Failure.Generic -> state = state.copy(
-                loading = false,
                 continueEnabled = true,
-                error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
+                flowState = RegisterDeviceFlowState.Error.GenericError(registerDeviceResult.genericFailure)
             )
 
             is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
-                loading = false,
                 continueEnabled = true,
-                error = RegisterDeviceError.InvalidCredentialsError
+                flowState = RegisterDeviceFlowState.Error.InvalidCredentialsError
             )
 
-            is RegisterClientResult.Failure.PasswordAuthRequired -> state = state.copy(
-                loading = false,
-                isPasswordRequired = true
-            )
+            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */ }
         }
     }
 
@@ -124,22 +108,7 @@ class RegisterDeviceViewModel @Inject constructor(
         }
     }
 
-    fun updateErrorState(error: RegisterDeviceError) {
-        updateState(state.copy(error = error))
+    private fun updateFlowState(flowState: RegisterDeviceFlowState) {
+        state = state.copy(flowState = flowState)
     }
-
-    fun updateState(newState: RegisterDeviceState) {
-        state = newState
-    }
-
-    private suspend fun navigateToRemoveDevicesScreen() = navigationManager.navigate(
-        NavigationCommand(RemoveDeviceScreenDestination)
-    )
-
-    private suspend fun navigateAfterRegisterClientSuccess() =
-        if (userDataStore.initialSyncCompleted.first()) {
-            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        } else {
-            navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
 }

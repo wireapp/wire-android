@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -39,7 +38,6 @@ import javax.inject.Inject
 @HiltViewModel
 class NetworkSettingsViewModel
 @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val currentSession: CurrentSessionUseCase
@@ -50,10 +48,6 @@ class NetworkSettingsViewModel
 
     init {
         observePersistentWebSocketConnection()
-    }
-
-    fun navigateBack() = viewModelScope.launch {
-        navigationManager.navigateBack()
     }
 
     private fun observePersistentWebSocketConnection() =

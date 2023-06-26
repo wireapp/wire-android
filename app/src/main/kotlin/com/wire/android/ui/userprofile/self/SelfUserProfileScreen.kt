@@ -59,6 +59,7 @@ import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -74,6 +75,9 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.AppSettingsScreenDestination
+import com.wire.android.ui.destinations.AvatarPickerScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -99,12 +103,12 @@ fun SelfUserProfileScreen(
 ) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = viewModelSelf::navigateBack,
+        onCloseClick = navigator::navigateBack,
         logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
-        onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
-        onEditClick = viewModelSelf::editProfile,
+        onChangeUserProfilePicture = { navigator.navigate(NavigationCommand(AvatarPickerScreenDestination)) },
+        onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
-        onAddAccountClick = viewModelSelf::addAccount,
+        onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination)) },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,

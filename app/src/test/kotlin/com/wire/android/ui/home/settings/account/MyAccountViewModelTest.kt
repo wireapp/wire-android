@@ -25,7 +25,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
@@ -126,17 +125,6 @@ class MyAccountViewModelTest {
     }
 
     @Test
-    fun `when navigating back requested, then should delegate call to manager navigateBack`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withUserRequiresPasswordResult(Success(true))
-            .withIsReadOnlyAccountResult(true)
-            .arrange()
-        viewModel.navigateBack()
-
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
-    }
-
-    @Test
     fun `when user is managed by Wire, then edit handle is allowed`() = runTest {
         val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
@@ -157,8 +145,6 @@ class MyAccountViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var getSelfUserUseCase: GetSelfUserUseCase
@@ -186,7 +172,6 @@ class MyAccountViewModelTest {
                 selfServerConfigUseCase,
                 isPasswordRequiredUseCase,
                 isReadOnlyAccountUseCase,
-                navigationManager,
                 TestDispatcherProvider()
             )
         }

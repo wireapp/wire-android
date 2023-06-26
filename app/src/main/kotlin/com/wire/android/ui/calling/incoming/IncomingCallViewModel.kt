@@ -28,11 +28,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -53,7 +49,6 @@ import javax.inject.Inject
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
@@ -66,10 +61,11 @@ class IncomingCallViewModel @Inject constructor(
     private val incomingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = incomingCallNavArgs.conversationId
 
-    lateinit var observeIncomingCallJob: Job
-    var establishedCallConversationId: ConversationId? = null
+    private lateinit var observeIncomingCallJob: Job
+    private var establishedCallConversationId: ConversationId? = null
 
     var incomingCallState by mutableStateOf(IncomingCallState())
+        private set
 
     init {
         viewModelScope.launch {
@@ -99,16 +95,10 @@ class IncomingCallViewModel @Inject constructor(
         incomingCalls().distinctUntilChanged().collect { calls ->
             calls.find { call -> call.conversationId == conversationId }.also {
                 if (it == null) {
-                    onCallClosed()
+                    callRinger.stop()
+                    incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
                 }
             }
-        }
-    }
-
-    private fun onCallClosed() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-            callRinger.stop()
         }
     }
 
@@ -117,8 +107,8 @@ class IncomingCallViewModel @Inject constructor(
             observeIncomingCallJob.cancel()
             launch { rejectCall(conversationId = conversationId) }
             launch {
-                navigationManager.navigateBack()
                 callRinger.stop()
+                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallDeclined)
             }
         }
     }
@@ -154,13 +144,7 @@ class IncomingCallViewModel @Inject constructor(
                 observeIncomingCallJob.cancel()
 
                 acceptCall(conversationId = conversationId)
-
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = OngoingCallScreenDestination(incomingCallNavArgs.conversationId),
-                        backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                    )
-                )
+                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallAccepted(conversationId))
             }
         }
     }

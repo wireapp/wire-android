@@ -21,10 +21,12 @@
 package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.id.ConversationId
@@ -36,24 +38,19 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Test
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    private lateinit var navigationManager: NavigationManager
 
     @MockK
     private lateinit var establishedCall: ObserveEstablishedCallsUseCase
@@ -68,16 +65,11 @@ class OngoingCallViewModelTest {
 
     @BeforeEach
     fun setup() {
-        val scheduler = TestCoroutineScheduler()
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = conversationId)
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
-            navigationManager = navigationManager,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
             currentScreenManager = currentScreenManager
@@ -85,7 +77,7 @@ class OngoingCallViewModelTest {
     }
 
     @Test
-    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() {
+    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() = runTest {
         val expectedClients = listOf(
             CallClient(participant1.id.toString(), participant1.clientId),
             CallClient(participant3.id.toString(), participant3.clientId)
@@ -95,11 +87,6 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel.requestVideoStreams(participants)
 
         coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     companion object {

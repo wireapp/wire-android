@@ -42,6 +42,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -51,6 +54,7 @@ import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 
 @RootNavGraph
@@ -59,19 +63,29 @@ import com.wire.android.ui.theme.wireDimensions
 )
 @Composable
 fun InitiatingCallScreen(
+    navigator: Navigator,
+    navArgs: CallingNavArgs,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
-    with(sharedCallingViewModel) {
-        InitiatingCallContent(
-            callState = callState,
-            toggleMute = ::toggleMute,
-            toggleSpeaker = ::toggleSpeaker,
-            toggleVideo = ::toggleVideo,
-            onHangUpCall = initiatingCallViewModel::hangUpCall,
-            onVideoPreviewCreated = ::setVideoPreview,
-            onSelfClearVideoPreview = ::clearVideoPreview
-        )
+    when (initiatingCallViewModel.state.flowState) {
+        InitiatingCallState.FlowState.CallClosed,
+        InitiatingCallState.FlowState.CallHungUp -> navigator.navigateBack()
+        InitiatingCallState.FlowState.CallEstablished ->
+            navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
+        InitiatingCallState.FlowState.Default -> {
+            with(sharedCallingViewModel) {
+                InitiatingCallContent(
+                    callState = callState,
+                    toggleMute = ::toggleMute,
+                    toggleSpeaker = ::toggleSpeaker,
+                    toggleVideo = ::toggleVideo,
+                    onHangUpCall = initiatingCallViewModel::hangUpCall,
+                    onVideoPreviewCreated = ::setVideoPreview,
+                    onSelfClearVideoPreview = ::clearVideoPreview
+                )
+            }
+        }
     }
 }
 
@@ -147,5 +161,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallScreen()
+    InitiatingCallContent(CallState(), {}, {}, {}, {}, {}, {})
 }

@@ -34,8 +34,14 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.SettingUpWireScreenType
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
@@ -46,8 +52,24 @@ import com.wire.android.util.ui.stringWithStyledArgs
     navArgsDelegate = MigrationNavArgs::class
 )
 @Composable
-fun MigrationScreen(viewModel: MigrationViewModel = hiltViewModel()) {
-    MigrationScreenContent(viewModel.state, viewModel::retry, viewModel::finish, viewModel::accountLogin)
+fun MigrationScreen(
+    navigator: Navigator,
+    viewModel: MigrationViewModel = hiltViewModel()
+) {
+
+    when (val state = viewModel.state) {
+        is MigrationState.LoginRequired ->
+            navigator.navigate(NavigationCommand(LoginScreenDestination(state.userHandle), BackStackMode.CLEAR_WHOLE))
+
+        is MigrationState.Success -> navigator.navigate(
+            NavigationCommand(
+                if (state.currentSessionAvailable) HomeScreenDestination else WelcomeScreenDestination,
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
+        // other states are handled inside this composable, they need to be shown on the screen
+        else -> MigrationScreenContent(viewModel.state, viewModel::retry, viewModel::finish, viewModel::accountLogin)
+    }
 }
 
 @Composable
@@ -61,7 +83,6 @@ private fun MigrationScreenContent(
         message = state.message(),
         title = state.title(),
         type = when (state) {
-            is MigrationState.InProgress -> SettingUpWireScreenType.Progress
             is MigrationState.Failed.NoNetwork -> SettingUpWireScreenType.Failure(
                 buttonTextResId = R.string.label_retry,
                 onButtonClick = retry
@@ -81,6 +102,8 @@ private fun MigrationScreenContent(
                 buttonTextResId = R.string.label_continue,
                 onButtonClick = finish
             )
+
+            else -> SettingUpWireScreenType.Progress
         }
     )
 }
@@ -114,17 +137,19 @@ private fun MigrationState.message() = when (this) {
         argsColor = MaterialTheme.wireColorScheme.secondaryText,
         stringResource(R.string.migration_login_required_specific_account_name, this.userName, this.userHandle)
     )
+
+    is MigrationState.LoginRequired, is MigrationState.Success -> AnnotatedString("") // this should never happen
 }
 
 @Composable
 private fun MigrationState.title() = when (this) {
-    is MigrationState.Failed -> null
     is MigrationState.InProgress -> {
         MigrationData.Progress.steps.indexOf(this.type).let { stepNumber ->
             if (stepNumber >= 0) stringResource(R.string.migration_title_step, stepNumber + 1, MigrationData.Progress.steps.size)
             else null
         }
     }
+    else -> null
 }
 
 @Preview

@@ -28,7 +28,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.navArgs
@@ -49,7 +48,6 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val currentScreenManager: CurrentScreenManager,
@@ -60,6 +58,9 @@ class OngoingCallViewModel @Inject constructor(
 
     var shouldShowDoubleTapToast by mutableStateOf(false)
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
+
+    var state by mutableStateOf(OngoingCallState())
+        private set
 
     init {
         viewModelScope.launch {
@@ -80,7 +81,7 @@ class OngoingCallViewModel @Inject constructor(
                 val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
                 val isOnBackground = currentScreen is CurrentScreen.InBackground
                 if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
-                    navigateBack()
+                    state = state.copy(flowState = OngoingCallState.FlowState.CallClosed)
                 }
             }
     }
@@ -126,10 +127,6 @@ class OngoingCallViewModel @Inject constructor(
 
     fun hideDoubleTapToast() {
         shouldShowDoubleTapToast = false
-    }
-
-    private suspend fun navigateBack() {
-        navigationManager.navigateBack()
     }
 
     companion object {

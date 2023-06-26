@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -86,33 +87,37 @@ import java.util.Locale
 )
 @Composable
 fun OngoingCallScreen(
+    navigator: Navigator,
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
 ) {
-
-    with(sharedCallingViewModel.callState) {
-        OngoingCallContent(
-            conversationName = conversationName,
-            participants = participants,
-            isMuted = isMuted ?: true,
-            isCameraOn = isCameraOn,
-            isSpeakerOn = isSpeakerOn,
-            isCbrEnabled = isCbrEnabled,
-            isOnFrontCamera = isOnFrontCamera,
-            classificationType = securityClassificationType,
-            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
-            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
-            toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = sharedCallingViewModel::hangUpCall,
-            toggleVideo = sharedCallingViewModel::toggleVideo,
-            flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = sharedCallingViewModel::setVideoPreview,
-            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-            navigateBack = sharedCallingViewModel::navigateBack,
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
-        )
-        BackHandler(enabled = isCameraOn, sharedCallingViewModel::navigateBack)
+    when (ongoingCallViewModel.state.flowState) {
+        OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
+        OngoingCallState.FlowState.Default ->
+            with(sharedCallingViewModel.callState) {
+                OngoingCallContent(
+                    conversationName = conversationName,
+                    participants = participants,
+                    isMuted = isMuted ?: true,
+                    isCameraOn = isCameraOn,
+                    isSpeakerOn = isSpeakerOn,
+                    isCbrEnabled = isCbrEnabled,
+                    isOnFrontCamera = isOnFrontCamera,
+                    classificationType = securityClassificationType,
+                    shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+                    toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+                    toggleMute = sharedCallingViewModel::toggleMute,
+                    hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
+                    toggleVideo = sharedCallingViewModel::toggleVideo,
+                    flipCamera = sharedCallingViewModel::flipCamera,
+                    setVideoPreview = sharedCallingViewModel::setVideoPreview,
+                    clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+                    navigateBack = navigator::navigateBack,
+                    requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+                    hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
+                )
+                BackHandler(enabled = isCameraOn, navigator::navigateBack)
+            }
     }
 }
 

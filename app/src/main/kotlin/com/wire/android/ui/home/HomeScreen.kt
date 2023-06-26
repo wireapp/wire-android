@@ -96,7 +96,7 @@ fun HomeScreen(
 ) {
     homeViewModel.checkRequirements() { it.navigate(navigator::navigate) }
     featureFlagNotificationViewModel.loadInitialSync()
-    val homeScreenState = rememberHomeScreenState()
+    val homeScreenState = rememberHomeScreenState(navigator)
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
 

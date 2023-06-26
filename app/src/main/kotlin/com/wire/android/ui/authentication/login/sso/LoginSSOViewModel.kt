@@ -27,7 +27,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -52,12 +51,10 @@ class LoginSSOViewModel @Inject constructor(
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider
 ) : LoginViewModel(
     savedStateHandle,
-    navigationManager,
     clientScopeProviderFactory,
     authServerConfigProvider,
     userDataStoreProvider
@@ -98,7 +95,7 @@ class LoginSSOViewModel @Inject constructor(
 
     @Suppress("ComplexMethod")
     @VisibleForTesting
-    fun establishSSOSession(cookie: String, serverConfigId: String) {
+    fun establishSSOSession(cookie: String, serverConfigId: String, onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             val authScope =
@@ -146,7 +143,7 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        navigateAfterRegisterClientSuccess(storedUserId)
+                        onSuccess(isInitialSyncCompleted(storedUserId))
                     }
                     is RegisterClientResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
@@ -166,9 +163,10 @@ class LoginSSOViewModel @Inject constructor(
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when (ssoLoginResult) {
+    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?, onSuccess: (initialSyncCompleted: Boolean) -> Unit) =
+        when (ssoLoginResult) {
         is DeepLinkResult.SSOLogin.Success -> {
-            establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId)
+            establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, onSuccess)
         }
 
         is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))

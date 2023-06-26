@@ -20,16 +20,15 @@
 
 package com.wire.android.ui.calling.initiating
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -47,7 +46,6 @@ import javax.inject.Inject
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
@@ -60,6 +58,9 @@ class InitiatingCallViewModel @Inject constructor(
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
     private var wasCallHangUp: Boolean = false
+
+    var state by mutableStateOf(InitiatingCallState())
+        private set
 
     init {
         viewModelScope.launch {
@@ -88,24 +89,20 @@ class InitiatingCallViewModel @Inject constructor(
             startedTime = callStartTime
         ).collect { isCurrentCallClosed ->
             if (isCurrentCallClosed && wasCallHangUp.not()) {
-                onCallClosed()
+                stopRingerAndMarkCallAsHungUp()
+                state = state.copy(flowState = InitiatingCallState.FlowState.CallClosed)
             }
         }
     }
 
-    private fun onCallClosed() {
-        navigateBack()
+    private fun stopRingerAndMarkCallAsHungUp() {
+        wasCallHangUp = true
         callRinger.stop()
     }
 
-    private suspend fun onCallEstablished() {
+    private fun onCallEstablished() {
         callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = OngoingCallScreenDestination(initiatingCallNavArgs.conversationId),
-                backStackMode = BackStackMode.REMOVE_CURRENT
-            )
-        )
+        state = state.copy(flowState = InitiatingCallState.FlowState.CallEstablished)
     }
 
     internal suspend fun initiateCall() {
@@ -118,16 +115,11 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() = viewModelScope.launch {
-        wasCallHangUp = true
-        navigationManager.navigateBack()
-    }
-
     fun hangUpCall() = viewModelScope.launch {
         launch { endCall(conversationId) }
         launch {
-            callRinger.stop()
-            navigateBack()
+            stopRingerAndMarkCallAsHungUp()
+            state = state.copy(flowState = InitiatingCallState.FlowState.CallHungUp)
         }
     }
 }

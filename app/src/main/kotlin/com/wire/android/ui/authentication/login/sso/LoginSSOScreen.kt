@@ -64,6 +64,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginSSOScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -72,14 +74,17 @@ fun LoginSSOScreen(
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
 
     LaunchedEffect(ssoLoginResult) {
-        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+        loginSSOViewModel.handleSSOResult(ssoLoginResult, onSuccess)
     }
     LoginSSOContent(
         scrollState = scrollState,
         loginState = loginSSOViewModel.loginState,
         onCodeChange = loginSSOViewModel::onSSOCodeChange,
         onDialogDismiss = loginSSOViewModel::onDialogDismiss,
-        onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
+        onRemoveDeviceOpen = {
+            loginSSOViewModel.clearLoginErrors()
+            onRemoveDeviceNeeded()
+        },
         // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = suspend { loginSSOViewModel.login() },
         scope = scope,
@@ -106,11 +111,16 @@ private fun LoginSSOContent(
     serverTitle: String
 ) {
     Column(
-        modifier = Modifier.fillMaxHeight().verticalScroll(scrollState).padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+            .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
         SSOCodeInput(
-            modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             ssoCode = loginState.ssoCode,
             onCodeChange = onCodeChange,
             error = when (loginState.loginError) {
@@ -162,7 +172,9 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth().testTag("ssoLoginButton")
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("ssoLoginButton")
         )
     }
 }

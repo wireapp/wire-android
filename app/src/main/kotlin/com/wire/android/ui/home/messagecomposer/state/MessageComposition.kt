@@ -75,15 +75,6 @@ class MessageCompositionHolder(
         }
     }
 
-    fun clearReply() {
-        messageComposition.update {
-            it.copy(
-                quotedMessage = null,
-                quotedMessageId = null
-            )
-        }
-    }
-
     private fun mapToQuotedContent(message: UIMessage.Regular) =
         when (val messageContent = message.messageContent) {
             is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
@@ -113,6 +104,15 @@ class MessageCompositionHolder(
                 null
             }
         }
+
+    fun clearReply() {
+        messageComposition.update {
+            it.copy(
+                quotedMessage = null,
+                quotedMessageId = null
+            )
+        }
+    }
 
     fun setMessageText(messageTextFieldValue: TextFieldValue, searchMentions: (String) -> Unit) {
         updateMentionsIfNeeded(messageTextFieldValue)
@@ -189,9 +189,6 @@ class MessageCompositionHolder(
         return text
     }
 
-    fun setMentionsSearchResult(mentions: List<Contact>) {
-        messageComposition.update { it.copy(mentionSearchResult = mentions) }
-    }
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
         messageComposition.update { it.copy(messageTextFieldValue = (TextFieldValue(editMessageText))) }
@@ -272,7 +269,6 @@ data class MessageComposition(
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UiMention> = emptyList(),
-    val mentionSearchResult: List<Contact> = emptyList(),
     val selfDeletionTimer: SelfDeletionTimer
 ) {
     companion object {
@@ -404,6 +400,7 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 }
 
 interface MessageBundle
+
 sealed class ComposableMessageBundle : MessageBundle {
     data class EditMessageBundle(
         val originalMessageId: String,

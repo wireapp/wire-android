@@ -31,16 +31,16 @@ import com.wire.android.ui.common.textfield.wireTextFieldColors
 
 class MessageCompositionInputStateHolder(
     private val messageCompositionHolder: MessageCompositionHolder,
-    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
-    defaultInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
+    inputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
+    inputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
-    var inputType: MessageCompositionInputType by mutableStateOf(defaultInputType)
+    var inputType: MessageCompositionInputType by mutableStateOf(inputType)
         private set
 
-    var inputState: MessageCompositionInputState by mutableStateOf(defaultInputState)
+    var inputState: MessageCompositionInputState by mutableStateOf(inputState)
         private set
 
     var inputSize by mutableStateOf(
@@ -55,7 +55,7 @@ class MessageCompositionInputStateHolder(
 
     fun toActive(isFocused: Boolean) {
         inputState = MessageCompositionInputState.ACTIVE
-        if(isFocused) requestFocus() else clearFocus()
+        if (isFocused) requestFocus() else clearFocus()
     }
 
     fun toEdit() {

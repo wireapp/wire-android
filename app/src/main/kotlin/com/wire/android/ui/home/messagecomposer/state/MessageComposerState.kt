@@ -47,7 +47,7 @@ fun rememberMessageComposerStateHolder(
     val messageCompositionHolder = remember {
         MessageCompositionHolder(
             context = context,
-            mentionStyle = mentionStyle
+            mentionStyle = mentionStyle,
         )
     }
 
@@ -55,21 +55,31 @@ fun rememberMessageComposerStateHolder(
         AdditionalOptionStateHolder()
     }
 
-    return remember(messageComposerViewState) {
-        val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-            messageCompositionHolder = messageCompositionHolder,
-            defaultInputType = if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
-                MessageCompositionInputType.SelfDeleting(messageCompositionHolder.messageComposition)
-            } else {
-                MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
-            },
-            defaultInputState = if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
-                MessageCompositionInputState.ACTIVE
-            } else {
-                MessageCompositionInputState.INACTIVE
-            },
-        )
+    val messageCompositionInputState = remember(messageComposerViewState.selfDeletionTimer) {
+        if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputState.ACTIVE
+        } else {
+            MessageCompositionInputState.INACTIVE
+        }
+    }
 
+    val messageCompositionInputType = remember(messageComposerViewState.selfDeletionTimer) {
+        if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputType.SelfDeleting(messageCompositionHolder.messageComposition)
+        } else {
+            MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
+        }
+    }
+
+    val messageCompositionInputStateHolder = remember(messageComposerViewState, messageCompositionInputState) {
+        MessageCompositionInputStateHolder(
+            messageCompositionHolder = messageCompositionHolder,
+            inputType = messageCompositionInputType,
+            inputState = messageCompositionInputState,
+        )
+    }
+
+    return remember(messageCompositionInputStateHolder) {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
@@ -134,14 +144,6 @@ class MessageComposerStateHolder(
 
     fun onKeyboardVisibilityChanged(isVisible: Boolean) {
         if (messageCompositionInputStateHolder.inputFocused && !isVisible) {
-            messageCompositionInputStateHolder.clearFocus()
-        }
-    }
-
-    fun onBackButtonPressed() {
-        if (additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-            additionalOptionStateHolder.hideAdditionalOptionsMenu()
-        } else {
             toInActive()
         }
     }

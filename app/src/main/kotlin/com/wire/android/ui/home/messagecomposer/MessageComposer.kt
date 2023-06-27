@@ -55,6 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.util.ui.KeyboardHeight
@@ -140,55 +141,54 @@ private fun EnabledMessageComposer(
 
 @Composable
 private fun InactiveMessageComposer(
-    messageComposerState: MessageComposerStateHolder,
+    messageCompositon: MessageComposition,
     messageListContent: @Composable () -> Unit,
     onTransitionToActive: (Boolean) -> Unit
 ) {
-    with(messageComposerState) {
-        Surface(color = colorsScheme().messageComposerBackgroundColor) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-                val fillRemainingSpaceBetweenMessageListContentAndMessageComposer = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
 
-                Box(
-                    Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = { onTransitionToActive(false) },
-                                onDoubleTap = { /* Called on Double Tap */ },
-                                onLongPress = { /* Called on Long Press */ },
-                                onTap = { /* Called on Tap */ }
-                            )
-                        }
-                        .background(color = colorsScheme().backgroundVariant)
-                        .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
-                ) {
-                    messageListContent()
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                        AdditionalOptionButton(
-                            isSelected = false,
-                            isEnabled = false,
-                            onClick = { onTransitionToActive(true) }
+    Surface(color = colorsScheme().messageComposerBackgroundColor) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            val fillRemainingSpaceBetweenMessageListContentAndMessageComposer = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+
+            Box(
+                Modifier
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = { onTransitionToActive(false) },
+                            onDoubleTap = { /* Called on Double Tap */ },
+                            onLongPress = { /* Called on Long Press */ },
+                            onTap = { /* Called on Tap */ }
                         )
                     }
-
-                    InActiveMessageComposerInput(
-                        messageText = messageComposition.value.messageTextFieldValue,
-                        onMessageComposerFocused = { onTransitionToActive(false) }
+                    .background(color = colorsScheme().backgroundVariant)
+                    .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
+            ) {
+                messageListContent()
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+                    AdditionalOptionButton(
+                        isSelected = false,
+                        isEnabled = false,
+                        onClick = { onTransitionToActive(true) }
                     )
                 }
+
+                InActiveMessageComposerInput(
+                    messageText = messageCompositon.messageTextFieldValue,
+                    onMessageComposerFocused = { onTransitionToActive(false) }
+                )
             }
         }
     }
@@ -333,7 +333,7 @@ private fun ActiveMessageComposer(
             }
 
             BackHandler {
-                ::onBackButtonPressed
+                onTransitionToInActive()
             }
         }
     }

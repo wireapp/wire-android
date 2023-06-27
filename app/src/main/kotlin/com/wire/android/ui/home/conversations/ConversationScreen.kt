@@ -224,7 +224,7 @@ fun ConversationScreen(
         onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            with (conversationMessagesViewModel) {
+            with(conversationMessagesViewModel) {
                 navigator.navigate(
                     NavigationCommand(MediaGalleryScreenDestination(conversationId, message.header.messageId, isSelfMessage))
                 )

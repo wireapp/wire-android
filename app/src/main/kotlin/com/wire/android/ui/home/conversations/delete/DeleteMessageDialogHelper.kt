@@ -28,7 +28,7 @@ class DeleteMessageDialogHelper(
     val scope: CoroutineScope,
     val conversationId: QualifiedID,
     private val updateDeleteDialogState: ((DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) -> Unit,
-    private val deleteMessage: suspend ( messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit) -> Unit
+    private val deleteMessage: suspend (messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit) -> Unit
 ) {
 
     private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =

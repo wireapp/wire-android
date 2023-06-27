@@ -115,7 +115,7 @@ fun ActiveMessageComposerInput(
     onChangeSelfDeletionClicked: () -> Unit,
     onToggleInputSize: () -> Unit,
     onCancelReply: () -> Unit,
-    onInputFocused: () -> Unit,
+    onInputFocusedChanged: (Boolean) -> Unit,
     onMentionPicked: (Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -155,7 +155,10 @@ fun ActiveMessageComposerInput(
                 verticalAlignment = Alignment.Bottom
             ) {
                 val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
-                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
+                        max = dimensions().messageComposerActiveInputMaxHeight
+                    )
+
                     MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
                 }.weight(1f)
 
@@ -165,9 +168,7 @@ fun ActiveMessageComposerInput(
                     messageText = messageComposition.messageTextFieldValue,
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) onInputFocused()
-                    },
+                    onFocusChanged = onInputFocusedChanged,
                     onSelectedLineIndexChanged = { currentSelectedLineIndex = it },
                     onLineBottomYCoordinateChanged = { cursorCoordinateY = it },
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
@@ -231,9 +232,11 @@ private fun MessageComposerTextInput(
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(inputFocused) {
-        Log.d("TEST", "inputFocused: $inputFocused")
-        if (inputFocused) focusRequester.requestFocus()
+    var focused by remember(inputFocused) { mutableStateOf(inputFocused) }
+
+    LaunchedEffect(focused) {
+        Log.d("TEST", "inputFocused: $focused")
+        if (focused) focusRequester.requestFocus()
         else focusManager.clearFocus()
     }
 
@@ -257,7 +260,6 @@ private fun MessageComposerTextInput(
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )
 }
-
 
 @Composable
 fun BlockedUserComposerInput(securityClassificationType: SecurityClassificationType) {
@@ -329,7 +331,6 @@ fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationT
     }
     MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
 }
-
 
 @Composable
 private fun CollapseButton(

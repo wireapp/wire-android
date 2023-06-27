@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.wireColorScheme
@@ -87,6 +88,14 @@ class MessageComposerStateHolder(
 
     val messageComposition = messageCompositionHolder.messageComposition
 
+    val isTransitionToKeyboardOnGoing
+        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
+                && !KeyboardHelper.isKeyboardVisible()
+                && messageCompositionInputStateHolder.inputFocused
+    val additionalOptionSubMenuVisible
+        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile &&
+                !KeyboardHelper.isKeyboardVisible()
+
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()
     }
@@ -101,26 +110,31 @@ class MessageComposerStateHolder(
     }
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        messageCompositionInputStateHolder.requestFocus()
         messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit()
     }
 
     fun toSelfDeleting() {
-        messageCompositionInputStateHolder.requestFocus()
         messageCompositionInputStateHolder.toSelfDeleting()
     }
 
     fun toReply(message: UIMessage.Regular) {
-        messageCompositionInputStateHolder.requestFocus()
-
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }
 
-    fun onFocusRequested() {
-        additionalOptionStateHolder.hideAdditionalOptionsMenu()
-        messageCompositionInputStateHolder.requestFocus()
+    fun onInputFocusedChanged(onFocused: Boolean) {
+        if (onFocused) {
+            messageCompositionInputStateHolder.requestFocus()
+        } else {
+            messageCompositionInputStateHolder.clearFocus()
+        }
+    }
+
+    fun onKeyboardVisibilityChanged(isVisible: Boolean) {
+        if (messageCompositionInputStateHolder.inputFocused && !isVisible) {
+            messageCompositionInputStateHolder.clearFocus()
+        }
     }
 
     fun showAdditionalOptionsMenu() {
@@ -130,6 +144,7 @@ class MessageComposerStateHolder(
 
     fun sendMessage() {
 //        onSendMessage(messageComposition.toMessageBundle())
+
         messageCompositionHolder.clear()
     }
 

@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -210,7 +211,8 @@ private fun ActiveMessageComposer(
                 // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
                 var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
 
-                if (KeyboardHelper.isKeyboardVisible()) {
+                val isKeyboardVisible = KeyboardHelper.isKeyboardVisible()
+                if (isKeyboardVisible) {
                     val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
                     val notKnownAndCalculated =
                         keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
@@ -219,6 +221,10 @@ private fun ActiveMessageComposer(
                     if (notKnownAndCalculated || knownAndDifferent) {
                         keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
                     }
+                }
+
+                LaunchedEffect(isKeyboardVisible) {
+                    messageComposerStateHolder.onKeyboardVisibilityChanged(isKeyboardVisible)
                 }
 
                 val makeTheContentAsBigAsScreenHeightWithoutKeyboard = Modifier
@@ -278,7 +284,7 @@ private fun ActiveMessageComposer(
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 securityClassificationType = messageComposerViewState.securityClassificationType,
                                 onMentionPicked = messageCompositionHolder::addMention,
-                                onInputFocused = ::onFocusRequested,
+                                onInputFocusedChanged = ::onInputFocusedChanged,
                                 onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onMessageTextChanged = {
@@ -301,14 +307,6 @@ private fun ActiveMessageComposer(
                         }
                     }
 
-                    val additionalOptionSubMenuVisible =
-                        additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
-                                !KeyboardHelper.isKeyboardVisible()
-
-                    val isTransitionToOpenKeyboardOngoing =
-                        additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
-                                !KeyboardHelper.isKeyboardVisible()
-
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
@@ -324,7 +322,7 @@ private fun ActiveMessageComposer(
                     // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
                     // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
                     // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
-                    else if (isTransitionToOpenKeyboardOngoing) {
+                    else if (isTransitionToKeyboardOnGoing) {
                         Box(
                             modifier = Modifier
                                 .height(keyboardHeight.height)
@@ -334,9 +332,7 @@ private fun ActiveMessageComposer(
                 }
             }
 
-            BackHandler(
-                additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
-            ) {
+            BackHandler(additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
                 onTransitionToInActive()
             }
         }

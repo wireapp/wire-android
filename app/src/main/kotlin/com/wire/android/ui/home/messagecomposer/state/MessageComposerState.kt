@@ -57,15 +57,15 @@ fun rememberMessageComposerStateHolder(
     return remember(messageComposerViewState) {
         val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
             messageCompositionHolder = messageCompositionHolder,
-            defaultInputType = if(messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
-                MessageCompositionInputStateHolder.InputType.SelfDeleting
+            defaultInputType = if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
+                MessageCompositionInputType.SelfDeleting(messageCompositionHolder.messageComposition)
             } else {
-                MessageCompositionInputStateHolder.InputType.Composing
+                MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
             },
-            defaultInputState =  if(messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
-                MessageCompositionInputStateHolder.InputType.SelfDeleting
+            defaultInputState = if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
+                MessageCompositionInputState.ACTIVE
             } else {
-                MessageCompositionInputStateHolder.InputType.Composing
+                MessageCompositionInputState.INACTIVE
             },
         )
 
@@ -85,7 +85,7 @@ class MessageComposerStateHolder(
     val additionalOptionStateHolder: AdditionalOptionStateHolder
 ) {
 
-    val messageComposition = messageCompositionHolder.messageComposition.value
+    val messageComposition = messageCompositionHolder.messageComposition
 
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()

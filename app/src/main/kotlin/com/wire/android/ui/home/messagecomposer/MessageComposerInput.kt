@@ -110,12 +110,12 @@ fun ActiveMessageComposerInput(
     inputFocused: Boolean,
     securityClassificationType: SecurityClassificationType,
     onMessageTextChanged: (TextFieldValue) -> Unit,
-    onMentionPicked: (Contact) -> Unit,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onToggleInputSize: () -> Unit,
     onCancelReply: () -> Unit,
     onInputFocused: () -> Unit,
+    onMentionPicked: (Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box {

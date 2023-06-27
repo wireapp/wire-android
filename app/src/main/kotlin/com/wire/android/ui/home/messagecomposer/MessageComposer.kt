@@ -54,7 +54,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.util.ui.KeyboardHeight
@@ -185,7 +184,7 @@ private fun InactiveMessageComposer(
                     }
 
                     InActiveMessageComposerInput(
-                        messageText = messageComposition.messageTextFieldValue,
+                        messageText = messageComposition.value.messageTextFieldValue,
                         onMessageComposerFocused = { onTransitionToActive(false) }
                     )
                 }
@@ -253,9 +252,9 @@ private fun ActiveMessageComposer(
 
                         ) {
                             messageListContent()
-                            if (messageComposition.mentionSearchResult.isNotEmpty()) {
+                            if (messageComposition.value.mentionSearchResult.isNotEmpty()) {
                                 MembersMentionList(
-                                    membersToMention = messageComposition.mentionSearchResult,
+                                    membersToMention = messageComposition.value.mentionSearchResult,
                                     onMentionPicked = { pickedMention ->
                                         messageCompositionHolder.addMention(pickedMention)
                                     }
@@ -273,14 +272,19 @@ private fun ActiveMessageComposer(
                                 }
 
                             ActiveMessageComposerInput(
-                                onMessageTextChanged = { messageCompositionHolder.setMessageText(it, onSearchMentionQueryChanged) },
+                                onMessageTextChanged = {
+                                    messageCompositionHolder.setMessageText(
+                                        it,
+                                        onSearchMentionQueryChanged
+                                    )
+                                },
                                 onSendButtonClicked = onSendButtonClicked,
                                 onMentionPicked = { pickedMention ->
                                     messageCompositionHolder.addMention(pickedMention)
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                                 modifier = fillRemainingSpaceOrWrapContent,
-                                messageComposition = messageComposition,
+                                messageComposition = messageComposition.value,
                                 inputSize = messageCompositionInputStateHolder.inputSize,
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
@@ -330,7 +334,9 @@ private fun ActiveMessageComposer(
                 }
             }
 
-            BackHandler(additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
+            BackHandler(
+                additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
+            ) {
                 onTransitionToInActive()
             }
         }

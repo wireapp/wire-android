@@ -340,10 +340,6 @@ private fun ConversationScreen(
         )
     }
 
-    LaunchedEffect(currentSelfDeletionTimer) {
-//        messageComposerState.updateSelfDeletionTime(currentSelfDeletionTimer)
-    }
-
     val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
         MenuModalSheetHeader.Visible(
             title = stringResource(R.string.automatically_delete_message_after)
@@ -414,7 +410,7 @@ private fun ConversationScreen(
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
-                    messageComposerState = messageComposerState,
+                    messageComposerStateHolder = messageComposerState,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
                     onAttachmentPicked = onAttachmentPicked,
@@ -433,7 +429,7 @@ private fun ConversationScreen(
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
-                    onSearchMentionQueryChanged = requestMentions
+                    onSearchMentionQueryChanged = { }
                 )
             }
             MenuModalSheetLayout(

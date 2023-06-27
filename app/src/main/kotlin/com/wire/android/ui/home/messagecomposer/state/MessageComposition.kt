@@ -21,8 +21,6 @@ import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText
@@ -45,7 +43,6 @@ import kotlin.time.Duration
 
 class MessageCompositionHolder(
     private val context: Context,
-    private val mentionStyle: SpanStyle,
     val mentionSearchResult: State<List<Contact>>
 ) {
     private companion object {
@@ -116,14 +113,15 @@ class MessageCompositionHolder(
         }
     }
 
-    fun setMessageText(messageTextFieldValue: TextFieldValue, searchMentions: (String) -> Unit, clearMentionResult: () -> Unit) {
+    fun setMessageText(
+        messageTextFieldValue: TextFieldValue,
+        onSearchMentionQueryChanged: (String) -> Unit,
+        onClearMentionSearchResult: () -> Unit
+    ) {
         updateMentionsIfNeeded(messageTextFieldValue)
-        requestMentionSuggestionIfNeeded(messageTextFieldValue, searchMentions, clearMentionResult)
-
+        requestMentionSuggestionIfNeeded(messageTextFieldValue, onSearchMentionQueryChanged, onClearMentionSearchResult)
         messageComposition.update {
-            it.copy(
-                messageTextFieldValue = applyMentionStylesIntoText(messageTextFieldValue)
-            )
+            it.copy(messageTextFieldValue = messageTextFieldValue)
         }
     }
 
@@ -133,16 +131,16 @@ class MessageCompositionHolder(
 
     private fun requestMentionSuggestionIfNeeded(
         messageText: TextFieldValue,
-        searchMentions: (String) -> Unit,
-        clearMentionResult: () -> Unit
+        onSearchMentionQueryChanged: (String) -> Unit,
+        onClearMentionSearchResult: () -> Unit
     ) {
         if (messageText.selection.min != messageText.selection.max) {
-            clearMentionResult()
+            onClearMentionSearchResult()
             return
         } else {
             val mentions = messageComposition.value.selectedMentions
             mentions.firstOrNull { messageText.selection.min in it.start..it.start + it.length }?.let {
-                clearMentionResult()
+                onClearMentionSearchResult()
                 return
             }
         }
@@ -156,7 +154,7 @@ class MessageCompositionHolder(
                 messageText.selection.min
             )
             if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
-                searchMentions(textBetweenAtAndSelection.toString())
+                onSearchMentionQueryChanged(textBetweenAtAndSelection.toString())
             }
         }
     }
@@ -175,25 +173,23 @@ class MessageCompositionHolder(
 
         messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
         messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
-
-//        messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
     }
 
-    private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
-        // For now there is a known issue in Compose
-        // https://issuetracker.google.com/issues/199768107
-        // It do not allow us to set some custom SpanStyle into "EditableTextView" :(
-        // But maybe someday they'll fix it, so we could use it
-//        val spanStyles = mentions.map { mention ->
-//            AnnotatedString.Range(mentionSpanStyle, mention.start, mention.start + mention.length)
+//    private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
+//        // For now there is a known issue in Compose
+//        // https://issuetracker.google.com/issues/199768107
+//        // It do not allow us to set some custom SpanStyle into "EditableTextView" :(
+//        // But maybe someday they'll fix it, so we could use it
+////        val spanStyles = mentions.map { mention ->
+////            AnnotatedString.Range(mentionSpanStyle, mention.start, mention.start + mention.length)
+////        }
+//
+//        val spanStyles = messageComposition.value.selectedMentions.map { mention ->
+//            AnnotatedString.Range(mentionStyle, mention.start, mention.start + mention.length)
 //        }
-
-        val spanStyles = messageComposition.value.selectedMentions.map { mention ->
-            AnnotatedString.Range(mentionStyle, mention.start, mention.start + mention.length)
-        }
-
-        return text
-    }
+//
+//        return text
+//    }
 
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {

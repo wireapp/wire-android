@@ -501,7 +501,8 @@ private fun ConversationScreenContent(
             )
         },
         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
+        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+        onClearMentionSearchResult = {}
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

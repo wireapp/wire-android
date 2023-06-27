@@ -19,6 +19,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,9 +34,9 @@ import kotlin.time.Duration
 
 
 class MessageCompositionInputStateHolder(
-    private val messageCompositionHolder: MessageCompositionHolder,
-    selfDeletionTimer: MutableState<SelfDeletionTimer>,
-    initialInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
+    private val messageComposition: MutableState<MessageComposition>,
+    selfDeletionTimer: State<SelfDeletionTimer>,
+    initialInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageComposition),
     initialInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
@@ -44,7 +45,7 @@ class MessageCompositionInputStateHolder(
     val inputType by derivedStateOf {
         if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
             MessageCompositionInputType.SelfDeleting(
-                messageCompositionState = messageCompositionHolder.messageComposition
+                messageCompositionState = messageComposition
             )
         } else _inputType
     }
@@ -78,22 +79,22 @@ class MessageCompositionInputStateHolder(
 
     fun toEdit() {
         _inputType = MessageCompositionInputType.Editing(
-            messageCompositionState = messageCompositionHolder.messageComposition,
-            messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
+            messageCompositionState = messageComposition,
+            messageCompositionSnapShot = messageComposition.value
         )
         toActive(true)
     }
 
     fun toSelfDeleting() {
         _inputType = MessageCompositionInputType.SelfDeleting(
-            messageCompositionState = messageCompositionHolder.messageComposition
+            messageCompositionState = messageComposition
         )
         toActive(true)
     }
 
     fun toComposing() {
         _inputType = MessageCompositionInputType.Composing(
-            messageCompositionState = messageCompositionHolder.messageComposition
+            messageCompositionState = messageComposition
         )
         toActive(true)
     }

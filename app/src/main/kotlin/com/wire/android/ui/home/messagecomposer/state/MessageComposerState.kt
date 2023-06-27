@@ -40,10 +40,11 @@ fun rememberMessageComposerStateHolder(
 ): MessageComposerStateHolder {
     val context = LocalContext.current
 
-    val mentionStyle = SpanStyle(
-        color = MaterialTheme.wireColorScheme.onPrimaryVariant,
-        background = MaterialTheme.wireColorScheme.primaryVariant
-    )
+    // non functional ATM
+//    val mentionStyle = SpanStyle(
+//        color = MaterialTheme.wireColorScheme.onPrimaryVariant,
+//        background = MaterialTheme.wireColorScheme.primaryVariant
+//    )
 
     val mentionSearchResult = remember {
         derivedStateOf {
@@ -53,7 +54,6 @@ fun rememberMessageComposerStateHolder(
 
     val messageCompositionHolder = MessageCompositionHolder(
         context = context,
-        mentionStyle = mentionStyle,
         mentionSearchResult = mentionSearchResult
     )
 
@@ -67,7 +67,7 @@ fun rememberMessageComposerStateHolder(
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-                messageCompositionHolder = messageCompositionHolder,
+                messageComposition = messageCompositionHolder.messageComposition,
                 selfDeletionTimer = selfDeletionTimer
             ),
             messageCompositionHolder = messageCompositionHolder,
@@ -128,8 +128,8 @@ class MessageComposerStateHolder(
         }
     }
 
-    fun onKeyboardVisibilityChanged(isVisible: Boolean) {
-        if (messageCompositionInputStateHolder.inputFocused && !isVisible) {
+    fun onKeyboardClosed() {
+        if (messageCompositionInputStateHolder.inputFocused) {
             toInActive()
         }
     }

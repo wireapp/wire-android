@@ -67,6 +67,7 @@ fun MessageComposer(
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
+    onClearMentionSearchResult: () -> Unit,
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -90,7 +91,8 @@ fun MessageComposer(
                     messageListContent = messageListContent,
                     onSendButtonClicked = ::sendMessage,
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                    onSearchMentionQueryChanged = onSearchMentionQueryChanged
+                    onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+                    onClearMentionSearchResult = onClearMentionSearchResult
                 )
             }
         }
@@ -103,7 +105,8 @@ private fun EnabledMessageComposer(
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
-    onSearchMentionQueryChanged: (String) -> Unit
+    onSearchMentionQueryChanged: (String) -> Unit,
+    onClearMentionSearchResult: () -> Unit
 ) {
     with(messageComposerStateHolder) {
         Row {
@@ -122,7 +125,8 @@ private fun EnabledMessageComposer(
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                        onSearchMentionQueryChanged = onSearchMentionQueryChanged
+                        onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+                        onClearMentionSearchResult = onClearMentionSearchResult
                     )
                 }
 
@@ -144,7 +148,6 @@ private fun InactiveMessageComposer(
     messageListContent: @Composable () -> Unit,
     onTransitionToActive: (Boolean) -> Unit
 ) {
-
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         Column(
             Modifier
@@ -200,7 +203,8 @@ private fun ActiveMessageComposer(
     onTransitionToInActive: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onClearMentionSearchResult: () -> Unit
 ) {
     with(messageComposerStateHolder) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
@@ -223,7 +227,9 @@ private fun ActiveMessageComposer(
                 }
 
                 LaunchedEffect(isKeyboardVisible) {
-                    messageComposerStateHolder.onKeyboardVisibilityChanged(isKeyboardVisible)
+                    if (!isKeyboardVisible) {
+                        messageComposerStateHolder.onKeyboardClosed()
+                    }
                 }
 
                 val makeTheContentAsBigAsScreenHeightWithoutKeyboard = Modifier
@@ -283,16 +289,14 @@ private fun ActiveMessageComposer(
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 securityClassificationType = messageComposerViewState.value.securityClassificationType,
-                                onMentionPicked = messageCompositionHolder::addMention,
+                                onMentionPicked = {
+                                    messageCompositionHolder.addMention(it)
+                                },
                                 onInputFocusedChanged = ::onInputFocusedChanged,
                                 onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onMessageTextChanged = {
-                                    messageCompositionHolder.setMessageText(
-                                        it,
-                                        onSearchMentionQueryChanged,
-                                        { },
-                                    )
+                                    messageCompositionHolder.setMessageText(it, onSearchMentionQueryChanged, onClearMentionSearchResult)
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                                 onSendButtonClicked = onSendButtonClicked,

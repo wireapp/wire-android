@@ -30,6 +30,7 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
@@ -56,52 +57,52 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when trying to compute if the user requires password fails, then hasSAMLCred is false`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Failure(StorageFailure.DataNotFound))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertFalse(arrangement.viewModel.hasSAMLCred)
+        assertFalse(viewModel.hasSAMLCred)
     }
 
     @Test
     fun `when trying to compute if the user requires password return true, then hasSAMLCred is false`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertFalse(arrangement.viewModel.hasSAMLCred)
+        assertFalse(viewModel.hasSAMLCred)
     }
 
     @Test
     fun `when trying to compute if the user requires password return false, then hasSAMLCred is true`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertTrue(arrangement.viewModel.hasSAMLCred)
+        assertTrue(viewModel.hasSAMLCred)
     }
 
     @Test
     fun `when isAccountReadOnly return true, then managedByWire is false`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertFalse(arrangement.viewModel.managedByWire)
+        assertFalse(viewModel.managedByWire)
     }
 
     @Test
     fun `when isAccountReadOnly return false, then managedByWire is true`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(false)
             .arrange()
 
-        assertTrue(arrangement.viewModel.managedByWire)
+        assertTrue(viewModel.managedByWire)
     }
 
     @Test
@@ -157,6 +158,32 @@ class MyAccountViewModelTest {
         assertTrue(viewModel.myAccountState.isEditHandleAllowed)
     }
 
+    @Test
+    fun `when delete account button clicked, then start the delete account flow`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(false)
+            .arrange()
+
+        viewModel.onDeleteAccountClicked()
+
+        assertTrue(viewModel.myAccountState.startDeleteAccountFlow)
+    }
+
+    @Test
+    fun `when delete account button confirmed, then call use case`() = runTest {
+        val (arrangment, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(false)
+            .arrange()
+
+        viewModel.onDeleteAccountDialogConfirmed()
+
+        assertTrue(viewModel.myAccountState.startDeleteAccountFlow)
+        coVerify(exactly = 1) { arrangment.deleteAccountUseCase(null) }
+    }
+
+
     private class Arrangement {
         @MockK
         lateinit var navigationManager: NavigationManager
@@ -179,7 +206,10 @@ class MyAccountViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
-        val viewModel by lazy {
+        @MockK
+        lateinit var deleteAccountUseCase: DeleteAccountUseCase
+
+        private val viewModel by lazy {
             MyAccountViewModel(
                 savedStateHandle,
                 getSelfUserUseCase,
@@ -188,6 +218,7 @@ class MyAccountViewModelTest {
                 isPasswordRequiredUseCase,
                 isReadOnlyAccountUseCase,
                 navigationManager,
+                deleteAccountUseCase,
                 TestDispatcherProvider()
             )
         }

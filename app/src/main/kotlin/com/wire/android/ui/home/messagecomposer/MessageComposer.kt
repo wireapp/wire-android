@@ -332,8 +332,8 @@ private fun ActiveMessageComposer(
                 }
             }
 
-            BackHandler(additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
-                onTransitionToInActive()
+            BackHandler {
+                ::onBackButtonPressed
             }
         }
     }

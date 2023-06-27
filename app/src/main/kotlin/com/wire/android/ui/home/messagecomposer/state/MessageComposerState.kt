@@ -138,6 +138,14 @@ class MessageComposerStateHolder(
         }
     }
 
+    fun onBackButtonPressed() {
+        if (additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+            additionalOptionStateHolder.hideAdditionalOptionsMenu()
+        } else {
+            toInActive()
+        }
+    }
+
     fun showAdditionalOptionsMenu() {
         additionalOptionStateHolder.showAdditionalOptionsMenu()
         messageCompositionInputStateHolder.clearFocus()

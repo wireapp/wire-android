@@ -91,14 +91,16 @@ fun UserProfileAvatar(
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
  */
 @Composable
-private fun painter(data: UserAvatarData): Painter =
-    if (data.connectionState == ConnectionState.BLOCKED) {
-        painterResource(id = R.drawable.ic_blocked_user_avatar)
-    } else if (LocalInspectionMode.current || data.asset == null) {
-        getDefaultAvatar(membership = data.membership)
-    } else {
-        data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
-    }
+private fun painter(data: UserAvatarData): Painter = if (data.connectionState == ConnectionState.BLOCKED) {
+    painterResource(id = R.drawable.ic_blocked_user_avatar)
+} else if (LocalInspectionMode.current || data.asset == null) {
+    getDefaultAvatar(membership = data.membership)
+} else {
+    data.asset.paint(
+        getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar),
+        R.drawable.ic_default_user_avatar
+    )
+}
 
 @Composable
 private fun getDefaultAvatar(membership: Membership): Painter =

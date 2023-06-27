@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -231,6 +232,7 @@ private fun MessageComposerTextInput(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(inputFocused) {
+        Log.d("TEST", "inputFocused: $inputFocused")
         if (inputFocused) focusRequester.requestFocus()
         else focusManager.clearFocus()
     }

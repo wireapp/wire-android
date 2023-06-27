@@ -49,35 +49,35 @@ class MessageCompositionInputStateHolder(
         private set
 
     fun toInActive() {
-        inputFocused = false
         inputState = MessageCompositionInputState.INACTIVE
+        clearFocus()
     }
 
     fun toActive(isFocused: Boolean) {
-        inputFocused = isFocused
         inputState = MessageCompositionInputState.ACTIVE
+        if(isFocused) requestFocus() else clearFocus()
     }
 
     fun toEdit() {
-        inputFocused = true
         inputType = MessageCompositionInputType.Editing(
             messageCompositionState = messageCompositionHolder.messageComposition,
             messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
         )
+        toActive(true)
     }
 
     fun toSelfDeleting() {
-        inputFocused = true
         inputType = MessageCompositionInputType.SelfDeleting(
             messageCompositionState = messageCompositionHolder.messageComposition
         )
+        toActive(true)
     }
 
     fun toComposing() {
-        inputFocused = true
         inputType = MessageCompositionInputType.Composing(
             messageCompositionState = messageCompositionHolder.messageComposition
         )
+        toActive(true)
     }
 
     fun toggleInputSize() {

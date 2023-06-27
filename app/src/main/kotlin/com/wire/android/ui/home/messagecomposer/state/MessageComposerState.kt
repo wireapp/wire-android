@@ -101,27 +101,31 @@ class MessageComposerStateHolder(
     }
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
+        messageCompositionInputStateHolder.requestFocus()
         messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit()
     }
 
     fun toSelfDeleting() {
+        messageCompositionInputStateHolder.requestFocus()
         messageCompositionInputStateHolder.toSelfDeleting()
     }
 
     fun toReply(message: UIMessage.Regular) {
+        messageCompositionInputStateHolder.requestFocus()
+
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }
 
     fun onFocusRequested() {
-        messageCompositionInputStateHolder.requestFocus()
         additionalOptionStateHolder.hideAdditionalOptionsMenu()
+        messageCompositionInputStateHolder.requestFocus()
     }
 
     fun showAdditionalOptionsMenu() {
-        messageCompositionInputStateHolder.clearFocus()
         additionalOptionStateHolder.showAdditionalOptionsMenu()
+        messageCompositionInputStateHolder.clearFocus()
     }
 
     fun sendMessage() {

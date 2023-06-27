@@ -88,8 +88,12 @@ class MessageCompositionInputStateHolder(
         }
     }
 
-    fun onFocused() {
+    fun clearFocus() {
+        inputFocused = false
+    }
 
+    fun requestFocus() {
+        inputFocused = true
     }
 
 }

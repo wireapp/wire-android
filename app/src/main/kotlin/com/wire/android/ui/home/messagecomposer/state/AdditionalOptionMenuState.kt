@@ -21,7 +21,6 @@ package com.wire.android.ui.home.messagecomposer.state
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 
 sealed class AdditionalOptionMenuState {
     object AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState()
@@ -52,11 +51,4 @@ class AdditionalOptionStateHolder {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
     }
 
-    fun toggleAttachmentOptions() {
-        additionalOptionsSubMenuState = if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-            AdditionalOptionSubMenuState.Hidden
-        } else {
-            AdditionalOptionSubMenuState.AttachFile
-        }
-    }
 }

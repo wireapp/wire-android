@@ -106,8 +106,8 @@ private fun EnabledMessageComposer(
 ) {
     with(messageComposerStateHolder) {
         Row {
-//            val isClassifiedConversation = securityClassificationType !=
-            if (true) {
+            val isClassifiedConversation = messageComposerViewState.securityClassificationType != SecurityClassificationType.NONE
+            if (isClassifiedConversation) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
                     SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.NONE)
@@ -272,32 +272,31 @@ private fun ActiveMessageComposer(
                                 }
 
                             ActiveMessageComposerInput(
+                                messageComposition = messageComposition.value,
+                                inputSize = messageCompositionInputStateHolder.inputSize,
+                                inputType = messageCompositionInputStateHolder.inputType,
+                                inputFocused = messageCompositionInputStateHolder.inputFocused,
+                                securityClassificationType = messageComposerViewState.securityClassificationType,
+                                onMentionPicked = messageCompositionHolder::addMention,
+                                onInputFocused = ::onFocusRequested,
+                                onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                                onCancelReply = messageCompositionHolder::clearReply,
                                 onMessageTextChanged = {
                                     messageCompositionHolder.setMessageText(
                                         it,
                                         onSearchMentionQueryChanged
                                     )
                                 },
-                                onSendButtonClicked = onSendButtonClicked,
-                                onMentionPicked = { pickedMention ->
-                                    messageCompositionHolder.addMention(pickedMention)
-                                },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                                onSendButtonClicked = onSendButtonClicked,
                                 modifier = fillRemainingSpaceOrWrapContent,
-                                messageComposition = messageComposition.value,
-                                inputSize = messageCompositionInputStateHolder.inputSize,
-                                inputType = messageCompositionInputStateHolder.inputType,
-                                inputFocused = messageCompositionInputStateHolder.inputFocused,
-                                securityClassificationType = SecurityClassificationType.NONE,
-                                onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
-                                onCancelReply = messageCompositionHolder::clearReply,
-                                onInputFocused = {},
                             )
                             AdditionalOptionsMenu(
-                                additionalOptionsStateHolder = additionalOptionStateHolder,
+                                isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
                                 onMentionButtonClicked = messageCompositionHolder::startMention,
-                                onRichTextButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                                onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                                onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu
                             )
                         }
                     }
@@ -312,6 +311,7 @@ private fun ActiveMessageComposer(
 
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
+                            isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             modifier = Modifier
                                 .height(keyboardHeight.height)

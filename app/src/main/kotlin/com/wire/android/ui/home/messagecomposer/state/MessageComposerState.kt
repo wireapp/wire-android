@@ -114,6 +114,16 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.toComposing()
     }
 
+    fun onFocusRequested() {
+        messageCompositionInputStateHolder.requestFocus()
+        additionalOptionStateHolder.hideAdditionalOptionsMenu()
+    }
+
+    fun showAdditionalOptionsMenu() {
+        messageCompositionInputStateHolder.clearFocus()
+        additionalOptionStateHolder.showAdditionalOptionsMenu()
+    }
+
     fun sendMessage() {
 //        onSendMessage(messageComposition.toMessageBundle())
         messageCompositionHolder.clear()

@@ -38,13 +38,16 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun AdditionalOptionButton(isSelected: Boolean, isEnabled: Boolean, onClick: () -> Unit) {
+fun AdditionalOptionButton(
+    isSelected: Boolean,
+    isEnabled: Boolean,
+    onClick: () -> Unit
+) {
     WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = R.drawable.ic_add,
@@ -56,13 +59,13 @@ fun AdditionalOptionButton(isSelected: Boolean, isEnabled: Boolean, onClick: () 
 
 @Composable
 fun AdditionalOptionsMenu(
-    additionalOptionsStateHolder: AdditionalOptionStateHolder,
+    isFileSharingEnabled: Boolean,
     onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
-    onAttachmentOptionClicked: (() -> Unit)? = null,
+    onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null,
     onPingOptionClicked: (() -> Unit)? = null,
-    onRichTextButtonClicked: (RichTextMarkdown) -> Unit,
+    onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
@@ -72,9 +75,9 @@ fun AdditionalOptionsMenu(
             is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
                     isMentionActive = onMentionButtonClicked != null,
-                    isFileSharingEnabled = onAttachmentOptionClicked != null,
+                    isFileSharingEnabled = isFileSharingEnabled,
                     onMentionButtonClicked = onMentionButtonClicked ?: {},
-                    onAttachmentOptionClicked = { additionalOptionsStateHolder.toggleAttachmentOptions() },
+                    onAdditionalOptionsMenuClicked = onAdditionalOptionsMenuClicked,
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
@@ -86,9 +89,9 @@ fun AdditionalOptionsMenu(
 
             is AdditionalOptionMenuState.RichTextEditing -> {
                 RichTextOptions(
-                    onRichTextHeaderButtonClicked = { onRichTextButtonClicked(RichTextMarkdown.Header) },
-                    onRichTextBoldButtonClicked = { onRichTextButtonClicked(RichTextMarkdown.Bold) },
-                    onRichTextItalicButtonClicked = { onRichTextButtonClicked(RichTextMarkdown.Italic) },
+                    onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
+                    onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
+                    onRichTextItalicButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Italic) },
                     onCloseRichTextEditingButtonClicked = {
                         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
                     }
@@ -100,6 +103,7 @@ fun AdditionalOptionsMenu(
 
 @Composable
 fun AdditionalOptionSubMenu(
+    isFileSharingEnabled: Boolean,
     additionalOptionsState: AdditionalOptionSubMenuState,
     modifier: Modifier
 ) {
@@ -109,15 +113,16 @@ fun AdditionalOptionSubMenu(
                 onAttachmentPicked = {},
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
-                isFileSharingEnabled = true,
+                isFileSharingEnabled = isFileSharingEnabled,
                 modifier = modifier
             )
         }
 
+        AdditionalOptionSubMenuState.AttachImage -> {}
+        // non functional for now
         AdditionalOptionSubMenuState.Emoji -> {}
         AdditionalOptionSubMenuState.Gif -> {}
         AdditionalOptionSubMenuState.RecordAudio -> {}
-        AdditionalOptionSubMenuState.AttachImage -> {}
         AdditionalOptionSubMenuState.Hidden -> {}
     }
 }
@@ -127,7 +132,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
-    onAttachmentOptionClicked: () -> Unit = {},
+    onAdditionalOptionsMenuClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
@@ -141,7 +146,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             isAdditionalOptionsButtonSelected = false,
             isEditMessage = false,
             onMentionButtonClicked = onMentionButtonClicked,
-            onAdditionalOptionButtonClicked = onAttachmentOptionClicked,
+            onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
             onPingButtonClicked = onPingClicked,
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             showSelfDeletingOption = showSelfDeletingOption,

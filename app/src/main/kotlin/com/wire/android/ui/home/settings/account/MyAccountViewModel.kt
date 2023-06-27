@@ -190,6 +190,7 @@ class MyAccountViewModel @Inject constructor(
     fun onDeleteAccountDialogConfirmed() {
         viewModelScope.launch {
             deleteAccount(null)
+            myAccountState = myAccountState.copy(startDeleteAccountFlow = false)
         }
     }
 

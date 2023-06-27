@@ -172,15 +172,19 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when delete account button confirmed, then call use case`() = runTest {
-        val (arrangment, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
+            .withDeleteAccountUseCase(DeleteAccountUseCase.Result.Success)
             .withIsReadOnlyAccountResult(false)
             .arrange()
 
+        viewModel.onDeleteAccountClicked()
+        assertTrue(viewModel.myAccountState.startDeleteAccountFlow)
+
         viewModel.onDeleteAccountDialogConfirmed()
 
-        assertTrue(viewModel.myAccountState.startDeleteAccountFlow)
-        coVerify(exactly = 1) { arrangment.deleteAccountUseCase(null) }
+        assertFalse(viewModel.myAccountState.startDeleteAccountFlow)
+        coVerify(exactly = 1) { arrangement.deleteAccountUseCase(null) }
     }
 
     private class Arrangement {
@@ -232,6 +236,10 @@ class MyAccountViewModelTest {
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {
             coEvery { isPasswordRequiredUseCase() } returns result
+        }
+
+        fun withDeleteAccountUseCase(result: DeleteAccountUseCase.Result) = apply {
+            coEvery { deleteAccountUseCase(any()) } returns result
         }
 
         fun withIsReadOnlyAccountResult(result: Boolean) = apply {

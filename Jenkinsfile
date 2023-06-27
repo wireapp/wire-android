@@ -61,6 +61,18 @@ def postGithubComment(String changeId, String body) {
 
 }
 
+/**
+* Checks if the parameter is defined, otherwise sets it to the BRANCH_NAME env var
+*
+* @param changeBranch env var to use as the branch name if the changeBranch is not empty
+*/
+String handleChangeBranch(String changeBranch) {
+    if (changeBranch?.trim()) {
+        return changeBranch
+    }
+    return env.BRANCH_NAME
+}
+
 pipeline {
     agent {
         node {
@@ -86,6 +98,7 @@ pipeline {
                         String flavor = x
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
+                        String definedChangeBranch = handleChangeBranch(env.CHANGE_BRANCH)
                         dynamicStages[stageName] = {
                             node {
                                 stage(stageName) {
@@ -93,7 +106,7 @@ pipeline {
                                             job: 'AR-build-pipeline',
                                             parameters: [
                                                     string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
-                                                    string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),
+                                                    string(name: 'CHANGE_BRANCH', value: definedChangeBranch),
                                                     string(name: 'BUILD_TYPE', value: buildType),
                                                     string(name: 'FLAVOR', value: flavor),
                                                     booleanParam(name: 'UPLOAD_TO_S3', value: true),

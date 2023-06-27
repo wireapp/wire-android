@@ -73,8 +73,10 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
@@ -109,6 +111,8 @@ class ConversationListViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val endCall: EndCallUseCase,
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
+    private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -135,7 +139,9 @@ class ConversationListViewModel @Inject constructor(
                 val hasEstablishedCall = it.isNotEmpty()
                 establishedCallConversationId = if (it.isNotEmpty()) {
                     it.first().conversationId
-                } else null
+                } else {
+                    null
+                }
                 conversationListState = conversationListState.copy(hasEstablishedCall = hasEstablishedCall)
             }
     }
@@ -145,26 +151,31 @@ class ConversationListViewModel @Inject constructor(
             observeEstablishedCall()
         }
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetails()
-                .map {
-                    it.map { conversationDetails ->
-                        conversationDetails.toConversationItem(
-                            wireSessionImageLoader,
-                            userTypeMapper
-                        )
+            searchQueryFlow.combine(
+                observeConversationListDetails()
+                    .map {
+                        it.map { conversationDetails ->
+                            conversationDetails.toConversationItem(
+                                wireSessionImageLoader,
+                                userTypeMapper
+                            )
+                        }
                     }
-                }
             )
                 .map { (searchQuery, conversationItems) -> conversationItems.withFolders().toImmutableMap() to searchQuery }
                 .collect { (conversationsWithFolders, searchQuery) ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = if (searchQuery.isEmpty()) conversationsWithFolders else searchConversation(
-                            conversationsWithFolders.values.flatten(),
-                            searchQuery
-                        ).withFolders().toImmutableMap(),
+                        conversationSearchResult = if (searchQuery.isEmpty()) {
+                            conversationsWithFolders
+                        } else {
+                            searchConversation(
+                                conversationsWithFolders.values.flatten(),
+                                searchQuery
+                            ).withFolders().toImmutableMap()
+                        },
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
-                        searchQuery = searchQuery,
+                        searchQuery = searchQuery
                     )
                 }
         }
@@ -181,6 +192,13 @@ class ConversationListViewModel @Inject constructor(
             }
         }
         return matchingConversations
+    }
+
+    suspend fun refreshMissingMetadata() {
+        viewModelScope.launch {
+            refreshUsersWithoutMetadata()
+            refreshConversationsWithoutMetadata()
+        }
     }
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
@@ -243,19 +261,19 @@ class ConversationListViewModel @Inject constructor(
 
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
-                        is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
-                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                        is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION) ||
+                                it.unreadEventCount.containsKey(UnreadEventType.REPLY)
 
-                        is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
-                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                        is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION) ||
+                                it.unreadEventCount.containsKey(UnreadEventType.REPLY)
 
                         else -> false
                     }
 
                 else -> false
-            }
-                    || (it is Connection && it.connection.status == ConnectionState.PENDING)
-                    || (it is Group && it.hasOngoingCall)
+            } ||
+                    (it is Connection && it.connection.status == ConnectionState.PENDING) ||
+                    (it is Group && it.hasOngoingCall)
         }
 
         val remainingConversations = this - unreadConversations.toSet()
@@ -474,6 +492,7 @@ class ConversationListViewModel @Inject constructor(
             homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
     }
+
     companion object {
         const val DELAY_END_CALL = 200L
     }
@@ -568,9 +587,13 @@ private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
 
 fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
-    if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
-    else if (isDeleted) BadgeEventType.Deleted
-    else eventType
+    if (connectionState == ConnectionState.BLOCKED) {
+        BadgeEventType.Blocked
+    } else if (isDeleted) {
+        BadgeEventType.Deleted
+    } else {
+        eventType
+    }
 
 fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,

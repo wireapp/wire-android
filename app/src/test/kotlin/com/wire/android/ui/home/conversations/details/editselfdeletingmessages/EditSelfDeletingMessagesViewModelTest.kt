@@ -21,7 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -34,6 +33,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -52,17 +52,19 @@ class EditSelfDeletingMessagesViewModelTest {
     fun `given self deleting messages option enabled, when disabling it, then it updates proper state`() =
         runTest {
             // Given
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .withSelfDeletingMessagesGroupSettings(SelfDeletionTimer.Enabled(5.minutes))
                 .withUpdateMessageTimerSuccess()
                 .arrange()
 
             // When
             viewModel.updateSelfDeletingMessageOption(false)
+            viewModel.applyNewDuration(arrangement.onCompleted)
 
             // Then
             assertEquals(false, viewModel.state.isEnabled)
             assertEquals(null, viewModel.state.locallySelected)
+            verify { arrangement.onCompleted() }
         }
 
     @Test
@@ -70,7 +72,7 @@ class EditSelfDeletingMessagesViewModelTest {
         runTest {
             // Given
             val newTimer = SelfDeletionDuration.FiveMinutes
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .withSelfDeletingMessagesGroupSettings(SelfDeletionTimer.Enabled(Duration.ZERO))
                 .withUpdateMessageTimerSuccess()
                 .arrange()
@@ -78,20 +80,18 @@ class EditSelfDeletingMessagesViewModelTest {
             // When
             viewModel.updateSelfDeletingMessageOption(true)
             viewModel.onSelectDuration(newTimer)
-            viewModel.applyNewDuration()
+            viewModel.applyNewDuration(arrangement.onCompleted)
 
             // Then
             assertEquals(newTimer, viewModel.state.remotelySelected)
             assertEquals(newTimer, viewModel.state.locallySelected)
+            verify { arrangement.onCompleted() }
         }
 
     private class Arrangement {
 
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        private lateinit var navigationManager: NavigationManager
 
         @MockK
         private lateinit var observerConversationMembers: ObserveParticipantsForConversationUseCase
@@ -102,9 +102,11 @@ class EditSelfDeletingMessagesViewModelTest {
         @MockK
         private lateinit var updateMessageTimer: UpdateMessageTimerUseCase
 
+        @MockK(relaxed = true)
+        lateinit var onCompleted: () -> Unit
+
         private val viewModel by lazy {
             EditSelfDeletingMessagesViewModel(
-                navigationManager = navigationManager,
                 savedStateHandle = savedStateHandle,
                 dispatcher = TestDispatcherProvider(),
                 observeConversationMembers = observerConversationMembers,

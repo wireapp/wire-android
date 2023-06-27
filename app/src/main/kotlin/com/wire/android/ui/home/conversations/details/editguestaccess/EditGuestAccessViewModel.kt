@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -55,7 +54,6 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class EditGuestAccessViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -235,8 +233,4 @@ class EditGuestAccessViewModel @Inject constructor(
     fun shouldDisableGenerateGuestLinkButton() = !editGuestAccessState.isGuestRoomLinkFeatureEnabled ||
             !editGuestAccessState.isGuestAccessAllowed ||
             editGuestAccessState.isGeneratingGuestRoomLink
-
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
-    }
 }

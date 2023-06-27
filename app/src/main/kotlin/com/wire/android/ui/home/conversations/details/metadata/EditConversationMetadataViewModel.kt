@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
@@ -51,7 +50,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditConversationMetadataViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
@@ -103,9 +101,5 @@ class EditConversationMetadataViewModel @Inject constructor(
                 is RenamingResult.Success -> onSuccess()
             }
         }
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

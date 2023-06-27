@@ -29,7 +29,6 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -112,9 +111,6 @@ internal class MessageComposerViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
 
     @MockK
@@ -188,7 +184,6 @@ internal class MessageComposerViewModelArrangement {
     private val viewModel by lazy {
         MessageComposerViewModel(
             savedStateHandle = savedStateHandle,
-            navigationManager = navigationManager,
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,

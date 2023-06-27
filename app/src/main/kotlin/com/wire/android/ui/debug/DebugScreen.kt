@@ -44,12 +44,16 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
+import com.wire.kalium.logic.data.user.UserId
 import java.io.File
 
 @RootNavGraph
@@ -57,12 +61,18 @@ import java.io.File
 @Composable
 fun DebugScreen(navigator: Navigator) {
     UserDebugContent(
-        onNavigationPressed = navigator::navigateBack
+        onNavigationPressed = navigator::navigateBack,
+        onManualMigrationPressed = {
+            navigator.navigate(NavigationCommand(MigrationScreenDestination(it), BackStackMode.CLEAR_WHOLE))
+        }
     )
 }
 
 @Composable
-private fun UserDebugContent(onNavigationPressed: () -> Unit) {
+private fun UserDebugContent(
+    onNavigationPressed: () -> Unit,
+    onManualMigrationPressed: (currentAccount: UserId) -> Unit,
+) {
 
     val userDebugViewModel: UserDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
@@ -93,7 +103,8 @@ private fun UserDebugContent(onNavigationPressed: () -> Unit) {
                 DebugDataOptions(
                     appVersion = BuildConfig.VERSION_NAME,
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
-                    onCopyText = debugContentState::copyToClipboard
+                    onCopyText = debugContentState::copyToClipboard,
+                    onManualMigrationPressed = onManualMigrationPressed
                 )
             }
         }

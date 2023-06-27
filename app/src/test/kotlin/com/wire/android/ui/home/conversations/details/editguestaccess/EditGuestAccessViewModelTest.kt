@@ -26,7 +26,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreFailure
@@ -58,9 +57,6 @@ class EditGuestAccessViewModelTest {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
     @MockK
@@ -89,7 +85,6 @@ class EditGuestAccessViewModelTest {
     @Before
     fun setUp() {
         editGuestAccessViewModel = EditGuestAccessViewModel(
-            navigationManager = navigationManager,
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeConversationMembers,

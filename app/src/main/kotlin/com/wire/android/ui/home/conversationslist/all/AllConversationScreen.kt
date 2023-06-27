@@ -49,6 +49,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -59,6 +60,9 @@ fun AllConversationScreen(
     viewModel: ConversationListViewModel = hiltViewModel(),
     onEditConversation: (ConversationItem) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onOpenConversation: (ConversationId) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
+    onJoinedCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
@@ -67,7 +71,7 @@ fun AllConversationScreen(
         appLogger.i("$TAG showing showJoinAnywayDialog..")
         JoinAnywayDialog(
             onDismiss = viewModel::dismissJoinCallAnywayDialog,
-            onConfirm = { viewModel.joinAnyway(callConversationIdToJoin.value) }
+            onConfirm = { viewModel.joinAnyway(callConversationIdToJoin.value, onJoinedCall) }
         )
     }
     if (hasNoConversations) {
@@ -77,13 +81,13 @@ fun AllConversationScreen(
             lazyListState = lazyListState,
             conversationListItems = conversations,
             searchQuery = "",
-            onOpenConversation = viewModel::openConversation,
+            onOpenConversation = onOpenConversation,
             onEditConversation = onEditConversation,
-            onOpenUserProfile = viewModel::openUserProfile,
+            onOpenUserProfile = onOpenUserProfile,
             onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
             onJoinCall = {
                 callConversationIdToJoin.value = it
-                viewModel.joinOngoingCall(it)
+                viewModel.joinOngoingCall(it, onJoinedCall)
             }
         )
     }
@@ -132,7 +136,10 @@ fun PreviewAllConversationScreen() {
         conversations = persistentMapOf(),
         hasNoConversations = false,
         onEditConversation = {},
-        onOpenConversationNotificationsSettings = {}
+        onOpenConversationNotificationsSettings = {},
+        onOpenConversation = {},
+        onOpenUserProfile = {},
+        onJoinedCall = {}
     )
 }
 
@@ -143,7 +150,10 @@ fun ConversationListEmptyStateScreenPreview() {
         conversations = persistentMapOf(),
         hasNoConversations = true,
         onEditConversation = {},
-        onOpenConversationNotificationsSettings = {}
+        onOpenConversationNotificationsSettings = {},
+        onOpenConversation = {},
+        onOpenUserProfile = {},
+        onJoinedCall = {}
     )
 }
 

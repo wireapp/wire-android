@@ -27,12 +27,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -40,7 +35,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -57,7 +51,6 @@ import javax.inject.Inject
 class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -159,49 +152,6 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    fun navigateToDetails() = viewModelScope.launch(dispatchers.default()) {
-        when (val data = conversationInfoViewState.conversationDetailsData) {
-            is ConversationDetailsData.OneOne -> navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = OtherUserProfileScreenDestination(userId = data.otherUserId)
-                )
-            )
-
-            is ConversationDetailsData.Group -> navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = GroupConversationDetailsScreenDestination(conversationId = conversationId)
-                )
-            )
-
-            ConversationDetailsData.None -> { /* do nothing */
-            }
-        }
-    }
-
-    fun navigateToProfile(mentionUserId: String) {
-        viewModelScope.launch {
-            if (selfUserId.toString() == mentionUserId) {
-                navigateToSelfProfile()
-            } else {
-                val userId = qualifiedIdMapper.fromStringToQualifiedID(mentionUserId)
-                when (conversationInfoViewState.conversationDetailsData) {
-                    is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
-                    else -> {
-                        navigateToOtherProfile(userId)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun navigateToSelfProfile() {
-        navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-    }
-
-    private suspend fun navigateToOtherProfile(
-        userId: UserId,
-        conversationId: ConversationId? = null
-    ) {
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId, conversationId)))
-    }
+    fun mentionedUserData(mentionUserId: String): Pair<UserId, Boolean> =
+        qualifiedIdMapper.fromStringToQualifiedID(mentionUserId) to (selfUserId.toString() == mentionUserId)
 }

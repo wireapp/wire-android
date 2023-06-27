@@ -24,7 +24,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -32,6 +31,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -56,9 +56,6 @@ class ConversationInfoViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -71,7 +68,6 @@ class ConversationInfoViewModelArrangement {
         ConversationInfoViewModel(
             qualifiedIdMapper,
             savedStateHandle,
-            navigationManager,
             observeConversationDetails,
             observerSelfUser,
             wireSessionImageLoader,
@@ -101,6 +97,10 @@ class ConversationInfoViewModelArrangement {
 
     suspend fun withSelfUser() = apply {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
+    }
+
+    fun withMentionedUserId(id: UserId) = apply {
+        every { qualifiedIdMapper.fromStringToQualifiedID(id.toString()) } returns id
     }
 
     fun arrange() = this to viewModel

@@ -23,20 +23,11 @@ package com.wire.android.ui.home.conversations.info
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.UserId
-import io.mockk.coEvery
-import io.mockk.coVerify
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -51,91 +42,33 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ConversationInfoViewModelTest {
 
     @Test
-    fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {
+    fun `given a self mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
-        val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val userId = TestUser.SELF_USER_ID
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(oneOneDetails)
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
+            .withMentionedUserId(TestUser.SELF_USER.id)
             .arrange()
         // When
-        viewModel.navigateToProfile(userId.toString())
+        val result = viewModel.mentionedUserData(TestUser.SELF_USER.id.toString())
         // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-        }
+        assertEquals(Pair(TestUser.SELF_USER.id, true), result)
     }
 
     @Test
-    fun `given self user group message, when clicking on avatar, then open self profile`() = runTest {
+    fun `given an other mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
-        val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val userId = TestUser.SELF_USER_ID
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(groupDetails)
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
+            .withMentionedUserId(TestUser.OTHER_USER.id)
             .arrange()
         // When
-        viewModel.navigateToProfile(userId.toString())
+        val result = viewModel.mentionedUserData(TestUser.OTHER_USER.id.toString())
         // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-        }
-    }
-
-    @Test
-    fun `given other user 1on1 message, when clicking on avatar, then open other user profile without group data`() = runTest {
-        // Given
-        val oneOneDetails: ConversationDetails.OneOne = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val userId = UserId("other", "domain")
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(oneOneDetails)
-            .withSelfUser()
-            .arrange()
-        coEvery {
-            arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
-        } returns QualifiedID("other", "domain")
-        val otherScreen = OtherUserProfileScreenDestination(userId)
-
-        // When
-        viewModel.navigateToProfile(userId.toString())
-
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
-                withArg { assertTrue(it.destination.route == otherScreen.route) }
-            )
-        }
-    }
-
-    @Test
-    fun `given other user group message, when clicking on avatar, then open other user profile with group data`() = runTest {
-        // Given
-        val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val userId = UserId("other", "domain")
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(groupDetails)
-            .withSelfUser()
-            .arrange()
-        val otherScreen = OtherUserProfileScreenDestination(userId, arrangement.conversationId)
-
-        coEvery {
-            arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
-        } returns QualifiedID("other", "domain")
-
-        launch { viewModel.observeConversationDetails() }.run {
-            advanceUntilIdle()
-            // When
-            viewModel.navigateToProfile(userId.toString())
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    withArg { assertTrue(it.destination.route == otherScreen.route) }
-                )
-            }
-            cancel()
-        }
+        assertEquals(Pair(TestUser.OTHER_USER.id, false), result)
     }
 
     @Test

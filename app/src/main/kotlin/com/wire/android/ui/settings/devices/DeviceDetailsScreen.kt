@@ -35,6 +35,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
@@ -69,18 +70,22 @@ import com.wire.kalium.logic.data.conversation.ClientId
 )
 @Composable
 fun DeviceDetailsScreen(
+    navigator: Navigator,
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
-    DeviceDetailsContent(
-        state = viewModel.state,
-        onDeleteDevice = viewModel::removeDevice,
-        onPasswordChange = viewModel::onPasswordChange,
-        onRemoveConfirm = viewModel::onRemoveConfirmed,
-        onDialogDismiss = viewModel::onDialogDismissed,
-        onErrorDialogDismiss = viewModel::clearDeleteClientError,
-        onNavigateBack = viewModel::navigateBack,
-        onUpdateClientVerification = viewModel::onUpdateVerificationStatus
-    )
+    if (viewModel.state.error is RemoveDeviceError.InitError) navigator.navigateBack()
+    else {
+        DeviceDetailsContent(
+            state = viewModel.state,
+            onDeleteDevice = { viewModel.removeDevice(navigator::navigateBack) },
+            onPasswordChange = viewModel::onPasswordChange,
+            onRemoveConfirm = { viewModel.onRemoveConfirmed(navigator::navigateBack) },
+            onDialogDismiss = viewModel::onDialogDismissed,
+            onErrorDialogDismiss = viewModel::clearDeleteClientError,
+            onNavigateBack = navigator::navigateBack,
+            onUpdateClientVerification = viewModel::onUpdateVerificationStatus
+        )
+    }
 }
 
 @Composable

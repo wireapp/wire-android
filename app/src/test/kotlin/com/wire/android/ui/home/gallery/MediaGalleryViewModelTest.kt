@@ -25,7 +25,6 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
@@ -128,27 +127,6 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
-    fun givenACorrectSetup_whenUserTriesNavigateBack_navigateBackGetsInvokedOnNavigationManager() = runTest {
-        // Given
-        val mockedConversation = mockedConversationDetails()
-        val mockedImage = "mocked-image".toByteArray()
-        val dummyDataPath = fakeKaliumFileSystem.tempFilePath("dummy-path")
-        val (arrangement, viewModel) = Arrangement()
-            .withStoredData(mockedImage, dummyDataPath)
-            .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong())
-            .arrange()
-
-        // When
-        viewModel.navigateBack()
-
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
-        }
-    }
-
-    @Test
     fun givenACorrectSetup_whenUserTriesToDeleteAnImage_DeleteDialogIsShown() = runTest {
         // Given
         val mockedConversation = mockedConversationDetails()
@@ -182,10 +160,10 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteMessageHelper.onDeleteMessage("", true)
+        viewModel.deleteMessageHelper.onDeleteMessage("", true, arrangement.onDeleted)
 
         // Then
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
+        coVerify(exactly = 1) { arrangement.onDeleted() }
     }
 
     @Test
@@ -203,10 +181,10 @@ class MediaGalleryViewModelTest {
 
         viewModel.snackbarMessage.test {
             // When
-            viewModel.deleteMessageHelper.onDeleteMessage("", true)
+            viewModel.deleteMessageHelper.onDeleteMessage("", true, arrangement.onDeleted)
 
             // Then
-            coVerify(exactly = 0) { arrangement.navigationManager.navigateBack() }
+            coVerify(exactly = 0) { arrangement.onDeleted() }
             assertEquals(MediaGallerySnackbarMessages.DeletingMessageError, awaitItem())
         }
     }
@@ -214,9 +192,6 @@ class MediaGalleryViewModelTest {
     private class Arrangement {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -232,6 +207,9 @@ class MediaGalleryViewModelTest {
 
         @MockK
         lateinit var deleteMessage: DeleteMessageUseCase
+
+        @MockK(relaxed = true)
+        lateinit var onDeleted: () -> Unit
 
         init {
             // Tests setup
@@ -288,7 +266,6 @@ class MediaGalleryViewModelTest {
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
-            navigationManager,
             getConversationDetails,
             TestDispatcherProvider(),
             getImageData,

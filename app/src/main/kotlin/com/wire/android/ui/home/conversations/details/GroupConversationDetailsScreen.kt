@@ -59,6 +59,8 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -72,8 +74,16 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.AddMembersSearchRouterDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
+import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
+import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
+import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -94,6 +104,7 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun GroupConversationDetailsScreen(
+    navigator: Navigator,
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
@@ -104,10 +115,28 @@ fun GroupConversationDetailsScreen(
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
         bottomSheetEventsHandler = viewModel,
-        onBackPressed = viewModel::navigateBack,
-        openFullListPressed = viewModel::navigateToFullParticipantsList,
-        onProfilePressed = viewModel::openProfile,
-        onAddParticipantsPressed = viewModel::navigateToAddParticipants,
+        onBackPressed = navigator::navigateBack,
+        openFullListPressed = {
+            navigator.navigate(NavigationCommand(GroupConversationAllParticipantsScreenDestination(viewModel.conversationId)))
+        },
+        onProfilePressed = { participant ->
+            when {
+                participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                participant.isService && participant.botService != null ->
+                    navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, viewModel.conversationId)))
+                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
+            }
+        },
+        onAddParticipantsPressed = {
+            navigator.navigate(
+                NavigationCommand(
+                    AddMembersSearchRouterDestination(
+                        viewModel.conversationId,
+                        viewModel.groupOptionsState.value.isServicesAllowed
+                    )
+                )
+            )
+        },
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = {
             viewModel.leaveGroup(it) {
@@ -132,6 +161,26 @@ fun GroupConversationDetailsScreen(
                 )
                 resultNavigator.navigateBack()
             }
+        },
+        onEditGuestAccess = {
+            navigator.navigate(
+                NavigationCommand(
+                    EditGuestAccessScreenDestination(
+                        viewModel.conversationId,
+                        EditGuestAccessParams(
+                            viewModel.groupOptionsState.value.isGuestAllowed,
+                            viewModel.groupOptionsState.value.isServicesAllowed,
+                            viewModel.groupOptionsState.value.isUpdatingGuestAllowed
+                        )
+                    )
+                )
+            )
+        },
+        onEditSelfDeletingMessages = {
+            navigator.navigate(NavigationCommand(EditSelfDeletingMessagesScreenDestination(viewModel.conversationId)))
+        },
+        onEditGroupName = {
+            navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
         isLoading = viewModel.requestInProgress,
         snackbarHostState = snackbarHostState
@@ -173,6 +222,9 @@ private fun GroupConversationDetailsContent(
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
+    onEditGuestAccess: () -> Unit,
+    onEditSelfDeletingMessages: () -> Unit,
+    onEditGroupName: () -> Unit,
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
@@ -251,7 +303,10 @@ private fun GroupConversationDetailsContent(
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        lazyListState = lazyListStates[pageIndex]
+                        lazyListState = lazyListStates[pageIndex],
+                        onEditGuestAccess = onEditGuestAccess,
+                        onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                        onEditGroupName = onEditGroupName
                     )
 
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
@@ -340,7 +395,10 @@ fun PreviewGroupConversationDetails() {
             onDeleteGroup = {},
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
-            snackbarHostState = remember { SnackbarHostState() }
+            snackbarHostState = remember { SnackbarHostState() },
+            onEditGroupName = {},
+            onEditSelfDeletingMessages = {},
+            onEditGuestAccess = {}
         )
     }
 }

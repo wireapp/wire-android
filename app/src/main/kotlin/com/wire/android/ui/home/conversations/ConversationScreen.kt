@@ -66,8 +66,12 @@ import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
+import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
+import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -146,7 +150,9 @@ fun ConversationScreen(
     val messageComposerState = rememberMessageComposerState()
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
-        conversationCallViewModel.navigateToInitiatingCallScreen()
+        conversationCallViewModel.endEstablishedCallIfAny {
+            navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(conversationCallViewModel.conversationId)))
+        }
     }
     val uiState = messageComposerViewModel.messageComposerViewState
 
@@ -159,7 +165,7 @@ fun ConversationScreen(
             appLogger.i("showing showJoinAnywayDialog..")
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::joinAnyway
+                onConfirm = { joinAnyway { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) } }
             )
         }
     }
@@ -167,7 +173,9 @@ fun ConversationScreen(
     when (showDialog.value) {
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
-                conversationCallViewModel.navigateToInitiatingCallScreen()
+                conversationCallViewModel.endEstablishedCallIfAny {
+                    navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(conversationCallViewModel.conversationId)))
+                }
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
                 showDialog.value = ConversationScreenDialogType.NONE
@@ -195,16 +203,33 @@ fun ConversationScreen(
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
-        onOpenProfile = conversationInfoViewModel::navigateToProfile,
-        onMessageDetailsClick = conversationMessagesViewModel::openMessageDetails,
+        onOpenProfile = {
+            with(conversationInfoViewModel) {
+                val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
+                if (isSelfUser) navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                else (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
+                    navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                }
+            }
+        },
+        onMessageDetailsClick = { messageId: String, isSelfMessage: Boolean ->
+            appLogger.i("[ConversationScreen][openMessageDetails] - isSelfMessage: $isSelfMessage")
+            navigator.navigate(
+                NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
+            )
+        },
         onSendMessage = messageComposerViewModel::sendMessage,
         onSendEditMessage = messageComposerViewModel::sendEditMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
-            conversationMessagesViewModel.updateImageOnFullscreenMode(message)
+            with(conversationMessagesViewModel) {
+                navigator.navigate(
+                    NavigationCommand(MediaGalleryScreenDestination(conversationId, message.header.messageId, isSelfMessage))
+                )
+                updateImageOnFullscreenMode(message)
+            }
         },
         onStartCall = {
             startCallIfPossible(
@@ -215,7 +240,9 @@ fun ConversationScreen(
                 conversationInfoViewModel.conversationInfoViewState.conversationType
             ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
         },
-        onJoinCall = conversationCallViewModel::joinOngoingCall,
+        onJoinCall = {
+            conversationCallViewModel.joinOngoingCall { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+        },
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
@@ -224,8 +251,19 @@ fun ConversationScreen(
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onMentionMember = messageComposerViewModel::mentionMember,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
-        onDropDownClick = conversationInfoViewModel::navigateToDetails,
-        onBackButtonClick = messageComposerViewModel::navigateBack,
+        onDropDownClick = {
+            with(conversationInfoViewModel) {
+                when (val data = conversationInfoViewState.conversationDetailsData) {
+                    is ConversationDetailsData.OneOne ->
+                        navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(data.otherUserId)))
+                    is ConversationDetailsData.Group ->
+                        navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
+                    ConversationDetailsData.None -> { /* do nothing */
+                    }
+                }
+            }
+        },
+        onBackButtonClick = navigator::navigateBack,
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
@@ -273,7 +311,7 @@ fun ConversationScreen(
             is Value -> {
                 when (result.value.mediaGalleryActionType) {
                     MediaGalleryActionType.REPLY -> {
-                        conversationMessagesViewModel.onReply(result.value.messageId)?.let {
+                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
                             coroutineScope.launch {
                                 withSmoothScreenLoad {
                                     messageComposerState.reply(it)
@@ -286,7 +324,17 @@ fun ConversationScreen(
                     }
 
                     MediaGalleryActionType.DETAIL -> {
-                        conversationMessagesViewModel.onMessageDetailClick(result.value.messageId, result.value.isSelfAsset)
+                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
+                            navigator.navigate(
+                                NavigationCommand(
+                                    MessageDetailsScreenDestination(
+                                        conversationMessagesViewModel.conversationId,
+                                        result.value.messageId,
+                                        result.value.isSelfAsset
+                                    )
+                                )
+                            )
+                        }
                     }
                 }
             }

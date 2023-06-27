@@ -69,6 +69,7 @@ enum class HomeNavigationItem(
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
+                    navigator = homeState.navigator,
                     conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
@@ -90,6 +91,7 @@ enum class HomeNavigationItem(
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
+                    navigator = homeState.navigator,
                     conversationItemType = ConversationItemType.CALLS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
@@ -111,6 +113,7 @@ enum class HomeNavigationItem(
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
+                    navigator = homeState.navigator,
                     conversationItemType = ConversationItemType.MENTIONS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,

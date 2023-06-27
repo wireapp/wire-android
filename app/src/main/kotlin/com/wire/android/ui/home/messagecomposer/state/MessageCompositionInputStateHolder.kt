@@ -27,20 +27,37 @@ import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.conversations.MessageComposerViewState
+import kotlin.time.Duration
 
 
 class MessageCompositionInputStateHolder(
     private val messageCompositionHolder: MessageCompositionHolder,
-    inputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
-    inputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
+    messageComposerViewState: MutableState<MessageComposerViewState>,
+    initialInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
+    initialInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
-    var inputType: MessageCompositionInputType by mutableStateOf(inputType)
+    val inputType by derivedStateOf {
+        if (messageComposerViewState.value.selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputType.SelfDeleting(
+                messageCompositionState = messageCompositionHolder.messageComposition
+            )
+        } else _inputType
+    }
+
+    private var _inputType: MessageCompositionInputType by mutableStateOf(initialInputType)
         private set
 
-    var inputState: MessageCompositionInputState by mutableStateOf(inputState)
+    val inputState by derivedStateOf {
+        if (messageComposerViewState.value.selfDeletionTimer.toDuration() > Duration.ZERO) {
+            MessageCompositionInputState.ACTIVE
+        } else _inputState
+    }
+
+    private var _inputState: MessageCompositionInputState by mutableStateOf(initialInputState)
         private set
 
     var inputSize by mutableStateOf(
@@ -49,17 +66,17 @@ class MessageCompositionInputStateHolder(
         private set
 
     fun toInActive() {
-        inputState = MessageCompositionInputState.INACTIVE
+        _inputState = MessageCompositionInputState.INACTIVE
         clearFocus()
     }
 
     fun toActive(isFocused: Boolean) {
-        inputState = MessageCompositionInputState.ACTIVE
+        _inputState = MessageCompositionInputState.ACTIVE
         if (isFocused) requestFocus() else clearFocus()
     }
 
     fun toEdit() {
-        inputType = MessageCompositionInputType.Editing(
+        _inputType = MessageCompositionInputType.Editing(
             messageCompositionState = messageCompositionHolder.messageComposition,
             messageCompositionSnapShot = messageCompositionHolder.messageComposition.value
         )
@@ -67,14 +84,14 @@ class MessageCompositionInputStateHolder(
     }
 
     fun toSelfDeleting() {
-        inputType = MessageCompositionInputType.SelfDeleting(
+        _inputType = MessageCompositionInputType.SelfDeleting(
             messageCompositionState = messageCompositionHolder.messageComposition
         )
         toActive(true)
     }
 
     fun toComposing() {
-        inputType = MessageCompositionInputType.Composing(
+        _inputType = MessageCompositionInputType.Composing(
             messageCompositionState = messageCompositionHolder.messageComposition
         )
         toActive(true)

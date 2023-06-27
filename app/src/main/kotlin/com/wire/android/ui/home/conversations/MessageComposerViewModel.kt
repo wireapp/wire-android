@@ -120,7 +120,7 @@ class MessageComposerViewModel @Inject constructor(
     private val fileManager: FileManager
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var messageComposerViewState by mutableStateOf(MessageComposerViewState())
+    var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set
 
     var tempWritableVideoUri: Uri? = null
@@ -171,7 +171,7 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
         observeConversationInteractionAvailability(conversationId).collect { result ->
-            messageComposerViewState = messageComposerViewState.copy(
+            messageComposerViewState.value = messageComposerViewState.value.copy(
                 interactionAvailability = when (result) {
                     is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
                     is IsInteractionAvailableResult.Success -> result.interactionAvailability
@@ -182,13 +182,13 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
         observeSelfDeletingMessages(conversationId, considerSelfUserSettings = true).collect { selfDeletingStatus ->
-            messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = selfDeletingStatus)
+            messageComposerViewState.value = messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
         }
     }
 
     private fun fetchConversationClassificationType() = viewModelScope.launch {
         observeSecurityClassificationLabel(conversationId).collect { classificationType ->
-            messageComposerViewState = messageComposerViewState.copy(securityClassificationType = classificationType)
+            messageComposerViewState.value = messageComposerViewState.value.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -347,7 +347,7 @@ class MessageComposerViewModel @Inject constructor(
 
     fun mentionMember(searchQuery: String?) {
         viewModelScope.launch(dispatchers.io()) {
-            messageComposerViewState = messageComposerViewState.copy(
+            messageComposerViewState.value = messageComposerViewState.value.copy(
                 mentionSearchResult = if (searchQuery == null) {
                     listOf()
                 } else {
@@ -363,13 +363,13 @@ class MessageComposerViewModel @Inject constructor(
     private fun setFileSharingStatus() {
         // TODO: handle restriction when sending assets
         viewModelScope.launch {
-            messageComposerViewState = when (isFileSharingEnabled().state) {
+            messageComposerViewState.value = when (isFileSharingEnabled().state) {
                 FileSharingStatus.Value.Disabled,
                 is FileSharingStatus.Value.EnabledSome ->
-                    messageComposerViewState.copy(isFileSharingEnabled = false)
+                    messageComposerViewState.value.copy(isFileSharingEnabled = false)
 
                 FileSharingStatus.Value.EnabledAll ->
-                    messageComposerViewState.copy(isFileSharingEnabled = true)
+                    messageComposerViewState.value.copy(isFileSharingEnabled = true)
             }
         }
     }
@@ -409,7 +409,7 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
-        messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
+        messageComposerViewState.value = messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
         persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
     }
 

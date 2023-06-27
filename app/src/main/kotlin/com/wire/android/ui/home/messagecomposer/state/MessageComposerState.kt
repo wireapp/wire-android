@@ -22,6 +22,8 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -30,12 +32,11 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import kotlin.time.Duration
 
 @Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerStateHolder(
-    messageComposerViewState: MessageComposerViewState
+    messageComposerViewState: MutableState<MessageComposerViewState>
 ): MessageComposerStateHolder {
     val context = LocalContext.current
 
@@ -44,58 +45,37 @@ fun rememberMessageComposerStateHolder(
         background = MaterialTheme.wireColorScheme.primaryVariant
     )
 
-    val messageCompositionHolder = remember {
-        MessageCompositionHolder(
-            context = context,
-            mentionStyle = mentionStyle,
-        )
-    }
-
-    val additionalOptionStateHolder = remember {
-        AdditionalOptionStateHolder()
-    }
-
-    val messageCompositionInputState = remember(messageComposerViewState.selfDeletionTimer) {
-        if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
-            MessageCompositionInputState.ACTIVE
-        } else {
-            MessageCompositionInputState.INACTIVE
+    val mentionSearchResult = remember {
+        derivedStateOf {
+            messageComposerViewState.value.mentionSearchResult
         }
     }
 
-    val messageCompositionInputType = remember(messageComposerViewState.selfDeletionTimer) {
-        if (messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
-            MessageCompositionInputType.SelfDeleting(messageCompositionHolder.messageComposition)
-        } else {
-            MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition)
-        }
-    }
+    val messageCompositionHolder = MessageCompositionHolder(
+        context = context,
+        mentionStyle = mentionStyle,
+        mentionSearchResult = mentionSearchResult
+    )
 
-    val messageCompositionInputStateHolder = remember(messageComposerViewState, messageCompositionInputState) {
-        MessageCompositionInputStateHolder(
-            messageCompositionHolder = messageCompositionHolder,
-            inputType = messageCompositionInputType,
-            inputState = messageCompositionInputState,
-        )
-    }
-
-    return remember(messageCompositionInputStateHolder) {
+    return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
-            messageCompositionInputStateHolder = messageCompositionInputStateHolder,
+            messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+                messageCompositionHolder = messageCompositionHolder,
+                messageComposerViewState = messageComposerViewState
+            ),
             messageCompositionHolder = messageCompositionHolder,
-            additionalOptionStateHolder = additionalOptionStateHolder,
+            additionalOptionStateHolder = AdditionalOptionStateHolder(),
         )
     }
 }
 
 class MessageComposerStateHolder(
-    val messageComposerViewState: MessageComposerViewState,
+    val messageComposerViewState: MutableState<MessageComposerViewState>,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder
 ) {
-
     val messageComposition = messageCompositionHolder.messageComposition
 
     val isTransitionToKeyboardOnGoing

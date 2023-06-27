@@ -34,6 +34,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -219,7 +220,7 @@ fun ConversationScreen(
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
-        currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.selfDeletionTimer,
+        currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.value.selfDeletionTimer,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
@@ -290,7 +291,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 @Composable
 private fun ConversationScreen(
     bannerMessage: UIText?,
-    messageComposerViewState: MessageComposerViewState,
+    messageComposerViewState: MutableState<MessageComposerViewState>,
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
@@ -391,7 +392,7 @@ private fun ConversationScreen(
                     onPhoneButtonClick = onStartCall,
                     hasOngoingCall = conversationCallViewState.hasOngoingCall,
                     onJoinCallButtonClick = onJoinCall,
-                    isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
+                    isInteractionEnabled = messageComposerViewState.value.interactionAvailability == InteractionAvailability.ENABLED
                 )
                 ConversationBanner(bannerMessage)
             }
@@ -663,42 +664,42 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
     block()
 }
 
-@Preview
-@Composable
-fun PreviewConversationScreen() {
-    ConversationScreen(
-        bannerMessage = null,
-        messageComposerViewState = MessageComposerViewState(),
-        conversationCallViewState = ConversationCallViewState(),
-        conversationInfoViewState = ConversationInfoViewState(
-            conversationName = UIText.DynamicString("Some test conversation")
-        ),
-        conversationMessagesViewState = ConversationMessagesViewState(),
-        onOpenProfile = { },
-        onMessageDetailsClick = { _, _ -> },
-        onSendMessage = { },
-        onDeleteMessage = { _, _ -> },
-        onAttachmentPicked = { _ -> },
-        onAssetItemClicked = { },
-        onImageFullScreenMode = { _, _ -> },
-        onStartCall = { },
-        onJoinCall = { },
-        onReactionClick = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = { },
-        onResetSessionClick = { _, _ -> },
-        onUpdateConversationReadDate = { },
-        onDropDownClick = { },
-        onBackButtonClick = {},
-        composerMessages = MutableStateFlow(ErrorDownloadingAsset),
-        conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
-        conversationMessagesViewModel = hiltViewModel(),
-        onSelfDeletingMessageRead = {},
-        currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
-        onNewSelfDeletingMessagesStatus = {},
-        tempWritableImageUri = null,
-        tempWritableVideoUri = null,
-        onFailedMessageRetryClicked = {},
-        requestMentions = {}
-    )
-}
+//@Preview
+//@Composable
+//fun PreviewConversationScreen() {
+//    ConversationScreen(
+//        bannerMessage = null,
+//        messageComposerViewState = derivedStateOf { MessageComposerViewState() },
+//        conversationCallViewState = ConversationCallViewState(),
+//        conversationInfoViewState = ConversationInfoViewState(
+//            conversationName = UIText.DynamicString("Some test conversation")
+//        ),
+//        conversationMessagesViewState = ConversationMessagesViewState(),
+//        onOpenProfile = { },
+//        onMessageDetailsClick = { _, _ -> },
+//        onSendMessage = { },
+//        onDeleteMessage = { _, _ -> },
+//        onAttachmentPicked = { _ -> },
+//        onAssetItemClicked = { },
+//        onImageFullScreenMode = { _, _ -> },
+//        onStartCall = { },
+//        onJoinCall = { },
+//        onReactionClick = { _, _ -> },
+//        onChangeAudioPosition = { _, _ -> },
+//        onAudioClick = { },
+//        onResetSessionClick = { _, _ -> },
+//        onUpdateConversationReadDate = { },
+//        onDropDownClick = { },
+//        onBackButtonClick = {},
+//        composerMessages = MutableStateFlow(ErrorDownloadingAsset),
+//        conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+//        conversationMessagesViewModel = hiltViewModel(),
+//        onSelfDeletingMessageRead = {},
+//        currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
+//        onNewSelfDeletingMessagesStatus = {},
+//        tempWritableImageUri = null,
+//        tempWritableVideoUri = null,
+//        onFailedMessageRetryClicked = {},
+//        requestMentions = {}
+//    )
+//}

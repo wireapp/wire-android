@@ -19,6 +19,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -44,7 +45,8 @@ import kotlin.time.Duration
 
 class MessageCompositionHolder(
     private val context: Context,
-    private val mentionStyle: SpanStyle
+    private val mentionStyle: SpanStyle,
+    val mentionSearchResult: State<List<Contact>>
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
@@ -114,9 +116,9 @@ class MessageCompositionHolder(
         }
     }
 
-    fun setMessageText(messageTextFieldValue: TextFieldValue, searchMentions: (String) -> Unit) {
+    fun setMessageText(messageTextFieldValue: TextFieldValue, searchMentions: (String) -> Unit, clearMentionResult: () -> Unit) {
         updateMentionsIfNeeded(messageTextFieldValue)
-        requestMentionSuggestionIfNeeded(messageTextFieldValue, searchMentions)
+        requestMentionSuggestionIfNeeded(messageTextFieldValue, searchMentions, clearMentionResult)
 
         messageComposition.update {
             it.copy(
@@ -129,14 +131,18 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(selectedMentions = it.getSelectedMentions(messageText)) }
     }
 
-    private fun requestMentionSuggestionIfNeeded(messageText: TextFieldValue, searchMentions: (String) -> Unit) {
+    private fun requestMentionSuggestionIfNeeded(
+        messageText: TextFieldValue,
+        searchMentions: (String) -> Unit,
+        clearMentionResult: () -> Unit
+    ) {
         if (messageText.selection.min != messageText.selection.max) {
-            messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
+            clearMentionResult()
             return
         } else {
             val mentions = messageComposition.value.selectedMentions
             mentions.firstOrNull { messageText.selection.min in it.start..it.start + it.length }?.let {
-                messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
+                clearMentionResult()
                 return
             }
         }
@@ -170,7 +176,7 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
         messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
 
-        messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
+//        messageComposition.update { it.copy(mentionSearchResult = emptyList()) }
     }
 
     private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {

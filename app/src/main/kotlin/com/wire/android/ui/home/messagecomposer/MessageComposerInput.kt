@@ -105,6 +105,7 @@ fun InActiveMessageComposerInput(
 
 @Composable
 fun ActiveMessageComposerInput(
+    mentionSearchResult : List<Contact>,
     messageComposition: MessageComposition,
     inputSize: MessageCompositionInputSize,
     inputType: MessageCompositionInputType,
@@ -205,7 +206,7 @@ fun ActiveMessageComposerInput(
             }
         }
 
-        val mentionSearchResult = messageComposition.mentionSearchResult
+
         if (mentionSearchResult.isNotEmpty() && inputSize == MessageCompositionInputSize.EXPANDED) {
             DropDownMentionsSuggestions(
                 currentSelectedLineIndex = currentSelectedLineIndex,

@@ -53,7 +53,6 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
@@ -70,18 +69,18 @@ fun MessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
 ) {
     with(messageComposerStateHolder) {
-        when (messageComposerViewState.interactionAvailability) {
+        when (messageComposerViewState.value.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
-                messageComposerViewState.securityClassificationType
+                messageComposerViewState.value.securityClassificationType
             )
 
             InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(
-                messageComposerViewState.securityClassificationType
+                messageComposerViewState.value.securityClassificationType
             )
 
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
                 MessageComposerClassifiedBanner(
-                    securityClassificationType = messageComposerViewState.securityClassificationType,
+                    securityClassificationType = messageComposerViewState.value.securityClassificationType,
                     paddingValues = PaddingValues(vertical = dimensions().spacing16x)
                 )
 
@@ -108,7 +107,7 @@ private fun EnabledMessageComposer(
 ) {
     with(messageComposerStateHolder) {
         Row {
-            val isClassifiedConversation = messageComposerViewState.securityClassificationType != SecurityClassificationType.NONE
+            val isClassifiedConversation = messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
             if (isClassifiedConversation) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
@@ -129,7 +128,7 @@ private fun EnabledMessageComposer(
 
                 MessageCompositionInputState.INACTIVE -> {
                     InactiveMessageComposer(
-                        messageComposerState = messageComposerStateHolder,
+                        messageComposition = messageComposerStateHolder.messageComposition.value,
                         messageListContent = messageListContent,
                         onTransitionToActive = messageComposerStateHolder::toActive
                     )
@@ -141,7 +140,7 @@ private fun EnabledMessageComposer(
 
 @Composable
 private fun InactiveMessageComposer(
-    messageCompositon: MessageComposition,
+    messageComposition: MessageComposition,
     messageListContent: @Composable () -> Unit,
     onTransitionToActive: (Boolean) -> Unit
 ) {
@@ -186,7 +185,7 @@ private fun InactiveMessageComposer(
                 }
 
                 InActiveMessageComposerInput(
-                    messageText = messageCompositon.messageTextFieldValue,
+                    messageText = messageComposition.messageTextFieldValue,
                     onMessageComposerFocused = { onTransitionToActive(false) }
                 )
             }
@@ -258,9 +257,9 @@ private fun ActiveMessageComposer(
 
                         ) {
                             messageListContent()
-                            if (messageComposition.value.mentionSearchResult.isNotEmpty()) {
+                            if (messageCompositionHolder.mentionSearchResult.value.isNotEmpty()) {
                                 MembersMentionList(
-                                    membersToMention = messageComposition.value.mentionSearchResult,
+                                    membersToMention = messageCompositionHolder.mentionSearchResult.value,
                                     onMentionPicked = { pickedMention ->
                                         messageCompositionHolder.addMention(pickedMention)
                                     }
@@ -279,10 +278,11 @@ private fun ActiveMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageComposition = messageComposition.value,
+                                mentionSearchResult = messageComposerStateHolder.messageCompositionHolder.mentionSearchResult.value,
                                 inputSize = messageCompositionInputStateHolder.inputSize,
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
-                                securityClassificationType = messageComposerViewState.securityClassificationType,
+                                securityClassificationType = messageComposerViewState.value.securityClassificationType,
                                 onMentionPicked = messageCompositionHolder::addMention,
                                 onInputFocusedChanged = ::onInputFocusedChanged,
                                 onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
@@ -290,7 +290,8 @@ private fun ActiveMessageComposer(
                                 onMessageTextChanged = {
                                     messageCompositionHolder.setMessageText(
                                         it,
-                                        onSearchMentionQueryChanged
+                                        onSearchMentionQueryChanged,
+                                        { },
                                     )
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -298,7 +299,7 @@ private fun ActiveMessageComposer(
                                 modifier = fillRemainingSpaceOrWrapContent,
                             )
                             AdditionalOptionsMenu(
-                                isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
+                                isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,
                                 onMentionButtonClicked = messageCompositionHolder::startMention,
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
@@ -309,7 +310,7 @@ private fun ActiveMessageComposer(
 
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
-                            isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
+                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             modifier = Modifier
                                 .height(keyboardHeight.height)

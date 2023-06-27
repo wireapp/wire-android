@@ -183,7 +183,6 @@ class MyAccountViewModelTest {
         coVerify(exactly = 1) { arrangment.deleteAccountUseCase(null) }
     }
 
-
     private class Arrangement {
         @MockK
         lateinit var navigationManager: NavigationManager

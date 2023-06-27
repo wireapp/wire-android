@@ -17,6 +17,7 @@
  */
 package com.wire.android.util
 
+@Suppress("FunctionNaming")
 fun String.ToCamelCase(delimiter: String = " ", separator: String = " "): String =
     this.split(delimiter).joinToString(separator = separator) {
         it.lowercase().replaceFirstChar(Char::titlecaseChar)

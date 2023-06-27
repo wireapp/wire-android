@@ -48,7 +48,6 @@ fun DeleteAccountDialog(
     )
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun DeleteAccountDialogPreview() {

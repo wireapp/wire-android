@@ -54,6 +54,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.util.ui.KeyboardHeight
@@ -69,8 +70,14 @@ fun MessageComposer(
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.interactionAvailability) {
-            InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(messageComposerViewState.securityClassificationType)
-            InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(messageComposerViewState.securityClassificationType)
+            InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
+                messageComposerViewState.securityClassificationType
+            )
+
+            InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(
+                messageComposerViewState.securityClassificationType
+            )
+
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
                 MessageComposerClassifiedBanner(
                     securityClassificationType = messageComposerViewState.securityClassificationType,
@@ -266,14 +273,21 @@ private fun ActiveMessageComposer(
                                 }
 
                             ActiveMessageComposerInput(
-                                messageCompositionInputStateHolder = messageCompositionInputStateHolder,
                                 onMessageTextChanged = { messageCompositionHolder.setMessageText(it, onSearchMentionQueryChanged) },
                                 onSendButtonClicked = onSendButtonClicked,
                                 onMentionPicked = { pickedMention ->
                                     messageCompositionHolder.addMention(pickedMention)
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                                modifier = fillRemainingSpaceOrWrapContent
+                                modifier = fillRemainingSpaceOrWrapContent,
+                                messageComposition = messageComposition,
+                                inputSize = messageCompositionInputStateHolder.inputSize,
+                                inputType = messageCompositionInputStateHolder.inputType,
+                                inputFocused = messageCompositionInputStateHolder.inputFocused,
+                                securityClassificationType = SecurityClassificationType.NONE,
+                                onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                                onCancelReply = messageCompositionHolder::clearReply,
+                                onInputFocused = {},
                             )
                             AdditionalOptionsMenu(
                                 additionalOptionsStateHolder = additionalOptionStateHolder,

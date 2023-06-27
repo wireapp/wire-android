@@ -34,9 +34,6 @@ class MessageCompositionInputStateHolder(
     defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
     defaultInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
-    val messageComposition: MessageComposition
-        get() = messageCompositionHolder.messageComposition.value
-
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
@@ -89,10 +86,6 @@ class MessageCompositionInputStateHolder(
         } else {
             MessageCompositionInputSize.COLLAPSED
         }
-    }
-
-    fun cancelReply() {
-        messageCompositionHolder.clearReply()
     }
 
     fun onFocused() {

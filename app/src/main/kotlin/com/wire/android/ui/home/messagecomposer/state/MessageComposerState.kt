@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import kotlin.time.Duration
 
 @Suppress("LongParameterList")
 @Composable
@@ -56,6 +57,16 @@ fun rememberMessageComposerStateHolder(
     return remember(messageComposerViewState) {
         val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
             messageCompositionHolder = messageCompositionHolder,
+            defaultInputType = if(messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
+                MessageCompositionInputStateHolder.InputType.SelfDeleting
+            } else {
+                MessageCompositionInputStateHolder.InputType.Composing
+            },
+            defaultInputState =  if(messageComposerViewState.selfDeletionTimer.toDuration() > Duration.ZERO) {
+                MessageCompositionInputStateHolder.InputType.SelfDeleting
+            } else {
+                MessageCompositionInputStateHolder.InputType.Composing
+            },
         )
 
         MessageComposerStateHolder(

@@ -26,10 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
-import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult

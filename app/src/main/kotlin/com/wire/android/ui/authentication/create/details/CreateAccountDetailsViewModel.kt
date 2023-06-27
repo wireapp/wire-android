@@ -25,9 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase

@@ -26,14 +26,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.common.textfield.CodeFieldValue
-import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.configuration.server.ServerConfig

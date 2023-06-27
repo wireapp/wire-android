@@ -28,12 +28,13 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
 
 class MessageCompositionInputStateHolder(
     private val messageCompositionHolder: MessageCompositionHolder,
-    messageComposerViewState: MutableState<MessageComposerViewState>,
+    selfDeletionTimer: MutableState<SelfDeletionTimer>,
     initialInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionHolder.messageComposition),
     initialInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
@@ -41,7 +42,7 @@ class MessageCompositionInputStateHolder(
         private set
 
     val inputType by derivedStateOf {
-        if (messageComposerViewState.value.selfDeletionTimer.toDuration() > Duration.ZERO) {
+        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
             MessageCompositionInputType.SelfDeleting(
                 messageCompositionState = messageCompositionHolder.messageComposition
             )
@@ -52,7 +53,7 @@ class MessageCompositionInputStateHolder(
         private set
 
     val inputState by derivedStateOf {
-        if (messageComposerViewState.value.selfDeletionTimer.toDuration() > Duration.ZERO) {
+        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
             MessageCompositionInputState.ACTIVE
         } else _inputState
     }

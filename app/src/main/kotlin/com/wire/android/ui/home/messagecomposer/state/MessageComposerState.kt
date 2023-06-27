@@ -57,12 +57,18 @@ fun rememberMessageComposerStateHolder(
         mentionSearchResult = mentionSearchResult
     )
 
+    val selfDeletionTimer = remember {
+        derivedStateOf {
+            messageComposerViewState.value.selfDeletionTimer
+        }
+    }
+
     return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageCompositionHolder = messageCompositionHolder,
-                messageComposerViewState = messageComposerViewState
+                selfDeletionTimer = selfDeletionTimer
             ),
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = AdditionalOptionStateHolder(),

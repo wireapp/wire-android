@@ -39,22 +39,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @RootNavGraph
 @Destination
 @Composable
-fun CreateAccountUsernameScreen() {
-    val viewModel: CreateAccountUsernameViewModel = hiltViewModel()
+fun CreateAccountUsernameScreen(
+    navigator: Navigator,
+    viewModel: CreateAccountUsernameViewModel = hiltViewModel()
+) {
     UsernameContent(
         state = viewModel.state,
         onUsernameChange = viewModel::onUsernameChange,
-        onContinuePressed = viewModel::onContinue,
+        onContinuePressed = {
+            viewModel.onContinue {
+                navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+            }
+        },
         onErrorDismiss = viewModel::onErrorDismiss,
         onUsernameErrorAnimated = viewModel::onUsernameErrorAnimated
     )

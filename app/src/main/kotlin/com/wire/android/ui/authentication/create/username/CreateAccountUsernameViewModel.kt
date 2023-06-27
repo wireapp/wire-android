@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
@@ -41,7 +40,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,
     private val setUserHandleUseCase: SetUserHandleUseCase
 ) : ViewModel() {
@@ -86,7 +84,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(error = HandleUpdateErrorState.None)
     }
 
-    fun onContinue() {
+    fun onContinue(onSuccess: () -> Unit) {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             // FIXME: no need to check the handle again since it's checked every time the text change
@@ -108,12 +106,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
             }
             state = state.copy(loading = false, continueEnabled = true, error = usernameError)
             if (usernameError is HandleUpdateErrorState.None) {
-                navigationManager.navigate(
-                    NavigationCommand(
-                        InitialSyncScreenDestination,
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
+                onSuccess()
             }
         }
     }

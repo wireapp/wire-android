@@ -300,7 +300,11 @@ class WireNotificationManager @Inject constructor(
             .calls
             .getIncomingCalls()
             .collect { calls ->
-                callNotificationManager.handleIncomingCallNotifications(calls, userId)
+                if (calls.isEmpty()) {
+                    callNotificationManager.hideIncomingCallNotification()
+                } else {
+                    callNotificationManager.handleIncomingCallNotifications(calls, userId)
+                }
             }
     }
 

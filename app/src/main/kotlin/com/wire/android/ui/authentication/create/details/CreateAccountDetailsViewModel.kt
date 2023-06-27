@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.navArgs
@@ -41,13 +40,12 @@ import javax.inject.Inject
 class CreateAccountDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    authServerConfigProvider: AuthServerConfigProvider,
-    private val navigationManager: NavigationManager
+    authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
-    private var createAccountArg: CreateAccountNavArgs = savedStateHandle.navArgs()
+    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
-    var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountArg.flowType))
+    var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountNavArgs.flowType))
 
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
@@ -66,7 +64,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onDetailsContinue() {
+    fun onDetailsContinue(onSuccess: () -> Unit) {
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
@@ -83,26 +81,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
                 continueEnabled = true,
                 error = detailsError
             )
-            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
-        }
-    }
-
-    private fun onDetailsSuccess() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = CreateAccountCodeScreenDestination(
-                        createAccountArg.copy(
-                            userRegistrationInfo = createAccountArg.userRegistrationInfo.copy(
-                                firstName = detailsState.firstName.text.trim(),
-                                lastName = detailsState.lastName.text.trim(),
-                                password = detailsState.password.text,
-                                teamName = detailsState.teamName.text.trim()
-                            )
-                        )
-                    )
-                )
-            )
+            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onSuccess()
         }
     }
 

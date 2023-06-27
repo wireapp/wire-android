@@ -53,8 +53,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -70,6 +71,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -81,11 +83,26 @@ import kotlinx.coroutines.launch
 @Destination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountDetailsScreen(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     createAccountDetailsViewModel: CreateAccountDetailsViewModel = hiltViewModel()
 ) {
     clearAutofillTree()
     with(createAccountDetailsViewModel) {
+        fun navigateToCodeScreen() = navigator.navigate(
+            NavigationCommand(
+                CreateAccountCodeScreenDestination(
+                    createAccountNavArgs.copy(
+                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+                            firstName = detailsState.firstName.text.trim(),
+                            lastName = detailsState.lastName.text.trim(),
+                            password = detailsState.password.text,
+                            teamName = detailsState.teamName.text.trim()
+                        )
+                    )
+                )
+            )
+        )
+
         DetailsContent(
             state = detailsState,
             onFirstNameChange = {
@@ -103,8 +120,8 @@ fun CreateAccountDetailsScreen(
                 )
             },
             onTeamNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
-            onBackPressed = { navigator.navigateUp() },
-            onContinuePressed = { onDetailsContinue() },
+            onBackPressed = navigator::navigateBack,
+            onContinuePressed = { onDetailsContinue(::navigateToCodeScreen) },
             onErrorDismiss = ::onDetailsErrorDismiss,
             serverConfig = serverConfig
         )

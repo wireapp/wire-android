@@ -27,7 +27,6 @@ import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.mapper.MessageResourceProvider
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.Module
@@ -49,10 +48,6 @@ object AppModule {
     @CurrentAppVersion
     @Provides
     fun provideCurrentAppVersion(): Int = BuildConfig.VERSION_CODE
-
-    @Singleton
-    @Provides
-    fun provideNavigationManager() = NavigationManager()
 
     @Singleton
     @Provides

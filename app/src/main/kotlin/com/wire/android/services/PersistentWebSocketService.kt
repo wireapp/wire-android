@@ -30,7 +30,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.PERSISTENT_NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
@@ -69,9 +68,6 @@ class PersistentWebSocketService : Service() {
     @Inject
     @CurrentSessionFlowService
     lateinit var currentSessionFlow: CurrentSessionFlowUseCase
-
-    @Inject
-    lateinit var navigationManager: NavigationManager
 
     @Inject
     lateinit var notificationChannelsManager: NotificationChannelsManager

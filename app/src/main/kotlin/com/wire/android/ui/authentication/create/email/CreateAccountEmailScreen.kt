@@ -62,11 +62,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
+import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -78,6 +82,7 @@ import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -93,25 +98,29 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountEmailScreen(
     createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: Navigator
 ) {
     with(createAccountEmailViewModel) {
+        fun navigateToDetailsScreen() = navigator.navigate(
+            NavigationCommand(
+                CreateAccountDetailsScreenDestination(
+                    navArgs = createAccountNavArgs.copy(
+                        userRegistrationInfo = UserRegistrationInfo(
+                            email = emailState.email.text.trim().lowercase()
+                        )
+                    )
+                )
+            )
+        )
+
         EmailContent(
             state = emailState,
             onEmailChange = ::onEmailChange,
-            onBackPressed = { navigator.navigateUp() },
-            onContinuePressed = ::onEmailContinue,
-            onLoginPressed = {
-                navigator.navigate(LoginScreenDestination()) {
-                    if (createAccountEmailViewModel.isPersonalAccountFlow) {
-                        popUpTo(CreatePersonalAccountOverviewScreenDestination.route) { inclusive = true }
-                    } else {
-                        popUpTo(CreateTeamAccountOverviewScreenDestination.route) { inclusive = true }
-                    }
-                }
-            },
+            onBackPressed = navigator::navigateBack,
+            onContinuePressed = { onEmailContinue(::navigateToDetailsScreen) },
+            onLoginPressed = { navigator.navigate(NavigationCommand(LoginScreenDestination(), BackStackMode.CLEAR_TILL_START)) },
             onTermsDialogDismiss = ::onTermsDialogDismiss,
-            onTermsAccept = ::onTermsAccept,
+            onTermsAccept = { onTermsAccept(::navigateToDetailsScreen) },
             onErrorDismiss = ::onEmailErrorDismiss,
             tosUrl = tosUrl(),
             serverConfig = serverConfig

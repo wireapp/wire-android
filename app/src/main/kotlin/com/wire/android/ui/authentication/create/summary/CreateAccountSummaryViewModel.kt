@@ -25,21 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
 import com.wire.android.ui.navArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CreateAccountSummaryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val createAccountSummaryNavArgs: CreateAccountSummaryNavArgs = savedStateHandle.navArgs()
@@ -47,12 +40,4 @@ class CreateAccountSummaryViewModel @Inject constructor(
 
     var summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
         private set
-
-    fun onSummaryContinue() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE)
-            )
-        }
-    }
 }

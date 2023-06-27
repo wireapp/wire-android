@@ -557,7 +557,7 @@
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
-    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group as the backend of %2$s could not be reached.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">

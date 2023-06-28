@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="app_version">App-Version</string>
+    <string name="build_variant_name">Build-Variante</string>
     <string name="label_new">Neu</string>
     <string name="label_login">Anmelden</string>
     <string name="label_ok">OK</string>
@@ -43,18 +43,18 @@
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
-    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_sent_remotely_failure">Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
+    <string name="label_message_edit_sent_remotely_failure">Bearbeitete Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
     <string name="label_message_knock">%s haben gepingt</string>
-    <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d Teilnehmer haben Ihre Nachricht nicht erhalten.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s wird Ihre Nachricht nicht erhalten.</string>
     <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
-        <item quantity="one">1 participant from %2$s</item>
-        <item quantity="other">%1$d participants from %2$s</item>
+        <item quantity="one">1 Teilnehmer von %2$s</item>
+        <item quantity="other">%1$d Teilnehmer von %2$s</item>
     </plurals>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_reset_session">Session zurücksetzen</string>
@@ -67,8 +67,8 @@
     <string name="label_show">Anzeigen</string>
     <string name="label_show_all">Alle anzeigen</string>
     <string name="label_show_less">Weniger anzeigen</string>
-    <string name="label_show_details">Show Details</string>
-    <string name="label_hide_details">Hide Details</string>
+    <string name="label_show_details">Details anzeigen</string>
+    <string name="label_hide_details">Details ausblenden</string>
     <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
     <string name="label_on">EIN</string>
     <string name="label_off">AUS</string>
@@ -382,7 +382,7 @@
     <string name="member_name_you_label_titlecase">Sie</string>
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
-    <string name="username_unavailable_label">Name not available</string>
+    <string name="username_unavailable_label">Name nicht verfügbar</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
@@ -968,10 +968,10 @@
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ihr Benutzerkonto wurde verwendet</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nWenn Sie dies nicht getan haben, entfernen Sie das Gerät und setzen Sie Ihr Passwort zurück.</string>
     <string name="new_device_dialog_current_user_btn">Geräte verwalten</string>
     <string name="new_device_dialog_other_user_title">Ihr Benutzerkonto \"%1$s (@%2$s)” wurde verwendet:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nWenn Sie dies nicht getan haben, entfernen Sie das Gerät, indem Sie in den Einstellungen \"Geräte verwalten\" auswählen, und setzen Sie Ihr Passwort zurück.</string>
     <string name="new_device_dialog_other_user_btn">Benutzerkonto wechseln</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s sind der Unterhaltung beigetreten</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s Ist der Unterhaltung beigetreten</string>
@@ -1057,9 +1057,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="five_minutes_short_label">5 Min</string>
     <string name="one_minute_short_label">1 Min.</string>
     <string name="ten_seconds_short_label">10 Sek</string>
-    <string name="label_debug_data">Debug data</string>
+    <string name="label_debug_data">Daten zur Fehlerbehebung</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"Dadurch werden anonymisierte Informationen zur Fehlerbehebung lokal gespeichert. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
-    <string name="notification_obfuscated_message">Someone sent a Message</string>
+    <string name="notification_obfuscated_message">Jemand hat eine Nachricht gesendet</string>
 </resources>

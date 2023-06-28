@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("MultiLineIfElse")
+
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box
@@ -62,7 +64,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Suppress("MultiLineIfElse")
 @Composable
 fun WireDialog(
     title: String,

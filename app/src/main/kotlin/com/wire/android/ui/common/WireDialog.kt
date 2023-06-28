@@ -214,10 +214,8 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
             when (type) {
                 WireDialogButtonType.Primary ->
                     WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
-
                 WireDialogButtonType.Secondary ->
                     WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
-
                 WireDialogButtonType.Tertiary ->
                     WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
             }

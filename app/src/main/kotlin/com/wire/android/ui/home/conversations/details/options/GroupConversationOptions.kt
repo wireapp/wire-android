@@ -158,7 +158,6 @@ fun GroupConversationSettings(
                     protocolInfo = state.protocolInfo
                 )
             }
-
     }
 }
 

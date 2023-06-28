@@ -316,8 +316,6 @@ fun DebugDataOptions(
             DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = viewModel::forceUpdateApiVersions)
         }
 
-
-
         FolderHeader("Other Debug Options")
         if (viewModel.state.isManualMigrationAllowed) {
             ManualMigrationOptions(

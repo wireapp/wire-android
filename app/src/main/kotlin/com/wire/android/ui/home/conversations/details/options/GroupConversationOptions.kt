@@ -153,11 +153,13 @@ fun GroupConversationSettings(
                 onCheckedChange = onReadReceiptSwitchClicked
             )
         }
+        if (state.mlsEnabled) {
             item {
                 ConversationProtocolDetails(
                     protocolInfo = state.protocolInfo
                 )
             }
+        }
     }
 }
 

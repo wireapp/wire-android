@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import net.openid.appauth.AppAuthConfiguration
@@ -53,46 +54,48 @@ class OAuthUseCase(context: Context) {
         authorizationService = AuthorizationService(context, appAuthConfiguration)
     }
 
-    fun getAuthorizationRequestIntent() =
+    private fun getAuthorizationRequestIntent(): Intent =
         authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest())
 
     fun launch(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
         val resultLauncher = activityResultRegistry.register(
             OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            var oAuthResult: OAuthResult = if (result.resultCode == Activity.RESULT_OK) {
-                handleAuthorizationResponse(result.data!!)
-            } else {
-                OAuthResult.Failed.InvalidActivityResult(result.toString())
-            }
-            resultHandler(oAuthResult)
+            handleActivityResult(result, resultHandler)
         }
         resultLauncher.launch(getAuthorizationRequestIntent())
     }
 
-    private fun handleAuthorizationResponse(intent: Intent): OAuthResult {
+    private fun handleActivityResult(result: ActivityResult, resultHandler: (OAuthResult) -> Unit) {
+        if (result.resultCode == Activity.RESULT_OK) {
+            handleAuthorizationResponse(result.data!!, resultHandler)
+        } else {
+            resultHandler(OAuthResult.Failed.InvalidActivityResult(result.toString()))
+        }
+    }
+
+    private fun handleAuthorizationResponse(intent: Intent, resultHandler: (OAuthResult) -> Unit) {
         val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
         val error = AuthorizationException.fromIntent(intent)
 
         authState = AuthState(authorizationResponse, error)
 
         val tokenExchangeRequest = authorizationResponse?.createTokenExchangeRequest()
-        var oAuthResult: OAuthResult = OAuthResult.Failed.Unknown
-        tokenExchangeRequest?.let {
-            authorizationService.performTokenRequest(it) { response, exception ->
+        tokenExchangeRequest?.let { request ->
+            authorizationService.performTokenRequest(request) { response, exception ->
                 if (exception != null) {
                     authState = AuthState()
-                    oAuthResult = OAuthResult.Failed(exception.toString())
+                    resultHandler(OAuthResult.Failed(exception.toString()))
                 } else {
                     if (response != null) {
                         authState.update(response, exception)
-                        oAuthResult = OAuthResult.Success(response.idToken.toString())
+                        resultHandler(OAuthResult.Success(response.idToken.toString()))
+                    } else {
+                        resultHandler(OAuthResult.Failed.EmptyResponse)
                     }
-                    oAuthResult = OAuthResult.Failed.EmptyResponse
                 }
             }
-        }
-        return oAuthResult
+        } ?: resultHandler(OAuthResult.Failed.Unknown)
     }
 
     private fun getAuthorizationRequest() = AuthorizationRequest.Builder(

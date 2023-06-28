@@ -72,11 +72,11 @@ fun MessageComposer(
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
-                messageComposerViewState.value.securityClassificationType
+                securityClassificationType = messageComposerViewState.value.securityClassificationType
             )
 
             InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(
-                messageComposerViewState.value.securityClassificationType
+                securityClassificationType = messageComposerViewState.value.securityClassificationType
             )
 
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
@@ -133,6 +133,7 @@ private fun EnabledMessageComposer(
                 MessageCompositionInputState.INACTIVE -> {
                     InactiveMessageComposer(
                         messageComposition = messageComposerStateHolder.messageComposition.value,
+                        isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                         messageListContent = messageListContent,
                         onTransitionToActive = messageComposerStateHolder::toActive
                     )
@@ -145,6 +146,7 @@ private fun EnabledMessageComposer(
 @Composable
 private fun InactiveMessageComposer(
     messageComposition: MessageComposition,
+    isFileSharingEnabled: Boolean,
     messageListContent: @Composable () -> Unit,
     onTransitionToActive: (Boolean) -> Unit
 ) {
@@ -182,7 +184,7 @@ private fun InactiveMessageComposer(
                 Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                     AdditionalOptionButton(
                         isSelected = false,
-                        isEnabled = false,
+                        isEnabled = isFileSharingEnabled,
                         onClick = { onTransitionToActive(true) }
                     )
                 }

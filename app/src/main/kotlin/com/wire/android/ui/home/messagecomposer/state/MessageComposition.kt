@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
@@ -256,6 +257,9 @@ data class MessageComposition(
     val selectedMentions: List<UiMention> = emptyList(),
     val selfDeletionTimer: SelfDeletionTimer
 ) {
+
+    val selfDeletionDuration = selfDeletionTimer.toDuration().toSelfDeletionDuration()
+
     companion object {
         val DEFAULT = MessageComposition(
             messageTextFieldValue = TextFieldValue(text = ""),

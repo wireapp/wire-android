@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -48,10 +47,11 @@ fun RichTextOptions(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Absolute.SpaceEvenly,
-        modifier = Modifier.wrapContentSize()
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
     ) {
         val modifier = Modifier
-            .fillMaxWidth()
             .weight(1f)
             .padding(horizontal = dimensions().spacing0x)
 
@@ -84,6 +84,7 @@ private fun HeaderButton(
         contentDescription = R.string.content_description_conversation_rich_text_header,
         modifier = modifier
             .padding(start = dimensions().spacing8x),
+        fillMaxWidth = true,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.buttonCornerSize,
             bottomStart = MaterialTheme.wireDimensions.buttonCornerSize,
@@ -103,6 +104,7 @@ private fun BoldButton(
         iconResource = R.drawable.ic_rich_text_bold,
         contentDescription = R.string.content_description_conversation_rich_text_bold,
         modifier = modifier,
+        fillMaxWidth = true,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.spacing0x,
             bottomStart = MaterialTheme.wireDimensions.spacing0x,
@@ -122,6 +124,7 @@ private fun ItalicButton(
         iconResource = R.drawable.ic_rich_text_italic,
         contentDescription = R.string.content_description_conversation_rich_text_italic,
         modifier = modifier,
+        fillMaxWidth = true,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.spacing0x,
             bottomStart = MaterialTheme.wireDimensions.spacing0x,

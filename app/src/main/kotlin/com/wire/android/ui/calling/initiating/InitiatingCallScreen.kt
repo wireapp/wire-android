@@ -45,6 +45,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -59,7 +60,8 @@ import com.wire.android.ui.theme.wireDimensions
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = CallingNavArgs::class
+    navArgsDelegate = CallingNavArgs::class,
+    style = WakeUpScreenPopUpNavigationAnimation::class
 )
 @Composable
 fun InitiatingCallScreen(

@@ -20,7 +20,11 @@
 
 package com.wire.android.navigation
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
+import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.spec.DestinationStyle
 
 enum class ScreenMode {
@@ -30,27 +34,31 @@ enum class ScreenMode {
 }
 
 interface ScreenModeStyle {
-    val screenMode: ScreenMode
+    fun screenMode(): ScreenMode
 }
 
-// TODO: implement animations, now only styles exist to handle different screen modes
-
-@OptIn(ExperimentalAnimationApi::class)
-object WakeUpScreenPopUpNavigationAnimation : DestinationStyle.Animated, ScreenModeStyle {
-    override val screenMode: ScreenMode = ScreenMode.WAKE_UP
+object WakeUpScreenPopUpNavigationAnimation : PopUpDestinationStyleAnimated, ScreenModeStyle {
+    override fun screenMode(): ScreenMode = ScreenMode.WAKE_UP
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-object KeepOnScreenPopUpNavigationAnimation : DestinationStyle.Animated, ScreenModeStyle {
-    override val screenMode: ScreenMode = ScreenMode.KEEP_ON
+object KeepOnScreenPopUpNavigationAnimation : PopUpDestinationStyleAnimated, ScreenModeStyle {
+    override fun screenMode(): ScreenMode = ScreenMode.KEEP_ON
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-object PopUpNavigationAnimation : DestinationStyle.Animated, ScreenModeStyle {
-    override val screenMode: ScreenMode = ScreenMode.NONE
+private interface PopUpDestinationStyleAnimated : DestinationStyle.Animated {
+    override fun AnimatedContentScope<NavBackStackEntry>.enterTransition() = expandInToView()
+    override fun AnimatedContentScope<NavBackStackEntry>.exitTransition() = shrinkOutFromView()
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-object SlideNavigationAnimation : DestinationStyle.Animated, ScreenModeStyle {
-    override val screenMode: ScreenMode = ScreenMode.NONE
-}
+val DefaultRootNavGraphAnimations = RootNavGraphDefaultAnimations(
+    enterTransition = { smoothSlideInFromRight() },
+    exitTransition = { smoothSlideOutFromLeft() }
+)
+
+@OptIn(ExperimentalAnimationApi::class)
+val DefaultNestedNavGraphAnimations = NestedNavGraphDefaultAnimations(
+    enterTransition = { smoothSlideInFromRight() },
+    exitTransition = { smoothSlideOutFromLeft() }
+)

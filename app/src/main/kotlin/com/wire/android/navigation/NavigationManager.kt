@@ -71,9 +71,12 @@ enum class BackStackMode {
 
     // remove the current item from backstack before adding the new one.
     // use it instead of:
-    //  navigationManager.navigateBack()
-    //  navigationManager.navigate(SomeWhere)
+    //  navigator.navigateBack()
+    //  navigator.navigate(SomeWhere)
     REMOVE_CURRENT,
+
+    // remove all items from currently entered nested graph before adding the new one
+    REMOVE_CURRENT_NESTED_GRAPH,
 
     // if there is an instance of that screen in backStack,
     // then app pops stack till that screen and replace it by the new screen.

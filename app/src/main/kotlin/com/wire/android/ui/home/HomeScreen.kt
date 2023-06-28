@@ -71,7 +71,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.NewConversationRouterDestination
+import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
@@ -146,7 +146,7 @@ fun HomeScreen(
         homeState = homeState,
         homeStateHolder = homeScreenState,
         conversationListState = conversationListViewModel.conversationListState,
-        onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationRouterDestination)) },
+        onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
         onSelfUserClick = remember(navigator) { { navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination)) } },
         navigateToItem = remember(navigator) { { navigator.navigate(NavigationCommand(it)) } }
     )

@@ -74,7 +74,7 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.AddMembersSearchRouterDestination
+import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
@@ -130,7 +130,7 @@ fun GroupConversationDetailsScreen(
         onAddParticipantsPressed = {
             navigator.navigate(
                 NavigationCommand(
-                    AddMembersSearchRouterDestination(
+                    AddMembersSearchScreenDestination(
                         viewModel.conversationId,
                         viewModel.groupOptionsState.value.isServicesAllowed
                     )

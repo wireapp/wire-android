@@ -39,7 +39,7 @@ class MessageCompositionInputStateHolder(
     initialInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageComposition),
     initialInputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE,
 ) {
-    var inputFocused: Boolean by mutableStateOf(false)
+    var inputFocused: Boolean by mutableStateOf(selfDeletionTimer.value.toDuration() > Duration.ZERO)
         private set
 
     val inputType by derivedStateOf {

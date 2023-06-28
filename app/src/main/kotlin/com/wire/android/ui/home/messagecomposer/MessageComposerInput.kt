@@ -208,7 +208,6 @@ fun ActiveMessageComposerInput(
             }
         }
 
-
         if (mentionSearchResult.isNotEmpty() && inputSize == MessageCompositionInputSize.EXPANDED) {
             DropDownMentionsSuggestions(
                 currentSelectedLineIndex = currentSelectedLineIndex,

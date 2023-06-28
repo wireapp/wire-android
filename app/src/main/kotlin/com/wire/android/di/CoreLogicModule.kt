@@ -79,7 +79,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeU
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
-import com.wire.kalium.logic.feature.e2ei.EnrolE2EIUseCase
+import com.wire.kalium.logic.feature.e2ei.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -343,8 +343,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideEnrolE2EIUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): EnrolE2EIUseCase =
-        coreLogic.getSessionScope(currentAccount).users.getEnrolE2EIUseCase
+    fun provideEnrollE2EIUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): EnrollE2EIUseCase =
+        coreLogic.getSessionScope(currentAccount).users.enrollE2EI
 
     @ViewModelScoped
     @Provides

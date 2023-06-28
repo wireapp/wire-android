@@ -22,7 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
-import android.activity.result.ActivityResultRegistry
+import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
@@ -60,7 +60,7 @@ class OAuthUseCase(context: Context) {
         val resultLauncher = activityResultRegistry.register(
             OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            var oAuthResult = if (result.resultCode == Activity.RESULT_OK) {
+            var oAuthResult: OAuthResult = if (result.resultCode == Activity.RESULT_OK) {
                 handleAuthorizationResponse(result.data!!)
             } else {
                 OAuthResult.Failed.InvalidActivityResult(result.toString())
@@ -70,24 +70,26 @@ class OAuthUseCase(context: Context) {
         resultLauncher.launch(getAuthorizationRequestIntent())
     }
 
-    fun handleAuthorizationResponse(intent: Intent): OAuthResult {
+    private fun handleAuthorizationResponse(intent: Intent): OAuthResult {
         val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
         val error = AuthorizationException.fromIntent(intent)
 
         authState = AuthState(authorizationResponse, error)
 
         val tokenExchangeRequest = authorizationResponse?.createTokenExchangeRequest()
-        var oAuthResult = OAuthResult.Failed.Unknown
-        authorizationService?.performTokenRequest(tokenExchangeRequest) { response, exception ->
-            if (exception != null) {
-                authState = AuthState()
-                oAuthResult = OAuthResult.Failed(exception.toString())
-            } else {
-                if (response != null) {
-                    authState.update(response, exception)
-                    oAuthResult = OAuthResult.Success(response.idToken.toString())
+        var oAuthResult: OAuthResult = OAuthResult.Failed.Unknown
+        tokenExchangeRequest?.let {
+            authorizationService.performTokenRequest(it) { response, exception ->
+                if (exception != null) {
+                    authState = AuthState()
+                    oAuthResult = OAuthResult.Failed(exception.toString())
+                } else {
+                    if (response != null) {
+                        authState.update(response, exception)
+                        oAuthResult = OAuthResult.Success(response.idToken.toString())
+                    }
+                    oAuthResult = OAuthResult.Failed.EmptyResponse
                 }
-                oAuthResult = OAuthResult.Failed.EmptyResponse
             }
         }
         return oAuthResult
@@ -122,7 +124,7 @@ class OAuthUseCase(context: Context) {
         data class Success(val idToken: String) : OAuthResult()
         open class Failed(val reason: String) : OAuthResult() {
             object Unknown : Failed("Unknown")
-            object InvalidActivityResult : Failed("Invalid Activity Result")
+            class InvalidActivityResult(reason: String) : Failed(reason)
             object EmptyResponse : Failed("Empty Response")
         }
     }

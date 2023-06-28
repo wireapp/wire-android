@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug
 
-import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -29,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -45,6 +45,9 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -56,8 +59,11 @@ import com.wire.android.util.extension.getActivity
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.e2ei.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.functional.onSuccess
 import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,20 +71,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.functional.onSuccess
-import com.wire.kalium.logic.feature.e2ei.EnrolE2EIUseCase
-import com.wire.kalium.logic.feature.e2ei.E2EIEnrolmentResult
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import com.wire.android.di.ApplicationScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import com.wire.kalium.logic.functional.Either
-import androidx.compose.ui.platform.LocalContext
-import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 
 //region DebugDataOptionsViewModel
 data class DebugDataOptionsState(
@@ -89,7 +81,7 @@ data class DebugDataOptionsState(
     val isManualMigrationAllowed: Boolean = false,
     val debugId: String = "null",
     val commitish: String = "null",
-    val certificate: String ="null",
+    val certificate: String = "null",
     val showCertificate: Boolean = false
 )
 
@@ -104,7 +96,7 @@ class DebugDataOptionsViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val enrolE2EIUseCase: EnrolE2EIUseCase
+    private val enrollE2EI: EnrollE2EIUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -146,27 +138,29 @@ class DebugDataOptionsViewModel
         }
     }
 
-    fun enrolE2EICertificate(context: Context) {
+    fun enrollE2EICertificate(context: Context) {
         val oAuth = OAuthUseCase(context)
         oAuth.launch(context.getActivity()!!.activityResultRegistry, ::oAuthResultHandler)
     }
 
-    fun oAuthResultHandler(oAuthResult: OAuthUseCase.OAuthResult) {
-        when (oAuthResult) {
-            is OAuthUseCase.OAuthResult.Success -> {
-                enrolE2EIUseCase.invoke(OAuthUseCase.idToken).onSuccess {
-                    if (it is E2EIEnrolmentResult.Success) {
-                        state = state.copy(
-                            certificate = it.stepDetails, showCertificate = true
-                        )
+    private fun oAuthResultHandler(oAuthResult: OAuthUseCase.OAuthResult) {
+        viewModelScope.launch {
+            when (oAuthResult) {
+                is OAuthUseCase.OAuthResult.Success -> {
+                    enrollE2EI.invoke(oAuthResult.idToken).onSuccess {
+                        if (it is E2EIEnrollmentResult.Success) {
+                            state = state.copy(
+                                certificate = it.certificate, showCertificate = true
+                            )
+                        }
                     }
                 }
-            }
 
-            is OAuthUseCase.OAuthResult.Failed -> {
-                state = state.copy(
-                    certificate = oAuthResult.reason, showCertificate = true
-                )
+                is OAuthUseCase.OAuthResult.Failed -> {
+                    state = state.copy(
+                        certificate = oAuthResult.reason, showCertificate = true
+                    )
+                }
             }
         }
     }
@@ -281,19 +275,23 @@ fun DebugDataOptions(
                 )
             )
             GetE2EICertificateSwitch(
-                enrollE2EI = viewModel::getE2EICertificate
+                enrollE2EI = viewModel::enrollE2EICertificate
             )
-            if (viewModel.state.showCertificate == true ) {
+            if (viewModel.state.showCertificate == true) {
                 WireDialog(
                     title = "E2EI Certificate in PEM format",
                     text = viewModel.state.certificate,
-                    onDismiss = { viewModel.state = viewModel.state.copy(
-                        showCertificate = false,
-                    ) },
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = { viewModel.state = viewModel.state.copy(
+                    onDismiss = {
+                        viewModel.state = viewModel.state.copy(
                             showCertificate = false,
-                        ) },
+                        )
+                    },
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = {
+                            viewModel.state = viewModel.state.copy(
+                                showCertificate = false,
+                            )
+                        },
                         text = "OK",
                         type = WireDialogButtonType.Primary,
                     )

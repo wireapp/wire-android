@@ -26,11 +26,6 @@ object AndroidSdk {
     const val target = compile
 }
 
-object AndroidNdk {
-    const val version = "22.1.7171670"
-    const val cMakeVersion = "3.18.1"
-}
-
 object AndroidClient {
     const val appId = "com.wire.android"
     const val namespace = appId
@@ -57,6 +52,7 @@ object BuildPlugins {
 }
 
 object ScriptPlugins {
+    const val feature = "scripts.feature"
     const val infrastructure = "scripts.infrastructure"
     const val variants = "scripts.variants"
     const val quality = "scripts.quality"

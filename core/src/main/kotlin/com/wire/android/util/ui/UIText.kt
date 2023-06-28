@@ -29,6 +29,9 @@ import androidx.compose.ui.res.stringResource
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 sealed class UIText {
+    // TODO(refactor): MessageMention is feature-specific
+    //                 This class should be generalised so we don't put
+    //                 feature-specific stuff on this "top-level" declaration.
     data class DynamicString(
         val value: String,
         val mentions: List<MessageMention> = listOf()

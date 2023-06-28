@@ -47,6 +47,7 @@ repositories {
 }
 
 android {
+    // TODO: Move to settings.gradle.kts when upgrading to newer AGP
     compileSdk = AndroidSdk.compile
     namespace = AndroidClient.namespace
 
@@ -120,8 +121,11 @@ configurations {
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+    implementation(project(":core"))
+    implementation(project(":sample_feature"))
 
     // Application dependencies
+    // TODO: Is std-lib still needed?? I believe it comes by default
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
@@ -189,8 +193,8 @@ dependencies {
     kapt(Libraries.Hilt.compiler)
 
     // smaller view models
-    implementation (Libraries.resaca)
-    implementation (Libraries.Hilt.resaca)
+    implementation(Libraries.resaca)
+    implementation(Libraries.Hilt.resaca)
 
     // firebase
     implementation(platform(Libraries.Firebase.firebaseBOM))

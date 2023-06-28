@@ -263,9 +263,9 @@ private fun ActiveMessageComposer(
 
                         ) {
                             messageListContent()
-                            if (messageCompositionHolder.mentionSearchResult.value.isNotEmpty()) {
+                            if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                                 MembersMentionList(
-                                    membersToMention = messageCompositionHolder.mentionSearchResult.value,
+                                    membersToMention = messageComposerViewState.value.mentionSearchResult,
                                     onMentionPicked = { pickedMention ->
                                         messageCompositionHolder.addMention(pickedMention)
                                     }
@@ -284,7 +284,7 @@ private fun ActiveMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageComposition = messageComposition.value,
-                                mentionSearchResult = messageComposerStateHolder.messageCompositionHolder.mentionSearchResult.value,
+                                mentionSearchResult = messageComposerViewState.value.mentionSearchResult,
                                 inputSize = messageCompositionInputStateHolder.inputSize,
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,

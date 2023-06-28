@@ -42,8 +42,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
 class MessageCompositionHolder(
-    private val context: Context,
-    val mentionSearchResult: State<List<Contact>>
+    private val context: Context
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
@@ -120,6 +119,7 @@ class MessageCompositionHolder(
     ) {
         updateMentionsIfNeeded(messageTextFieldValue)
         requestMentionSuggestionIfNeeded(messageTextFieldValue, onSearchMentionQueryChanged, onClearMentionSearchResult)
+
         messageComposition.update {
             it.copy(messageTextFieldValue = messageTextFieldValue)
         }
@@ -174,23 +174,6 @@ class MessageCompositionHolder(
         messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
         messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
     }
-
-//    private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
-//        // For now there is a known issue in Compose
-//        // https://issuetracker.google.com/issues/199768107
-//        // It do not allow us to set some custom SpanStyle into "EditableTextView" :(
-//        // But maybe someday they'll fix it, so we could use it
-////        val spanStyles = mentions.map { mention ->
-////            AnnotatedString.Range(mentionSpanStyle, mention.start, mention.start + mention.length)
-////        }
-//
-//        val spanStyles = messageComposition.value.selectedMentions.map { mention ->
-//            AnnotatedString.Range(mentionStyle, mention.start, mention.start + mention.length)
-//        }
-//
-//        return text
-//    }
-
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
         messageComposition.update { it.copy(messageTextFieldValue = (TextFieldValue(editMessageText))) }
@@ -257,9 +240,9 @@ class MessageCompositionHolder(
     }
 
     private fun MessageMention.toUiMention(originalText: String) = UiMention(
-        start = this.start,
-        length = this.length,
-        userId = this.userId,
+        start = start,
+        length = length,
+        userId = userId,
         handler = originalText.substring(start, start + length)
     )
 }
@@ -415,8 +398,7 @@ sealed class ComposableMessageBundle : MessageBundle {
         val message: String,
         val mentions: List<UiMention>,
         val quotedMessageId: String? = null
-    ) :
-        ComposableMessageBundle()
+    ) : ComposableMessageBundle()
 
     data class AttachmentPickedBundle(
         val attachmentUri: UriAsset

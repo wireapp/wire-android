@@ -20,17 +20,14 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Suppress("LongParameterList")
@@ -40,23 +37,6 @@ fun rememberMessageComposerStateHolder(
 ): MessageComposerStateHolder {
     val context = LocalContext.current
 
-    // non functional ATM
-//    val mentionStyle = SpanStyle(
-//        color = MaterialTheme.wireColorScheme.onPrimaryVariant,
-//        background = MaterialTheme.wireColorScheme.primaryVariant
-//    )
-
-    val mentionSearchResult = remember {
-        derivedStateOf {
-            messageComposerViewState.value.mentionSearchResult
-        }
-    }
-
-    val messageCompositionHolder = MessageCompositionHolder(
-        context = context,
-        mentionSearchResult = mentionSearchResult
-    )
-
     val selfDeletionTimer = remember {
         derivedStateOf {
             messageComposerViewState.value.selfDeletionTimer
@@ -64,6 +44,10 @@ fun rememberMessageComposerStateHolder(
     }
 
     return remember {
+        val messageCompositionHolder = MessageCompositionHolder(
+            context = context,
+        )
+
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(

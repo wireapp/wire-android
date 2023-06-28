@@ -51,7 +51,6 @@ class MessageCompositionInputStateHolder(
     }
 
     private var _inputType: MessageCompositionInputType by mutableStateOf(initialInputType)
-        private set
 
     val inputState by derivedStateOf {
         if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
@@ -60,7 +59,6 @@ class MessageCompositionInputStateHolder(
     }
 
     private var _inputState: MessageCompositionInputState by mutableStateOf(initialInputState)
-        private set
 
     var inputSize by mutableStateOf(
         MessageCompositionInputSize.COLLAPSED

@@ -43,8 +43,10 @@ import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "ComplexMethod")
@@ -72,59 +74,58 @@ class LoginEmailViewModel @Inject constructor(
     fun login(onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = true)
-//            val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
-//
-//            val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
-//            val loginResult = withContext(dispatchers.io()) {
-//                authScope.login(
-//                    userIdentifier = loginState.userIdentifier.text,
-//                    password = loginState.password.text,
-//                    shouldPersistClient = true,
-//                    secondFactorVerificationCode = secondFactorVerificationCode
-//                )
-//            }
-//            if (loginResult !is AuthenticationResult.Success) {
-//                loginResult as AuthenticationResult.Failure
-//                handleAuthenticationFailure(loginResult, authScope)
-//                return@launch
-//            }
-//            secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
-//            val storedUserId = withContext(dispatchers.io()) {
-//                addAuthenticatedUser(
-//                    authTokens = loginResult.authData,
-//                    ssoId = loginResult.ssoID,
-//                    serverConfigId = loginResult.serverConfigId,
-//                    proxyCredentials = loginResult.proxyCredentials,
-//                    replace = false
-//                )
-//            }.let {
-//                when (it) {
-//                    is AddAuthenticatedUserUseCase.Result.Failure -> {
-//                        updateEmailLoginError(it.toLoginError())
-//                        return@launch
-//                    }
-//
-//                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
-//                }
-//            }
-//            withContext(dispatchers.io()) {
-//                registerClient(
-//                    userId = storedUserId,
-//                    password = loginState.password.text,
-//                )
-//            }.let {
-//                when (it) {
-//                    is RegisterClientResult.Failure -> {
-//                        updateEmailLoginError(it.toLoginError())
-//                        return@launch
-//                    }
-//
-//                    is RegisterClientResult.Success -> {
-//                        onSuccess(isInitialSyncCompleted(storedUserId))
-//                    }
-//                }
-//            }
+            val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
+
+            val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
+            val loginResult = withContext(dispatchers.io()) {
+                authScope.login(
+                    userIdentifier = loginState.userIdentifier.text,
+                    password = loginState.password.text,
+                    shouldPersistClient = true,
+                    secondFactorVerificationCode = secondFactorVerificationCode
+                )
+            }
+            if (loginResult !is AuthenticationResult.Success) {
+                loginResult as AuthenticationResult.Failure
+                handleAuthenticationFailure(loginResult, authScope)
+                return@launch
+            }
+            secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
+            val storedUserId = withContext(dispatchers.io()) {
+                addAuthenticatedUser(
+                    authTokens = loginResult.authData,
+                    ssoId = loginResult.ssoID,
+                    serverConfigId = loginResult.serverConfigId,
+                    proxyCredentials = loginResult.proxyCredentials,
+                    replace = false
+                )
+            }.let {
+                when (it) {
+                    is AddAuthenticatedUserUseCase.Result.Failure -> {
+                        updateEmailLoginError(it.toLoginError())
+                        return@launch
+                    }
+
+                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                }
+            }
+            withContext(dispatchers.io()) {
+                registerClient(
+                    userId = storedUserId,
+                    password = loginState.password.text,
+                )
+            }.let {
+                when (it) {
+                    is RegisterClientResult.Failure -> {
+                        updateEmailLoginError(it.toLoginError())
+                        return@launch
+                    }
+
+                    is RegisterClientResult.Success -> {
+                        onSuccess(isInitialSyncCompleted(storedUserId))
+                    }
+                }
+            }
         }
     }
 

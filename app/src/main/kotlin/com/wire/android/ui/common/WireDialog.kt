@@ -181,6 +181,7 @@ private fun WireDialogContent(
                     it.invoke()
                 }
             }
+
             if (buttonsHorizontalAlignment)
                 Row(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     dismissButtonProperties.getButton(Modifier.weight(1f))

@@ -25,12 +25,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
-import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -49,16 +45,15 @@ class CreateAccountEmailViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val fetchApiVersion: FetchApiVersionUseCase,
     private val validateEmail: ValidateEmailUseCase,
-    private val authScope: AutoVersionAuthScopeUseCase,
-    private val navigationManager: NavigationManager
+    private val authScope: AutoVersionAuthScopeUseCase
 ) : ViewModel() {
 
-    private var createAccountArg: CreateAccountNavArgs = savedStateHandle.navArgs()
+    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
-    var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountArg.flowType))
+    var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))
         private set
 
-    val isPersonalAccountFlow = createAccountArg.flowType == CreateAccountFlowType.CreatePersonalAccount
+    val isPersonalAccountFlow = createAccountNavArgs.flowType == CreateAccountFlowType.CreatePersonalAccount
 
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
@@ -72,7 +67,7 @@ class CreateAccountEmailViewModel @Inject constructor(
         )
     }
 
-    fun onEmailContinue() {
+    fun onEmailContinue(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             fetchApiVersion(authServerConfigProvider.authServer.value).let {
@@ -103,13 +98,13 @@ class CreateAccountEmailViewModel @Inject constructor(
                 termsDialogVisible = !emailState.termsAccepted && emailError is CreateAccountEmailViewState.EmailError.None,
                 error = emailError
             )
-            if (emailState.termsAccepted) onTermsAccept()
+            if (emailState.termsAccepted) onTermsAccept(onSuccess)
         }.invokeOnCompletion {
             emailState = emailState.copy(loading = false)
         }
     }
 
-    fun onTermsAccept() {
+    fun onTermsAccept(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
             val authScope = authScope().let {
@@ -134,23 +129,7 @@ class CreateAccountEmailViewModel @Inject constructor(
 
             val emailError = authScope.registerScope.requestActivationCode(emailState.email.text.trim().lowercase()).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
-            if (emailError is CreateAccountEmailViewState.EmailError.None) onTermsAccepted()
-        }
-    }
-
-    private fun onTermsAccepted() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = CreateAccountDetailsScreenDestination(
-                        createAccountArg.copy(
-                            userRegistrationInfo = UserRegistrationInfo(
-                                email = emailState.email.text.trim().lowercase()
-                            )
-                        )
-                    )
-                )
-            )
+            if (emailError is CreateAccountEmailViewState.EmailError.None) onSuccess()
         }
     }
 

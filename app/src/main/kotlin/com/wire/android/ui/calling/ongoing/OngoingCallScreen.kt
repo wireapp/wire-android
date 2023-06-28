@@ -55,6 +55,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -83,7 +84,8 @@ import java.util.Locale
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = CallingNavArgs::class
+    navArgsDelegate = CallingNavArgs::class,
+    style = WakeUpScreenPopUpNavigationAnimation::class
 )
 @Composable
 fun OngoingCallScreen(

@@ -21,6 +21,8 @@
 package com.wire.android.util.ui
 
 import android.app.Activity
+import android.app.KeyguardManager
+import android.content.Context
 import android.os.Build
 import android.view.WindowManager
 import androidx.navigation.NavDestination
@@ -48,10 +50,13 @@ private fun Activity.wakeUpDevice() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
+        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        keyguardManager.requestDismissKeyguard(this, null)
     } else {
         window.addFlags(
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                    or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -74,8 +79,9 @@ private fun Activity.removeScreenOnFlags() {
         setTurnScreenOn(false)
     } else {
         window.clearFlags(
-            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                    or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }

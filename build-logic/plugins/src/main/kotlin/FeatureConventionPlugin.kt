@@ -1,3 +1,8 @@
+import com.android.build.gradle.LibraryExtension
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -14,26 +19,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package scripts
-
-import IncludeGitBuildTask
-import Libraries
-
-plugins {
-    id("com.android.application") apply false
-}
-
-// TODO: Extract to a convention plugin and core-module of its own
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
+class FeatureConventionPlugin: Plugin<Project> {
+    override fun apply(target: Project): Unit = with(target) {
+        pluginManager.apply {
+            // TODO: Add plugins
+        }
+        extensions.configure<LibraryExtension> {
+            defaultConfig {
+                testInstrumentationRunner
+            }
+        }
     }
 }

@@ -20,6 +20,8 @@
 
 const val appId = "com.wire.android"
 
+// TODO(refactor): Remove this class and let convention plugins take care of it
+@Deprecated("Let convention plugins take care of this")
 object AndroidSdk {
     const val min = 26
     const val compile = 33

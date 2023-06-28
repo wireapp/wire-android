@@ -1,0 +1,178 @@
+[versions]
+kotlin = "1.8.20"
+activity-compose = "1.3.1"
+app-compat = "1.1.0"
+android-paging3 = "3.1.1"
+cli-kt = "3.5.0"
+coroutines = "1.6.4"
+compose-compiler = "1.4.6"
+compose-ui = "1.3.2"
+compose-material = "1.3.1"
+cryptobox4j = "1.3.0"
+cryptobox-android = "1.1.3"
+javax-crypto = "1.1.0-alpha06"
+android-security = "1.1.0-alpha06"
+ktor = "2.3.0"
+okio = "3.2.0"
+ok-http = "4.10.0"
+mockative = "1.4.1"
+android-work = "2.8.1"
+android-test-runner = "1.5.0"
+android-test-rules = "1.4.0"
+android-test-core = "1.4.0"
+androidx-arch = "2.1.0"
+androidx-test-orchestrator = "1.4.2"
+androidx-sqlite = "2.3.0"
+benasher-uuid = "0.6.0"
+ksp = "1.8.20-1.0.10"
+ktx-datetime = { strictly = "0.4.0" }
+ktx-serialization = "1.4.1"
+ktx-atomicfu = "0.18.5"
+multiplatform-settings = "1.0.0"
+# if you update sqlDelight check if https://github.com/cashapp/sqldelight/issues/4154 is fixed
+# and delete the work around in the dev.mk file
+sqldelight = "2.0.0-alpha05"
+sqlcipher-android = "4.5.3"
+pbandk = "0.14.2"
+turbine = "0.12.1"
+avs = "9.2.13"
+jna = "5.6.0"
+core-crypto = "1.0.0-pre.5"
+core-crypto-multiplatform = "0.6.0-rc.3-multiplatform-pre1"
+completeKotlin = "1.1.0"
+desugar-jdk = "1.1.5"
+kermit = "1.2.2"
+detekt = "1.19.0"
+agp = "7.4.1"
+dokka = "1.8.10"
+carthage = "0.0.1"
+libsodiumBindings = "0.8.6"
+protobufCodegen = "0.9.1"
+annotation = "1.2.0"
+mordant = "2.0.0-beta13"
+apache-tika = "2.8.0"
+
+[plugins]
+# Home-made convention plugins
+kalium-library = { id = "kalium.library" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+[bundles]
+android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
+detekt-test = ["detekt-cli", "detekt-test"]
+detekt-core = ["detekt-api"]
+
+[libraries]
+# Kotlin Gradle Plugin
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
+kotlin-nativeUtils = { module = "org.jetbrains.kotlin:kotlin-native-utils", version.ref = "kotlin" }
+ktxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
+ktxDateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-datetime" }
+ktx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "ktx-atomicfu"}
+
+# android dependencies
+appCompat = { module = "androidx.appcompat:appcompat", version.ref = "app-compat" }
+activityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+work = { module = "androidx.work:work-runtime-ktx", version.ref = "android-work" }
+composeMaterial = { module = "androidx.compose.material:material", version.ref = "compose-material" }
+composeTooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-ui" }
+coroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+ktor = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+paging3 = { module = "androidx.paging:paging-runtime", version.ref = "android-paging3" }
+securityCrypto = { module = "androidx.security:security-crypto", version.ref = "android-security" }
+android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk" }
+annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+
+# kmp Settings (shared pref)
+settings-kmp = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
+settings-kmpTest = { module = "com.russhwolf:multiplatform-settings-test", version.ref = "multiplatform-settings" }
+
+# android testing
+androidtest-runner = { module = "androidx.test:runner", version.ref = "android-test-runner" }
+androidtest-rules = { module = "androidx.test:rules", version.ref = "android-test-rules" }
+androidtest-core = { module = "androidx.test:core", version.ref = "android-test-core" }
+androidtest-arch = { module = "androidx.arch.core:core-testing", version.ref = "androidx-arch" }
+androidtest-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-test-orchestrator" }
+
+# coroutines
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+# cryptobox and crypto dependencies
+cryptoboxAndroid = { module = "com.wire:cryptobox-android", version.ref = "cryptobox-android" }
+cryptobox4j = { module = "com.wire:cryptobox4j", version.ref = "cryptobox4j" }
+javaxCrypto = { module = "androidx.security:security-crypto-ktx", version.ref = "javax-crypto" }
+coreCrypto = { module = "com.wire:core-crypto", version.ref = "core-crypto-multiplatform" }
+coreCryptoJvm = { module = "com.wire:core-crypto-jvm", version.ref = "core-crypto" }
+coreCryptoAndroid = { module = "com.wire:core-crypto-android", version.ref = "core-crypto" }
+libsodiumBindingsMP = { module = "com.ionspin.kotlin:multiplatform-crypto-libsodium-bindings", version.ref = "libsodiumBindings" }
+
+# cli
+cliKt = { module = "com.github.ajalt.clikt:clikt", version.ref = "cli-kt" }
+okhttp-loggingInterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "ok-http" }
+mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant"}
+
+# ktor
+ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-json = { module = "io.ktor:ktor-client-json", version.ref = "ktor" }
+ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-authClient = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-webSocket = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
+ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktor" }
+ktor-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-okHttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-iosHttp = { module = "io.ktor:ktor-client-ios", version.ref = "ktor" }
+ktor-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+
+# okio
+okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
+okio-test = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
+
+# sql dependencies
+sqlite-androidx = { module = "androidx.sqlite:sqlite", version.ref = "androidx-sqlite" }
+sql-android-cipher = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher-android" }
+sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
+sqldelight-coroutinesExtension = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-androidDriver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+sqldelight-androidxPaging = { module = "app.cash.sqldelight:androidx-paging3-extensions", version.ref = "sqldelight" }
+sqldelight-nativeDriver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
+sqldelight-jvmDriver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+sqldelight-jsDriver = { module = "app.cash.sqldelight:sqljs-driver", version.ref = "sqldelight" }
+sqldelight-primitiveAdapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqldelight" }
+sqldelight-dialect = { module = "app.cash.sqldelight:sqlite-3-33-dialect", version.ref = "sqldelight" }
+
+# mocks and testing
+mockative-runtime = { module = "io.mockative:mockative", version.ref = "mockative" }
+mockative-processor = { module = "io.mockative:mockative-processor", version.ref = "mockative" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
+# detekt
+detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
+detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
+detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
+
+# misc
+pbandk-runtime-iosX64 = { module = "pro.streem.pbandk:pbandk-runtime-iosx64", version.ref = "pbandk" }
+pbandk-runtime-iosArm64 = { module = "pro.streem.pbandk:pbandk-runtime-iosarm64", version.ref = "pbandk" }
+pbandk-runtime-iosSimulatorArm64 = { module = "pro.streem.pbandk:pbandk-runtime-iossimulatorarm64", version.ref = "pbandk" }
+pbandk-runtime-macX64 = { module = "pro.streem.pbandk:pbandk-runtime-macosx64", version.ref = "pbandk" }
+pbandk-runtime-macArm64 = { module = "pro.streem.pbandk:pbandk-runtime-macosarm64", version.ref = "pbandk" }
+pbandk-runtime-common = { module = "pro.streem.pbandk:pbandk-runtime", version.ref = "pbandk" }
+benAsherUUID = { module = "com.benasher44:uuid", version.ref = "benasher-uuid" }
+apacheTika = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
+
+# avs
+avs = { module = "com.wire:avs", version.ref = "avs" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+
+# logging
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }

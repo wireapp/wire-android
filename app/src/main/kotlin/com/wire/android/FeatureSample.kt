@@ -17,10 +17,12 @@
  */
 package com.wire.android
 
+import androidx.compose.runtime.Composable
 import com.wire.android.feature.ComposableFeatureScreen
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @PreviewMultipleThemes
+@Composable
 fun Test(){
     ComposableFeatureScreen()
 }

@@ -14,26 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.gradle
 
-package scripts
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.Project
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.provider.Provider
 
-import IncludeGitBuildTask
-import Libraries
-
-plugins {
-    id("com.android.application") apply false
+val Project.libs: VersionCatalog get() {
+    val catalogs = extensions.getByType(VersionCatalogsExtension::class.java)
+    return catalogs.named("libs")
 }
 
-// TODO: Extract to a convention plugin and core-module of its own
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
-    }
+fun Project.library(name: String): Provider<MinimalExternalModuleDependency> {
+    return libs.findLibrary(name).get()
 }

@@ -52,9 +52,7 @@ android {
         kotlinCompilerExtensionVersion = Libraries.Versions.composeCompiler
     }
 
-    sourceSets {
-        map { it.java.srcDir("src/${it.name}/kotlin") }
-    }
+    // Replace with official test fixtures
     // This enables us to share some code between UI and Unit tests!
     fun AndroidSourceSet.includeCommonTestSourceDir() = java {
         srcDir("src/commonTest/kotlin")
@@ -73,5 +71,5 @@ android {
 }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(project(":core:ui"))
 }

@@ -121,8 +121,8 @@ configurations {
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
-    implementation(project(":core"))
-    implementation(project(":sample_feature"))
+    implementation(project(":core:ui"))
+    implementation(project(":feature:sample_feature"))
 
     // Application dependencies
     // TODO: Is std-lib still needed?? I believe it comes by default

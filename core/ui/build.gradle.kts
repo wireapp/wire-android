@@ -1,3 +1,20 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 import com.android.build.api.dsl.AndroidSourceSet
 
 /*
@@ -18,23 +35,14 @@ import com.android.build.api.dsl.AndroidSourceSet
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 plugins {
-    id(BuildPlugins.androidLibrary)
-    id(BuildPlugins.kotlinAndroid)
-
-    // TODO: Find alternative so quality and compilation plugins
-    //       Can work on both Application and Library
-//    id(ScriptPlugins.quality)
-//    id(ScriptPlugins.compilation)
+    id("com.wire.android.feature")
     id(ScriptPlugins.spotless)
     id(ScriptPlugins.testing)
 }
 
 android {
-    // TODO: Move to settings.gradle.kts when upgrading to newer AGP
-    compileSdk = AndroidSdk.compile
     namespace = AndroidClient.namespace + ".core"
 
-    // TODO: Centralize some common configs between this and :app
     defaultConfig {
         minSdk = AndroidSdk.min
         targetSdk = AndroidSdk.target

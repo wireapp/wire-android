@@ -14,26 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package scripts
-
-import IncludeGitBuildTask
-import Libraries
-
-plugins {
-    id("com.android.application") apply false
-}
-
-// TODO: Extract to a convention plugin and core-module of its own
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
     }
 }
+
+rootProject.name = "build-logic"
+include(":plugins")

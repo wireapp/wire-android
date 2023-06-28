@@ -18,6 +18,7 @@
  *
  */
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         mavenCentral()
     }
@@ -34,6 +35,20 @@ rootDir
     .forEach {
         include(":${it.name}")
     }
+
+fun includeSubdirectories(subdirectoriesRoot: File){
+    subdirectoriesRoot.walk()
+        .maxDepth(1)
+        .filter {
+            it.isDirectory && file("${it.absolutePath}/build.gradle.kts").exists()
+        }
+        .forEach {
+            include(":${subdirectoriesRoot.name}:${it.name}")
+        }
+}
+
+includeSubdirectories(File(rootDir,"feature"))
+includeSubdirectories(File(rootDir,"core"))
 
 includeBuild("kalium") {
     // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo

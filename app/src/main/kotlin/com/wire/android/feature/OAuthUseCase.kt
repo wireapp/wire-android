@@ -102,7 +102,6 @@ class OAuthUseCase(context: Context) {
         authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, Uri.parse(URL_AUTH_REDIRECT)
     ).setCodeVerifier().setScopes(SCOPE_OPENID, SCOPE_EMAIL, SCOPE_PROFILE).build()
 
-
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
         val codeVerifier = getCodeVerifier()
         setCodeVerifier(
@@ -111,6 +110,7 @@ class OAuthUseCase(context: Context) {
         return this
     }
 
+    @Suppress("MagicNumber")
     private fun getCodeVerifier(): String {
         val secureRandom = SecureRandom()
         val bytes = ByteArray(64)

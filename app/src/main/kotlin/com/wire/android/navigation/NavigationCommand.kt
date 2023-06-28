@@ -14,34 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
 package com.wire.android.navigation
 
 import com.ramcosta.composedestinations.spec.Direction
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-
-class NavigationManager {
-
-    private val _navigateState = MutableSharedFlow<NavigationCommand?>()
-    private val _navigateBack = MutableSharedFlow<Unit>()
-    var navigateState: SharedFlow<NavigationCommand?> = _navigateState
-    var navigateBack: SharedFlow<Unit> = _navigateBack
-
-    suspend fun navigate(command: NavigationCommand) {
-        _navigateState.emit(command)
-    }
-
-    suspend fun navigateBack() {
-        _navigateBack.emit(Unit)
-    }
-}
 
 /**
- * Wrapper class used to specify to the Navigation Manager the new component we want to navigate to.
+ * Wrapper class used to specify to the Navigator the new component we want to navigate to.
  */
 data class NavigationCommand(
     /**
@@ -58,8 +37,6 @@ data class NavigationCommand(
      * A list of arguments to be stored in the savedStateHandle in case we want to pass information to the previous screen
      */
     val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
-
-    // TODO add in/out animations here
 )
 
 enum class BackStackMode {

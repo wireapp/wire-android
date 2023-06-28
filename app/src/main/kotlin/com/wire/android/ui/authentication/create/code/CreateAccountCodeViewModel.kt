@@ -26,15 +26,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.common.textfield.CodeFieldValue
-import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
-import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -57,19 +51,18 @@ class CreateAccountCodeViewModel @Inject constructor(
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider,
-    private val navigationManager: NavigationManager
+    authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
-    private var createAccountArg: CreateAccountNavArgs = savedStateHandle.navArgs()
+    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
-    var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(createAccountArg.flowType))
+    var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(createAccountNavArgs.flowType))
 
-    fun onCodeChange(newValue: CodeFieldValue) {
+    fun onCodeChange(newValue: CodeFieldValue, onSuccess: () -> Unit) {
         codeState = codeState.copy(code = newValue, error = CreateAccountCodeViewState.CodeError.None)
-        if (newValue.isFullyFilled) onCodeContinue()
+        if (newValue.isFullyFilled) onCodeContinue(onSuccess)
     }
 
     fun resendCode() {
@@ -95,49 +88,43 @@ class CreateAccountCodeViewModel @Inject constructor(
                 }
             }
 
-            val codeError = authScope.registerScope.requestActivationCode(createAccountArg.userRegistrationInfo.email).toCodeError()
+            val codeError = authScope.registerScope.requestActivationCode(createAccountNavArgs.userRegistrationInfo.email).toCodeError()
             codeState = codeState.copy(loading = false, error = codeError)
         }
     }
 
-    fun onCodeErrorDismiss() {
+    fun clearCodeError() {
         codeState = codeState.copy(error = CreateAccountCodeViewState.CodeError.None)
     }
 
-    fun onTooManyDevicesError() {
-        codeState = codeState.copy(
-            code = CodeFieldValue(text = TextFieldValue(""), isFullyFilled = false),
-            error = CreateAccountCodeViewState.CodeError.None
-        )
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
+    fun clearCodeField() {
+        codeState = codeState.copy(code = CodeFieldValue(text = TextFieldValue(""), isFullyFilled = false))
     }
 
-    private fun registerParamFromType() = when (createAccountArg.flowType) {
+    private fun registerParamFromType() = when (createAccountNavArgs.flowType) {
         CreateAccountFlowType.CreatePersonalAccount ->
             RegisterParam.PrivateAccount(
-                firstName = createAccountArg.userRegistrationInfo.firstName,
-                lastName = createAccountArg.userRegistrationInfo.lastName,
-                password = createAccountArg.userRegistrationInfo.password,
-                email = createAccountArg.userRegistrationInfo.email,
+                firstName = createAccountNavArgs.userRegistrationInfo.firstName,
+                lastName = createAccountNavArgs.userRegistrationInfo.lastName,
+                password = createAccountNavArgs.userRegistrationInfo.password,
+                email = createAccountNavArgs.userRegistrationInfo.email,
                 emailActivationCode = codeState.code.text.text
             )
 
         CreateAccountFlowType.CreateTeam ->
             RegisterParam.Team(
-                firstName = createAccountArg.userRegistrationInfo.firstName,
-                lastName = createAccountArg.userRegistrationInfo.lastName,
-                password = createAccountArg.userRegistrationInfo.password,
-                email = createAccountArg.userRegistrationInfo.email,
+                firstName = createAccountNavArgs.userRegistrationInfo.firstName,
+                lastName = createAccountNavArgs.userRegistrationInfo.lastName,
+                password = createAccountNavArgs.userRegistrationInfo.password,
+                email = createAccountNavArgs.userRegistrationInfo.email,
                 emailActivationCode = codeState.code.text.text,
-                teamName = createAccountArg.userRegistrationInfo.teamName,
+                teamName = createAccountNavArgs.userRegistrationInfo.teamName,
                 teamIcon = "default"
             )
     }
 
     @Suppress("ComplexMethod")
-    private fun onCodeContinue() {
+    private fun onCodeContinue(onSuccess: () -> Unit) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
             val authScope = authScope().let {
@@ -196,21 +183,10 @@ class CreateAccountCodeViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        onCodeSuccess()
+                        onSuccess()
                     }
                 }
             }
-        }
-    }
-
-    private fun onCodeSuccess() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    CreateAccountSummaryScreenDestination(CreateAccountSummaryNavArgs(createAccountArg.flowType)),
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
         }
     }
 

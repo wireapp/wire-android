@@ -52,7 +52,6 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
@@ -88,9 +87,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var navigationManager: NavigationManager
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
@@ -169,19 +165,6 @@ class WireActivity : AppCompatActivity() {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
         LaunchedEffect(scope) {
-            // TODO: remove when NavigationManager is not used anymore
-            navigationManager.navigateState
-                .onSubscription { onComplete() }
-                .onEach { command ->
-                    if (command == null) return@onEach
-                    currentKeyboardController?.hide()
-                    currentNavController.navigateToItem(command)
-                }.launchIn(scope)
-
-            navigationManager.navigateBack.onEach {
-                if (!currentNavController.popBackStack()) finish()
-            }.launchIn(scope)
-
             viewModel.navigator.navigationCommands
                 .onSubscription { onComplete() }
                 .onEach { command ->

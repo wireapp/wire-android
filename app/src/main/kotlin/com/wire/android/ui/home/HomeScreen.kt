@@ -61,7 +61,6 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -83,9 +82,7 @@ import com.wire.android.util.permission.rememberRequestPushNotificationsPermissi
 import kotlinx.coroutines.launch
 
 @RootNavGraph
-@Destination(
-    style = WakeUpScreenPopUpNavigationAnimation::class
-)
+@Destination
 @Composable
 fun HomeScreen(
     navigator: Navigator,

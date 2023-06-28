@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestClient
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.navArgs
@@ -188,8 +187,6 @@ class DeviceDetailsViewModelTest {
         }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -265,8 +262,6 @@ class DeviceDetailsViewModelTest {
                 userId = currentUserId,
                 clientId = CLIENT_ID
             )
-
-            coEvery { navigationManager.navigate(any()) } returns Unit
         }
 
         fun arrange() = this to viewModel

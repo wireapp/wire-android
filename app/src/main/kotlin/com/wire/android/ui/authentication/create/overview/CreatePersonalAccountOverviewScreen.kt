@@ -44,8 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -64,12 +65,15 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: Navigator
 ) {
     with(CreateAccountFlowType.CreatePersonalAccount) {
+        fun navigateToEmailScreen() =
+            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))))
+
         OverviewContent(
-            onBackPressed = { navigator.navigateUp() },
-            onContinuePressed = { navigator.navigate(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))) },
+            onBackPressed = navigator::navigateBack,
+            onContinuePressed = ::navigateToEmailScreen,
             serverConfig = viewModel.serverConfig,
             overviewParams = CreateAccountOverviewParams(
                 title = stringResource(id = titleResId),
@@ -88,12 +92,15 @@ fun CreatePersonalAccountOverviewScreen(
 @Composable
 fun CreateTeamAccountOverviewScreen(
     viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator
+    navigator: Navigator
 ) {
     with(CreateAccountFlowType.CreateTeam) {
+        fun navigateToEmailScreen() =
+            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))))
+
         OverviewContent(
-            onBackPressed = { navigator.navigateUp() },
-            onContinuePressed = { navigator.navigate(CreateAccountEmailScreenDestination(CreateAccountNavArgs(this))) },
+            onBackPressed = navigator::navigateBack,
+            onContinuePressed = ::navigateToEmailScreen,
             serverConfig = viewModel.serverConfig,
             overviewParams = CreateAccountOverviewParams(
                 title = stringResource(id = titleResId),

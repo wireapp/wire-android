@@ -72,6 +72,10 @@ data class OtherUserProfileState(
             )
         )
     }
+
+    fun isMetadataEmpty(): Boolean {
+        return fullName.isEmpty() || userName.isEmpty()
+    }
 }
 
 data class OtherUserProfileGroupState(

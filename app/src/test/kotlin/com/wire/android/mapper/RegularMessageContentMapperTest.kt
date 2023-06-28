@@ -25,14 +25,16 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
+import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent.IncompleteAssetMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -64,11 +66,11 @@ class RegularMessageContentMapperTest {
     fun givenTextOrNullContent_whenMappingToTextMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val textContent = MessageContent.Text("text-message")
-        val nonTextContent = MessageContent.Unknown("type-name")
+        val textContent = MessageContent.Text("Some Text Message")
+        val nonTextContent = TestMessage.UNKNOWN_MESSAGE
         // When
-        val resultText = mapper.toText(TestConversation.ID, textContent)
-        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent)
+        val resultText = mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE.content, userMembers, DeliveryStatus.CompleteDelivery)
+        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent.content, userMembers, DeliveryStatus.CompleteDelivery)
         with(resultText) {
             assertTrue(
                 messageBody.message is UIText.DynamicString &&
@@ -116,16 +118,28 @@ class RegularMessageContentMapperTest {
         with(arrangement) {
             // When - Then
             val resultContentOther =
-                mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
+                mapper.toUIMessageContent(
+                    AssetMessageContentMetadata(unknownImageMessageContent),
+                    testMessage1,
+                    sender,
+                    userMembers,
+                    DeliveryStatus.CompleteDelivery
+                )
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(
-                resultContentOther is AssetMessage
-                        && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
+                resultContentOther is AssetMessage &&
+                        resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
             )
 
             // When - Then
-            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
-            assertTrue(resultContentImage is IncompleteAssetMessage)
+            val resultContentImage = mapper.toUIMessageContent(
+                AssetMessageContentMetadata(correctJPGImage),
+                testMessage2,
+                sender,
+                userMembers,
+                DeliveryStatus.CompleteDelivery
+            )
+            assertTrue(resultContentImage is UIMessageContent.IncompleteAssetMessage)
         }
     }
 
@@ -145,7 +159,13 @@ class RegularMessageContentMapperTest {
         val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
+        val resultContentImage = mapper.toUIMessageContent(
+            AssetMessageContentMetadata(contentImage),
+            testMessage,
+            sender,
+            userMembers,
+            DeliveryStatus.CompleteDelivery
+        )
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -183,12 +203,24 @@ class RegularMessageContentMapperTest {
 
         // When
         with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
-            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
+            val resultContentImage1 = mapper.toUIMessageContent(
+                AssetMessageContentMetadata(contentImage1),
+                testMessage1,
+                sender,
+                userMembers,
+                DeliveryStatus.CompleteDelivery
+            )
+            val resultContentImage2 = mapper.toUIMessageContent(
+                AssetMessageContentMetadata(contentImage2),
+                testMessage2,
+                sender,
+                userMembers,
+                DeliveryStatus.CompleteDelivery
+            )
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)
-            assertTrue(resultContentImage2 is IncompleteAssetMessage)
+            assertTrue(resultContentImage2 is UIMessageContent.IncompleteAssetMessage)
         }
     }
 
@@ -237,7 +269,7 @@ class RegularMessageContentMapperTest {
         val sender = OtherUser(
             id = QualifiedID(
                 value = "someSearchQuery",
-                domain = "wire.com",
+                domain = "wire.com"
             ),
             name = null,
             handle = null,
@@ -253,5 +285,7 @@ class RegularMessageContentMapperTest {
             botService = null,
             deleted = false
         )
+
+        val userMembers = listOf(TestUser.MEMBER_SELF.user, TestUser.MEMBER_OTHER.user)
     }
 }

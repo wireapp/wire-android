@@ -101,7 +101,7 @@ object Libraries {
         const val paging3 = "3.1.1"
         const val paging3Compose = "1.0.0-alpha18"
         const val splashscreen = "1.0.0"
-        const val coil = "2.3.0"
+        const val coil = "2.4.0"
         const val exif = "1.3.6"
         const val firebaseBOM = "31.4.0"
         const val dataDog = "1.18.1"

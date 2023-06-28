@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -47,7 +46,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.getUriFromDrawable
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -91,14 +89,13 @@ fun UserProfileAvatar(
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
  */
 @Composable
-private fun painter(data: UserAvatarData): Painter =
-    if (data.connectionState == ConnectionState.BLOCKED) {
-        painterResource(id = R.drawable.ic_blocked_user_avatar)
-    } else if (LocalInspectionMode.current || data.asset == null) {
-        getDefaultAvatar(membership = data.membership)
-    } else {
-        data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
-    }
+private fun painter(data: UserAvatarData): Painter = if (data.connectionState == ConnectionState.BLOCKED) {
+    painterResource(id = R.drawable.ic_blocked_user_avatar)
+} else if (LocalInspectionMode.current || data.asset == null) {
+    getDefaultAvatar(membership = data.membership)
+} else {
+    data.asset.paint(R.drawable.ic_default_user_avatar)
+}
 
 @Composable
 private fun getDefaultAvatar(membership: Membership): Painter =

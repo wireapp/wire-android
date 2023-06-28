@@ -52,13 +52,7 @@ class MessageCompositionInputStateHolder(
 
     private var _inputType: MessageCompositionInputType by mutableStateOf(initialInputType)
 
-    val inputState by derivedStateOf {
-        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
-            MessageCompositionInputState.ACTIVE
-        } else _inputState
-    }
-
-    private var _inputState: MessageCompositionInputState by mutableStateOf(initialInputState)
+     var inputState: MessageCompositionInputState by mutableStateOf(initialInputState)
 
     var inputSize by mutableStateOf(
         MessageCompositionInputSize.COLLAPSED
@@ -66,12 +60,12 @@ class MessageCompositionInputStateHolder(
         private set
 
     fun toInActive() {
-        _inputState = MessageCompositionInputState.INACTIVE
+        inputState = MessageCompositionInputState.INACTIVE
         clearFocus()
     }
 
     fun toActive(isFocused: Boolean) {
-        _inputState = MessageCompositionInputState.ACTIVE
+        inputState = MessageCompositionInputState.ACTIVE
         if (isFocused) requestFocus() else clearFocus()
     }
 

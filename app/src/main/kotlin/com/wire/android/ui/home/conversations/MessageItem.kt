@@ -183,7 +183,7 @@ fun MessageItem(
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
                         // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
                         if (isDeleted) {
-                            EphemeralMessageExpiredLabel(conversationDetailsData)
+                            EphemeralMessageExpiredLabel(message.isMyMessage, conversationDetailsData)
                         }
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)
@@ -265,8 +265,11 @@ fun MessageItem(
 }
 
 @Composable
-fun EphemeralMessageExpiredLabel(conversationDetailsData: ConversationDetailsData) {
-    val stringResource = if (conversationDetailsData is ConversationDetailsData.OneOne) {
+fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData) {
+
+    val stringResource = if (!isSelfMessage) {
+        stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
+    } else if (conversationDetailsData is ConversationDetailsData.OneOne) {
         conversationDetailsData.otherUserName?.let {
             stringResource(
                 R.string.label_information_waiting_for_recipient_timer_to_expire_one_to_one,

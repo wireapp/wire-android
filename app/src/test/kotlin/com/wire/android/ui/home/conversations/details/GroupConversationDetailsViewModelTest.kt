@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -552,6 +553,9 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
 
+    @MockK
+    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             navigationManager = navigationManager,
@@ -569,7 +573,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             clearConversationContent = clearConversationContentUseCase,
             updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase,
-            observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation
+            observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
+            refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
         )
     }
 

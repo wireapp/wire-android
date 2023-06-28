@@ -62,7 +62,12 @@ fun MessageComposeActionsBox(
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
-    modifier: Modifier = Modifier,
+    onRichTextEditingButtonClicked: () -> Unit,
+    onCloseRichTextEditingButtonClicked: () -> Unit,
+    onRichTextEditingHeaderButtonClicked: () -> Unit,
+    onRichTextEditingBoldButtonClicked: () -> Unit,
+    onRichTextEditingItalicButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
@@ -85,7 +90,13 @@ fun MessageComposeActionsBox(
                         onAdditionalOptionButtonClicked,
                         onPingClicked,
                         onSelfDeletionOptionButtonClicked,
-                        showSelfDeletingOption
+                        showSelfDeletingOption,
+                        state.isRichTextFormattingOptionsDisplayed,
+                        onRichTextEditingButtonClicked,
+                        onCloseRichTextEditingButtonClicked,
+                        onRichTextEditingHeaderButtonClicked,
+                        onRichTextEditingBoldButtonClicked,
+                        onRichTextEditingItalicButtonClicked
                     )
                 }
             }
@@ -105,39 +116,56 @@ private fun MessageComposeActions(
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
+    richTextEditingDisplayed: Boolean,
+    onRichTextEditingButtonClicked: () -> Unit,
+    onCloseRichTextEditingButtonClicked: () -> Unit,
+    onRichTextEditingHeaderButtonClicked: () -> Unit,
+    onRichTextEditingBoldButtonClicked: () -> Unit,
+    onRichTextEditingItalicButtonClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = if (richTextEditingDisplayed) Arrangement.SpaceBetween else Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        with(localFeatureVisibilityFlags) {
-            if (!isEditMessage) AdditionalOptionButton(
-                isSelected = attachmentOptionsDisplayed,
-                isEnabled = isFileSharingEnabled,
-                onClick = onAdditionalOptionButtonClicked
+        if (richTextEditingDisplayed) {
+            RichTextOptions(
+                onRichTextHeaderButtonClicked = onRichTextEditingHeaderButtonClicked,
+                onRichTextBoldButtonClicked = onRichTextEditingBoldButtonClicked,
+                onRichTextItalicButtonClicked = onRichTextEditingItalicButtonClicked,
+                onCloseRichTextEditingButtonClicked = onCloseRichTextEditingButtonClicked
             )
-            if (RichTextIcon) RichTextEditingAction()
-            if (!isEditMessage && EmojiIcon) AddEmojiAction()
-            if (!isEditMessage && GifIcon) AddGifAction()
-            if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
-                isSelected = selfDeletingOptionSelected,
-                onButtonClicked = onSelfDeletionOptionButtonClicked
-            )
-            if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
-            AddMentionAction(isMentionsSelected, startMention)
+        } else {
+            with(localFeatureVisibilityFlags) {
+                if (!isEditMessage) AdditionalOptionButton(
+                    isSelected = attachmentOptionsDisplayed,
+                    isEnabled = isFileSharingEnabled,
+                    onClick = onAdditionalOptionButtonClicked
+                )
+                if (RichTextIcon) RichTextEditingAction(
+                    onButtonClicked = onRichTextEditingButtonClicked
+                )
+                if (!isEditMessage && EmojiIcon) AddEmojiAction()
+                if (!isEditMessage && GifIcon) AddGifAction()
+                if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
+                    isSelected = selfDeletingOptionSelected,
+                    onButtonClicked = onSelfDeletionOptionButtonClicked
+                )
+                if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
+                AddMentionAction(isMentionsSelected, startMention)
+            }
         }
     }
 }
 
 @Composable
-private fun RichTextEditingAction() {
+private fun RichTextEditingAction(onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_rich_text,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
@@ -194,7 +222,7 @@ fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) 
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_timer,
-        contentDescription = R.string.content_description_ping_everyone,
+        contentDescription = R.string.content_description_self_deleting_message_timer,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
@@ -210,10 +238,29 @@ fun PreviewMessageActionsBox() {
             .height(dimensions().spacing56x)
     ) {
         AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
-        RichTextEditingAction()
+        RichTextEditingAction(onButtonClicked = {})
         AddEmojiAction()
         AddGifAction()
         AddMentionAction(isSelected = false, addMentionAction = {})
         PingAction {}
+    }
+}
+
+@Preview
+@Composable
+fun PreviewRichTextOptions() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing56x)
+    ) {
+        RichTextOptions(
+            onRichTextHeaderButtonClicked = {},
+            onRichTextBoldButtonClicked = {},
+            onRichTextItalicButtonClicked = {},
+            onCloseRichTextEditingButtonClicked = {}
+        )
     }
 }

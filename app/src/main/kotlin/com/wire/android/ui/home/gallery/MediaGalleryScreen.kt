@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -37,23 +36,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.edit.DownloadAssetExternallyOption
-import com.wire.android.ui.edit.MessageDetailsMenuOption
-import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 import com.wire.android.util.ui.openDownloadFolder
 
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
-    val uiState = mediaGalleryViewModel.mediaGalleryViewState
+    val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -65,7 +59,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
             // TODO
         })
 
-    with(uiState) {
+    with(viewModelState) {
         Scaffold(
             topBar = {
                 MediaGalleryScreenTopAppBar(
@@ -87,32 +81,33 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 )
             },
         )
-
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
             coroutineScope = scope,
-            menuItems = EditGalleryMenuItems(
-                onDeleteMessage = {
+            menuItems = AssetEditMenuItems(
+                isEphemeral = viewModelState.isEphemeral,
+                onDeleteClick = {
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.deleteCurrentImage()
                 },
-                onDownloadImage = onSaveImageWriteStorageRequest::launch,
-                onShareImage = {
+                onDetailsClick = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageDetailsClicked()
+                },
+                onShareAsset = {
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.shareAsset(context)
+                },
+                onDownloadAsset = onSaveImageWriteStorageRequest::launch,
+                onReplyClick = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageReplied()
                 },
                 onReactionClick = { emoji ->
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.onMessageReacted(emoji)
                 },
-                onImageReplied = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageReplied()
-                },
-                onMessageDetails = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageDetailsClicked()
-                }
+                onOpenAsset = null
             )
         )
     }
@@ -147,7 +142,7 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
             .background(colorsScheme().surface)
     ) {
         ZoomableImage(
-            imageAsset = viewModel.imageAssetId,
+            imageAsset = viewModel.imageAsset,
             contentDescription = stringResource(R.string.content_description_image_message)
         )
     }
@@ -169,44 +164,4 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
         else -> null
     }
     return msg to actionLabel
-}
-
-@Composable
-fun EditGalleryMenuItems(
-    onReactionClick: (emoji: String) -> Unit,
-    onImageReplied: () -> Unit,
-    onMessageDetails: () -> Unit,
-    onDownloadImage: () -> Unit,
-    onDeleteMessage: () -> Unit,
-    onShareImage: () -> Unit
-): List<@Composable () -> Unit> {
-    return buildList {
-        add { ReactionOption(onReactionClick = onReactionClick) }
-        add { MessageDetailsMenuOption(onMessageDetailsClick = onMessageDetails) }
-        add { ReplyMessageOption(onReplyItemClick = onImageReplied) }
-        add { DownloadAssetExternallyOption(onDownloadClick = onDownloadImage) }
-        add {
-            MenuBottomSheetItem(
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_share_file,
-                        contentDescription = stringResource(R.string.content_description_share_the_file),
-                    )
-                },
-                title = stringResource(R.string.label_share),
-                onItemClick = onShareImage
-            )
-            MenuBottomSheetItem(
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_delete,
-                        contentDescription = stringResource(R.string.content_description_delete_the_message),
-                    )
-                },
-                itemProvidedColor = MaterialTheme.colorScheme.error,
-                title = stringResource(R.string.label_delete),
-                onItemClick = onDeleteMessage
-            )
-        }
-    }
 }

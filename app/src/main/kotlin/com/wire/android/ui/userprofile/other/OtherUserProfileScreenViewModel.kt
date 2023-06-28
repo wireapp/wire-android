@@ -69,8 +69,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
@@ -99,7 +98,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
-    private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
+    private val observeOneToOneConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -117,12 +116,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
-    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(
-        userId = userId,
-        conversationId = conversationId,
-        isDataLoading = true,
-        isAvatarLoading = true
-    ))
+    var state: OtherUserProfileState by mutableStateOf(
+        OtherUserProfileState(
+            userId = userId,
+            conversationId = conversationId,
+            isDataLoading = true,
+            isAvatarLoading = true
+        )
+    )
     var requestInProgress: Boolean by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
@@ -172,10 +173,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            observeUserInfo(userId)
-                .combine(observeGroupInfo(), ::Pair)
+            combine(
+                observeUserInfo(userId),
+                observeGroupInfo(),
+                observeOneToOneConversation(userId),
+                ::Triple
+            )
                 .flowOn(dispatchers.io())
-                .collect { (userResult, groupInfo) ->
+                .collect { (userResult, groupInfo, oneToOneConversation) ->
                     when (userResult) {
                         is GetUserInfoResult.Failure -> {
                             appLogger.d("Couldn't not find the user with provided id: $userId")
@@ -183,7 +188,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         }
 
                         is GetUserInfoResult.Success -> {
-                            updateUserInfoState(userResult, groupInfo)
+                            val conversation = when (oneToOneConversation) {
+                                GetOneToOneConversationUseCase.Result.Failure -> null
+                                is GetOneToOneConversationUseCase.Result.Success -> oneToOneConversation.conversation
+                            }
+
+                            updateUserInfoState(userResult, groupInfo, conversation)
                         }
                     }
                 }
@@ -315,17 +325,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override fun loadConversationBottomSheetContent() {
-        viewModelScope.launch {
-            val conversationResult = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }
-            if (conversationResult is CreateConversationResult.Success) {
-                updateConversationMenuState(conversationResult.conversation)
-            } else {
-                appLogger.d("Couldn't retrieve or create the conversation, while opening BottomSheetMenu")
-            }
-        }
-    }
-
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
@@ -341,7 +340,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private fun updateUserInfoState(userResult: GetUserInfoResult.Success, groupInfo: OtherUserProfileGroupState?) {
+    private fun updateUserInfoState(
+        userResult: GetUserInfoResult.Success,
+        groupInfo: OtherUserProfileGroupState?,
+        conversation: Conversation?
+    ) {
         val otherUser = userResult.otherUser
         val userAvatarAsset = otherUser.completePicture
             ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
@@ -359,24 +362,21 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             membership = userTypeMapper.toMembership(otherUser.userType),
             groupState = groupInfo,
             botService = otherUser.botService,
-            blockingState = otherUser.BlockState
-        )
-    }
-
-    private fun updateConversationMenuState(conversation: Conversation) {
-        state = state.copy(
-            conversationSheetContent = ConversationSheetContent(
-                title = state.fullName,
-                conversationId = conversation.id,
-                mutingConversationState = conversation.mutedStatus,
-                conversationTypeDetail = ConversationTypeDetail.Private(
-                    state.userAvatarAsset,
-                    userId,
-                    state.blockingState
-                ),
-                isTeamConversation = conversation.isTeamGroup(),
-                selfRole = Conversation.Member.Role.Member
-            )
+            blockingState = otherUser.BlockState,
+            conversationSheetContent = conversation?.let {
+                ConversationSheetContent(
+                    title = otherUser.name.orEmpty(),
+                    conversationId = conversation.id,
+                    mutingConversationState = conversation.mutedStatus,
+                    conversationTypeDetail = ConversationTypeDetail.Private(
+                        userAvatarAsset,
+                        userId,
+                        otherUser.BlockState
+                    ),
+                    isTeamConversation = conversation.isTeamGroup(),
+                    selfRole = Conversation.Member.Role.Member
+                )
+            }
         )
     }
 

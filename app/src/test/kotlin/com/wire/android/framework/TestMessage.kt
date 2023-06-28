@@ -93,6 +93,17 @@ object TestMessage {
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
+    val UNKNOWN_MESSAGE = Message.Regular(
+        id = "messageID",
+        content = MessageContent.Unknown("some-unhandled-message"),
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        senderClientId = ClientId("client-id"),
+        status = Message.Status.SENT,
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
+    )
 
     fun buildAssetMessage(assetContent: AssetContent) = Message.Regular(
         id = "messageID",

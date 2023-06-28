@@ -68,6 +68,7 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -159,7 +160,6 @@ fun OtherProfileScreenContent(
     bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
     val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
         {
-            bottomSheetEventsHandler.loadConversationBottomSheetContent()
             bottomSheetState.toConversation()
             openBottomSheet()
         }
@@ -301,8 +301,11 @@ private fun TopBarHeader(
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
-            if (state.connectionState in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
-                MoreOptionIcon(openConversationBottomSheet)
+            if (state.conversationSheetContent != null) {
+                MoreOptionIcon(
+                    onButtonClicked = openConversationBottomSheet,
+                    state = if (state.isMetadataEmpty()) WireButtonState.Disabled else WireButtonState.Default
+                )
             }
         }
     )
@@ -429,7 +432,7 @@ private fun ContentFooter(
         ) {
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                 // TODO show open conversation button for service bots after AR-2135
-                if (state.membership != Membership.Service) {
+                if (!state.isMetadataEmpty() && state.membership != Membership.Service) {
                     ConnectionActionButton(
                         state.userId,
                         state.userName,

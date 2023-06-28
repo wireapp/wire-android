@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
@@ -56,9 +57,21 @@ class MessageMapper @Inject constructor(
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
-            when (val content = message.content) {
-                is MessageContent.MemberChange -> content.members
-                else -> listOf()
+            when (message) {
+                is Message.Regular -> {
+                    when (val failureType = message.deliveryStatus) {
+                        is DeliveryStatus.CompleteDelivery -> listOf()
+                        is DeliveryStatus.PartialDelivery ->
+                            failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
+                    }
+                }
+                is Message.System -> {
+                    when (val content = message.content) {
+                        is MessageContent.MemberChange -> content.members
+                        else -> listOf()
+                    }
+                }
+                is Message.Signaling -> listOf()
             }
         )
     }.distinct()

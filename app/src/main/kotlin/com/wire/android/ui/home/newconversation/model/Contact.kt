@@ -32,4 +32,8 @@ data class Contact(
     val label: String = "",
     val connectionState: ConnectionState,
     val membership: Membership
-)
+) {
+    fun isMetadataEmpty(): Boolean {
+        return name.isEmpty()
+    }
+}

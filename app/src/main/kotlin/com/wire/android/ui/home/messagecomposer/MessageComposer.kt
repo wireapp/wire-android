@@ -286,6 +286,7 @@ private fun ActiveMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageComposition = messageComposition.value,
+                                selfDeletionTimer = messageComposerViewState.value.selfDeletionTimer,
                                 mentionSearchResult = messageComposerViewState.value.mentionSearchResult,
                                 inputSize = messageCompositionInputStateHolder.inputSize,
                                 inputType = messageCompositionInputStateHolder.inputType,

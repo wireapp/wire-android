@@ -76,6 +76,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 
 @Composable
 fun InActiveMessageComposerInput(
@@ -106,6 +107,7 @@ fun InActiveMessageComposerInput(
 @Composable
 fun ActiveMessageComposerInput(
     mentionSearchResult : List<Contact>,
+    selfDeletionTimer: SelfDeletionTimer,
     messageComposition: MessageComposition,
     inputSize: MessageCompositionInputSize,
     inputType: MessageCompositionInputType,
@@ -183,7 +185,7 @@ fun ActiveMessageComposerInput(
                         )
 
                         is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
-                            selfDeletionTimer = messageComposition.selfDeletionTimer,
+                            selfDeletionTimer = selfDeletionTimer,
                             sendButtonEnabled = inputType.isSendButtonEnabled,
                             onSendButtonClicked = onSendButtonClicked,
                             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked

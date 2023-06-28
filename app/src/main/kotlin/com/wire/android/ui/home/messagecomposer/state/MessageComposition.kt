@@ -43,13 +43,16 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
 class MessageCompositionHolder(
-    private val context: Context
+    private val context: Context,
+    selfDeletionTimer: State<SelfDeletionTimer>
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
     }
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
+
+    val selfDeletionDuration = selfDeletionTimer.value.toDuration().toSelfDeletionDuration()
 
     fun setReply(message: UIMessage.Regular) {
         val senderId = message.header.userId ?: return
@@ -255,17 +258,12 @@ data class MessageComposition(
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UiMention> = emptyList(),
-    val selfDeletionTimer: SelfDeletionTimer
 ) {
-
-    val selfDeletionDuration = selfDeletionTimer.toDuration().toSelfDeletionDuration()
-
     companion object {
         val DEFAULT = MessageComposition(
             messageTextFieldValue = TextFieldValue(text = ""),
             quotedMessage = null,
-            selectedMentions = emptyList(),
-            selfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO)
+            selectedMentions = emptyList()
         )
     }
 

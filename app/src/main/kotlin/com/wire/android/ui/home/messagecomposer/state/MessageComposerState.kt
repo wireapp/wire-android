@@ -46,13 +46,14 @@ fun rememberMessageComposerStateHolder(
     return remember {
         val messageCompositionHolder = MessageCompositionHolder(
             context = context,
+            selfDeletionTimer = selfDeletionTimer
         )
 
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageComposition = messageCompositionHolder.messageComposition,
-                selfDeletionTimer = selfDeletionTimer
+                selfDeletionTimer = selfDeletionTimer,
             ),
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = AdditionalOptionStateHolder(),

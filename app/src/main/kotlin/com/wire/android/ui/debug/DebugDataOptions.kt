@@ -146,30 +146,29 @@ class DebugDataOptionsViewModel
         }
     }
 
-    fun getE2EICertificate(context: Context) {
+    fun enrolE2EICertificate(context: Context) {
         val oAuth = OAuthUseCase(context)
-        val oAuthIntent = oAuth.invoke()
-        val resultLauncher = context.getActivity()!!.activityResultRegistry.register(
-            OAuthUseCase.OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                oAuth.handleAuthorizationResponse(result.data!!)
-                if(OAuthUseCase.idToken.isNotEmpty()){
-                    viewModelScope.launch {
-                    enrolE2EIUseCase.invoke(OAuthUseCase.idToken).onSuccess {
-                        if (it is E2EIEnrolmentResult.Success) {
-                            state = state.copy(
-                                certificate = it.stepDetails,
-                                showCertificate = true
-                            )
-                        }
-                    }
+        oAuth.launch(context.getActivity()!!.activityResultRegistry, ::oAuthResultHandler)
+    }
+
+    fun oAuthResultHandler(oAuthResult: OAuthUseCase.OAuthResult) {
+        when (oAuthResult) {
+            is OAuthUseCase.OAuthResult.Success -> {
+                enrolE2EIUseCase.invoke(OAuthUseCase.idToken).onSuccess {
+                    if (it is E2EIEnrolmentResult.Success) {
+                        state = state.copy(
+                            certificate = it.stepDetails, showCertificate = true
+                        )
                     }
                 }
             }
-        }
-        resultLauncher.launch(oAuthIntent)
 
+            is OAuthUseCase.OAuthResult.Failed -> {
+                state = state.copy(
+                    certificate = oAuthResult.reason, showCertificate = true
+                )
+            }
+        }
     }
 
     fun forceUpdateApiVersions() {

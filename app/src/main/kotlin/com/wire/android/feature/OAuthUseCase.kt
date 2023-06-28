@@ -18,20 +18,12 @@
 package com.wire.android.feature
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
-import android.widget.Toast
+import android.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
-import com.wire.android.di.ApplicationScope
-import com.wire.kalium.logic.feature.e2ei.EnrolE2EIUseCase
-import com.wire.kalium.logic.feature.e2ei.E2EIEnrolmentResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import com.wire.kalium.logic.functional.Either
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
@@ -44,17 +36,6 @@ import net.openid.appauth.browser.BrowserAllowList
 import net.openid.appauth.browser.VersionedBrowserMatcher
 import java.security.MessageDigest
 import java.security.SecureRandom
-import com.wire.kalium.logic.functional.onSuccess
-import javax.inject.Inject
-import androidx.appcompat.app.AppCompatActivity
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.extension.getActivity
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import com.wire.kalium.logic.CoreFailure
 
 class OAuthUseCase(context: Context) {
     private var authState: AuthState = AuthState()
@@ -69,14 +50,48 @@ class OAuthUseCase(context: Context) {
     ).build()
 
     init {
-        authorizationService = AuthorizationService(
-        context, appAuthConfiguration
-        )
+        authorizationService = AuthorizationService(context, appAuthConfiguration)
     }
 
-    fun invoke() =
+    fun getAuthorizationRequestIntent() =
         authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest())
 
+    fun launch(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
+        val resultLauncher = activityResultRegistry.register(
+            OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            var oAuthResult = if (result.resultCode == Activity.RESULT_OK) {
+                handleAuthorizationResponse(result.data!!)
+            } else {
+                OAuthResult.Failed.InvalidActivityResult(result.toString())
+            }
+            resultHandler(oAuthResult)
+        }
+        resultLauncher.launch(getAuthorizationRequestIntent())
+    }
+
+    fun handleAuthorizationResponse(intent: Intent): OAuthResult {
+        val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
+        val error = AuthorizationException.fromIntent(intent)
+
+        authState = AuthState(authorizationResponse, error)
+
+        val tokenExchangeRequest = authorizationResponse?.createTokenExchangeRequest()
+        var oAuthResult = OAuthResult.Failed.Unknown
+        authorizationService?.performTokenRequest(tokenExchangeRequest) { response, exception ->
+            if (exception != null) {
+                authState = AuthState()
+                oAuthResult = OAuthResult.Failed(exception.toString())
+            } else {
+                if (response != null) {
+                    authState.update(response, exception)
+                    oAuthResult = OAuthResult.Success(response.idToken.toString())
+                }
+                oAuthResult = OAuthResult.Failed.EmptyResponse
+            }
+        }
+        return oAuthResult
+    }
 
     private fun getAuthorizationRequest() = AuthorizationRequest.Builder(
         authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, Uri.parse(URL_AUTH_REDIRECT)
@@ -103,50 +118,31 @@ class OAuthUseCase(context: Context) {
         return Base64.encodeToString(hash, ENCODING)
     }
 
-    fun handleAuthorizationResponse(intent: Intent) {
-        val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
-        val error = AuthorizationException.fromIntent(intent)
-
-        authState = AuthState(authorizationResponse, error)
-
-        val tokenExchangeRequest = authorizationResponse!!.createTokenExchangeRequest()
-        authorizationService!!.performTokenRequest(tokenExchangeRequest) { response, exception ->
-            if (exception != null) {
-                authState = AuthState()
-            } else {
-                if (response != null) {
-                    authState.update(response, exception)
-                    idToken = response.idToken.toString()
-                }
-            }
+    sealed class OAuthResult {
+        data class Success(val idToken: String) : OAuthResult()
+        open class Failed(val reason: String) : OAuthResult() {
+            object Unknown : Failed("Unknown")
+            object InvalidActivityResult : Failed("Invalid Activity Result")
+            object EmptyResponse : Failed("Empty Response")
         }
     }
 
-    sealed class OAuthResult {
-        data class Success(val idToken: String) : OAuthResult()
-
-        data class Failed(val reason: String) : OAuthResult()
-    }
-
     companion object {
+        const val OAUTH_ACTIVITY_RESULT_KEY = "OAuthActivityResult"
 
-        var idToken = ""
-        val OAUTH_ACTIVITY_RESULT_KEY = "OAuthActivityResult"
+        const val SCOPE_PROFILE = "profile"
+        const val SCOPE_EMAIL = "email"
+        const val SCOPE_OPENID = "openid"
 
-        val SCOPE_PROFILE = "profile"
-        val SCOPE_EMAIL = "email"
-        val SCOPE_OPENID = "openid"
-
-        val CLIENT_ID = "338888153072-4fep6tn6k16tmcbhg4nt4lr65pv3avgi.apps.googleusercontent.com"//todo mojtaba: configuration!
-        val CODE_VERIFIER_CHALLENGE_METHOD = "S256"
-        val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
+        const val CLIENT_ID = "338888153072-4fep6tn6k16tmcbhg4nt4lr65pv3avgi.apps.googleusercontent.com"
+        const val CODE_VERIFIER_CHALLENGE_METHOD = "S256"
+        const val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
         val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM)
-        val ENCODING = Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
+        const val ENCODING = Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
 
-        val URL_AUTHORIZATION = "https://accounts.google.com/o/oauth2/auth"//todo: all of these? configurable? maybe
-        val URL_TOKEN_EXCHANGE = "https://oauth2.googleapis.com/token"
-        val URL_AUTH_PROVIDER = "https://www.googleapis.com/oauth2/v1/cert"
-        val URL_AUTH_REDIRECT = "com.wire.android.internal.debug:/oauth2redirect"
-        val URL_LOGOUT = "https://accounts.google.com/o/oauth2/revoke?token="
+        const val URL_AUTHORIZATION = "https://accounts.google.com/o/oauth2/auth"
+        const val URL_TOKEN_EXCHANGE = "https://oauth2.googleapis.com/token"
+        const val URL_AUTH_REDIRECT = "com.wire.android.internal.debug:/oauth2redirect"
+        const val URL_LOGOUT = "https://accounts.google.com/o/oauth2/revoke?token="
     }
 }

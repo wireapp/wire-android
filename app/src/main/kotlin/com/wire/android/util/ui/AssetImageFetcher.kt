@@ -90,7 +90,6 @@ internal class AssetImageFetcher(
         }
     }
 
-
     class Factory(
         private val getPublicAssetUseCase: GetAvatarAssetUseCase,
         private val getPrivateAssetUseCase: GetMessageAssetUseCase,

@@ -22,7 +22,6 @@ package com.wire.android.util.ui
 
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -46,6 +45,7 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.network.NetworkState
 import com.wire.kalium.logic.network.NetworkStateObserver
+import kotlinx.coroutines.flow.firstOrNull
 
 /**
  * An ImageLoader that is able to load AssetIds supplied by Kalium.
@@ -71,8 +71,7 @@ class WireSessionImageLoader(
     @Composable
     fun paint(
         asset: ImageAsset?,
-        fallbackData: Any? = null,
-        @DrawableRes errorDrawable: Int?
+        fallbackData: Any? = null
     ): Painter {
         var retryHash by remember { mutableStateOf(0) }
         val painter = rememberAsyncImagePainter(
@@ -85,23 +84,21 @@ class WireSessionImageLoader(
                     memoryCacheKey = null
                 )
                 .build(),
-            error = errorDrawable?.let { painterResource(id = it) },
+            error = (fallbackData as? Int)?.let { painterResource(id = it) },
             imageLoader = coilImageLoader
         )
 
-        LaunchedEffect(key1 = asset) {
-            networkStateObserver.observeNetworkState().collect { state ->
-                if (state == NetworkState.ConnectedWithInternet && painter.state is AsyncImagePainter.State.Error) {
-                    val isRetryNeeded = ((painter.state as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)
-                        ?.isRetryNeeded ?: false
-
-                    if (isRetryNeeded) {
+        LaunchedEffect(painter.state) {
+            if (painter.state is AsyncImagePainter.State.Error) {
+                val isRetryNeeded =
+                    ((painter.state as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)?.isRetryNeeded ?: false
+                if (isRetryNeeded) {
+                    networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }.let {
                         retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
                     }
                 }
             }
         }
-
         return painter
     }
 

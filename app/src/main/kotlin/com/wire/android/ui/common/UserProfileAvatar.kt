@@ -96,10 +96,7 @@ private fun painter(data: UserAvatarData): Painter = if (data.connectionState ==
 } else if (LocalInspectionMode.current || data.asset == null) {
     getDefaultAvatar(membership = data.membership)
 } else {
-    data.asset.paint(
-        getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar),
-        R.drawable.ic_default_user_avatar
-    )
+    data.asset.paint(R.drawable.ic_default_user_avatar)
 }
 
 @Composable

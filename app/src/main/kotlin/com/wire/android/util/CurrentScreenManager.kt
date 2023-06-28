@@ -22,7 +22,6 @@
 
 package com.wire.android.util
 
-import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -36,7 +35,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,20 +44,30 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class CurrentScreenManager @Inject constructor(
-    @ApplicationContext val context: Context,
     screenStateObserver: ScreenStateObserver
 ) : DefaultLifecycleObserver,
     NavController.OnDestinationChangedListener {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
-    private val isOnForegroundFlow = MutableStateFlow(false)
-    private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(isOnForegroundFlow) { isScreenOn, isOnForeground ->
+
+    /**
+     * An integer that counts up when a screen appears, and counts down when
+     * the screen goes away.
+     * Better than a simple boolean in cases where an activity is re-started,
+     * which may result the new instance being shown BEFORE the old instance being hidden.
+     */
+    private val visibilityCount = AtomicInteger(0)
+    private val isApplicationVisibleFlow = MutableStateFlow(false)
+    private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(
+        isApplicationVisibleFlow
+    ) { isScreenOn, isOnForeground ->
         isOnForeground && isScreenOn
     }
 
@@ -72,25 +80,45 @@ class CurrentScreenManager @Inject constructor(
         .stateIn(scope)
 
     /**
-     * Informs if the UI was visible at least once since the app started
+     * Informs if the UI is visible at the moment.
+     * Visibility doesn't necessarily mean being on the foreground. For example,
+     * if the device screen is split into multiple activities, and the app is currently not being focused,
+     * the app is considered to be on the background, but **still visible and working** fine.
      */
-    fun isAppOnForegroundFlow(): StateFlow<Boolean> = isOnForegroundFlow
+    fun isAppVisibleFlow(): StateFlow<Boolean> = isApplicationVisibleFlow
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         appLogger.i("${TAG}: onResume called")
-        isOnForegroundFlow.value = true
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
+        appLogger.i("${TAG}: onStart called")
+        visibilityCount.getAndUpdate { currentValue ->
+            val newValue = maxOf(0, currentValue + 1)
+            isApplicationVisibleFlow.value = newValue > 0
+            newValue
+        }
     }
 
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
         appLogger.i("${TAG}: onStop called")
-        isOnForegroundFlow.value = false
+        visibilityCount.getAndUpdate { currentValue ->
+            val newValue = maxOf(0, currentValue - 1)
+            isApplicationVisibleFlow.value = newValue > 0
+            newValue
+        }
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentItem = controller.getCurrentNavigationItem()
-        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments, isOnForegroundFlow.value)
+        currentScreenState.value = CurrentScreen.fromNavigationItem(
+            currentItem,
+            arguments,
+            isApplicationVisibleFlow.value
+        )
     }
 
     companion object {
@@ -114,6 +142,11 @@ sealed class CurrentScreen {
 
     // Incoming call screen is opened
     data class IncomingCallScreen(val id: QualifiedID) : CurrentScreen()
+
+    // Import media screen is opened
+    object ImportMedia : CurrentScreen()
+    // SelfDevices screen is opened
+    object DeviceManager : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
@@ -155,6 +188,8 @@ sealed class CurrentScreen {
                         ?.let { IncomingCallScreen(it) }
                         ?: SomeOther
                 }
+                NavigationItem.ImportMedia -> ImportMedia
+                NavigationItem.SelfDevices -> DeviceManager
                 else -> SomeOther
             }
         }

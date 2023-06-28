@@ -65,9 +65,10 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
         private val imageLoader: WireSessionImageLoader,
         val conversationId: ConversationId,
         val messageId: String,
-        val isSelfAsset: Boolean
+        val isSelfAsset: Boolean,
+        val isEphemeral: Boolean = false
     ) : ImageAsset(imageLoader) {
-        override fun toString(): String = "$conversationId:$messageId:$isSelfAsset"
+        override fun toString(): String = "$conversationId:$messageId:$isSelfAsset:$isEphemeral"
         override val uniqueKey: String
             get() = toString()
     }
@@ -80,8 +81,8 @@ fun String.parseIntoPrivateImageAsset(
     imageLoader: WireSessionImageLoader,
     qualifiedIdMapper: QualifiedIdMapper,
 ): ImageAsset.PrivateAsset {
-    val (conversationIdString, messageId, isSelfAsset) = split(":")
+    val (conversationIdString, messageId, isSelfAsset, isEphemeral) = split(":")
     val conversationIdParam = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
 
-    return ImageAsset.PrivateAsset(imageLoader, conversationIdParam, messageId, isSelfAsset.toBoolean())
+    return ImageAsset.PrivateAsset(imageLoader, conversationIdParam, messageId, isSelfAsset.toBoolean(), isEphemeral.toBoolean())
 }

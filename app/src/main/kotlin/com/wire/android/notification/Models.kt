@@ -64,14 +64,17 @@ data class NotificationConversation(
     }
 }
 
-sealed class NotificationMessage(open val author: NotificationMessageAuthor, open val time: Long) {
+sealed class NotificationMessage(open val author: NotificationMessageAuthor?, open val time: Long) {
+    data class ObfuscatedMessage(
+        override val time: Long
+    ) : NotificationMessage(null, time)
+
     data class Text(
         override val author: NotificationMessageAuthor,
         override val time: Long,
         val text: String,
         val isQuotingSelfUser: Boolean
-    ) :
-        NotificationMessage(author, time)
+    ) : NotificationMessage(author, time)
 
     // shared file, picture, reaction
     data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
@@ -136,30 +139,39 @@ fun LocalNotificationConversation.intoNotificationConversation(): NotificationCo
 
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
-    val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
     val notificationMessageTime = time.toEpochMilliseconds()
 
     return when (this) {
-        is LocalNotificationMessage.Text -> NotificationMessage.Text(
-            author = notificationMessageAuthor,
-            time = notificationMessageTime,
-            text = text,
-            isQuotingSelfUser = isQuotingSelfUser
-        )
+        is LocalNotificationMessage.Text -> {
+            val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
+            NotificationMessage.Text(
+                author = notificationMessageAuthor,
+                time = notificationMessageTime,
+                text = text,
+                isQuotingSelfUser = isQuotingSelfUser
+            )
+        }
 
-        is LocalNotificationMessage.Comment -> NotificationMessage.Comment(
-            notificationMessageAuthor,
-            notificationMessageTime,
-            type.intoCommentResId()
-        )
+        is LocalNotificationMessage.Comment -> {
+            val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
+            NotificationMessage.Comment(
+                notificationMessageAuthor,
+                notificationMessageTime,
+                type.intoCommentResId()
+            )
+        }
 
-        is LocalNotificationMessage.ConnectionRequest -> NotificationMessage.ConnectionRequest(
-            notificationMessageAuthor,
-            notificationMessageTime,
-            this.authorId.toString()
-        )
+        is LocalNotificationMessage.ConnectionRequest -> {
+            val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
+            NotificationMessage.ConnectionRequest(
+                notificationMessageAuthor,
+                notificationMessageTime,
+                this.authorId.toString()
+            )
+        }
 
         is LocalNotificationMessage.ConversationDeleted -> {
+            val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.ConversationDeleted(
                 notificationMessageAuthor,
                 notificationMessageTime
@@ -167,11 +179,16 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         }
 
         is LocalNotificationMessage.Knock -> {
+            val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.Knock(
                 notificationMessageAuthor,
                 notificationMessageTime
             )
         }
+
+        is LocalNotificationMessage.SelfDeleteMessage -> NotificationMessage.ObfuscatedMessage(
+            notificationMessageTime
+        )
     }
 }
 

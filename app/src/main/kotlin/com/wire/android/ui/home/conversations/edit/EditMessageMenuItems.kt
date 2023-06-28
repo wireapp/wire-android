@@ -27,44 +27,27 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.edit.DeleteItemMenuOption
-import com.wire.android.ui.edit.DownloadAssetExternallyOption
-import com.wire.android.ui.edit.MessageDetailsMenuOption
-import com.wire.android.ui.edit.OpenAssetExternallyOption
-import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
-// TODO: for now suppress, candidate for refactor
-@Suppress("ComplexMethod")
 @Composable
 fun EditMessageMenuItems(
     message: UIMessage.Regular,
     hideEditMessageMenu: (OnComplete) -> Unit,
-    onCopyClick: (text: String) -> Unit,
-    onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
-    onReactionClick: (messageId: String, emoji: String) -> Unit,
-    onReplyClick: (message: UIMessage.Regular) -> Unit,
-    onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
-    onEditClick: (messageId: String, originalText: String, originalMentions: List<MessageMention>) -> Unit,
-    onShareAsset: () -> Unit,
-    onDownloadAsset: (messageId: String) -> Unit,
-    onOpenAsset: (messageId: String) -> Unit,
+    onCopyClick: (String) -> Unit,
+    onDeleteClick: (messageId: String, Boolean) -> Unit,
+    onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
+    onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
+    onReplyClick: (UIMessage.Regular) -> Unit,
+    onEditClick: (String, String, List<MessageMention>) -> Unit,
+    onShareAssetClick: () -> Unit,
+    onDownloadAssetClick: (String) -> Unit,
+    onOpenAssetClick: (String) -> Unit
 ): List<@Composable () -> Unit> {
-    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
-    val isCopyable = message.isTextMessage
-    val isAvailable = message.isAvailable && !message.isPending
-    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
-            || message.messageContent is UIMessageContent.ImageMessage
-            || message.messageContent is UIMessageContent.AudioAssetMessage
-    val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
-    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
 
     val onCopyItemClick = remember(message) {
         {
@@ -118,48 +101,49 @@ fun EditMessageMenuItems(
             }
         }
     }
-    val onDownloadAssetClick = remember(message) {
+    val onDownloadAssetItemClick = remember(message) {
         {
             hideEditMessageMenu {
-                onDownloadAsset(message.header.messageId)
+                onDownloadAssetClick(message.header.messageId)
             }
         }
     }
-    val onOpenAssetClick = remember(message) {
+    val onOpenAssetItemClick = remember(message) {
         {
             hideEditMessageMenu {
-                onOpenAsset(message.header.messageId)
+                onOpenAssetClick(message.header.messageId)
             }
         }
     }
 
-    if (message.expirationStatus is ExpirationStatus.Expirable) {
-        return EphemeralMessageEditMenuItems(
-            message = message,
+    return if (message.isAssetMessage) {
+        AssetEditMenuItems(
+            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
+            isUploading = message.isPending,
+            onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
-            onDownloadAsset = onDownloadAssetClick,
-            onOpenAsset = onOpenAssetClick,
-            onDeleteMessage = onDeleteItemClick
+            onShareAsset = onShareAssetClick,
+            onDownloadAsset = onDownloadAssetItemClick,
+            onReplyClick = onReplyItemClick,
+            onReactionClick = onReactionItemClick,
+            onOpenAsset = onOpenAssetItemClick
         )
     } else {
-        return buildList {
-            if (isAvailable) {
-                add { ReactionOption(onReactionItemClick) }
-                add { MessageDetailsMenuOption(onDetailsItemClick) }
-                if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }
-                add { ReplyMessageOption(onReplyItemClick) }
-                if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
-                if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-                if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
-                if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
-            }
-            add { DeleteItemMenuOption(onDeleteItemClick) }
-        }
+        TextMessageEditMenuItems(
+            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
+            isUploading = message.isPending,
+            onDeleteClick = onDeleteItemClick,
+            onDetailsClick = onDetailsItemClick,
+            onReactionClick = onReactionItemClick,
+            onEditClick = if (message.isMyMessage) onEditItemClick else null,
+            onCopyClick = onCopyItemClick,
+            onReplyClick = onReplyItemClick
+        )
     }
 }
 
 @Composable
-private fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
+fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(
@@ -173,7 +157,7 @@ private fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
 }
 
 @Composable
-private fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
+fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(
@@ -187,7 +171,7 @@ private fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
 }
 
 @Composable
-private fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
+fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(

@@ -103,9 +103,8 @@ fun SearchContactsScreen(
             SearchFailureBox(failureMessage = allKnownContactResult.failureString)
         }
 
-        //TODO: what to do when user has no contacts ?
+        // TODO: what to do when user has no contacts ?
         SearchResultState.EmptyResult -> {
-
         }
     }
 }

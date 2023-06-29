@@ -40,8 +40,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -49,37 +53,38 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.DialogErrorStrings
+import com.wire.kalium.logic.data.id.ConversationId
 
+@NewConversationNavGraph
+@Destination
 @Composable
 fun GroupOptionScreen(
-    groupOptionState: GroupOptionState,
-    onAllowGuestChanged: ((Boolean) -> Unit),
-    onAllowServicesChanged: ((Boolean) -> Unit),
-    onReadReceiptChanged: ((Boolean) -> Unit),
-    onCreateGroup: () -> Unit,
-    onAllowGuestsDialogDismissed: () -> Unit,
-    onNotAllowGuestsClicked: () -> Unit,
-    onAllowGuestsClicked: () -> Unit,
-    onBackPressed: () -> Unit,
-    onErrorDismissed: () -> Unit,
+    navigator: Navigator,
+    newConversationViewModel: NewConversationViewModel,
 ) {
+    fun navigateToGroup(conversationId: ConversationId): Unit =
+        navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
+
     GroupOptionScreenContent(
-        groupOptionState = groupOptionState,
-        onAllowGuestChanged = onAllowGuestChanged,
-        onAllowServicesChanged = onAllowServicesChanged,
-        onReadReceiptChanged = onReadReceiptChanged,
-        onContinuePressed = onCreateGroup,
-        onBackPressed = onBackPressed,
-        onAllowGuestsDialogDismissed = onAllowGuestsDialogDismissed,
-        onNotAllowGuestsClicked = onNotAllowGuestsClicked,
-        onAllowGuestsClicked = onAllowGuestsClicked,
-        onErrorDismissed = onErrorDismissed,
+        groupOptionState = newConversationViewModel.groupOptionsState,
+        onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
+        onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
+        onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
+        onContinuePressed = { newConversationViewModel.createGroup(::navigateToGroup) },
+        onBackPressed = navigator::navigateBack,
+        onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
+        onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
+        onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
+        onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
     )
 }
 

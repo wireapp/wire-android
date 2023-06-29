@@ -42,7 +42,7 @@ import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.NewConversationRouterDestination
+import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
@@ -215,7 +215,7 @@ fun ConversationRouterHomeBridge(
                     SearchConversationScreen(
                         searchQuery = searchQuery,
                         conversationSearchResult = conversationSearchResult,
-                        onOpenNewConversation = { navigator.navigate(NavigationCommand(NewConversationRouterDestination)) },
+                        onOpenNewConversation = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,

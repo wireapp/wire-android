@@ -31,7 +31,7 @@ import com.wire.android.navigation.ScreenModeStyle
 import com.wire.android.navigation.toDestination
 
 fun Activity.updateScreenSettings(navDestination: NavDestination) {
-    val screenMode = (navDestination.toDestination()?.style as? ScreenModeStyle)?.screenMode ?: ScreenMode.NONE
+    val screenMode = (navDestination.toDestination()?.style as? ScreenModeStyle)?.screenMode() ?: ScreenMode.NONE
     updateScreenSettings(screenMode)
 }
 

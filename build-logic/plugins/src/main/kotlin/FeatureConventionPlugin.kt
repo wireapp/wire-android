@@ -23,7 +23,7 @@ import org.gradle.kotlin.dsl.configure
 class FeatureConventionPlugin: Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         pluginManager.apply {
-            // TODO: Add plugins
+            apply("com.wire.android.library")
         }
         extensions.configure<LibraryExtension> {
             defaultConfig {

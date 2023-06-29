@@ -43,15 +43,15 @@ gradlePlugin {
     plugins {
         register("androidLibraryConventionPlugin") {
             id = "com.wire.android.library"
-            implementationClass = "com.wire.android.plugins.AndroidLibraryConventionPlugin"
+            implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("androidApplicationConventionPlugin") {
             id = "com.wire.android.application"
-            implementationClass = "com.wire.android.plugins.AndroidApplicationConventionPlugin"
+            implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("featureConventionPlugin") {
             id = "com.wire.android.feature"
-            implementationClass = "com.wire.android.plugins.FeatureConventionPlugin"
+            implementationClass = "FeatureConventionPlugin"
         }
     }
 }

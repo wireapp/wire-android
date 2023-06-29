@@ -28,6 +28,6 @@ internal fun Project.configureCompose(
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.findVersion("compose.compiler").get()
+        kotlinCompilerExtensionVersion = libs.findVersion("compose.compiler").get().preferredVersion
     }
 }

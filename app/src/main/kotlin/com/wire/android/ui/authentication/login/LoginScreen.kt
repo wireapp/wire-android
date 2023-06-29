@@ -21,7 +21,9 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Column
@@ -49,8 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -60,7 +60,6 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.navigation.smoothSlideInFromRight
 import com.wire.android.navigation.smoothSlideOutFromLeft
 import com.wire.android.ui.authentication.ServerTitle
@@ -100,7 +99,7 @@ fun LoginScreen(navigator: Navigator) {
 
     LoginContent(
         navigator::navigateBack,
-         { initialSyncCompleted ->
+        { initialSyncCompleted ->
             navigator.navigate(
                 NavigationCommand(
                     if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
@@ -125,36 +124,19 @@ private fun LoginContent(
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
-    val navController = rememberTrackingAnimatedNavController() { LoginNavigationItem.fromRoute(it)?.itemName }
     Column(modifier = Modifier.fillMaxSize()) {
-        AnimatedNavHost(
-            navController = navController,
-            startDestination = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
-        ) {
-
-            composable(
-                route = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route,
-                enterTransition = { smoothSlideInFromRight() },
-                exitTransition = { smoothSlideOutFromLeft() },
-                content = {
-                    MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)
-                }
-            )
-            composable(
-                route = LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route,
-                enterTransition = { smoothSlideInFromRight() },
-                exitTransition = { smoothSlideOutFromLeft() },
-                content = { LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel) }
-            )
+        /*
+         TODO: we can change it to be a nested navigation graph when Compose Destinations 2.0 is released,
+               right now it's not possible to make start destination for nested graph with mandatory arguments.
+               More on that here: https://github.com/raamcosta/compose-destinations/issues/185
+         */
+        AnimatedContent(
+            targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+            transitionSpec = { smoothSlideInFromRight() with smoothSlideOutFromLeft() }
+        ) { isCodeInputNecessary ->
+            if (isCodeInputNecessary) LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel)
+            else MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)
         }
-    }
-    val targetRoute: String = if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
-        LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route
-    } else {
-        LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
-    }
-    if (navController.currentDestination?.route != targetRoute) {
-        navController.navigate(targetRoute)
     }
 }
 

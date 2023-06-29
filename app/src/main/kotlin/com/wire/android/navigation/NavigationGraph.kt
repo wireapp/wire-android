@@ -22,14 +22,15 @@ package com.wire.android.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -38,16 +39,11 @@ fun NavigationGraph(
     startDestination: Route,
 ) {
     val navHostEngine = rememberAnimatedNavHostEngine(
-        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING,
+        rootDefaultAnimations = DefaultRootNavGraphAnimations,
         defaultAnimationsForNestedNavGraph = mapOf(
-            NavGraphs.createPersonalAccount to NestedNavGraphDefaultAnimations(
-                enterTransition = { smoothSlideInFromRight() },
-                exitTransition = { smoothSlideOutFromLeft() }
-            ),
-            NavGraphs.createTeamAccount to NestedNavGraphDefaultAnimations(
-                enterTransition = { smoothSlideInFromRight() },
-                exitTransition = { smoothSlideOutFromLeft() }
-            )
+            NavGraphs.createPersonalAccount to DefaultNestedNavGraphAnimations,
+            NavGraphs.createTeamAccount to DefaultNestedNavGraphAnimations,
+            NavGraphs.newConversation to DefaultNestedNavGraphAnimations,
         )
     )
 
@@ -57,7 +53,14 @@ fun NavigationGraph(
         startRoute = startDestination,
         navController = navigator.navController,
         dependenciesContainerBuilder = {
+            // 👇 To make Navigator available to all destinations as a non-navigation parameter
             dependency(navigator)
+
+            // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
+            dependency(NavGraphs.newConversation) {
+                val parentEntry = remember(navBackStackEntry) { navController.getBackStackEntry(NavGraphs.newConversation.route) }
+                hiltViewModel<NewConversationViewModel>(parentEntry)
+            }
         }
     )
 }

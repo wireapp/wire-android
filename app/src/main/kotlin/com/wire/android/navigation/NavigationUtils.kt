@@ -23,7 +23,12 @@ package com.wire.android.navigation
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptionsBuilder
 import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.ramcosta.composedestinations.utils.navGraph
+import com.ramcosta.composedestinations.utils.route
 import com.wire.android.appLogger
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.Destination
@@ -35,20 +40,27 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
                 val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
+                popUpTo(inclusive) { firstDestination }
             }
 
             BackStackMode.REMOVE_CURRENT -> {
-                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+                popUpTo(true) { lastDestination }
+            }
+
+            BackStackMode.REMOVE_CURRENT_NESTED_GRAPH -> {
+                popUpTo(
+                    { it.route() is NavGraphSpec },
+                    { lastNestedGraph?.let { nestedGraph -> backQueue.lastOrNull { it.navGraph() != nestedGraph } } }
+                )
             }
 
             BackStackMode.REMOVE_CURRENT_AND_REPLACE -> {
-                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
-                popBackStack(true) { backQueue.firstOrNull { it.destination.route == command.destination.route } }
+                popUpTo(true) { lastDestination }
+                popUpTo(true) { backQueue.firstOrNull { it.destination.route == command.destination.route } }
             }
 
             BackStackMode.UPDATE_EXISTED -> {
-                popBackStack(true) { backQueue.firstOrNull { it.destination.route == command.destination.route } }
+                popUpTo(true) { backQueue.firstOrNull { it.destination.route == command.destination.route } }
             }
 
             BackStackMode.NONE -> {
@@ -59,13 +71,23 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     }
 }
 
-private fun NavController.popBackStack(
+private val NavController.firstDestination: NavBackStackEntry? get() = backQueue.firstOrNull { it.route() is DestinationSpec<*> }
+private val NavController.lastDestination: NavBackStackEntry? get() = backQueue.lastOrNull { it.route() is DestinationSpec<*> }
+private val NavController.lastNestedGraph: NavGraphSpec? get() = lastDestination?.takeIf { it.navGraph() != navGraph }?.navGraph()
+
+private fun NavOptionsBuilder.popUpTo(
     inclusive: Boolean,
+    getNavBackStackEntry: () -> NavBackStackEntry?,
+) = popUpTo({ inclusive }, getNavBackStackEntry)
+
+private fun NavOptionsBuilder.popUpTo(
+    getInclusive: (NavBackStackEntry) -> Boolean,
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
-        val startId = entry.destination.id
-        popBackStack(startId, inclusive)
+        popUpTo(entry.destination.id) {
+            this.inclusive = getInclusive(entry)
+        }
     }
 }
 

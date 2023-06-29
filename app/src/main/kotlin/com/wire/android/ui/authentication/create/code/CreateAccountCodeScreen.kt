@@ -45,13 +45,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -61,6 +64,8 @@ import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -73,17 +78,28 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Destination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountCodeScreen(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     createAccountCodeViewModel: CreateAccountCodeViewModel = hiltViewModel()
 ) {
     with(createAccountCodeViewModel) {
+        fun navigateToSummaryScreen() = navigator.navigate(
+            NavigationCommand(
+                CreateAccountSummaryScreenDestination(CreateAccountSummaryNavArgs(createAccountNavArgs.flowType)),
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
+
         CodeContent(
             state = codeState,
-            onCodeChange = { onCodeChange(it) },
+            onCodeChange = { onCodeChange(it, ::navigateToSummaryScreen) },
             onResendCodePressed = ::resendCode,
-            onBackPressed = { navigator.navigateUp() },
-            onErrorDismiss = ::onCodeErrorDismiss,
-            onRemoveDeviceOpen = ::onTooManyDevicesError,
+            onBackPressed = navigator::navigateBack,
+            onErrorDismiss = ::clearCodeError,
+            onRemoveDeviceOpen = {
+                clearCodeError()
+                clearCodeField()
+                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+            },
             serverConfig = serverConfig
         )
     }

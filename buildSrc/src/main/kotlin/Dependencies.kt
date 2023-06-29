@@ -38,7 +38,7 @@ object AndroidClient {
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "7.5.1"
+        const val gradleVersion = "7.6.1"
     }
 
     const val androidApplication = "com.android.application"

@@ -109,7 +109,6 @@ fun ActiveMessageComposerInput(
     inputSize: MessageCompositionInputSize,
     inputType: MessageCompositionType,
     inputFocused: Boolean,
-    securityClassificationType: SecurityClassificationType,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
@@ -123,13 +122,6 @@ fun ActiveMessageComposerInput(
     Column(
         modifier = modifier
     ) {
-        val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-        if (isClassifiedConversation) {
-            Box(Modifier.wrapContentSize()) {
-                VerticalSpace.x8()
-                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-            }
-        }
         Divider(color = MaterialTheme.wireColorScheme.outline)
         CollapseButton(
             onCollapseClick = onToggleInputSize

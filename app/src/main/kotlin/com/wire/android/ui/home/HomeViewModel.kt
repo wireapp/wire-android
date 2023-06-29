@@ -29,7 +29,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase

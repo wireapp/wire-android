@@ -24,7 +24,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.navigation.navigate
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.appLogger
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.Destination

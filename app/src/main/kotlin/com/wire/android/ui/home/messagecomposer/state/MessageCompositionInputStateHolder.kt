@@ -39,7 +39,7 @@ class MessageCompositionInputStateHolder(
         private set
 
     private val messageType = derivedStateOf {
-        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
+        if (selfDeletionTimer.value is SelfDeletionTimer.Enabled) {
             MessageType.SelfDeleting(selfDeletionTimer.value)
         } else {
             _messageType
@@ -80,7 +80,12 @@ class MessageCompositionInputStateHolder(
     }
 
     fun toSelfDeleting() {
-        _messageType = MessageType.SelfDeleting(SelfDeletionTimer.Enabled(Duration.ZERO))
+        _messageType = if (messageType.value is MessageType.SelfDeleting) {
+            messageType.value
+        } else {
+            MessageType.SelfDeleting(SelfDeletionTimer.Enabled(Duration.ZERO))
+        }
+
         inputType = MessageCompositionType.Composing(
             messageCompositionState = messageComposition,
             messageType = messageType

@@ -46,15 +46,10 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
-    logFileWriter: LogFileWriter
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var homeState by mutableStateOf(
-        HomeState(
-            logFilePath = logFileWriter.activeLoggingFile.absolutePath
-        )
-    )
+    var homeState by mutableStateOf(HomeState())
         private set
 
     init {
@@ -86,8 +81,7 @@ class HomeViewModel @Inject constructor(
             getSelf().collect { selfUser ->
                 homeState = HomeState(
                     selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    selfUser.availabilityStatus,
-                    homeState.logFilePath
+                    selfUser.availabilityStatus
                 )
             }
         }

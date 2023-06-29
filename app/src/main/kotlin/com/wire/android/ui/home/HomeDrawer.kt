@@ -20,11 +20,6 @@
 
 package com.wire.android.ui.home
 
-import android.content.Intent
-import android.content.Intent.ACTION_SENDTO
-import android.net.Uri
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -49,35 +44,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.BuildConfig
-import com.wire.android.R
-import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.HomeNavigationItem.Settings
-import com.wire.android.navigation.SupportScreenDestination
-import com.wire.android.navigation.isExternalRoute
+import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.EmailComposer.Companion.giveFeedbackEmailTemplate
-import com.wire.android.util.EmailComposer.Companion.reportBugEmailTemplate
-import com.wire.android.util.getDeviceId
-import com.wire.android.util.getGitBuildId
-import com.wire.android.util.getUrisOfFilesInDirectory
-import com.wire.android.util.multipleFileSharingIntent
-import com.wire.android.util.sha256
-import java.io.File
 
 @Composable
-// TODO: logFilePath does not belong in the UI logic
 fun HomeDrawer(
-    logFilePath: String,
     currentRoute: String?,
-    navigateToHomeItem: (HomeNavigationItem) -> Unit,
-    navigateToItem: (Direction) -> Unit,
+    navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -101,82 +78,37 @@ fun HomeDrawer(
                 .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
         )
 
-        fun navigateAndCloseDrawer(item: Any) {
-            when (item) {
-                is HomeNavigationItem -> navigateToHomeItem(item)
-                is Direction -> when (item.isExternalRoute()) {
-                    true -> CustomTabsHelper.launchUrl(context, item.route)
-                    false -> navigateToItem(item)
-                }
-
-                else -> {}
-            }
+        fun navigateAndCloseDrawer(item: HomeDestination) {
+            navigateToHomeItem(item)
             onCloseDrawer()
         }
 
-        val topItems = listOf(HomeNavigationItem.Conversations)
+        val topItems = listOf(HomeDestination.Conversations)
         // TODO: Re-enable once we have Archive & Vault
-        // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
-
+        // listOf(HomeDestination.Conversations, HomeDestination.Archive, HomeDestination.Vault)
         topItems.forEach { item ->
             DrawerItem(
-                data = item.getDrawerData(),
-                selected = currentRoute == item.route(),
+                destination = item,
+                selected = currentRoute == item.direction.route,
                 onItemClick = remember { { navigateAndCloseDrawer(item) } }
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = buildList {
-            add(Settings)
-            add(SupportScreenDestination)
-        }
-
+        val bottomItems = listOf(HomeDestination.Settings, HomeDestination.Support, HomeDestination.GiveFeedback, HomeDestination.ReportBug)
         bottomItems.forEach { item ->
             DrawerItem(
-                data = item.getDrawerData(),
-                selected = currentRoute == item.route(),
+                destination = item,
+                selected = currentRoute == item.direction.route,
                 onItemClick = remember { { navigateAndCloseDrawer(item) } }
-            )
-        }
-
-        DrawerItem(
-            data = DrawerItemData(R.string.give_feedback_screen_title, R.drawable.ic_emoticon),
-            selected = false,
-            onItemClick = {
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
-                intent.putExtra(Intent.EXTRA_TEXT, giveFeedbackEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
-
-                intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
-                context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
-            })
-
-        if (BuildConfig.REPORT_BUG_MENU_ITEM_ENABLED) {
-            DrawerItem(
-                data = DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug),
-                selected = false,
-                onItemClick = {
-                    val dir = File(logFilePath).parentFile
-                    if (dir != null) {
-                        val logsUris = context.getUrisOfFilesInDirectory(dir)
-                        val intent = context.multipleFileSharingIntent(logsUris)
-                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-                        intent.putExtra(Intent.EXTRA_TEXT, reportBugEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
-                        intent.type = "message/rfc822"
-                        context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
-                    }
-                }
             )
         }
     }
 }
 
 @Composable
-fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit) {
+fun DrawerItem(destination: HomeDestination, selected: Boolean, onItemClick: () -> Unit) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     Row(
@@ -190,33 +122,18 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
             .selectableBackground(selected) { onItemClick() },
     ) {
         Image(
-            painter = painterResource(id = data.icon!!),
-            contentDescription = stringResource(data.title!!),
+            painter = painterResource(id = destination.icon),
+            contentDescription = stringResource(destination.title),
             colorFilter = ColorFilter.tint(contentColor),
             contentScale = ContentScale.Fit,
             modifier = Modifier.padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
         )
         Text(
             style = MaterialTheme.wireTypography.button02,
-            text = stringResource(id = data.title),
+            text = stringResource(id = destination.title),
             color = contentColor,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
         )
     }
-}
-
-data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
-
-private fun Any.getDrawerData(): DrawerItemData =
-    when (this) {
-        is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
-        SupportScreenDestination -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
-        else -> DrawerItemData(null, null)
-    }
-
-fun Any.route() = when (this) {
-    is HomeNavigationItem -> this.route
-    is Direction -> this.route
-    else -> null
 }

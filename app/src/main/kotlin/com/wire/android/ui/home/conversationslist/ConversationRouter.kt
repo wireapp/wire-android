@@ -49,9 +49,9 @@ import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
-import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
-import com.wire.android.ui.home.conversationslist.call.CallsScreen
-import com.wire.android.ui.home.conversationslist.mention.MentionScreen
+import com.wire.android.ui.home.conversationslist.all.AllConversationScreenContent
+import com.wire.android.ui.home.conversationslist.call.CallsScreenContent
+import com.wire.android.ui.home.conversationslist.mention.MentionScreenContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -179,7 +179,7 @@ fun ConversationRouterHomeBridge(
         with(viewModel.conversationListState) {
             when (conversationRouterHomeState.conversationItemType) {
                 ConversationItemType.ALL_CONVERSATIONS ->
-                    AllConversationScreen(
+                    AllConversationScreenContent(
                         conversations = foldersWithConversations,
                         hasNoConversations = hasNoConversations,
                         onEditConversation = onEditConversationItem,
@@ -190,7 +190,7 @@ fun ConversationRouterHomeBridge(
                     )
 
                 ConversationItemType.CALLS ->
-                    CallsScreen(
+                    CallsScreenContent(
                         missedCalls = missedCalls,
                         callHistory = callHistory,
                         onCallItemClick = onOpenConversation,
@@ -201,7 +201,7 @@ fun ConversationRouterHomeBridge(
                     )
 
                 ConversationItemType.MENTIONS ->
-                    MentionScreen(
+                    MentionScreenContent(
                         unreadMentions = unreadMentions,
                         allMentions = allMentions,
                         onMentionItemClick = onOpenConversation,

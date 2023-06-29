@@ -32,7 +32,6 @@ import com.wire.kalium.logic.data.user.UserId
 data class HomeState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val logFilePath: String,
     val shouldDisplayWelcomeMessage: Boolean = false
 )
 

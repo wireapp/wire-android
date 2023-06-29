@@ -30,29 +30,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.ExternalDirection
+import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.navigation.IntentDirection
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.isExternalRoute
+import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
 
+@HomeNavGraph
+@Destination
 @Composable
-fun SettingsScreen(
-    navigator: Navigator,
-    lazyListState: LazyListState = rememberLazyListState()
-) {
+fun SettingsScreen(homeStateHolder: HomeStateHolder) {
+    val lazyListState: LazyListState = rememberLazyListState()
     val context = LocalContext.current
     SettingsScreenContent(
         lazyListState = lazyListState,
         onItemClicked = remember {
             {
-                when (it.direction.isExternalRoute()) {
-                    true -> CustomTabsHelper.launchUrl(context, it.direction.route)
-                    false -> navigator.navigate(NavigationCommand(it.direction))
+                when (it.direction) {
+                    is ExternalDirection -> CustomTabsHelper.launchUrl(context, it.direction.route)
+                    is IntentDirection -> context.startActivity(it.direction.intent(context))
+                    else -> homeStateHolder.navigator.navigate(NavigationCommand(it.direction))
                 }
             }
         }

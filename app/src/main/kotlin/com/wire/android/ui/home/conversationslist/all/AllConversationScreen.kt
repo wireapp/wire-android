@@ -38,11 +38,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversationslist.ConversationItemType
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -53,8 +58,26 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
+@HomeNavGraph(start = true)
+@Destination
 @Composable
-fun AllConversationScreen(
+fun AllConversationScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationRouterHomeBridge(
+            navigator = navigator,
+            conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
+            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
+            onOpenBottomSheet = ::openBottomSheet,
+            onCloseBottomSheet = ::closeBottomSheet,
+            onSnackBarStateChanged = ::setSnackBarState,
+            searchBarState = searchBarState,
+            isBottomSheetVisible = ::isBottomSheetVisible
+        )
+    }
+}
+
+@Composable
+fun AllConversationScreenContent(
     conversations: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     hasNoConversations: Boolean,
     viewModel: ConversationListViewModel = hiltViewModel(),
@@ -132,7 +155,7 @@ fun ConversationListEmptyStateScreen() {
 @Preview
 @Composable
 fun PreviewAllConversationScreen() {
-    AllConversationScreen(
+    AllConversationScreenContent(
         conversations = persistentMapOf(),
         hasNoConversations = false,
         onEditConversation = {},
@@ -146,7 +169,7 @@ fun PreviewAllConversationScreen() {
 @Preview
 @Composable
 fun ConversationListEmptyStateScreenPreview() {
-    AllConversationScreen(
+    AllConversationScreenContent(
         conversations = persistentMapOf(),
         hasNoConversations = true,
         onEditConversation = {},

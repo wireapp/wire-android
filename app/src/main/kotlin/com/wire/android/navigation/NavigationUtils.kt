@@ -86,5 +86,3 @@ fun String.getPrimaryRoute(): String {
 }
 
 private const val TAG = "NavigationUtils"
-
-fun Direction.isExternalRoute() = this.route.startsWith("http")

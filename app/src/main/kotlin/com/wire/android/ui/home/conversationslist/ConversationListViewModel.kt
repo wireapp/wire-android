@@ -160,6 +160,7 @@ class ConversationListViewModel @Inject constructor(
                         ).withFolders().toImmutableMap(),
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
+                        // TODO: missing other lists and counters (for bottom tabs if we decide to bring them back)
                         searchQuery = searchQuery,
                     )
                 }
@@ -177,17 +178,6 @@ class ConversationListViewModel @Inject constructor(
             }
         }
         return matchingConversations
-    }
-
-    private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
-        conversationListState = conversationListState.copy(
-            allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
-            foldersWithConversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
-            hasNoConversations = conversationListDetails.none { it !is Self },
-            newActivityCount = 0L,
-            unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
-            missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
-        )
     }
 
     @Suppress("ComplexMethod")

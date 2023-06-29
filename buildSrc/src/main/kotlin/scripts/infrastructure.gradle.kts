@@ -35,11 +35,13 @@ tasks.named<Wrapper>("wrapper") {
 
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
+    // TODO: Make it depend on unit tests from all modules
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
 }
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
+    // TODO: Make it depend on connected tests from all modules
     dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
 }
 

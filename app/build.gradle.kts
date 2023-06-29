@@ -22,15 +22,13 @@ import com.android.build.api.dsl.AndroidSourceSet
 
 plugins {
     // Application Specific plugins
-    id(BuildPlugins.androidApplication)
-    id(BuildPlugins.kotlinAndroid)
+    id("com.wire.android.application")
     // id(BuildPlugins.kotlinAndroidExtensions)
-    id(BuildPlugins.kotlinKapt)
     id(BuildPlugins.kotlinParcelize)
-    id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
-    kotlin(BuildPlugins.kapt)
     kotlin(BuildPlugins.serialization) version Libraries.Versions.kotlin
+
+    id("com.wire.android.hilt")
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -65,18 +63,6 @@ android {
             )
         )
         setProperty("archivesBaseName", "$applicationId-v$versionName($versionCode)")
-    }
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.composeCompiler
-    }
-
-    sourceSets {
-        map { it.java.srcDir("src/${it.name}/kotlin") }
     }
 
     // This enables us to share some code between UI and Unit tests!
@@ -122,6 +108,8 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation(project(":core:ui"))
+    implementation(project(":core:logger"))
+    implementation(project(":core:navigation"))
     implementation(project(":feature:sample_feature"))
 
     // Application dependencies
@@ -187,14 +175,9 @@ dependencies {
     // Compose iterative code, layout inspector, etc.
     debugImplementation(Libraries.composeTooling)
 
-    // dagger/hilt
-    implementation(Libraries.Hilt.android)
-    implementation(Libraries.Hilt.navigationCompose)
-    kapt(Libraries.Hilt.compiler)
-
     // smaller view models
-    implementation(Libraries.resaca)
-    implementation(Libraries.Hilt.resaca)
+    implementation(libs.resaca.android)
+    implementation(libs.resaca.hilt)
 
     // firebase
     implementation(platform(Libraries.Firebase.firebaseBOM))

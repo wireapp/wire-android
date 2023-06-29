@@ -284,27 +284,49 @@ private fun ActiveMessageComposer(
                                     Modifier.weight(1f)
                                 }
 
-                            ActiveMessageComposerInput(
-                                messageComposition = messageComposition.value,
-                                selfDeletionTimer = messageComposerViewState.value.selfDeletionTimer,
-                                mentionSearchResult = messageComposerViewState.value.mentionSearchResult,
-                                inputSize = messageCompositionInputStateHolder.inputSize,
-                                inputType = messageCompositionInputStateHolder.inputType,
-                                inputFocused = messageCompositionInputStateHolder.inputFocused,
-                                securityClassificationType = messageComposerViewState.value.securityClassificationType,
-                                onMentionPicked = {
-                                    messageCompositionHolder.addMention(it)
-                                },
-                                onInputFocusedChanged = ::onInputFocusedChanged,
-                                onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
-                                onCancelReply = messageCompositionHolder::clearReply,
-                                onMessageTextChanged = {
-                                    messageCompositionHolder.setMessageText(it, onSearchMentionQueryChanged, onClearMentionSearchResult)
-                                },
-                                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                                onSendButtonClicked = onSendButtonClicked,
-                                modifier = fillRemainingSpaceOrWrapContent,
-                            )
+                            Box {
+                                var currentSelectedLineIndex by remember { mutableStateOf(0) }
+                                var cursorCoordinateY by remember { mutableStateOf(0F) }
+
+                                ActiveMessageComposerInput(
+                                    messageComposition = messageComposition.value,
+                                    inputSize = messageCompositionInputStateHolder.inputSize,
+                                    inputType = messageCompositionInputStateHolder.inputType,
+                                    inputFocused = messageCompositionInputStateHolder.inputFocused,
+                                    securityClassificationType = messageComposerViewState.value.securityClassificationType,
+                                    onInputFocusedChanged = ::onInputFocusedChanged,
+                                    onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                                    onCancelReply = messageCompositionHolder::clearReply,
+                                    onMessageTextChanged = {
+                                        messageCompositionHolder.setMessageText(
+                                            it,
+                                            onSearchMentionQueryChanged,
+                                            onClearMentionSearchResult
+                                        )
+                                    },
+                                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                                    onSendButtonClicked = onSendButtonClicked,
+                                    onLineBottomYCoordinateChanged = { yCoordinate ->
+                                        cursorCoordinateY = yCoordinate
+                                    },
+                                    onSelectedLineIndexChanged = { index ->
+                                        currentSelectedLineIndex = index
+                                    },
+                                    modifier = fillRemainingSpaceOrWrapContent,
+                                )
+
+                                val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
+                                if (mentionSearchResult.isNotEmpty() &&
+                                    messageCompositionInputStateHolder.inputSize == MessageCompositionInputSize.EXPANDED
+                                ) {
+                                    DropDownMentionsSuggestions(
+                                        currentSelectedLineIndex = currentSelectedLineIndex,
+                                        cursorCoordinateY = cursorCoordinateY,
+                                        membersToMention = mentionSearchResult,
+                                        onMentionPicked = messageCompositionHolder::addMention
+                                    )
+                                }
+                            }
                             AdditionalOptionsMenu(
                                 isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                 onOnSelfDeletingOptionClicked = ::toSelfDeleting,

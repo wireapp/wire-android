@@ -45,8 +45,7 @@ fun rememberMessageComposerStateHolder(
 
     return remember {
         val messageCompositionHolder = MessageCompositionHolder(
-            context = context,
-            selfDeletionTimer = selfDeletionTimer
+            context = context
         )
 
         MessageComposerStateHolder(
@@ -61,6 +60,10 @@ fun rememberMessageComposerStateHolder(
     }
 }
 
+/**
+ * Class holding the whole UI state for the MessageComposer, this is the class that is used by the out-side world to give the control
+ * of the state to the parent Composables
+ */
 class MessageComposerStateHolder(
     val messageComposerViewState: MutableState<MessageComposerViewState>,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
@@ -104,7 +107,7 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.toComposing()
     }
 
-    fun onInputFocusedChanged(onFocused: Boolean) {
+    internal fun onInputFocusedChanged(onFocused: Boolean) {
         if (onFocused) {
             additionalOptionStateHolder.hideAdditionalOptionsMenu()
             messageCompositionInputStateHolder.requestFocus()
@@ -113,7 +116,7 @@ class MessageComposerStateHolder(
         }
     }
 
-    fun onKeyboardClosed() {
+   internal fun onKeyboardClosed() {
         if (messageCompositionInputStateHolder.inputFocused) {
             toInActive()
         }

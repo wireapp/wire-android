@@ -42,17 +42,18 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
+/**
+ * Class responsible for orchestrating the state of the message that the user is composing.
+ *  A single entry point to update the state of the message.
+ */
 class MessageCompositionHolder(
-    private val context: Context,
-    selfDeletionTimer: State<SelfDeletionTimer>
+    private val context: Context
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
     }
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
-
-    val selfDeletionDuration = selfDeletionTimer.value.toDuration().toSelfDeletionDuration()
 
     fun setReply(message: UIMessage.Regular) {
         val senderId = message.header.userId ?: return

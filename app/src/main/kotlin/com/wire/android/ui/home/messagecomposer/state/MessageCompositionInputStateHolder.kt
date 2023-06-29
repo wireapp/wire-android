@@ -136,6 +136,18 @@ sealed class MessageCompositionType {
         val isSendButtonEnabled by derivedStateOf {
             messageCompositionState.value.messageText.isNotBlank()
         }
+
+        @Composable
+        override fun inputTextColor(): WireTextFieldColors = if (messageType.value is MessageType.SelfDeleting) {
+            wireTextFieldColors(
+                backgroundColor = Color.Transparent,
+                borderColor = Color.Transparent,
+                focusColor = Color.Transparent,
+                placeholderColor = colorsScheme().primary
+            )
+        } else {
+            super.inputTextColor()
+        }
     }
 
     class Editing(

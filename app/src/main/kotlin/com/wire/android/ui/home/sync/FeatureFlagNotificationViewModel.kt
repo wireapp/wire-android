@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.user.MLSE2EIdRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -82,6 +83,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             setFileSharingState(userId)
                             observeTeamSettingsSelfDeletionStatus(userId)
                             setGuestRoomLinkFeatureFlag(userId)
+                            setMLSE2EIdRequiredState(userId)
                         }
                 }
             }
@@ -147,6 +149,16 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
+    private fun setMLSE2EIdRequiredState(userId: UserId) = viewModelScope.launch {
+        coreLogic.getSessionScope(userId).observeMLSE2EIdRequired().collect { result ->
+            val state = when (result) {
+                is MLSE2EIdRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIdRequired.WithGracePeriod(result.timeLeft)
+                MLSE2EIdRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIdRequired.NoGracePeriod
+            }
+            featureFlagState = featureFlagState.copy(e2EIdRequired = state)
+        }
+    }
+
     fun dismissSelfDeletingMessagesDialog() {
         featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
         viewModelScope.launch {
@@ -166,5 +178,26 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             currentUserId?.let { coreLogic.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged() }
         }
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
+    }
+
+    fun dismissE2EIdRequiredDialog() {
+        // TODO do the magic
+        featureFlagState = featureFlagState.copy(e2EIdRequired = null)
+    }
+
+    fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIdRequired.WithGracePeriod) {
+        featureFlagState = featureFlagState.copy(
+            e2EIdRequired = null,
+            e2EIdSnoozeInfo = FeatureFlagState.E2EIdSnooze(result.timeLeft)
+        )
+        currentUserId?.let { userId ->
+            viewModelScope.launch {
+                coreLogic.getSessionScope(userId).markMLSE2EIdRequiredAsNotified()
+            }
+        }
+    }
+
+    fun dismissSnoozeE2EIdRequiredDialog() {
+        featureFlagState = featureFlagState.copy(e2EIdSnoozeInfo = null)
     }
 }

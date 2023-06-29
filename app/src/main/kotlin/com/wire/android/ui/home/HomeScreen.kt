@@ -127,6 +127,21 @@ fun HomeScreen(
                 hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
             )
         }
+
+        e2EIdRequired?.let {
+            E2EIdRequiredDialog(
+                result = e2EIdRequired,
+                dismissDialog = featureFlagNotificationViewModel::dismissE2EIdRequiredDialog,
+                snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+            )
+        }
+
+        e2EIdSnoozeInfo?.let {
+            E2EIdSnoozeDialog(
+                state = e2EIdSnoozeInfo,
+                dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+            )
+        }
     }
 
     HomeContent(

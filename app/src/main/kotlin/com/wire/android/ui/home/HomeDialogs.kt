@@ -24,6 +24,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -31,7 +32,9 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.toTimeLongLabelUiText
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun FileRestrictionDialog(
@@ -129,6 +132,108 @@ fun WelcomeNewUserDialog(
             type = WireDialogButtonType.Primary,
         )
     )
+}
+
+@Composable
+fun E2EIdRequiredDialog(
+    result: FeatureFlagState.E2EIdRequired,
+    dismissDialog: () -> Unit,
+    snoozeDialog: (FeatureFlagState.E2EIdRequired.WithGracePeriod) -> Unit,
+) {
+    when (result) {
+        FeatureFlagState.E2EIdRequired.NoGracePeriod -> E2EIdRequiredNoSnoozeDialog(dismissDialog = dismissDialog)
+        is FeatureFlagState.E2EIdRequired.WithGracePeriod -> E2EIdRequiredWithSnoozeDialog(
+            result = result,
+            dismissDialog = dismissDialog,
+            snoozeDialog = snoozeDialog
+        )
+    }
+}
+
+@Composable
+fun E2EIdRequiredWithSnoozeDialog(
+    result: FeatureFlagState.E2EIdRequired.WithGracePeriod,
+    dismissDialog: () -> Unit,
+    snoozeDialog: (FeatureFlagState.E2EIdRequired.WithGracePeriod) -> Unit
+) {
+    WireDialog(
+        title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_required_dialog_text),
+        onDismiss = dismissDialog,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = dismissDialog,
+            text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_btn),
+            type = WireDialogButtonType.Primary,
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = { snoozeDialog(result) },
+            text = stringResource(id = R.string.end_to_end_identity_required_dialog_snooze_btn),
+            type = WireDialogButtonType.Secondary,
+        ),
+        buttonsHorizontalAlignment = false
+    )
+}
+
+@Composable
+fun E2EIdRequiredNoSnoozeDialog(dismissDialog: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_required_dialog_text_no_snooze),
+        onDismiss = dismissDialog,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = dismissDialog,
+            text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_btn),
+            type = WireDialogButtonType.Primary,
+        ),
+        buttonsHorizontalAlignment = false,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    )
+}
+
+@Composable
+fun E2EIdSnoozeDialog(
+    state: FeatureFlagState.E2EIdSnooze,
+    dismissDialog: () -> Unit
+) {
+    val timeText = state.timeLeft.toTimeLongLabelUiText().asString()
+    WireDialog(
+        title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_snooze_dialog_text, timeText),
+        onDismiss = dismissDialog,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = dismissDialog,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewE2EIdRequiredWithSnoozeDialog() {
+    WireTheme {
+        E2EIdRequiredWithSnoozeDialog(FeatureFlagState.E2EIdRequired.WithGracePeriod(2.seconds), {}) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewE2EIdRequiredNoSnoozeDialog() {
+    WireTheme {
+        E2EIdRequiredNoSnoozeDialog {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewE2EIdSnoozeDialog() {
+    WireTheme {
+        E2EIdSnoozeDialog(FeatureFlagState.E2EIdSnooze(2.seconds)) {}
+    }
 }
 
 @PreviewMultipleThemes

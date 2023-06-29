@@ -21,6 +21,7 @@
 package com.wire.android.ui.home
 
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import kotlin.time.Duration
 
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,
@@ -30,9 +31,18 @@ data class FeatureFlagState(
     val isGuestRoomLinkEnabled: Boolean = true,
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
     val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
-    val areSelfDeletedMessagesEnabled: Boolean = true
+    val areSelfDeletedMessagesEnabled: Boolean = true,
+    val e2EIdRequired: E2EIdRequired? = null,
+    val e2EIdSnoozeInfo: E2EIdSnooze? = null
 ) {
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM
+    }
+
+    data class E2EIdSnooze(val timeLeft: Duration)
+
+    sealed class E2EIdRequired {
+        data class WithGracePeriod(val timeLeft: Duration) : E2EIdRequired()
+        object NoGracePeriod : E2EIdRequired()
     }
 }

@@ -1060,4 +1060,5 @@
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message">Someone sent a Message</string>
+    <string name="settings_licenses_settings_label">Licenses informations</string>
 </resources>

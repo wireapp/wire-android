@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -33,28 +32,29 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
 
-@Preview
-@Composable
-fun MessageComposerPreview() {
-    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
-    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
-    val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
-
-    MessageComposer(
-        messageComposerStateHolder = MessageComposerStateHolder(
-            messageComposerViewState = messageComposerViewState,
-            messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-                messageComposition = messageComposition,
-                selfDeletionTimer = selfDeletionTimer
-            ),
-            messageCompositionHolder = MessageCompositionHolder(
-                context = LocalContext.current
-            ),
-            additionalOptionStateHolder = AdditionalOptionStateHolder()
-        ),
-        messageListContent = { },
-        onChangeSelfDeletionClicked = { },
-        onSearchMentionQueryChanged = { },
-        onClearMentionSearchResult = { }
-    )
-}
+//@Preview
+//@Composable
+//fun MessageComposerPreview() {
+//    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+//    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+//    val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
+//
+//    MessageComposer(
+//        messageComposerStateHolder = MessageComposerStateHolder(
+//            messageComposerViewState = messageComposerViewState,
+//            messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+//                messageComposition = messageComposition,
+//                selfDeletionTimer = selfDeletionTimer
+//            ),
+//            messageCompositionHolder = MessageCompositionHolder(
+//                context = LocalContext.current
+//            ),
+//            additionalOptionStateHolder = AdditionalOptionStateHolder(),
+//            modalSheetState = modalSheetState
+//        ),
+//        messageListContent = { },
+//        onChangeSelfDeletionClicked = { },
+//        onSearchMentionQueryChanged = { },
+//        onClearMentionSearchResult = { }
+//    )
+//}

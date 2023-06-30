@@ -20,24 +20,17 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.home.conversations.ConversationScreenState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerStateHolder(
@@ -61,18 +54,8 @@ fun rememberMessageComposerStateHolder(
     val messageCompositionInputStateHolder = remember {
         MessageCompositionInputStateHolder(
             messageComposition = messageCompositionHolder.messageComposition,
-            selfDeletionTimer = selfDeletionTimer,
+            initialSelfDeletionTimer = selfDeletionTimer,
         )
-    }
-
-    // Re-request the focus when the modal sheet is expanded, so that we show the keyboard once the user
-    // makes the transition from hidden to expanded bottom sheet.
-    LaunchedEffect(modalBottomSheetState.currentValue) {
-        if (modalBottomSheetState.currentValue == SheetValue.Expanded) {
-            messageCompositionInputStateHolder.clearFocus()
-        } else {
-            messageCompositionInputStateHolder.requestFocus()
-        }
     }
 
     return remember {
@@ -90,7 +73,7 @@ fun rememberMessageComposerStateHolder(
  * Class holding the whole UI state for the MessageComposer, this is the class that is used by the out-side world to give the control
  * of the state to the parent Composables
  */
-class MessageComposerStateHolder constructor(
+class MessageComposerStateHolder(
     val messageComposerViewState: MutableState<MessageComposerViewState>,
     val modalBottomSheetState: WireModalSheetState,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
@@ -107,8 +90,11 @@ class MessageComposerStateHolder constructor(
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile &&
                 !KeyboardHelper.isKeyboardVisible()
 
+    private var keyboardVisibility = false
+
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()
+        messageCompositionInputStateHolder.clearFocus()
     }
 
     fun toActive(showAttachmentOption: Boolean) {
@@ -139,11 +125,16 @@ class MessageComposerStateHolder constructor(
         }
     }
 
-    fun onKeyboardClosed() {
-        val isUserInteracting = messageCompositionInputStateHolder.inputFocused && !modalBottomSheetState.isVisible
-        if (isUserInteracting) {
-            toInActive()
+    fun onKeyboardVisibilityChanged(isVisible: Boolean) {
+        val isKeyboardClosed = keyboardVisibility && !isVisible
+        if (isKeyboardClosed) {
+            if (!modalBottomSheetState.isVisible) {
+                messageCompositionInputStateHolder.toInActive()
+            }else{
+                messageCompositionInputStateHolder.clearFocus()
+            }
         }
+        keyboardVisibility = isVisible
     }
 
     fun showAdditionalOptionsMenu() {
@@ -156,6 +147,7 @@ class MessageComposerStateHolder constructor(
 
         messageCompositionHolder.clear()
     }
+
 
 }
 

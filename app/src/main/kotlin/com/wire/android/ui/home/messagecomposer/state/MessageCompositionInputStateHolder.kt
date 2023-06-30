@@ -33,14 +33,14 @@ import kotlin.time.Duration
 
 class MessageCompositionInputStateHolder(
     private val messageComposition: MutableState<MessageComposition>,
-    selfDeletionTimer: State<SelfDeletionTimer>,
+    initialSelfDeletionTimer: State<SelfDeletionTimer>
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
-     private val messageType = derivedStateOf {
-        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
-            MessageType.SelfDeleting(selfDeletionTimer.value)
+    private val messageType = derivedStateOf {
+        if (initialSelfDeletionTimer.value.toDuration() > Duration.ZERO) {
+            MessageType.SelfDeleting(initialSelfDeletionTimer.value)
         } else {
             MessageType.Normal
         }

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -89,7 +90,7 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
-                    onSendButtonClicked = ::sendMessage,
+                    onSendButtonClicked = {},
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult
@@ -208,6 +209,7 @@ private fun ActiveMessageComposer(
     onSendButtonClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit
 ) {
+    Log.d("TEST", "recomposing active message composer")
     with(messageComposerStateHolder) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -219,19 +221,20 @@ private fun ActiveMessageComposer(
                 val isKeyboardVisible = KeyboardHelper.isKeyboardVisible()
                 if (isKeyboardVisible) {
                     val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
+                    Log.d("TEST", "calculating keyboard height: $calculatedKeyboardHeight")
                     val notKnownAndCalculated =
                         keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
                     val knownAndDifferent =
                         keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
                     if (notKnownAndCalculated || knownAndDifferent) {
+                        Log.d("TEST", "keyboard height is known: $keyboardHeight")
                         keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
                     }
                 }
 
                 LaunchedEffect(isKeyboardVisible) {
-                    if (!isKeyboardVisible) {
-                        messageComposerStateHolder.onKeyboardClosed()
-                    }
+                    Log.d("TEST", "keyboard height: $keyboardHeight")
+                    messageComposerStateHolder.onKeyboardVisibilityChanged(isKeyboardVisible)
                 }
 
                 val makeTheContentAsBigAsScreenHeightWithoutKeyboard = Modifier

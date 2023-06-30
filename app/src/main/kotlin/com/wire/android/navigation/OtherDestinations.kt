@@ -31,15 +31,19 @@ import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 
-interface ExternalDirection : Direction
+interface ExternalUriDirection : Direction {
+    val uri: Uri
+    override val route: String
+        get() = uri.toString()
+}
 
 interface IntentDirection : Direction {
     fun intent(context: Context): Intent
 }
 
-object SupportScreenDestination : ExternalDirection {
-    override val route: String
-        get() = BuildConfig.URL_SUPPORT
+object SupportScreenDestination : ExternalUriDirection {
+    override val uri: Uri
+        get() = Uri.parse(BuildConfig.URL_SUPPORT)
 }
 
 object GiveFeedbackDestination : IntentDirection {

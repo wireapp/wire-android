@@ -63,7 +63,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.ExternalDirection
+import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.IntentDirection
 import com.wire.android.navigation.NavigationCommand
@@ -211,7 +211,7 @@ fun HomeContent(
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
             when (item.direction) {
-                is ExternalDirection -> CustomTabsHelper.launchUrl(context, item.direction.route)
+                is ExternalUriDirection -> CustomTabsHelper.launchUri(context, item.direction.uri)
                 is IntentDirection -> context.startActivity(item.direction.intent(context))
                 else -> navController.navigate(item.direction) {
                     navController.graph.startDestinationRoute?.let { route ->

@@ -34,7 +34,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.ExternalDirection
+import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.IntentDirection
 import com.wire.android.navigation.NavigationCommand
@@ -54,7 +54,7 @@ fun SettingsScreen(homeStateHolder: HomeStateHolder) {
         onItemClicked = remember {
             {
                 when (it.direction) {
-                    is ExternalDirection -> CustomTabsHelper.launchUrl(context, it.direction.route)
+                    is ExternalUriDirection -> CustomTabsHelper.launchUri(context, it.direction.uri)
                     is IntentDirection -> context.startActivity(it.direction.intent(context))
                     else -> homeStateHolder.navigator.navigate(NavigationCommand(it.direction))
                 }

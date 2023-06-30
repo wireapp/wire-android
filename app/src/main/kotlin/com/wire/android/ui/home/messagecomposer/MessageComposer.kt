@@ -189,7 +189,6 @@ private fun InactiveMessageComposer(
                         onClick = { onTransitionToActive(true) }
                     )
                 }
-
                 InActiveMessageComposerInput(
                     messageText = messageComposition.messageTextFieldValue,
                     onMessageComposerFocused = { onTransitionToActive(false) }

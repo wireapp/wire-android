@@ -45,6 +45,8 @@ fun rememberMessageComposerStateHolder(
         )
     }
 
+    // we "extract" the selfDeletionTimer from the messageCompositionHolder as a state in order to "observe" the changes to it
+    // which are made "externally" and not inside the MessageComposer
     val selfDeletionTimer = remember {
         derivedStateOf {
             messageComposerViewState.value.selfDeletionTimer
@@ -54,7 +56,7 @@ fun rememberMessageComposerStateHolder(
     val messageCompositionInputStateHolder = remember {
         MessageCompositionInputStateHolder(
             messageComposition = messageCompositionHolder.messageComposition,
-            initialSelfDeletionTimer = selfDeletionTimer,
+            selfDeletionTimer = selfDeletionTimer,
         )
     }
 
@@ -84,11 +86,11 @@ class MessageComposerStateHolder(
 
     val isTransitionToKeyboardOnGoing
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
-            !KeyboardHelper.isKeyboardVisible() &&
-            messageCompositionInputStateHolder.inputFocused
+                !KeyboardHelper.isKeyboardVisible() &&
+                messageCompositionInputStateHolder.inputFocused
     val additionalOptionSubMenuVisible
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile &&
-            !KeyboardHelper.isKeyboardVisible()
+                !KeyboardHelper.isKeyboardVisible()
 
     private var isKeyboardVisible = false
 

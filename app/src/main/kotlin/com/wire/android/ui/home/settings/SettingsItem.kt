@@ -111,7 +111,11 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         title = UIText.StringResource(R.string.settings_privacy_settings_label),
         navigationItem = NavigationItem.PrivacySettings
     ),
-
+    Licenses(
+        id = "other_licenses",
+        title = UIText.StringResource(R.string.settings_licenses_settings_label),
+        navigationItem = NavigationItem.Licenses
+    ),
     BackupAndRestore(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),

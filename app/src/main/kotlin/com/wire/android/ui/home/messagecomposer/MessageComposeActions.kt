@@ -71,7 +71,7 @@ fun MessageComposeActions(
             if (!isEditMessage && EmojiIcon) AddEmojiAction({})
             if (!isEditMessage && GifIcon) AddGifAction(onGifButtonClicked)
             if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
-                onButtonClicked = onSelfDeletionOptionButtonClicked
+                false, onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (!isEditMessage && PingIcon) PingAction(onPingButtonClicked)
             AddMentionAction(onMentionButtonClicked)
@@ -165,12 +165,9 @@ private fun PingAction(onButtonClicked: () -> Unit) {
 }
 
 @Composable
-fun SelfDeletingMessageAction(onButtonClicked: () -> Unit) {
-    var isSelected by remember { mutableStateOf(false) }
-
+fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = {
-            isSelected = !isSelected
             onButtonClicked()
         },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),

@@ -17,3 +17,44 @@
  */
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import kotlin.time.Duration
+
+
+@Preview
+@Composable
+fun MessageComposerPreview() {
+    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
+
+    MessageComposer(
+        messageComposerStateHolder = MessageComposerStateHolder(
+            messageComposerViewState = messageComposerViewState,
+            messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+                messageComposition = messageComposition,
+                selfDeletionTimer = selfDeletionTimer
+            ),
+            messageCompositionHolder = MessageCompositionHolder(
+                context = LocalContext.current
+            ),
+            additionalOptionStateHolder = AdditionalOptionStateHolder()
+        ),
+        messageListContent = { },
+        onChangeSelfDeletionClicked = { },
+        onSearchMentionQueryChanged = { },
+        onClearMentionSearchResult = { }
+    )
+}

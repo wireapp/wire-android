@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +44,7 @@ fun rememberMessageComposerStateHolder(
         }
     }
 
-    return remember {
+    val messageComposerStateHolder = remember {
         val messageCompositionHolder = MessageCompositionHolder(
             context = context
         )
@@ -58,6 +59,12 @@ fun rememberMessageComposerStateHolder(
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
         )
     }
+
+    LaunchedEffect(selfDeletionTimer.value) {
+        messageComposerStateHolder.toActive(false)
+    }
+
+    return messageComposerStateHolder
 }
 
 /**
@@ -98,16 +105,12 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.toEdit()
     }
 
-    fun toSelfDeleting() {
-        messageCompositionInputStateHolder.toSelfDeleting()
-    }
-
     fun toReply(message: UIMessage.Regular) {
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }
 
-    internal fun onInputFocusedChanged(onFocused: Boolean) {
+    fun onInputFocusedChanged(onFocused: Boolean) {
         if (onFocused) {
             additionalOptionStateHolder.hideAdditionalOptionsMenu()
             messageCompositionInputStateHolder.requestFocus()
@@ -116,7 +119,7 @@ class MessageComposerStateHolder(
         }
     }
 
-   internal fun onKeyboardClosed() {
+    fun onKeyboardClosed() {
         if (messageCompositionInputStateHolder.inputFocused) {
             toInActive()
         }

@@ -307,9 +307,9 @@ private fun ActiveMessageComposer(
                                         onCancelReply = messageCompositionHolder::clearReply,
                                         onMessageTextChanged = {
                                             messageCompositionHolder.setMessageText(
-                                                it,
-                                                onSearchMentionQueryChanged,
-                                                onClearMentionSearchResult
+                                                messageTextFieldValue = it,
+                                                onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+                                                onClearMentionSearchResult = onClearMentionSearchResult
                                             )
                                         },
                                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -338,10 +338,10 @@ private fun ActiveMessageComposer(
                             }
                             AdditionalOptionsMenu(
                                 isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                                onOnSelfDeletingOptionClicked = ::toSelfDeleting,
+                                onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                 onMentionButtonClicked = messageCompositionHolder::startMention,
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
-                                onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu
+                                onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
                             )
                         }
                     }

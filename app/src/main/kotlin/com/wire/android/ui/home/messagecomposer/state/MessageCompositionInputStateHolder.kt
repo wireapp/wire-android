@@ -38,14 +38,13 @@ class MessageCompositionInputStateHolder(
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
-    private val messageType = derivedStateOf {
+     private val messageType = derivedStateOf {
         if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
             MessageType.SelfDeleting(selfDeletionTimer.value)
         } else {
-            _messageType
+            MessageType.Normal
         }
     }
-    private var _messageType: MessageType by mutableStateOf(MessageType.Normal)
 
     var inputType: MessageCompositionType by mutableStateOf(
         MessageCompositionType.Composing(
@@ -75,20 +74,6 @@ class MessageCompositionInputStateHolder(
         inputType = MessageCompositionType.Editing(
             messageCompositionState = messageComposition,
             messageCompositionSnapShot = messageComposition.value
-        )
-        toActive(true)
-    }
-
-    fun toSelfDeleting() {
-        _messageType = if (messageType.value is MessageType.SelfDeleting) {
-            messageType.value
-        } else {
-            MessageType.SelfDeleting(SelfDeletionTimer.Enabled(Duration.ZERO))
-        }
-
-        inputType = MessageCompositionType.Composing(
-            messageCompositionState = messageComposition,
-            messageType = messageType
         )
         toActive(true)
     }

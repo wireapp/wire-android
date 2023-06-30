@@ -98,7 +98,7 @@ fun ConversationParticipantItem(
         subtitle = {
             HighlightSubtitle(
                 subTitle = if (uiParticipant.unavailable) {
-                    stringResource(R.string.username_unavailable_label)
+                    uiParticipant.id.domain
                 } else uiParticipant.readReceiptDate?.let {
                     it.uiReadReceiptDateTime()
                 } ?: uiParticipant.handle,

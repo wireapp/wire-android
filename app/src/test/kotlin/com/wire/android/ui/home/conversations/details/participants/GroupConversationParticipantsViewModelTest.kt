@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -119,6 +120,9 @@ internal class GroupConversationParticipantsViewModelArrangement {
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
+    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
+    @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
     private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
@@ -126,6 +130,7 @@ internal class GroupConversationParticipantsViewModelArrangement {
             savedStateHandle,
             navigationManager,
             observeParticipantsForConversationUseCase,
+            refreshUsersWithoutMetadata,
             qualifiedIdMapper
         )
     }

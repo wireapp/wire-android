@@ -14,26 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.settings.about
 
-package com.wire.android.ui.home.newconversation.model
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.user.ConnectionState
+@HiltViewModel
+class LicensesViewModel @Inject constructor(
+    private val navigationManager: NavigationManager
+) : ViewModel() {
 
-data class Contact(
-    val id: String,
-    val domain: String,
-    val name: String,
-    val avatarData: UserAvatarData = UserAvatarData(),
-    val label: String = "",
-    val connectionState: ConnectionState,
-    val membership: Membership
-) {
-    fun isMetadataEmpty(): Boolean {
-        return name.isEmpty()
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
     }
 }

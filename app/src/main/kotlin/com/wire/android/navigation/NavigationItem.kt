@@ -50,6 +50,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMPORT_MEDIA
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.LICENSES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MESSAGE_DETAILS
@@ -92,6 +93,7 @@ import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScree
 import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
+import com.wire.android.ui.home.settings.about.LicensesScreen
 import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
@@ -256,6 +258,11 @@ enum class NavigationItem(
     Debug(
         primaryRoute = DEBUG,
         content = { DebugScreen() },
+    ),
+
+    Licenses(
+        primaryRoute = LICENSES,
+        content = { LicensesScreen() },
     ),
 
     EditDisplayName(
@@ -546,6 +553,7 @@ object NavigationItemDestinationsRoutes {
     const val VERIFY_EMAIL = "verify_email_screen"
     const val EDIT_HANDLE = "edit_handle_screen"
     const val DEBUG = "debug_screen"
+    const val LICENSES = "licenses_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
     const val DEVICE_DETAILS = "device_details_screen"

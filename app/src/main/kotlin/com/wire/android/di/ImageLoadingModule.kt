@@ -25,6 +25,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.network.NetworkStateObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,10 +46,12 @@ class ImageLoadingModule {
         getAvatarAsset: GetAvatarAssetUseCase,
         deleteAsset: DeleteAssetUseCase,
         getMessageAsset: GetMessageAssetUseCase,
+        networkStateObserver: NetworkStateObserver,
     ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(
         context = context,
         getAvatarAsset = getAvatarAsset,
         deleteAsset = deleteAsset,
+        networkStateObserver = networkStateObserver,
         getPrivateAsset = getMessageAsset
     )
 

@@ -83,14 +83,14 @@ class MessageComposerStateHolder(
     val messageComposition = messageCompositionHolder.messageComposition
 
     val isTransitionToKeyboardOnGoing
-        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
-                && !KeyboardHelper.isKeyboardVisible()
-                && messageCompositionInputStateHolder.inputFocused
+        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
+            !KeyboardHelper.isKeyboardVisible() &&
+            messageCompositionInputStateHolder.inputFocused
     val additionalOptionSubMenuVisible
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile &&
-                !KeyboardHelper.isKeyboardVisible()
+            !KeyboardHelper.isKeyboardVisible()
 
-    private var keyboardVisibility = false
+    private var isKeyboardVisible = false
 
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()
@@ -126,15 +126,16 @@ class MessageComposerStateHolder(
     }
 
     fun onKeyboardVisibilityChanged(isVisible: Boolean) {
-        val isKeyboardClosed = keyboardVisibility && !isVisible
+        val isKeyboardClosed = isKeyboardVisible && !isVisible
         if (isKeyboardClosed) {
             if (!modalBottomSheetState.isVisible) {
                 messageCompositionInputStateHolder.toInActive()
-            }else{
+            } else {
                 messageCompositionInputStateHolder.clearFocus()
             }
         }
-        keyboardVisibility = isVisible
+
+        isKeyboardVisible = isVisible
     }
 
     fun showAdditionalOptionsMenu() {
@@ -147,7 +148,4 @@ class MessageComposerStateHolder(
 
         messageCompositionHolder.clear()
     }
-
-
 }
-

@@ -32,6 +32,7 @@ plugins {
     kotlin(BuildPlugins.kapt)
     kotlin(BuildPlugins.serialization) version Libraries.Versions.kotlin
 
+    id(ScriptPlugins.aboutLibraries)
     // Internal Script plugins
     id(ScriptPlugins.variants)
     id(ScriptPlugins.quality)
@@ -202,6 +203,10 @@ dependencies {
     implementation(Libraries.CommonMark.core)
     implementation(Libraries.CommonMark.strikethrough)
     implementation(Libraries.CommonMark.tables)
+
+
+    implementation(Libraries.aboutLibraries.core)
+    implementation(Libraries.aboutLibraries.ui)
 
     // TODO: remove or move to Libraries
     implementation("androidx.appcompat:appcompat:1.4.0")

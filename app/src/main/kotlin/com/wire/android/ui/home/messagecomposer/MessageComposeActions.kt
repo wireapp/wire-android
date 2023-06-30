@@ -44,11 +44,11 @@ fun MessageComposeActions(
     isAdditionalOptionsButtonSelected: Boolean,
     isEditMessage: Boolean,
     isFileSharingEnabled: Boolean = true,
+    isSelfDeletingSettingEnabled: Boolean = true,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
-    showSelfDeletingOption: Boolean,
     onGifButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit
 ) {
@@ -70,7 +70,7 @@ fun MessageComposeActions(
             RichTextEditingAction(onRichEditingButtonClicked)
             if (!isEditMessage && EmojiIcon) AddEmojiAction({})
             if (!isEditMessage && GifIcon) AddGifAction(onGifButtonClicked)
-            if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
+            if (!isEditMessage && isSelfDeletingSettingEnabled) SelfDeletingMessageAction(
                 false, onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (!isEditMessage && PingIcon) PingAction(onPingButtonClicked)

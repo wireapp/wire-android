@@ -347,6 +347,7 @@ private fun ActiveMessageComposer(
                                 onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                 onMentionButtonClicked = messageCompositionHolder::startMention,
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                                isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
                                 onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
                             )
                         }

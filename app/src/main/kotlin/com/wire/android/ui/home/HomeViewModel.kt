@@ -29,7 +29,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -46,15 +45,10 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
-    logFileWriter: LogFileWriter
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var homeState by mutableStateOf(
-        HomeState(
-            logFilePath = logFileWriter.activeLoggingFile.absolutePath
-        )
-    )
+    var homeState by mutableStateOf(HomeState())
         private set
 
     init {
@@ -86,8 +80,7 @@ class HomeViewModel @Inject constructor(
             getSelf().collect { selfUser ->
                 homeState = HomeState(
                     selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    selfUser.availabilityStatus,
-                    homeState.logFilePath
+                    selfUser.availabilityStatus
                 )
             }
         }

@@ -26,7 +26,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavOptionsBuilder
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.DestinationSpec
-import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
@@ -108,5 +107,3 @@ fun String.getPrimaryRoute(): String {
 }
 
 private const val TAG = "NavigationUtils"
-
-fun Direction.isExternalRoute() = this.route.startsWith("http")

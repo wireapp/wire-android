@@ -15,15 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
-@file:Suppress("MatchingDeclarationName", "Filename")
-
 package com.wire.android.navigation
 
-import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.BuildConfig
+import com.ramcosta.composedestinations.annotation.NavGraph
 
-object SupportScreenDestination : Direction {
-    override val route: String
-        get() = BuildConfig.URL_SUPPORT
-}
+@NavGraph
+annotation class HomeNavGraph(
+    val start: Boolean = false
+)

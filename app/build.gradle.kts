@@ -72,7 +72,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.composeCompiler
+        kotlinCompilerExtensionVersion = findVersion("compose.compiler").requiredVersion
     }
 
     sourceSets {
@@ -112,8 +112,7 @@ configurations {
     all {
         resolutionStrategy {
             // Force dependencies to resolve coroutines versions to native-mt variant
-            force(Libraries.Kotlin.coroutinesCore)
-            force(Libraries.Kotlin.coroutinesAndroid)
+            force(deps.coroutines.android)
         }
     }
 }
@@ -123,21 +122,18 @@ dependencies {
     implementation("com.wire.kalium:kalium-util")
 
     // Application dependencies
-    implementation(Libraries.Kotlin.stdLib)
-    implementation(Libraries.appCompat)
-    implementation(Libraries.ktxCore)
-    implementation(Libraries.ktxDateTime)
-    implementation(Libraries.constraintLayout)
-    implementation(Libraries.material)
-    implementation(Libraries.Kotlin.coroutinesCore)
-    implementation(Libraries.Kotlin.coroutinesAndroid)
-    implementation(Libraries.visibilityModifiers)
-    implementation(Libraries.browser)
+    implementation(deps.androidx.appcompat)
+    implementation(deps.androidx.core)
+    implementation(deps.ktx.dateTime)
+    implementation(deps.material)
+    implementation(deps.coroutines.android)
+    implementation(deps.visibilityModifiers)
+    implementation(deps.androidx.browser)
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
     implementation(Libraries.exifInterface)
-    implementation(Libraries.Kotlin.serialization)
-    implementation(Libraries.ktxImmutableCollections)
+    implementation(deps.ktx.serialization)
+    implementation(deps.ktx.immutableCollections)
 
     // Image handling
     implementation(Libraries.coil)
@@ -157,18 +153,18 @@ dependencies {
     implementation(Libraries.Lifecycle.viewModelSavedState)
 
     // Compose
-    implementation(Libraries.composeUi)
-    implementation(Libraries.composeFoundation)
+    implementation(deps.compose.core)
+    implementation(deps.compose.foundation)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
-    implementation(Libraries.composeMaterial)
-    implementation(Libraries.composeMaterial3)
+    implementation(deps.compose.material)
+    implementation(deps.compose.material3)
     // the only libraries with material2 packages that can be used with material3 are icons and ripple
-    implementation(Libraries.composeMaterialIcons)
-    implementation(Libraries.composeMaterialRipple)
-    implementation(Libraries.composePreview)
-    implementation(Libraries.composeActivity)
-    implementation(Libraries.composeNavigation)
+    implementation(deps.compose.ripple)
+    implementation(deps.compose.icons)
+    implementation(deps.compose.preview)
+    implementation(deps.compose.activity)
+    implementation(deps.compose.navigation)
     implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)
@@ -178,11 +174,11 @@ dependencies {
     implementation(Libraries.composeRuntimeLiveData)
     implementation(Libraries.accompanistFlowLayout)
 
-    implementation(Libraries.Paging.runtime)
-    implementation(Libraries.Paging.compose)
+    implementation(deps.androidx.paging3)
+    implementation(deps.androidx.paging3Compose)
 
     // Compose iterative code, layout inspector, etc.
-    debugImplementation(Libraries.composeTooling)
+    debugImplementation(deps.compose.tooling)
 
     // dagger/hilt
     implementation(Libraries.Hilt.android)
@@ -190,32 +186,26 @@ dependencies {
     kapt(Libraries.Hilt.compiler)
 
     // smaller view models
-    implementation (Libraries.resaca)
-    implementation (Libraries.Hilt.resaca)
+    implementation(deps.resaca.core)
+    implementation(deps.resaca.hilt)
 
     // firebase
     implementation(platform(Libraries.Firebase.firebaseBOM))
     implementation(Libraries.Firebase.firebaseCloudMessaging)
 
-    implementation(Libraries.workManager)
+    implementation(deps.androidx.work)
 
     // commonMark
     implementation(Libraries.CommonMark.core)
     implementation(Libraries.CommonMark.strikethrough)
     implementation(Libraries.CommonMark.tables)
 
-
     implementation(Libraries.aboutLibraries.core)
     implementation(Libraries.aboutLibraries.ui)
-
-    // TODO: remove or move to Libraries
-    implementation("androidx.appcompat:appcompat:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
 
     // Unit/Android tests dependencies
     testImplementation(TestLibraries.androidCore)
     testImplementation(TestLibraries.junit4)
-    testImplementation(TestLibraries.robolectric)
     testImplementation(TestLibraries.coroutinesTest)
     testImplementation(TestLibraries.testCore)
     testImplementation(TestLibraries.mockk)
@@ -250,7 +240,6 @@ dependencies {
     debugImplementation(DevLibraries.leakCanary)
 
     // Internal, dev, beta and staging only tracking & logging
-
     devImplementation(Libraries.dataDog)
     internalImplementation(Libraries.dataDog)
     betaImplementation(Libraries.dataDog)

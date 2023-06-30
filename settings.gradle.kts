@@ -42,3 +42,13 @@ includeBuild("kalium") {
         substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
     }
 }
+
+enableFeaturePreview("VERSION_CATALOGS")
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("deps") {
+            from(files("./gradle/libs.versions.toml"))
+        }
+    }
+}

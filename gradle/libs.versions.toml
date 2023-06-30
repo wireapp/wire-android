@@ -3,10 +3,10 @@
 gradle = "7.6.1"
 
 # Kotlin
-kotlin = "1.8.20"
+kotlin = "1.8.21"
 
 # KotlinX
-coroutines = "1.6.5"
+coroutines = "1.7.1"
 ktx = "1.8.0"
 ktx-dateTime = "0.4.0"
 ktx-immutableCollections = "0.3.5"
@@ -69,7 +69,7 @@ junit5 = "5.8.2"
 kluent = "1.68"
 mockk = "1.13.4"
 okio = "3.2.0"
-turbine = "0.7.0"
+turbine = "1.0.0"
 
 [plugins]
 # Home-made convention plugins

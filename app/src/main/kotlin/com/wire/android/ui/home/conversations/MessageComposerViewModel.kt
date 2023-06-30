@@ -345,18 +345,13 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun mentionMember(searchQuery: String?) {
+    fun searchMentionMembers(searchQuery: String) {
         viewModelScope.launch(dispatchers.io()) {
-            messageComposerViewState.value = messageComposerViewState.value.copy(
-                mentionSearchResult = if (searchQuery == null) {
-                    listOf()
-                } else {
-                    val members = membersToMention(conversationId, searchQuery)
-                    members.map {
-                        contactMapper.fromOtherUser(it.user as OtherUser)
-                    }
-                }
-            )
+            val members = membersToMention(conversationId, searchQuery).map {
+                contactMapper.fromOtherUser(it.user as OtherUser)
+            }
+
+            messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = members)
         }
     }
 
@@ -460,7 +455,11 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun hideAssetTooLargeError() {
-       assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+        assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+    }
+
+    fun clearMentionSearchResult() {
+        messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = emptyList())
     }
 
     companion object {

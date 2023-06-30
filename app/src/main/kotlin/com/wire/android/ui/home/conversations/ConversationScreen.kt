@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -53,7 +52,6 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -215,12 +213,12 @@ fun ConversationScreen(
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
-        currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.value.selfDeletionTimer,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
         onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
-        requestMentions = messageComposerViewModel::mentionMember
+        requestMentions = messageComposerViewModel::searchMentionMembers,
+        onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -281,7 +279,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -310,12 +307,12 @@ private fun ConversationScreen(
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
-    currentSelfDeletionTimer: SelfDeletionTimer,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFailedMessageRetryClicked: (String) -> Unit,
     requestMentions: (String) -> Unit,
+    onClearMentionSearchResult: () -> Unit
 ) {
     val context = LocalContext.current
     val conversationScreenState = rememberConversationScreenState()
@@ -424,7 +421,8 @@ private fun ConversationScreen(
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
-                    onSearchMentionQueryChanged = requestMentions
+                    onSearchMentionQueryChanged = requestMentions,
+                    onClearMentionSearchResult = onClearMentionSearchResult
                 )
             }
             MenuModalSheetLayout(
@@ -464,7 +462,8 @@ private fun ConversationScreenContent(
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
-    onSearchMentionQueryChanged: (String) -> Unit
+    onSearchMentionQueryChanged: (String) -> Unit,
+    onClearMentionSearchResult : () -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -495,9 +494,9 @@ private fun ConversationScreenContent(
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
         },
-        onSearchMentionQueryChanged = onSearchMentionQueryChanged,
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-        onClearMentionSearchResult = {}
+        onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+        onClearMentionSearchResult = onClearMentionSearchResult
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

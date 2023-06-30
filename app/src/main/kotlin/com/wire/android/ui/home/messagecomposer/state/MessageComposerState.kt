@@ -45,8 +45,8 @@ fun rememberMessageComposerStateHolder(
         )
     }
 
-    // we "extract" the selfDeletionTimer from the messageCompositionHolder as a state in order to "observe" the changes to it
-    // which are made "externally" and not inside the MessageComposer
+    // we derive the selfDeletionTimer from the messageCompositionHolder as a state in order to "observe" the changes to it
+    // which are made "externally" and not inside the MessageComposer.
     val selfDeletionTimer = remember {
         derivedStateOf {
             messageComposerViewState.value.selfDeletionTimer

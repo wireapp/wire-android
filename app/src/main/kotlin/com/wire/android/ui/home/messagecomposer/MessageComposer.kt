@@ -272,6 +272,7 @@ private fun ActiveMessageComposer(
                                     membersToMention = messageComposerViewState.value.mentionSearchResult,
                                     onMentionPicked = { pickedMention ->
                                         messageCompositionHolder.addMention(pickedMention)
+                                        onClearMentionSearchResult()
                                     }
                                 )
                             }
@@ -333,7 +334,10 @@ private fun ActiveMessageComposer(
                                             currentSelectedLineIndex = currentSelectedLineIndex,
                                             cursorCoordinateY = cursorCoordinateY,
                                             membersToMention = mentionSearchResult,
-                                            onMentionPicked = messageCompositionHolder::addMention
+                                            onMentionPicked = {
+                                                messageCompositionHolder.addMention(it)
+                                                onClearMentionSearchResult()
+                                            }
                                         )
                                     }
                                 }

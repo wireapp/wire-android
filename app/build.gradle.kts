@@ -30,9 +30,10 @@ plugins {
     id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
     kotlin(BuildPlugins.kapt)
-    kotlin(BuildPlugins.serialization) version Libraries.Versions.kotlin
+    alias(libs.plugins.kotlin.serialization)
 
-    id(ScriptPlugins.aboutLibraries)
+    id(libs.plugins.aboutLibraries.get().pluginId)
+
     // Internal Script plugins
     id(ScriptPlugins.variants)
     id(ScriptPlugins.quality)
@@ -108,145 +109,135 @@ kapt {
     correctErrorTypes = true
 }
 
-configurations {
-    all {
-        resolutionStrategy {
-            // Force dependencies to resolve coroutines versions to native-mt variant
-            force(deps.coroutines.android)
-        }
-    }
-}
-
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
 
     // Application dependencies
-    implementation(deps.androidx.appcompat)
-    implementation(deps.androidx.core)
-    implementation(deps.ktx.dateTime)
-    implementation(deps.material)
-    implementation(deps.coroutines.android)
-    implementation(deps.visibilityModifiers)
-    implementation(deps.androidx.browser)
-    implementation(Libraries.dataStore)
-    implementation(Libraries.splashscreen)
-    implementation(Libraries.exifInterface)
-    implementation(deps.ktx.serialization)
-    implementation(deps.ktx.immutableCollections)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.dataStore)
+    implementation(libs.androidx.splashscreen)
+    implementation(libs.androidx.exifInterface)
 
-    // Image handling
-    implementation(Libraries.coil)
-    implementation(Libraries.coilGif)
-    implementation(Libraries.coilCompose)
+    implementation(libs.ktx.dateTime)
+    implementation(libs.material)
+    implementation(libs.coroutines.android)
+    implementation(libs.visibilityModifiers)
+    implementation(libs.ktx.serialization)
+    implementation(libs.ktx.immutableCollections)
 
-    /** lifecycle **/
-    // ViewModel
-    implementation(Libraries.Lifecycle.viewModel)
-    // ViewModel utilities for Compose
-    implementation(Libraries.Lifecycle.viewModelCompose)
-    // LiveData
-    implementation(Libraries.Lifecycle.liveData)
-    // Lifecycles only (without ViewModel or LiveData)
-    implementation(Libraries.Lifecycle.runtime)
-    // Saved state module for ViewModel
-    implementation(Libraries.Lifecycle.viewModelSavedState)
+    // Image loading
+    implementation(libs.coil.core)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.compose)
+
+    // Androidx - Lifecycle
+    implementation(libs.androidx.lifecycle.viewModel)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+    implementation(libs.androidx.lifecycle.liveData)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.viewModelSavedState)
 
     // Compose
-    implementation(deps.compose.core)
-    implementation(deps.compose.foundation)
+    implementation(libs.compose.core)
+    implementation(libs.compose.foundation)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
-    implementation(deps.compose.material)
-    implementation(deps.compose.material3)
+    implementation(libs.compose.material.core)
+    implementation(libs.compose.material3)
     // the only libraries with material2 packages that can be used with material3 are icons and ripple
-    implementation(deps.compose.ripple)
-    implementation(deps.compose.icons)
-    implementation(deps.compose.preview)
-    implementation(deps.compose.activity)
-    implementation(deps.compose.navigation)
-    implementation(Libraries.composeConstraintLayout)
-    implementation(Libraries.accompanistPager)
-    implementation(Libraries.accompanistSystemUI)
-    implementation(Libraries.accompanistPlaceholder)
-    implementation(Libraries.accompanistNavAnimation)
-    implementation(Libraries.accompanistIndicator)
-    implementation(Libraries.composeRuntimeLiveData)
-    implementation(Libraries.accompanistFlowLayout)
+    implementation(libs.compose.material.icons)
+    implementation(libs.compose.material.ripple)
+    implementation(libs.compose.preview)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.constraintLayout)
+    implementation(libs.compose.liveData)
 
-    implementation(deps.androidx.paging3)
-    implementation(deps.androidx.paging3Compose)
+    // Accompanist
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.systemUI)
+    implementation(libs.accompanist.placeholder)
+    implementation(libs.accompanist.navAnimation)
+    implementation(libs.accompanist.indicator)
+    implementation(libs.accompanist.flowLayout)
+
+    implementation(libs.androidx.paging3)
+    implementation(libs.androidx.paging3Compose)
 
     // Compose iterative code, layout inspector, etc.
-    debugImplementation(deps.compose.tooling)
+    debugImplementation(libs.compose.tooling)
 
     // dagger/hilt
-    implementation(Libraries.Hilt.android)
-    implementation(Libraries.Hilt.navigationCompose)
-    kapt(Libraries.Hilt.compiler)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigationCompose)
+    implementation(libs.hilt.work)
+    kapt(libs.hilt.compiler)
 
     // smaller view models
-    implementation(deps.resaca.core)
-    implementation(deps.resaca.hilt)
+    implementation(libs.resaca.core)
+    implementation(libs.resaca.hilt)
 
     // firebase
-    implementation(platform(Libraries.Firebase.firebaseBOM))
-    implementation(Libraries.Firebase.firebaseCloudMessaging)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.fcm)
 
-    implementation(deps.androidx.work)
+    implementation(libs.androidx.work)
 
     // commonMark
-    implementation(Libraries.CommonMark.core)
-    implementation(Libraries.CommonMark.strikethrough)
-    implementation(Libraries.CommonMark.tables)
+    implementation(libs.commonmark.core)
+    implementation(libs.commonmark.strikethrough)
+    implementation(libs.commonmark.tables)
 
-    implementation(Libraries.aboutLibraries.core)
-    implementation(Libraries.aboutLibraries.ui)
+    implementation(libs.aboutLibraries.core)
+    implementation(libs.aboutLibraries.ui)
 
     // Unit/Android tests dependencies
-    testImplementation(TestLibraries.androidCore)
-    testImplementation(TestLibraries.junit4)
-    testImplementation(TestLibraries.coroutinesTest)
-    testImplementation(TestLibraries.testCore)
-    testImplementation(TestLibraries.mockk)
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.turbine)
-    testImplementation(TestLibraries.okio)
-    testRuntimeOnly(TestLibraries.junit5Engine)
+    testImplementation(libs.androidx.test.archCore)
+    testImplementation(libs.junit4) // Maybe migrate completely to Junit 5?
+    testImplementation(libs.junit5.core)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.mockk.core)
+    testImplementation(libs.kluent.core)
+    testImplementation(libs.turbine)
+    testImplementation(libs.okio.fakeFileSystem)
+    testRuntimeOnly(libs.junit5.engine)
 
     // Acceptance/Functional tests dependencies
-    androidTestImplementation(TestLibraries.testRunner)
-    androidTestImplementation(TestLibraries.Espresso.core)
-    androidTestImplementation(TestLibraries.Espresso.intents)
-    androidTestImplementation(TestLibraries.Espresso.accessibility)
-    androidTestImplementation(TestLibraries.testExtJunit)
-    androidTestImplementation(TestLibraries.testRules)
-    androidTestImplementation(TestLibraries.uiAutomator)
-    androidTestImplementation(TestLibraries.coroutinesTest)
-    androidTestImplementation(TestLibraries.mockkAndroid)
-    androidTestImplementation(TestLibraries.kluentAndroid)
-    androidTestImplementation(TestLibraries.composeJunit)
-    debugImplementation(TestLibraries.composeManifest)
-    androidTestImplementation(Libraries.Hilt.android)
-    androidTestImplementation(Libraries.Hilt.hiltTest)
-    androidTestImplementation(TestLibraries.workManager)
-    kaptAndroidTest(Libraries.Hilt.compiler)
-    androidTestUtil(TestLibraries.testOrchestrator)
+    kaptAndroidTest(libs.hilt.compiler)
+    androidTestImplementation(libs.hilt.android)
+    androidTestImplementation(libs.hilt.test)
 
-    implementation(Libraries.Hilt.hiltWork)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.intents)
+    androidTestImplementation(libs.androidx.espresso.accessibility)
+    androidTestImplementation(libs.androidx.test.extJunit)
+    androidTestImplementation(libs.androidx.test.uiAutomator)
+    androidTestImplementation(libs.androidx.test.work)
+
+    androidTestImplementation(libs.coroutines.test)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.kluent.android)
+    androidTestImplementation(libs.compose.test.junit)
+    debugImplementation(libs.compose.test.manifest)
+    androidTestUtil(libs.androidx.test.orchestrator)
 
     // Development dependencies
-    debugImplementation(DevLibraries.leakCanary)
+    debugImplementation(libs.leakCanary)
 
     // Internal, dev, beta and staging only tracking & logging
-    devImplementation(Libraries.dataDog)
-    internalImplementation(Libraries.dataDog)
-    betaImplementation(Libraries.dataDog)
-    stagingImplementation(Libraries.dataDog)
+    devImplementation(libs.dataDog.core)
+    internalImplementation(libs.dataDog.core)
+    betaImplementation(libs.dataDog.core)
+    stagingImplementation(libs.dataDog.core)
 
-    devImplementation(Libraries.dataDogCompose)
-    internalImplementation(Libraries.dataDogCompose)
-    betaImplementation(Libraries.dataDogCompose)
-    stagingImplementation(Libraries.dataDogCompose)
+    devImplementation(libs.dataDog.compose)
+    internalImplementation(libs.dataDog.compose)
+    betaImplementation(libs.dataDog.compose)
+    stagingImplementation(libs.dataDog.compose)
 }

@@ -21,7 +21,7 @@
 package scripts
 
 import IncludeGitBuildTask
-import Libraries
+import versionCatalog
 
 plugins {
     id("com.android.application") apply false
@@ -61,7 +61,7 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring(Libraries.desugaring)
+    coreLibraryDesugaring(versionCatalog.findLibrary("android.desugarJdkLibs").get())
 }
 
 project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {

@@ -17,13 +17,15 @@
  *
  *
  */
+enableFeaturePreview("VERSION_CATALOGS")
+
 pluginManagement {
     repositories {
         mavenCentral()
     }
 }
 
-//Include all the existent modules in the project
+// Include all the existent modules in the project
 rootDir
     .walk()
     .maxDepth(1)
@@ -40,15 +42,5 @@ includeBuild("kalium") {
     dependencySubstitution {
         substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
         substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
-    }
-}
-
-enableFeaturePreview("VERSION_CATALOGS")
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("deps") {
-            from(files("./gradle/libs.versions.toml"))
-        }
     }
 }

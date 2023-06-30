@@ -23,16 +23,16 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.provider.Provider
 
-val Project.libs: VersionCatalog
+val Project.versionCatalog: VersionCatalog
     get() {
         val catalogs = extensions.getByType(VersionCatalogsExtension::class.java)
         return catalogs.named("libs")
     }
 
 fun Project.findLibrary(name: String): Provider<MinimalExternalModuleDependency> {
-    return libs.findLibrary(name).get()
+    return versionCatalog.findLibrary(name).get()
 }
 
 fun Project.findVersion(name: String): VersionConstraint {
-    return libs.findVersion(name).get()
+    return versionCatalog.findVersion(name).get()
 }

@@ -208,10 +208,3 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-
-#
-## detekt
-#detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
-#detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
-#detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
-

@@ -58,6 +58,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -220,19 +221,16 @@ private fun ActiveMessageComposer(
                 val isKeyboardVisible = KeyboardHelper.isKeyboardVisible()
                 if (isKeyboardVisible) {
                     val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
-                    Log.d("TEST", "calculating keyboard height: $calculatedKeyboardHeight")
                     val notKnownAndCalculated =
                         keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
                     val knownAndDifferent =
                         keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
                     if (notKnownAndCalculated || knownAndDifferent) {
-                        Log.d("TEST", "keyboard height is known: $keyboardHeight")
                         keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
                     }
                 }
 
                 LaunchedEffect(isKeyboardVisible) {
-                    Log.d("TEST", "keyboard height: $keyboardHeight")
                     messageComposerStateHolder.onKeyboardVisibilityChanged(isKeyboardVisible)
                 }
 
@@ -343,6 +341,8 @@ private fun ActiveMessageComposer(
                                 }
                             }
                             AdditionalOptionsMenu(
+                                selectedOption = additionalOptionStateHolder.selectedOption,
+                                isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
                                 isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                 onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                 onMentionButtonClicked = messageCompositionHolder::startMention,

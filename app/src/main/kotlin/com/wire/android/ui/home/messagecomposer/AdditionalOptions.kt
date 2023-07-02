@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
@@ -32,13 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelecItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -59,8 +59,10 @@ fun AdditionalOptionButton(
 
 @Composable
 fun AdditionalOptionsMenu(
+    selectedOption: AdditionalOptionSelecItem,
     isFileSharingEnabled: Boolean,
-    isSelfDeletingSettingEnabled : Boolean,
+    isEditing: Boolean,
+    isSelfDeletingSettingEnabled: Boolean,
     onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit)? = null,
@@ -75,16 +77,17 @@ fun AdditionalOptionsMenu(
         when (additionalOptionState) {
             is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
-                    isMentionActive = onMentionButtonClicked != null,
+                    selectedOption = selectedOption,
                     isFileSharingEnabled = isFileSharingEnabled,
+                    isEditing = isEditing,
+                    isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+                    isMentionEnabled = onMentionButtonClicked != null,
                     onMentionButtonClicked = onMentionButtonClicked ?: {},
                     onAdditionalOptionsMenuClicked = onAdditionalOptionsMenuClicked,
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
-                    onPingClicked = onPingOptionClicked ?: {},
-                    isSelfDeletingSettingEnabled = true,
-                    modifier = Modifier.background(Color.Black)
+                    onPingClicked = onPingOptionClicked ?: {}
                 )
             }
 
@@ -119,8 +122,8 @@ fun AdditionalOptionSubMenu(
             )
         }
 
-        AdditionalOptionSubMenuState.AttachImage -> {}
         // non functional for now
+        AdditionalOptionSubMenuState.AttachImage -> {}
         AdditionalOptionSubMenuState.Emoji -> {}
         AdditionalOptionSubMenuState.Gif -> {}
         AdditionalOptionSubMenuState.RecordAudio -> {}
@@ -130,7 +133,9 @@ fun AdditionalOptionSubMenu(
 
 @Composable
 fun AttachmentAndAdditionalOptionsMenuItems(
-    isMentionActive: Boolean,
+    isEditing: Boolean,
+    selectedOption: AdditionalOptionSelecItem,
+    isMentionEnabled: Boolean,
     isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionsMenuClicked: () -> Unit = {},
@@ -144,13 +149,15 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     Column(modifier.wrapContentSize()) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
         MessageComposeActions(
-            isAdditionalOptionsButtonSelected = false,
-            isEditMessage = false,
+            isEditing = isEditing,
+            selectedOption = selectedOption,
+            isFileSharingEnabled = isFileSharingEnabled,
+            isMentionEnabled = isMentionEnabled,
             onMentionButtonClicked = onMentionButtonClicked,
             onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
             onPingButtonClicked = onPingClicked,
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-            isSelfDeletingSettingEnabled = showSelfDeletingOption,
+            isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked
         )

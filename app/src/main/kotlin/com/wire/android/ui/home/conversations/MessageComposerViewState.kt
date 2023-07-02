@@ -35,7 +35,6 @@ data class MessageComposerViewState(
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
 )
 
-
 sealed class AssetTooLargeDialogState {
     object Hidden : AssetTooLargeDialogState()
     data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()

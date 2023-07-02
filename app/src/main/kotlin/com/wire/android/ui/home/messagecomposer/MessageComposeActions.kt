@@ -37,13 +37,17 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelecItem
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun MessageComposeActions(
-    isAdditionalOptionsButtonSelected: Boolean,
-    isEditMessage: Boolean,
+    isEditing: Boolean,
+    selectedOption: AdditionalOptionSelecItem,
     isFileSharingEnabled: Boolean = true,
+    isMentionEnabled: Boolean = true,
     isSelfDeletingSettingEnabled: Boolean = true,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -51,6 +55,39 @@ fun MessageComposeActions(
     onSelfDeletionOptionButtonClicked: () -> Unit,
     onGifButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit
+) {
+    if (isEditing) {
+        EditingActions(
+            selectedOption,
+            onRichEditingButtonClicked,
+            onMentionButtonClicked
+        )
+    } else {
+        ComposingActions(
+            selectedOption,
+            isFileSharingEnabled,
+            onAdditionalOptionButtonClicked,
+            onRichEditingButtonClicked,
+            onGifButtonClicked,
+            isSelfDeletingSettingEnabled,
+            onSelfDeletionOptionButtonClicked,
+            onPingButtonClicked,
+            onMentionButtonClicked
+        )
+    }
+}
+
+@Composable
+private fun ComposingActions(
+    selectedOption: AdditionalOptionSelecItem,
+    isFileSharingEnabled: Boolean,
+    onAdditionalOptionButtonClicked: () -> Unit,
+    onRichEditingButtonClicked: () -> Unit,
+    onGifButtonClicked: () -> Unit,
+    isSelfDeletingSettingEnabled: Boolean,
+    onSelfDeletionOptionButtonClicked: () -> Unit,
+    onPingButtonClicked: () -> Unit,
+    onMentionButtonClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -62,18 +99,21 @@ fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            if (!isEditMessage) AdditionalOptionButton(
-                isSelected = isAdditionalOptionsButtonSelected,
+            AdditionalOptionButton(
+                isSelected = selectedOption == AdditionalOptionSelecItem.AttachFile,
                 isEnabled = isFileSharingEnabled,
                 onClick = onAdditionalOptionButtonClicked
             )
-            RichTextEditingAction(onRichEditingButtonClicked)
-            if (!isEditMessage && EmojiIcon) AddEmojiAction({})
-            if (!isEditMessage && GifIcon) AddGifAction(onGifButtonClicked)
-            if (!isEditMessage && isSelfDeletingSettingEnabled) SelfDeletingMessageAction(
+            RichTextEditingAction(
+                isSelected = selectedOption == AdditionalOptionSelecItem.RichTextEditing,
+                onRichEditingButtonClicked
+            )
+            if (EmojiIcon) AddEmojiAction({})
+            if (GifIcon) AddGifAction(onGifButtonClicked)
+            if (isSelfDeletingSettingEnabled) SelfDeletingMessageAction(
                 false, onButtonClicked = onSelfDeletionOptionButtonClicked
             )
-            if (!isEditMessage && PingIcon) PingAction(onPingButtonClicked)
+            if (PingIcon) PingAction(onPingButtonClicked)
             AddMentionAction(onMentionButtonClicked)
         }
     }
@@ -81,10 +121,13 @@ fun MessageComposeActions(
 
 
 @Composable
-fun EditMessageComposeActions(
+fun EditingActions(
+    selectedOption: AdditionalOptionSelecItem,
     onRichEditingButtonClicked: () -> Unit,
     onMentionButtonClicked: () -> Unit
 ) {
+    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -92,17 +135,21 @@ fun EditMessageComposeActions(
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        RichTextEditingAction(onRichEditingButtonClicked)
+        RichTextEditingAction(
+            isSelected = selectedOption == AdditionalOptionSelecItem.RichTextEditing,
+            onButtonClicked = onRichEditingButtonClicked
+        )
         AddMentionAction(onMentionButtonClicked)
     }
 }
 
 @Composable
-private fun RichTextEditingAction(onButtonClicked: () -> Unit) {
+private fun RichTextEditingAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_rich_text,
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
     )
 }
@@ -177,21 +224,21 @@ fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) 
     )
 }
 
-@Preview
-@Composable
-fun PreviewMessageActionsBox() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(dimensions().spacing56x)
-    ) {
-        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
-        RichTextEditingAction({})
-        AddEmojiAction({})
-        AddGifAction({})
-        AddMentionAction({})
-        PingAction {}
-    }
-}
+//@Preview
+//@Composable
+//fun PreviewMessageActionsBox() {
+//    Row(
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.SpaceEvenly,
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(dimensions().spacing56x)
+//    ) {
+//        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
+//        RichTextEditingAction({}, selectedOption == AdditionalOptionSubMenuState.RichTextEditing)
+//        AddEmojiAction({})
+//        AddGifAction({})
+//        AddMentionAction({})
+//        PingAction {}
+//    }
+//}

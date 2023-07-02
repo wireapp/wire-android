@@ -30,20 +30,31 @@ sealed class AdditionalOptionMenuState {
 
 enum class AdditionalOptionSubMenuState {
     Hidden,
-    AttachFile,
     RecordAudio,
+    AttachFile,
     AttachImage,
     Emoji,
     Gif;
 }
 
+enum class AdditionalOptionSelecItem {
+    RichTextEditing,
+    SelfDeleting,
+    AttachFile,
+    None,
+}
+
 class AdditionalOptionStateHolder {
+
+    var selectedOption by mutableStateOf(AdditionalOptionSelecItem.None)
+
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
         AdditionalOptionSubMenuState.Hidden
     )
         private set
 
     fun showAdditionalOptionsMenu() {
+        selectedOption = AdditionalOptionSelecItem.AttachFile
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
     }
 
@@ -52,3 +63,4 @@ class AdditionalOptionStateHolder {
     }
 
 }
+

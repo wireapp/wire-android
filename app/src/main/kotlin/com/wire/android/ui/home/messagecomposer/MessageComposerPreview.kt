@@ -50,7 +50,7 @@ import kotlin.time.Duration
 //                context = LocalContext.current
 //            ),
 //            additionalOptionStateHolder = AdditionalOptionStateHolder(),
-//            modalSheetState = modalSheetState
+//
 //        ),
 //        messageListContent = { },
 //        onChangeSelfDeletionClicked = { },

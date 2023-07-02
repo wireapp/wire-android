@@ -60,8 +60,9 @@ class WelcomeViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { authServerConfigProvider.authServer } returns MutableStateFlow(newServerConfig(1).links)
-        coEvery { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        val authServer = newServerConfig(1)
+        every { authServerConfigProvider.authServer } returns MutableStateFlow(authServer.links)
+        coEvery { authServerConfigProvider.authServer } returns MutableStateFlow(authServer.links)
         coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
         welcomeViewModel = WelcomeViewModel(navigationManager, authServerConfigProvider, getSessions)
     }

@@ -2,7 +2,7 @@ package com.wire.android.media
 
 import android.content.Context
 import android.media.MediaPlayer
-import app.cash.turbine.FlowTurbine
+import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
@@ -423,7 +423,7 @@ class ConversationAudioMessagePlayerTest {
             }
         }
 
-    private suspend fun <T> FlowTurbine<T>.awaitAndAssertStateUpdate(assertion: (T) -> Unit) {
+    private suspend fun <T> TurbineTestContext<T>.awaitAndAssertStateUpdate(assertion: (T) -> Unit) {
         val state = awaitItem()
         assert(state != null)
 

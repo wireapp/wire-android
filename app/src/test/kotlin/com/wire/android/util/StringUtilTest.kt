@@ -23,7 +23,7 @@ class StringUtilTest {
 
     @Test
     fun givenString_whenToTitleCase_thenReturnsTitleCase() {
-        val input = "this is a test"
+        val input = "tHIS is a teSt"
         val expected = "This Is A Test"
         val actual = input.toTitleCase()
         assert(expected == actual)

@@ -176,12 +176,12 @@
     <string name="support_screen_title">සහාය</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
-    <string name="search_no_results">No matches found</string>
+    <string name="search_no_results">ගැළපීම් හමු නොවිණි</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">උපස්ථ</string>
     <string name="settings_other_group_title">වෙනත්</string>
     <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
-    <string name="settings_backup_create">Create a Backup</string>
+    <string name="settings_backup_create">උපස්ථයක් සාදන්න</string>
     <string name="settings_backup_restore">උපස්ථයකින් ප්‍රත්‍යර්පණය</string>
     <!-- Welcome -->
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
@@ -945,7 +945,7 @@
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
-    <string name="self_deleting_messages_folder_timer">Timer</string>
+    <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>

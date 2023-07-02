@@ -60,8 +60,8 @@ import com.wire.android.ui.home.settings.account.MyAccountViewModel.SettingsOper
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.ToCamelCase
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.toTitleCase
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -149,14 +149,14 @@ fun MyAccountContent(
 
                 if (!forgotPasswordUrl.isNullOrBlank()) {
                     WirePrimaryButton(
-                        text = stringResource(R.string.settings_myaccount_reset_password).ToCamelCase(),
+                        text = stringResource(R.string.settings_myaccount_reset_password).toTitleCase(),
                         onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) })
                 }
 
                 if (canDeleteAccount) {
                     if (!forgotPasswordUrl.isNullOrBlank()) Spacer(modifier = Modifier.padding(dimensions().spacing8x))
                     WirePrimaryButton(
-                        text = stringResource(R.string.settings_myaccount_logout).ToCamelCase(),
+                        text = stringResource(R.string.settings_myaccount_logout).toTitleCase(),
                         onClick = onDeleteAccountClicked,
                         state = WireButtonState.Error
                     )

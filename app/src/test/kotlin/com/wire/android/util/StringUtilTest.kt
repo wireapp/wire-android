@@ -17,8 +17,23 @@
  */
 package com.wire.android.util
 
-@Suppress("FunctionNaming")
-fun String.ToCamelCase(delimiter: String = " ", separator: String = " "): String =
-    this.split(delimiter).joinToString(separator = separator) {
-        it.lowercase().replaceFirstChar(Char::titlecaseChar)
+import org.junit.jupiter.api.Test
+
+class StringUtilTest {
+
+    @Test
+    fun givenString_whenToTitleCase_thenReturnsTitleCase() {
+        val input = "this is a test"
+        val expected = "This Is A Test"
+        val actual = input.toTitleCase()
+        assert(expected == actual)
     }
+
+    @Test
+    fun givenStringInLanguageWithNoUpperCase_whenToTitleCase_thenNothingChanges() {
+        val input = "هذا اختبار"
+        val expected = input
+        val actual = input.toTitleCase()
+        assert(expected == actual)
+    }
+}

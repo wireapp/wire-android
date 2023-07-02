@@ -24,7 +24,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.util.ToCamelCase
+import com.wire.android.util.toTitleCase
 
 @Composable
 fun DeleteAccountDialog(
@@ -32,16 +32,16 @@ fun DeleteAccountDialog(
     onConfirm: () -> Unit = {}
 ) {
     WireDialog(
-        title = stringResource(id = R.string.delete_acount_dialog_title).ToCamelCase(),
+        title = stringResource(id = R.string.delete_acount_dialog_title).toTitleCase(),
         text = stringResource(id = R.string.delete_acount_dialog_text),
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            text = stringResource(id = R.string.label_continue).ToCamelCase(),
+            text = stringResource(id = R.string.label_continue).toTitleCase(),
             onClick = onConfirm,
             type = WireDialogButtonType.Primary
         ),
         dismissButtonProperties = WireDialogButtonProperties(
-            text = stringResource(id = R.string.cancel_login_button_label).ToCamelCase(),
+            text = stringResource(id = R.string.cancel_login_button_label).toTitleCase(),
             onClick = onDismiss,
             type = WireDialogButtonType.Secondary
         ),

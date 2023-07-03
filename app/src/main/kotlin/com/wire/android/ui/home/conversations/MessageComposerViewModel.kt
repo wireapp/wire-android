@@ -355,6 +355,10 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun clearMentionSearchResult() {
+        messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = emptyList())
+    }
+
     private fun setFileSharingStatus() {
         // TODO: handle restriction when sending assets
         viewModelScope.launch {
@@ -428,39 +432,10 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
-        val tempCachePath = kaliumFileSystem.rootCachePath
-        val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-        if (assetBundle != null) {
-            // The max limit for sending assets changes between user and asset types.
-            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-            val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-            if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-//                sendAttachmentMessage(assetBundle)
-            } else {
-                if (attachmentUri.saveToDeviceIfInvalid) {
-                    with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
-                }
-
-
-                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                    assetType = assetBundle.assetType,
-                    maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                )
-            }
-        } else {
-            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-        }
-    }
-
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
     }
 
-    fun clearMentionSearchResult() {
-        messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = emptyList())
-    }
 
     companion object {
         private const val sizeOf1MB = 1024 * 1024

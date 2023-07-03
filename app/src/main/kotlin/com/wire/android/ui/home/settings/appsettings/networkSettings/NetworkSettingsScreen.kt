@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
+import com.wire.android.util.extension.isGoogleServicesAvailable
 
 @Composable
 fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = hiltViewModel()) {
@@ -56,7 +58,6 @@ fun NetworkSettingsScreenContent(
     isWebSocketEnabled: Boolean,
     setWebSocketState: (Boolean) -> Unit,
     backendName: String
-
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -76,13 +77,25 @@ fun NetworkSettingsScreenContent(
                     R.string.settings_keep_connection_to_websocket_description,
                     backendName
                 ),
-                switchState = SwitchState.Enabled(
-                    value = isWebSocketEnabled,
-                    onCheckedChange = setWebSocketState
-                ),
+                switchState = getSwitchState(isWebSocketEnabled, setWebSocketState),
                 arrowType = ArrowType.NONE
             )
         }
+    }
+}
+
+@Composable
+private fun getSwitchState(isWebSocketEnabled: Boolean, setWebSocketState: (Boolean) -> Unit): SwitchState {
+    val context = LocalContext.current
+    return if (context.isGoogleServicesAvailable()) {
+        SwitchState.Enabled(
+            value = isWebSocketEnabled,
+            onCheckedChange = setWebSocketState
+        )
+    } else {
+        SwitchState.Disabled(
+            value = isWebSocketEnabled,
+        )
     }
 }
 

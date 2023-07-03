@@ -26,9 +26,9 @@ buildscript {
         maven(url ="https://plugins.gradle.org/m2/")
     }
     dependencies {
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.40")
-        classpath("com.google.gms:google-services:4.3.14")
-        classpath("com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:10.8.0")
+        classpath(libs.hilt.gradlePlugin)
+        classpath(libs.googleGms.gradlePlugin)
+        classpath(libs.aboutLibraries.gradlePlugin)
     }
 }
 

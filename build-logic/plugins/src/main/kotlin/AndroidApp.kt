@@ -1,3 +1,5 @@
+import com.wire.android.gradle.version.Versionizer
+
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -14,25 +16,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package scripts
-
-import IncludeGitBuildTask
-
-plugins {
-    id("com.android.application") apply false
-}
-
-// TODO: Extract to a convention plugin
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
-    }
+object AndroidApp {
+    const val id = "com.wire.android"
+    const val versionName = "4.3.0"
+    val versionCode = Versionizer().versionCode
 }

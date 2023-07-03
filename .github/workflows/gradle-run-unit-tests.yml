@@ -38,7 +38,9 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Test Build Logic
-        run: ./gradlew -p buildSrc test
+        run: |
+          ./gradlew -p buildSrc test
+          ./gradlew -p build-logic :plugins:test
 
       - name: Test with coverage
         run: ./gradlew testCoverage

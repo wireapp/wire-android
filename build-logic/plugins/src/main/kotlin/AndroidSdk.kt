@@ -14,25 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package scripts
-
-import IncludeGitBuildTask
-
-plugins {
-    id("com.android.application") apply false
-}
-
-// TODO: Extract to a convention plugin
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
-    }
+object AndroidSdk {
+    const val min = 26
+    const val compile = 33
+    const val target = compile
 }

@@ -18,6 +18,7 @@
  *
  */
 
+import com.wire.android.gradle.version.Versionizer
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan

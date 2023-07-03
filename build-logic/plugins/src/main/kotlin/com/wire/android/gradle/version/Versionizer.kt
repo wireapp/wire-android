@@ -1,4 +1,5 @@
-package com.wire.android.gradle.version/*
+package com.wire.android.gradle.version
+/*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
  *

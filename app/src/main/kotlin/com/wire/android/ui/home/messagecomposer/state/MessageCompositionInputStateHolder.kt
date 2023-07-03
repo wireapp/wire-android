@@ -54,7 +54,7 @@ class MessageCompositionInputStateHolder(
     )
 
     var inputVisiblity by mutableStateOf(true)
-    private set
+        private set
 
     var inputState: MessageCompositionInputState by mutableStateOf(MessageCompositionInputState.INACTIVE)
 
@@ -64,11 +64,15 @@ class MessageCompositionInputStateHolder(
         private set
 
     fun toInActive() {
+        inputVisiblity = true
+        inputSize = MessageCompositionInputSize.COLLAPSED
         inputState = MessageCompositionInputState.INACTIVE
         clearFocus()
     }
 
     fun toActive(isFocused: Boolean) {
+        inputVisiblity = true
+        inputSize = MessageCompositionInputSize.COLLAPSED
         inputState = MessageCompositionInputState.ACTIVE
         if (isFocused) requestFocus() else clearFocus()
     }

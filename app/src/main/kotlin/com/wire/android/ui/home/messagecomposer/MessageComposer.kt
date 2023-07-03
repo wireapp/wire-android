@@ -361,7 +361,6 @@ private fun ActiveMessageComposer(
                         }
                     }
 
-
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,

@@ -53,6 +53,7 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
@@ -69,9 +70,10 @@ fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onClearMentionSearchResult: () -> Unit,
+    onClearMentionSearchResult: () -> Unit
 ) {
     with(messageComposerStateHolder) {
         val interActionAvailability = messageComposerViewState.value.interactionAvailability
@@ -103,6 +105,7 @@ fun MessageComposer(
                     onPingOptionClicked = {
                         onSendMessageBundle(Ping)
                     },
+                    onAttachmentPicked = onAttachmentPicked,
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult
@@ -118,6 +121,7 @@ private fun EnabledMessageComposer(
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
     onPingOptionClicked: () -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
@@ -138,6 +142,7 @@ private fun EnabledMessageComposer(
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
+                        onAttachmentPicked = onAttachmentPicked,
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                         onClearMentionSearchResult = onClearMentionSearchResult,
@@ -220,6 +225,7 @@ private fun ActiveMessageComposer(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit
 ) {
@@ -316,7 +322,7 @@ private fun ActiveMessageComposer(
                                         messageComposition = messageComposition.value,
                                         inputSize = messageCompositionInputStateHolder.inputSize,
                                         inputType = messageCompositionInputStateHolder.inputType,
-                                        inputVisiblity = messageCompositionInputStateHolder.inputVisiblity,
+                                        inputVisiblity = messageCompositionInputStateHolder.inputVisibility,
                                         inputFocused = messageCompositionInputStateHolder.inputFocused,
                                         onInputFocusedChanged = ::onInputFocusedChanged,
                                         onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
@@ -358,11 +364,11 @@ private fun ActiveMessageComposer(
                                     additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
                                     selectedOption = additionalOptionStateHolder.selectedOption,
                                     isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
+                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                                    onMentionButtonClicked = messageCompositionHolder::startMention,
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                     onPingOptionClicked = onPingOptionClicked,
-                                    onMentionButtonClicked = messageCompositionHolder::startMention,
-                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
                                     onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,
@@ -377,6 +383,9 @@ private fun ActiveMessageComposer(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
+                            onAttachmentPicked = onAttachmentPicked,
+                            tempWritableImageUri = tempWritableImageUri,
+                            tempWritableVideoUri = tempWritableVideoUri,
                             modifier = Modifier
                                 .height(keyboardHeight.height)
                                 .fillMaxWidth()

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -112,16 +114,19 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
-    onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
+    onRecordAudioMessageClicked: () -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     modifier: Modifier
 ) {
     when (additionalOptionsState) {
         AdditionalOptionSubMenuState.AttachFile -> {
             AttachmentOptionsComponent(
-                onAttachmentPicked = {},
-                tempWritableImageUri = null,
-                tempWritableVideoUri = null,
+                onAttachmentPicked = onAttachmentPicked,
+                tempWritableImageUri = tempWritableImageUri,
+                tempWritableVideoUri = tempWritableVideoUri,
                 isFileSharingEnabled = isFileSharingEnabled,
                 onRecordAudioMessageClicked = onRecordAudioMessageClicked,
                 modifier = modifier

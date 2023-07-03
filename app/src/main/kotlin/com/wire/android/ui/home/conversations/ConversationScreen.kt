@@ -318,7 +318,9 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerState = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState
+        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
+        tempWritableImageUri = tempWritableImageUri,
+        tempWritableVideoUri = tempWritableVideoUri,
     )
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -498,6 +500,7 @@ private fun ConversationScreenContent(
         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
+        onAttachmentPicked = onAttachmentPicked,
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

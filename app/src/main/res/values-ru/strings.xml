@@ -483,10 +483,10 @@
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
-    <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_move_to_archive">Переместить в архив</string>
     <string name="label_clear_content">Clear Content…</string>
-    <string name="label_block">Block</string>
-    <string name="label_unblock">Unblock</string>
+    <string name="label_block">Заблокировать</string>
+    <string name="label_unblock">Разблокировать</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
     <!-- Muting options BottomSheet -->
@@ -661,14 +661,14 @@
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
-    <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="label_learn_more_searching_user">Подробнее</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
-    <string name="label_add_member_people">People</string>
+    <string name="label_add_member_people">Контакты</string>
     <string name="label_add_member_services">Services</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
-    <string name="error_unknown_message">Please try again</string>
+    <string name="error_unknown_message">Повторите попытку</string>
     <string name="error_server_miscommunication_title">Server error</string>
     <string name="error_server_miscommunication_message">Please try again</string>
     <string name="error_socket_title">Invalid information</string>
@@ -699,14 +699,14 @@
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
     <!-- Animation label -->
-    <string name="label_open_conversation">Open Conversation</string>
+    <string name="label_open_conversation">Открыть беседу</string>
     <string name="email_label">Email</string>
-    <string name="phone_label">Phone</string>
+    <string name="phone_label">Телефон</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
-    <string name="notification_missed_call">Missed call</string>
+    <string name="notification_missed_call">Пропущенный вызов</string>
     <string name="notification_knock">Pinged</string>
     <string name="notification_reply">Reply: %1$s</string>
     <string name="notification_not_supported_issue">Feature not supported</string>
@@ -826,7 +826,7 @@
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Account Settings</string>
-    <string name="settings_devices_label">Devices</string>
+    <string name="settings_devices_label">Устройства</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
     <string name="settings_your_account_label">Account Details</string>
@@ -890,7 +890,7 @@
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
-    <string name="conversation_empty_list_title">Welcome 👋</string>
+    <string name="conversation_empty_list_title">Добро пожаловать 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>
     <string name="label_reactions">Reactions</string>
@@ -948,7 +948,7 @@
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="update_app_dialog_button">Update</string>
-    <string name="cancel_login_button_label">Cancel</string>
+    <string name="cancel_login_button_label">Отмена</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
@@ -1071,25 +1071,25 @@
         <item quantity="other">%1$d weeks</item>
     </plurals>
     <plurals name="days_long_label">
-        <item quantity="one">1 day</item>
+        <item quantity="one">1 день</item>
         <item quantity="few">%1$d days</item>
         <item quantity="many">%1$d days</item>
         <item quantity="other">%1$d days</item>
     </plurals>
     <plurals name="hours_long_label">
-        <item quantity="one">1 hour</item>
+        <item quantity="one">1 час</item>
         <item quantity="few">%1$d hours</item>
         <item quantity="many">%1$d hours</item>
         <item quantity="other">%1$d hours</item>
     </plurals>
     <plurals name="minutes_long_label">
-        <item quantity="one">1 minute</item>
+        <item quantity="one">1 минута</item>
         <item quantity="few">%1$d minutes</item>
         <item quantity="many">%1$d minutes</item>
         <item quantity="other">%1$d minutes</item>
     </plurals>
     <plurals name="seconds_long_label">
-        <item quantity="one">1 second</item>
+        <item quantity="one">1 секунда</item>
         <item quantity="few">%1$d seconds</item>
         <item quantity="many">%1$d seconds</item>
         <item quantity="other">%1$d seconds</item>

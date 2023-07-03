@@ -172,7 +172,7 @@ class MyAccountViewModel @Inject constructor(
             when (getBackNavArg<Boolean>(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED)) {
                 true -> SettingsOperationResult.Result(UIText.StringResource(R.string.settings_myaccount_display_name_updated))
                 false -> SettingsOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
-                else -> SettingsOperationResult.None
+                null -> SettingsOperationResult.None
             }
         }
     }

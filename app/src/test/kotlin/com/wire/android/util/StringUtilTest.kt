@@ -14,20 +14,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util
 
-package com.wire.android.ui.home.settings.account
+import org.junit.jupiter.api.Test
 
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isReadOnlyAccount: Boolean = true,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
-)
+class StringUtilTest {
+
+    @Test
+    fun givenString_whenToTitleCase_thenReturnsTitleCase() {
+        val input = "tHIS is a teSt"
+        val expected = "This Is A Test"
+        val actual = input.toTitleCase()
+        assert(expected == actual)
+    }
+
+    @Test
+    fun givenStringInLanguageWithNoUpperCase_whenToTitleCase_thenNothingChanges() {
+        val input = "هذا اختبار"
+        val expected = input
+        val actual = input.toTitleCase()
+        assert(expected == actual)
+    }
+}

@@ -71,7 +71,7 @@ fun AdditionalOptionsMenu(
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null,
-    onPingOptionClicked: (() -> Unit)? = null,
+    onPingOptionClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
@@ -91,7 +91,7 @@ fun AdditionalOptionsMenu(
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
-                    onPingClicked = onPingOptionClicked ?: {}
+                    onPingClicked = onPingOptionClicked
                 )
             }
 
@@ -151,7 +151,8 @@ fun RecordAudioComponent(
     Box(
         Modifier
             .size(32.dp)
-            .background(Color.Red))
+            .background(Color.Red)
+    )
 }
 
 @Composable

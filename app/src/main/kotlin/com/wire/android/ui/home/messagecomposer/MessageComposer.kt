@@ -53,11 +53,13 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -66,11 +68,11 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
+    onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
 ) {
-
     with(messageComposerStateHolder) {
         val interActionAvailability = messageComposerViewState.value.interactionAvailability
         val securityClassificationType = messageComposerViewState.value.securityClassificationType
@@ -94,7 +96,13 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
-                    onSendButtonClicked = {},
+                    onSendButtonClicked = {
+                        onSendMessageBundle(messageCompositionHolder.toMessageBundle())
+                        onMessageSend()
+                    },
+                    onPingOptionClicked = {
+                        onSendMessageBundle(Ping)
+                    },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult
@@ -109,18 +117,18 @@ private fun EnabledMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
+    onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
 ) {
     with(messageComposerStateHolder) {
         Row {
-            val isClassifiedConversation = messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
-
-            if (isClassifiedConversation) {
+            val securityClassificationType = messageComposerViewState.value.securityClassificationType
+            if (securityClassificationType != SecurityClassificationType.NONE) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
-                    SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.NONE)
+                    SecurityClassificationBanner(securityClassificationType)
                 }
             }
             when (messageCompositionInputStateHolder.inputState) {
@@ -132,7 +140,8 @@ private fun EnabledMessageComposer(
                         onSendButtonClicked = onSendButtonClicked,
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                        onClearMentionSearchResult = onClearMentionSearchResult
+                        onClearMentionSearchResult = onClearMentionSearchResult,
+                        onPingOptionClicked = onPingOptionClicked,
                     )
                 }
 
@@ -211,6 +220,7 @@ private fun ActiveMessageComposer(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit
 ) {
     with(messageComposerStateHolder) {
@@ -350,6 +360,7 @@ private fun ActiveMessageComposer(
                                     isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
+                                    onPingOptionClicked = onPingOptionClicked,
                                     onMentionButtonClicked = messageCompositionHolder::startMention,
                                     onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,

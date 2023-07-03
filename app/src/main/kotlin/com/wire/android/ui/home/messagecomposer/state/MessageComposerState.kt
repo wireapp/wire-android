@@ -131,7 +131,7 @@ class MessageComposerStateHolder(
         }
     }
 
-    fun toAudioRecording(){
+    fun toAudioRecording() {
         messageCompositionInputStateHolder.hide()
         additionalOptionStateHolder.toAudioRecording()
     }
@@ -155,9 +155,7 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.clearFocus()
     }
 
-    fun sendMessage() {
-//        onSendMessage(messageComposition.toMessageBundle())
-
-        messageCompositionHolder.clear()
+    fun onMessageSend(){
+        messageCompositionHolder.clearMessage()
     }
 }

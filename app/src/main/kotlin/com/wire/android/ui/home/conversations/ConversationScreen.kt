@@ -463,7 +463,7 @@ private fun ConversationScreenContent(
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onClearMentionSearchResult : () -> Unit
+    onClearMentionSearchResult: () -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -496,7 +496,8 @@ private fun ConversationScreenContent(
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-        onClearMentionSearchResult = onClearMentionSearchResult
+        onClearMentionSearchResult = onClearMentionSearchResult,
+        onSendMessageBundle = onSendMessage,
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

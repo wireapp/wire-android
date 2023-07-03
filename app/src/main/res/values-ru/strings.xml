@@ -203,7 +203,7 @@
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
+    <string name="api_versioning_server_version_not_supported_title">Версия сервера не поддерживается</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
     <!-- Migration -->
     <string name="migration_title">Setting up Wire</string>
@@ -364,11 +364,11 @@
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
     <string name="group_state_label">Group State</string>
-    <string name="empty_group_name_error">Please enter a group name</string>
+    <string name="empty_group_name_error">Пожалуйста, введите название группы</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
-    <string name="asset_message_upload_in_progress_text">Uploading…</string>
+    <string name="asset_message_upload_in_progress_text">Отправка…</string>
     <string name="asset_message_download_in_progress_text">Загрузка…</string>
     <string name="asset_message_downloaded_internally_text">Downloaded</string>
     <string name="asset_message_saved_externally_text">Сохранено</string>
@@ -378,12 +378,12 @@
         device\'s download folder?
  </string>
     <string name="asset_download_dialog_open_text">Открыть</string>
-    <string name="asset_download_dialog_save_text">Save</string>
+    <string name="asset_download_dialog_save_text">Сохранить</string>
     <string name="member_name_deleted_label">Deleted account</string>
     <string name="member_name_you_label_titlecase">Вы</string>
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
-    <string name="username_unavailable_label">Name not available</string>
+    <string name="username_unavailable_label">Имя недоступно</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
@@ -499,8 +499,8 @@
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Profile picture</string>
     <string name="profile_image_modal_sheet_header_title">Change Image</string>
-    <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
-    <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
+    <string name="profile_image_choose_from_gallery_menu_item">Выбрать из галереи</string>
+    <string name="profile_image_take_a_picture_menu_item">Сделать фото</string>
     <string name="profile_image_change_image_button_label">Change Picture…</string>
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
@@ -612,7 +612,7 @@
     <string name="last_message_self_user_knock">pinged.</string>
     <string name="last_message_other_user_knock">pinged.</string>
     <string name="last_message_call">called.</string>
-    <string name="last_message_mentioned">mentioned you</string>
+    <string name="last_message_mentioned">упомянул(-а) вас</string>
     <string name="last_message_replied">replied to you</string>
     <string name="last_message_other_changed_conversation_name">changed conversation name</string>
     <string name="last_message_self_changed_conversation_name">changed conversation name</string>
@@ -656,7 +656,7 @@
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
-    <string name="label_new_group">New Group</string>
+    <string name="label_new_group">Новая Группа</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
@@ -665,7 +665,7 @@
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
-    <string name="label_add_member_services">Services</string>
+    <string name="label_add_member_services">Сервисы</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Что-то пошло не так</string>
     <string name="error_unknown_message">Повторите попытку</string>
@@ -693,7 +693,7 @@
     <string name="blocking_user_success">%s blocked</string>
     <string name="conversation_group_removed_success">“%s” removed</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
-    <string name="joined_conversation_group_success">You joined the conversation.</string>
+    <string name="joined_conversation_group_success">Вы присоединились к разговору.</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
@@ -703,7 +703,7 @@
     <string name="email_label">Email</string>
     <string name="phone_label">Телефон</string>
     <!-- Notifications -->
-    <string name="notification_shared_picture">Shared a picture</string>
+    <string name="notification_shared_picture">Поделился(-лась) изображением</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Добавлена реакция</string>
     <string name="notification_missed_call">Пропущенный вызов</string>
@@ -712,7 +712,7 @@
     <string name="notification_not_supported_issue">Feature not supported</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>
-    <string name="notification_action_reply">Reply</string>
+    <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
     <string name="notification_action_open_call">Открыть вызов</string>
@@ -748,10 +748,10 @@
     <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
     <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
-    <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
+    <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <!-- Connectivity Status Bar -->
-    <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_connecting">Подключение</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
@@ -798,7 +798,7 @@
     <!--wire dropdown-->
     <string name="wire_dropdown_default_indicator">" (default)"</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
-    <string name="change">Change</string>
+    <string name="change">Изменить</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
@@ -810,7 +810,7 @@
     <string name="service_remove_error">Unable to remove service from group</string>
     <string name="service_add_success">Service added to group</string>
     <string name="service_add_error">Unable to add service to group</string>
-    <string name="service_no_information_available_title">No information available</string>
+    <string name="service_no_information_available_title">Информация недоступна</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Read receipts</string>
     <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
@@ -861,7 +861,7 @@
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
-    <string name="unblock_user_dialog_confirm_button">Unblock</string>
+    <string name="unblock_user_dialog_confirm_button">Разблокировать</string>
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_title">Three accounts active</string>
     <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
@@ -869,7 +869,7 @@
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-    <string name="label_fetching_your_messages">Receiving new messages</string>
+    <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
@@ -947,7 +947,7 @@
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-    <string name="update_app_dialog_button">Update</string>
+    <string name="update_app_dialog_button">Обновить</string>
     <string name="cancel_login_button_label">Отмена</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
@@ -962,7 +962,7 @@
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
-    <string name="join_conversation_dialog_button">Join</string>
+    <string name="join_conversation_dialog_button">Присоединиться</string>
     <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
@@ -971,7 +971,7 @@
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
-    <string name="self_deleting_messages_folder_timer">Timer</string>
+    <string name="self_deleting_messages_folder_timer">Таймер</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>

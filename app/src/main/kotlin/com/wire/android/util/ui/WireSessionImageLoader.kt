@@ -23,6 +23,7 @@ package com.wire.android.util.ui
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,18 +31,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import coil.Coil
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
-import coil.network.HttpException
 import coil.request.ImageRequest
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.network.NetworkState
+import com.wire.kalium.logic.network.NetworkStateObserver
+import kotlinx.coroutines.flow.firstOrNull
 
 /**
  * An ImageLoader that is able to load AssetIds supplied by Kalium.
@@ -49,10 +53,12 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
  * It wraps Coil, so it becomes easier to refactor in the future if we ever switch from Coil to something else.
  */
 @Stable
-class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
+class WireSessionImageLoader(
+    private val coilImageLoader: ImageLoader,
+    private val networkStateObserver: NetworkStateObserver
+) {
     private companion object {
         const val RETRY_INCREMENT_ATTEMPT_PER_STEP = 1
-        const val ASSET_NOT_FOUND_ERROR_CODE = 404
     }
 
     /**
@@ -68,7 +74,6 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         fallbackData: Any? = null
     ): Painter {
         var retryHash by remember { mutableStateOf(0) }
-
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .memoryCacheKey(asset?.uniqueKey)
@@ -79,17 +84,21 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
                     memoryCacheKey = null
                 )
                 .build(),
+            error = (fallbackData as? Int)?.let { painterResource(id = it) },
             imageLoader = coilImageLoader
         )
 
-        if (painter.state is AsyncImagePainter.State.Error) {
-            val errorCode = ((painter.state as AsyncImagePainter.State.Error).result.throwable as? HttpException)?.response?.code
-
-            if (errorCode != ASSET_NOT_FOUND_ERROR_CODE) {
-                retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
+        LaunchedEffect(painter.state) {
+            if (painter.state is AsyncImagePainter.State.Error) {
+                val isRetryNeeded =
+                    ((painter.state as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)?.isRetryNeeded ?: false
+                if (isRetryNeeded) {
+                    networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }.let {
+                        retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
+                    }
+                }
             }
         }
-
         return painter
     }
 
@@ -98,6 +107,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         private val getAvatarAsset: GetAvatarAssetUseCase,
         private val deleteAsset: DeleteAssetUseCase,
         private val getPrivateAsset: GetMessageAssetUseCase,
+        private val networkStateObserver: NetworkStateObserver,
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
         private val resources = context.resources
@@ -120,7 +130,8 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
                         } else {
                             add(GifDecoder.Factory())
                         }
-                    }.build()
+                    }.build(),
+                networkStateObserver
             )
     }
 }

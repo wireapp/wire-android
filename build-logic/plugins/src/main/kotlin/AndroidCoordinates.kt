@@ -1,3 +1,5 @@
+import com.wire.android.gradle.version.Versionizer
+
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -14,8 +16,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+object AndroidSdk {
+    const val min = 26
+    const val compile = 33
+    const val target = compile
+}
 
-package com.wire.android.util
+object AndroidApp {
+    const val id = "com.wire.android"
+    const val versionName = "4.3.0"
+    val versionCode = Versionizer().versionCode
+}

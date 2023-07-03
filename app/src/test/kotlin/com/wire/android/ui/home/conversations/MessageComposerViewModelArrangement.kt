@@ -228,7 +228,7 @@ internal class MessageComposerViewModelArrangement {
         )
     }
 
-    suspend fun withSuccessfulViewModelInit() = apply {
+    fun withSuccessfulViewModelInit() = apply {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()

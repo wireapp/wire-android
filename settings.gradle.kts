@@ -18,12 +18,13 @@
  *
  */
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         mavenCentral()
     }
 }
 
-//Include all the existent modules in the project
+// Include all the existent modules in the project
 rootDir
     .walk()
     .maxDepth(1)

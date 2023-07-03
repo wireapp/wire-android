@@ -50,13 +50,16 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -107,9 +110,18 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
+    @MockK
+    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
+    @MockK
+    private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
+
+        coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
+        coEvery { observeConversationListDetailsUseCase.invoke() } returns emptyFlow()
 
         mockUri()
         conversationListViewModel =
@@ -127,6 +139,8 @@ class ConversationListViewModelTest {
                 wireSessionImageLoader = wireSessionImageLoader,
                 endCall = endCall,
                 observeEstablishedCalls = observeEstablishedCalls,
+                refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
+                refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
                 userTypeMapper = UserTypeMapper(),
             )
 

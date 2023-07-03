@@ -77,7 +77,7 @@ class MessageContentMapperTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { regularMessageMapper.mapMessage(any(), any()) } returns UIMessageContent.TextMessage(
+            coEvery { regularMessageMapper.mapMessage(any(), any(), any()) } returns UIMessageContent.TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
             coEvery { systemMessageContentMapper.mapMessage(any(), any()) } returns UIMessageContent.SystemMessage.HistoryLost()

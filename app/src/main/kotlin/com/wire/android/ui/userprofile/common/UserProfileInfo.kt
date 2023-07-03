@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -60,6 +61,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
@@ -134,11 +136,11 @@ fun UserProfileInfo(
                     }
             ) {
                 Text(
-                    text = fullName,
+                    text = fullName.ifBlank { UIText.StringResource(R.string.username_unavailable_label).asString() },
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.title02,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.labelText
                 )
                 Text(
                     text = if (membership == Membership.Service) userName else userName.ifNotEmpty { "@$userName" },

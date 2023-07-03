@@ -69,8 +69,8 @@
     <string name="label_show">Показать</string>
     <string name="label_show_all">Показать все</string>
     <string name="label_show_less">Показать меньше</string>
-    <string name="label_show_details">Show Details</string>
-    <string name="label_hide_details">Hide Details</string>
+    <string name="label_show_details">Подробнее</string>
+    <string name="label_hide_details">Скрыть детали</string>
     <string name="label_message_status_edited_with_date">Отредактировано %s</string>
     <string name="label_on">ВКЛ</string>
     <string name="label_off">ВЫКЛ</string>
@@ -109,10 +109,10 @@
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
-    <string name="content_description_conversation_mention_someone">Mention someone</string>
-    <string name="content_description_new_conversation">Start a new conversation</string>
+    <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
+    <string name="content_description_new_conversation">Создать новую беседу</string>
     <string name="content_description_back_button">Back button</string>
-    <string name="content_description_send_button">Send</string>
+    <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
     <string name="content_description_close_button">Close button</string>
     <string name="content_description_menu_button">Main navigation</string>
@@ -126,13 +126,13 @@
     <string name="content_description_left_arrow">Go back</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
-    <string name="content_description_open_message_details">Open Message Details</string>
-    <string name="content_description_copy_the_message">Copy the message</string>
+    <string name="content_description_open_message_details">Сведения о сообщении</string>
+    <string name="content_description_copy_the_message">Копировать сообщение</string>
     <string name="content_description_share_the_file">Share the selected file with other app</string>
-    <string name="content_description_delete_the_message">Delete the message</string>
-    <string name="content_description_edit_the_message">Edit the message</string>
+    <string name="content_description_delete_the_message">Удалить сообщение</string>
+    <string name="content_description_edit_the_message">Редактировать сообщение</string>
     <string name="content_description_more_options">More options</string>
-    <string name="content_description_add_contact">Add contact</string>
+    <string name="content_description_add_contact">Добавить контакт</string>
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
@@ -140,21 +140,21 @@
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>
-    <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
-    <string name="content_description_calling_flip_camera_off">Flip to back camera</string>
+    <string name="content_description_calling_flip_camera_on">Переключиться на фронтальную камеру</string>
+    <string name="content_description_calling_flip_camera_off">Переключиться на основную камеру</string>
     <string name="content_description_calling_participant_muted">Participant muted</string>
     <string name="content_description_calling_mute_call">Mute call</string>
     <string name="content_description_calling_unmute_call">Unmute call</string>
-    <string name="content_description_calling_turn_camera_on">Turn camera on</string>
-    <string name="content_description_calling_turn_camera_off">Turn camera off</string>
-    <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
-    <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
+    <string name="content_description_calling_turn_camera_on">Включить камеру</string>
+    <string name="content_description_calling_turn_camera_off">Отключить камеру</string>
+    <string name="content_description_calling_turn_speaker_on">Включить динамик</string>
+    <string name="content_description_calling_turn_speaker_off">Выключить динамик</string>
     <string name="content_description_show_more_options">Show more options</string>
-    <string name="content_description_reply_to_messge">Reply to the message</string>
+    <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_ping_message">Ping message</string>
-    <string name="content_description_copy">Copy</string>
-    <string name="content_description_edit">Edit</string>
+    <string name="content_description_copy">Копировать</string>
+    <string name="content_description_edit">Правка</string>
     <string name="content_description_calling_call_muted">Call Muted</string>
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
@@ -170,10 +170,10 @@
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
     <string name="user_profile_screen_title">User Profile</string>
-    <string name="settings_screen_title">Settings</string>
+    <string name="settings_screen_title">Настройки</string>
     <string name="app_settings_screen_title">App Settings</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
-    <string name="report_bug_screen_title">Report Bug</string>
+    <string name="report_bug_screen_title">Сообщить об ошибке</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
@@ -183,8 +183,8 @@
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Other</string>
     <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
-    <string name="settings_backup_create">Create a Backup</string>
-    <string name="settings_backup_restore">Restore from Backup</string>
+    <string name="settings_backup_create">Создать резервную копию</string>
+    <string name="settings_backup_restore">Восстановить из резервной копии</string>
     <!-- Welcome -->
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
@@ -199,7 +199,7 @@
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
-    <string name="welcome_migration_dialog_continue">Start Using Wire</string>
+    <string name="welcome_migration_dialog_continue">Начать использовать Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
@@ -212,7 +212,7 @@
     <string name="migration_accounts_message">Migrating your accounts...</string>
     <string name="migration_messages_message">Migrating your messages...</string>
     <string name="migration_title_step">Step %1$d/%2$d</string>
-    <string name="migration_title_almost_done">Almost done!</string>
+    <string name="migration_title_almost_done">Почти готово!</string>
     <string name="migration_title_updated">Setting up Wire</string>
     <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
     <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
@@ -237,7 +237,7 @@
     <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
-    <string name="login_password_placeholder">Password</string>
+    <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
@@ -261,10 +261,10 @@
         settings, your conversation history has also been deleted.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
-    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Введите код подтверждения, отправленный на email %1$s</string>
     <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Remove a Device</string>
+    <string name="remove_device_title">Удалить устройство</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on
         this one.
     </string>
@@ -272,17 +272,17 @@
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
-    <string name="remove_device_invalid_password">Invalid password</string>
+    <string name="remove_device_invalid_password">Неправильный пароль</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
     <!-- Delete Message -->
-    <string name="delete_message_dialog_title">Delete Message?</string>
+    <string name="delete_message_dialog_title">Удалить сообщение?</string>
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
-    <string name="label_delete_for_me">Delete for Me</string>
-    <string name="label_delete_for_everyone">Delete for Everyone</string>
+    <string name="label_delete_for_me">Удалить у меня</string>
+    <string name="label_delete_for_everyone">Удалить у всех</string>
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
@@ -307,11 +307,11 @@
     <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
-    <string name="create_account_email_footer_text">Already have an account? </string>
-    <string name="create_account_email_terms_dialog_title">Terms of Use</string>
+    <string name="create_account_email_footer_text">Уже зарегистрированы?</string>
+    <string name="create_account_email_terms_dialog_title">Условия использования</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
-    <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
+    <string name="create_account_email_already_in_use_error">Этот адрес электронной почты уже используется.</string>
     <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
@@ -322,8 +322,8 @@
     <string name="create_account_details_team_name_placeholder">Team Awesome</string>
     <string name="create_account_details_team_name_label">TEAM NAME</string>
     <string name="create_account_details_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
-    <string name="create_account_details_password_error">Invalid password</string>
-    <string name="create_account_details_password_not_matching_error">Passwords do not match</string>
+    <string name="create_account_details_password_error">Неправильный пароль</string>
+    <string name="create_account_details_password_not_matching_error">Пароли не совпадают</string>
     <string name="create_account_details_confirm_password_label">CONFIRM PASSWORD</string>
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_account_code_resend">Resend code</string>
@@ -359,7 +359,7 @@
     <string name="group_name_title">Group Name</string>
     <string name="group_name_placeholder">Enter a name</string>
     <string name="group_name_description">Give this group a meaningful name.</string>
-    <string name="protocol">Protocol</string>
+    <string name="protocol">Протокол</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
@@ -377,7 +377,7 @@
     <string name="asset_download_dialog_text">Do you want to open the file or save it to your
         device\'s download folder?
  </string>
-    <string name="asset_download_dialog_open_text">Open</string>
+    <string name="asset_download_dialog_open_text">Открыть</string>
     <string name="asset_download_dialog_save_text">Save</string>
     <string name="member_name_deleted_label">Deleted account</string>
     <string name="member_name_you_label_titlecase">You</string>
@@ -442,12 +442,12 @@
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
-    <string name="user_profile_logout">Log out</string>
+    <string name="user_profile_logout">Выйти</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
     <string name="user_profile_status_available">Available</string>
-    <string name="user_profile_status_busy">Busy</string>
-    <string name="user_profile_status_away">Away</string>
+    <string name="user_profile_status_busy">Занят</string>
+    <string name="user_profile_status_away">Отошел</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
     <string name="user_profile_details_tab">Details</string>
@@ -1107,4 +1107,8 @@
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message">Someone sent a Message</string>
     <string name="settings_licenses_settings_label">Licenses informations</string>
+    <string name="settings_myaccount_logout">Delete Account</string>
+    <string name="app_not_found_for_action">No Application has been found to do Action</string>
+    <string name="delete_acount_dialog_title">Delete Account</string>
+    <string name="delete_acount_dialog_text">If you continue, will send a message via email. Follow the link to permanetly delete your account.</string>
 </resources>

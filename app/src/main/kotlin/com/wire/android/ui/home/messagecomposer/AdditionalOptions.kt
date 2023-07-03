@@ -20,8 +20,10 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +33,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -58,6 +62,7 @@ fun AdditionalOptionButton(
 
 @Composable
 fun AdditionalOptionsMenu(
+    additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean,
     isEditing: Boolean,
@@ -67,14 +72,14 @@ fun AdditionalOptionsMenu(
     onMentionButtonClicked: (() -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null,
     onPingOptionClicked: (() -> Unit)? = null,
+    onRichEditingButtonClicked: () -> Unit,
+    onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
-
     Box(modifier) {
-        when (additionalOptionState) {
-            is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
+        when (additionalOptionsState) {
+            AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
                     selectedOption = selectedOption,
                     isFileSharingEnabled = isFileSharingEnabled,
@@ -85,21 +90,21 @@ fun AdditionalOptionsMenu(
                     onAdditionalOptionsMenuClicked = onAdditionalOptionsMenuClicked,
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
-                    onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
+                    onRichEditingButtonClicked = onRichEditingButtonClicked,
                     onPingClicked = onPingOptionClicked ?: {}
                 )
             }
 
-            is AdditionalOptionMenuState.RichTextEditing -> {
+            AdditionalOptionMenuState.RichTextEditing -> {
                 RichTextOptions(
                     onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
                     onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
                     onRichTextItalicButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Italic) },
-                    onCloseRichTextEditingButtonClicked = {
-                        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
-                    }
+                    onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked
                 )
             }
+
+            AdditionalOptionMenuState.Hidden -> {}
         }
     }
 }
@@ -107,6 +112,7 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
     modifier: Modifier
 ) {
@@ -117,17 +123,35 @@ fun AdditionalOptionSubMenu(
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 isFileSharingEnabled = isFileSharingEnabled,
+                onRecordAudioMessageClicked = onRecordAudioMessageClicked,
                 modifier = modifier
             )
         }
 
+        AdditionalOptionSubMenuState.RecordAudio -> {
+            RecordAudioComponent(
+                onAudioRecorded = {},
+                modifier = modifier
+            )
+        }
         // non functional for now
         AdditionalOptionSubMenuState.AttachImage -> {}
         AdditionalOptionSubMenuState.Emoji -> {}
         AdditionalOptionSubMenuState.Gif -> {}
-        AdditionalOptionSubMenuState.RecordAudio -> {}
         AdditionalOptionSubMenuState.Hidden -> {}
     }
+}
+
+@Composable
+fun RecordAudioComponent(
+    onAudioRecorded: () -> Unit,
+    modifier: Modifier
+) {
+
+    Box(
+        Modifier
+            .size(32.dp)
+            .background(Color.Red))
 }
 
 @Composable

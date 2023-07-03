@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -71,19 +70,23 @@ fun MessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
 ) {
+
     with(messageComposerStateHolder) {
-        when (messageComposerViewState.value.interactionAvailability) {
+        val interActionAvailability = messageComposerViewState.value.interactionAvailability
+        val securityClassificationType = messageComposerViewState.value.securityClassificationType
+
+        when (interActionAvailability) {
             InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
-                securityClassificationType = messageComposerViewState.value.securityClassificationType
+                securityClassificationType = securityClassificationType
             )
 
             InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(
-                securityClassificationType = messageComposerViewState.value.securityClassificationType
+                securityClassificationType = securityClassificationType
             )
 
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
                 MessageComposerClassifiedBanner(
-                    securityClassificationType = messageComposerViewState.value.securityClassificationType,
+                    securityClassificationType = securityClassificationType,
                     paddingValues = PaddingValues(vertical = dimensions().spacing16x)
                 )
 
@@ -210,7 +213,6 @@ private fun ActiveMessageComposer(
     onSendButtonClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit
 ) {
-    Log.d("TEST", "recomposing active message composer")
     with(messageComposerStateHolder) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -276,17 +278,17 @@ private fun ActiveMessageComposer(
                                 )
                             }
                         }
+
+                        val fillRemainingSpaceOrWrapContent =
+                            if (messageCompositionInputStateHolder.inputSize == MessageCompositionInputSize.COLLAPSED) {
+                                Modifier.wrapContentHeight()
+                            } else {
+                                Modifier.weight(1f)
+                            }
                         Column(
                             Modifier.wrapContentSize()
                         ) {
                             Column {
-                                val fillRemainingSpaceOrWrapContent =
-                                    if (messageCompositionInputStateHolder.inputSize == MessageCompositionInputSize.COLLAPSED) {
-                                        Modifier.wrapContentHeight()
-                                    } else {
-                                        Modifier.weight(1f)
-                                    }
-
                                 val isClassifiedConversation =
                                     messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
                                 if (isClassifiedConversation) {
@@ -304,6 +306,7 @@ private fun ActiveMessageComposer(
                                         messageComposition = messageComposition.value,
                                         inputSize = messageCompositionInputStateHolder.inputSize,
                                         inputType = messageCompositionInputStateHolder.inputType,
+                                        inputVisiblity = messageCompositionInputStateHolder.inputVisiblity,
                                         inputFocused = messageCompositionInputStateHolder.inputFocused,
                                         onInputFocusedChanged = ::onInputFocusedChanged,
                                         onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
@@ -342,6 +345,7 @@ private fun ActiveMessageComposer(
                                     }
                                 }
                                 AdditionalOptionsMenu(
+                                    additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
                                     selectedOption = additionalOptionStateHolder.selectedOption,
                                     isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
@@ -350,15 +354,19 @@ private fun ActiveMessageComposer(
                                     onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
+                                    onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,
+                                    onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                                 )
                             }
                         }
                     }
 
+
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                            onRecordAudioMessageClicked = ::toAudioRecording,
                             modifier = Modifier
                                 .height(keyboardHeight.height)
                                 .fillMaxWidth()

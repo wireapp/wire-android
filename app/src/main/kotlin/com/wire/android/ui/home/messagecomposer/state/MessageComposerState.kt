@@ -90,7 +90,7 @@ class MessageComposerStateHolder(
                 !KeyboardHelper.isKeyboardVisible() &&
                 messageCompositionInputStateHolder.inputFocused
     val additionalOptionSubMenuVisible
-        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile &&
+        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
                 !KeyboardHelper.isKeyboardVisible()
 
     private var isKeyboardVisible = false
@@ -129,6 +129,11 @@ class MessageComposerStateHolder(
         } else {
             messageCompositionInputStateHolder.clearFocus()
         }
+    }
+
+    fun toAudioRecording(){
+        messageCompositionInputStateHolder.hide()
+        additionalOptionStateHolder.toAudioRecording()
     }
 
     fun onKeyboardVisibilityChanged(isVisible: Boolean) {

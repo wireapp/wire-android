@@ -58,6 +58,7 @@ import com.wire.android.util.ui.KeyboardHeight
 @Composable
 fun AttachmentOptionsComponent(
     onAttachmentPicked: (UriAsset) -> Unit,
+    onRecordAudioMessageClicked : () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
@@ -68,7 +69,8 @@ fun AttachmentOptionsComponent(
             isFileSharingEnabled,
             tempWritableImageUri,
             tempWritableVideoUri,
-            onAttachmentPicked
+            onAttachmentPicked,
+            onRecordAudioMessageClicked
         )
 
         BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -186,6 +188,7 @@ private fun buildAttachmentOptionItems(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFilePicked: (UriAsset) -> Unit,
+    onRecordAudioMessageClicked : () -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })
@@ -226,6 +229,14 @@ private fun buildAttachmentOptionItems(
                     R.drawable.ic_video
                 ) { captureVideoFlow?.launch() }
             )
+            add(
+                AttachmentOptionItem(
+                    isFileSharingEnabled,
+                    R.string.attachment_record_video,
+                    R.drawable.ic_video,
+                    onRecordAudioMessageClicked
+                )
+            )
             if (AudioMessagesIcon) {
                 add(
                     AttachmentOptionItem(
@@ -263,6 +274,7 @@ fun PreviewAttachmentComponents() {
         {},
         isFileSharingEnabled = true,
         tempWritableImageUri = null,
-        tempWritableVideoUri = null
+        tempWritableVideoUri = null,
+        onRecordAudioMessageClicked = {},
     )
 }

@@ -22,10 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-sealed class AdditionalOptionMenuState {
-    object AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState()
-
-    object RichTextEditing : AdditionalOptionMenuState()
+enum class AdditionalOptionMenuState {
+    AttachmentAndAdditionalOptionsMenu,
+    RichTextEditing,
+    Hidden
 }
 
 enum class AdditionalOptionSubMenuState {
@@ -53,6 +53,9 @@ class AdditionalOptionStateHolder {
     )
         private set
 
+    var additionalOptionState: AdditionalOptionMenuState by mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu)
+        private set
+
     fun showAdditionalOptionsMenu() {
         selectedOption = AdditionalOptionSelectItem.AttachFile
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
@@ -60,6 +63,19 @@ class AdditionalOptionStateHolder {
 
     fun hideAdditionalOptionsMenu() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
+    }
+
+    fun toAudioRecording() {
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.RecordAudio
+        additionalOptionState = AdditionalOptionMenuState.Hidden
+    }
+
+    fun toRichTextEditing() {
+        additionalOptionState = AdditionalOptionMenuState.RichTextEditing
+    }
+
+    fun toAttachmentAndAdditionalOptionsMenu() {
+        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }
 
 }

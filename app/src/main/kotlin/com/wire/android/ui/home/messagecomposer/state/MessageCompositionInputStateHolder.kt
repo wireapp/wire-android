@@ -53,6 +53,9 @@ class MessageCompositionInputStateHolder(
         )
     )
 
+    var inputVisiblity by mutableStateOf(true)
+    private set
+
     var inputState: MessageCompositionInputState by mutableStateOf(MessageCompositionInputState.INACTIVE)
 
     var inputSize by mutableStateOf(
@@ -100,6 +103,10 @@ class MessageCompositionInputStateHolder(
 
     fun requestFocus() {
         inputFocused = true
+    }
+
+    fun hide() {
+        inputVisiblity = false
     }
 }
 

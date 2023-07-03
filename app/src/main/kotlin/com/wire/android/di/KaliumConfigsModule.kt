@@ -59,7 +59,7 @@ class KaliumConfigsModule {
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
-            isWebSocketEnabledByDefault = runBlocking { context.isGoogleServicesAvailable() }
+            isWebSocketEnabledByDefault = runBlocking { !context.isGoogleServicesAvailable() }
         )
     }
 }

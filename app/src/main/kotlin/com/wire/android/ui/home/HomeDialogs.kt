@@ -137,14 +137,14 @@ fun WelcomeNewUserDialog(
 @Composable
 fun E2EIdRequiredDialog(
     result: FeatureFlagState.E2EIdRequired,
-    dismissDialog: () -> Unit,
+    getCertificate: () -> Unit,
     snoozeDialog: (FeatureFlagState.E2EIdRequired.WithGracePeriod) -> Unit,
 ) {
     when (result) {
-        FeatureFlagState.E2EIdRequired.NoGracePeriod -> E2EIdRequiredNoSnoozeDialog(dismissDialog = dismissDialog)
+        FeatureFlagState.E2EIdRequired.NoGracePeriod -> E2EIdRequiredNoSnoozeDialog(getCertificate = getCertificate)
         is FeatureFlagState.E2EIdRequired.WithGracePeriod -> E2EIdRequiredWithSnoozeDialog(
             result = result,
-            dismissDialog = dismissDialog,
+            getCertificate = getCertificate,
             snoozeDialog = snoozeDialog
         )
     }
@@ -153,15 +153,15 @@ fun E2EIdRequiredDialog(
 @Composable
 fun E2EIdRequiredWithSnoozeDialog(
     result: FeatureFlagState.E2EIdRequired.WithGracePeriod,
-    dismissDialog: () -> Unit,
+    getCertificate: () -> Unit,
     snoozeDialog: (FeatureFlagState.E2EIdRequired.WithGracePeriod) -> Unit
 ) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
         text = stringResource(id = R.string.end_to_end_identity_required_dialog_text),
-        onDismiss = dismissDialog,
+        onDismiss = { snoozeDialog(result) },
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = dismissDialog,
+            onClick = getCertificate,
             text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_btn),
             type = WireDialogButtonType.Primary,
         ),
@@ -170,18 +170,23 @@ fun E2EIdRequiredWithSnoozeDialog(
             text = stringResource(id = R.string.end_to_end_identity_required_dialog_snooze_btn),
             type = WireDialogButtonType.Secondary,
         ),
-        buttonsHorizontalAlignment = false
+        buttonsHorizontalAlignment = false,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
 
 @Composable
-fun E2EIdRequiredNoSnoozeDialog(dismissDialog: () -> Unit) {
+fun E2EIdRequiredNoSnoozeDialog(getCertificate: () -> Unit) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
         text = stringResource(id = R.string.end_to_end_identity_required_dialog_text_no_snooze),
-        onDismiss = dismissDialog,
+        onDismiss = getCertificate,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = dismissDialog,
+            onClick = getCertificate,
             text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_btn),
             type = WireDialogButtonType.Primary,
         ),

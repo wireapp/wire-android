@@ -108,7 +108,7 @@ fun HomeScreen(
     with(featureFlagNotificationViewModel.featureFlagState) {
         if (showFileSharingDialog) {
             FileRestrictionDialog(
-                isFileSharingEnabled = featureFlagNotificationViewModel.featureFlagState.showFileSharingDialog,
+                isFileSharingEnabled = showFileSharingDialog,
                 hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
             )
         }
@@ -131,7 +131,7 @@ fun HomeScreen(
         e2EIdRequired?.let {
             E2EIdRequiredDialog(
                 result = e2EIdRequired,
-                dismissDialog = featureFlagNotificationViewModel::dismissE2EIdRequiredDialog,
+                getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
                 snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
             )
         }

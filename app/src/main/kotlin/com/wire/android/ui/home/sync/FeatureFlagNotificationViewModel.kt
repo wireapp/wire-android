@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.user.MLSE2EIdRequiredResult
+import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -150,10 +150,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private fun setMLSE2EIdRequiredState(userId: UserId) = viewModelScope.launch {
-        coreLogic.getSessionScope(userId).observeMLSE2EIdRequired().collect { result ->
+        coreLogic.getSessionScope(userId).observeE2EIRequired().collect { result ->
             val state = when (result) {
-                is MLSE2EIdRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIdRequired.WithGracePeriod(result.timeLeft)
-                MLSE2EIdRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIdRequired.NoGracePeriod
+                is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIdRequired.WithGracePeriod(result.gracePeriod)
+                E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIdRequired.NoGracePeriod
             }
             featureFlagState = featureFlagState.copy(e2EIdRequired = state)
         }
@@ -180,7 +180,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
     }
 
-    fun dismissE2EIdRequiredDialog() {
+    fun getE2EICertificate() {
         // TODO do the magic
         featureFlagState = featureFlagState.copy(e2EIdRequired = null)
     }
@@ -192,7 +192,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         )
         currentUserId?.let { userId ->
             viewModelScope.launch {
-                coreLogic.getSessionScope(userId).markMLSE2EIdRequiredAsNotified()
+                coreLogic.getSessionScope(userId).markE2EIRequiredAsNotified()
             }
         }
     }

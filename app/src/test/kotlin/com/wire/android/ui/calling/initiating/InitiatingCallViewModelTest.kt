@@ -67,6 +67,7 @@ class InitiatingCallViewModelTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withEndingCall()
+            .withStartCallSucceeding()
             .arrange()
 
         // When
@@ -86,6 +87,7 @@ class InitiatingCallViewModelTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withNoInternetConnection()
+            .withStartCallSucceeding()
             .arrange()
 
         // When
@@ -144,8 +146,10 @@ class InitiatingCallViewModelTest {
             every {
                 qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
             } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+            coEvery { isLastCallClosed.invoke(any(), any()) } returns flowOf(false)
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
+            every { callRinger.ring(any(), any(), any()) } returns Unit
         }
 
         fun withEndingCall(): Arrangement = apply {
@@ -158,6 +162,10 @@ class InitiatingCallViewModelTest {
             coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
             coEvery { navigationManager.navigateBack() } returns Unit
+        }
+
+        fun withStartCallSucceeding() = apply {
+            coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.Success
         }
 
         fun arrange() = this to initiatingCallViewModel

@@ -14,14 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.settings.about
 
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("klibs") {
-            from(files("../kalium/gradle/libs.versions.toml"))
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class LicensesViewModel @Inject constructor(
+    private val navigationManager: NavigationManager
+) : ViewModel() {
+
+    fun navigateBack() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
         }
     }
 }

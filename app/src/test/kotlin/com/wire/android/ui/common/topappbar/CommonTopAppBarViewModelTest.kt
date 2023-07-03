@@ -24,6 +24,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -40,6 +41,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -222,6 +224,9 @@ class CommonTopAppBarViewModelTest {
         @MockK
         private lateinit var coreLogic: CoreLogic
 
+        @MockK
+        private lateinit var globalKaliumScope: GlobalKaliumScope
+
         init {
             MockKAnnotations.init(this)
             every { activeCall.conversationId } returns conversationId
@@ -236,6 +241,14 @@ class CommonTopAppBarViewModelTest {
                     calls.establishedCall
                 }
             } returns establishedCalls
+
+            every {
+                coreLogic.getGlobalScope()
+            } returns globalKaliumScope
+
+            every {
+                globalKaliumScope.session.currentSessionFlow()
+            } returns emptyFlow()
         }
 
         private val commonTopAppBarViewModel by lazy {

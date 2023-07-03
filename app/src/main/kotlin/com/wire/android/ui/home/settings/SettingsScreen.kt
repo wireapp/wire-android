@@ -76,6 +76,7 @@ fun SettingsScreenContent(
                 items = buildList {
                     add(SettingsItem.YourAccount)
                     add(SettingsItem.PrivacySettings)
+                    add(SettingsItem.Licenses)
                     add(SettingsItem.ManageDevices)
                     if (BackUpSettings) {
                         add(SettingsItem.BackupAndRestore)

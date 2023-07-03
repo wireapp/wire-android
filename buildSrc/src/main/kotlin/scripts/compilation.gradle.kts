@@ -21,7 +21,7 @@
 package scripts
 
 import IncludeGitBuildTask
-import Libraries
+import versionCatalog
 
 plugins {
     id("com.android.application") apply false
@@ -32,6 +32,7 @@ android {
     packagingOptions {
         pickFirst("META-INF/AL2.0")
         pickFirst("META-INF/LGPL2.1")
+        exclude("MANIFEST.MF")
         exclude("LICENSE.txt")
         exclude("META-INF/DEPENDENCIES")
         exclude("META-INF/ASL2.0")
@@ -60,7 +61,7 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring(Libraries.desugaring)
+    coreLibraryDesugaring(versionCatalog.findLibrary("android.desugarJdkLibs").get())
 }
 
 project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {

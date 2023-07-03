@@ -41,7 +41,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -66,7 +65,6 @@ class MyAccountViewModel @Inject constructor(
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val navigationManager: NavigationManager,
-    private val deleteAccount: DeleteAccountUseCase,
     private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -176,21 +174,6 @@ class MyAccountViewModel @Inject constructor(
                 false -> SettingsOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
                 null -> SettingsOperationResult.None
             }
-        }
-    }
-
-    fun onDeleteAccountClicked() {
-        myAccountState = myAccountState.copy(startDeleteAccountFlow = true)
-    }
-
-    fun onDeleteAccountDialogDismissed() {
-        myAccountState = myAccountState.copy(startDeleteAccountFlow = false)
-    }
-
-    fun onDeleteAccountDialogConfirmed() {
-        viewModelScope.launch {
-            deleteAccount(null)
-            myAccountState = myAccountState.copy(startDeleteAccountFlow = false)
         }
     }
 

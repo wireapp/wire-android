@@ -30,7 +30,6 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
-import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
@@ -158,35 +157,6 @@ class MyAccountViewModelTest {
         assertTrue(viewModel.myAccountState.isEditHandleAllowed)
     }
 
-    @Test
-    fun `when delete account button clicked, then start the delete account flow`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withUserRequiresPasswordResult(Success(false))
-            .withIsReadOnlyAccountResult(false)
-            .arrange()
-
-        viewModel.onDeleteAccountClicked()
-
-        assertTrue(viewModel.myAccountState.startDeleteAccountFlow)
-    }
-
-    @Test
-    fun `when delete account button confirmed, then call use case`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withUserRequiresPasswordResult(Success(false))
-            .withDeleteAccountUseCase(DeleteAccountUseCase.Result.Success)
-            .withIsReadOnlyAccountResult(false)
-            .arrange()
-
-        viewModel.onDeleteAccountClicked()
-        assertTrue(viewModel.myAccountState.startDeleteAccountFlow)
-
-        viewModel.onDeleteAccountDialogConfirmed()
-
-        assertFalse(viewModel.myAccountState.startDeleteAccountFlow)
-        coVerify(exactly = 1) { arrangement.deleteAccountUseCase(null) }
-    }
-
     private class Arrangement {
         @MockK
         lateinit var navigationManager: NavigationManager
@@ -209,9 +179,6 @@ class MyAccountViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
-        @MockK
-        lateinit var deleteAccountUseCase: DeleteAccountUseCase
-
         private val viewModel by lazy {
             MyAccountViewModel(
                 savedStateHandle,
@@ -221,7 +188,6 @@ class MyAccountViewModelTest {
                 isPasswordRequiredUseCase,
                 isReadOnlyAccountUseCase,
                 navigationManager,
-                deleteAccountUseCase,
                 TestDispatcherProvider()
             )
         }
@@ -236,10 +202,6 @@ class MyAccountViewModelTest {
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {
             coEvery { isPasswordRequiredUseCase() } returns result
-        }
-
-        fun withDeleteAccountUseCase(result: DeleteAccountUseCase.Result) = apply {
-            coEvery { deleteAccountUseCase(any()) } returns result
         }
 
         fun withIsReadOnlyAccountResult(result: Boolean) = apply {

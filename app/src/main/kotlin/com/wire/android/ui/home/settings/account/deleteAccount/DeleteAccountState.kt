@@ -14,20 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.settings.account.deleteAccount
 
-package com.wire.android.ui.home.settings.account
-
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isReadOnlyAccount: Boolean = true,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
+data class DeleteAccountState(
+    val startDeleteAccountFlow: Boolean = false
 )

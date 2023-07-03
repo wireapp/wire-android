@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
@@ -57,6 +58,8 @@ import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.home.settings.account.MyAccountViewModel.SettingsOperationResult
+import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
+import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -68,7 +71,8 @@ import kotlinx.collections.immutable.persistentMapOf
 @Composable
 fun MyAccountScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
 ) {
     with(viewModel.myAccountState) {
         MyAccountContent(
@@ -76,11 +80,11 @@ fun MyAccountScreen(
             forgotPasswordUrl = this.changePasswordUrl,
             checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
             canDeleteAccount = viewModel.myAccountState.teamName.isNullOrBlank(),
-            onDeleteAccountClicked = viewModel::onDeleteAccountClicked,
-            onDeleteAccountConfirmed = viewModel::onDeleteAccountDialogConfirmed,
-            onDeleteAccountDismissed = viewModel::onDeleteAccountDialogDismissed,
+            onDeleteAccountClicked = deleteAccountViewModel::onDeleteAccountClicked,
+            onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
+            onDeleteAccountDismissed = deleteAccountViewModel::onDeleteAccountDialogDismissed,
             onNavigateBack = viewModel::navigateBack,
-            startDeleteAccountFlow = viewModel.myAccountState.startDeleteAccountFlow
+            startDeleteAccountFlow =deleteAccountViewModel.state.startDeleteAccountFlow
         )
     }
 }

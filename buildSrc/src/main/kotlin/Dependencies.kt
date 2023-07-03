@@ -18,35 +18,9 @@
  *
  */
 
-const val appId = "com.wire.android"
-
-object AndroidSdk {
-    const val min = 26
-    const val compile = 33
-    const val target = compile
-}
-
-object AndroidClient {
-    const val appId = "com.wire.android"
-    const val namespace = appId
-    val versionCode = Versionizer().versionCode
-    const val versionName = "4.3.0"
-    const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
-}
-
 object BuildPlugins {
-    object Versions {
-        const val gradleVersion = "7.6.1"
-    }
-
-    const val androidApplication = "com.android.application"
-    const val androidLibrary = "com.android.library"
-    const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
-    const val kotlinKapt = "kotlin-kapt"
     const val kotlinParcelize = "kotlin-parcelize"
-    const val kapt = "kapt"
-    const val hilt = "dagger.hilt.android.plugin"
     const val junit5 = "de.mannodermaus.android-junit5"
     const val serialization = "plugin.serialization"
 }

@@ -78,12 +78,17 @@ okio = "3.2.0"
 turbine = "1.0.0"
 
 [plugins]
-# Home-made convention plugins
+# 3rd Party plugins
 android-library = { id = "com.android.library", version.ref = "android-gradlePlugin" }
 android-application = { id = "com.android.application", version.ref = "android-gradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
+
+# Home-made convention plugins defined in build-logic
+wire-android-application = { id = "com.wire.android.application" }
+wire-android-library = { id = "com.wire.android.library" }
+wire-hilt = { id = "com.wire.android.hilt" }
 
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]

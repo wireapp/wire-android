@@ -31,21 +31,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelecItem
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun MessageComposeActions(
     isEditing: Boolean,
-    selectedOption: AdditionalOptionSelecItem,
+    selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean = true,
     isMentionEnabled: Boolean = true,
     isSelfDeletingSettingEnabled: Boolean = true,
@@ -79,7 +76,7 @@ fun MessageComposeActions(
 
 @Composable
 private fun ComposingActions(
-    selectedOption: AdditionalOptionSelecItem,
+    selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
@@ -100,12 +97,12 @@ private fun ComposingActions(
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(
-                isSelected = selectedOption == AdditionalOptionSelecItem.AttachFile,
+                isSelected = selectedOption == AdditionalOptionSelectItem.AttachFile,
                 isEnabled = isFileSharingEnabled,
                 onClick = onAdditionalOptionButtonClicked
             )
             RichTextEditingAction(
-                isSelected = selectedOption == AdditionalOptionSelecItem.RichTextEditing,
+                isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
                 onRichEditingButtonClicked
             )
             if (EmojiIcon) AddEmojiAction({})
@@ -122,7 +119,7 @@ private fun ComposingActions(
 
 @Composable
 fun EditingActions(
-    selectedOption: AdditionalOptionSelecItem,
+    selectedOption: AdditionalOptionSelectItem,
     onRichEditingButtonClicked: () -> Unit,
     onMentionButtonClicked: () -> Unit
 ) {
@@ -136,7 +133,7 @@ fun EditingActions(
             .height(dimensions().spacing56x)
     ) {
         RichTextEditingAction(
-            isSelected = selectedOption == AdditionalOptionSelecItem.RichTextEditing,
+            isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
             onButtonClicked = onRichEditingButtonClicked
         )
         AddMentionAction(onMentionButtonClicked)

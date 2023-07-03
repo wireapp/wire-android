@@ -120,7 +120,7 @@ fun ActiveMessageComposerInput(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier.wrapContentSize()
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
         CollapseButton(

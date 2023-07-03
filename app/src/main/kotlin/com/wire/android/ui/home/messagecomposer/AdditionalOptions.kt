@@ -36,9 +36,8 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelecItem
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -59,7 +58,7 @@ fun AdditionalOptionButton(
 
 @Composable
 fun AdditionalOptionsMenu(
-    selectedOption: AdditionalOptionSelecItem,
+    selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean,
     isEditing: Boolean,
     isSelfDeletingSettingEnabled: Boolean,
@@ -134,7 +133,7 @@ fun AdditionalOptionSubMenu(
 @Composable
 fun AttachmentAndAdditionalOptionsMenuItems(
     isEditing: Boolean,
-    selectedOption: AdditionalOptionSelecItem,
+    selectedOption: AdditionalOptionSelectItem,
     isMentionEnabled: Boolean,
     isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,

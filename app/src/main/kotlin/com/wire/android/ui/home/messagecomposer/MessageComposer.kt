@@ -113,6 +113,7 @@ private fun EnabledMessageComposer(
     with(messageComposerStateHolder) {
         Row {
             val isClassifiedConversation = messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
+
             if (isClassifiedConversation) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
@@ -278,14 +279,14 @@ private fun ActiveMessageComposer(
                         Column(
                             Modifier.wrapContentSize()
                         ) {
-                            val fillRemainingSpaceOrWrapContent =
-                                if (messageCompositionInputStateHolder.inputSize == MessageCompositionInputSize.COLLAPSED) {
-                                    Modifier.wrapContentHeight()
-                                } else {
-                                    Modifier.weight(1f)
-                                }
-
                             Column {
+                                val fillRemainingSpaceOrWrapContent =
+                                    if (messageCompositionInputStateHolder.inputSize == MessageCompositionInputSize.COLLAPSED) {
+                                        Modifier.wrapContentHeight()
+                                    } else {
+                                        Modifier.weight(1f)
+                                    }
+
                                 val isClassifiedConversation =
                                     messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
                                 if (isClassifiedConversation) {
@@ -294,7 +295,8 @@ private fun ActiveMessageComposer(
                                         SecurityClassificationBanner(securityClassificationType = messageComposerViewState.value.securityClassificationType)
                                     }
                                 }
-                                Box {
+
+                                Box(fillRemainingSpaceOrWrapContent) {
                                     var currentSelectedLineIndex by remember { mutableStateOf(0) }
                                     var cursorCoordinateY by remember { mutableStateOf(0F) }
 
@@ -339,17 +341,17 @@ private fun ActiveMessageComposer(
                                         )
                                     }
                                 }
+                                AdditionalOptionsMenu(
+                                    selectedOption = additionalOptionStateHolder.selectedOption,
+                                    isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
+                                    isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                                    onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
+                                    onMentionButtonClicked = messageCompositionHolder::startMention,
+                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                                    isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+                                    onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
+                                )
                             }
-                            AdditionalOptionsMenu(
-                                selectedOption = additionalOptionStateHolder.selectedOption,
-                                isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
-                                isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                                onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
-                                onMentionButtonClicked = messageCompositionHolder::startMention,
-                                onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
-                                isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                                onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
-                            )
                         }
                     }
 

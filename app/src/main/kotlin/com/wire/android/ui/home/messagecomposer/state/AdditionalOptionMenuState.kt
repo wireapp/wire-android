@@ -37,7 +37,7 @@ enum class AdditionalOptionSubMenuState {
     Gif;
 }
 
-enum class AdditionalOptionSelecItem {
+enum class AdditionalOptionSelectItem {
     RichTextEditing,
     SelfDeleting,
     AttachFile,
@@ -46,7 +46,7 @@ enum class AdditionalOptionSelecItem {
 
 class AdditionalOptionStateHolder {
 
-    var selectedOption by mutableStateOf(AdditionalOptionSelecItem.None)
+    var selectedOption by mutableStateOf(AdditionalOptionSelectItem.None)
 
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
         AdditionalOptionSubMenuState.Hidden
@@ -54,7 +54,7 @@ class AdditionalOptionStateHolder {
         private set
 
     fun showAdditionalOptionsMenu() {
-        selectedOption = AdditionalOptionSelecItem.AttachFile
+        selectedOption = AdditionalOptionSelectItem.AttachFile
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
     }
 

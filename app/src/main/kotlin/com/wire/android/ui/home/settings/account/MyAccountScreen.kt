@@ -84,7 +84,7 @@ fun MyAccountScreen(
             onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
             onDeleteAccountDismissed = deleteAccountViewModel::onDeleteAccountDialogDismissed,
             onNavigateBack = viewModel::navigateBack,
-            startDeleteAccountFlow =deleteAccountViewModel.state.startDeleteAccountFlow
+            startDeleteAccountFlow = deleteAccountViewModel.state.startDeleteAccountFlow
         )
     }
 }

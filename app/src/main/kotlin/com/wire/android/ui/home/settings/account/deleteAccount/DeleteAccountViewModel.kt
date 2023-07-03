@@ -30,8 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DeleteAccountViewModel @Inject constructor(
     private val deleteAccount: DeleteAccountUseCase,
-    ): ViewModel() {
-
+) : ViewModel() {
 
     var state by mutableStateOf(DeleteAccountState())
         private set
@@ -50,5 +49,4 @@ class DeleteAccountViewModel @Inject constructor(
             state = state.copy(startDeleteAccountFlow = false)
         }
     }
-
 }

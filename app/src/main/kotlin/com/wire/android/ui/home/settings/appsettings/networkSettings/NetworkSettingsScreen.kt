@@ -74,7 +74,7 @@ fun NetworkSettingsScreenContent(
                     R.string.settings_keep_connection_to_websocket_description,
                     backendName
                 ),
-                switchState = switchState = getSwitchState(isWebSocketEnabled, setWebSocketState),
+                switchState = getSwitchState(isWebSocketEnabled, setWebSocketState),
                 arrowType = ArrowType.NONE
             )
         }

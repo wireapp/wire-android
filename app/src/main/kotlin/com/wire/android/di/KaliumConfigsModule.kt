@@ -20,13 +20,16 @@
 
 package com.wire.android.di
 
+import android.content.Context
 import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -36,7 +39,7 @@ import kotlinx.coroutines.runBlocking
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(globalDataStore: GlobalDataStore): KaliumConfigs {
+    fun provideKaliumConfigs(globalDataStore: GlobalDataStore, context: Context): KaliumConfigs {
         return KaliumConfigs(
             isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
             isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
@@ -56,7 +59,8 @@ class KaliumConfigsModule {
             guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK,
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
-            wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE
+            wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
+            isWebSocketEnabledByDefault = runBlocking { context.isGoogleServicesAvailable() }
         )
     }
 }

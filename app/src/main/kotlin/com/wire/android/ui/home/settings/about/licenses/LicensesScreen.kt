@@ -35,7 +35,6 @@ import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
 import com.mikepenz.aboutlibraries.util.withContext
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -82,7 +81,6 @@ fun LicensesContent(
                     val license = library.licenses.firstOrNull()
 
                     if (!license?.htmlReadyLicenseContent.isNullOrBlank()) {
-                        appLogger.d("onLibraryClick: ${license!!.htmlReadyLicenseContent}")
                         openDialog.value = library
                     }
                 },

@@ -81,7 +81,7 @@ fun LicensesContent(
                 onLibraryClick = { library ->
                     val license = library.licenses.firstOrNull()
 
-                    if(!license?.htmlReadyLicenseContent.isNullOrBlank()) {
+                    if (!license?.htmlReadyLicenseContent.isNullOrBlank()) {
                         appLogger.d("onLibraryClick: ${license!!.htmlReadyLicenseContent}")
                         openDialog.value = library
                     }

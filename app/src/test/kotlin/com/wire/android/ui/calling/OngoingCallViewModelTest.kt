@@ -134,7 +134,7 @@ class OngoingCallViewModelTest {
 
     private fun provideCall(id: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
         conversationId = id,
-        status =  CallStatus.ESTABLISHED,
+        status = CallStatus.ESTABLISHED,
         callerId = "caller_id",
         participants = listOf(),
         isMuted = false,

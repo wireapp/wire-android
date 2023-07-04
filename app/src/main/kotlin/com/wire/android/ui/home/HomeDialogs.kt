@@ -163,12 +163,12 @@ fun E2EIdRequiredWithSnoozeDialog(
         onDismiss = { snoozeDialog(result) },
         optionButton1Properties = WireDialogButtonProperties(
             onClick = getCertificate,
-            text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_btn),
+            text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_button),
             type = WireDialogButtonType.Primary,
         ),
         optionButton2Properties = WireDialogButtonProperties(
             onClick = { snoozeDialog(result) },
-            text = stringResource(id = R.string.end_to_end_identity_required_dialog_snooze_btn),
+            text = stringResource(id = R.string.end_to_end_identity_required_dialog_snooze_button),
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
@@ -188,7 +188,7 @@ fun E2EIdRequiredNoSnoozeDialog(getCertificate: () -> Unit) {
         onDismiss = getCertificate,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = getCertificate,
-            text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_btn),
+            text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_button),
             type = WireDialogButtonType.Primary,
         ),
         buttonsHorizontalAlignment = false,

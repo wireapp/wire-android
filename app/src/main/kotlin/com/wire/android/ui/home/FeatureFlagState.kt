@@ -32,7 +32,7 @@ data class FeatureFlagState(
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
     val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
     val areSelfDeletedMessagesEnabled: Boolean = true,
-    val e2EIdRequired: E2EIdRequired? = null,
+    val e2EIRequired: E2EIdRequired? = null,
     val e2EIdSnoozeInfo: E2EIdSnooze? = null
 ) {
     enum class SharingRestrictedState {

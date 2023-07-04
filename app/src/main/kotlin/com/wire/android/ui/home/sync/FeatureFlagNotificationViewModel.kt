@@ -83,7 +83,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             setFileSharingState(userId)
                             observeTeamSettingsSelfDeletionStatus(userId)
                             setGuestRoomLinkFeatureFlag(userId)
-                            setMLSE2EIdRequiredState(userId)
+                            setE2EIRequiredState(userId)
                         }
                 }
             }
@@ -149,13 +149,13 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private fun setMLSE2EIdRequiredState(userId: UserId) = viewModelScope.launch {
+    private fun setE2EIRequiredState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeE2EIRequired().collect { result ->
             val state = when (result) {
                 is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIdRequired.WithGracePeriod(result.gracePeriod)
                 E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIdRequired.NoGracePeriod
             }
-            featureFlagState = featureFlagState.copy(e2EIdRequired = state)
+            featureFlagState = featureFlagState.copy(e2EIRequired = state)
         }
     }
 
@@ -182,12 +182,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun getE2EICertificate() {
         // TODO do the magic
-        featureFlagState = featureFlagState.copy(e2EIdRequired = null)
+        featureFlagState = featureFlagState.copy(e2EIRequired = null)
     }
 
     fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIdRequired.WithGracePeriod) {
         featureFlagState = featureFlagState.copy(
-            e2EIdRequired = null,
+            e2EIRequired = null,
             e2EIdSnoozeInfo = FeatureFlagState.E2EIdSnooze(result.timeLeft)
         )
         currentUserId?.let { userId ->

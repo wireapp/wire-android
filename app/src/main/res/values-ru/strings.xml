@@ -50,8 +50,8 @@
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сеанс, чтобы сгенерировать новые ключи шифрования.</string>
     <string name="label_message_knock">%s упомянул</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s получит ваше сообщение позже.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 participant from %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
@@ -178,7 +178,7 @@
     <string name="support_screen_title">Служба поддержки</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
-    <string name="search_no_results">No matches found</string>
+    <string name="search_no_results">Совпадений не найдено</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервные копии</string>
     <string name="settings_other_group_title">Other</string>
@@ -197,11 +197,11 @@
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
-    <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
+    <string name="welcome_migration_dialog_title">Добро пожаловать в наше новое приложение для Android 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">Начать использовать Wire</string>
     <!-- API Versioning Dialogs -->
-    <string name="api_versioning_client_update_required_title">Update required</string>
+    <string name="api_versioning_client_update_required_title">Требуется обновление</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Версия сервера не поддерживается</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
@@ -211,7 +211,7 @@
     <string name="migration_message_unknown">Please wait while we migrate data for you</string>
     <string name="migration_accounts_message">Migrating your accounts...</string>
     <string name="migration_messages_message">Перенос ваших сообщений...</string>
-    <string name="migration_title_step">Step %1$d/%2$d</string>
+    <string name="migration_title_step">Шаг %1$d/%2$d</string>
     <string name="migration_title_almost_done">Почти готово!</string>
     <string name="migration_title_updated">Setting up Wire</string>
     <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
@@ -238,7 +238,7 @@
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
     <string name="login_password_placeholder">Пароль</string>
-    <string name="login_password_label">PASSWORD</string>
+    <string name="login_password_label">ПАРОЛЬ</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
     <string name="login_sso_code_placeholder">wire-</string>
@@ -262,7 +262,7 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
     <string name="second_factor_authentication_instructions_label">Введите код подтверждения, отправленный на email %1$s</string>
-    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Удалить устройство</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on
@@ -273,7 +273,7 @@
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Неправильный пароль</string>
-    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
+    <string name="remove_device_details_description">Удалите это устройство, если вы перестали им пользоваться. На этом устройстве сразу же будет осуществлен выход из аккаунта.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
@@ -327,7 +327,7 @@
     <string name="create_account_details_confirm_password_label">CONFIRM PASSWORD</string>
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_account_code_resend">Отправить код еще раз</string>
-    <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="create_account_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <string name="create_account_code_error_title">Некорректная информация</string>
     <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>
     <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
@@ -342,7 +342,7 @@
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
-    <string name="conversation_label_favorites">FAVORITES</string>
+    <string name="conversation_label_favorites">ИЗБРАННОЕ</string>
     <string name="conversation_label_conversations">CONVERSATIONS</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
@@ -386,8 +386,8 @@
     <string name="username_unavailable_label">Имя недоступно</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
-    <string name="conversation_details_participants_tab">PARTICIPANTS</string>
-    <string name="conversation_details_options_group_name">GROUP NAME</string>
+    <string name="conversation_details_participants_tab">УЧАСТНИКИ</string>
+    <string name="conversation_details_options_group_name">НАЗВАНИЕ ГРУППЫ</string>
     <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
     <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
@@ -403,7 +403,7 @@
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
-    <string name="conversation_options_services_label">Services</string>
+    <string name="conversation_options_services_label">Сервисы</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
@@ -435,9 +435,9 @@
     <!-- Attachment options -->
     <string name="attachment_share_file">Прикрепить файл</string>
     <string name="attachment_share_image">Attach Picture</string>
-    <string name="attachment_take_photo">Take Photo</string>
+    <string name="attachment_take_photo">Сделать Фото</string>
     <string name="attachment_record_video">Record Video</string>
-    <string name="attachment_voice_message">Audio Message</string>
+    <string name="attachment_voice_message">Аудиосообщение</string>
     <string name="attachment_share_location">Share Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
@@ -492,7 +492,7 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
-    <string name="muting_option_only_mentions_title">Mentions and replies</string>
+    <string name="muting_option_only_mentions_title">Упоминания и ответы</string>
     <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nothing</string>
     <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
@@ -508,7 +508,7 @@
     <string name="label_share">Поделится</string>
     <string name="label_edit">Правка</string>
     <string name="label_delete">Удалить</string>
-    <string name="info_message_copied">Message copied</string>
+    <string name="info_message_copied">Сообщение скопировано</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
     <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>
@@ -523,7 +523,7 @@
     <string name="conversation_banner_federated_present">Federated users are present</string>
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
-    <string name="conversation_banner_services_active">Services are active</string>
+    <string name="conversation_banner_services_active">Сервисы активны</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
@@ -655,7 +655,7 @@
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
-    <string name="label_contacts">CONTACTS</string>
+    <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая Группа</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
@@ -709,7 +709,7 @@
     <string name="notification_missed_call">Пропущенный вызов</string>
     <string name="notification_knock">Pinged</string>
     <string name="notification_reply">Reply: %1$s</string>
-    <string name="notification_not_supported_issue">Feature not supported</string>
+    <string name="notification_not_supported_issue">Функция не поддерживается</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>
     <string name="notification_action_reply">Ответить</string>
@@ -768,7 +768,7 @@
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
     <string name="connection_request_cancel_error">Connection request could not be canceled</string>
     <string name="connection_pending_message">Wants to connect</string>
-    <string name="connection_pending_label">pending</string>
+    <string name="connection_pending_label">ожидает</string>
     <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Принять</string>
@@ -788,9 +788,9 @@
     <string name="empty_group_label">Unnamed conversation</string>
     <string name="label_show_more">Show More</string>
     <!--prohibited asset messages -->
-    <string name="prohibited_images_message">Receiving images is prohibited</string>
-    <string name="prohibited_videos_message">Receiving videos is prohibited</string>
-    <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
+    <string name="prohibited_images_message">Получение изображений запрещено</string>
+    <string name="prohibited_videos_message">Получение видео запрещено</string>
+    <string name="prohibited_audio_message">Получение аудиосообщений запрещено</string>
     <string name="prohibited_file_message">Receiving files is prohibited</string>
     <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
@@ -805,7 +805,7 @@
     <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
     <string name="service_details_label">Сервис</string>
     <string name="service_details_add_service_label">Add To Group</string>
-    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_details_remove_service_label">Удалить Из Группы</string>
     <string name="service_remove_success">Service removed from group</string>
     <string name="service_remove_error">Unable to remove service from group</string>
     <string name="service_add_success">Service added to group</string>
@@ -827,7 +827,7 @@
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Account Settings</string>
     <string name="settings_devices_label">Устройства</string>
-    <string name="settings_backups_label">Backups</string>
+    <string name="settings_backups_label">Резервные копии</string>
     <string name="settings_others_label">OTHERS</string>
     <string name="settings_your_account_label">Account Details</string>
     <string name="settings_app_settings_label">App Settings</string>
@@ -849,10 +849,10 @@
     <string name="settings_myaccount_display_name_title">Your profile name</string>
     <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
     <string name="settings_myaccount_display_name_error">Please enter your profile name</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">От 1 до 64 символов</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <!--Privacy Settings -->
-    <string name="settings_send_read_receipts">Send read receipts</string>
+    <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
     <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This setting does not apply to group conversations.</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
@@ -936,7 +936,7 @@
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
     <string name="label_proxy_password">PROXY PASSWORD</string>
     <string name="label_wire_credentials">WIRE CREDENTIALS</string>
-    <string name="dialog_clear_content_title">Clear content?</string>
+    <string name="dialog_clear_content_title">Очистить содержимое?</string>
     <string name="dialog_clear_content_option">Clear content</string>
     <string name="dialog_clear_content_text">\"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
     <string name="not_supported_dialog_title">Не поддерживается</string>
@@ -945,7 +945,7 @@
     <string name="create_team_not_supported_dialog_description">You can\'t create a new team on an on-premises backend with proxy support in the app.\nPlease use team management (%1$s) instead on this backend.</string>
     <string name="to_team_management_action">Open Team Management</string>
     <!-- Update App dialog -->
-    <string name="update_app_dialog_title">Update required</string>
+    <string name="update_app_dialog_title">Требуется обновление</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="update_app_dialog_button">Обновить</string>
     <string name="cancel_login_button_label">Отмена</string>
@@ -986,7 +986,7 @@
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
-    <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
+    <string name="label_client_key_fingerprint_not_available">НЕ ДОСТУПНО</string>
     <string name="guest_room_link_copied">Ссылка скопирована в буфер обмена</string>
     <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
     <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
@@ -1027,8 +1027,8 @@
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
-    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
+    <string name="self_deleting_message_label">Самоудаляющееся сообщение</string>
+    <string name="self_deleting_messages_team_setting_disabled">Самоудаляющиеся сообщения отключены.</string>
     <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
     <string name="automatically_delete_message_after">Automatically delete message after:</string>
@@ -1072,9 +1072,9 @@
     </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 день</item>
-        <item quantity="few">%1$d days</item>
-        <item quantity="many">%1$d days</item>
-        <item quantity="other">%1$d days</item>
+        <item quantity="few">%1$d дня</item>
+        <item quantity="many">%1$d дней</item>
+        <item quantity="other">%1$d дней</item>
     </plurals>
     <plurals name="hours_long_label">
         <item quantity="one">1 час</item>
@@ -1095,11 +1095,11 @@
         <item quantity="other">%1$d seconds</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
-    <string name="one_week_short_label">1w</string>
-    <string name="one_day_short_label">1d</string>
-    <string name="one_hour_short_label">1h</string>
-    <string name="five_minutes_short_label">5m</string>
-    <string name="one_minute_short_label">1m</string>
+    <string name="one_week_short_label">1 нед.</string>
+    <string name="one_day_short_label">1д</string>
+    <string name="one_hour_short_label">1ч</string>
+    <string name="five_minutes_short_label">5 мин.</string>
+    <string name="one_minute_short_label">1 мин.</string>
     <string name="ten_seconds_short_label">10s</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>

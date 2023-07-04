@@ -28,10 +28,12 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.client.SelfClientsResult
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -42,17 +44,18 @@ import org.junit.jupiter.api.Test
 class SelfDevicesViewModelTest {
 
     @Test
-    fun `given a self client id, when fetching self clients, then returns devices list without current device`() = runTest {
-        // given
-        val (_, viewModel) = Arrangement()
-            .arrange()
+    fun `given a self client id, when fetching self clients, then returns devices list without current device`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .arrange()
 
-        // when
-        val currentDevice = Device(TestClient.CLIENT)
+            // when
+            val currentDevice = Device(TestClient.CLIENT)
 
-        // then
-        assert(!viewModel.state.deviceList.contains(currentDevice))
-    }
+            // then
+            assert(!viewModel.state.deviceList.contains(currentDevice))
+        }
 
     private class Arrangement {
 
@@ -80,6 +83,16 @@ class SelfDevicesViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             val scheduler = TestCoroutineScheduler()
             Dispatchers.setMain(StandardTestDispatcher(scheduler))
+
+            coEvery { currentClientId.invoke() } returns flowOf(TestClient.CLIENT_ID)
+            coEvery { fetchSelfClientsFromRemote.invoke() } returns SelfClientsResult.Success(listOf(), null)
+            coEvery { observeClientsByUserId(any()) } returns flowOf(
+                ObserveClientsByUserIdUseCase.Result.Success(
+                    listOf(
+                        TestClient.CLIENT
+                    )
+                )
+            )
         }
 
         fun arrange() = this to viewModel

@@ -30,6 +30,7 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -208,7 +209,7 @@ internal class MessageComposerViewModelArrangement {
         )
     }
 
-    suspend fun withSuccessfulViewModelInit() = apply {
+    fun withSuccessfulViewModelInit() = apply {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
@@ -318,7 +319,7 @@ internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUs
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
             every { it.messageTime } returns MessageTime("")
-            every { it.messageStatus } returns MessageStatus.Untouched()
+            every { it.messageStatus } returns MessageStatus(flowStatus = MessageFlowStatus.Sent)
         }
         every { it.messageContent } returns null
     }

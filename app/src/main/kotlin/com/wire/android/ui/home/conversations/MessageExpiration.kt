@@ -27,7 +27,9 @@ import kotlin.time.Duration.Companion.seconds
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimerHelper.SelfDeletionTimerState {
     val context = LocalContext.current
 
-    return remember { SelfDeletionTimerHelper(context).fromExpirationStatus(expirationStatus) }
+    return remember(
+        (expirationStatus as? ExpirationStatus.Expirable)?.selfDeletionStatus ?: true
+    ) { SelfDeletionTimerHelper(context).fromExpirationStatus(expirationStatus) }
 }
 
 class SelfDeletionTimerHelper(private val context: Context) {
@@ -36,7 +38,12 @@ class SelfDeletionTimerHelper(private val context: Context) {
         return if (expirationStatus is ExpirationStatus.Expirable) {
             with(expirationStatus) {
                 val timeLeft = calculateTimeLeft(selfDeletionStatus, expireAfter)
-                SelfDeletionTimerState.Expirable(context.resources, timeLeft, expireAfter)
+                SelfDeletionTimerState.Expirable(
+                    context.resources,
+                    timeLeft,
+                    expireAfter,
+                    selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started
+                )
             }
         } else {
             SelfDeletionTimerState.NotExpirable
@@ -70,7 +77,8 @@ class SelfDeletionTimerHelper(private val context: Context) {
         class Expirable(
             private val resources: Resources,
             timeLeft: Duration,
-            private val expireAfter: Duration
+            private val expireAfter: Duration,
+            val timerStarted: Boolean
         ) : SelfDeletionTimerState() {
             companion object {
                 /**

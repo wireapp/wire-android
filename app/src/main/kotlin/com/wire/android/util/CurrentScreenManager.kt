@@ -36,6 +36,7 @@ import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.CoroutineScope
@@ -148,6 +149,8 @@ sealed class CurrentScreen {
 
     // Import media screen is opened
     object ImportMedia : CurrentScreen()
+    // SelfDevices screen is opened
+    object DeviceManager : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
@@ -177,6 +180,8 @@ sealed class CurrentScreen {
                     IncomingCallScreen(destination.argsFrom(arguments).conversationId)
 
                 is ImportMediaScreenDestination -> ImportMedia
+
+                is SelfDevicesScreenDestination -> DeviceManager
 
                 else -> SomeOther
             }

@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -77,12 +78,16 @@ internal class GroupConversationParticipantsViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
+    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
+    @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
     private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
         GroupConversationParticipantsViewModel(
             savedStateHandle,
-            observeParticipantsForConversationUseCase
+            observeParticipantsForConversationUseCase,
+            refreshUsersWithoutMetadata,
         )
     }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestClient
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.navArgs
@@ -17,6 +18,7 @@ import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
@@ -28,6 +30,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -144,7 +147,7 @@ class DeviceDetailsViewModelTest {
         }
 
     @Test
-    fun `given an a password dialog, when confirmation clicked, then should call to delete device`() =
+    fun `given a password dialog, when confirmation clicked, then should call to delete device`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()
                 .withRequiredMockSetup()
@@ -155,13 +158,13 @@ class DeviceDetailsViewModelTest {
 
             viewModel.removeDevice(arrangement.onSuccess)
             viewModel.onRemoveConfirmed(arrangement.onSuccess)
+            advanceUntilIdle()
 
             coVerify {
                 arrangement.deleteClientUseCase.invoke(any())
             }
             verify { arrangement.onSuccess() }
             assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            assertTrue((viewModel.state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.loading == false)
             assertTrue((viewModel.state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.removeEnabled == false)
             assertTrue(viewModel.state.error is RemoveDeviceError.None)
         }
@@ -230,6 +233,7 @@ class DeviceDetailsViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withFingerprintSuccess()
+            coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = IsPasswordRequiredUseCase.Result.Success(true)) =

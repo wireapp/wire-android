@@ -53,6 +53,7 @@ class InitiatingCallViewModelTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withEndingCall()
+            .withStartCallSucceeding()
             .arrange()
 
         // When
@@ -72,6 +73,7 @@ class InitiatingCallViewModelTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withNoInternetConnection()
+            .withStartCallSucceeding()
             .arrange()
 
         // When
@@ -118,7 +120,9 @@ class InitiatingCallViewModelTest {
             val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             MockKAnnotations.init(this)
             every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
+            coEvery { isLastCallClosed.invoke(any(), any()) } returns flowOf(false)
             coEvery { establishedCalls() } returns flowOf(emptyList())
+            every { callRinger.ring(any(), any(), any()) } returns Unit
         }
 
         fun withEndingCall(): Arrangement = apply {
@@ -129,6 +133,10 @@ class InitiatingCallViewModelTest {
         fun withNoInternetConnection(): Arrangement = apply {
             coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
+        }
+
+        fun withStartCallSucceeding() = apply {
+            coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.Success
         }
 
         fun arrange() = this to initiatingCallViewModel

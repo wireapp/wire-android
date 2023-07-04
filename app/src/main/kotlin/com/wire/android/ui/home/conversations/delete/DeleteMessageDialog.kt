@@ -32,7 +32,6 @@ import com.wire.android.util.dialogErrorStrings
 
 @Composable
 internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: DeleteMessageDialogHelper, onDeleted: () -> Unit = {}) {
-
     if (state is DeleteMessageDialogsState.States) {
         when {
             state.forEveryone is DeleteMessageDialogActiveState.Visible -> {
@@ -49,7 +48,6 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                 }
             }
             state.forYourself is DeleteMessageDialogActiveState.Visible -> {
-
                 if (state.forYourself.error is DeleteMessageError.GenericError) {
                     DeleteMessageErrorDialog(state.forYourself.error, actions::clearDeleteMessageError)
                 } else {

@@ -42,6 +42,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
 import com.wire.android.ui.destinations.DebugScreenDestination
+import com.wire.android.ui.destinations.LicensesScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
 import com.wire.android.ui.destinations.PrivacySettingsConfigScreenDestination
@@ -119,7 +120,11 @@ enum class SettingsItem(val id: String, val title: UIText, val direction: Direct
         title = UIText.StringResource(R.string.settings_privacy_settings_label),
         direction = PrivacySettingsConfigScreenDestination
     ),
-
+    Licenses(
+        id = "other_licenses",
+        title = UIText.StringResource(R.string.settings_licenses_settings_label),
+        direction = LicensesScreenDestination
+    ),
     BackupAndRestore(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),

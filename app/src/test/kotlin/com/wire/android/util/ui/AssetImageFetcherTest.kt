@@ -44,6 +44,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.buffer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class AssetImageFetcherTest {
@@ -122,7 +123,7 @@ internal class AssetImageFetcherTest {
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When
-        assetImageFetcher.fetch()
+        assertThrows<AssetImageException> { assetImageFetcher.fetch() }
 
         // Then
         coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
@@ -137,7 +138,7 @@ internal class AssetImageFetcherTest {
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When
-        assetImageFetcher.fetch()
+        assertThrows<AssetImageException> { assetImageFetcher.fetch() }
 
         // Then
         coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
@@ -197,15 +198,27 @@ internal class AssetImageFetcherTest {
             return this
         }
 
-        fun withErrorResponse(data: ImageAsset): Arrangement {
+        fun withErrorResponse(data: ImageAsset, isRetryNeeded: Boolean = false): Arrangement {
             imageData = data
-            coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Failure(CoreFailure.Unknown(null)))
+            coEvery { getPublicAsset.invoke((any())) }.returns(
+                PublicAssetResult.Failure(
+                    CoreFailure.Unknown(null),
+                    isRetryNeeded
+                )
+            )
             coEvery {
                 getPrivateAsset.invoke(
                     any(),
                     any()
                 )
-            }.returns(CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(null))))
+            }.returns(
+                CompletableDeferred(
+                    MessageAssetResult.Failure(
+                        CoreFailure.Unknown(null),
+                        isRetryNeeded
+                    )
+                )
+            )
 
             return this
         }

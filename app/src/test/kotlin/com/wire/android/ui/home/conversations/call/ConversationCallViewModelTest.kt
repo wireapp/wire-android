@@ -34,6 +34,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.emptyFlow
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -74,6 +75,8 @@ class ConversationCallViewModelTest {
         MockKAnnotations.init(this)
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
+        coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
+        coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
 
         conversationCallViewModel = ConversationCallViewModel(
             savedStateHandle = savedStateHandle,

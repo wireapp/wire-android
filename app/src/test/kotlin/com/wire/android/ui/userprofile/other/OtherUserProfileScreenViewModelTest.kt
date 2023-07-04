@@ -25,7 +25,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
-import com.wire.android.ui.userprofile.common.UsernameMapper
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -40,7 +39,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import io.mockk.Called
@@ -63,7 +62,7 @@ class OtherUserProfileScreenViewModelTest {
             val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
                 .withConversationIdInSavedState(CONVERSATION_ID)
-                .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
+                .withGetOneToOneConversation(GetOneToOneConversationUseCase.Result.Success(CONVERSATION))
                 .arrange()
 
             // when
@@ -192,62 +191,17 @@ class OtherUserProfileScreenViewModelTest {
         }
 
     @Test
-    fun `given not connected user, then direct conversation is not requested`() = runTest {
-        // given
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-            .arrange()
-
-        // then
-        coVerify {
-            arrangement.getOrCreateOneToOneConversation wasNot Called
-        }
-    }
-
-    @Test
-    fun `given connected user, when click on menu button, then direct conversation data is requested`() = runTest {
+    fun `given not connected user, then direct conversation is not found`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
-                GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
+                GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM)
             )
-            .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
+            .withGetOneToOneConversation(GetOneToOneConversationUseCase.Result.Failure)
             .arrange()
 
-        // when
-        viewModel.loadConversationBottomSheetContent()
-
         // then
-        coVerify {
-            arrangement.getOrCreateOneToOneConversation(USER_ID)
-        }
-    }
-
-    @Test
-    fun `given connected user AND direct conversation data error, when click on menu button, then the other data is displayed`() = runTest {
-        // given
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-            .withUserInfo(
-                GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
-            )
-            .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
-            .arrange()
-
-        // when
-        viewModel.loadConversationBottomSheetContent()
-
-        // then
-        coVerify {
-            arrangement.getOrCreateOneToOneConversation(USER_ID)
-        }
-
-        assertEquals(false, viewModel.state.isDataLoading)
-        assertEquals(OTHER_USER.name.orEmpty(), viewModel.state.fullName)
-        assertEquals(UsernameMapper.mapUserLabel(OTHER_USER), viewModel.state.userName)
-        assertEquals(TEAM.name.orEmpty(), viewModel.state.teamName)
-        assertEquals(OTHER_USER.email.orEmpty(), viewModel.state.email)
-        assertEquals(OTHER_USER.phone.orEmpty(), viewModel.state.phone)
-        assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
-        assertEquals(OTHER_USER.botService, viewModel.state.botService)
+        assertEquals(null, viewModel.state.conversationSheetContent)
     }
 
     companion object {

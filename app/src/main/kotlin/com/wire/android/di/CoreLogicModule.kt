@@ -69,6 +69,7 @@ import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassifica
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -92,6 +93,7 @@ import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletio
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -1116,6 +1118,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideClearNewClientsForUser(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().clearNewClientsForUser
+
+    @ViewModelScoped
+    @Provides
     fun provideEnqueueMessageSelfDeletionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -1168,4 +1175,19 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetServiceByIdUseCase =
         coreLogic.getSessionScope(currentAccount).service.getServiceById
+
+    @ViewModelScoped
+    @Provides
+    fun provideRefreshUsersWithoutMetadataUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RefreshUsersWithoutMetadataUseCase = coreLogic.getSessionScope(currentAccount).users.refreshUsersWithoutMetadata
+
+    @ViewModelScoped
+    @Provides
+    fun provideRefreshConversationsWithoutMetadataUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RefreshConversationsWithoutMetadataUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.refreshConversationsWithoutMetadata
 }

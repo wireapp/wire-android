@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -87,6 +88,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -226,7 +228,14 @@ fun ConversationScreen(
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
                 navigator.navigate(
-                    NavigationCommand(MediaGalleryScreenDestination(conversationId, message.header.messageId, isSelfMessage))
+                    NavigationCommand(
+                        MediaGalleryScreenDestination(
+                            conversationId = conversationId,
+                            messageId = message.header.messageId,
+                            isSelfAsset = isSelfMessage,
+                            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+                        )
+                    )
                 )
                 updateImageOnFullscreenMode(message)
             }
@@ -382,6 +391,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -444,14 +454,14 @@ private fun ConversationScreen(
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = messageComposerState::reply,
                 onEditClick = messageComposerState::toEditMessage,
-                onShareAsset = {
+                onShareAssetClick = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
                         conversationScreenState.hideContextMenu()
                     }
                 },
-                onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
-                onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset
+                onDownloadAssetClick = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset
             )
         }
 
@@ -467,7 +477,6 @@ private fun ConversationScreen(
 
         ConversationScreenState.BottomSheetMenuType.None -> emptyList()
     }
-
     Scaffold(
         topBar = {
             Column {
@@ -526,16 +535,14 @@ private fun ConversationScreen(
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked
                 )
             }
-
-            MenuModalSheetLayout(
-                header = menuModalHeader,
-                sheetState = conversationScreenState.modalBottomSheetState,
-                coroutineScope = conversationScreenState.coroutineScope,
-                menuItems = menuItems
-            )
         }
     )
-
+    MenuModalSheetLayout(
+        header = menuModalHeader,
+        sheetState = conversationScreenState.modalBottomSheetState,
+        coroutineScope = conversationScreenState.coroutineScope,
+        menuItems = menuItems
+    )
     SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 

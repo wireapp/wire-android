@@ -66,6 +66,8 @@ fun Resources.annotatedText(
     boldStyle: TextStyle,
     normalColor: Color,
     boldColor: Color,
+    errorColor: Color,
+    isErrorString: Boolean,
     vararg formatArgs: String
 ): AnnotatedString {
 
@@ -79,19 +81,22 @@ fun Resources.annotatedText(
         splitText.forEach { piece ->
             when {
                 input.contains(BOLD_SEPARATOR + piece.trim() + BOLD_SEPARATOR) -> { // If the piece was between ** characters
-                    pushStyle(style = toSpanStyle(boldStyle, boldColor))
+                    pushStyle(style = toSpanStyle(boldStyle, useErrorColorIfApplies(isErrorString, errorColor, boldColor)))
                     append(piece)
                     pop()
                 }
 
                 else -> {
-                    pushStyle(style = toSpanStyle(normalStyle, normalColor))
+                    pushStyle(style = toSpanStyle(normalStyle, useErrorColorIfApplies(isErrorString, errorColor, normalColor)))
                     append(piece)
                 }
             }
         }
     }
 }
+
+private fun useErrorColorIfApplies(isErrorString: Boolean, errorColor: Color, regularColor: Color) =
+    if (isErrorString) errorColor else regularColor
 
 // To be used outside of Composables, e.g. in notifications.
 @Suppress("LongParameterList", "SpreadOperator")

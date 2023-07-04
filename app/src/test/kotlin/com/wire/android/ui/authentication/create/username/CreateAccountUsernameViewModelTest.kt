@@ -39,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBe
@@ -67,6 +68,8 @@ class CreateAccountUsernameViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
+        val scheduler = TestCoroutineScheduler()
+        Dispatchers.setMain(StandardTestDispatcher(scheduler))
         createAccountUsernameViewModel = CreateAccountUsernameViewModel(validateUserHandleUseCase, setUserHandleUseCase)
     }
 
@@ -102,9 +105,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when setting the username, then show loading`() {
-        val scheduler = TestCoroutineScheduler()
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
+    fun `given button is clicked, when setting the username, then show loading`() = runTest {
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
 
@@ -114,21 +115,20 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.onContinue(onSuccess)
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo false
         createAccountUsernameViewModel.state.loading shouldBeEqualTo true
-        scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
         createAccountUsernameViewModel.state.loading shouldBeEqualTo false
     }
 
     @Test
-    fun `given button is clicked, when request returns Success, then navigate to initial sync screen`() {
-        val scheduler = TestCoroutineScheduler()
+    fun `given button is clicked, when request returns Success, then navigate to initial sync screen`() = runTest {
         val username = "abc"
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid(username)
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue(username))
 
-        runTest { createAccountUsernameViewModel.onContinue(onSuccess) }
+        createAccountUsernameViewModel.onContinue(onSuccess)
+        advanceUntilIdle()
 
         // FIXME: change to 1 once the viewModel is fixed
         coVerify(exactly = 2) { validateUserHandleUseCase.invoke(username) }

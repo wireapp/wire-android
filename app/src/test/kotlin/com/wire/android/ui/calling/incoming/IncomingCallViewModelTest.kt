@@ -92,10 +92,10 @@ class IncomingCallViewModelTest {
             // Default empty values
             coEvery { rejectCall(any()) } returns Unit
             coEvery { acceptCall(any()) } returns Unit
-            coEvery { callRinger.ring(any(), any()) } returns Unit
-            coEvery { callRinger.stop() } returns Unit
+            every { callRinger.ring(any(), any()) } returns Unit
+            every { callRinger.stop() } returns Unit
             coEvery { incomingCalls.invoke() } returns flowOf(listOf(provideCall()))
-            coEvery { observeEstablishedCalls.invoke() } returns flowOf(listOf())
+            coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
             coEvery { muteCall(any(), any()) } returns Unit
         }
 
@@ -135,6 +135,7 @@ class IncomingCallViewModelTest {
         val (arrangement, viewModel) = Arrangement().arrange()
 
         viewModel.acceptCall()
+        advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.acceptCall(conversationId = any()) }
         verify(exactly = 1) { arrangement.callRinger.stop() }

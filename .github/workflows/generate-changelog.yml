@@ -34,7 +34,7 @@ jobs:
         run: echo "CURRENT_TAG=$(git tag --points-at ${{github.sha}})" >> "$GITHUB_ENV"
 
       - name: 'Set previous Git tag from commit'
-        run: echo "PREVIOUS_TAG=$(git tag | grep ^v | tail -n 2 | head -n 1)" >> "$GITHUB_ENV"
+        run: echo "PREVIOUS_TAG=$(git tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(\+|$)' | tail -n 2 | head -n 1)" >> "$GITHUB_ENV"
 
       - name: 'Print environment variables'
         run: |

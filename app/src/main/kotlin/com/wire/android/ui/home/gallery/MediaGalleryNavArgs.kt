@@ -24,7 +24,8 @@ import kotlinx.parcelize.Parcelize
 data class MediaGalleryNavArgs(
     val conversationId: ConversationId,
     val messageId: String,
-    val isSelfAsset: Boolean
+    val isSelfAsset: Boolean,
+    val isEphemeral: Boolean
 )
 
 @Parcelize

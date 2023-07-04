@@ -21,7 +21,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
@@ -33,7 +32,6 @@ import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.services.ServicesManager
-import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -56,6 +54,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
+import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -67,7 +66,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -85,11 +83,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {
 
     @Test
@@ -576,12 +572,12 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the current user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
-            .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
+            .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
             .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
 
         assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),
+            NewClientsData.CurrentUser(listOf(NewClientInfo.fromClient(TestClient.CLIENT)), USER_ID),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -590,14 +586,13 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the other user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
-            .withNewClient(NewClientResult.InOtherAccount(TestClient.CLIENT, USER_ID, "name", "handle"))
+            .withNewClient(NewClientResult.InOtherAccount(listOf(TestClient.CLIENT), USER_ID, "name", "handle"))
             .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
 
         assertEquals(
-            NewClientData.OtherUser(
-                TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!,
-                TestClient.CLIENT.displayName(),
+            NewClientsData.OtherUser(
+                listOf(NewClientInfo.fromClient(TestClient.CLIENT)),
                 USER_ID,
                 "name",
                 "handle"
@@ -617,16 +612,11 @@ class WireActivityViewModelTest {
             .arrange()
 
         currentScreenFlow.value = CurrentScreen.ImportMedia
-        newClientFlow.emit(NewClientResult.InCurrentAccount(TestClient.CLIENT))
+        newClientFlow.emit(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
 
         advanceUntilIdle()
 
         assertEquals(null, viewModel.globalAppState.newClientDialog)
-
-        assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),
-            viewModel.globalAppState.newClientDialogRemembered
-        )
     }
 
     @Test
@@ -634,18 +624,23 @@ class WireActivityViewModelTest {
         val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
-            .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
+            .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
         currentScreenFlow.value = CurrentScreen.ImportMedia
 
-        assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),
-            viewModel.globalAppState.newClientDialogRemembered
-        )
-
         assertEquals(null, viewModel.globalAppState.newClientDialog)
+    }
+
+    @Test
+    fun `when dismissNewClientsDialog is called, then cleared NewClients for user`() {
+        val (arrangement, viewModel) = Arrangement()
+            .arrange()
+
+        viewModel.dismissNewClientsDialog(USER_ID)
+
+        coVerify(exactly = 1) { arrangement.clearNewClientsForUser(USER_ID) }
     }
 
     private class Arrangement {
@@ -710,6 +705,9 @@ class WireActivityViewModelTest {
         lateinit var observeNewClients: ObserveNewClientsUseCase
 
         @MockK
+        lateinit var clearNewClientsForUser: ClearNewClientsForUserUseCase
+
+        @MockK
         lateinit var currentScreenManager: CurrentScreenManager
 
         private val viewModel by lazy {
@@ -727,6 +725,7 @@ class WireActivityViewModelTest {
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
                 observeNewClients = observeNewClients,
+                clearNewClientsForUser = clearNewClientsForUser,
                 currentScreenManager = currentScreenManager
             ).also { it.navigator = navigator }
         }

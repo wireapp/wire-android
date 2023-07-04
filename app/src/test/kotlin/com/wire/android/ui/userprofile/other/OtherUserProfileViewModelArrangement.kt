@@ -38,8 +38,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
-import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -61,7 +60,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
+    lateinit var getOneToOneConversation: GetOneToOneConversationUseCase
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
@@ -111,7 +110,7 @@ internal class OtherUserProfileViewModelArrangement {
             updateConversationMutedStatus,
             blockUser,
             unblockUser,
-            getOrCreateOneToOneConversation,
+            getOneToOneConversation,
             observeUserInfo,
             userTypeMapper,
             wireSessionImageLoader,
@@ -146,8 +145,8 @@ internal class OtherUserProfileViewModelArrangement {
         )
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
-        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(
-            OtherUserProfileScreenViewModelTest.CONVERSATION
+        coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
+            GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)
         )
         coEvery { getOtherUserSecurityClassificationLabel(any()) } returns SecurityClassificationType.NONE
     }
@@ -167,8 +166,8 @@ internal class OtherUserProfileViewModelArrangement {
         )
     }
 
-    fun withGetOneToOneConversation(result: CreateConversationResult) = apply {
-        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns result
+    fun withGetOneToOneConversation(result: GetOneToOneConversationUseCase.Result) = apply {
+        coEvery { getOneToOneConversation(USER_ID) } returns flowOf(result)
     }
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {

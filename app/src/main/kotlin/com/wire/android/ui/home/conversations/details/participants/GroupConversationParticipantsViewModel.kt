@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,7 +37,8 @@ import javax.inject.Inject
 @HiltViewModel
 open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val observeConversationMembers: ObserveParticipantsForConversationUseCase
+    private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : GroupDetailsBaseViewModel(savedStateHandle) {
 
     open val maxNumberOfItems get() = -1 // -1 means return whole list
@@ -47,7 +49,14 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
 
     init {
+        runRefreshUsersWithoutMetadata()
         observeConversationMembers()
+    }
+
+    private fun runRefreshUsersWithoutMetadata() {
+        viewModelScope.launch {
+            refreshUsersWithoutMetadata()
+        }
     }
 
     private fun observeConversationMembers() {

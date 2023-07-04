@@ -23,10 +23,12 @@ buildscript {
         google()
         mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+        maven(url ="https://plugins.gradle.org/m2/")
     }
     dependencies {
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.40")
-        classpath("com.google.gms:google-services:4.3.14")
+        classpath(libs.hilt.gradlePlugin)
+        classpath(libs.googleGms.gradlePlugin)
+        classpath(libs.aboutLibraries.gradlePlugin)
     }
 }
 

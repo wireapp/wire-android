@@ -66,7 +66,6 @@ import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
-import com.wire.android.ui.home.settings.account.MyAccountViewModel.SettingsOperationResult
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
 import com.wire.android.ui.theme.wireColorScheme
@@ -74,8 +73,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.toTitleCase
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -99,7 +96,6 @@ fun MyAccountScreen(
                 navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) }
                 ),
             forgotPasswordUrl = this.changePasswordUrl,
-            checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
             canDeleteAccount = viewModel.myAccountState.teamName.isNullOrBlank(),
             onDeleteAccountClicked = deleteAccountViewModel::onDeleteAccountClicked,
             onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
@@ -172,7 +168,6 @@ fun MyAccountContent(
     onDeleteAccountConfirmed: () -> Unit,
     onDeleteAccountDismissed: () -> Unit,
     startDeleteAccountFlow: Boolean,
-    checkPendingSnackBarMessages: () -> SettingsOperationResult = { SettingsOperationResult.None },
     onNavigateBack: () -> Unit = {},
     snackbarHostState: SnackbarHostState
 ) {
@@ -276,7 +271,6 @@ fun PreviewMyAccountScreen() {
         { },
         {},
         false,
-        { SettingsOperationResult.None },
         { },
         snackbarHostState = remember { SnackbarHostState() }
     )

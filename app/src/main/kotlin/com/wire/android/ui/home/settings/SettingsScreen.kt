@@ -99,11 +99,12 @@ fun SettingsScreenContent(
                 header = context.getString(R.string.settings_other_group_title),
                 items = buildList {
                     add(SettingsItem.Support)
-                    add(SettingsItem.Licenses)
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }
+                    add(SettingsItem.Licenses)
                 },
+
                 onItemClicked = onItemClicked
             )
         }

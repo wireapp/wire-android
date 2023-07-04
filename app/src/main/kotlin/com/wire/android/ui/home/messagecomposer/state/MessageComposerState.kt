@@ -85,12 +85,12 @@ fun rememberMessageComposerStateHolder(
  */
 class MessageComposerStateHolder(
     val messageComposerViewState: MutableState<MessageComposerViewState>,
-    val modalBottomSheetState: WireModalSheetState,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
+    val modalBottomSheetState: WireModalSheetState,
     val tempWritableImageUri: Uri?,
-    val tempWritableVideoUri: Uri?,
+    val tempWritableVideoUri: Uri?
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
 

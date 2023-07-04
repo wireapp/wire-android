@@ -14,25 +14,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util
 
-package scripts
+import org.junit.jupiter.api.Test
 
-import IncludeGitBuildTask
+class StringUtilTest {
 
-plugins {
-    id("com.android.application") apply false
-}
+    @Test
+    fun givenString_whenToTitleCase_thenReturnsTitleCase() {
+        val input = "tHIS is a teSt"
+        val expected = "This Is A Test"
+        val actual = input.toTitleCase()
+        assert(expected == actual)
+    }
 
-// TODO: Extract to a convention plugin
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
+    @Test
+    fun givenStringInLanguageWithNoUpperCase_whenToTitleCase_thenNothingChanges() {
+        val input = "هذا اختبار"
+        val expected = input
+        val actual = input.toTitleCase()
+        assert(expected == actual)
     }
 }

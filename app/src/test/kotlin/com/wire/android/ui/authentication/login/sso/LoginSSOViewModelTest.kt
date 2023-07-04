@@ -464,25 +464,30 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given backend switch confirmed, then auth server provider is updated`() {
+    fun `given backend switch confirmed, then auth server provider is updated`() = runTest {
         val expected = newServerConfig(2).links
-        every { validateEmailUseCase(any()) } returns true
         loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
 
         loginViewModel.onCustomServerDialogConfirm()
 
+        advanceUntilIdle()
         assertEquals(authServerConfigProvider.authServer.value, expected)
     }
 
     @Test
-    fun `given backend switch confirmed, when the new server have a default sso code, then initiate sso login`() {
+    fun `given backend switch confirmed, when the new server have a default sso code, then initiate sso login`() = runTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
+
         loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
 
         loginViewModel.onCustomServerDialogConfirm()
 
+        advanceUntilIdle()
         assertEquals(authServerConfigProvider.authServer.value, expected)
         coVerify(exactly = 1) {
             fetchSSOSettings.invoke()
@@ -491,7 +496,7 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given backend switch confirmed, when the new server have NO default sso code, then do not initiate sso login`() {
+    fun `given backend switch confirmed, when the new server have NO default sso code, then do not initiate sso login`() = runTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)
@@ -499,6 +504,7 @@ class LoginSSOViewModelTest {
 
         loginViewModel.onCustomServerDialogConfirm()
 
+        advanceUntilIdle()
         assertEquals(authServerConfigProvider.authServer.value, expected)
         coVerify(exactly = 1) { fetchSSOSettings.invoke() }
 
@@ -506,7 +512,7 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given error, when checking for server default SSO code, then do not initiate sso login`() {
+    fun `given error, when checking for server default SSO code, then do not initiate sso login`() = runTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Failure(CoreFailure.Unknown(IOException()))
@@ -514,6 +520,7 @@ class LoginSSOViewModelTest {
 
         loginViewModel.onCustomServerDialogConfirm()
 
+        advanceUntilIdle()
         assertEquals(authServerConfigProvider.authServer.value, expected)
         coVerify(exactly = 1) { fetchSSOSettings.invoke() }
 

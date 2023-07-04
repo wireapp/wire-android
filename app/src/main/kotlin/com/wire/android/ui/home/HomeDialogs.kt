@@ -18,6 +18,7 @@
  *
  */
 
+@file:Suppress("TooManyFunctions")
 package com.wire.android.ui.home
 
 import android.content.Context

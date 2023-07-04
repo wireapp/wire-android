@@ -22,8 +22,8 @@ import com.wire.android.util.ui.UIText
 import kotlin.time.Duration
 
 fun Duration.toTimeLongLabelUiText(): UIText.PluralResource = when {
-    inWholeDays >= 7 -> {
-        val weeks = inWholeDays.toInt() / 7
+    inWholeDays >= DAYS_IN_WEEK -> {
+        val weeks = inWholeDays.toInt() / DAYS_IN_WEEK
         UIText.PluralResource(R.plurals.weeks_long_label, weeks, weeks)
     }
 
@@ -32,3 +32,5 @@ fun Duration.toTimeLongLabelUiText(): UIText.PluralResource = when {
     inWholeMinutes >= 1 -> UIText.PluralResource(R.plurals.minutes_long_label, inWholeMinutes.toInt(), inWholeMinutes)
     else -> UIText.PluralResource(R.plurals.seconds_long_label, inWholeSeconds.toInt(), inWholeSeconds)
 }
+
+private const val DAYS_IN_WEEK = 7

@@ -27,10 +27,14 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs
+import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import io.mockk.MockKAnnotations
@@ -39,6 +43,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -67,6 +73,8 @@ class OngoingCallViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = conversationId)
+        coEvery { establishedCall.invoke() } returns flowOf(listOf(provideCall()))
+        coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
@@ -123,4 +131,19 @@ class OngoingCallViewModelTest {
         )
         val participants = listOf(participant1, participant2, participant3)
     }
+
+    private fun provideCall(id: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
+        conversationId = id,
+        status =  CallStatus.ESTABLISHED,
+        callerId = "caller_id",
+        participants = listOf(),
+        isMuted = false,
+        isCameraOn = false,
+        maxParticipants = 0,
+        conversationName = "ONE_ON_ONE Name",
+        conversationType = Conversation.Type.ONE_ON_ONE,
+        callerName = "otherUsername",
+        callerTeamName = "team_1",
+        isCbrEnabled = false
+    )
 }

@@ -14,32 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-pluginManagement {
-    includeBuild("build-logic")
+dependencyResolutionManagement {
     repositories {
+        google()
         mavenCentral()
     }
-}
-
-// Include all the existent modules in the project
-rootDir
-    .walk()
-    .maxDepth(1)
-    .filter {
-        it.name != "buildSrc" && it.name != "kalium" && it.isDirectory &&
-                file("${it.absolutePath}/build.gradle.kts").exists()
-    }
-    .forEach {
-        include(":${it.name}")
-    }
-
-includeBuild("kalium") {
-    // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
-    dependencySubstitution {
-        substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
-        substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
     }
 }
+
+rootProject.name = "build-logic"
+include(":plugins")

@@ -24,10 +24,10 @@ data class MyAccountState(
     val fullName: String = "",
     val userName: String = "",
     val email: String = "",
-    val teamName: String = "",
+    val teamName: String? = null,
     val domain: String = "",
     val changePasswordUrl: String? = null,
     val isReadOnlyAccount: Boolean = true,
     val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false,
+    val isEditHandleAllowed: Boolean = false
 )

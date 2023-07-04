@@ -18,20 +18,15 @@
  *
  */
 
-import com.android.build.api.dsl.AndroidSourceSet
-
 plugins {
     // Application Specific plugins
-    id(BuildPlugins.androidApplication)
-    id(BuildPlugins.kotlinAndroid)
+    id(libs.plugins.wire.android.application.get().pluginId)
     // id(BuildPlugins.kotlinAndroidExtensions)
-    id(BuildPlugins.kotlinKapt)
     id(BuildPlugins.kotlinParcelize)
-    id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
-    alias(libs.plugins.ksp)
-    kotlin(BuildPlugins.kapt)
+    id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 
@@ -50,59 +45,17 @@ repositories {
 }
 
 android {
-    compileSdk = AndroidSdk.compile
-    namespace = AndroidClient.namespace
-
-    defaultConfig {
-        applicationId = AndroidClient.appId
-        minSdk = AndroidSdk.min
-        targetSdk = AndroidSdk.target
-        versionCode = AndroidClient.versionCode
-        versionName = "v${AndroidClient.versionName}($versionCode)"
-        testInstrumentationRunner = AndroidClient.testRunner
-        testInstrumentationRunnerArguments.putAll(
-            mapOf(
-                "clearPackageData" to "true",
-                "force-queryable" to "true"
-            )
-        )
-        setProperty("archivesBaseName", "$applicationId-v$versionName($versionCode)")
-    }
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = findVersion("compose.compiler").requiredVersion
-    }
-
-    sourceSets {
-        map { it.java.srcDir("src/${it.name}/kotlin") }
-    }
-
-    // This enables us to share some code between UI and Unit tests!
-    fun AndroidSourceSet.includeCommonTestSourceDir() = java {
-        srcDir("src/commonTest/kotlin")
-    }
-    sourceSets["test"].includeCommonTestSourceDir()
-    sourceSets["androidTest"].includeCommonTestSourceDir()
+    // Most of the configuration is done in the build-logic
+    // through the Wire Application convention plugin
 
     // Remove protobuf-java as dependencies, so we can get protobuf-lite
-    // configurations.implementation.configure {
-    //    exclude(module = "protobuf-java")
-    // }
+     configurations.implementation.configure {
+        exclude(module = "protobuf-java")
+     }
 
     packagingOptions {
         resources.pickFirsts.add("google/protobuf/*.proto")
         jniLibs.pickFirsts.add("**/libsodium.so")
-    }
-
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        animationsDisabled = true
-        unitTests.isReturnDefaultValues = true
-        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -173,11 +126,9 @@ dependencies {
     // Compose iterative code, layout inspector, etc.
     debugImplementation(libs.compose.tooling)
 
-    // dagger/hilt
-    implementation(libs.hilt.android)
+    // hilt
     implementation(libs.hilt.navigationCompose)
     implementation(libs.hilt.work)
-    kapt(libs.hilt.compiler)
 
     // smaller view models
     implementation(libs.resaca.core)
@@ -210,10 +161,6 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
 
     // Acceptance/Functional tests dependencies
-    kaptAndroidTest(libs.hilt.compiler)
-    androidTestImplementation(libs.hilt.android)
-    androidTestImplementation(libs.hilt.test)
-
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.espresso.core)

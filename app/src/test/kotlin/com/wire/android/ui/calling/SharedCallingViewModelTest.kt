@@ -138,6 +138,7 @@ class SharedCallingViewModelTest {
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
+        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSecurityClassificationLabel.invoke(any()) } returns emptyFlow()

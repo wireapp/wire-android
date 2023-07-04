@@ -218,7 +218,8 @@ class MediaGalleryViewModelTest {
             every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
                 conversationId = dummyConversationId,
                 messageId = dummyPrivateAsset,
-                isSelfAsset = true
+                isSelfAsset = true,
+                isEphemeral = false
             )
 
             coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)

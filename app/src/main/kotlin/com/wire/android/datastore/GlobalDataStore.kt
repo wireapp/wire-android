@@ -133,5 +133,4 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
-
 }

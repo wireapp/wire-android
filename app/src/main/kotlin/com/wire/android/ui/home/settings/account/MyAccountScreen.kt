@@ -89,7 +89,6 @@ fun MyAccountScreen(
     with(viewModel.myAccountState) {
         MyAccountContent(
             accountDetailItems = mapToUISections(
-                viewModel = viewModel,
                 state = this,
                 navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
                 navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
@@ -129,7 +128,6 @@ fun MyAccountScreen(
 
 @Stable
 private fun mapToUISections(
-    viewModel: MyAccountViewModel,
     state: MyAccountState,
     navigateToChangeDisplayName: () -> Unit,
     navigateToChangeHandle: () -> Unit,

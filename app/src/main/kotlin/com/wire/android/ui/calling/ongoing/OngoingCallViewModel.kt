@@ -77,13 +77,7 @@ class OngoingCallViewModel @Inject constructor(
                 observeCurrentCall()
             }
         }
-        viewModelScope.launch {
-            delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
-            shouldShowDoubleTapToast = globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())
-            if (shouldShowDoubleTapToast) {
-                startDoubleTapToastDisplayCountDown()
-            }
-        }
+        showDoubleTapToast()
     }
 
     private suspend fun observeCurrentCall() {
@@ -132,6 +126,16 @@ class OngoingCallViewModel @Inject constructor(
             }
         }
         doubleTapIndicatorCountDownTimer?.start()
+    }
+
+    private fun showDoubleTapToast() {
+        viewModelScope.launch {
+            delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
+            shouldShowDoubleTapToast = globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())
+            if (shouldShowDoubleTapToast) {
+                startDoubleTapToastDisplayCountDown()
+            }
+        }
     }
 
     fun hideDoubleTapToast() {

@@ -138,23 +138,23 @@ class MyAccountViewModelTest {
     }
 
     @Test
-    fun `when user is managed by Wire, then edit handle is allowed`() = runTest {
+    fun `when user IS managed by Wire, then edit handle is allowed`() = runTest {
         val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
-            .withIsReadOnlyAccountResult(true)
-            .arrange()
-
-        assertFalse(viewModel.myAccountState.isEditHandleAllowed)
-    }
-
-    @Test
-    fun `when user is not managed by Wire, then edit handle is allowed`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(false)
             .arrange()
 
         assertTrue(viewModel.myAccountState.isEditHandleAllowed)
+    }
+
+    @Test
+    fun `when user IS NOT managed by Wire, then edit handle is not allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(true)
+            .arrange()
+
+        assertFalse(viewModel.myAccountState.isEditHandleAllowed)
     }
 
     private class Arrangement {

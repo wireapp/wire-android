@@ -186,6 +186,10 @@ class MyAccountViewModel @Inject constructor(
     }
 
     companion object {
+        /**
+         * This is a build time flag that allows to enable/disable the change email feature.
+         * NOTE: This is using this approach to being able to test correctly and not depend on custom build behavior.
+         */
         @JvmStatic
         fun isChangeEmailEnabledByBuild(): Boolean = BuildConfig.ALLOW_CHANGE_OF_EMAIL
     }

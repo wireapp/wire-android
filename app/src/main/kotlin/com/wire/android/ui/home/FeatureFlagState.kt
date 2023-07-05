@@ -32,17 +32,17 @@ data class FeatureFlagState(
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
     val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
     val areSelfDeletedMessagesEnabled: Boolean = true,
-    val e2EIRequired: E2EIdRequired? = null,
-    val e2EIdSnoozeInfo: E2EIdSnooze? = null
+    val e2EIRequired: E2EIRequired? = null,
+    val e2EISnoozeInfo: E2EISnooze? = null
 ) {
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM
     }
 
-    data class E2EIdSnooze(val timeLeft: Duration)
+    data class E2EISnooze(val timeLeft: Duration)
 
-    sealed class E2EIdRequired {
-        data class WithGracePeriod(val timeLeft: Duration) : E2EIdRequired()
-        object NoGracePeriod : E2EIdRequired()
+    sealed class E2EIRequired {
+        data class WithGracePeriod(val timeLeft: Duration) : E2EIRequired()
+        object NoGracePeriod : E2EIRequired()
     }
 }

@@ -129,16 +129,16 @@ fun HomeScreen(
         }
 
         e2EIRequired?.let {
-            E2EIdRequiredDialog(
+            E2EIRequiredDialog(
                 result = e2EIRequired,
                 getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
                 snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
             )
         }
 
-        e2EIdSnoozeInfo?.let {
+        e2EISnoozeInfo?.let {
             E2EIdSnoozeDialog(
-                state = e2EIdSnoozeInfo,
+                state = e2EISnoozeInfo,
                 dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
             )
         }

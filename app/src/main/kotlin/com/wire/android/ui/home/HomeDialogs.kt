@@ -136,14 +136,14 @@ fun WelcomeNewUserDialog(
 }
 
 @Composable
-fun E2EIdRequiredDialog(
-    result: FeatureFlagState.E2EIdRequired,
+fun E2EIRequiredDialog(
+    result: FeatureFlagState.E2EIRequired,
     getCertificate: () -> Unit,
-    snoozeDialog: (FeatureFlagState.E2EIdRequired.WithGracePeriod) -> Unit,
+    snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit,
 ) {
     when (result) {
-        FeatureFlagState.E2EIdRequired.NoGracePeriod -> E2EIdRequiredNoSnoozeDialog(getCertificate = getCertificate)
-        is FeatureFlagState.E2EIdRequired.WithGracePeriod -> E2EIdRequiredWithSnoozeDialog(
+        FeatureFlagState.E2EIRequired.NoGracePeriod -> E2EIdRequiredNoSnoozeDialog(getCertificate = getCertificate)
+        is FeatureFlagState.E2EIRequired.WithGracePeriod -> E2EIdRequiredWithSnoozeDialog(
             result = result,
             getCertificate = getCertificate,
             snoozeDialog = snoozeDialog
@@ -153,9 +153,9 @@ fun E2EIdRequiredDialog(
 
 @Composable
 fun E2EIdRequiredWithSnoozeDialog(
-    result: FeatureFlagState.E2EIdRequired.WithGracePeriod,
+    result: FeatureFlagState.E2EIRequired.WithGracePeriod,
     getCertificate: () -> Unit,
-    snoozeDialog: (FeatureFlagState.E2EIdRequired.WithGracePeriod) -> Unit
+    snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit
 ) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
@@ -202,7 +202,7 @@ fun E2EIdRequiredNoSnoozeDialog(getCertificate: () -> Unit) {
 
 @Composable
 fun E2EIdSnoozeDialog(
-    state: FeatureFlagState.E2EIdSnooze,
+    state: FeatureFlagState.E2EISnooze,
     dismissDialog: () -> Unit
 ) {
     val timeText = state.timeLeft.toTimeLongLabelUiText().asString()
@@ -222,7 +222,7 @@ fun E2EIdSnoozeDialog(
 @Composable
 fun previewE2EIdRequiredWithSnoozeDialog() {
     WireTheme {
-        E2EIdRequiredWithSnoozeDialog(FeatureFlagState.E2EIdRequired.WithGracePeriod(2.seconds), {}) {}
+        E2EIdRequiredWithSnoozeDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(2.seconds), {}) {}
     }
 }
 
@@ -238,7 +238,7 @@ fun previewE2EIdRequiredNoSnoozeDialog() {
 @Composable
 fun previewE2EIdSnoozeDialog() {
     WireTheme {
-        E2EIdSnoozeDialog(FeatureFlagState.E2EIdSnooze(2.seconds)) {}
+        E2EIdSnoozeDialog(FeatureFlagState.E2EISnooze(2.seconds)) {}
     }
 }
 

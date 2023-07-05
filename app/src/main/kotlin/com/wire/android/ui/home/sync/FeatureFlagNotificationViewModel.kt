@@ -152,8 +152,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private fun setE2EIRequiredState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeE2EIRequired().collect { result ->
             val state = when (result) {
-                is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIdRequired.WithGracePeriod(result.gracePeriod)
-                E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIdRequired.NoGracePeriod
+                is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIRequired.WithGracePeriod(result.gracePeriod)
+                E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIRequired.NoGracePeriod
             }
             featureFlagState = featureFlagState.copy(e2EIRequired = state)
         }
@@ -185,10 +185,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(e2EIRequired = null)
     }
 
-    fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIdRequired.WithGracePeriod) {
+    fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIRequired.WithGracePeriod) {
         featureFlagState = featureFlagState.copy(
             e2EIRequired = null,
-            e2EIdSnoozeInfo = FeatureFlagState.E2EIdSnooze(result.timeLeft)
+            e2EISnoozeInfo = FeatureFlagState.E2EISnooze(result.timeLeft)
         )
         currentUserId?.let { userId ->
             viewModelScope.launch {
@@ -198,6 +198,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     fun dismissSnoozeE2EIdRequiredDialog() {
-        featureFlagState = featureFlagState.copy(e2EIdSnoozeInfo = null)
+        featureFlagState = featureFlagState.copy(e2EISnoozeInfo = null)
     }
 }

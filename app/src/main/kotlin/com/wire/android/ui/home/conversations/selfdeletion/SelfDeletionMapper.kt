@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.selfdeletion
 
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import kotlin.time.Duration
 
 object SelfDeletionMapper {

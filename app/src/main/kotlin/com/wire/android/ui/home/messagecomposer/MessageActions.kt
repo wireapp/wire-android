@@ -45,6 +45,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 
 @Composable
@@ -160,25 +161,25 @@ private fun SendButton(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewMessageEditActionsEnabled() {
     MessageEditActions(true, {}, {})
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewMessageEditActionsDisabled() {
     MessageEditActions(false, {}, {})
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewMessageSendActionsEnabled() {
     MessageSendActions(true, {})
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewMessageSendActionsDisabled() {
     MessageSendActions(false, {})

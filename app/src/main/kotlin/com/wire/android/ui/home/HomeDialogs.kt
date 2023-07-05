@@ -28,7 +28,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes

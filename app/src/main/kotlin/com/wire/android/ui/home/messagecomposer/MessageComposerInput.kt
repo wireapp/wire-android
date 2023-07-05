@@ -76,7 +76,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun InActiveMessageComposerInput(
+fun InactiveMessageComposerInput(
     messageText: TextFieldValue,
     onMessageComposerFocused: () -> Unit
 ) {

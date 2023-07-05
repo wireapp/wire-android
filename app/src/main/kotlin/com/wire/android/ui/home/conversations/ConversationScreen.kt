@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -93,6 +94,7 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -652,42 +654,42 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
     block()
 }
 
-//@Preview
-//@Composable
-//fun PreviewConversationScreen() {
-//    ConversationScreen(
-//        bannerMessage = null,
-//        messageComposerViewState = derivedStateOf { MessageComposerViewState() },
-//        conversationCallViewState = ConversationCallViewState(),
-//        conversationInfoViewState = ConversationInfoViewState(
-//            conversationName = UIText.DynamicString("Some test conversation")
-//        ),
-//        conversationMessagesViewState = ConversationMessagesViewState(),
-//        onOpenProfile = { },
-//        onMessageDetailsClick = { _, _ -> },
-//        onSendMessage = { },
-//        onDeleteMessage = { _, _ -> },
-//        onAttachmentPicked = { _ -> },
-//        onAssetItemClicked = { },
-//        onImageFullScreenMode = { _, _ -> },
-//        onStartCall = { },
-//        onJoinCall = { },
-//        onReactionClick = { _, _ -> },
-//        onChangeAudioPosition = { _, _ -> },
-//        onAudioClick = { },
-//        onResetSessionClick = { _, _ -> },
-//        onUpdateConversationReadDate = { },
-//        onDropDownClick = { },
-//        onBackButtonClick = {},
-//        composerMessages = MutableStateFlow(ErrorDownloadingAsset),
-//        conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
-//        conversationMessagesViewModel = hiltViewModel(),
-//        onSelfDeletingMessageRead = {},
-//        currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
-//        onNewSelfDeletingMessagesStatus = {},
-//        tempWritableImageUri = null,
-//        tempWritableVideoUri = null,
-//        onFailedMessageRetryClicked = {},
-//        requestMentions = {}
-//    )
-//}
+@Preview
+@Composable
+fun PreviewConversationScreen() {
+    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+    ConversationScreen(
+        bannerMessage = null,
+        messageComposerViewState = messageComposerViewState,
+        conversationCallViewState = ConversationCallViewState(),
+        conversationInfoViewState = ConversationInfoViewState(
+            conversationName = UIText.DynamicString("Some test conversation")
+        ),
+        conversationMessagesViewState = ConversationMessagesViewState(),
+        onOpenProfile = { },
+        onMessageDetailsClick = { _, _ -> },
+        onSendMessage = { },
+        onDeleteMessage = { _, _ -> },
+        onAssetItemClicked = { },
+        onImageFullScreenMode = { _, _ -> },
+        onStartCall = { },
+        onJoinCall = { },
+        onReactionClick = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = { },
+        onResetSessionClick = { _, _ -> },
+        onUpdateConversationReadDate = { },
+        onDropDownClick = { },
+        onBackButtonClick = {},
+        composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
+        conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
+        conversationMessagesViewModel = hiltViewModel(),
+        onSelfDeletingMessageRead = {},
+        onNewSelfDeletingMessagesStatus = {},
+        tempWritableImageUri = null,
+        tempWritableVideoUri = null,
+        onFailedMessageRetryClicked = {},
+        requestMentions = {},
+        onClearMentionSearchResult = {}
+    )
+}

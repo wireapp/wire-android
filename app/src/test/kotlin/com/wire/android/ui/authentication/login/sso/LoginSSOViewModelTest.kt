@@ -157,6 +157,7 @@ class LoginSSOViewModelTest {
         every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
         every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+        every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
@@ -440,6 +441,7 @@ class LoginSSOViewModelTest {
 
         loginViewModel.onCustomServerDialogConfirm()
 
+        advanceUntilIdle()
         assertEquals(authServerConfigProvider.authServer.value, expected)
         coVerify(exactly = 1) { fetchSSOSettings.invoke() }
 

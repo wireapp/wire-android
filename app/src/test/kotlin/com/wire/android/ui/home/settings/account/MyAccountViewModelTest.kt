@@ -41,6 +41,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -157,6 +158,28 @@ class MyAccountViewModelTest {
         assertFalse(viewModel.myAccountState.isEditHandleAllowed)
     }
 
+    @Test
+    fun `when the build does NOT accept email change, then edit email is not allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(false)
+            .withEmailStatusByBuild(emailEditEnabled = false)
+            .arrange()
+
+        assertFalse(viewModel.myAccountState.isEditEmailAllowed)
+    }
+
+    @Test
+    fun `when the build does accept email change, then edit email IS allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(false)
+            .withEmailStatusByBuild(emailEditEnabled = true)
+            .arrange()
+
+        assertTrue(viewModel.myAccountState.isEditEmailAllowed)
+    }
+
     private class Arrangement {
         @MockK
         lateinit var navigationManager: NavigationManager
@@ -202,6 +225,11 @@ class MyAccountViewModelTest {
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {
             coEvery { isPasswordRequiredUseCase() } returns result
+        }
+
+        fun withEmailStatusByBuild(emailEditEnabled: Boolean = true) = apply {
+            mockkObject(MyAccountViewModel.Companion)
+            every { MyAccountViewModel.Companion.isChangeEmailEnabledByBuild() } returns emailEditEnabled
         }
 
         fun withIsReadOnlyAccountResult(result: Boolean) = apply {

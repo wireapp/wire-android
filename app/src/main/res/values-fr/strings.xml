@@ -1008,6 +1008,7 @@
     <string name="automatically_delete_message_after">Automatically delete message after:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Message will be deleted once you are online</string>
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="other">%1$d weeks left</item>

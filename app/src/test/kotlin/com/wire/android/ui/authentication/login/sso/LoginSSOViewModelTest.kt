@@ -69,6 +69,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -87,7 +88,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.IOException
 
-// @ExtendWith(CoroutineTestExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginSSOViewModelTest {
 
@@ -160,6 +160,7 @@ class LoginSSOViewModelTest {
         every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
         every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+        every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
@@ -505,6 +506,7 @@ class LoginSSOViewModelTest {
         loginViewModel.onCustomServerDialogConfirm()
 
         advanceUntilIdle()
+        delay(2000)
         assertEquals(authServerConfigProvider.authServer.value, expected)
         coVerify(exactly = 1) { fetchSSOSettings.invoke() }
 

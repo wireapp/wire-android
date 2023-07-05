@@ -121,8 +121,7 @@ private fun LoginSSOContent(
             error = when (loginState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code_format)
                 else -> null
-            },
-            serverTitle = serverTitle
+            }
         )
         Spacer(modifier = Modifier.weight(1f))
         LoginButton(
@@ -153,14 +152,12 @@ private fun SSOCodeInput(
     modifier: Modifier,
     ssoCode: TextFieldValue,
     error: String?,
-    onCodeChange: (TextFieldValue) -> Unit,
-    serverTitle: String
+    onCodeChange: (TextFieldValue) -> Unit
 ) {
     WireTextField(
         value = ssoCode,
         onValueChange = onCodeChange,
-        placeholderText = stringResource(R.string.login_sso_code_placeholder),
-        labelText = stringResource(R.string.login_sso_code_label) + " on $serverTitle",
+        labelText = stringResource(R.string.login_sso_code_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         modifier = modifier.testTag("ssoCodeField")

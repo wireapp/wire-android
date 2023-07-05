@@ -216,7 +216,7 @@ fun ConversationScreen(
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
         onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
-        requestMentions = messageComposerViewModel::searchMentionMembers,
+        requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
     )
     DeleteMessageDialog(

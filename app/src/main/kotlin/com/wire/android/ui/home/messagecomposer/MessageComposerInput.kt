@@ -218,7 +218,6 @@ private fun MessageComposerTextInput(
     var focused by remember(inputFocused) { mutableStateOf(inputFocused) }
 
     LaunchedEffect(focused) {
-        Log.d("TEST", "inputFocused: $focused")
         if (focused) focusRequester.requestFocus()
         else focusManager.clearFocus()
     }

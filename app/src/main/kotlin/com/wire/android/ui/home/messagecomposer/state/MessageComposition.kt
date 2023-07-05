@@ -393,8 +393,7 @@ sealed class ComposableMessageBundle : MessageBundle {
         val originalMessageId: String,
         val newContent: String,
         val newMentions: List<UiMention>
-    ) :
-        ComposableMessageBundle()
+    ) : ComposableMessageBundle()
 
     data class SendTextMessageBundle(
         val message: String,

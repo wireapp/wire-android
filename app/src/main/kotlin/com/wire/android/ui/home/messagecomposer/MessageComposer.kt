@@ -186,10 +186,7 @@ private fun InactiveMessageComposer(
                 Modifier
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onPress = { onTransitionToActive(false) },
-                            onDoubleTap = { /* Called on Double Tap */ },
-                            onLongPress = { /* Called on Long Press */ },
-                            onTap = { /* Called on Tap */ }
+                            onPress = { onTransitionToActive(false) }
                         )
                     }
                     .background(color = colorsScheme().backgroundVariant)
@@ -276,9 +273,6 @@ private fun ActiveMessageComposer(
                                 .pointerInput(Unit) {
                                     detectTapGestures(
                                         onPress = { onTransitionToInActive() },
-                                        onDoubleTap = { /* Called on Double Tap */ },
-                                        onLongPress = { /* Called on Long Press */ },
-                                        onTap = { /* Called on Tap */ }
                                     )
                                 }
                                 .background(color = colorsScheme().backgroundVariant)

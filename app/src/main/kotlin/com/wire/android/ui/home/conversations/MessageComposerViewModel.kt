@@ -50,7 +50,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
@@ -247,8 +246,6 @@ class MessageComposerViewModel @Inject constructor(
                                             )
                                         }
                                     }
-
-
                                     assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
                                         assetType = assetBundle.assetType,
                                         maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
@@ -345,7 +342,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun searchMentionMembers(searchQuery: String) {
+    fun searchMembersToMention(searchQuery: String) {
         viewModelScope.launch(dispatchers.io()) {
             val members = membersToMention(conversationId, searchQuery).map {
                 contactMapper.fromOtherUser(it.user as OtherUser)

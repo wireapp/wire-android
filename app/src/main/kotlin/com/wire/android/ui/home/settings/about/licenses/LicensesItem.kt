@@ -66,7 +66,7 @@ inline fun LazyListScope.libraryItems(
     crossinline onLibraryClick: ((Library) -> Unit),
 ) {
     items(libraries) { library ->
-        libItem(
+        LibraryItem(
             library.name,
             library.author
         ) {
@@ -76,7 +76,7 @@ inline fun LazyListScope.libraryItems(
 }
 
 @Composable
-fun libItem(
+fun LibraryItem(
     libName: String,
     libAuthor: String,
     onClick: () -> Unit,

@@ -56,6 +56,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -91,8 +92,8 @@ class MyAccountViewModel @Inject constructor(
         }
         myAccountState = myAccountState.copy(
             isReadOnlyAccount = !managedByWire,
-            isEditEmailAllowed = !hasSAMLCred && managedByWire,
-            isEditHandleAllowed = managedByWire && BuildConfig.ALLOW_CHANGE_OF_EMAIL
+            isEditEmailAllowed = isChangeEmailEnabledByBuild() && !hasSAMLCred && managedByWire,
+            isEditHandleAllowed = managedByWire
         )
         viewModelScope.launch {
             fetchSelfUser()
@@ -182,5 +183,10 @@ class MyAccountViewModel @Inject constructor(
     sealed interface SettingsOperationResult {
         object None : SettingsOperationResult
         class Result(val message: UIText) : SettingsOperationResult
+    }
+
+    companion object {
+        @JvmStatic
+        fun isChangeEmailEnabledByBuild(): Boolean = BuildConfig.ALLOW_CHANGE_OF_EMAIL
     }
 }

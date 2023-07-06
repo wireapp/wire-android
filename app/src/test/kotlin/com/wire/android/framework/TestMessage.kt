@@ -45,6 +45,23 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 object TestMessage {
+
+    val FAILED_DECRYPTION = Message.Regular(
+        id = "messageID",
+        content = MessageContent.FailedDecryption(
+            null,
+            senderUserId = UserId("user-id", "domain"),
+            isDecryptionResolved = false
+        ),
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        senderClientId = ClientId("client-id"),
+        status = Message.Status.SENT,
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
+    )
+
     val TEXT_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Text("Some Text Message"),

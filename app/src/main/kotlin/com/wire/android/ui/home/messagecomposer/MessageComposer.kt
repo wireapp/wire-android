@@ -53,6 +53,7 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
@@ -367,6 +368,7 @@ private fun ActiveMessageComposer(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
+                            onCloseRecordAudio = ::toCloseAudioRecording,
                             modifier = Modifier
                                 .height(keyboardHeight.height)
                                 .fillMaxWidth()
@@ -389,7 +391,10 @@ private fun ActiveMessageComposer(
             }
 
             BackHandler {
-                onTransitionToInActive()
+                if (additionalOptionStateHolder
+                    .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+                    onTransitionToInActive()
+                }
             }
         }
     }

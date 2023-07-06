@@ -51,7 +51,6 @@ import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
-import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 import com.wire.android.util.ui.KeyboardHeight
 
@@ -64,7 +63,7 @@ fun AttachmentOptionsComponent(
     isFileSharingEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Box(Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
+    Box(modifier = Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
         val attachmentOptions = buildAttachmentOptionItems(
             isFileSharingEnabled,
             tempWritableImageUri,
@@ -175,14 +174,6 @@ private fun ShareCurrentLocationFlow() =
     )
 
 @Composable
-private fun RecordAudioFlow() =
-    rememberRecordAudioRequestFlow(
-        onAudioRecorded = { /* TODO: call vm to share raw pic data */ },
-        targetAudioFileUri = Uri.EMPTY,
-        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-    )
-
-@Composable
 private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
@@ -195,7 +186,6 @@ private fun buildAttachmentOptionItems(
     val cameraFlow = TakePictureFlow(tempWritableImageUri, remember { { onFilePicked(UriAsset(it, false)) } })
     val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, remember { { onFilePicked(UriAsset(it, true)) } })
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
-    val recordAudioFlow = RecordAudioFlow()
 
     return buildList {
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -229,21 +219,14 @@ private fun buildAttachmentOptionItems(
                     R.drawable.ic_video
                 ) { captureVideoFlow?.launch() }
             )
-            add(
-                AttachmentOptionItem(
-                    isFileSharingEnabled,
-                    R.string.attachment_record_video,
-                    R.drawable.ic_video,
-                    onRecordAudioMessageClicked
-                )
-            )
             if (AudioMessagesIcon) {
                 add(
                     AttachmentOptionItem(
                         isFileSharingEnabled,
                         R.string.attachment_voice_message,
-                        R.drawable.ic_mic_on
-                    ) { recordAudioFlow.launch() }
+                        R.drawable.ic_mic_on,
+                        onRecordAudioMessageClicked
+                    )
                 )
             }
             if (ShareLocationIcon) {

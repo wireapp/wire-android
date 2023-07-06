@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -98,8 +100,7 @@ fun RecordAudioComponent(
         dialogState = viewModel.getPermissionsDeniedDialogState(),
         onDismiss = viewModel::onDismissPermissionsDeniedDialog,
         onOpenSettings = {
-            // TODO(RecordAudio): Add navigation to Device Settings
-            // dialog might use the navigationManager on the ViewModel
+            context.startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     )
 }
@@ -117,7 +118,6 @@ private fun RecordAudioFlow(
     }
 )
 
-// + 128.dp FROM -> Input Text + Additional Options (Text Format, Ping, etc)
 /**
  * This height was based on the size of Input Text + Additional Options (Text Format, Ping, etc)
  */

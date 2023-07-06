@@ -34,6 +34,8 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.deleteIfExists
 
 interface RecordAudioViewModel {
     fun getButtonState(): RecordAudioButtonState
@@ -166,8 +168,8 @@ class RecordAudioViewModelImpl @Inject constructor(
     }
 
     override fun discardRecording(onCloseRecordAudio: () -> Unit) {
-        // TODO(RecordAudio): Implement discard logic
         viewModelScope.launch {
+            state.outputFile?.toPath()?.deleteIfExists()
             recordAudioMessagePlayer.stop()
             recordAudioMessagePlayer.close()
             state = state.copy(

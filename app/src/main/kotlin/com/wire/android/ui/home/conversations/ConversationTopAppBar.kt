@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,6 +63,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -97,6 +99,14 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
+                if (conversationInfoViewState.mlsVerificationStatus == MLSVerificationStatus.VERIFIED) {
+                    Icon(
+                        modifier = Modifier.padding(start = dimensions().spacing4x),
+                        painter = painterResource(id = R.drawable.ic_mls_certificate_valid),
+                        tint = colorsScheme().mlsVerifiedIconColor,
+                        contentDescription = stringResource(R.string.content_description_mls_certificate_valid)
+                    )
+                }
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),

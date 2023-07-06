@@ -164,6 +164,7 @@
     <string name="content_description_message_error_status">Message error status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
+    <string name="content_description_mls_certificate_valid">MLS certificate valid</string>
 
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>

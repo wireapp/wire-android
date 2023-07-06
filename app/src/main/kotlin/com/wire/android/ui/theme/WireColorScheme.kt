@@ -99,6 +99,7 @@ data class WireColorScheme(
     val classifiedBannerForegroundColor: Color,
     val unclassifiedBannerBackgroundColor: Color,
     val unclassifiedBannerForegroundColor: Color,
+    val mlsVerifiedIconColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -228,6 +229,7 @@ private val LightWireColorScheme = WireColorScheme(
     classifiedBannerForegroundColor = WireColorPalette.LightGreen500,
     unclassifiedBannerBackgroundColor = WireColorPalette.LightRed600,
     unclassifiedBannerForegroundColor = Color.White,
+    mlsVerifiedIconColor = WireColorPalette.LightGreen500
 )
 
 // Dark WireColorScheme
@@ -331,6 +333,7 @@ private val DarkWireColorScheme = WireColorScheme(
     classifiedBannerForegroundColor = WireColorPalette.DarkGreen500,
     unclassifiedBannerBackgroundColor = WireColorPalette.DarkRed500,
     unclassifiedBannerForegroundColor = Color.Black,
+    mlsVerifiedIconColor = WireColorPalette.LightGreen500
 )
 
 @PackagePrivate

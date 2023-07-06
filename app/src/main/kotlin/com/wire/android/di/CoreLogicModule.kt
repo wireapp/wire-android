@@ -1199,4 +1199,9 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): DeleteAccountUseCase =
         coreLogic.getSessionScope(currentAccount).users.deleteAccount
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationMLSVerificationStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getConversationMLSVerificationStatus
 }

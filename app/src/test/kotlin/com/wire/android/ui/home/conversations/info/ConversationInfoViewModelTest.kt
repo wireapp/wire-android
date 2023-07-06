@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOn
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
@@ -268,5 +269,35 @@ class ConversationInfoViewModelTest {
             assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
             cancel()
         }
+    }
+
+    @Test
+    fun `given conversation is not MLS verified, then mlsVerificationStatus is not verified`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withMLSVerificationStatus(MLSVerificationStatus.NOT_VERIFIED)
+            .withSelfUser()
+            .arrange()
+
+        //then
+        assertEquals(
+            MLSVerificationStatus.NOT_VERIFIED,
+            viewModel.conversationInfoViewState.mlsVerificationStatus
+        )
+    }
+
+    @Test
+    fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withMLSVerificationStatus(MLSVerificationStatus.VERIFIED)
+            .withSelfUser()
+            .arrange()
+
+        //then
+        assertEquals(
+            MLSVerificationStatus.VERIFIED,
+            viewModel.conversationInfoViewState.mlsVerificationStatus
+        )
     }
 }

@@ -27,9 +27,11 @@ import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.GetConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -66,6 +68,9 @@ class ConversationInfoViewModelArrangement {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var getConversationMLSVerificationStatus: GetConversationMLSVerificationStatusUseCase
+
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper,
@@ -74,7 +79,8 @@ class ConversationInfoViewModelArrangement {
             observeConversationDetails,
             observerSelfUser,
             wireSessionImageLoader,
-            TestDispatcherProvider()
+            TestDispatcherProvider(),
+            getConversationMLSVerificationStatus
         )
     }
 
@@ -88,6 +94,7 @@ class ConversationInfoViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
+        coEvery { getConversationMLSVerificationStatus(any()) } returns MLSVerificationStatus.NOT_VERIFIED
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
@@ -99,6 +106,10 @@ class ConversationInfoViewModelArrangement {
 
     suspend fun withSelfUser() = apply {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
+    }
+
+    suspend fun withMLSVerificationStatus(status: MLSVerificationStatus) = apply {
+        coEvery { getConversationMLSVerificationStatus(any()) } returns status
     }
 
     fun arrange() = this to viewModel

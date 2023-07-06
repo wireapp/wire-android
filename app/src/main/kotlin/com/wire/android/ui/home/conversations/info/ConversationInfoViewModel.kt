@@ -42,10 +42,12 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.GetConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,7 +64,8 @@ class ConversationInfoViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val getConversationMLSVerificationStatus: GetConversationMLSVerificationStatusUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
@@ -76,6 +79,10 @@ class ConversationInfoViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             selfUserId = observerSelfUser().first().id
+        }
+        viewModelScope.launch {
+            val mlsVerificationStatus = getConversationMLSVerificationStatus(conversationId)
+            conversationInfoViewState = conversationInfoViewState.copy(mlsVerificationStatus = mlsVerificationStatus)
         }
     }
 
@@ -114,6 +121,7 @@ class ConversationInfoViewModel @Inject constructor(
                     navigateToHome()
                 }
             }
+
             is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
         }
     }
@@ -122,6 +130,7 @@ class ConversationInfoViewModel @Inject constructor(
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+
             else -> false to false
         }
 

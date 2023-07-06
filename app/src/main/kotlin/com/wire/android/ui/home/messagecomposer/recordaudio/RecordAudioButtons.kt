@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
+import android.text.format.DateUtils
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +51,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.RecordedAudioMessage
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.delay
 import java.io.File
 
 @Composable
@@ -84,12 +91,22 @@ fun RecordAudioButtonRecording(
     onClick: () -> Unit,
     modifier: Modifier
 ) {
+    var seconds by remember {
+        mutableStateOf(0)
+    }
+    LaunchedEffect(key1 = Unit) {
+        while (true) {
+            delay(1000L)
+            seconds += 1
+        }
+    }
+
     RecordAudioButton(
         onClick = onClick,
         modifier = modifier,
         topContent = {
             Text(
-                text = "00:03", // TODO(RecordAudio): Add proper counter
+                text = DateUtils.formatElapsedTime(seconds.toLong()),
                 style = MaterialTheme.wireTypography.body01.copy(
                     fontSize = 32.sp
                 ),

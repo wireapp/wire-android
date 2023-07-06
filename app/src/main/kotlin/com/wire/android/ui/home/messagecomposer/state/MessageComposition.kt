@@ -119,7 +119,11 @@ class MessageCompositionHolder(
         onClearMentionSearchResult: () -> Unit
     ) {
         updateMentionsIfNeeded(messageTextFieldValue)
-        requestMentionSuggestionIfNeeded(messageTextFieldValue, onSearchMentionQueryChanged, onClearMentionSearchResult)
+        requestMentionSuggestionIfNeeded(
+            messageText = messageTextFieldValue,
+            onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+            onClearMentionSearchResult = onClearMentionSearchResult
+        )
 
         messageComposition.update {
             it.copy(messageTextFieldValue = messageTextFieldValue)
@@ -160,8 +164,11 @@ class MessageCompositionHolder(
         }
     }
 
-    fun startMention() {
-        messageComposition.update { it.copy(messageTextFieldValue = it.mentionSelection()) }
+    fun startMention(
+        onSearchMentionQueryChanged: (String) -> Unit,
+        onClearMentionSearchResult: () -> Unit
+    ) {
+        setMessageText(messageComposition.value.mentionSelection(), onSearchMentionQueryChanged, onClearMentionSearchResult)
     }
 
     fun addMention(contact: Contact) {

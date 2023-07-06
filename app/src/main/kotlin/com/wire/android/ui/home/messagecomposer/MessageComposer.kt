@@ -383,7 +383,7 @@ private fun ActiveMessageComposer(
                                     onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                                    onMentionButtonClicked = messageCompositionHolder::startMention,
+                                    onMentionButtonClicked = { messageCompositionHolder.startMention(onSearchMentionQueryChanged, onClearMentionSearchResult) },
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                     onPingOptionClicked = onPingOptionClicked,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,

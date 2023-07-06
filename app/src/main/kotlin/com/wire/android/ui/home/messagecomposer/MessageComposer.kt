@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -73,7 +74,9 @@ fun MessageComposer(
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
+    tempWritableVideoUri: Uri?,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         val interActionAvailability = messageComposerViewState.value.interactionAvailability
@@ -110,7 +113,9 @@ fun MessageComposer(
                     },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                    onClearMentionSearchResult = onClearMentionSearchResult
+                    onClearMentionSearchResult = onClearMentionSearchResult,
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    tempWritableImageUri = tempWritableImageUri
                 )
             }
         }
@@ -127,6 +132,8 @@ private fun EnabledMessageComposer(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    tempWritableVideoUri: Uri?,
+    tempWritableImageUri: Uri?,
 ) {
     with(messageComposerStateHolder) {
         Row {
@@ -141,6 +148,8 @@ private fun EnabledMessageComposer(
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
                         messageComposerStateHolder = messageComposerStateHolder,
+                        tempWritableVideoUri = tempWritableVideoUri,
+                        tempWritableImageUri = tempWritableImageUri,
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
@@ -226,7 +235,9 @@ private fun ActiveMessageComposer(
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
+    tempWritableVideoUri: Uri?,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {

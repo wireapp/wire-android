@@ -316,9 +316,7 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerState = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
-        tempWritableImageUri = tempWritableImageUri,
-        tempWritableVideoUri = tempWritableVideoUri,
+        modalBottomSheetState = conversationScreenState.modalBottomSheetState
     )
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -419,7 +417,9 @@ private fun ConversationScreen(
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
                     onSearchMentionQueryChanged = requestMentions,
-                    onClearMentionSearchResult = onClearMentionSearchResult
+                    onClearMentionSearchResult = onClearMentionSearchResult,
+                    tempWritableImageUri = tempWritableImageUri,
+                    tempWritableVideoUri = tempWritableVideoUri
                 )
             }
             MenuModalSheetLayout(
@@ -457,7 +457,9 @@ private fun ConversationScreenContent(
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -492,6 +494,9 @@ private fun ConversationScreenContent(
         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
+        tempWritableVideoUri = tempWritableVideoUri,
+        tempWritableImageUri = tempWritableVideoUri
+
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

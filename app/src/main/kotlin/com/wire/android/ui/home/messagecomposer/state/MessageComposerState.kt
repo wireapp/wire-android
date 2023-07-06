@@ -39,9 +39,7 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun rememberMessageComposerStateHolder(
     messageComposerViewState: MutableState<MessageComposerViewState>,
-    modalBottomSheetState: WireModalSheetState,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
+    modalBottomSheetState: WireModalSheetState
 ): MessageComposerStateHolder {
     val context = LocalContext.current
 
@@ -72,9 +70,7 @@ fun rememberMessageComposerStateHolder(
             modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
-            additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            tempWritableImageUri = tempWritableImageUri,
-            tempWritableVideoUri = tempWritableVideoUri,
+            additionalOptionStateHolder = AdditionalOptionStateHolder()
         )
     }
 }
@@ -88,9 +84,7 @@ class MessageComposerStateHolder(
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState,
-    val tempWritableImageUri: Uri?,
-    val tempWritableVideoUri: Uri?
+    val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
 

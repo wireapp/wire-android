@@ -46,26 +46,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
@@ -419,4 +428,35 @@ private fun ActiveMessageComposer(
             }
         }
     }
+}
+
+
+@Preview
+@Composable
+fun MessageComposerPreview() {
+    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
+
+    MessageComposer(
+        messageComposerStateHolder = MessageComposerStateHolder(
+            messageComposerViewState = messageComposerViewState,
+            messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+                messageComposition = messageComposition,
+                selfDeletionTimer = selfDeletionTimer
+            ),
+            messageCompositionHolder = MessageCompositionHolder(
+                context = LocalContext.current
+            ),
+            additionalOptionStateHolder = AdditionalOptionStateHolder(),
+            modalBottomSheetState = WireModalSheetState(),
+        ),
+        messageListContent = { },
+        onChangeSelfDeletionClicked = { },
+        onSearchMentionQueryChanged = { },
+        onClearMentionSearchResult = { },
+        onSendMessageBundle = { },
+        tempWritableVideoUri = null,
+        tempWritableImageUri = null
+    )
 }

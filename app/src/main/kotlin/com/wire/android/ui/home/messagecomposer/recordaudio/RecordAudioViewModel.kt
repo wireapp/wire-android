@@ -118,7 +118,9 @@ class RecordAudioViewModelImpl @Inject constructor(
                 MediaRecorder()
             }
 
-            val outputFile = kaliumFileSystem.tempFilePath("temp_recording.mp3").toFile()
+            val outputFile = kaliumFileSystem
+                .tempFilePath(TEMP_RECORDING_AUDIO_FILE)
+                .toFile()
             state = state.copy(
                 outputFile = outputFile
             )
@@ -218,5 +220,9 @@ class RecordAudioViewModelImpl @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
+    }
+
+    private companion object {
+        const val TEMP_RECORDING_AUDIO_FILE = "temp_recording.mp3"
     }
 }

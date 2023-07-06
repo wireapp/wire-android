@@ -114,6 +114,7 @@ fun AdditionalOptionSubMenu(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     modifier: Modifier
 ) {
     when (additionalOptionsState) {
@@ -130,6 +131,7 @@ fun AdditionalOptionSubMenu(
 
         AdditionalOptionSubMenuState.RecordAudio -> {
             RecordAudioComponent(
+                onAudioRecorded = onAudioRecorded,
                 onCloseRecordAudio = onCloseRecordAudio
             )
         }

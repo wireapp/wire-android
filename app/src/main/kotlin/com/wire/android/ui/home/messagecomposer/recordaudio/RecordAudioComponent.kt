@@ -34,12 +34,14 @@ import androidx.compose.ui.unit.dp
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun RecordAudioComponent(
+    onAudioRecorded: (UriAsset) -> Unit,
     onCloseRecordAudio: () -> Unit
 ) {
     val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModelImpl>()
@@ -81,7 +83,7 @@ fun RecordAudioComponent(
 
             RecordAudioButtonState.READY_TO_SEND -> RecordAudioButtonSend(
                 audioState = viewModel.getAudioState(),
-                onClick = { viewModel.sendRecording(onCloseRecordAudio) },
+                onClick = { viewModel.sendRecording(onAudioRecorded) },
                 modifier = buttonModifier,
                 outputFile = viewModel.getOutputFile(),
                 onPlayAudio = viewModel::onPlayAudio,

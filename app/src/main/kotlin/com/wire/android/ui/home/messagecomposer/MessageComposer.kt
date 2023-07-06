@@ -54,9 +54,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
@@ -109,6 +109,9 @@ fun MessageComposer(
                     onAttachmentPicked = {
                         onSendMessageBundle(AttachmentPickedBundle(it))
                     },
+                    onAudioRecorded = {
+                        onSendMessageBundle(AttachmentPickedBundle(it))
+                    },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult
@@ -125,6 +128,7 @@ private fun EnabledMessageComposer(
     onSendButtonClicked: () -> Unit,
     onPingOptionClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
@@ -146,6 +150,7 @@ private fun EnabledMessageComposer(
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
                         onAttachmentPicked = onAttachmentPicked,
+                        onAudioRecorded = onAudioRecorded,
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                         onClearMentionSearchResult = onClearMentionSearchResult,
@@ -226,6 +231,7 @@ private fun ActiveMessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit
 ) {
@@ -382,6 +388,7 @@ private fun ActiveMessageComposer(
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseRecordAudio = ::toCloseAudioRecording,
                             onAttachmentPicked = onAttachmentPicked,
+                            onAudioRecorded = onAudioRecorded,
                             tempWritableImageUri = tempWritableImageUri,
                             tempWritableVideoUri = tempWritableVideoUri,
                             modifier = Modifier

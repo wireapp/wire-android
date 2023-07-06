@@ -23,18 +23,20 @@ import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.io.path.deleteExisting
 import kotlin.io.path.deleteIfExists
 
 interface RecordAudioViewModel {
@@ -50,7 +52,7 @@ interface RecordAudioViewModel {
     fun showPermissionsDeniedDialog()
     fun onDismissPermissionsDeniedDialog()
     fun discardRecording(onCloseRecordAudio: () -> Unit)
-    fun sendRecording(onCloseRecordAudio: () -> Unit)
+    fun sendRecording(onAudioRecorded: (UriAsset) -> Unit)
     fun onPlayAudio()
     fun onSliderPositionChange(position: Int)
 }
@@ -58,7 +60,8 @@ interface RecordAudioViewModel {
 @HiltViewModel
 class RecordAudioViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
-    private val recordAudioMessagePlayer: RecordAudioMessagePlayer
+    private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
+    private val scheduleNewAssetMessage: ScheduleNewAssetMessageUseCase
 ) : RecordAudioViewModel, ViewModel() {
 
     private var state: RecordAudioState by mutableStateOf(RecordAudioState())
@@ -181,8 +184,15 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun sendRecording(onCloseRecordAudio: () -> Unit) {
-        // TODO(RecordAudio): Implement sending logic with ScheduleNewAssetMessageUseCase
+    override fun sendRecording(onAudioRecorded: (UriAsset) -> Unit) {
+        state.outputFile?.let {
+            onAudioRecorded(
+                UriAsset(
+                    uri = it.toUri(),
+                    saveToDeviceIfInvalid = false
+                )
+            )
+        }
     }
 
     override fun onPlayAudio() {

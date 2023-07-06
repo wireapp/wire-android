@@ -110,7 +110,7 @@ class MessageCompositionInputStateHolder(
     }
 
     fun show() {
-        inputVisiblity = true
+        inputVisibility = true
     }
 
     fun hide() {

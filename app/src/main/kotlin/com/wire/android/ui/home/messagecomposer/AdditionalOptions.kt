@@ -113,7 +113,6 @@ fun AdditionalOptionSubMenu(
     additionalOptionsState: AdditionalOptionSubMenuState,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onRecordAudioMessageClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     modifier: Modifier
 ) {

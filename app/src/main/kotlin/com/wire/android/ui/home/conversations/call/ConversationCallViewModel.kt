@@ -31,6 +31,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
@@ -40,9 +41,12 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -59,7 +63,8 @@ class ConversationCallViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
-    private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase
+    private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
@@ -75,12 +80,20 @@ class ConversationCallViewModel @Inject constructor(
     }
 
     private fun listenOngoingCall() = viewModelScope.launch {
-        observeOngoingCalls()
-            .collect {
-                val hasOngoingCall = it.any { call -> call.conversationId == conversationId }
+        combine(observeOngoingCalls(), observeConversationDetails(conversationId)) { calls, conversationDetailsResult ->
+            val hasOngoingCall = calls.any { call -> call.conversationId == conversationId }
+            // valid conversation is a conversation where the user is a member and it's not deleted
+            val validConversation = when (conversationDetailsResult) {
+                is ObserveConversationDetailsUseCase.Result.Success -> {
+                    !(conversationDetailsResult.conversationDetails is ConversationDetails.Group && !(conversationDetailsResult.conversationDetails as ConversationDetails.Group).isSelfUserMember)
+                }
 
-                conversationCallViewState = conversationCallViewState.copy(hasOngoingCall = hasOngoingCall)
+                is ObserveConversationDetailsUseCase.Result.Failure -> false
             }
+            hasOngoingCall && validConversation
+        }.collectLatest {
+            conversationCallViewState = conversationCallViewState.copy(hasOngoingCall = it)
+        }
     }
 
     private fun observeEstablishedCall() = viewModelScope.launch {

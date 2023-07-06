@@ -12,6 +12,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
@@ -35,6 +36,13 @@ class GlobalObserversManager @Inject constructor(
 
     fun observe() {
         scope.launch { setUpNotifications() }
+        scope.launch {
+            coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
+                if (it.isNotEmpty()) {
+                    coreLogic.getSessionScope(it.first().first.id).calls.endCallOnConversationChange()
+                }
+            }
+        }
     }
 
     private suspend fun setUpNotifications() {

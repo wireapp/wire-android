@@ -164,6 +164,9 @@
     <string name="content_description_message_error_status">Message error status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
+    <string name="content_description_record_audio_button_start">Record Audio</string>
+    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
+    <string name="content_description_record_audio_button_send">Send Audio Message</string>
 
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -1086,4 +1089,15 @@
 
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message">Someone sent a Message</string>
+
+    <!-- Record Audio -->
+    <string name="record_audio_start_label">Start Recording</string>
+    <string name="record_audio_recording_label">Recording Audio...</string>
+    <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
+    <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
+    <string name="record_audio_discard_dialog_discard_button">Discard</string>
+    <string name="record_audio_permission_denied_dialog_title">Microphone Access</string>
+    <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
+    <string name="record_audio_permission_denied_dialog_settings_button">Settings</string>
 </resources>

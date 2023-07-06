@@ -83,7 +83,13 @@ fun RecordAudioComponent(
 
             RecordAudioButtonState.READY_TO_SEND -> RecordAudioButtonSend(
                 audioState = viewModel.getAudioState(),
-                onClick = { viewModel.sendRecording(onAudioRecorded) },
+                onClick = {
+                    viewModel.sendRecording(
+                        onAudioRecorded = onAudioRecorded,
+                    ) {
+                        onCloseRecordAudio()
+                    }
+                },
                 modifier = buttonModifier,
                 outputFile = viewModel.getOutputFile(),
                 onPlayAudio = viewModel::onPlayAudio,

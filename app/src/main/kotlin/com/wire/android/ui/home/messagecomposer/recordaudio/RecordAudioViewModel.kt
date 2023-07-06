@@ -31,7 +31,6 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -52,7 +51,7 @@ interface RecordAudioViewModel {
     fun showPermissionsDeniedDialog()
     fun onDismissPermissionsDeniedDialog()
     fun discardRecording(onCloseRecordAudio: () -> Unit)
-    fun sendRecording(onAudioRecorded: (UriAsset) -> Unit)
+    fun sendRecording(onAudioRecorded: (UriAsset) -> Unit, onComplete: () -> Unit)
     fun onPlayAudio()
     fun onSliderPositionChange(position: Int)
 }
@@ -60,8 +59,7 @@ interface RecordAudioViewModel {
 @HiltViewModel
 class RecordAudioViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
-    private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
-    private val scheduleNewAssetMessage: ScheduleNewAssetMessageUseCase
+    private val recordAudioMessagePlayer: RecordAudioMessagePlayer
 ) : RecordAudioViewModel, ViewModel() {
 
     private var state: RecordAudioState by mutableStateOf(RecordAudioState())
@@ -184,7 +182,10 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun sendRecording(onAudioRecorded: (UriAsset) -> Unit) {
+    override fun sendRecording(
+        onAudioRecorded: (UriAsset) -> Unit,
+        onComplete: () -> Unit
+    ) {
         state.outputFile?.let {
             onAudioRecorded(
                 UriAsset(
@@ -192,6 +193,7 @@ class RecordAudioViewModelImpl @Inject constructor(
                     saveToDeviceIfInvalid = false
                 )
             )
+            onComplete()
         }
     }
 

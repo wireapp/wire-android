@@ -495,7 +495,7 @@ private fun ConversationScreenContent(
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         tempWritableVideoUri = tempWritableVideoUri,
-        tempWritableImageUri = tempWritableVideoUri
+        tempWritableImageUri = tempWritableImageUri
 
     )
 

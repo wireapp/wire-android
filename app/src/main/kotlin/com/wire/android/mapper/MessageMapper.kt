@@ -118,7 +118,7 @@ class MessageMapper @Inject constructor(
         }
 
         return when (content) {
-            is UIMessageContent.Regular -> {
+            is UIMessageContent.Regular ->
                 UIMessage.Regular(
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
@@ -126,7 +126,6 @@ class MessageMapper @Inject constructor(
                     messageFooter = footer,
                     userAvatarData = getUserAvatarData(sender)
                 )
-            }
 
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
@@ -136,6 +135,7 @@ class MessageMapper @Inject constructor(
                 )
 
             null -> null
+
             /**
              * IncompleteAssetMessage is a displayable asset that's missing the remote data.
              * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
@@ -185,14 +185,22 @@ class MessageMapper @Inject constructor(
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {
         val isMessageEdited = message is Message.Regular && message.editStatus is Message.EditStatus.Edited
-        return MessageStatus(
-            flowStatus = when (message.status) {
+
+        val content = message.content
+        val flowStatus = if (content is MessageContent.FailedDecryption) {
+            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved)
+        } else {
+            when (message.status) {
                 Message.Status.PENDING -> MessageFlowStatus.Sending
                 Message.Status.SENT -> MessageFlowStatus.Sent
                 Message.Status.READ -> MessageFlowStatus.Read(1) // TODO add read count
                 Message.Status.FAILED -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FAILED_REMOTELY -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
-            },
+            }
+        }
+
+        return MessageStatus(
+            flowStatus = flowStatus,
             editStatus = if (message is Message.Regular && message.editStatus is Message.EditStatus.Edited) {
                 MessageEditStatus.Edited(
                     isoFormatter.fromISO8601ToTimeFormat(

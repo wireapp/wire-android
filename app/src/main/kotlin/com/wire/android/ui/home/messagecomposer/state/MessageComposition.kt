@@ -187,14 +187,14 @@ class MessageCompositionHolder(
     ) {
         val originalValue = messageComposition.value.messageTextFieldValue
 
-        val isHeader = markdown == RichTextMarkdown.Header
+        val isBold = markdown == RichTextMarkdown.Bold
 
         val range = originalValue.selection
         val selectedText = originalValue.getSelectedText()
         val stringBuilder = StringBuilder(originalValue.annotatedString)
         val markdownLength = markdown.value.length
         val markdownLengthComplete =
-            if (isHeader) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
+            if (isBold) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
 
         val rangeEnd = if (selectedText.contains(markdown.value)) {
             // Remove Markdown
@@ -208,13 +208,13 @@ class MessageCompositionHolder(
         } else {
             // Add Markdown
             stringBuilder.insert(range.start, markdown.value)
-            if (isHeader.not()) stringBuilder.insert(range.end + markdownLength, markdown.value)
+            if (isBold.not()) stringBuilder.insert(range.end + markdownLength, markdown.value)
 
             range.end + markdownLengthComplete
         }
 
         val (selectionStart, selectionEnd) = if (range.start == range.end) {
-            if (isHeader) Pair(rangeEnd, rangeEnd)
+            if (isBold) Pair(rangeEnd, rangeEnd)
             else {
                 val middleMarkdownRange = rangeEnd - markdownLength
                 Pair(middleMarkdownRange, middleMarkdownRange)
@@ -409,7 +409,7 @@ sealed class ComposableMessageBundle : MessageBundle {
 object Ping : MessageBundle
 
 enum class RichTextMarkdown(val value: String) {
-    Bold("# "),
-    Header("**"),
+    Header("# "),
+    Bold("**"),
     Italic("_")
 }

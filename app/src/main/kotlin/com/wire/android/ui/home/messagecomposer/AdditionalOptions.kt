@@ -29,10 +29,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -99,8 +95,8 @@ fun AdditionalOptionsMenu(
 
             AdditionalOptionMenuState.RichTextEditing -> {
                 RichTextOptions(
-                    onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
-                    onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
+                    onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
+                    onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
                     onRichTextItalicButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Italic) },
                     onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked
                 )

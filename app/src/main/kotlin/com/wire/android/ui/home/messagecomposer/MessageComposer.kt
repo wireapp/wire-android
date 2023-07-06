@@ -430,7 +430,6 @@ private fun ActiveMessageComposer(
     }
 }
 
-
 @Preview
 @Composable
 fun MessageComposerPreview() {

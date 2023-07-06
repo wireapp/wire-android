@@ -131,9 +131,14 @@ class MessageComposerStateHolder(
         }
     }
 
-    fun toAudioRecording(){
+    fun toAudioRecording() {
         messageCompositionInputStateHolder.hide()
         additionalOptionStateHolder.toAudioRecording()
+    }
+
+    fun toCloseAudioRecording() {
+        messageCompositionInputStateHolder.show()
+        additionalOptionStateHolder.hideAudioRecording()
     }
 
     fun onKeyboardVisibilityChanged(isVisible: Boolean) {

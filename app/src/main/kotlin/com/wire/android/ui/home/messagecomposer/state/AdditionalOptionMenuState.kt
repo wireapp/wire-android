@@ -70,6 +70,11 @@ class AdditionalOptionStateHolder {
         additionalOptionState = AdditionalOptionMenuState.Hidden
     }
 
+    fun hideAudioRecording() {
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
+        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+    }
+
     fun toRichTextEditing() {
         additionalOptionState = AdditionalOptionMenuState.RichTextEditing
     }

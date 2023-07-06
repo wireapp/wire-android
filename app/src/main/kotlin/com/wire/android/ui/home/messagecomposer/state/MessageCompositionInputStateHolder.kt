@@ -105,6 +105,10 @@ class MessageCompositionInputStateHolder(
         inputFocused = true
     }
 
+    fun show() {
+        inputVisiblity = true
+    }
+
     fun hide() {
         inputVisiblity = false
     }

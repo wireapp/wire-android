@@ -76,7 +76,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun InActiveMessageComposerInput(
+fun InactiveMessageComposerInput(
     messageText: TextFieldValue,
     onMessageComposerFocused: () -> Unit
 ) {
@@ -218,7 +218,6 @@ private fun MessageComposerTextInput(
     var focused by remember(inputFocused) { mutableStateOf(inputFocused) }
 
     LaunchedEffect(focused) {
-        Log.d("TEST", "inputFocused: $focused")
         if (focused) focusRequester.requestFocus()
         else focusManager.clearFocus()
     }

@@ -50,7 +50,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
@@ -247,8 +246,6 @@ class MessageComposerViewModel @Inject constructor(
                                             )
                                         }
                                     }
-
-
                                     assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
                                         assetType = assetBundle.assetType,
                                         maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
@@ -345,7 +342,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun searchMentionMembers(searchQuery: String) {
+    fun searchMembersToMention(searchQuery: String) {
         viewModelScope.launch(dispatchers.io()) {
             val members = membersToMention(conversationId, searchQuery).map {
                 contactMapper.fromOtherUser(it.user as OtherUser)
@@ -353,6 +350,10 @@ class MessageComposerViewModel @Inject constructor(
 
             messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = members)
         }
+    }
+
+    fun clearMentionSearchResult() {
+        messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = emptyList())
     }
 
     private fun setFileSharingStatus() {
@@ -428,39 +429,10 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
-        val tempCachePath = kaliumFileSystem.rootCachePath
-        val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-        if (assetBundle != null) {
-            // The max limit for sending assets changes between user and asset types.
-            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-            val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-            if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-//                sendAttachmentMessage(assetBundle)
-            } else {
-                if (attachmentUri.saveToDeviceIfInvalid) {
-                    with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
-                }
-
-
-                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                    assetType = assetBundle.assetType,
-                    maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                )
-            }
-        } else {
-            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-        }
-    }
-
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
     }
 
-    fun clearMentionSearchResult() {
-        messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = emptyList())
-    }
 
     companion object {
         private const val sizeOf1MB = 1024 * 1024

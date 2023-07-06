@@ -20,6 +20,8 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
@@ -31,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
@@ -58,13 +61,13 @@ fun AdditionalOptionsMenu(
     additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean,
-    isEditing: Boolean,
     isSelfDeletingSettingEnabled: Boolean,
+    isEditing: Boolean,
     onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null,
-    onPingOptionClicked: (() -> Unit)? = null,
+    onPingOptionClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
@@ -84,7 +87,7 @@ fun AdditionalOptionsMenu(
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
-                    onPingClicked = onPingOptionClicked ?: {}
+                    onPingClicked = onPingOptionClicked
                 )
             }
 
@@ -108,14 +111,18 @@ fun AdditionalOptionSubMenu(
     onRecordAudioMessageClicked: () -> Unit,
     onCloseRecordAudio: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
+    onRecordAudioMessageClicked: () -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     modifier: Modifier
 ) {
     when (additionalOptionsState) {
         AdditionalOptionSubMenuState.AttachFile -> {
             AttachmentOptionsComponent(
-                onAttachmentPicked = {},
-                tempWritableImageUri = null,
-                tempWritableVideoUri = null,
+                onAttachmentPicked = onAttachmentPicked,
+                tempWritableImageUri = tempWritableImageUri,
+                tempWritableVideoUri = tempWritableVideoUri,
                 isFileSharingEnabled = isFileSharingEnabled,
                 onRecordAudioMessageClicked = onRecordAudioMessageClicked,
                 modifier = modifier

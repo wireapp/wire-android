@@ -19,7 +19,6 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -29,7 +28,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
@@ -39,8 +37,6 @@ import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlin.time.Duration
 
 /**
  * Class responsible for orchestrating the state of the message that the user is composing.
@@ -240,17 +236,20 @@ class MessageCompositionHolder(
         }
     }
 
-    fun clear() {
-        messageComposition.update { MessageComposition.DEFAULT }
+    fun clearMessage() {
+        messageComposition.update { it.copy(messageTextFieldValue = TextFieldValue("")) }
     }
 
-    private fun MessageMention.toUiMention(originalText: String) = UiMention(
-        start = start,
-        length = length,
-        userId = userId,
-        handler = originalText.substring(start, start + length)
-    )
+    fun toMessageBundle() = messageComposition.value.toMessageBundle()
+
 }
+
+private fun MessageMention.toUiMention(originalText: String) = UiMention(
+    start = start,
+    length = length,
+    userId = userId,
+    handler = originalText.substring(start, start + length)
+)
 
 data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
@@ -351,19 +350,19 @@ data class MessageComposition(
     }
 
     fun toMessageBundle(): ComposableMessageBundle {
-        if (editMessageId != null && editMessage != null) {
-            return ComposableMessageBundle.EditMessageBundle(
+        return if (editMessageId != null && editMessage != null) {
+            ComposableMessageBundle.EditMessageBundle(
                 originalMessageId = editMessageId,
                 newContent = editMessage.text,
                 newMentions = selectedMentions
             )
+        } else {
+            ComposableMessageBundle.SendTextMessageBundle(
+                message = messageTextFieldValue.text,
+                mentions = selectedMentions,
+                quotedMessageId = quotedMessageId
+            )
         }
-
-        return ComposableMessageBundle.SendTextMessageBundle(
-            message = messageTextFieldValue.text,
-            mentions = selectedMentions,
-            quotedMessageId = quotedMessageId
-        )
     }
 }
 
@@ -394,8 +393,7 @@ sealed class ComposableMessageBundle : MessageBundle {
         val originalMessageId: String,
         val newContent: String,
         val newMentions: List<UiMention>
-    ) :
-        ComposableMessageBundle()
+    ) : ComposableMessageBundle()
 
     data class SendTextMessageBundle(
         val message: String,

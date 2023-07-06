@@ -63,6 +63,7 @@ class AdditionalOptionStateHolder {
 
     fun hideAdditionalOptionsMenu() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
+        selectedOption = AdditionalOptionSelectItem.None
     }
 
     fun toAudioRecording() {

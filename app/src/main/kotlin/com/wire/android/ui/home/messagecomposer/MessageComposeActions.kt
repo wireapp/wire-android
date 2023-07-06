@@ -108,7 +108,8 @@ private fun ComposingActions(
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
             if (isSelfDeletingSettingEnabled) SelfDeletingMessageAction(
-                false, onButtonClicked = onSelfDeletionOptionButtonClicked
+                isSelected = false,
+                onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (PingIcon) PingAction(onPingButtonClicked)
             AddMentionAction(onMentionButtonClicked)

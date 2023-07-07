@@ -194,7 +194,7 @@ class LoginSSOViewModelTest {
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
         loginViewModel.login()
         advanceUntilIdle()
-        //loginViewModel.openWebUrl.firstOrNull() shouldBe url
+        // loginViewModel.openWebUrl.firstOrNull() shouldBe url
         coVerify(exactly = 1) { ssoInitiateLoginUseCase(param) }
     }
 
@@ -445,8 +445,7 @@ class LoginSSOViewModelTest {
         loginViewModel.domainLookupFlow()
         advanceUntilIdle()
 
-        coVerify(exactly = 1)
-        { authenticationScope.domainLookup("email@wire.com") }
+        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
         assertEquals(expected, loginViewModel.loginState.customServerDialogState!!.serverLinks)
     }
 

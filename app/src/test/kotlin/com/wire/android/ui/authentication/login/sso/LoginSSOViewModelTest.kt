@@ -32,11 +32,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -50,7 +52,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
@@ -70,9 +75,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -105,8 +112,7 @@ class LoginSSOViewModelTest {
     @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
-    @MockK
-    private lateinit var authServerConfigProvider: AuthServerConfigProvider
+    private val authServerConfigProvider: AuthServerConfigProvider = AuthServerConfigProvider()
 
     @MockK
     private lateinit var userDataStoreProvider: UserDataStoreProvider
@@ -115,10 +121,20 @@ class LoginSSOViewModelTest {
     private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
+    private lateinit var coreLogic: CoreLogic
+
+    @MockK
     private lateinit var authenticationScope: AuthenticationScope
 
     @MockK
     private lateinit var navigationManager: NavigationManager
+
+    @MockK
+    private lateinit var validateEmailUseCase: ValidateEmailUseCase
+
+    @MockK
+    private lateinit var fetchSSOSettings: FetchSSOSettingsUseCase
+
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
@@ -131,7 +147,9 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
+        authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
+
         coEvery {
             autoVersionAuthScopeUseCase()
         } returns AutoVersionAuthScopeUseCase.Result.Success(
@@ -139,11 +157,14 @@ class LoginSSOViewModelTest {
         )
         every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
+        every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+        every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
+            validateEmailUseCase,
+            coreLogic,
             clientScopeProviderFactory,
             navigationManager,
             authServerConfigProvider,
@@ -166,9 +187,10 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when logging in, then show loading`() {
+    fun `given sso code and button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
+        every { validateEmailUseCase(any()) } returns false
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("")
 
         loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
@@ -183,13 +205,14 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns Success, then open the web url from the response`() {
+    fun `given sso code and button is clicked, when login returns Success, then open the web url from the response`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         val ssoCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
         val param = SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)
         val url = "https://wire.com/sso"
         coEvery { ssoInitiateLoginUseCase(param) } returns SSOInitiateLoginResult.Success(url)
+        every { validateEmailUseCase(any()) } returns false
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
 
         runTest {
@@ -201,8 +224,9 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
+    fun `given sso code and  button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -210,8 +234,9 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
+    fun `given  sso code and button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -219,8 +244,9 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
+    fun `given sso code and button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -234,9 +260,10 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
+    fun `given sso code and button is clicked, when login returns Generic error, then GenericError is passed`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -364,6 +391,62 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
+    }
+
+    @Test
+    fun `given email, when clicking login, then start the domain lookup flow`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Success(expected)
+        loginViewModel.onSSOCodeChange(TextFieldValue("email@wire.com"))
+
+        runTest { loginViewModel.domainLookupFlow() }
+
+        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
+        assertEquals(expected, loginViewModel.loginState.customServerDialogState!!.serverLinks)
+    }
+
+    @Test
+    fun `given backend switch confirmed, then auth server provider is updated`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
+    }
+
+    @Test
+    fun `given backend switch confirmed, when the new server have a default sso code, then initiate sso login`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
+        coVerify(exactly = 1) {
+            fetchSSOSettings.invoke()
+            ssoInitiateLoginUseCase.invoke("wire-ssoCode")
+        }
+    }
+
+    @Test
+    fun `given backend switch confirmed, when the new server have NO default sso code, then initiate sso login`() = runTest {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        advanceUntilIdle()
+        assertEquals(authServerConfigProvider.authServer.value, expected)
+        coVerify(exactly = 1) { fetchSSOSettings.invoke() }
+
+        coVerify(exactly = 0) { ssoInitiateLoginUseCase.invoke(any()) }
     }
 
     companion object {

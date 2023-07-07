@@ -93,7 +93,7 @@ import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScree
 import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
-import com.wire.android.ui.home.settings.about.LicensesScreen
+import com.wire.android.ui.home.settings.about.licenses.LicensesScreen
 import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen

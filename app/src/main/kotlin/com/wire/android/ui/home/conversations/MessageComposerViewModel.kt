@@ -211,69 +211,67 @@ class MessageComposerViewModel @Inject constructor(
 
     fun sendMessage(messageBundle: MessageBundle) {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                when (messageBundle) {
-                    is ComposableMessageBundle.EditMessageBundle -> {
-                        with(messageBundle) {
-                            sendEditTextMessage(
-                                conversationId = conversationId,
-                                originalMessageId = originalMessageId,
-                                text = newContent,
-                                mentions = newMentions.map { it.intoMessageMention() },
-                            )
-                        }
+            when (messageBundle) {
+                is ComposableMessageBundle.EditMessageBundle -> {
+                    with(messageBundle) {
+                        sendEditTextMessage(
+                            conversationId = conversationId,
+                            originalMessageId = originalMessageId,
+                            text = newContent,
+                            mentions = newMentions.map { it.intoMessageMention() },
+                        )
                     }
+                }
 
-                    is ComposableMessageBundle.AttachmentPickedBundle -> {
-                        with(messageBundle) {
-                            val tempCachePath = kaliumFileSystem.rootCachePath
-                            val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-                            if (assetBundle != null) {
-                                // The max limit for sending assets changes between user and asset types.
-                                // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-                                val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-                                if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                                    sendAttachment(assetBundle)
-                                } else {
-                                    if (attachmentUri.saveToDeviceIfInvalid) {
-                                        with(assetBundle) {
-                                            fileManager.saveToExternalMediaStorage(
-                                                fileName,
-                                                dataPath,
-                                                dataSize,
-                                                mimeType,
-                                                dispatchers
-                                            )
-                                        }
-                                    }
-                                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                                        assetType = assetBundle.assetType,
-                                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                                    )
-
-                                }
+                is ComposableMessageBundle.AttachmentPickedBundle -> {
+                    with(messageBundle) {
+                        val tempCachePath = kaliumFileSystem.rootCachePath
+                        val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
+                        if (assetBundle != null) {
+                            // The max limit for sending assets changes between user and asset types.
+                            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
+                            val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
+                            if (assetBundle.dataSize <= maxSizeLimitInBytes) {
+                                sendAttachment(assetBundle)
                             } else {
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
+                                if (attachmentUri.saveToDeviceIfInvalid) {
+                                    with(assetBundle) {
+                                        fileManager.saveToExternalMediaStorage(
+                                            fileName,
+                                            dataPath,
+                                            dataSize,
+                                            mimeType,
+                                            dispatchers
+                                        )
+                                    }
+                                }
+                                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                                    assetType = assetBundle.assetType,
+                                    maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
+                                )
+
                             }
+                        } else {
+                            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
                         }
                     }
+                }
 
-                    is ComposableMessageBundle.SendTextMessageBundle -> {
-                        with(messageBundle) {
-                            sendTextMessage(
-                                conversationId = conversationId,
-                                text = message,
-                                mentions = mentions.map { it.intoMessageMention() },
-                                quotedMessageId = quotedMessageId
-                            )
-                        }
+                is ComposableMessageBundle.SendTextMessageBundle -> {
+                    with(messageBundle) {
+                        sendTextMessage(
+                            conversationId = conversationId,
+                            text = message,
+                            mentions = mentions.map { it.intoMessageMention() },
+                            quotedMessageId = quotedMessageId
+                        )
                     }
+                }
 
-                    Ping -> {
-                        pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-                        sendKnockUseCase(conversationId = conversationId, hotKnock = false)
-                    }
+                Ping -> {
+                    pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
+                    sendKnockUseCase(conversationId = conversationId, hotKnock = false)
                 }
             }
         }

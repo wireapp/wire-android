@@ -111,10 +111,10 @@ fun AdditionalOptionSubMenu(
     onRecordAudioMessageClicked: () -> Unit,
     onCloseRecordAudio: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
     modifier: Modifier
 ) {
     when (additionalOptionsState) {

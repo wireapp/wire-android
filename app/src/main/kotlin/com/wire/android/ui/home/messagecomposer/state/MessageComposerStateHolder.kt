@@ -20,12 +20,10 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -33,15 +31,12 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlinx.coroutines.CoroutineScope
 
 @Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerStateHolder(
     messageComposerViewState: MutableState<MessageComposerViewState>,
-    modalBottomSheetState: WireModalSheetState,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
+    modalBottomSheetState: WireModalSheetState
 ): MessageComposerStateHolder {
     val context = LocalContext.current
 
@@ -72,9 +67,7 @@ fun rememberMessageComposerStateHolder(
             modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
-            additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            tempWritableImageUri = tempWritableImageUri,
-            tempWritableVideoUri = tempWritableVideoUri,
+            additionalOptionStateHolder = AdditionalOptionStateHolder()
         )
     }
 }
@@ -88,9 +81,7 @@ class MessageComposerStateHolder(
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState,
-    val tempWritableImageUri: Uri?,
-    val tempWritableVideoUri: Uri?
+    val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
 

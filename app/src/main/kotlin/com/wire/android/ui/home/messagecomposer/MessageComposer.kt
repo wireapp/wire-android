@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -45,27 +46,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
@@ -74,7 +84,9 @@ fun MessageComposer(
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
+    tempWritableVideoUri: Uri?,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         val interActionAvailability = messageComposerViewState.value.interactionAvailability
@@ -114,7 +126,9 @@ fun MessageComposer(
                     },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                    onClearMentionSearchResult = onClearMentionSearchResult
+                    onClearMentionSearchResult = onClearMentionSearchResult,
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    tempWritableImageUri = tempWritableImageUri
                 )
             }
         }
@@ -132,6 +146,8 @@ private fun EnabledMessageComposer(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    tempWritableVideoUri: Uri?,
+    tempWritableImageUri: Uri?,
 ) {
     with(messageComposerStateHolder) {
         Row {
@@ -146,6 +162,8 @@ private fun EnabledMessageComposer(
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
                         messageComposerStateHolder = messageComposerStateHolder,
+                        tempWritableVideoUri = tempWritableVideoUri,
+                        tempWritableImageUri = tempWritableImageUri,
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
@@ -233,7 +251,9 @@ private fun ActiveMessageComposer(
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onPingOptionClicked: () -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
+    tempWritableVideoUri: Uri?,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
@@ -370,7 +390,7 @@ private fun ActiveMessageComposer(
                                     onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                                    onMentionButtonClicked = messageCompositionHolder::startMention,
+                                    onMentionButtonClicked = { messageCompositionHolder.startMention(onSearchMentionQueryChanged, onClearMentionSearchResult) },
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                     onPingOptionClicked = onPingOptionClicked,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
@@ -420,4 +440,34 @@ private fun ActiveMessageComposer(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun MessageComposerPreview() {
+    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
+
+    MessageComposer(
+        messageComposerStateHolder = MessageComposerStateHolder(
+            messageComposerViewState = messageComposerViewState,
+            messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+                messageComposition = messageComposition,
+                selfDeletionTimer = selfDeletionTimer
+            ),
+            messageCompositionHolder = MessageCompositionHolder(
+                context = LocalContext.current
+            ),
+            additionalOptionStateHolder = AdditionalOptionStateHolder(),
+            modalBottomSheetState = WireModalSheetState(),
+        ),
+        messageListContent = { },
+        onChangeSelfDeletionClicked = { },
+        onSearchMentionQueryChanged = { },
+        onClearMentionSearchResult = { },
+        onSendMessageBundle = { },
+        tempWritableVideoUri = null,
+        tempWritableImageUri = null
+    )
 }

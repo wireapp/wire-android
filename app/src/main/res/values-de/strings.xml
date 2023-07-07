@@ -1063,7 +1063,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_log_options_description">"Dadurch werden anonymisierte Informationen zur Fehlerbehebung lokal gespeichert. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
     <string name="notification_obfuscated_message">Jemand hat eine Nachricht gesendet</string>
-    <string name="settings_licenses_settings_label">Licenses informations</string>
+    <string name="settings_licenses_settings_label">License Information</string>
     <string name="settings_myaccount_logout">Delete Account</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
     <string name="delete_acount_dialog_title">Delete Account</string>

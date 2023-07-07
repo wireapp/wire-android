@@ -20,12 +20,10 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -33,7 +31,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlinx.coroutines.CoroutineScope
 
 @Suppress("LongParameterList")
 @Composable

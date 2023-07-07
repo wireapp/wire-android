@@ -120,7 +120,6 @@ private fun MultiUserDeliveryFailure(
                     ),
                     textAlign = TextAlign.Start
                 )
-                OfflineBackendsLearnMoreLink()
             }
             if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
                 Text(

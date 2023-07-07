@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -31,6 +32,7 @@ import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import io.mockk.MockKAnnotations
@@ -42,6 +44,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
 import org.junit.After
+import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -68,6 +72,9 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
 
+    @MockK
+    private lateinit var globalDataStore: GlobalDataStore
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -77,12 +84,14 @@ class OngoingCallViewModelTest {
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+            qualifiedIdMapper.fromStringToQualifiedID(dummyConversationId)
+        } returns conversationId
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
+            currentUserId = currentUserId,
+            globalDataStore = globalDataStore,
             navigationManager = navigationManager,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
@@ -103,13 +112,19 @@ class OngoingCallViewModelTest {
         coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
+    @Test
+    fun givenDoubleTabIndicatorIsDisplayed_whenUserTapsOnIt_thenHideIt() = runTest {
+        coEvery { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) } returns Unit
+
+        ongoingCallViewModel.hideDoubleTapToast()
+
+        assertEquals(false, ongoingCallViewModel.shouldShowDoubleTapToast)
+        coVerify(exactly = 1) { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) }
     }
 
     companion object {
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val currentUserId = UserId("userId", "some.dummy.domain")
         private val participant1 = UICallParticipant(
             id = QualifiedID("value1", "domain"),
             clientId = "client-id1",

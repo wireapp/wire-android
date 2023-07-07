@@ -31,6 +31,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.migration.failure.UserMigrationStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -44,13 +45,18 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private const val PREFERENCES_NAME = "global_data"
 
         // keys
+        private val SHOW_CALLING_DOUBLE_TAP_TOAST = booleanPreferencesKey("show_calling_double_tap_toast_")
         private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
-        private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> = intPreferencesKey("migration_app_version_$userId")
+        private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
+            booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
+
+        private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> =
+            intPreferencesKey("migration_app_version_$userId")
     }
 
     suspend fun clear() {
@@ -120,4 +126,11 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun getUserMigrationAppVersion(userId: String): Int? =
         context.dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
+
+    suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
+        context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }
+    }
+
+    suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
+        getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
 }

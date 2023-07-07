@@ -17,6 +17,7 @@
  *
  *
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.conversations
 
@@ -315,6 +316,39 @@ fun PreviewSystemMessageKnock() {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddSingle() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    mapOf("wire.com" to listOf(UIText.DynamicString("Barbara Cotolina")))
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddMultiple() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    mapOf(
+                        "wire.com" to listOf(
+                            UIText.DynamicString("Barbara Cotolina"),
+                            UIText.DynamicString("Albert Lewis")
+                        )
+                    )
+                )
             )
         )
     }

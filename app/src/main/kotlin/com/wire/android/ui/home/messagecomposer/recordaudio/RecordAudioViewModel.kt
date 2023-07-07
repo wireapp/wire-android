@@ -31,17 +31,20 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
+import kotlin.properties.Delegates
 
 interface RecordAudioViewModel {
     fun getButtonState(): RecordAudioButtonState
     fun getDiscardDialogState(): RecordAudioDialogState
     fun getPermissionsDeniedDialogState(): RecordAudioDialogState
+    fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState
     fun getOutputFile(): File?
     fun getAudioState(): AudioState
     fun startRecording(context: Context)
@@ -50,6 +53,7 @@ interface RecordAudioViewModel {
     fun onDismissDiscardDialog()
     fun showPermissionsDeniedDialog()
     fun onDismissPermissionsDeniedDialog()
+    fun onDismissMaxFileSizeReachedDialog()
     fun discardRecording(onCloseRecordAudio: () -> Unit)
     fun sendRecording(onAudioRecorded: (UriAsset) -> Unit, onComplete: () -> Unit)
     fun onPlayAudio()
@@ -59,10 +63,13 @@ interface RecordAudioViewModel {
 @HiltViewModel
 class RecordAudioViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
-    private val recordAudioMessagePlayer: RecordAudioMessagePlayer
+    private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
+    private val getAssetSizeLimit: GetAssetSizeLimitUseCase
 ) : RecordAudioViewModel, ViewModel() {
 
     private var state: RecordAudioState by mutableStateOf(RecordAudioState())
+
+    private var assetLimitInMegabyte by Delegates.notNull<Long>()
 
     private var mediaRecorder: MediaRecorder? = null
 
@@ -73,12 +80,20 @@ class RecordAudioViewModelImpl @Inject constructor(
     override fun getPermissionsDeniedDialogState(): RecordAudioDialogState =
         state.permissionsDeniedDialogState
 
+    override fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState =
+        state.maxFileSizeReachedDialogState
+
     override fun getOutputFile(): File? = state.outputFile
 
     override fun getAudioState(): AudioState = state.audioState
 
     init {
         observeAudioPlayerState()
+
+        viewModelScope.launch {
+            assetLimitInMegabyte = getAssetSizeLimit(isImage = false)
+            observeAudioFileSize()
+        }
     }
 
     private fun observeAudioPlayerState() {
@@ -129,6 +144,22 @@ class RecordAudioViewModelImpl @Inject constructor(
             mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             mediaRecorder?.setOutputFile(outputFile)
+            mediaRecorder?.setMaxFileSize(assetLimitInMegabyte)
+
+            observeAudioFileSize()
+        }
+    }
+
+    private fun observeAudioFileSize() {
+        mediaRecorder?.setOnInfoListener { _, what, _ ->
+            if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+                stopRecording()
+                state = state.copy(
+                    maxFileSizeReachedDialogState = RecordAudioDialogState.MaxFileSizeReached(
+                        maxSize = assetLimitInMegabyte.div(SIZE_OF_1MB)
+                    )
+                )
+            }
         }
     }
 
@@ -146,7 +177,7 @@ class RecordAudioViewModelImpl @Inject constructor(
             RecordAudioButtonState.RECORDING,
             RecordAudioButtonState.READY_TO_SEND -> {
                 state = state.copy(
-                    discardDialogState = RecordAudioDialogState.SHOWN
+                    discardDialogState = RecordAudioDialogState.Shown
                 )
             }
         }
@@ -154,19 +185,25 @@ class RecordAudioViewModelImpl @Inject constructor(
 
     override fun onDismissDiscardDialog() {
         state = state.copy(
-            discardDialogState = RecordAudioDialogState.HIDDEN
+            discardDialogState = RecordAudioDialogState.Hidden
         )
     }
 
     override fun showPermissionsDeniedDialog() {
         state = state.copy(
-            permissionsDeniedDialogState = RecordAudioDialogState.SHOWN
+            permissionsDeniedDialogState = RecordAudioDialogState.Shown
         )
     }
 
     override fun onDismissPermissionsDeniedDialog() {
         state = state.copy(
-            permissionsDeniedDialogState = RecordAudioDialogState.HIDDEN
+            permissionsDeniedDialogState = RecordAudioDialogState.Hidden
+        )
+    }
+
+    override fun onDismissMaxFileSizeReachedDialog() {
+        state = state.copy(
+            maxFileSizeReachedDialogState = RecordAudioDialogState.Hidden
         )
     }
 
@@ -177,7 +214,7 @@ class RecordAudioViewModelImpl @Inject constructor(
             recordAudioMessagePlayer.close()
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENABLED,
-                discardDialogState = RecordAudioDialogState.HIDDEN,
+                discardDialogState = RecordAudioDialogState.Hidden,
                 outputFile = null
             )
             onCloseRecordAudio()
@@ -224,5 +261,6 @@ class RecordAudioViewModelImpl @Inject constructor(
 
     private companion object {
         const val TEMP_RECORDING_AUDIO_FILE = "temp_recording.mp3"
+        const val SIZE_OF_1MB = 1024 * 1024
     }
 }

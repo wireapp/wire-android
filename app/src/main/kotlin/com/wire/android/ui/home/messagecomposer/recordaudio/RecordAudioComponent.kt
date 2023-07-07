@@ -111,6 +111,11 @@ fun RecordAudioComponent(
             context.startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     )
+
+    RecordedAudioMaxFileSizeReachedDialog(
+        dialogState = viewModel.getMaxFileSizeReachedDialogState(),
+        onDismiss = viewModel::onDismissMaxFileSizeReachedDialog
+    )
 }
 
 @Composable

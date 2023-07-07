@@ -22,8 +22,9 @@ import java.io.File
 
 data class RecordAudioState(
     val buttonState: RecordAudioButtonState = RecordAudioButtonState.ENABLED,
-    val discardDialogState: RecordAudioDialogState = RecordAudioDialogState.HIDDEN,
-    val permissionsDeniedDialogState: RecordAudioDialogState = RecordAudioDialogState.HIDDEN,
+    val discardDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
+    val permissionsDeniedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
+    val maxFileSizeReachedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
     val outputFile: File? = null,
     val audioState: AudioState = AudioState.DEFAULT
 )
@@ -46,14 +47,21 @@ enum class RecordAudioButtonState {
     READY_TO_SEND
 }
 
-enum class RecordAudioDialogState {
+sealed class RecordAudioDialogState {
     /**
      * Dialog is shown to user
      */
-    SHOWN,
+    object Shown : RecordAudioDialogState()
 
     /**
      * Dialog is hidden from user
      */
-    HIDDEN
+    object Hidden : RecordAudioDialogState()
+
+    /**
+     * Max File Size dialog is shown with dynamic max file size
+     */
+    data class MaxFileSizeReached(
+        val maxSize: Long
+    ) : RecordAudioDialogState()
 }

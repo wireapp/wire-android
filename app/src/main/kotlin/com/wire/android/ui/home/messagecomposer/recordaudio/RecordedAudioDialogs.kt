@@ -31,7 +31,7 @@ fun DiscardRecordedAudioDialog(
     onDiscard: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (dialogState == RecordAudioDialogState.SHOWN) {
+    if (dialogState is RecordAudioDialogState.Shown) {
         WireDialog(
             title = stringResource(id = R.string.record_audio_discard_dialog_title),
             text = stringResource(id = R.string.record_audio_discard_dialog_text),
@@ -57,7 +57,7 @@ fun MicrophonePermissionsDeniedDialog(
     onDismiss: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
-    if (dialogState == RecordAudioDialogState.SHOWN) {
+    if (dialogState is RecordAudioDialogState.Shown) {
         WireDialog(
             title = stringResource(id = R.string.record_audio_permission_denied_dialog_title),
             text = stringResource(id = R.string.record_audio_permission_denied_dialog_text),
@@ -70,6 +70,29 @@ fun MicrophonePermissionsDeniedDialog(
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = onOpenSettings,
                 text = stringResource(id = R.string.record_audio_permission_denied_dialog_settings_button),
+                type = WireDialogButtonType.Primary,
+                state = WireButtonState.Default
+            )
+        )
+    }
+}
+
+@Composable
+fun RecordedAudioMaxFileSizeReachedDialog(
+    dialogState: RecordAudioDialogState,
+    onDismiss: () -> Unit
+) {
+    if (dialogState is RecordAudioDialogState.MaxFileSizeReached) {
+        WireDialog(
+            title = stringResource(id = R.string.record_audio_max_file_size_reached_title),
+            text = stringResource(
+                id = R.string.record_audio_max_file_size_reached_text,
+                dialogState.maxSize
+            ),
+            onDismiss = onDismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = onDismiss,
+                text = stringResource(id = R.string.label_ok),
                 type = WireDialogButtonType.Primary,
                 state = WireButtonState.Default
             )

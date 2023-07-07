@@ -135,4 +135,3 @@ class MyAccountViewModel @Inject constructor(
         fun isChangeEmailEnabledByBuild(): Boolean = BuildConfig.ALLOW_CHANGE_OF_EMAIL
     }
 }
-

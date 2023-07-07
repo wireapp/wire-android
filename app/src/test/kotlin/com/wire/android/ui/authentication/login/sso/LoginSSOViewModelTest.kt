@@ -75,6 +75,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
@@ -433,7 +434,7 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given backend switch confirmed, when the new server have NO default sso code, then initiate sso login`() {
+    fun `given backend switch confirmed, when the new server have NO default sso code, then initiate sso login`() = runTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)

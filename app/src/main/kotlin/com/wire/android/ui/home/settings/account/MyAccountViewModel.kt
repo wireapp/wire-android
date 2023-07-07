@@ -56,6 +56,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -91,8 +92,8 @@ class MyAccountViewModel @Inject constructor(
         }
         myAccountState = myAccountState.copy(
             isReadOnlyAccount = !managedByWire,
-            isEditEmailAllowed = !hasSAMLCred && managedByWire,
-            isEditHandleAllowed = managedByWire && BuildConfig.ALLOW_CHANGE_OF_EMAIL
+            isEditEmailAllowed = isChangeEmailEnabledByBuild() && !hasSAMLCred && managedByWire,
+            isEditHandleAllowed = managedByWire
         )
         viewModelScope.launch {
             fetchSelfUser()
@@ -182,5 +183,14 @@ class MyAccountViewModel @Inject constructor(
     sealed interface SettingsOperationResult {
         object None : SettingsOperationResult
         class Result(val message: UIText) : SettingsOperationResult
+    }
+
+    companion object {
+        /**
+         * This is a build time flag that allows to enable/disable the change email feature.
+         * NOTE: This is using this approach to being able to test correctly and not depend on custom build behavior.
+         */
+        @JvmStatic
+        fun isChangeEmailEnabledByBuild(): Boolean = BuildConfig.ALLOW_CHANGE_OF_EMAIL
     }
 }

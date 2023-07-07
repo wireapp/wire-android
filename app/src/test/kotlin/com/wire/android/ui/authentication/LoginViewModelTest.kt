@@ -37,6 +37,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -85,9 +87,10 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() {
+    fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() = runTest {
         coEvery { navigationManager.navigateBack() } returns Unit
         loginViewModel.navigateBack()
+        advanceUntilIdle()
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 }

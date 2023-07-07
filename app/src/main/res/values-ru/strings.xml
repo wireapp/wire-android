@@ -20,7 +20,7 @@
   -->
 <resources>
     <string name="app_version">Версия приложения: %s</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="build_variant_name">Вариант сборки</string>
     <string name="label_new">Новое</string>
     <string name="label_login">Вход</string>
     <string name="label_ok">OK</string>
@@ -122,8 +122,8 @@
     <string name="content_description_avatar_preview">Preview of profile picture</string>
     <string name="content_description_choose_from_gallery">Выбрать из галереи</string>
     <string name="content_description_take_a_picture">Сделать фото</string>
-    <string name="content_description_right_arrow">Right arrow</string>
-    <string name="content_description_left_arrow">Go back</string>
+    <string name="content_description_right_arrow">Стрелка вправо</string>
+    <string name="content_description_left_arrow">Вернуться</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Сведения о сообщении</string>
@@ -531,8 +531,8 @@
     <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
-    <string name="label_system_message_other_called">%1$s called</string>
-    <string name="label_system_message_you_called">%1$s called</string>
+    <string name="label_system_message_other_called">%1$s звонил(-а)</string>
+    <string name="label_system_message_you_called">%1$s звонил(-а)</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
     <plurals name="label_system_message_x_more">
         <item quantity="one">%1$d more</item>

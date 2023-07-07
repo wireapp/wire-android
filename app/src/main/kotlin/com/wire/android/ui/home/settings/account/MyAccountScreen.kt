@@ -20,6 +20,8 @@
 
 package com.wire.android.ui.home.settings.account
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,11 +41,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -54,24 +58,33 @@ import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.home.settings.account.MyAccountViewModel.SettingsOperationResult
+import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
+import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.toTitleCase
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 fun MyAccountScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
 ) {
     with(viewModel.myAccountState) {
         MyAccountContent(
             accountDetailItems = mapToUISections(viewModel, this),
             forgotPasswordUrl = this.changePasswordUrl,
             checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
-            onNavigateBack = viewModel::navigateBack
+            canDeleteAccount = viewModel.myAccountState.teamName.isNullOrBlank(),
+            onDeleteAccountClicked = deleteAccountViewModel::onDeleteAccountClicked,
+            onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
+            onDeleteAccountDismissed = deleteAccountViewModel::onDeleteAccountDialogDismissed,
+            onNavigateBack = viewModel::navigateBack,
+            startDeleteAccountFlow = deleteAccountViewModel.state.startDeleteAccountFlow
         )
     }
 }
@@ -93,7 +106,7 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
             if (email.isNotBlank()) Email(
                 email,
                 clickableActionIfPossible(!state.isEditEmailAllowed) { viewModel.navigateToChangeEmail() }) else null,
-            if (teamName.isNotBlank()) Team(teamName) else null,
+            if (!teamName.isNullOrBlank()) Team(teamName) else null,
             if (domain.isNotBlank()) Domain(domain) else null
         )
     }
@@ -106,6 +119,11 @@ private fun clickableActionIfPossible(shouldDisableAction: Boolean, action: () -
 fun MyAccountContent(
     accountDetailItems: List<AccountDetailsItem> = emptyList(),
     forgotPasswordUrl: String?,
+    canDeleteAccount: Boolean,
+    onDeleteAccountClicked: () -> Unit,
+    onDeleteAccountConfirmed: () -> Unit,
+    onDeleteAccountDismissed: () -> Unit,
+    startDeleteAccountFlow: Boolean,
     checkPendingSnackBarMessages: () -> SettingsOperationResult = { SettingsOperationResult.None },
     onNavigateBack: () -> Unit = {}
 ) {
@@ -127,12 +145,26 @@ fun MyAccountContent(
             )
         },
         bottomBar = {
-            if (forgotPasswordUrl?.isNotBlank() == true) {
-                WirePrimaryButton(
-                    text = stringResource(R.string.settings_myaccount_reset_password),
-                    onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) },
-                    modifier = Modifier.padding(dimensions().spacing16x)
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensions().spacing16x)
+            ) {
+
+                if (!forgotPasswordUrl.isNullOrBlank()) {
+                    WirePrimaryButton(
+                        text = stringResource(R.string.settings_myaccount_reset_password).toTitleCase(),
+                        onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) })
+                }
+
+                if (canDeleteAccount) {
+                    if (!forgotPasswordUrl.isNullOrBlank()) Spacer(modifier = Modifier.padding(dimensions().spacing8x))
+                    WirePrimaryButton(
+                        text = stringResource(R.string.settings_myaccount_logout).toTitleCase(),
+                        onClick = onDeleteAccountClicked,
+                        state = WireButtonState.Error
+                    )
+                }
             }
         },
         snackbarHost = {
@@ -142,6 +174,13 @@ fun MyAccountContent(
             )
         }
     ) { internalPadding ->
+
+        if (startDeleteAccountFlow) {
+            DeleteAccountDialog(
+                onDismiss = onDeleteAccountDismissed,
+                onConfirm = onDeleteAccountConfirmed
+            )
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -189,6 +228,13 @@ fun PreviewMyAccountScreen() {
             Email("bob@wire.com", Clickable(enabled = true) {}),
             Team("Wire")
         ),
-        forgotPasswordUrl = "http://wire.com"
+        forgotPasswordUrl = "http://wire.com",
+        canDeleteAccount = true,
+        { },
+        { },
+        {},
+        false,
+        { SettingsOperationResult.None },
+        { }
     )
 }

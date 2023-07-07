@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -69,6 +70,9 @@ class ConversationCallViewModelTest {
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK
+    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
     @BeforeEach
@@ -90,7 +94,8 @@ class ConversationCallViewModelTest {
             answerCall = joinCall,
             endCall = endCall,
             observeSyncState = observeSyncState,
-            isConferenceCallingEnabled = isConferenceCallingEnabled
+            isConferenceCallingEnabled = isConferenceCallingEnabled,
+            observeConversationDetails = observeConversationDetails
         )
     }
 

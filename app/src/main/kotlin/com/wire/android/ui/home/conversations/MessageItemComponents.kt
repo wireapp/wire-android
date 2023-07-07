@@ -120,6 +120,7 @@ private fun MultiUserDeliveryFailure(
                     ),
                     textAlign = TextAlign.Start
                 )
+                OfflineBackendsLearnMoreLink()
             }
             if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
                 Text(
@@ -264,6 +265,7 @@ internal fun Modifier.customizeMessageBackground(
 @Composable
 internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.current) {
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
+    VerticalSpace.x4()
     Text(
         modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
         style = LocalTextStyle.current.copy(

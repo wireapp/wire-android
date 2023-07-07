@@ -320,6 +320,39 @@ fun PreviewSystemMessageKnock() {
     }
 }
 
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddSingle() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    mapOf("wire.com" to listOf(UIText.DynamicString("Barbara Cotolina")))
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddMultiple() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    mapOf(
+                        "wire.com" to listOf(
+                            UIText.DynamicString("Barbara Cotolina"),
+                            UIText.DynamicString("Albert Lewis")
+                        )
+                    )
+                )
+            )
+        )
+    }
+}
+
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD

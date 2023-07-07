@@ -636,7 +636,6 @@ class UseCaseModule {
     ): EndCallOnConversationChangeUseCase =
         coreLogic.getSessionScope(currentAccount).calls.endCallOnConversationChange
 
-
     @ViewModelScoped
     @Provides
     fun provideMuteCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MuteCallUseCase =

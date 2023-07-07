@@ -85,7 +85,8 @@ class ConversationCallViewModel @Inject constructor(
             // valid conversation is a conversation where the user is a member and it's not deleted
             val validConversation = when (conversationDetailsResult) {
                 is ObserveConversationDetailsUseCase.Result.Success -> {
-                    !(conversationDetailsResult.conversationDetails is ConversationDetails.Group && !(conversationDetailsResult.conversationDetails as ConversationDetails.Group).isSelfUserMember)
+                    !(conversationDetailsResult.conversationDetails is ConversationDetails.Group &&
+                            !(conversationDetailsResult.conversationDetails as ConversationDetails.Group).isSelfUserMember)
                 }
 
                 is ObserveConversationDetailsUseCase.Result.Failure -> false

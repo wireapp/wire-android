@@ -95,8 +95,8 @@ fun AdditionalOptionsMenu(
 
             AdditionalOptionMenuState.RichTextEditing -> {
                 RichTextOptions(
-                    onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
-                    onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
+                    onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
+                    onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
                     onRichTextItalicButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Italic) },
                     onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked
                 )
@@ -111,10 +111,10 @@ fun AdditionalOptionsMenu(
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
     additionalOptionsState: AdditionalOptionSubMenuState,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
     onRecordAudioMessageClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
     modifier: Modifier
 ) {
     when (additionalOptionsState) {
@@ -148,7 +148,6 @@ fun RecordAudioComponent(
     onAudioRecorded: () -> Unit,
     modifier: Modifier
 ) {
-
     Box(
         Modifier
             .size(32.dp)

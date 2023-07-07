@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
@@ -222,21 +223,21 @@ fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) 
     )
 }
 
-//@Preview
-//@Composable
-//fun PreviewMessageActionsBox() {
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.SpaceEvenly,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(dimensions().spacing56x)
-//    ) {
-//        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
-//        RichTextEditingAction({}, selectedOption == AdditionalOptionSubMenuState.RichTextEditing)
-//        AddEmojiAction({})
-//        AddGifAction({})
-//        AddMentionAction({})
-//        PingAction {}
-//    }
-//}
+@Preview
+@Composable
+fun PreviewMessageActionsBox() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing56x)
+    ) {
+        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
+        RichTextEditingAction(true, { })
+        AddEmojiAction({})
+        AddGifAction({})
+        AddMentionAction({})
+        PingAction {}
+    }
+}

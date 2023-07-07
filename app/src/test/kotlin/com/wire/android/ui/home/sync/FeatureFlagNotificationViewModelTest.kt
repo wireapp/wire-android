@@ -10,6 +10,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import com.wire.kalium.logic.feature.user.MarkEnablingE2EIAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
@@ -31,6 +33,7 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FeatureFlagNotificationViewModelTest {
@@ -123,6 +126,48 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(false, viewModel.featureFlagState.shouldShowSelfDeletingMessagesDialog)
     }
 
+    @Test
+    fun givenE2EIRequired_thenShowDialog() = runTest(mainThreadSurrogate) {
+        val (arrangement, viewModel) = Arrangement()
+            .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod)
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod, viewModel.featureFlagState.e2EIRequired)
+    }
+
+    @Test
+    fun givenE2EIRequiredDialogShown_whenSnoozeCalled_thenItSnoozedAndDialogShown() = runTest(mainThreadSurrogate) {
+        val gracePeriod = 1.days
+        val (arrangement, viewModel) = Arrangement()
+            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(gracePeriod))
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.featureFlagState.e2EIRequired)
+        assertEquals(FeatureFlagState.E2EISnooze(gracePeriod), viewModel.featureFlagState.e2EISnoozeInfo)
+        coVerify(exactly = 1) { arrangement.markE2EIRequiredAsNotified() }
+    }
+
+    @Test
+    fun givenSnoozeE2EIRequiredDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest(mainThreadSurrogate) {
+        val gracePeriod = 1.days
+        val (arrangement, viewModel) = Arrangement()
+            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))
+            .arrange()
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(gracePeriod))
+        advanceUntilIdle()
+
+        viewModel.dismissSnoozeE2EIdRequiredDialog()
+
+        assertEquals(null, viewModel.featureFlagState.e2EISnoozeInfo)
+    }
+
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -143,6 +188,9 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var markSelfDeletingStatusAsNotified: MarkSelfDeletionStatusAsNotifiedUseCase
 
+        @MockK
+        lateinit var markE2EIRequiredAsNotified: MarkEnablingE2EIAsNotifiedUseCase
+
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession
@@ -151,8 +199,10 @@ class FeatureFlagNotificationViewModelTest {
         init {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
             every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
+            every { coreLogic.getSessionScope(any()).markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
         }
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {
@@ -169,6 +219,10 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withGuestRoomLinkFeatureFlag(stateFlow: Flow<GuestRoomLinkStatus>) = apply {
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag() } returns stateFlow
+        }
+
+        fun withE2EIRequiredSettings(result: E2EIRequiredResult) = apply {
+            coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired() } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

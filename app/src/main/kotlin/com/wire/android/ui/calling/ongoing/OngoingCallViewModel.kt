@@ -28,6 +28,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.navArgs
@@ -35,6 +37,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,6 +51,9 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    @CurrentAccount
+    private val currentUserId: UserId,
+    private val globalDataStore: GlobalDataStore,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val currentScreenManager: CurrentScreenManager,
@@ -56,7 +62,8 @@ class OngoingCallViewModel @Inject constructor(
     private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
 
-    var shouldShowDoubleTapToast by mutableStateOf(false)
+    var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
+        private set
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 
     var state by mutableStateOf(OngoingCallState())
@@ -112,6 +119,9 @@ class OngoingCallViewModel @Inject constructor(
 
             override fun onFinish() {
                 shouldShowDoubleTapToast = false
+                viewModelScope.launch {
+                    globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+                }
             }
         }
         doubleTapIndicatorCountDownTimer?.start()
@@ -120,13 +130,18 @@ class OngoingCallViewModel @Inject constructor(
     private fun showDoubleTapToast() {
         viewModelScope.launch {
             delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
-            shouldShowDoubleTapToast = true
-            startDoubleTapToastDisplayCountDown()
+            shouldShowDoubleTapToast = globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())
+            if (shouldShowDoubleTapToast) {
+                startDoubleTapToastDisplayCountDown()
+            }
         }
     }
 
     fun hideDoubleTapToast() {
         shouldShowDoubleTapToast = false
+        viewModelScope.launch {
+            globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+        }
     }
 
     companion object {

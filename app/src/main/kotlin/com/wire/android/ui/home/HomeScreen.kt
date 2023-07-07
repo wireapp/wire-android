@@ -131,7 +131,7 @@ fun HomeScreen(
     with(featureFlagNotificationViewModel.featureFlagState) {
         if (showFileSharingDialog) {
             FileRestrictionDialog(
-                isFileSharingEnabled = featureFlagNotificationViewModel.featureFlagState.showFileSharingDialog,
+                isFileSharingEnabled = showFileSharingDialog,
                 hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
             )
         }
@@ -148,6 +148,21 @@ fun HomeScreen(
                 areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
                 enforcedTimeout = enforcedTimeoutDuration,
                 hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
+            )
+        }
+
+        e2EIRequired?.let {
+            E2EIRequiredDialog(
+                result = e2EIRequired,
+                getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
+                snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+            )
+        }
+
+        e2EISnoozeInfo?.let {
+            E2EIdSnoozeDialog(
+                state = e2EISnoozeInfo,
+                dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
             )
         }
     }

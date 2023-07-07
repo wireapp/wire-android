@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -35,6 +36,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import io.mockk.MockKAnnotations
@@ -46,6 +48,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
+import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -67,6 +71,9 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
 
+    @MockK
+    private lateinit var globalDataStore: GlobalDataStore
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -80,7 +87,9 @@ class OngoingCallViewModelTest {
             savedStateHandle = savedStateHandle,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
-            currentScreenManager = currentScreenManager
+            currentScreenManager = currentScreenManager,
+            currentUserId = currentUserId,
+            globalDataStore = globalDataStore,
         )
     }
 
@@ -97,8 +106,19 @@ class OngoingCallViewModelTest {
         coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
     }
 
+    @Test
+    fun givenDoubleTabIndicatorIsDisplayed_whenUserTapsOnIt_thenHideIt() = runTest {
+        coEvery { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) } returns Unit
+
+        ongoingCallViewModel.hideDoubleTapToast()
+
+        assertEquals(false, ongoingCallViewModel.shouldShowDoubleTapToast)
+        coVerify(exactly = 1) { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) }
+    }
+
     companion object {
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val currentUserId = UserId("userId", "some.dummy.domain")
         private val participant1 = UICallParticipant(
             id = QualifiedID("value1", "domain"),
             clientId = "client-id1",

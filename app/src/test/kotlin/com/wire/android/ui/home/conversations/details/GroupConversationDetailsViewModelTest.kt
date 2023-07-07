@@ -66,6 +66,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -74,58 +75,63 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class GroupConversationDetailsViewModelTest {
+
+    private val dispatcher = StandardTestDispatcher()
+
     @Test
-    fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
-        // Given
-        val members = buildList {
-            for (i in 1..5) {
-                add(testUIParticipant(i))
+    fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() =
+        runTest(dispatcher) {
+            // Given
+            val members = buildList {
+                for (i in 1..5) {
+                    add(testUIParticipant(i))
+                }
             }
+            val conversationParticipantsData = ConversationParticipantsData(
+                participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+                allParticipantsCount = members.size
+            )
+
+            val details = testGroup.copy(conversation = testGroup.conversation.copy(name = "group name"))
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withConversationDetailUpdate(details)
+                .withConversationMembersUpdate(conversationParticipantsData)
+                .arrange()
+
+            // When - Then
+            assertEquals(details.conversation.name, viewModel.groupOptionsState.value.groupName)
         }
-        val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
-            allParticipantsCount = members.size
-        )
-
-        val details = testGroup.copy(conversation = testGroup.conversation.copy(name = "group name"))
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withConversationDetailUpdate(details)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .arrange()
-
-        // When - Then
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.value.groupName)
-    }
 
     @Test
-    fun `given the conversation name is updated, when solving the conversation name, then the state is updated accordingly`() = runTest {
-        // Given
-        val members = buildList {
-            for (i in 1..5) {
-                add(testUIParticipant(i))
+    fun `given the conversation name is updated, when solving the conversation name, then the state is updated accordingly`() =
+        runTest(dispatcher) {
+            // Given
+            val members = buildList {
+                for (i in 1..5) {
+                    add(testUIParticipant(i))
+                }
             }
+            val conversationParticipantsData = ConversationParticipantsData(
+                participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+                allParticipantsCount = members.size
+            )
+
+            val details1 = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
+            val details2 = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 2"))
+            val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withConversationDetailUpdate(details1)
+                .withConversationMembersUpdate(conversationParticipantsData)
+                .arrange()
+
+            // When - Then
+            assertEquals(details1.conversation.name, viewModel.groupOptionsState.value.groupName)
+            // When - Then
+            arrangement.withConversationDetailUpdate(details2)
+            assertEquals(details2.conversation.name, viewModel.groupOptionsState.value.groupName)
         }
-        val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
-            allParticipantsCount = members.size
-        )
-
-        val details1 = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
-        val details2 = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 2"))
-        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withConversationDetailUpdate(details1)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .arrange()
-
-        // When - Then
-        assertEquals(details1.conversation.name, viewModel.groupOptionsState.value.groupName)
-        // When - Then
-        arrangement.withConversationDetailUpdate(details2)
-        assertEquals(details2.conversation.name, viewModel.groupOptionsState.value.groupName)
-    }
 
     @Test
-    fun `given a group conversation, when solving the state, then the state is correct`() = runTest {
+    fun `given a group conversation, when solving the state, then the state is correct`() = runTest(dispatcher) {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -173,7 +179,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `when disabling Services , then the dialog must state must be updated`() = runTest {
+    fun `when disabling Services , then the dialog must state must be updated`() = runTest(dispatcher) {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -200,7 +206,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `when no guests and enabling services, use case is called with the correct values`() = runTest {
+    fun `when no guests and enabling services, use case is called with the correct values`() = runTest(dispatcher) {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -239,7 +245,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `when no guests and disable service dialog confirmed, then use case is called with the correct values`() = runTest {
+    fun `when no guests and disable service dialog confirmed, then use case is called with the correct values`() = runTest(dispatcher) {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -273,39 +279,41 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `given a group conversation, when self is admin and in owner team, then should be able to edit Guests option`() = runTest {
-        // Given
-        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
-        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
-        val selfTeam = Team("team_id", "team_name", "icon")
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withConversationDetailUpdate(details)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .withSelfTeamUseCaseReturns(selfTeam)
-            .arrange()
+    fun `given a group conversation, when self is admin and in owner team, then should be able to edit Guests option`() =
+        runTest(dispatcher) {
+            // Given
+            val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+            val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+            val selfTeam = Team("team_id", "team_name", "icon")
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withConversationDetailUpdate(details)
+                .withConversationMembersUpdate(conversationParticipantsData)
+                .withSelfTeamUseCaseReturns(selfTeam)
+                .arrange()
 
-        // When - Then
-        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
-    }
-
-    @Test
-    fun `given a group conversation, when self is admin and not in owner team, then should not be able to edit Guests option`() = runTest {
-        // Given
-        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
-        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
-        val selfTeam = Team("other_team_id", "team_name", "icon")
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withConversationDetailUpdate(details)
-            .withConversationMembersUpdate(conversationParticipantsData)
-            .withSelfTeamUseCaseReturns(selfTeam)
-            .arrange()
-
-        // When - Then
-        assertEquals(false, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
-    }
+            // When - Then
+            assertEquals(true, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
+        }
 
     @Test
-    fun `given a group conversation, then conversationSheetContent is valid`() = runTest {
+    fun `given a group conversation, when self is admin and not in owner team, then should not be able to edit Guests option`() =
+        runTest(dispatcher) {
+            // Given
+            val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+            val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+            val selfTeam = Team("other_team_id", "team_name", "icon")
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withConversationDetailUpdate(details)
+                .withConversationMembersUpdate(conversationParticipantsData)
+                .withSelfTeamUseCaseReturns(selfTeam)
+                .arrange()
+
+            // When - Then
+            assertEquals(false, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
+        }
+
+    @Test
+    fun `given a group conversation, then conversationSheetContent is valid`() = runTest(dispatcher) {
         // Given
         val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
@@ -329,7 +337,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `given receipt mode value enabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
+    fun `given receipt mode value enabled, when updating receipt mode, then value is propagated to screen state`() = runTest(dispatcher) {
         // given
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
@@ -350,7 +358,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `given receipt mode value disabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
+    fun `given receipt mode value disabled, when updating receipt mode, then value is propagated to screen state`() = runTest(dispatcher) {
         // given
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
@@ -371,23 +379,24 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `given user has no teamId and conversation no teamId, when init group options, then read receipt toggle is disabled`() = runTest {
-        // given
-        // when
-        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = null))
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withUpdateConversationReceiptModeReturningSuccess()
-            .withConversationDetailUpdate(details)
-            .withSelfTeamUseCaseReturns(result = null)
-            .arrange()
+    fun `given user has no teamId and conversation no teamId, when init group options, then read receipt toggle is disabled`() =
+        runTest(dispatcher) {
+            // given
+            // when
+            val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = null))
+            val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+                .withUpdateConversationReceiptModeReturningSuccess()
+                .withConversationDetailUpdate(details)
+                .withSelfTeamUseCaseReturns(result = null)
+                .arrange()
 
-        // then
-        assertEquals(false, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
-    }
+            // then
+            assertEquals(false, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
+        }
 
     @Test
     fun `given user has no teamId, is admin and conversation has teamId, when init group options, then read receipt toggle is enabled`() =
-        runTest {
+        runTest(dispatcher) {
             // given
             val members = buildList {
                 for (i in 1..5) {
@@ -415,7 +424,7 @@ class GroupConversationDetailsViewModelTest {
 
     @Test
     fun `given user has no teamId, not admin and conversation has teamId, when init group options, then read receipt toggle is enabled`() =
-        runTest {
+        runTest(dispatcher) {
             // given
             val members = buildList {
                 for (i in 1..5) {
@@ -443,7 +452,7 @@ class GroupConversationDetailsViewModelTest {
 
     @Test
     fun `given user has teamId, is admin and conversation teamId, when init group options, then read receipt toggle is enabled`() =
-        runTest {
+        runTest(dispatcher) {
             // given
             val members = buildList {
                 for (i in 1..5) {

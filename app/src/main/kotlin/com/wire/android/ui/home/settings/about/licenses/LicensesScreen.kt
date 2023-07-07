@@ -15,17 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings.about
+package com.wire.android.ui.home.settings.about.licenses
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mikepenz.aboutlibraries.entity.Library
+import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -36,32 +41,51 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 @Destination
 @Composable
 fun LicensesScreen(
-    navigator: Navigator
-) {
-    LicensesContent(
-        onBackPressed = navigator::navigateBack
-    )
-}
-
-@Composable
-fun LicensesContent(
-    onBackPressed: () -> Unit = {}
+    navigator: Navigator,
+    viewModel: LicensesViewModel = hiltViewModel()
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPressed,
+            onNavigationPressed = navigator::navigateBack,
             elevation = 0.dp,
             title = stringResource(id = R.string.settings_licenses_settings_label)
         )
     }) { internalPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(internalPadding)
-        ) {
-            LibrariesContainer(
-                modifier = Modifier.fillMaxSize()
-            )
+        LicensesContent(
+            internalPadding = internalPadding,
+            libs = viewModel.state.libraryList
+        )
+    }
+}
+
+@Composable
+fun LicensesContent(
+    internalPadding: PaddingValues,
+    libs: List<Library>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(internalPadding)
+    ) {
+        val openDialog = remember { mutableStateOf<Library?>(null) }
+        WireLibraries(
+            modifier = Modifier.fillMaxSize(),
+            libraries = libs,
+            onLibraryClick = { library ->
+                val license = library.licenses.firstOrNull()
+
+                if (!license?.htmlReadyLicenseContent.isNullOrBlank()) {
+                    openDialog.value = library
+                }
+            },
+        )
+
+        val library = openDialog.value
+        if (library != null) {
+            WireLicenseDialog(library = library) {
+                openDialog.value = null
+            }
         }
     }
 }

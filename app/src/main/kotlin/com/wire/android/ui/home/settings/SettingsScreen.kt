@@ -81,7 +81,6 @@ fun SettingsScreenContent(
                 items = buildList {
                     add(SettingsItem.YourAccount)
                     add(SettingsItem.PrivacySettings)
-                    add(SettingsItem.Licenses)
                     add(SettingsItem.ManageDevices)
                     if (BackUpSettings) {
                         add(SettingsItem.BackupAndRestore)
@@ -108,7 +107,9 @@ fun SettingsScreenContent(
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }
+                    add(SettingsItem.Licenses)
                 },
+
                 onItemClicked = onItemClicked
             )
         }

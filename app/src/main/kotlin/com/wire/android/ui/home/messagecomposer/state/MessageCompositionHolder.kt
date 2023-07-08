@@ -184,7 +184,14 @@ class MessageCompositionHolder(
     }
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        messageComposition.update { it.copy(messageTextFieldValue = (TextFieldValue(editMessageText))) }
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = (TextFieldValue(
+                    text = editMessageText,
+                    selection = TextRange(editMessageText.length)
+                ))
+            )
+        }
         messageComposition.update { it.copy(selectedMentions = mentions.map { it.toUiMention(editMessageText) }) }
         messageComposition.update { it.copy(editMessageId = messageId) }
     }
@@ -360,7 +367,7 @@ data class MessageComposition(
         return if (editMessageId != null && editMessage != null) {
             ComposableMessageBundle.EditMessageBundle(
                 originalMessageId = editMessageId,
-                newContent = editMessage.text,
+                newContent = messageTextFieldValue.text,
                 newMentions = selectedMentions
             )
         } else {

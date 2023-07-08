@@ -74,6 +74,7 @@ class MessageCompositionInputStateHolder(
         inputVisibility = true
         inputSize = MessageCompositionInputSize.COLLAPSED
         inputState = MessageCompositionInputState.ACTIVE
+        inputType = MessageCompositionType.Composing(messageComposition,messageType)
         if (isFocused) requestFocus() else clearFocus()
     }
 

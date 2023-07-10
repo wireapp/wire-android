@@ -22,6 +22,7 @@ package com.wire.android.framework
 
 import com.wire.android.mapper.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -156,7 +157,10 @@ object TestMessage {
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Sent),
+        messageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
+        ),
         messageId = "messageID",
         connectionState = null,
         isSenderDeleted = false,

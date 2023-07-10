@@ -49,6 +49,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
@@ -236,7 +237,7 @@ class MessageComposerViewModel @Inject constructor(
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
-                    sendAttachment(messageBundle)
+                    handleAttachment(messageBundle)
                 }
 
                 is ComposableMessageBundle.SendTextMessageBundle -> {
@@ -258,7 +259,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun sendAttachment(
+    private suspend fun handleAttachment(
         messageBundle: ComposableMessageBundle.AttachmentPickedBundle
     ) {
         with(messageBundle) {
@@ -269,29 +270,37 @@ class MessageComposerViewModel @Inject constructor(
                 // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
                 val maxSizeLimitInBytes =
                     getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-                if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                    sendAttachment(assetBundle)
-                } else {
-                    if (attachmentUri.saveToDeviceIfInvalid) {
-                        with(assetBundle) {
-                            fileManager.saveToExternalMediaStorage(
-                                fileName,
-                                dataPath,
-                                dataSize,
-                                mimeType,
-                                dispatchers
-                            )
-                        }
-                    }
-                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                        assetType = assetBundle.assetType,
-                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                    )
-                }
+                handleBundle(assetBundle, maxSizeLimitInBytes, messageBundle.attachmentUri)
             } else {
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
             }
+        }
+    }
+
+    private suspend fun handleBundle(
+        assetBundle: AssetBundle,
+        maxSizeLimitInBytes: Long,
+        attachmentUri: UriAsset
+    ) {
+        if (assetBundle.dataSize <= maxSizeLimitInBytes) {
+            sendAttachment(assetBundle)
+        } else {
+            if (attachmentUri.saveToDeviceIfInvalid) {
+                with(assetBundle) {
+                    fileManager.saveToExternalMediaStorage(
+                        fileName,
+                        dataPath,
+                        dataSize,
+                        mimeType,
+                        dispatchers
+                    )
+                }
+            }
+            assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                assetType = assetBundle.assetType,
+                maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                savedToDevice = attachmentUri.saveToDeviceIfInvalid
+            )
         }
     }
 

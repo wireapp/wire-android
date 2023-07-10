@@ -118,7 +118,6 @@ private fun ComposingActions(
     }
 }
 
-
 @Composable
 fun EditingActions(
     selectedOption: AdditionalOptionSelectItem,

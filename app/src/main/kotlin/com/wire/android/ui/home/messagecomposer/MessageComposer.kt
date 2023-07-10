@@ -231,6 +231,7 @@ private fun InactiveMessageComposer(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun ActiveMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
@@ -419,8 +420,9 @@ private fun ActiveMessageComposer(
                                 )
                         )
                     }
-                    // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
-                    // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
+                    // This covers the situation when the user switches from attachment options to the input keyboard -
+                    // there is a moment when both attachmentOptionsDisplayed and isKeyboardVisible are false,
+                    // but right after that keyboard shows, so if we know that
                     // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
                     else if (isTransitionToKeyboardOnGoing) {
                         Box(

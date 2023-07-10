@@ -36,6 +36,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,6 +72,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSta
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.Ping
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -140,7 +143,7 @@ private fun EnabledMessageComposer(
     tempWritableImageUri: Uri?,
 ) {
     with(messageComposerStateHolder) {
-        Row {
+        Column {
             val securityClassificationType = messageComposerViewState.value.securityClassificationType
 
             if (securityClassificationType != SecurityClassificationType.NONE) {
@@ -209,6 +212,7 @@ private fun InactiveMessageComposer(
             ) {
                 messageListContent()
             }
+            Divider(color = MaterialTheme.wireColorScheme.outline)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

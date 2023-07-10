@@ -121,7 +121,9 @@ fun ActiveMessageComposerInput(
 ) {
     if (inputVisiblity) {
         Column(
-            modifier = modifier.wrapContentSize()
+            modifier = modifier
+                .wrapContentSize()
+                .background(inputType.backgroundColor())
         ) {
             Divider(color = MaterialTheme.wireColorScheme.outline)
             CollapseButton(

@@ -109,6 +109,7 @@ fun ActiveMessageComposerInput(
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onEditButtonClicked : () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onToggleInputSize: () -> Unit,
     onCancelReply: () -> Unit,
@@ -188,7 +189,7 @@ fun ActiveMessageComposerInput(
             when (inputType) {
                 is MessageCompositionType.Editing -> {
                     MessageEditActions(
-                        onEditSaveButtonClicked = onSendButtonClicked,
+                        onEditSaveButtonClicked = onEditButtonClicked,
                         onEditCancelButtonClicked = onCancelEdit,
                         editButtonEnabled = inputType.isEditButtonEnabled
                     )

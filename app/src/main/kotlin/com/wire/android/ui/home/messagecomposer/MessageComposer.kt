@@ -147,12 +147,14 @@ private fun EnabledMessageComposer(
     with(messageComposerStateHolder) {
         Row {
             val securityClassificationType = messageComposerViewState.value.securityClassificationType
+
             if (securityClassificationType != SecurityClassificationType.NONE) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
                     SecurityClassificationBanner(securityClassificationType)
                 }
             }
+
             when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
@@ -353,6 +355,10 @@ private fun ActiveMessageComposer(
                                         },
                                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                                         onSendButtonClicked = onSendButtonClicked,
+                                        onEditButtonClicked = {
+                                            onSendButtonClicked()
+                                            messageCompositionInputStateHolder.toComposing()
+                                        },
                                         onLineBottomYCoordinateChanged = { yCoordinate ->
                                             cursorCoordinateY = yCoordinate
                                         },
@@ -384,7 +390,12 @@ private fun ActiveMessageComposer(
                                     onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                                    onMentionButtonClicked = { messageCompositionHolder.startMention(onSearchMentionQueryChanged, onClearMentionSearchResult) },
+                                    onMentionButtonClicked = {
+                                        messageCompositionHolder.startMention(
+                                            onSearchMentionQueryChanged,
+                                            onClearMentionSearchResult
+                                        )
+                                    },
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                                     onPingOptionClicked = onPingOptionClicked,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,

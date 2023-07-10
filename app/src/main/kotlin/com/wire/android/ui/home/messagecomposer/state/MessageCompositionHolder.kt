@@ -251,7 +251,7 @@ class MessageCompositionHolder(
     }
 
     fun clearMessage() {
-        messageComposition.update { it.copy(messageTextFieldValue = TextFieldValue("")) }
+        messageComposition.update { it.copy(messageTextFieldValue = TextFieldValue(""), editMessageId = null) }
     }
 
     fun toMessageBundle() = messageComposition.value.toMessageBundle()

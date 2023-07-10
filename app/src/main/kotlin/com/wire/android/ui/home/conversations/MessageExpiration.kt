@@ -293,7 +293,6 @@ fun startDeletionTimer(
                 }
             }
         }
-
     }
 }
 

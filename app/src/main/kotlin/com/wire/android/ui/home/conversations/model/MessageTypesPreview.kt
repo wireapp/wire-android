@@ -370,7 +370,10 @@ fun PreviewImageMessageFailedUpload() {
         MessageItem(
             message = mockedImageUIMessage(
                 uploadStatus = Message.UploadStatus.FAILED_UPLOAD,
-                messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false), expirationStatus = ExpirationStatus.NotExpirable)
+                messageStatus = MessageStatus(
+                    flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
+                    expirationStatus = ExpirationStatus.NotExpirable
+                )
             ),
             audioMessagesState = emptyMap(),
             onLongClicked = {},

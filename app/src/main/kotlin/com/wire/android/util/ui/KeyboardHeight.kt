@@ -28,3 +28,4 @@ sealed class KeyboardHeight(open val height: Dp) {
 
     object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
     data class Known(override val height: Dp) : KeyboardHeight(height)
+}

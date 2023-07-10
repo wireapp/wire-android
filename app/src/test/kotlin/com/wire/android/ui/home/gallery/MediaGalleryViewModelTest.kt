@@ -274,7 +274,12 @@ class MediaGalleryViewModelTest {
                     any(),
                     any()
                 )
-            } returns CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(java.lang.RuntimeException())))
+            } returns CompletableDeferred(
+                MessageAssetResult.Failure(
+                    CoreFailure.Unknown(java.lang.RuntimeException()),
+                    false
+                )
+            )
             return this
         }
 

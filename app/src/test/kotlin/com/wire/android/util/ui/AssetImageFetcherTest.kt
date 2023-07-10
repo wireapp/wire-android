@@ -199,13 +199,25 @@ internal class AssetImageFetcherTest {
 
         fun withErrorResponse(data: ImageAsset): Arrangement {
             imageData = data
-            coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Failure(CoreFailure.Unknown(null)))
+            coEvery { getPublicAsset.invoke((any())) }.returns(
+                PublicAssetResult.Failure(
+                    CoreFailure.Unknown(null),
+                    false
+                )
+            )
             coEvery {
                 getPrivateAsset.invoke(
                     any(),
                     any()
                 )
-            }.returns(CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(null))))
+            }.returns(
+                CompletableDeferred(
+                    MessageAssetResult.Failure(
+                        CoreFailure.Unknown(null),
+                        false
+                    )
+                )
+            )
 
             return this
         }

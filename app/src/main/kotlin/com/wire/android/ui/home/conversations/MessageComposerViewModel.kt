@@ -48,7 +48,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
@@ -58,6 +57,7 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
@@ -146,14 +146,20 @@ class MessageComposerViewModel @Inject constructor(
         conversationId,
         ::updateDeleteDialogState
     ) { messageId, deleteForEveryone ->
-        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+        deleteMessage(
+            conversationId = conversationId,
+            messageId = messageId,
+            deleteForEveryone = deleteForEveryone
+        )
             .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
     }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
-    var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(AssetTooLargeDialogState.Hidden)
+    var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(
+        AssetTooLargeDialogState.Hidden
+    )
 
     init {
         initTempWritableVideoUri()
@@ -180,14 +186,19 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
-        observeSelfDeletingMessages(conversationId, considerSelfUserSettings = true).collect { selfDeletingStatus ->
-            messageComposerViewState.value = messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
+        observeSelfDeletingMessages(
+            conversationId,
+            considerSelfUserSettings = true
+        ).collect { selfDeletingStatus ->
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
         }
     }
 
     private fun fetchConversationClassificationType() = viewModelScope.launch {
         observeSecurityClassificationLabel(conversationId).collect { classificationType ->
-            messageComposerViewState.value = messageComposerViewState.value.copy(securityClassificationType = classificationType)
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -195,7 +206,8 @@ class MessageComposerViewModel @Inject constructor(
         // Check if there are messages to delete
         val messageToDeleteId = savedStateHandle.getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
 
-        val messageToDeleteIsSelf = savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
+        val messageToDeleteIsSelf =
+            savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
 
         val groupDeletedName = savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
 
@@ -226,11 +238,13 @@ class MessageComposerViewModel @Inject constructor(
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
                     with(messageBundle) {
                         val tempCachePath = kaliumFileSystem.rootCachePath
-                        val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
+                        val assetBundle =
+                            fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
                         if (assetBundle != null) {
                             // The max limit for sending assets changes between user and asset types.
                             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-                            val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
+                            val maxSizeLimitInBytes =
+                                getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
                             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
                                 sendAttachment(assetBundle)
                             } else {
@@ -277,7 +291,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    private fun sendAttachment(attachmentBundle: AssetBundle?) {
+    internal fun sendAttachment(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -330,13 +344,15 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
-            tempWritableVideoUri = fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
+            tempWritableVideoUri =
+                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
         }
     }
 
     private fun initTempWritableImageUri() {
         viewModelScope.launch {
-            tempWritableImageUri = fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
+            tempWritableImageUri =
+                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
         }
     }
 
@@ -346,12 +362,14 @@ class MessageComposerViewModel @Inject constructor(
                 contactMapper.fromOtherUser(it.user as OtherUser)
             }
 
-            messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = members)
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(mentionSearchResult = members)
         }
     }
 
     fun clearMentionSearchResult() {
-        messageComposerViewState.value = messageComposerViewState.value.copy(mentionSearchResult = emptyList())
+        messageComposerViewState.value =
+            messageComposerViewState.value.copy(mentionSearchResult = emptyList())
     }
 
     private fun setFileSharingStatus() {
@@ -390,7 +408,9 @@ class MessageComposerViewModel @Inject constructor(
         }
 
     private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
-        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
+        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
+            deleteMessageDialogsState = newValue(it)
+        }
 
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {
@@ -402,10 +422,12 @@ class MessageComposerViewModel @Inject constructor(
         enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
     }
 
-    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
-        messageComposerViewState.value = messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
-        persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
-    }
+    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) =
+        viewModelScope.launch {
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
+            persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
+        }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
         viewModelScope.launch {
@@ -419,7 +441,13 @@ class MessageComposerViewModel @Inject constructor(
                 command = NavigationCommand(
                     destination = NavigationItem.Gallery.getRouteWithArgs(
                         listOf(
-                            PrivateAsset(wireSessionImageLoader, conversationId, messageId, isSelfMessage, isEphemeral)
+                            PrivateAsset(
+                                wireSessionImageLoader,
+                                conversationId,
+                                messageId,
+                                isSelfMessage,
+                                isEphemeral
+                            )
                         )
                     )
                 )

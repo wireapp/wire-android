@@ -229,21 +229,14 @@ private fun buildAttachmentOptionItems(
                     R.drawable.ic_video
                 ) { captureVideoFlow?.launch() }
             )
-            add(
-                AttachmentOptionItem(
-                    isFileSharingEnabled,
-                    R.string.attachment_record_video,
-                    R.drawable.ic_video,
-                    onRecordAudioMessageClicked
-                )
-            )
             if (AudioMessagesIcon) {
                 add(
                     AttachmentOptionItem(
                         isFileSharingEnabled,
                         R.string.attachment_voice_message,
-                        R.drawable.ic_mic_on
-                    ) { recordAudioFlow.launch() }
+                        R.drawable.ic_mic_on,
+                        onRecordAudioMessageClicked
+                    )
                 )
             }
             if (ShareLocationIcon) {

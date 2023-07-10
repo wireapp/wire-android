@@ -389,9 +389,9 @@ private fun ActiveMessageComposer(
                                     additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
                                     selectedOption = additionalOptionStateHolder.selectedOption,
                                     isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
-                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+                                    isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
                                     onMentionButtonClicked = {
                                         messageCompositionHolder.startMention(
                                             onSearchMentionQueryChanged,
@@ -399,6 +399,7 @@ private fun ActiveMessageComposer(
                                         )
                                     },
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
+                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     onPingOptionClicked = onPingOptionClicked,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
                                     onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,

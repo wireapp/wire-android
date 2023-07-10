@@ -64,7 +64,7 @@ fun AttachmentOptionsComponent(
     isFileSharingEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Box(Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
+    Box(modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
         val attachmentOptions = buildAttachmentOptionItems(
             isFileSharingEnabled,
             tempWritableImageUri,

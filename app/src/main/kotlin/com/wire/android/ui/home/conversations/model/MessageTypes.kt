@@ -46,8 +46,8 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
-import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
+import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -178,16 +178,21 @@ private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<Lis
     return if (uiText is UIText.DynamicString) {
         val stringBuilder: StringBuilder = StringBuilder(uiText.value)
         val mentions = uiText.mentions.sortedBy { it.start }.reversed()
-        val mentionList = mentions.map {
-            val mentionName = uiText.value.substring(it.start, it.start + it.length)
-            stringBuilder.insert(it.start + it.length, MENTION_MARK)
-            stringBuilder.insert(it.start, MENTION_MARK)
-            DisplayMention(
-                it.userId,
-                it.length,
-                it.isSelfMention,
-                mentionName
-            )
+        val mentionList = mentions.mapNotNull {
+            // secured crash for mentions caused by web when text without mentions contains mention data
+            if (it.start + it.length < uiText.value.length) {
+                val mentionName = uiText.value.substring(it.start, it.start + it.length)
+                stringBuilder.insert(it.start + it.length, MENTION_MARK)
+                stringBuilder.insert(it.start, MENTION_MARK)
+                DisplayMention(
+                    it.userId,
+                    it.length,
+                    it.isSelfMention,
+                    mentionName
+                )
+            } else {
+                null
+            }
         }.reversed()
         Pair(mentionList, stringBuilder.toString())
     } else {

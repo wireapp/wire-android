@@ -268,7 +268,6 @@ private fun MessageMention.toUiMention(originalText: String) = UiMention(
 data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
     val editMessageId: String? = null,
-    val editMessage: TextFieldValue? = null,
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UiMention> = emptyList(),
@@ -364,7 +363,7 @@ data class MessageComposition(
     }
 
     fun toMessageBundle(): ComposableMessageBundle {
-        return if (editMessageId != null && editMessage != null) {
+        return if (editMessageId != null) {
             ComposableMessageBundle.EditMessageBundle(
                 originalMessageId = editMessageId,
                 newContent = messageTextFieldValue.text,

@@ -56,7 +56,9 @@ class MessageCompositionInputStateHolder(
     var inputVisibility by mutableStateOf(true)
         private set
 
-    var inputState: MessageCompositionInputState by mutableStateOf(MessageCompositionInputState.INACTIVE)
+    var inputState: MessageCompositionInputState by mutableStateOf(
+        MessageCompositionInputState.INACTIVE
+    )
 
     var inputSize by mutableStateOf(
         MessageCompositionInputSize.COLLAPSED
@@ -74,7 +76,6 @@ class MessageCompositionInputStateHolder(
         inputVisibility = true
         inputSize = MessageCompositionInputSize.COLLAPSED
         inputState = MessageCompositionInputState.ACTIVE
-        inputType = MessageCompositionType.Composing(messageComposition,messageType)
         if (isFocused) requestFocus() else clearFocus()
     }
 

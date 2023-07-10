@@ -149,7 +149,8 @@ fun PreviewDeletedMessage() {
                 it.copy(
                     header = it.header.copy(
                         messageStatus = MessageStatus(
-                            flowStatus = MessageFlowStatus.Delivered, isDeleted = true
+                            flowStatus = MessageFlowStatus.Delivered, isDeleted = true,
+                            expirationStatus = ExpirationStatus.NotExpirable
                         )
                     )
                 )
@@ -178,7 +179,8 @@ fun PreviewFailedSendMessage() {
                 it.copy(
                     header = it.header.copy(
                         messageStatus = MessageStatus(
-                            flowStatus = MessageFlowStatus.Failure.Send.Locally(false)
+                            flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
+                            expirationStatus = ExpirationStatus.NotExpirable
                         )
                     ),
                     messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
@@ -208,7 +210,8 @@ fun PreviewFailedDecryptionMessage() {
                 it.copy(
                     header = it.header.copy(
                         messageStatus = MessageStatus(
-                            flowStatus = MessageFlowStatus.Failure.Decryption(false)
+                            flowStatus = MessageFlowStatus.Failure.Decryption(false),
+                            expirationStatus = ExpirationStatus.NotExpirable
                         )
                     ),
                     messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
@@ -367,7 +370,7 @@ fun PreviewImageMessageFailedUpload() {
         MessageItem(
             message = mockedImageUIMessage(
                 uploadStatus = Message.UploadStatus.FAILED_UPLOAD,
-                messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false))
+                messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false), expirationStatus = ExpirationStatus.NotExpirable)
             ),
             audioMessagesState = emptyMap(),
             onLongClicked = {},
@@ -494,7 +497,10 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
             MessageItem(
                 message = mockMessageWithText.copy(
                     header = mockHeader.copy(
-                        messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false))
+                        messageStatus = MessageStatus(
+                            flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
+                            expirationStatus = ExpirationStatus.NotExpirable
+                        )
                     )
                 ),
                 showAuthor = false,

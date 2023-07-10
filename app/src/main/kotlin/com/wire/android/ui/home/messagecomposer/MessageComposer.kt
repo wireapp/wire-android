@@ -88,10 +88,9 @@ fun MessageComposer(
     tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
-        val interActionAvailability = messageComposerViewState.value.interactionAvailability
         val securityClassificationType = messageComposerViewState.value.securityClassificationType
 
-        when (interActionAvailability) {
+        when (messageComposerViewState.value.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
                 securityClassificationType = securityClassificationType
             )
@@ -114,12 +113,8 @@ fun MessageComposer(
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
                         onMessageSend()
                     },
-                    onPingOptionClicked = {
-                        onSendMessageBundle(Ping)
-                    },
-                    onAttachmentPicked = {
-                        onSendMessageBundle(AttachmentPickedBundle(it))
-                    },
+                    onPingOptionClicked = { onSendMessageBundle(Ping) },
+                    onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,

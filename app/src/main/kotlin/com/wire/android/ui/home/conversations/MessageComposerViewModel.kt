@@ -236,40 +236,7 @@ class MessageComposerViewModel @Inject constructor(
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
-                    with(messageBundle) {
-                        val tempCachePath = kaliumFileSystem.rootCachePath
-                        val assetBundle =
-                            fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-                        if (assetBundle != null) {
-                            // The max limit for sending assets changes between user and asset types.
-                            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-                            val maxSizeLimitInBytes =
-                                getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-                            if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                                sendAttachment(assetBundle)
-                            } else {
-                                if (attachmentUri.saveToDeviceIfInvalid) {
-                                    with(assetBundle) {
-                                        fileManager.saveToExternalMediaStorage(
-                                            fileName,
-                                            dataPath,
-                                            dataSize,
-                                            mimeType,
-                                            dispatchers
-                                        )
-                                    }
-                                }
-                                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                                    assetType = assetBundle.assetType,
-                                    maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                                )
-
-                            }
-                        } else {
-                            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-                        }
-                    }
+                    sendAttachment(messageBundle)
                 }
 
                 is ComposableMessageBundle.SendTextMessageBundle -> {
@@ -287,6 +254,44 @@ class MessageComposerViewModel @Inject constructor(
                     pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                     sendKnockUseCase(conversationId = conversationId, hotKnock = false)
                 }
+            }
+        }
+    }
+
+    private suspend fun sendAttachment(
+        messageBundle: ComposableMessageBundle.AttachmentPickedBundle
+    ) {
+        with(messageBundle) {
+            val tempCachePath = kaliumFileSystem.rootCachePath
+            val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
+            if (assetBundle != null) {
+                // The max limit for sending assets changes between user and asset types.
+                // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
+                val maxSizeLimitInBytes =
+                    getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
+                if (assetBundle.dataSize <= maxSizeLimitInBytes) {
+                    sendAttachment(assetBundle)
+                } else {
+                    if (attachmentUri.saveToDeviceIfInvalid) {
+                        with(assetBundle) {
+                            fileManager.saveToExternalMediaStorage(
+                                fileName,
+                                dataPath,
+                                dataSize,
+                                mimeType,
+                                dispatchers
+                            )
+                        }
+                    }
+                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                        assetType = assetBundle.assetType,
+                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
+                    )
+
+                }
+            } else {
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
             }
         }
     }
@@ -458,7 +463,6 @@ class MessageComposerViewModel @Inject constructor(
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
     }
-
 
     companion object {
         private const val sizeOf1MB = 1024 * 1024

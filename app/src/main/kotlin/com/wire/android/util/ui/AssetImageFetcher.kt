@@ -61,7 +61,7 @@ internal class AssetImageFetcher(
                     }
 
                     when (val result = getPublicAsset(data.userAssetId)) {
-                        is PublicAssetResult.Failure -> null
+                        is PublicAssetResult.Failure -> throw AssetImageException(result.isRetryNeeded)
                         is PublicAssetResult.Success -> {
                             drawableResultWrapper.toFetchResult(result.assetPath)
                         }
@@ -70,7 +70,7 @@ internal class AssetImageFetcher(
 
                 is ImageAsset.PrivateAsset -> {
                     when (val result = getPrivateAsset(data.conversationId, data.messageId).await()) {
-                        is MessageAssetResult.Failure -> null
+                        is MessageAssetResult.Failure -> throw AssetImageException(result.isRetryNeeded)
                         is MessageAssetResult.Success -> {
                             drawableResultWrapper.toFetchResult(result.decodedAssetPath)
                         }
@@ -116,3 +116,5 @@ data class AssetFetcherParameters(
     val data: ImageAsset,
     val options: Options
 )
+
+data class AssetImageException(val isRetryNeeded: Boolean) : Exception("Load asset image exception")

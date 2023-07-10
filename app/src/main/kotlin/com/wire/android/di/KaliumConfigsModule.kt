@@ -20,9 +20,11 @@
 
 package com.wire.android.di
 
+import android.content.Context
 import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
@@ -37,7 +39,7 @@ import kotlinx.coroutines.runBlocking
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(globalDataStore: GlobalDataStore): KaliumConfigs {
+    fun provideKaliumConfigs(globalDataStore: GlobalDataStore, context: Context): KaliumConfigs {
         val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
             BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
                 BuildFileRestrictionState.AllowSome(it)
@@ -66,7 +68,8 @@ class KaliumConfigsModule {
             selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES,
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
-            wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE
+            wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
+            isWebSocketEnabledByDefault = !context.isGoogleServicesAvailable()
         )
     }
 }

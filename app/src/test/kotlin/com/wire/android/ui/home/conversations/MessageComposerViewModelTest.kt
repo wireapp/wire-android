@@ -105,7 +105,9 @@ class MessageComposerViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when dialogs are dismissed`() {
         // Given
-        val (_, viewModel) = MessageComposerViewModelArrangement().arrange()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
 
         // When
         viewModel.deleteMessageHelper.onDeleteDialogDismissed()

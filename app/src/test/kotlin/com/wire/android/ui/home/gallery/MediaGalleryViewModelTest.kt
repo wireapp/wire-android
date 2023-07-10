@@ -277,7 +277,7 @@ class MediaGalleryViewModelTest {
             } returns CompletableDeferred(
                 MessageAssetResult.Failure(
                     CoreFailure.Unknown(java.lang.RuntimeException()),
-                    false
+                    isRetryNeeded = true
                 )
             )
             return this
@@ -299,7 +299,6 @@ class MediaGalleryViewModelTest {
             fileManager,
             deleteMessage
         )
-
     }
 
     private fun mockedConversationDetails(

@@ -41,6 +41,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -56,52 +57,52 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when trying to compute if the user requires password fails, then hasSAMLCred is false`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Failure(StorageFailure.DataNotFound))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertFalse(arrangement.viewModel.hasSAMLCred)
+        assertFalse(viewModel.hasSAMLCred)
     }
 
     @Test
     fun `when trying to compute if the user requires password return true, then hasSAMLCred is false`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertFalse(arrangement.viewModel.hasSAMLCred)
+        assertFalse(viewModel.hasSAMLCred)
     }
 
     @Test
     fun `when trying to compute if the user requires password return false, then hasSAMLCred is true`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertTrue(arrangement.viewModel.hasSAMLCred)
+        assertTrue(viewModel.hasSAMLCred)
     }
 
     @Test
     fun `when isAccountReadOnly return true, then managedByWire is false`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        assertFalse(arrangement.viewModel.managedByWire)
+        assertFalse(viewModel.managedByWire)
     }
 
     @Test
     fun `when isAccountReadOnly return false, then managedByWire is true`() = runTest {
-        val (arrangement, _) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(false)
             .arrange()
 
-        assertTrue(arrangement.viewModel.managedByWire)
+        assertTrue(viewModel.managedByWire)
     }
 
     @Test
@@ -138,9 +139,19 @@ class MyAccountViewModelTest {
     }
 
     @Test
-    fun `when user is managed by Wire, then edit handle is allowed`() = runTest {
+    fun `when user IS managed by Wire, then edit handle is allowed`() = runTest {
         val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(false)
+            .arrange()
+
+        assertTrue(viewModel.myAccountState.isEditHandleAllowed)
+    }
+
+    @Test
+    fun `when user IS NOT managed by Wire, then edit handle is not allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
             .arrange()
 
@@ -148,13 +159,25 @@ class MyAccountViewModelTest {
     }
 
     @Test
-    fun `when user is not managed by Wire, then edit handle is allowed`() = runTest {
+    fun `when the build does NOT accept email change, then edit email is not allowed`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withUserRequiresPasswordResult(Success(false))
+            .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(false)
+            .withEmailStatusByBuild(emailEditEnabled = false)
             .arrange()
 
-        assertTrue(viewModel.myAccountState.isEditHandleAllowed)
+        assertFalse(viewModel.myAccountState.isEditEmailAllowed)
+    }
+
+    @Test
+    fun `when the build does accept email change, then edit email IS allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(false)
+            .withEmailStatusByBuild(emailEditEnabled = true)
+            .arrange()
+
+        assertTrue(viewModel.myAccountState.isEditEmailAllowed)
     }
 
     private class Arrangement {
@@ -179,7 +202,7 @@ class MyAccountViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
-        val viewModel by lazy {
+        private val viewModel by lazy {
             MyAccountViewModel(
                 savedStateHandle,
                 getSelfUserUseCase,
@@ -202,6 +225,11 @@ class MyAccountViewModelTest {
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {
             coEvery { isPasswordRequiredUseCase() } returns result
+        }
+
+        fun withEmailStatusByBuild(emailEditEnabled: Boolean = true) = apply {
+            mockkObject(MyAccountViewModel.Companion)
+            every { MyAccountViewModel.Companion.isChangeEmailEnabledByBuild() } returns emailEditEnabled
         }
 
         fun withIsReadOnlyAccountResult(result: Boolean) = apply {

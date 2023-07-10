@@ -125,7 +125,9 @@ class ConversationMessagesViewModelTest {
         val secondMessage = mockUITextMessage(userName = "secondUserName")
         val updatedPagingData = PagingData.from(listOf(secondMessage))
 
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement().arrange()
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withObservableAudioMessagesState(flowOf())
+            .arrange()
 
         viewModel.conversationViewState.messages.test {
             arrangement.withPaginatedMessagesReturning(originalPagingData)
@@ -137,7 +139,9 @@ class ConversationMessagesViewModelTest {
 
     @Test
     fun `given a message and a reaction, when toggleReaction is called, then should call ToggleReactionUseCase`() = runTest {
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement().arrange()
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withObservableAudioMessagesState(flowOf())
+            .arrange()
 
         val messageId = "mID"
         val reaction = "🤌🏼"
@@ -153,6 +157,7 @@ class ConversationMessagesViewModelTest {
     fun `given getting UnreadEventsCount failed, then messages requested anyway`() = runTest {
         val (arrangement, _) = ConversationMessagesViewModelArrangement()
             .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Failure(StorageFailure.DataNotFound))
+            .withObservableAudioMessagesState(flowOf())
             .arrange()
 
         coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0) }
@@ -162,6 +167,7 @@ class ConversationMessagesViewModelTest {
     fun `given getting UnreadEventsCount succeed, then messages requested with corresponding lastReadIndex`() = runTest {
         val (arrangement, _) = ConversationMessagesViewModelArrangement()
             .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Success(12))
+            .withObservableAudioMessagesState(flowOf())
             .arrange()
 
         coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12) }

@@ -49,6 +49,10 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.network.NetworkState
+import com.wire.kalium.logic.network.NetworkStateObserver
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
@@ -97,7 +101,11 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override suspend fun execute(request: ImageRequest): ImageResult = TODO("Not yet implemented")
     override fun newBuilder(): ImageLoader.Builder = TODO("Not yet implemented")
     override fun shutdown() = TODO("Not yet implemented")
-})
+},
+    object : NetworkStateObserver {
+        override fun observeNetworkState(): StateFlow<NetworkState> = MutableStateFlow(NetworkState.ConnectedWithInternet)
+    }
+    )
 
 fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
     userAvatarData = UserAvatarData(

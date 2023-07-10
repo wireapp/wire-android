@@ -34,12 +34,16 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -95,8 +99,10 @@ class IncomingCallViewModelTest {
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { rejectCall(any()) } returns Unit
         coEvery { acceptCall(any()) } returns Unit
-        coEvery { callRinger.ring(any(), any()) } returns Unit
-        coEvery { callRinger.stop() } returns Unit
+        every { callRinger.ring(any(), any()) } returns Unit
+        every { callRinger.stop() } returns Unit
+        coEvery { incomingCalls.invoke() } returns flowOf(emptyList())
+        coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
 
         viewModel = IncomingCallViewModel(
             savedStateHandle = savedStateHandle,
@@ -114,13 +120,19 @@ class IncomingCallViewModelTest {
 
     @Test
     fun `given an incoming call, when the user decline the call, then the reject call use case is called`() {
+        clearAllMocks() // Ingores calls made during ViewModel initialization
+        every { callRinger.stop() } returns Unit
+        coEvery { rejectCall(conversationId = any()) } returns Unit
+        coEvery { navigationManager.navigateBack() } returns Unit
+
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
         verify(exactly = 1) { callRinger.stop() }
     }
     @Test
-    fun `given no ongoing call, when user tries to accept an incoming call, then invoke answerCall call use case`() {
+    fun `given no ongoing call, when user tries to accept an incoming call, then invoke answerCall call use case`() = runTest {
+        clearAllMocks() // Ingores calls made during ViewModel initialization
         viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = false)
 
         coEvery { navigationManager.navigate(command = any()) } returns Unit
@@ -128,6 +140,7 @@ class IncomingCallViewModelTest {
         every { callRinger.stop() } returns Unit
 
         viewModel.acceptCall()
+        advanceUntilIdle()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
         coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
@@ -139,6 +152,7 @@ class IncomingCallViewModelTest {
     @Test
     fun `given an ongoing call, when user tries to accept an incoming call, then show JoinCallAnywayDialog`() {
         viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
+        clearAllMocks() // Ingores calls made during ViewModel initialization
 
         viewModel.acceptCall()
 

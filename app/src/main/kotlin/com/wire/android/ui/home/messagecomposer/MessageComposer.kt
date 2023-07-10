@@ -345,7 +345,7 @@ private fun ActiveMessageComposer(
                                         onInputFocusedChanged = ::onInputFocusedChanged,
                                         onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                                         onCancelReply = messageCompositionHolder::clearReply,
-                                        onCancelEdit = { messageCompositionInputStateHolder.toComposing() },
+                                        onCancelEdit = ::cancelEdit,
                                         onMessageTextChanged = {
                                             messageCompositionHolder.setMessageText(
                                                 messageTextFieldValue = it,

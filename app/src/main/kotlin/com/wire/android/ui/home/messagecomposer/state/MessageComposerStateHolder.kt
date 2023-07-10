@@ -150,6 +150,11 @@ class MessageComposerStateHolder(
         isKeyboardVisible = isVisible
     }
 
+    fun cancelEdit() {
+        messageCompositionInputStateHolder.toComposing()
+        messageCompositionHolder.cancelEdit()
+    }
+
     fun showAdditionalOptionsMenu() {
         additionalOptionStateHolder.showAdditionalOptionsMenu()
         messageCompositionInputStateHolder.clearFocus()

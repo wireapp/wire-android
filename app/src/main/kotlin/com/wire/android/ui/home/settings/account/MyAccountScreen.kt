@@ -121,7 +121,7 @@ private fun <T : DestinationSpec<*>> handleNavResult(
     tryAgainSnackBarMessage: String,
     successSnackBarMessage: String,
     snackbarHostState: SnackbarHostState
-    ) {
+) {
     resultRecipient.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {

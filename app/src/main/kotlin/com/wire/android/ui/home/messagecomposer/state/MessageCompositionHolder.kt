@@ -160,7 +160,11 @@ class MessageCompositionHolder(
             )
             if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
                 onSearchMentionQueryChanged(textBetweenAtAndSelection.toString())
+            } else {
+                onClearMentionSearchResult()
             }
+        } else {
+            onClearMentionSearchResult()
         }
     }
 

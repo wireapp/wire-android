@@ -26,10 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
-import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -54,7 +54,7 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
     override val savedStateHandle: SavedStateHandle
-) : GroupDetailsBaseViewModel(savedStateHandle) {
+) : SavedStateViewModel(savedStateHandle) {
 
     private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId

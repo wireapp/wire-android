@@ -75,10 +75,15 @@ fun ChangeDisplayNameScreen(
             ::onNameChange,
             {
                 saveDisplayName(
-                    onFailure = { resultNavigator.setResult(false) },
-                    onSuccess = { resultNavigator.setResult(true) }
+                    onFailure = {
+                        resultNavigator.setResult(false)
+                        resultNavigator.navigateBack()
+                    },
+                    onSuccess = {
+                        resultNavigator.setResult(true)
+                        resultNavigator.navigateBack()
+                    }
                 )
-                resultNavigator.navigateBack()
             },
             ::onNameErrorAnimated,
             navigator::navigateBack

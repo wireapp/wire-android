@@ -45,10 +45,15 @@ fun EditConversationNameScreen(
             onGroupNameErrorAnimated = ::onGroupNameErrorAnimated,
             onContinuePressed = {
                 saveNewGroupName(
-                    onFailure = { resultNavigator.setResult(false) },
-                    onSuccess = { resultNavigator.setResult(true) }
+                    onFailure = {
+                        resultNavigator.setResult(false)
+                        resultNavigator.navigateBack()
+                    },
+                    onSuccess = {
+                        resultNavigator.setResult(true)
+                        resultNavigator.navigateBack()
+                    }
                 )
-                resultNavigator.navigateBack()
             },
             onBackPressed = navigator::navigateBack
         )

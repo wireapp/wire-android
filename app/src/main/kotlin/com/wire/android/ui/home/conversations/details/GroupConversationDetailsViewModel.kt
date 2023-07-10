@@ -176,7 +176,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     fun leaveGroup(
         leaveGroupState: GroupDialogState,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        onFailure: (UIText) -> Unit
     ) {
         viewModelScope.launch {
             requestInProgress = true
@@ -187,11 +188,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 )
             }
             when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure -> showSnackBarMessage(response.cause.uiText())
-
-                RemoveMemberFromConversationUseCase.Result.Success -> {
-                    onSuccess()
-                }
+                is RemoveMemberFromConversationUseCase.Result.Failure -> onFailure(response.cause.uiText())
+                RemoveMemberFromConversationUseCase.Result.Success -> onSuccess()
             }
             requestInProgress = false
         }
@@ -199,16 +197,15 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     fun deleteGroup(
         groupState: GroupDialogState,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        onFailure: (UIText) -> Unit
     ) {
         viewModelScope.launch {
             requestInProgress = true
             when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-                is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
-                Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
-                Result.Success -> {
-                    onSuccess()
-                }
+                is Result.Failure.GenericFailure -> onFailure(response.coreFailure.uiText())
+                Result.Failure.NoTeamFailure -> onFailure(CoreFailure.Unknown(null).uiText())
+                Result.Success -> onSuccess()
             }
             requestInProgress = false
         }
@@ -323,12 +320,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
         _groupOptionsState.value = newState
     }
 
-    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
+    override fun onMutingConversationStatusChange(
+        conversationId: ConversationId?,
+        status: MutedConversationStatus,
+        onMessage: (UIText) -> Unit
+    ) {
         conversationId?.let {
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> {
-                        showSnackBarMessage(UIText.StringResource(R.string.error_updating_muting_setting))
+                        onMessage(UIText.StringResource(R.string.error_updating_muting_setting))
                     }
 
                     ConversationUpdateStatusResult.Success -> {
@@ -339,29 +340,30 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onClearConversationContent(dialogState: DialogState) {
+    override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {
         viewModelScope.launch {
             requestInProgress = true
             with(dialogState) {
                 val result = withContext(dispatcher.io()) { clearConversationContent(conversationId) }
                 requestInProgress = false
-                clearContentSnackbarResult(result, conversationTypeDetail)
+                handleClearContentResult(result, conversationTypeDetail, onMessage)
             }
         }
     }
 
-    private suspend fun clearContentSnackbarResult(
+    private fun handleClearContentResult(
         clearContentResult: ClearConversationContentUseCase.Result,
-        conversationTypeDetail: ConversationTypeDetail
+        conversationTypeDetail: ConversationTypeDetail,
+        onMessage: (UIText) -> Unit
     ) {
         if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException(
             "Unsupported conversation type to clear content, something went wrong?"
         )
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))
+            onMessage(UIText.StringResource(R.string.group_content_delete_failure))
         } else {
-            showSnackBarMessage(UIText.StringResource(R.string.group_content_deleted))
+            onMessage(UIText.StringResource(R.string.group_content_deleted))
         }
     }
 

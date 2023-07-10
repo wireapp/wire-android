@@ -25,7 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
+import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -39,7 +39,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-) : GroupDetailsBaseViewModel(savedStateHandle) {
+) : SavedStateViewModel(savedStateHandle) {
 
     open val maxNumberOfItems get() = -1 // -1 means return whole list
 

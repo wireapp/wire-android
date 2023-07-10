@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -95,6 +96,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
@@ -111,6 +113,8 @@ fun GroupConversationDetailsScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val resources = LocalContext.current.resources
+    val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
 
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
@@ -139,28 +143,36 @@ fun GroupConversationDetailsScreen(
         },
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = {
-            viewModel.leaveGroup(it) {
-                resultNavigator.setResult(
-                    GroupConversationDetailsNavBackArgs(
-                        groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
-                        hasLeftGroup = true,
-                        conversationName = it.conversationName
+            viewModel.leaveGroup(
+                it,
+                onSuccess = {
+                    resultNavigator.setResult(
+                        GroupConversationDetailsNavBackArgs(
+                            groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
+                            hasLeftGroup = true,
+                            conversationName = it.conversationName
+                        )
                     )
-                )
-                resultNavigator.navigateBack()
-            }
+                    resultNavigator.navigateBack()
+                },
+                onFailure = showSnackbarMessage
+            )
         },
         onDeleteGroup = {
-            viewModel.deleteGroup(it) {
-                resultNavigator.setResult(
-                    GroupConversationDetailsNavBackArgs(
-                        groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
-                        isGroupDeleted = true,
-                        conversationName = it.conversationName
+            viewModel.deleteGroup(
+                it,
+                onSuccess = {
+                    resultNavigator.setResult(
+                        GroupConversationDetailsNavBackArgs(
+                            groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
+                            isGroupDeleted = true,
+                            conversationName = it.conversationName
+                        )
                     )
-                )
-                resultNavigator.navigateBack()
-            }
+                    resultNavigator.navigateBack()
+                },
+                onFailure = showSnackbarMessage
+            )
         },
         onEditGuestAccess = {
             navigator.navigate(
@@ -232,6 +244,7 @@ private fun GroupConversationDetailsContent(
     snackbarHostState: SnackbarHostState
 ) {
     val scope = rememberCoroutineScope()
+    val resources = LocalContext.current.resources
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -243,6 +256,14 @@ private fun GroupConversationDetailsContent(
 
     val sheetState = rememberWireModalSheetState()
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
+    val closeBottomSheetAndShowSnackbarMessage: (UIText) -> Unit = remember {
+        {
+            scope.launch {
+                sheetState.hide()
+                snackbarHostState.showSnackbar(it.asString(resources))
+            }
+        }
+    }
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
@@ -339,7 +360,8 @@ private fun GroupConversationDetailsContent(
                 onMutingConversationStatusChange = {
                     bottomSheetEventsHandler.onMutingConversationStatusChange(
                         conversationSheetState.conversationId,
-                        conversationSheetState.conversationSheetContent!!.mutingConversationState
+                        conversationSheetState.conversationSheetContent!!.mutingConversationState,
+                        closeBottomSheetAndShowSnackbarMessage
                     )
                 },
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
@@ -370,7 +392,7 @@ private fun GroupConversationDetailsContent(
         dialogState = clearConversationDialogState,
         isLoading = isLoading,
         onClearConversationContent = {
-            bottomSheetEventsHandler.onClearConversationContent(it)
+            bottomSheetEventsHandler.onClearConversationContent(it, closeBottomSheetAndShowSnackbarMessage)
         }
     )
 }

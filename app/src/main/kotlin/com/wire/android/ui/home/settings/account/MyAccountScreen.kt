@@ -46,6 +46,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
@@ -73,6 +74,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.toTitleCase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -80,7 +82,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyAccountScreen(
     navigator: Navigator,
-    resultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>,
+    changeDisplayNameResultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>,
+    changeHandleResultRecipient: ResultRecipient<ChangeHandleScreenDestination, Boolean>,
     viewModel: MyAccountViewModel = hiltViewModel(),
     deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
 ) {
@@ -90,8 +93,8 @@ fun MyAccountScreen(
         MyAccountContent(
             accountDetailItems = mapToUISections(
                 state = this,
-                navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
-                navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
+                navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
+                navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
                 navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) }
                 ),
             forgotPasswordUrl = this.changePasswordUrl,
@@ -105,14 +108,25 @@ fun MyAccountScreen(
         )
     }
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
-    val successSnackBarMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
+    val successDisplayNameSnackBarMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
+    val successHandleSnackBarMessage = stringResource(id = R.string.settings_myaccount_handle_updated)
+    handleNavResult(scope, changeDisplayNameResultRecipient, tryAgainSnackBarMessage, successDisplayNameSnackBarMessage, snackbarHostState)
+    handleNavResult(scope, changeHandleResultRecipient, tryAgainSnackBarMessage, successHandleSnackBarMessage, snackbarHostState)
+}
 
+@Composable
+private fun <T : DestinationSpec<*>> handleNavResult(
+    scope: CoroutineScope,
+    resultRecipient: ResultRecipient<T, Boolean>,
+    tryAgainSnackBarMessage: String,
+    successSnackBarMessage: String,
+    snackbarHostState: SnackbarHostState
+    ) {
     resultRecipient.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {
                 appLogger.i("Error with receiving navigation back args")
             }
-
             is NavResult.Value -> {
                 scope.launch {
                     if (result.value) {

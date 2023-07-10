@@ -93,9 +93,12 @@ import kotlinx.coroutines.launch
     navArgsDelegate = LoginNavArgs::class
 )
 @Composable
-fun LoginScreen(navigator: Navigator) {
-    val loginViewModel: LoginViewModel = hiltViewModel()
-    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+fun LoginScreen(
+    navigator: Navigator,
+    loginNavArgs: LoginNavArgs,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+) {
 
     LoginContent(
         navigator::navigateBack,
@@ -110,7 +113,7 @@ fun LoginScreen(navigator: Navigator) {
         { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
         loginViewModel,
         loginEmailViewModel,
-        ssoLoginResult = loginViewModel.ssoLoginResult
+        ssoLoginResult = loginNavArgs.ssoLoginResult
     )
 }
 

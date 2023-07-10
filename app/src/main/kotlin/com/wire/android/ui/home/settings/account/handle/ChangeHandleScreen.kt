@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
@@ -58,6 +59,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ChangeHandleScreen(
     navigator: Navigator,
+    resultNavigator: ResultBackNavigator<Boolean>,
     viewModel: ChangeHandleViewModel = hiltViewModel()
 ) {
     ChangeHandleContent(
@@ -65,7 +67,12 @@ fun ChangeHandleScreen(
         onHandleChanged = viewModel::onHandleChanged,
         onHandleErrorAnimated = viewModel::onHandleErrorAnimated,
         onBackPressed = navigator::navigateBack,
-        onSaveClicked = { viewModel.onSaveClicked(navigator::navigateBack) },
+        onSaveClicked = {
+            viewModel.onSaveClicked() {
+                resultNavigator.setResult(true)
+                resultNavigator.navigateBack()
+            }
+        },
         onErrorDismiss = viewModel::onErrorDismiss
     )
 }

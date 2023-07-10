@@ -21,25 +21,30 @@
 package com.wire.android.ui.home.conversations.details.menu
 
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("TooManyFunctions")
 interface GroupConversationDetailsBottomSheetEventsHandler {
-    fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
+    fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
     fun onAddConversationToFavourites(conversationId: ConversationId? = null)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
     fun onMoveConversationToArchive(conversationId: ConversationId? = null)
-    fun onClearConversationContent(dialogState: DialogState)
+    fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit)
 
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : GroupConversationDetailsBottomSheetEventsHandler {
-            override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
+            override fun onMutingConversationStatusChange(
+                conversationId: ConversationId?,
+                status: MutedConversationStatus,
+                onMessage: (UIText) -> Unit
+            ) {}
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun onMoveConversationToArchive(conversationId: ConversationId?) {}
-            override fun onClearConversationContent(conversationId: DialogState) {}
+            override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {}
         }
     }
 }

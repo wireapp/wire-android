@@ -65,7 +65,7 @@ data class UiMention(
 }
 
 @Composable
- fun MembersMentionList(
+fun MembersMentionList(
     membersToMention: List<Contact>,
     onMentionPicked: (Contact) -> Unit
 ) {
@@ -99,4 +99,3 @@ data class UiMention(
         }
     }
 }
-

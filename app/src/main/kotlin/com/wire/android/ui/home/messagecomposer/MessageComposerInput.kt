@@ -109,7 +109,7 @@ fun ActiveMessageComposerInput(
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onEditButtonClicked : () -> Unit,
+    onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onToggleInputSize: () -> Unit,
     onCancelReply: () -> Unit,

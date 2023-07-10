@@ -288,7 +288,6 @@ class MessageComposerViewModel @Inject constructor(
                         maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
                         savedToDevice = attachmentUri.saveToDeviceIfInvalid
                     )
-
                 }
             } else {
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)

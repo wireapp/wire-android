@@ -58,7 +58,7 @@ import com.wire.android.util.ui.KeyboardHeight
 @Composable
 fun AttachmentOptionsComponent(
     onAttachmentPicked: (UriAsset) -> Unit,
-    onRecordAudioMessageClicked : () -> Unit,
+    onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
@@ -188,7 +188,7 @@ private fun buildAttachmentOptionItems(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFilePicked: (UriAsset) -> Unit,
-    onRecordAudioMessageClicked : () -> Unit
+    onRecordAudioMessageClicked: () -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })

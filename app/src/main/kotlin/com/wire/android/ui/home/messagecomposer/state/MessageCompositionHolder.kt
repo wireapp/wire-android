@@ -264,7 +264,6 @@ class MessageCompositionHolder(
     }
 
     fun toMessageBundle() = messageComposition.value.toMessageBundle()
-
 }
 
 private fun MessageMention.toUiMention(originalText: String) = UiMention(

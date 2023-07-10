@@ -78,6 +78,4 @@ class AdditionalOptionStateHolder {
     fun toAttachmentAndAdditionalOptionsMenu() {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }
-
 }
-

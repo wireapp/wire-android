@@ -323,7 +323,9 @@ private fun ActiveMessageComposer(
                                 if (isClassifiedConversation) {
                                     Box(Modifier.wrapContentSize()) {
                                         VerticalSpace.x8()
-                                        SecurityClassificationBanner(securityClassificationType = messageComposerViewState.value.securityClassificationType)
+                                        SecurityClassificationBanner(
+                                            securityClassificationType = messageComposerViewState.value.securityClassificationType
+                                        )
                                     }
                                 }
 

@@ -259,10 +259,6 @@ class MessageCompositionHolder(
         }
     }
 
-    fun cancelEdit() {
-        messageComposition.update { it.copy(editMessageId = null) }
-    }
-
     fun toMessageBundle() = messageComposition.value.toMessageBundle()
 
 }

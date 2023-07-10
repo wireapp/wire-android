@@ -152,7 +152,7 @@ class MessageComposerStateHolder(
 
     fun cancelEdit() {
         messageCompositionInputStateHolder.toComposing()
-        messageCompositionHolder.cancelEdit()
+        messageCompositionHolder.clearMessage()
     }
 
     fun showAdditionalOptionsMenu() {

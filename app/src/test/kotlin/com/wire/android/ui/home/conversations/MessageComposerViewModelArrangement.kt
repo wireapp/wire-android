@@ -339,7 +339,10 @@ internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUs
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
             every { it.messageTime } returns MessageTime("")
-            every { it.messageStatus } returns MessageStatus(flowStatus = MessageFlowStatus.Sent, expirationStatus = ExpirationStatus.NotExpirable)
+            every { it.messageStatus } returns MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                expirationStatus = ExpirationStatus.NotExpirable
+            )
         }
         every { it.messageContent } returns null
     }

@@ -36,6 +36,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -87,6 +88,7 @@ class ConversationCallViewModelTest {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+        coEvery { observeConversationDetails(any()) } returns flowOf()
 
         conversationCallViewModel = ConversationCallViewModel(
             qualifiedIdMapper = qualifiedIdMapper,

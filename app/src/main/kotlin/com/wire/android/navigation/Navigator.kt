@@ -25,14 +25,17 @@ import com.wire.android.ui.NavGraphs
 
 class Navigator(val finish: () -> Unit, val navController: NavHostController) {
     fun navigate(navigationCommand: NavigationCommand) {
-        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED)
+        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED) {
             navController.navigateToItem(navigationCommand)
+        }
     }
 
     fun navigateBack() {
-        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED)
-            if (!navController.popBackStack())
+        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED) {
+            if (!navController.popBackStack()) {
                 finish()
+            }
+        }
     }
 }
 

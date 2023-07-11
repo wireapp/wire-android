@@ -926,6 +926,7 @@ URL serwera:
     <string name="backup_dialog_restore_backup_password_message">Ta kopia zapasowa jest chroniona has&#322;em.</string>
     <string name="send_feedback_choose_email">Wybierz dostawc&#281; poczty elektronicznej:</string>
     <string name="backup_dialog_create_backup_save">Zapisz plik</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Niekompatybilna kopia zapasowa</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">Ta kopia zapasowa zosta&#322;a utworzona przez nowsz&#261; lub starsz&#261; wersj&#281; Wire i nie mo&#380;e by&#263; przywr&#243;cona tutaj.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Nieprawid&#322;owy plik kopii zapasowej</string>

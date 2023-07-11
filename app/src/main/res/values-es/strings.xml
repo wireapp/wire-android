@@ -896,6 +896,7 @@ URL del backend:
     <string name="backup_dialog_restore_backup_password_message">Esta copia de seguridad est&#225; protegida por contrase&#241;a.</string>
     <string name="send_feedback_choose_email">Selecciona un proveedor de correo electr&#243;nico:</string>
     <string name="backup_dialog_create_backup_save">Guardar archivo</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Copia de seguridad incompatible</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">Esta copia de seguridad fue creada por una versi&#243;n m&#225;s reciente o m&#225;s antigua de Wire y no se puede restaurar aqu&#237;.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Archivo de copia de seguridad incorrecto</string>

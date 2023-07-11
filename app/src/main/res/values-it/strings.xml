@@ -896,6 +896,7 @@ URL del backend:
     <string name="backup_dialog_restore_backup_password_message">Questo backup &#232; protetto da password.</string>
     <string name="send_feedback_choose_email">Seleziona il provider di email:</string>
     <string name="backup_dialog_create_backup_save">Salva file</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Backup non compatibile</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">Questo backup &#232; stato creato da una versione pi&#249; recente o meno recente di Wire e non pu&#242; essere ripristinato qui.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">File di backup errato</string>

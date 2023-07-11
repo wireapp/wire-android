@@ -946,6 +946,7 @@
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="backup_dialog_create_backup_save">Save File</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Wrong backup file</string>

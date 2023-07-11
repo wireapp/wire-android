@@ -239,8 +239,7 @@
     <string name="login_password_label">PASSWORT</string>
     <string name="login_tab_email">E-MAIL-ADRESSE</string>
     <string name="login_tab_sso">SSO</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO-CODE</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Bitte geben Sie einen gültigen SSO-Code ein.</string>
     <string name="login_error_invalid_sso_code_format">Geben Sie einen gültigen SSO-Code ein</string>
     <string name="deleted_user_error_title">Gelöschtes Benutzerkonto</string>

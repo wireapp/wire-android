@@ -40,6 +40,7 @@ import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
 import kotlin.properties.Delegates
 
+@Suppress("TooManyFunctions")
 interface RecordAudioViewModel {
     fun getButtonState(): RecordAudioButtonState
     fun getDiscardDialogState(): RecordAudioDialogState
@@ -60,6 +61,7 @@ interface RecordAudioViewModel {
     fun onSliderPositionChange(position: Int)
 }
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class RecordAudioViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,

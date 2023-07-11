@@ -239,8 +239,7 @@
     <string name="login_password_label">LÖSENORD</string>
     <string name="login_tab_email">E-POSTADRESS</string>
     <string name="login_tab_sso">SSO-INLOGGNING</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO-KOD</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Vänligen fyll i en giltig SSO-kod.</string>
     <string name="login_error_invalid_sso_code_format">Fyll i en giltig SSO-kod</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>

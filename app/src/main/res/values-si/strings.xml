@@ -239,8 +239,7 @@
     <string name="login_password_label">මුරපදය</string>
     <string name="login_tab_email">වි-තැපෑල</string>
     <string name="login_tab_sso">SSO පිවිසුම</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO කේතය</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="login_error_invalid_sso_code_format">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="deleted_user_error_title">මකාදැමූ ගිණුමකි</string>

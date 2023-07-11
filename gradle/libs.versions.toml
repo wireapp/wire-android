@@ -40,7 +40,7 @@ compose-material = "1.4.3"
 compose-activity = "1.6.1"
 compose-compiler = "1.4.7"
 compose-constraint = "1.0.1"
-compose-material3 = "1.1.1"
+compose-material3 = "1.1.0"
 compose-navigation = "2.5.3"
 
 # Hilt

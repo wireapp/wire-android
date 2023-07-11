@@ -81,6 +81,15 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
             return@withContext size
         }
 
+    suspend fun copyToUri(
+        sourcePath: Path,
+        destinationUri: Uri,
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+    ) =
+        withContext(dispatcher.io()) {
+            context.contentResolver.copyFile(destinationUri, sourcePath)
+        }
+
     suspend fun getTempWritableVideoUri(
         tempCachePath: Path,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
@@ -102,23 +111,23 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         tempCachePath: Path,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
-            try {
-                val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
-                val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
-                val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-                val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
-                val assetSize = if (attachmentType == AttachmentType.IMAGE) {
-                    attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-                } else {
-                    // TODO: We should add also a video resampling logic soon, that way we could drastically reduce as well the number
-                    //  of video assets hitting the max limit.
-                    copyToPath(attachmentUri, fullTempAssetPath)
-                }
-                AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
-            } catch (e: IOException) {
-                appLogger.e("There was an error while obtaining the file from disk", e)
-                null
+        try {
+            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
+            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
+            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
+            val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
+            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
+                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
+            } else {
+                // TODO: We should add also a video resampling logic soon, that way we could drastically reduce as well the number
+                //  of video assets hitting the max limit.
+                copyToPath(attachmentUri, fullTempAssetPath)
             }
+            AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+        } catch (e: IOException) {
+            appLogger.e("There was an error while obtaining the file from disk", e)
+            null
+        }
     }
 
     companion object {

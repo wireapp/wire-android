@@ -50,7 +50,7 @@ sealed interface PasswordValidation {
 }
 
 sealed interface BackupCreationProgress {
-    object Finished : BackupCreationProgress
+    data class Finished(val fileName: String) : BackupCreationProgress
     data class InProgress(val value: Float = 0f) : BackupCreationProgress
     object Failed : BackupCreationProgress
 }

@@ -32,7 +32,6 @@ import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.services.ServicesManager
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -140,7 +139,7 @@ class WireActivityViewModelTest {
 
         coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
-        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
     }
 
     @Test
@@ -154,7 +153,7 @@ class WireActivityViewModelTest {
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
-        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
     }
 
     @Test
@@ -163,13 +162,14 @@ class WireActivityViewModelTest {
             .withNoCurrentSession()
             .withMigrationRequired()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
 
         assertEquals(MigrationScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
-        assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
+        assertEquals(null, viewModel.globalAppState.customBackendDialog)
     }
 
     @Test
@@ -677,8 +677,7 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
 
-        @MockK
-        private lateinit var authServerConfigProvider: AuthServerConfigProvider
+        var authServerConfigProvider: AuthServerConfigProvider = AuthServerConfigProvider()
 
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase

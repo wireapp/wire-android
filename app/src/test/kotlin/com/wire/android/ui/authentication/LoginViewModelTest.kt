@@ -27,6 +27,7 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import io.mockk.MockKAnnotations
@@ -55,6 +56,9 @@ class LoginViewModelTest {
     @MockK
     private lateinit var userDataStoreProvider: UserDataStoreProvider
 
+    @MockK
+    private lateinit var coreLogic: CoreLogic
+
     private lateinit var loginViewModel: LoginViewModel
 
     @BeforeEach
@@ -67,7 +71,8 @@ class LoginViewModelTest {
             savedStateHandle,
             clientScopeProviderFactory,
             authServerConfigProvider,
-            userDataStoreProvider
+            userDataStoreProvider,
+            coreLogic
         )
     }
 }

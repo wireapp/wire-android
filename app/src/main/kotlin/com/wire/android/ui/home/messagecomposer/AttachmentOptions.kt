@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.messagecomposer.attachment
+package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.annotation.DrawableRes
@@ -28,10 +26,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -46,7 +43,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.UseCameraAndWriteStorageRequestFlow
 import com.wire.android.util.permission.UseCameraRequestFlow
@@ -57,65 +53,49 @@ import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
+import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
-fun AttachmentOptions(
+fun AttachmentOptionsComponent(
     onAttachmentPicked: (UriAsset) -> Unit,
+    onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier
-    ) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
-        AttachmentOptionsComponent(
-            onAttachmentPicked,
+    Box(modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
+        val attachmentOptions = buildAttachmentOptionItems(
+            isFileSharingEnabled,
             tempWritableImageUri,
             tempWritableVideoUri,
-            isFileSharingEnabled,
+            onAttachmentPicked,
+            onRecordAudioMessageClicked
         )
-    }
-}
 
-@Composable
-private fun AttachmentOptionsComponent(
-    onAttachmentPicked: (UriAsset) -> Unit,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val attachmentOptions = buildAttachmentOptionItems(
-        isFileSharingEnabled,
-        tempWritableImageUri,
-        tempWritableVideoUri,
-        onAttachmentPicked
-    )
-
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
-        val minColumnWidth: Dp = dimensions().spacing80x
-        val minPadding: Dp = dimensions().spacing8x
-        val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
-        val params by remember(fullWidth, visibleAttachmentOptions.size) {
-            derivedStateOf {
-                calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
+            val minColumnWidth: Dp = dimensions().spacing80x
+            val minPadding: Dp = dimensions().spacing8x
+            val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
+            val params by remember(fullWidth, visibleAttachmentOptions.size) {
+                derivedStateOf {
+                    calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
+                }
             }
-        }
-        val (columns, contentPadding) = params
+            val (columns, contentPadding) = params
 
-        LazyVerticalGrid(
-            columns = columns,
-            modifier = modifier.fillMaxSize(),
-            contentPadding = contentPadding,
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            visibleAttachmentOptions.forEach { option ->
-                if (option.shouldShow) {
-                    item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+            LazyVerticalGrid(
+                columns = columns,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                visibleAttachmentOptions.forEach { option ->
+                    if (option.shouldShow) {
+                        item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+                    }
                 }
             }
         }
@@ -208,6 +188,7 @@ private fun buildAttachmentOptionItems(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFilePicked: (UriAsset) -> Unit,
+    onRecordAudioMessageClicked: () -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })
@@ -253,8 +234,9 @@ private fun buildAttachmentOptionItems(
                     AttachmentOptionItem(
                         isFileSharingEnabled,
                         R.string.attachment_voice_message,
-                        R.drawable.ic_mic_on
-                    ) { recordAudioFlow.launch() }
+                        R.drawable.ic_mic_on,
+                        onRecordAudioMessageClicked
+                    )
                 )
             }
             if (ShareLocationIcon) {
@@ -280,10 +262,12 @@ private data class AttachmentOptionItem(
 @Composable
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
+
     AttachmentOptionsComponent(
         {},
         isFileSharingEnabled = true,
         tempWritableImageUri = null,
-        tempWritableVideoUri = null
+        tempWritableVideoUri = null,
+        onRecordAudioMessageClicked = {},
     )
 }

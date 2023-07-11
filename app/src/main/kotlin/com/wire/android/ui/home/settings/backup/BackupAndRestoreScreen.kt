@@ -66,6 +66,7 @@ fun BackupAndRestoreScreen(
         onValidateBackupPassword = viewModel::validateBackupCreationPassword,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
+        onShareBackup = viewModel::shareBackup,
         onChooseBackupFile = viewModel::chooseBackupFileToRestore,
         onRestoreBackup = viewModel::restorePasswordProtectedBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
@@ -80,7 +81,8 @@ fun BackupAndRestoreContent(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
     onCreateBackup: (String) -> Unit,
-    onSaveBackup: () -> Unit,
+    onSaveBackup: (Uri) -> Unit,
+    onShareBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
     onChooseBackupFile: (Uri) -> Unit,
@@ -145,6 +147,7 @@ fun BackupAndRestoreContent(
                 onValidateBackupPassword = onValidateBackupPassword,
                 onCreateBackup = onCreateBackup,
                 onSaveBackup = onSaveBackup,
+                onShareBackup = onShareBackup,
                 onCancelCreateBackup = {
                     backupAndRestoreStateHolder.dismissDialog()
                     onCancelBackupCreation()
@@ -177,6 +180,7 @@ fun PreviewBackupAndRestoreScreen() {
         onValidateBackupPassword = {},
         onCreateBackup = {},
         onSaveBackup = {},
+        onShareBackup = {},
         onCancelBackupCreation = {},
         onCancelBackupRestore = {},
         onChooseBackupFile = {},

@@ -45,7 +45,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.home.messagecomposer.attachment.FileBrowserFlow
+import com.wire.android.ui.home.messagecomposer.FileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.roundToInt
 

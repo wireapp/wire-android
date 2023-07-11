@@ -29,12 +29,18 @@ import androidx.lifecycle.ViewModel
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
+import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
+import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,10 +52,22 @@ import javax.inject.Inject
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider,
-    private val userDataStoreProvider: UserDataStoreProvider
+    protected val authServerConfigProvider: AuthServerConfigProvider,
+    private val userDataStoreProvider: UserDataStoreProvider,
+    @KaliumCoreLogic protected val coreLogic: CoreLogic
 ) : ViewModel() {
-    val serverConfig = authServerConfigProvider.authServer.value
+    var serverConfig: ServerConfig.Links by mutableStateOf(authServerConfigProvider.authServer.value)
+        private set
+
+    init {
+        viewModelScope.launch {
+            authServerConfigProvider.authServer.collect {
+                serverConfig = it
+            }
+        }
+    }
+
+    protected suspend fun authScope(): AutoVersionAuthScopeUseCase.Result = coreLogic.versionedAuthenticationScope(serverConfig)()
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
@@ -59,7 +77,7 @@ open class LoginViewModel @Inject constructor(
 
     var loginState by mutableStateOf(
         LoginState(
-            ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
+            userInput = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(
                 if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
                 else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
@@ -72,7 +90,8 @@ open class LoginViewModel @Inject constructor(
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
-        protected set
+        @VisibleForTesting
+        set
 
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
@@ -150,6 +169,7 @@ fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
 }
 
+fun DomainLookupUseCase.Result.Failure.toLoginError() = LoginError.DialogError.GenericError(this.coreFailure)
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyExists

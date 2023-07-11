@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -36,6 +37,7 @@ import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -52,18 +54,19 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "ComplexMethod")
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
-    private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider,
-    private val dispatchers: DispatcherProvider,
+    @KaliumCoreLogic coreLogic: CoreLogic,
+    private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
     authServerConfigProvider,
-    userDataStoreProvider
+    userDataStoreProvider,
+    coreLogic
 ) {
 
     var secondFactorVerificationCodeState by mutableStateOf(
@@ -129,7 +132,8 @@ class LoginEmailViewModel @Inject constructor(
         }
     }
 
-    private suspend fun resolveCurrentAuthScope(): AuthenticationScope? = authScope(
+    private suspend fun resolveCurrentAuthScope(): AuthenticationScope? =
+        coreLogic.versionedAuthenticationScope(serverConfig).invoke(
         AutoVersionAuthScopeUseCase.ProxyAuthentication.UsernameAndPassword(
             ProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
         )

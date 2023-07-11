@@ -81,7 +81,7 @@ class BackupAndRestoreViewModel
 
         when (val result = createBackupFile(password)) {
             is CreateBackupResult.Success -> {
-                state = state.copy(backupCreationProgress = BackupCreationProgress.Finished)
+                state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
                 latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
                     result.backupFilePath,
                     result.backupFileName,
@@ -97,11 +97,18 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun saveBackup() = viewModelScope.launch(dispatcher.main()) {
+    fun shareBackup() = viewModelScope.launch(dispatcher.main()) {
         latestCreatedBackup?.let { backupData ->
             withContext(dispatcher.io()) {
                 fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
             }
+        }
+        state = BackupAndRestoreState.INITIAL_STATE
+    }
+
+    fun saveBackup(uri: Uri) = viewModelScope.launch(dispatcher.main()) {
+        latestCreatedBackup?.let { backupData ->
+            fileManager.copyToUri(backupData.path, uri, dispatcher)
         }
         state = BackupAndRestoreState.INITIAL_STATE
     }

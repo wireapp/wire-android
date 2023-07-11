@@ -22,6 +22,7 @@
 
 package com.wire.android.ui.settings.devices
 
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.user.UserId
@@ -32,16 +33,14 @@ import com.wire.kalium.logic.feature.client.SelfClientsResult
 import io.mockk.coEvery
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class SelfDevicesViewModelTest {
 
     @Test
@@ -82,8 +81,6 @@ class SelfDevicesViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            val scheduler = TestCoroutineScheduler()
-            Dispatchers.setMain(StandardTestDispatcher(scheduler))
 
             coEvery { currentClientId.invoke() } returns flowOf(TestClient.CLIENT_ID)
             coEvery { fetchSelfClientsFromRemote.invoke() } returns SelfClientsResult.Success(listOf(), null)

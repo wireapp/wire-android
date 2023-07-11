@@ -48,6 +48,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class InitiatingCallViewModelTest {
+
     @Test
     fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest {
         // Given

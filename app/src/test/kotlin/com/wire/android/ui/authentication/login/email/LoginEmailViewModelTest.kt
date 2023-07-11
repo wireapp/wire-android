@@ -35,6 +35,7 @@ import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -62,13 +63,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -106,6 +105,9 @@ class LoginEmailViewModelTest {
     private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
+    private lateinit var coreLogic: CoreLogic
+
+    @MockK
     private lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
 
     @MockK
@@ -133,7 +135,7 @@ class LoginEmailViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        every { authServerConfigProvider.authServer } returns MutableStateFlow((newServerConfig(1).links))
         coEvery {
             autoVersionAuthScopeUseCase(any())
         } returns AutoVersionAuthScopeUseCase.Result.Success(
@@ -142,13 +144,14 @@ class LoginEmailViewModelTest {
 
         every { authenticationScope.login } returns loginUseCase
         every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
+        every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
         loginViewModel = LoginEmailViewModel(
-            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             savedStateHandle,
             authServerConfigProvider,
             userDataStoreProvider,
+            coreLogic,
             TestDispatcherProvider()
         )
     }
@@ -170,9 +173,7 @@ class LoginEmailViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when logging in, then show loading`() {
-        val scheduler = TestCoroutineScheduler()
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
+    fun `given button is clicked, when logging in, then show loading`() = runTest {
         coEvery {
             loginUseCase(any(), any(), any(), any(), any())
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
@@ -185,18 +186,14 @@ class LoginEmailViewModelTest {
         loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
         loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
         loginViewModel.login(onSuccess)
-        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo true
-        scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
         loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
-    fun `given button is clicked and initial sync is completed, when login returns Success, then navigate to home screen`() {
-        val scheduler = TestCoroutineScheduler()
+    fun `given button is clicked and initial sync is completed, when login returns Success, then navigate to home screen`() = runTest {
         val password = "abc"
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
             AUTH_TOKEN,
             SSO_ID,
@@ -209,48 +206,49 @@ class LoginEmailViewModelTest {
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { loginViewModel.login(onSuccess) }
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { onSuccess(true) }
     }
 
     @Test
-    fun `given button is clicked and initial sync is not completed, when login returns Success, then navigate to initial sync screen`() {
-        val scheduler = TestCoroutineScheduler()
-        val password = "abc"
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
-            AUTH_TOKEN,
-            SSO_ID,
-            SERVER_CONFIG.id,
-            null
-        )
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+    fun `given button is clicked and initial sync is not completed, when login returns Success, then navigate to initial sync screen`() =
+        runTest {
+            val password = "abc"
+            coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
+                AUTH_TOKEN,
+                SSO_ID,
+                SERVER_CONFIG.id,
+                null
+            )
+            coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+            coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
-        loginViewModel.onPasswordChange(TextFieldValue(password))
+            loginViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { loginViewModel.login(onSuccess) }
+            loginViewModel.login(onSuccess)
+            advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { onSuccess(false) }
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() {
+    fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() = runTest {
         coEvery {
             loginUseCase(any(), any(), any(), any(), any())
         } returns AuthenticationResult.Failure.InvalidUserIdentifier
 
-        runTest { loginViewModel.login(onSuccess) }
-
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() {
+    fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() = runTest {
         coEvery {
             loginUseCase(
                 any(),
@@ -261,26 +259,27 @@ class LoginEmailViewModelTest {
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
 
-        runTest { loginViewModel.login(onSuccess) }
-
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
 
     @Test
-    fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
+    fun `given button is clicked, when login returns Generic error, then GenericError is passed`() = runTest {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery {
             loginUseCase(any(), any(), any(), any(), any())
         } returns AuthenticationResult.Failure.Generic(networkFailure)
 
-        runTest { loginViewModel.login(onSuccess) }
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
         (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
-    fun `given dialog is dismissed, when login returns DialogError, then hide error`() {
+    fun `given dialog is dismissed, when login returns DialogError, then hide error`() = runTest {
         coEvery {
             loginUseCase(
                 any(),
@@ -291,15 +290,15 @@ class LoginEmailViewModelTest {
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
 
-        runTest { loginViewModel.login(onSuccess) }
-
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
         loginViewModel.onDialogDismiss()
         loginViewModel.loginState.loginError shouldBe LoginError.None
     }
 
     @Test
-    fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
+    fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() = runTest {
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
             AUTH_TOKEN,
             SSO_ID,
@@ -315,7 +314,8 @@ class LoginEmailViewModelTest {
             )
         } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        runTest { loginViewModel.login(onSuccess) }
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
@@ -328,6 +328,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
 
         loginViewModel.login(onSuccess)
+        advanceUntilIdle()
 
         coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
     }
@@ -340,25 +341,33 @@ class LoginEmailViewModelTest {
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
 
         loginViewModel.login(onSuccess)
+        advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
         coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
     }
 
     @Test
-    fun `given login fails with 2fa missing and 2fa request fails generically, when logging in, then should NOT request user input`() = runTest {
-        val email = "some.email@example.org"
-        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
-        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic(
-            CoreFailure.Unknown(null)
-        )
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+    fun `given login fails with 2fa missing and 2fa request fails generically, when logging in, then should NOT request user input`() =
+        runTest {
+            val email = "some.email@example.org"
+            coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+            coEvery {
+                requestSecondFactorCodeUseCase(
+                    any(),
+                    any()
+                )
+            } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic(
+                CoreFailure.Unknown(null)
+            )
+            loginViewModel.onUserIdentifierChange(TextFieldValue(email))
 
-        loginViewModel.login(onSuccess)
+            loginViewModel.login(onSuccess)
+            advanceUntilIdle()
 
-        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
-        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
-    }
+            loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
+            coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+        }
 
     @Test
     fun `given 2fa code request fails with too many requests, when logging in, then should request user input`() = runTest {
@@ -370,6 +379,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
 
         loginViewModel.login(onSuccess)
+        advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
         coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
@@ -381,9 +391,8 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
         coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
-
         loginViewModel.login(onSuccess)
-
+        advanceUntilIdle()
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
     }
 
@@ -393,7 +402,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onUserIdentifierChange(TextFieldValue("some.email@example.org"))
 
         loginViewModel.login(onSuccess)
-
+        advanceUntilIdle()
         loginViewModel.secondFactorVerificationCodeState.isCurrentCodeInvalid shouldBe true
     }
 
@@ -413,7 +422,7 @@ class LoginEmailViewModelTest {
 
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
         loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true), onSuccess)
-
+        advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { onSuccess(any()) }
@@ -436,7 +445,7 @@ class LoginEmailViewModelTest {
 
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
         loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true), onSuccess)
-
+        advanceUntilIdle()
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
     }
 
@@ -456,7 +465,7 @@ class LoginEmailViewModelTest {
 
         loginViewModel.onUserIdentifierChange(TextFieldValue(email))
         loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true), onSuccess)
-
+        advanceUntilIdle()
         coVerify(exactly = 1) { getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
     }
 

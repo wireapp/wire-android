@@ -37,10 +37,11 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.EditMessageBundle
-import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.MessageBundle
+import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -104,7 +105,7 @@ class MessageComposerViewModel @Inject constructor(
     private val fileManager: FileManager
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var messageComposerViewState by mutableStateOf(MessageComposerViewState())
+    var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set
 
     var tempWritableVideoUri: Uri? = null
@@ -130,12 +131,20 @@ class MessageComposerViewModel @Inject constructor(
         conversationId,
         ::updateDeleteDialogState
     ) { messageId, deleteForEveryone, _ ->
-        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+        deleteMessage(
+            conversationId = conversationId,
+            messageId = messageId,
+            deleteForEveryone = deleteForEveryone
+        )
             .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
     }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
+
+    var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(
+        AssetTooLargeDialogState.Hidden
+    )
 
     init {
         initTempWritableVideoUri()
@@ -152,7 +161,7 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
         observeConversationInteractionAvailability(conversationId).collect { result ->
-            messageComposerViewState = messageComposerViewState.copy(
+            messageComposerViewState.value = messageComposerViewState.value.copy(
                 interactionAvailability = when (result) {
                     is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
                     is IsInteractionAvailableResult.Success -> result.interactionAvailability
@@ -162,40 +171,105 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
-        observeSelfDeletingMessages(conversationId, considerSelfUserSettings = true).collect { selfDeletingStatus ->
-            messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = selfDeletingStatus)
+        observeSelfDeletingMessages(
+            conversationId,
+            considerSelfUserSettings = true
+        ).collect { selfDeletingStatus ->
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
         }
     }
 
     private fun fetchConversationClassificationType() = viewModelScope.launch {
         observeSecurityClassificationLabel(conversationId).collect { classificationType ->
-            messageComposerViewState = messageComposerViewState.copy(securityClassificationType = classificationType)
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(securityClassificationType = classificationType)
         }
     }
 
-    fun sendMessage(sendMessageBundle: SendMessageBundle) {
+    fun sendMessage(messageBundle: MessageBundle) {
         viewModelScope.launch {
-            sendTextMessage(
-                conversationId = conversationId,
-                text = sendMessageBundle.message,
-                mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
-                quotedMessageId = sendMessageBundle.quotedMessageId
+            when (messageBundle) {
+                is ComposableMessageBundle.EditMessageBundle -> {
+                    with(messageBundle) {
+                        sendEditTextMessage(
+                            conversationId = conversationId,
+                            originalMessageId = originalMessageId,
+                            text = newContent,
+                            mentions = newMentions.map { it.intoMessageMention() },
+                        )
+                    }
+                }
+
+                is ComposableMessageBundle.AttachmentPickedBundle -> {
+                    handleAttachment(messageBundle)
+                }
+
+                is ComposableMessageBundle.SendTextMessageBundle -> {
+                    with(messageBundle) {
+                        sendTextMessage(
+                            conversationId = conversationId,
+                            text = message,
+                            mentions = mentions.map { it.intoMessageMention() },
+                            quotedMessageId = quotedMessageId
+                        )
+                    }
+                }
+
+                Ping -> {
+                    pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
+                    sendKnockUseCase(conversationId = conversationId, hotKnock = false)
+                }
+            }
+        }
+    }
+
+    private suspend fun handleAttachment(
+        messageBundle: ComposableMessageBundle.AttachmentPickedBundle
+    ) {
+        with(messageBundle) {
+            val tempCachePath = kaliumFileSystem.rootCachePath
+            val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
+            if (assetBundle != null) {
+                // The max limit for sending assets changes between user and asset types.
+                // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
+                val maxSizeLimitInBytes =
+                    getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
+                handleBundle(assetBundle, maxSizeLimitInBytes, messageBundle.attachmentUri)
+            } else {
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
+            }
+        }
+    }
+
+    private suspend fun handleBundle(
+        assetBundle: AssetBundle,
+        maxSizeLimitInBytes: Long,
+        attachmentUri: UriAsset
+    ) {
+        if (assetBundle.dataSize <= maxSizeLimitInBytes) {
+            sendAttachment(assetBundle)
+        } else {
+            if (attachmentUri.saveToDeviceIfInvalid) {
+                with(assetBundle) {
+                    fileManager.saveToExternalMediaStorage(
+                        fileName,
+                        dataPath,
+                        dataSize,
+                        mimeType,
+                        dispatchers
+                    )
+                }
+            }
+            assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                assetType = assetBundle.assetType,
+                maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                savedToDevice = attachmentUri.saveToDeviceIfInvalid
             )
         }
     }
 
-    fun sendEditMessage(editMessageBundle: EditMessageBundle) {
-        viewModelScope.launch {
-            sendEditTextMessage(
-                conversationId = conversationId,
-                originalMessageId = editMessageBundle.originalMessageId,
-                text = editMessageBundle.newContent,
-                mentions = editMessageBundle.newMentions.map { it.intoMessageMention() },
-            )
-        }
-    }
-
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
+    internal fun sendAttachment(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -240,13 +314,6 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendPing() {
-        viewModelScope.launch {
-            pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-            sendKnockUseCase(conversationId = conversationId, hotKnock = false)
-        }
-    }
-
     fun retrySendingMessage(messageId: String) {
         viewModelScope.launch {
             retryFailedMessage(messageId = messageId, conversationId = conversationId)
@@ -255,41 +322,44 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
-            tempWritableVideoUri = fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
+            tempWritableVideoUri =
+                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
         }
     }
 
     private fun initTempWritableImageUri() {
         viewModelScope.launch {
-            tempWritableImageUri = fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
+            tempWritableImageUri =
+                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
         }
     }
 
-    fun mentionMember(searchQuery: String?) {
+    fun searchMembersToMention(searchQuery: String) {
         viewModelScope.launch(dispatchers.io()) {
-            messageComposerViewState = messageComposerViewState.copy(
-                mentionsToSelect = if (searchQuery == null) {
-                    listOf()
-                } else {
-                    val members = membersToMention(conversationId, searchQuery)
-                    members.map {
-                        contactMapper.fromOtherUser(it.user as OtherUser)
-                    }
-                }
-            )
+            val members = membersToMention(conversationId, searchQuery).map {
+                contactMapper.fromOtherUser(it.user as OtherUser)
+            }
+
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(mentionSearchResult = members)
         }
+    }
+
+    fun clearMentionSearchResult() {
+        messageComposerViewState.value =
+            messageComposerViewState.value.copy(mentionSearchResult = emptyList())
     }
 
     private fun setFileSharingStatus() {
         // TODO: handle restriction when sending assets
         viewModelScope.launch {
-            messageComposerViewState = when (isFileSharingEnabled().state) {
+            messageComposerViewState.value = when (isFileSharingEnabled().state) {
                 FileSharingStatus.Value.Disabled,
                 is FileSharingStatus.Value.EnabledSome ->
-                    messageComposerViewState.copy(isFileSharingEnabled = false)
+                    messageComposerViewState.value.copy(isFileSharingEnabled = false)
 
                 FileSharingStatus.Value.EnabledAll ->
-                    messageComposerViewState.copy(isFileSharingEnabled = true)
+                    messageComposerViewState.value.copy(isFileSharingEnabled = true)
             }
         }
     }
@@ -316,7 +386,9 @@ class MessageComposerViewModel @Inject constructor(
         }
 
     private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
-        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
+        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
+            deleteMessageDialogsState = newValue(it)
+        }
 
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {
@@ -328,40 +400,15 @@ class MessageComposerViewModel @Inject constructor(
         enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
     }
 
-    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
-        messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
-        persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
-    }
-
-    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
-        val tempCachePath = kaliumFileSystem.rootCachePath
-        val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-        if (assetBundle != null) {
-            // The max limit for sending assets changes between user and asset types.
-            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-            val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-            if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle)
-            } else {
-                if (attachmentUri.saveToDeviceIfInvalid) {
-                    with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
-                }
-
-                messageComposerViewState = messageComposerViewState.copy(
-                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                        assetType = assetBundle.assetType,
-                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
-                    )
-                )
-            }
-        } else {
-            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
+    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) =
+        viewModelScope.launch {
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
+            persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
         }
-    }
 
     fun hideAssetTooLargeError() {
-        messageComposerViewState = messageComposerViewState.copy(assetTooLargeDialogState = AssetTooLargeDialogState.Hidden)
+        assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
     }
 
     companion object {

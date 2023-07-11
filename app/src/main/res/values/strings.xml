@@ -251,8 +251,7 @@
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO CODE</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
     <string name="deleted_user_error_title">Deleted account</string>
@@ -912,6 +911,7 @@
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="backup_dialog_create_backup_save">Save File</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Wrong backup file</string>

@@ -41,7 +41,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
@@ -255,17 +255,19 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissCustomBackendDialog() {
-        globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
+        globalAppState = globalAppState.copy(customBackendDialog = null)
     }
 
-    fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
-        viewModelScope.launch {
-            dismissCustomBackendDialog()
-            authServerConfigProvider.updateAuthServer(serverLinks)
-            if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
-                globalAppState = globalAppState.copy(maxAccountDialog = true)
-            } else {
-                navigateTo(NavigationCommand(WelcomeScreenDestination))
+    fun customBackendDialogProceedButtonClicked() {
+        if (globalAppState.customBackendDialog != null) {
+            viewModelScope.launch {
+                authServerConfigProvider.updateAuthServer(globalAppState.customBackendDialog!!.serverLinks)
+                dismissCustomBackendDialog()
+                if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
+                    globalAppState = globalAppState.copy(maxAccountDialog = true)
+                } else {
+                    navigateTo(NavigationCommand(WelcomeScreenDestination))
+                }
             }
         }
     }
@@ -351,8 +353,7 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun onCustomServerConfig(result: DeepLinkResult.CustomServerConfig) {
         loadServerConfig(result.url)?.let { serverLinks ->
             globalAppState = globalAppState.copy(
-                customBackendDialog = CustomBEDeeplinkDialogState(
-                    shouldShowDialog = true,
+                customBackendDialog = CustomServerDialogState(
                     serverLinks = serverLinks
                 )
             )
@@ -547,7 +548,7 @@ data class NewClientInfo(val date: String, val deviceInfo: UIText) {
 }
 
 data class GlobalAppState(
-    val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
+    val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,

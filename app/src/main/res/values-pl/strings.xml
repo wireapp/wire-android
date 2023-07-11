@@ -245,8 +245,7 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="login_password_label">HAS&#321;O</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">KOD SSO</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Wpisz poprawny kod SSO.</string>
     <string name="login_error_invalid_sso_code_format">Wpisz poprawny kod SSO</string>
     <string name="deleted_user_error_title">Usuni&#281;te konto</string>

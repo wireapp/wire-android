@@ -24,16 +24,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountBaseViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,7 +48,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
-    authScope: AutoVersionAuthScopeUseCase,
+    @KaliumCoreLogic coreLogic: CoreLogic,
     addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider,
@@ -58,7 +59,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     navigationManager,
     validateEmailUseCase,
     validatePasswordUseCase,
-    authScope,
+    coreLogic,
     addAuthenticatedUserUseCase,
     clientScopeProviderFactory,
     authServerConfigProvider,

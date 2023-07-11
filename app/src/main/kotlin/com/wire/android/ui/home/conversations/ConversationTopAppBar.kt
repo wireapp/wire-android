@@ -63,7 +63,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -99,7 +99,7 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (conversationInfoViewState.mlsVerificationStatus == MLSVerificationStatus.VERIFIED) {
+                if (conversationInfoViewState.mlsVerificationStatus == ConversationVerificationStatus.VERIFIED) {
                     Icon(
                         modifier = Modifier.padding(start = dimensions().spacing4x),
                         painter = painterResource(id = R.drawable.ic_mls_certificate_valid),

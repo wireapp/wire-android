@@ -28,11 +28,14 @@ import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ConversationProtocol
+import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -124,7 +127,7 @@ class ConversationInfoViewModelTest {
                     NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
                 )
             }
-        cancel()
+            cancel()
         }
     }
 
@@ -275,13 +278,18 @@ class ConversationInfoViewModelTest {
     fun `given conversation is not MLS verified, then mlsVerificationStatus is not verified`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(MLSVerificationStatus.NOT_VERIFIED)
+            .withMLSVerificationStatus(
+                ConversationVerificationStatusResult.Success(
+                    ConversationProtocol.MLS,
+                    ConversationVerificationStatus.NOT_VERIFIED
+                )
+            )
             .withSelfUser()
             .arrange()
 
         //then
         assertEquals(
-            MLSVerificationStatus.NOT_VERIFIED,
+            ConversationVerificationStatus.NOT_VERIFIED,
             viewModel.conversationInfoViewState.mlsVerificationStatus
         )
     }
@@ -290,13 +298,53 @@ class ConversationInfoViewModelTest {
     fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(MLSVerificationStatus.VERIFIED)
+            .withMLSVerificationStatus(
+                ConversationVerificationStatusResult.Success(
+                    ConversationProtocol.MLS,
+                    ConversationVerificationStatus.VERIFIED
+                )
+            )
             .withSelfUser()
             .arrange()
 
         //then
         assertEquals(
-            MLSVerificationStatus.VERIFIED,
+            ConversationVerificationStatus.VERIFIED,
+            viewModel.conversationInfoViewState.mlsVerificationStatus
+        )
+    }
+
+    @Test
+    fun `given conversation does not support MLS, then mlsVerificationStatus is null`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withMLSVerificationStatus(
+                ConversationVerificationStatusResult.Success(
+                    ConversationProtocol.PROTEUS,
+                    ConversationVerificationStatus.VERIFIED
+                )
+            )
+            .withSelfUser()
+            .arrange()
+
+        //then
+        assertEquals(
+            null,
+            viewModel.conversationInfoViewState.mlsVerificationStatus
+        )
+    }
+
+    @Test
+    fun `given Failure while getting MLS verification, then mlsVerificationStatus is null`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withMLSVerificationStatus(ConversationVerificationStatusResult.Failure(StorageFailure.DataNotFound))
+            .withSelfUser()
+            .arrange()
+
+        //then
+        assertEquals(
+            null,
             viewModel.conversationInfoViewState.mlsVerificationStatus
         )
     }

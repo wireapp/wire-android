@@ -23,7 +23,7 @@ package com.wire.android.ui.home.conversations.info
 import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.MLSVerificationStatus
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -35,7 +35,7 @@ data class ConversationInfoViewState(
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
     val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
-    val mlsVerificationStatus: MLSVerificationStatus = MLSVerificationStatus.NOT_VERIFIED
+    val mlsVerificationStatus: ConversationVerificationStatus? = null
 )
 
 sealed class ConversationDetailsData {

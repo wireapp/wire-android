@@ -241,8 +241,7 @@
     <string name="login_password_label">ПАРОЛЬ</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO CODE</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Пожалуйста, введите правильный SSO код.</string>
     <string name="login_error_invalid_sso_code_format">Введите правильный SSO код</string>
     <string name="deleted_user_error_title">Deleted account</string>

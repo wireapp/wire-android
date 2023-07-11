@@ -45,7 +45,7 @@ fun MessageComposeActions(
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean = true,
-    isMentionEnabled: Boolean = true,
+    isMentionActive: Boolean = true,
     isSelfDeletingSettingEnabled: Boolean = true,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -57,12 +57,14 @@ fun MessageComposeActions(
     if (isEditing) {
         EditingActions(
             selectedOption,
+            isMentionActive,
             onRichEditingButtonClicked,
             onMentionButtonClicked
         )
     } else {
         ComposingActions(
             selectedOption,
+            isMentionActive,
             isFileSharingEnabled,
             onAdditionalOptionButtonClicked,
             onRichEditingButtonClicked,
@@ -78,6 +80,7 @@ fun MessageComposeActions(
 @Composable
 private fun ComposingActions(
     selectedOption: AdditionalOptionSelectItem,
+    isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
@@ -113,15 +116,18 @@ private fun ComposingActions(
                 onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (PingIcon) PingAction(onPingButtonClicked)
-            AddMentionAction(onMentionButtonClicked)
+            AddMentionAction(
+                isActive = isMentionActive,
+                onButtonClicked = onMentionButtonClicked
+            )
         }
     }
 }
 
-
 @Composable
 fun EditingActions(
     selectedOption: AdditionalOptionSelectItem,
+    isMentionActive: Boolean,
     onRichEditingButtonClicked: () -> Unit,
     onMentionButtonClicked: () -> Unit
 ) {
@@ -138,7 +144,10 @@ fun EditingActions(
             isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
             onButtonClicked = onRichEditingButtonClicked
         )
-        AddMentionAction(onMentionButtonClicked)
+        AddMentionAction(
+            isActive = isMentionActive,
+            onButtonClicked = onMentionButtonClicked
+        )
     }
 }
 
@@ -184,18 +193,15 @@ private fun AddGifAction(onButtonClicked: () -> Unit) {
 }
 
 @Composable
-private fun AddMentionAction(onButtonClicked: () -> Unit) {
-    var isSelected by remember { mutableStateOf(false) }
-
+private fun AddMentionAction(isActive: Boolean, onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = {
-            isSelected = !isSelected
             onButtonClicked()
         },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_mention,
         contentDescription = R.string.content_description_conversation_mention_someone,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
+        state = if (isActive) WireButtonState.Selected else WireButtonState.Default
     )
 }
 
@@ -237,7 +243,7 @@ fun PreviewMessageActionsBox() {
         RichTextEditingAction(true, { })
         AddEmojiAction({})
         AddGifAction({})
-        AddMentionAction({})
+        AddMentionAction(false, {})
         PingAction {}
     }
 }

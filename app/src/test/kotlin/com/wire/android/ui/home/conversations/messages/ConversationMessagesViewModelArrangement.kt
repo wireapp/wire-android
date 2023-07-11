@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -132,6 +133,7 @@ class ConversationMessagesViewModelArrangement {
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+        coEvery { toggleReaction(any(), any(), any()) } returns Either.Right(Unit)
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)

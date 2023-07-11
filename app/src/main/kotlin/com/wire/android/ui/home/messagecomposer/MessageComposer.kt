@@ -36,6 +36,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +73,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSta
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.Ping
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -89,10 +92,9 @@ fun MessageComposer(
     tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
-        val interActionAvailability = messageComposerViewState.value.interactionAvailability
         val securityClassificationType = messageComposerViewState.value.securityClassificationType
 
-        when (interActionAvailability) {
+        when (messageComposerViewState.value.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
                 securityClassificationType = securityClassificationType
             )
@@ -115,12 +117,8 @@ fun MessageComposer(
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
                         onMessageSend()
                     },
-                    onPingOptionClicked = {
-                        onSendMessageBundle(Ping)
-                    },
-                    onAttachmentPicked = {
-                        onSendMessageBundle(AttachmentPickedBundle(it))
-                    },
+                    onPingOptionClicked = { onSendMessageBundle(Ping) },
+                    onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
                     onAudioRecorded = {
                         onSendMessageBundle(AttachmentPickedBundle(it))
                     },
@@ -150,14 +148,16 @@ private fun EnabledMessageComposer(
     tempWritableImageUri: Uri?,
 ) {
     with(messageComposerStateHolder) {
-        Row {
+        Column {
             val securityClassificationType = messageComposerViewState.value.securityClassificationType
+
             if (securityClassificationType != SecurityClassificationType.NONE) {
                 Box(Modifier.wrapContentSize()) {
                     VerticalSpace.x8()
                     SecurityClassificationBanner(securityClassificationType)
                 }
             }
+
             when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
@@ -218,6 +218,7 @@ private fun InactiveMessageComposer(
             ) {
                 messageListContent()
             }
+            Divider(color = MaterialTheme.wireColorScheme.outline)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -240,6 +241,7 @@ private fun InactiveMessageComposer(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun ActiveMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
@@ -333,7 +335,9 @@ private fun ActiveMessageComposer(
                                 if (isClassifiedConversation) {
                                     Box(Modifier.wrapContentSize()) {
                                         VerticalSpace.x8()
-                                        SecurityClassificationBanner(securityClassificationType = messageComposerViewState.value.securityClassificationType)
+                                        SecurityClassificationBanner(
+                                            securityClassificationType = messageComposerViewState.value.securityClassificationType
+                                        )
                                     }
                                 }
 
@@ -350,6 +354,7 @@ private fun ActiveMessageComposer(
                                         onInputFocusedChanged = ::onInputFocusedChanged,
                                         onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                                         onCancelReply = messageCompositionHolder::clearReply,
+                                        onCancelEdit = ::cancelEdit,
                                         onMessageTextChanged = {
                                             messageCompositionHolder.setMessageText(
                                                 messageTextFieldValue = it,
@@ -359,6 +364,10 @@ private fun ActiveMessageComposer(
                                         },
                                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                                         onSendButtonClicked = onSendButtonClicked,
+                                        onEditButtonClicked = {
+                                            onSendButtonClicked()
+                                            messageCompositionInputStateHolder.toComposing()
+                                        },
                                         onLineBottomYCoordinateChanged = { yCoordinate ->
                                             cursorCoordinateY = yCoordinate
                                         },
@@ -387,11 +396,17 @@ private fun ActiveMessageComposer(
                                     additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
                                     selectedOption = additionalOptionStateHolder.selectedOption,
                                     isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
-                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                                    onMentionButtonClicked = { messageCompositionHolder.startMention(onSearchMentionQueryChanged, onClearMentionSearchResult) },
+                                    isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
+                                    onMentionButtonClicked = {
+                                        messageCompositionHolder.startMention(
+                                            onSearchMentionQueryChanged,
+                                            onClearMentionSearchResult
+                                        )
+                                    },
                                     onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
+                                    onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                     onPingOptionClicked = onPingOptionClicked,
                                     onAdditionalOptionsMenuClicked = ::showAdditionalOptionsMenu,
                                     onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,
@@ -419,8 +434,9 @@ private fun ActiveMessageComposer(
                                 )
                         )
                     }
-                    // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
-                    // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
+                    // This covers the situation when the user switches from attachment options to the input keyboard -
+                    // there is a moment when both attachmentOptionsDisplayed and isKeyboardVisible are false,
+                    // but right after that keyboard shows, so if we know that
                     // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
                     else if (isTransitionToKeyboardOnGoing) {
                         Box(

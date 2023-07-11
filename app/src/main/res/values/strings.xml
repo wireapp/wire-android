@@ -914,6 +914,7 @@
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="backup_dialog_create_backup_save">Save File</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Wrong backup file</string>
@@ -1035,6 +1036,7 @@
     <string name="automatically_delete_message_after">Automatically delete message after:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Message will be deleted once you are online</string>
 
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
@@ -1089,6 +1091,18 @@
 
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message">Someone sent a Message</string>
+    <string name="settings_licenses_settings_label">License Information</string>
+    <string name="settings_myaccount_logout">Delete Account</string>
+    <string name="app_not_found_for_action">No Application has been found to do Action</string>
+    <string name="delete_acount_dialog_title">Delete Account</string>
+    <string name="delete_acount_dialog_text">If you continue, will send a message via email. Follow the link to permanetly delete your account.</string>
+
+    <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
+    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable. The device verification takes place automatically using a certificate and replaces the previous manual process. This way, you communicate with the highest security standard.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure. The device verification takes place automatically using a certificate.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
+    <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
+    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
 
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>

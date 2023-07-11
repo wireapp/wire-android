@@ -160,7 +160,11 @@ class MessageCompositionHolder(
             )
             if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
                 onSearchMentionQueryChanged(textBetweenAtAndSelection.toString())
+            } else {
+                onClearMentionSearchResult()
             }
+        } else {
+            onClearMentionSearchResult()
         }
     }
 
@@ -184,7 +188,14 @@ class MessageCompositionHolder(
     }
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        messageComposition.update { it.copy(messageTextFieldValue = (TextFieldValue(editMessageText))) }
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = (TextFieldValue(
+                    text = editMessageText,
+                    selection = TextRange(editMessageText.length)
+                ))
+            )
+        }
         messageComposition.update { it.copy(selectedMentions = mentions.map { it.toUiMention(editMessageText) }) }
         messageComposition.update { it.copy(editMessageId = messageId) }
     }
@@ -244,11 +255,15 @@ class MessageCompositionHolder(
     }
 
     fun clearMessage() {
-        messageComposition.update { it.copy(messageTextFieldValue = TextFieldValue("")) }
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = TextFieldValue(""),
+                editMessageId = null
+            )
+        }
     }
 
     fun toMessageBundle() = messageComposition.value.toMessageBundle()
-
 }
 
 private fun MessageMention.toUiMention(originalText: String) = UiMention(
@@ -261,7 +276,6 @@ private fun MessageMention.toUiMention(originalText: String) = UiMention(
 data class MessageComposition(
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
     val editMessageId: String? = null,
-    val editMessage: TextFieldValue? = null,
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UiMention> = emptyList(),
@@ -357,10 +371,10 @@ data class MessageComposition(
     }
 
     fun toMessageBundle(): ComposableMessageBundle {
-        return if (editMessageId != null && editMessage != null) {
+        return if (editMessageId != null) {
             ComposableMessageBundle.EditMessageBundle(
                 originalMessageId = editMessageId,
-                newContent = editMessage.text,
+                newContent = messageTextFieldValue.text,
                 newMentions = selectedMentions
             )
         } else {

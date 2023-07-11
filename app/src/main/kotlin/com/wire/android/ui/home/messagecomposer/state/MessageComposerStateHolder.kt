@@ -145,7 +145,9 @@ class MessageComposerStateHolder(
         val isKeyboardClosed = isKeyboardVisible && !isVisible
 
         if (isKeyboardClosed) {
-            if (!modalBottomSheetState.isVisible && additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden) {
+            if (!modalBottomSheetState.isVisible &&
+                additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
+            ) {
                 messageCompositionInputStateHolder.toInActive()
             } else {
                 messageCompositionInputStateHolder.clearFocus()
@@ -153,6 +155,11 @@ class MessageComposerStateHolder(
         }
 
         isKeyboardVisible = isVisible
+    }
+
+    fun cancelEdit() {
+        messageCompositionInputStateHolder.toComposing()
+        messageCompositionHolder.clearMessage()
     }
 
     fun showAdditionalOptionsMenu() {

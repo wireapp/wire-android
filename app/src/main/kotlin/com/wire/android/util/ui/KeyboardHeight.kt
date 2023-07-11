@@ -15,16 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 package com.wire.android.util.ui
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 sealed class KeyboardHeight(open val height: Dp) {
-    object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
-    data class Known(override val height: Dp) : KeyboardHeight(height)
-
     companion object {
         val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
     }
+
+    object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
+    data class Known(override val height: Dp) : KeyboardHeight(height)
 }

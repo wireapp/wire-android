@@ -109,9 +109,11 @@ fun ActiveMessageComposerInput(
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onToggleInputSize: () -> Unit,
     onCancelReply: () -> Unit,
+    onCancelEdit: () -> Unit,
     onInputFocusedChanged: (Boolean) -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
@@ -119,7 +121,9 @@ fun ActiveMessageComposerInput(
 ) {
     if (inputVisiblity) {
         Column(
-            modifier = modifier.wrapContentSize()
+            modifier = modifier
+                .wrapContentSize()
+                .background(inputType.backgroundColor())
         ) {
             Divider(color = MaterialTheme.wireColorScheme.outline)
             CollapseButton(
@@ -187,8 +191,8 @@ fun ActiveMessageComposerInput(
             when (inputType) {
                 is MessageCompositionType.Editing -> {
                     MessageEditActions(
-                        onEditSaveButtonClicked = { },
-                        onEditCancelButtonClicked = { },
+                        onEditSaveButtonClicked = onEditButtonClicked,
+                        onEditCancelButtonClicked = onCancelEdit,
                         editButtonEnabled = inputType.isEditButtonEnabled
                     )
                 }

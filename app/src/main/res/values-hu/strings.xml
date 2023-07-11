@@ -239,8 +239,7 @@
     <string name="login_password_label">JELSZÓ</string>
     <string name="login_tab_email">E-MAIL</string>
     <string name="login_tab_sso">SSO BEJELENTKEZÉS</string>
-    <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO KÓD</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Kérjük, adjon meg egy érvényes SSO kódot.</string>
     <string name="login_error_invalid_sso_code_format">Érvényes SSO kód megadása</string>
     <string name="deleted_user_error_title">Törölt fiók</string>

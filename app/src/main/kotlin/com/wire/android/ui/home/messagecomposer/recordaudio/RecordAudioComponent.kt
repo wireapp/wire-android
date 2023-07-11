@@ -27,10 +27,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -41,6 +46,7 @@ import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun RecordAudioComponent(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onAudioRecorded: (UriAsset) -> Unit,
     onCloseRecordAudio: () -> Unit
 ) {
@@ -51,6 +57,28 @@ fun RecordAudioComponent(
         startRecording = { viewModel.startRecording(context = context) },
         showPermissionsDeniedDialog = viewModel::showPermissionsDeniedDialog
     )
+
+    // If `lifecycleOwner` changes, dispose and reset the effect
+    DisposableEffect(lifecycleOwner) {
+        // Create an observer that triggers our remembered callbacks
+        // for sending analytics events
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP &&
+                viewModel.getButtonState() != RecordAudioButtonState.ENABLED
+            ) {
+                viewModel.stopRecording()
+                viewModel.discardRecording(onCloseRecordAudio = {})
+            }
+        }
+
+        // Add the observer to the lifecycle
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // When the effect leaves the Composition, remove the observer
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Box(
         modifier = Modifier

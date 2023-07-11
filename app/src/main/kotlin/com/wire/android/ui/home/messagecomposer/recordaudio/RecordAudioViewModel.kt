@@ -30,6 +30,8 @@ import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -66,7 +68,8 @@ interface RecordAudioViewModel {
 class RecordAudioViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
-    private val getAssetSizeLimit: GetAssetSizeLimitUseCase
+    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val currentScreenManager: CurrentScreenManager
 ) : RecordAudioViewModel, ViewModel() {
 
     private var state: RecordAudioState by mutableStateOf(RecordAudioState())
@@ -95,6 +98,21 @@ class RecordAudioViewModelImpl @Inject constructor(
         viewModelScope.launch {
             assetLimitInMegabyte = getAssetSizeLimit(isImage = false)
             observeAudioFileSize()
+
+            launch {
+                observeScreenState()
+            }
+        }
+    }
+
+    private suspend fun observeScreenState() {
+        currentScreenManager.observeCurrentScreen(viewModelScope).collect { currentScreen ->
+            if (state.buttonState == RecordAudioButtonState.RECORDING &&
+                currentScreen == CurrentScreen.InBackground
+            ) {
+                stopRecording()
+                discardRecording(onCloseRecordAudio = {})
+            }
         }
     }
 
@@ -166,10 +184,12 @@ class RecordAudioViewModelImpl @Inject constructor(
     }
 
     override fun stopRecording() {
-        state = state.copy(
-            buttonState = RecordAudioButtonState.READY_TO_SEND
-        )
-        mediaRecorder?.stop()
+        if (state.buttonState == RecordAudioButtonState.RECORDING) {
+            state = state.copy(
+                buttonState = RecordAudioButtonState.READY_TO_SEND
+            )
+            mediaRecorder?.stop()
+        }
         mediaRecorder?.release()
     }
 

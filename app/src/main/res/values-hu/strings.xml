@@ -894,6 +894,7 @@
     <string name="backup_dialog_restore_backup_password_message">Ez a biztonsági másolat jelszóvédett.</string>
     <string name="send_feedback_choose_email">\"Válasszon e-mail szolgáltatót:\"</string>
     <string name="backup_dialog_create_backup_save">Fájl mentése</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">A biztonsági másolat nem kompatibilis</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">Ez a mentés egy újabb vagy elavultabb Wire verzióval készült, és nem lehet itt visszaállítani.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Rossz mentés</string>

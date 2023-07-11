@@ -147,7 +147,7 @@ fun ConversationScreen(
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
-    val messageComposerState = rememberMessageComposerStateHolder(
+    val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         modalBottomSheetState = conversationScreenState.modalBottomSheetState
     )
@@ -423,7 +423,7 @@ private fun ConversationScreen(
     requestMentions: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     conversationScreenState: ConversationScreenState,
-    messageComposerState: MessageComposerStateHolder,
+    messageComposerStateHolder: MessageComposerStateHolder,
 ) {
     val context = LocalContext.current
 
@@ -442,8 +442,8 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerState::toReply,
-                onEditClick = { messageId, messageText, mentions -> messageComposerState.toEdit(messageId, messageText, mentions) },
+                onReplyClick = messageComposerStateHolder::toReply,
+                onEditClick = { messageId, messageText, mentions -> messageComposerStateHolder.toEdit(messageId, messageText, mentions) },
                 onShareAssetClick = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
@@ -497,7 +497,7 @@ private fun ConversationScreen(
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
-                    messageComposerStateHolder = messageComposerState,
+                    messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
                     onAssetItemClicked = onAssetItemClicked,
@@ -761,7 +761,7 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 fun PreviewConversationScreen() {
     val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerState = rememberMessageComposerStateHolder(
+    val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         modalBottomSheetState = conversationScreenState.modalBottomSheetState
     )
@@ -799,6 +799,6 @@ fun PreviewConversationScreen() {
         requestMentions = {},
         onClearMentionSearchResult = {},
         conversationScreenState = conversationScreenState,
-        messageComposerState = messageComposerState,
+        messageComposerStateHolder = messageComposerStateHolder,
     )
 }

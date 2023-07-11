@@ -26,11 +26,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.navArgs
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -48,7 +50,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateAccountCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val authScope: AutoVersionAuthScopeUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider
@@ -68,7 +70,7 @@ class CreateAccountCodeViewModel @Inject constructor(
     fun resendCode() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -127,7 +129,7 @@ class CreateAccountCodeViewModel @Inject constructor(
     private fun onCodeContinue(onSuccess: () -> Unit) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

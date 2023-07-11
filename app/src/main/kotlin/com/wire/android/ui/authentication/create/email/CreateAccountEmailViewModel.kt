@@ -25,9 +25,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -45,7 +47,7 @@ class CreateAccountEmailViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val fetchApiVersion: FetchApiVersionUseCase,
     private val validateEmail: ValidateEmailUseCase,
-    private val authScope: AutoVersionAuthScopeUseCase
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
@@ -107,7 +109,7 @@ class CreateAccountEmailViewModel @Inject constructor(
     fun onTermsAccept(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

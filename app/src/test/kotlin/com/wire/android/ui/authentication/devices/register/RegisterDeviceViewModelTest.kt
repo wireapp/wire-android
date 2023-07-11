@@ -35,21 +35,18 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -106,7 +103,7 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when registering the client, then show loading`() {
+    fun `given button is clicked, when registering the client, then show loading`() = runTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
@@ -116,15 +113,14 @@ class RegisterDeviceViewModelTest {
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
         registerDeviceViewModel.state.loading shouldBeEqualTo false
         registerDeviceViewModel.onContinue()
+        advanceUntilIdle()
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
         registerDeviceViewModel.state.loading shouldBeEqualTo true
     }
 
     @Test
-    fun `given button is clicked, when request returns Success, then navigateToHomeScreen is called`() {
-        val scheduler = TestCoroutineScheduler()
+    fun `given button is clicked, when request returns Success, then navigateToHomeScreen is called`() = runTest {
         val password = "abc"
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery {
             registerClientUseCase(
                 any()
@@ -134,8 +130,8 @@ class RegisterDeviceViewModelTest {
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { registerDeviceViewModel.onContinue() }
-
+        registerDeviceViewModel.onContinue()
+        advanceUntilIdle()
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
@@ -145,18 +141,16 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when request returns TooManyClients Error, then navigateToRemoveDevicesScreen is called`() {
-        val scheduler = TestCoroutineScheduler()
+    fun `given button is clicked, when request returns TooManyClients Error, then navigateToRemoveDevicesScreen is called`() = runTest {
         val password = "abc"
-        Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
-        runTest { registerDeviceViewModel.onContinue() }
-
+        registerDeviceViewModel.onContinue()
+        advanceUntilIdle()
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
@@ -166,24 +160,25 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when password is invalid, then UsernameInvalidError is passed`() {
+    fun `given button is clicked, when password is invalid, then UsernameInvalidError is passed`() = runTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.InvalidCredentials.InvalidPassword
         coEvery { navigationManager.navigate(any()) } returns Unit
 
-        runTest { registerDeviceViewModel.onContinue() }
-
+        registerDeviceViewModel.onContinue()
+        advanceUntilIdle()
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.InvalidCredentialsError::class
     }
 
     @Test
-    fun `given button is clicked, when request returns Generic error, then GenericError is passed`() {
+    fun `given button is clicked, when request returns Generic error, then GenericError is passed`() = runTest {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { registerClientUseCase(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
-        runTest { registerDeviceViewModel.onContinue() }
+        registerDeviceViewModel.onContinue()
+        advanceUntilIdle()
 
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         val error = registerDeviceViewModel.state.error as RegisterDeviceError.GenericError
@@ -191,13 +186,13 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `given dialog is dismissed, when state error is DialogError, then hide error`() {
+    fun `given dialog is dismissed, when state error is DialogError, then hide error`() = runTest {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { registerClientUseCase(any()) } returns
                 RegisterClientResult.Failure.Generic(networkFailure)
 
-        runTest { registerDeviceViewModel.onContinue() }
-
+        registerDeviceViewModel.onContinue()
+        advanceUntilIdle()
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         registerDeviceViewModel.onErrorDismiss()
         registerDeviceViewModel.state.error shouldBe RegisterDeviceError.None

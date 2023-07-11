@@ -32,16 +32,10 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
-import org.junit.Ignore
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -86,7 +80,7 @@ class LoginViewModelTest {
             coreLogic
         )
     }
-
+    /*
     @Ignore
     @Test
     fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() = runTest {
@@ -95,4 +89,6 @@ class LoginViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
+
+     */
 }

@@ -894,6 +894,7 @@
     <string name="backup_dialog_restore_backup_password_message">මෙම උපස්ථය මුරපදයකින් ආරක්‍ෂිතයි.</string>
     <string name="send_feedback_choose_email">\"වි-තැපැල් ප්‍රතිපාදක තෝරන්න:\"</string>
     <string name="backup_dialog_create_backup_save">ගොනුව සුරකින්න</string>
+    <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">නොගැළපෙන උපස්ථයකි</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">නව හෝ යල් පැන ගිය වයර් අනුවාදයකින් මෙම උපස්ථය සාදා තිබෙන හෙයින් මෙහි ප්‍රත්‍යර්පණය කිරීමට නොහැකිය.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">වැරදි උපස්ථයකි</string>

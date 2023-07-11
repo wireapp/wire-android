@@ -20,7 +20,7 @@
 
 package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 
 data class EditSelfDeletingMessagesState(
     val isEnabled: Boolean = false,

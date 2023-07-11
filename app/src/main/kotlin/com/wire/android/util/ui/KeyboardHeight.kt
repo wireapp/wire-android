@@ -15,16 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.model
 
-import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.data.user.UserId
+package com.wire.android.util.ui
 
-data class UiMention(
-    val start: Int,
-    val length: Int,
-    val userId: UserId,
-    val handler: String // name that should be displayed in a message
-) {
-    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+sealed class KeyboardHeight(open val height: Dp) {
+    companion object {
+        val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
+    }
+
+    object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
+    data class Known(override val height: Dp) : KeyboardHeight(height)
 }

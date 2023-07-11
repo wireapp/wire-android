@@ -20,7 +20,7 @@
 
 package com.wire.android.ui.home
 
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import kotlin.time.Duration
 
 data class FeatureFlagState(

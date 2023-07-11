@@ -241,8 +241,7 @@ URL del backend:
     <string name="login_password_label">CONTRASE&#209;A</string>
     <string name="login_tab_email">CORREO ELECTR&#211;NICO</string>
     <string name="login_tab_sso">INICIO DE SESI&#211;N SSO</string>
-    <string name="login_sso_code_placeholder">Wire-</string>
-    <string name="login_sso_code_label">C&#211;DIGO SSO</string>
+    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Por favor, ingrese un c&#243;digo SSO v&#225;lido.</string>
     <string name="login_error_invalid_sso_code_format">Ingrese un c&#243;digo SSO v&#225;lido.</string>
     <string name="deleted_user_error_title">Cuenta eliminada</string>

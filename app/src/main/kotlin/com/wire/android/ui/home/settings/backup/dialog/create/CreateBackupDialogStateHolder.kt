@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 
 @Stable
 class CreateBackupDialogStateHolder {
@@ -36,21 +35,30 @@ class CreateBackupDialogStateHolder {
 
     var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(INITIAL_STEP)
 
-    var isBackupFinished: Boolean by mutableStateOf(false)
+    val isBackupFinished: Boolean
+        get() = currentBackupDialogStep is BackUpDialogStep.Finished
 
-    var backupProgress: Float by mutableStateOf(0.0f)
+    val backupProgress: Float
+        get() = when (val step = currentBackupDialogStep) {
+            BackUpDialogStep.SetPassword -> 0f
+            is BackUpDialogStep.CreatingBackup -> step.progress
+            BackUpDialogStep.Failure -> 1f
+            is BackUpDialogStep.Finished -> 1f
+        }
 
-    fun toCreateBackup() {
-        currentBackupDialogStep = BackUpDialogStep.CreatingBackup
+    val backupFileName: String
+        get() = (currentBackupDialogStep as? BackUpDialogStep.Finished)?.fileName ?: ""
+
+    fun toCreatingBackup(progress: Float = 0f) {
+        currentBackupDialogStep = BackUpDialogStep.CreatingBackup(progress)
     }
 
     fun toBackupFailure() {
         currentBackupDialogStep = BackUpDialogStep.Failure
     }
 
-    fun toFinished() {
-        isBackupFinished = true
-        backupProgress = 1.0f
+    fun toFinished(fileName: String) {
+        currentBackupDialogStep = BackUpDialogStep.Finished(fileName)
     }
 }
 
@@ -61,6 +69,7 @@ fun rememberBackUpDialogState(): CreateBackupDialogStateHolder {
 
 sealed interface BackUpDialogStep {
     object SetPassword : BackUpDialogStep
-    object CreatingBackup : BackUpDialogStep
+    data class CreatingBackup(val progress: Float) : BackUpDialogStep
+    data class Finished(val fileName: String) : BackUpDialogStep
     object Failure : BackUpDialogStep
 }

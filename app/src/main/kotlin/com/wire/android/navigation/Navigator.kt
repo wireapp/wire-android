@@ -19,15 +19,20 @@ package com.wire.android.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import com.wire.android.ui.NavGraphs
 
 class Navigator(val finish: () -> Unit, val navController: NavHostController) {
     fun navigate(navigationCommand: NavigationCommand) {
-        navController.navigateToItem(navigationCommand)
+        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED)
+            navController.navigateToItem(navigationCommand)
     }
+
     fun navigateBack() {
-        if (!navController.popBackStack()) finish()
+        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED)
+            if (!navController.popBackStack())
+                finish()
     }
 }
 

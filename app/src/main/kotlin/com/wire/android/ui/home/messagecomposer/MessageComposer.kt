@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,6 +84,7 @@ import kotlin.time.Duration
 @Composable
 fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
+    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
@@ -112,6 +114,7 @@ fun MessageComposer(
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
                     messageComposerStateHolder = messageComposerStateHolder,
+                    snackbarHostState = snackbarHostState,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
@@ -136,6 +139,7 @@ fun MessageComposer(
 @Composable
 private fun EnabledMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
+    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
     onPingOptionClicked: () -> Unit,
@@ -162,6 +166,7 @@ private fun EnabledMessageComposer(
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
                         messageComposerStateHolder = messageComposerStateHolder,
+                        snackbarHostState = snackbarHostState,
                         tempWritableVideoUri = tempWritableVideoUri,
                         tempWritableImageUri = tempWritableImageUri,
                         messageListContent = messageListContent,
@@ -172,7 +177,7 @@ private fun EnabledMessageComposer(
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                         onClearMentionSearchResult = onClearMentionSearchResult,
-                        onPingOptionClicked = onPingOptionClicked,
+                        onPingOptionClicked = onPingOptionClicked
                     )
                 }
 
@@ -245,6 +250,7 @@ private fun InactiveMessageComposer(
 @Composable
 private fun ActiveMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
+    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
@@ -420,6 +426,7 @@ private fun ActiveMessageComposer(
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                            snackbarHostState = snackbarHostState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseRecordAudio = ::toCloseAudioRecording,
                             onAttachmentPicked = onAttachmentPicked,
@@ -484,6 +491,7 @@ fun MessageComposerPreview() {
         onClearMentionSearchResult = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
-        tempWritableImageUri = null
+        tempWritableImageUri = null,
+        snackbarHostState = SnackbarHostState()
     )
 }

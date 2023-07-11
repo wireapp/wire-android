@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,6 +112,7 @@ fun AdditionalOptionSubMenu(
     onRecordAudioMessageClicked: () -> Unit,
     onCloseRecordAudio: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
+    snackbarHostState: SnackbarHostState,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     tempWritableImageUri: Uri?,
@@ -131,6 +133,7 @@ fun AdditionalOptionSubMenu(
 
         AdditionalOptionSubMenuState.RecordAudio -> {
             RecordAudioComponent(
+                snackbarHostState = snackbarHostState,
                 onAudioRecorded = onAudioRecorded,
                 onCloseRecordAudio = onCloseRecordAudio
             )

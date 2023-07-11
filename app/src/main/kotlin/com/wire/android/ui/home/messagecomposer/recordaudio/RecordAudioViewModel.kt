@@ -32,9 +32,14 @@ import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -48,6 +53,7 @@ interface RecordAudioViewModel {
     fun getDiscardDialogState(): RecordAudioDialogState
     fun getPermissionsDeniedDialogState(): RecordAudioDialogState
     fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState
+    fun getInfoMessage(): SharedFlow<UIText>
     fun getOutputFile(): File?
     fun getAudioState(): AudioState
     fun startRecording(context: Context)
@@ -69,6 +75,7 @@ class RecordAudioViewModelImpl @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val currentScreenManager: CurrentScreenManager
 ) : RecordAudioViewModel, ViewModel() {
 
@@ -77,6 +84,10 @@ class RecordAudioViewModelImpl @Inject constructor(
     private var assetLimitInMegabyte by Delegates.notNull<Long>()
 
     private var mediaRecorder: MediaRecorder? = null
+
+    private var hasOngoingCall: Boolean = false
+
+    private val infoMessage = MutableSharedFlow<UIText>()
 
     override fun getButtonState(): RecordAudioButtonState = state.buttonState
 
@@ -92,6 +103,8 @@ class RecordAudioViewModelImpl @Inject constructor(
 
     override fun getAudioState(): AudioState = state.audioState
 
+    override fun getInfoMessage(): SharedFlow<UIText> = infoMessage.asSharedFlow()
+
     init {
         observeAudioPlayerState()
 
@@ -102,6 +115,15 @@ class RecordAudioViewModelImpl @Inject constructor(
             launch {
                 observeScreenState()
             }
+            launch {
+                observeUserIsInCall()
+            }
+        }
+    }
+
+    private suspend fun observeUserIsInCall() {
+        observeEstablishedCalls.invoke().collect {
+            hasOngoingCall = it.isNotEmpty()
         }
     }
 
@@ -127,21 +149,27 @@ class RecordAudioViewModelImpl @Inject constructor(
     }
 
     override fun startRecording(context: Context) {
-        state = state.copy(
-            buttonState = RecordAudioButtonState.RECORDING
-        )
+        if (hasOngoingCall) {
+            viewModelScope.launch {
+                infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
+            }
+        } else {
+            state = state.copy(
+                buttonState = RecordAudioButtonState.RECORDING
+            )
 
-        setUpMediaRecorder(context = context)
+            setUpMediaRecorder(context = context)
 
-        try {
-            mediaRecorder?.prepare()
-            mediaRecorder?.start()
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
-            appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")
-        } catch (e: IOException) {
-            e.printStackTrace()
-            appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}")
+            try {
+                mediaRecorder?.prepare()
+                mediaRecorder?.start()
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")
+            } catch (e: IOException) {
+                e.printStackTrace()
+                appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}")
+            }
         }
     }
 

@@ -72,7 +72,6 @@ import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel

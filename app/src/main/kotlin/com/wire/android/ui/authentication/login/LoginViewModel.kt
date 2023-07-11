@@ -75,7 +75,6 @@ open class LoginViewModel @Inject constructor(
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
     }
-    val ssoLoginResult = loginNavArgs.ssoLoginResult
 
     var loginState by mutableStateOf(
         LoginState(

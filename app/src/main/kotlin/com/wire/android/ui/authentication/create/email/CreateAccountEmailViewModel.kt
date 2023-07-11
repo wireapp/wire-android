@@ -55,8 +55,6 @@ class CreateAccountEmailViewModel @Inject constructor(
     var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))
         private set
 
-    val isPersonalAccountFlow = createAccountNavArgs.flowType == CreateAccountFlowType.CreatePersonalAccount
-
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
     fun tosUrl(): String = authServerConfigProvider.authServer.value.tos

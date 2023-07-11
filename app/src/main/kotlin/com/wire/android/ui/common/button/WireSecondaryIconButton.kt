@@ -62,8 +62,7 @@ fun WireSecondaryIconButton(
             Icon(
                 painter = painterResource(id = iconResource),
                 contentDescription = stringResource(contentDescription),
-                modifier = Modifier
-                    .size(iconSize)
+                modifier = Modifier.size(iconSize)
             )
         },
         shape = shape,

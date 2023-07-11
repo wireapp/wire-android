@@ -27,7 +27,7 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId

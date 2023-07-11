@@ -15,23 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings.about
+package com.wire.android.ui.home.settings.about.licenses
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import androidx.compose.runtime.Stable
+import com.mikepenz.aboutlibraries.entity.Library
 
-@HiltViewModel
-class LicensesViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
-) : ViewModel() {
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-}
+@Stable
+data class LicensesState(
+    val libraryList: List<Library> = emptyList()
+)

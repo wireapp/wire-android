@@ -287,7 +287,7 @@ class ConversationInfoViewModelTest {
             .withSelfUser()
             .arrange()
 
-        //then
+        // then
         assertEquals(
             ConversationVerificationStatus.NOT_VERIFIED,
             viewModel.conversationInfoViewState.mlsVerificationStatus
@@ -307,7 +307,7 @@ class ConversationInfoViewModelTest {
             .withSelfUser()
             .arrange()
 
-        //then
+        // then
         assertEquals(
             ConversationVerificationStatus.VERIFIED,
             viewModel.conversationInfoViewState.mlsVerificationStatus
@@ -331,7 +331,7 @@ class ConversationInfoViewModelTest {
             .withSelfUser()
             .arrange()
 
-        //then
+        // then
         assertEquals(
             null,
             viewModel.conversationInfoViewState.mlsVerificationStatus
@@ -350,7 +350,7 @@ class ConversationInfoViewModelTest {
             .withSelfUser()
             .arrange()
 
-        //then
+        // then
         assertEquals(
             null,
             viewModel.conversationInfoViewState.mlsVerificationStatus
@@ -374,7 +374,7 @@ class ConversationInfoViewModelTest {
             .withSelfUser()
             .arrange()
 
-        //then
+        // then
         assertEquals(
             ConversationVerificationStatus.NOT_VERIFIED,
             viewModel.conversationInfoViewState.proteusVerificationStatus
@@ -384,5 +384,4 @@ class ConversationInfoViewModelTest {
             viewModel.conversationInfoViewState.mlsVerificationStatus
         )
     }
-
 }

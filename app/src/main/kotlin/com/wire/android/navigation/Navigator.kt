@@ -24,18 +24,32 @@ import androidx.navigation.NavHostController
 import com.wire.android.ui.NavGraphs
 
 class Navigator(val finish: () -> Unit, val navController: NavHostController) {
-    fun navigate(navigationCommand: NavigationCommand) {
-        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED) {
-            navController.navigateToItem(navigationCommand)
-        }
+    private val isResumed: Boolean
+        get() = navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED
+
+    /**
+     * Navigates to the specified screen.
+     * @param navigationCommand command containing the destination and back stack mode
+     * @param onlyIfResumed if true, will ignore the navigation action if the current `NavBackStackEntry`
+     * is not in the RESUMED state. This avoids duplicate navigation actions and should be used when it's the user action
+     * or when we simply don't want to make more than one navigation action at a time (skip some destinations instantly).
+     * More here: https://composedestinations.rafaelcosta.xyz/navigation/basics#avoiding-duplicate-navigation
+     */
+    fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean = true) {
+        if (onlyIfResumed && !isResumed) return
+        navController.navigateToItem(navigationCommand)
     }
 
-    fun navigateBack() {
-        if (navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED) {
-            if (!navController.popBackStack()) {
-                finish()
-            }
-        }
+    /**
+     * Navigates back to the previous screen.
+     * @param onlyIfResumed if true, will ignore the navigation action if the current `NavBackStackEntry`
+     * is not in the RESUMED state. This avoids duplicate navigation actions and should be used when it's the user action
+     * or when we simply don't want to make more than one navigation action at a time (skip some destinations instantly).
+     * More here: https://composedestinations.rafaelcosta.xyz/navigation/basics#avoiding-duplicate-navigation
+     */
+    fun navigateBack(onlyIfResumed: Boolean = true) {
+        if (onlyIfResumed && !isResumed) return
+        if (!navController.popBackStack()) finish()
     }
 }
 

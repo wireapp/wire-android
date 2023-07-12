@@ -32,11 +32,6 @@ data class NavigationCommand(
      * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.
      */
     val backStackMode: BackStackMode = BackStackMode.NONE,
-
-    /**
-     * A list of arguments to be stored in the savedStateHandle in case we want to pass information to the previous screen
-     */
-    val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
 )
 
 enum class BackStackMode {

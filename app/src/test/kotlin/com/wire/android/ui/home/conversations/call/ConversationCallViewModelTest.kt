@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -35,6 +36,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -70,6 +72,9 @@ class ConversationCallViewModelTest {
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK
+    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
     @BeforeEach
@@ -83,6 +88,7 @@ class ConversationCallViewModelTest {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+        coEvery { observeConversationDetails(any()) } returns flowOf()
 
         conversationCallViewModel = ConversationCallViewModel(
             qualifiedIdMapper = qualifiedIdMapper,
@@ -93,7 +99,8 @@ class ConversationCallViewModelTest {
             answerCall = joinCall,
             endCall = endCall,
             observeSyncState = observeSyncState,
-            isConferenceCallingEnabled = isConferenceCallingEnabled
+            isConferenceCallingEnabled = isConferenceCallingEnabled,
+            observeConversationDetails = observeConversationDetails
         )
     }
 

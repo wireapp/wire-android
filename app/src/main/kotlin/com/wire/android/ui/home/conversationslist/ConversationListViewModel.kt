@@ -516,7 +516,7 @@ private fun ConversationDetails.toConversationItem(
                 conversation.mutedStatus,
                 unreadEventCount
             ),
-            hasOnGoingCall = hasOngoingCall,
+            hasOnGoingCall = hasOngoingCall && this.isSelfUserMember,
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
             teamId = conversation.teamId,

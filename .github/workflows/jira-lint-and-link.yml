@@ -6,6 +6,8 @@ on:
 jobs:
   add-jira-description:
     runs-on: ubuntu-latest
+    # Run only if the PR is not from a Fork / external contributor
+    if: github.repository_owner == 'wireapp'
     steps:
       - uses: cakeinpanic/jira-description-action@v0.3.2
         name: jira-description-action

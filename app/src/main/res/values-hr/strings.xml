@@ -19,15 +19,15 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
+    <string name="app_version">Verzija aplikacije</string>
     <string name="build_variant_name">Build variant</string>
-    <string name="label_new">New</string>
-    <string name="label_login">Login</string>
-    <string name="label_ok">OK</string>
-    <string name="label_cancel">Cancel</string>
-    <string name="label_confirm">Confirm</string>
-    <string name="label_continue">Continue</string>
-    <string name="label_apply">Apply</string>
+    <string name="label_new">Novo</string>
+    <string name="label_login">Prijava</string>
+    <string name="label_ok">U redu</string>
+    <string name="label_cancel">Odustani</string>
+    <string name="label_confirm">Potvrdi</string>
+    <string name="label_continue">Nastavi</string>
+    <string name="label_apply">Primijeni</string>
     <string name="label_save">Save</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>

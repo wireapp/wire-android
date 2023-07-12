@@ -9,7 +9,7 @@ jobs:
     # Run only if the PR is not from a Fork / external contributor
     if: github.repository_owner == 'wireapp'
     steps:
-      - uses: cakeinpanic/jira-description-action@v0.3.2
+      - uses: cakeinpanic/jira-description-action@v0.4.0
         name: jira-description-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

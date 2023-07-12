@@ -218,6 +218,12 @@ class SystemMessageContentMapper @Inject constructor(
 
             is FailedToAdd ->
                 UIMessageContent.SystemMessage.MemberFailedToAdd(mapFailedToAddUsersByDomain(content.members, userList))
+
+            is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.MemberRemoved(
+                author = authorName,
+                memberNames = memberNameList,
+                isSelfTriggered = false
+            )
         }
     }
 

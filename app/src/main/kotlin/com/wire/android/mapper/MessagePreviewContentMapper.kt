@@ -260,6 +260,37 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             }
         }
 
+        is MessagePreviewContent.FederatedMembersRemoved -> {
+            val membersRemovedContent = (content as MessagePreviewContent.FederatedMembersRemoved)
+            val isSelfRemoved = membersRemovedContent.isSelfUserRemoved
+            val otherUsersSize = membersRemovedContent.otherUserIdList.size
+
+            val previewMessageContent = when {
+                isSelfMessage && otherUsersSize > 0 -> {
+                    UIText.PluralResource(R.plurals.last_message_self_removed_users, otherUsersSize, otherUsersSize)
+                }
+
+                !isSelfMessage && isSelfRemoved -> {
+                    if (otherUsersSize == 0) {
+                        UIText.StringResource(R.string.last_message_other_removed_only_self_user)
+                    } else {
+                        UIText.PluralResource(
+                            R.plurals.last_message_other_removed_self_user_and_others,
+                            otherUsersSize,
+                            otherUsersSize
+                        )
+                    }
+                }
+
+                else -> {
+                    UIText.PluralResource(R.plurals.last_message_other_removed_other_users, otherUsersSize, otherUsersSize)
+                }
+            }
+
+            UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+        }
+
+
         is MessagePreviewContent.Ephemeral -> {
             val ephemeralContent = (content as MessagePreviewContent.Ephemeral)
             if (ephemeralContent.isGroupConversation) {

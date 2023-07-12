@@ -127,7 +127,7 @@ class IncomingCallViewModelTest {
 
         coVerify(exactly = 1) { arrangement.rejectCall(conversationId = any()) }
         verify(exactly = 1) { arrangement.callRinger.stop() }
-        assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallDeclined }
+        assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallClosed }
     }
 
     @Test

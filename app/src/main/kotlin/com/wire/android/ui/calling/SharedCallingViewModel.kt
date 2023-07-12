@@ -214,11 +214,11 @@ class SharedCallingViewModel @Inject constructor(
 
     fun hangUpCall(onCompleted: () -> Unit) {
         viewModelScope.launch {
+            onCompleted()
             endCall(conversationId)
             // we need to update mute state to false, so if the user re-join the call te mic will will be muted
             muteCall(conversationId, false)
             callRinger.stop()
-            onCompleted()
         }
     }
 

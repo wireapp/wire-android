@@ -27,7 +27,6 @@ data class IncomingCallState(
     sealed interface FlowState {
         object Default : FlowState
         object CallClosed : FlowState
-        object CallDeclined : FlowState
         data class CallAccepted(val conversationId: ConversationId) : FlowState
     }
 }

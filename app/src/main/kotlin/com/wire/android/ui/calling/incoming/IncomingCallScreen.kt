@@ -88,8 +88,7 @@ fun IncomingCallScreen(
     }
 
     when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
-        is IncomingCallState.FlowState.CallClosed,
-        is IncomingCallState.FlowState.CallDeclined -> navigator.navigateBack()
+        is IncomingCallState.FlowState.CallClosed -> navigator.navigateBack()
         is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
             NavigationCommand(
                 OngoingCallScreenDestination(flowState.conversationId),

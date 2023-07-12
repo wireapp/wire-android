@@ -108,7 +108,7 @@ class IncomingCallViewModel @Inject constructor(
             launch { rejectCall(conversationId = conversationId) }
             launch {
                 callRinger.stop()
-                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallDeclined)
+                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
             }
         }
     }

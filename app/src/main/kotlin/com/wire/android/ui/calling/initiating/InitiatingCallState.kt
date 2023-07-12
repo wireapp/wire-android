@@ -24,6 +24,5 @@ data class InitiatingCallState(
         object Default : FlowState
         object CallClosed : FlowState
         object CallEstablished : FlowState
-        object CallHungUp : FlowState
     }
 }

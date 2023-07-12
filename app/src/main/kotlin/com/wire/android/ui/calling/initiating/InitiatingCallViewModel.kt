@@ -119,7 +119,7 @@ class InitiatingCallViewModel @Inject constructor(
         launch { endCall(conversationId) }
         launch {
             stopRingerAndMarkCallAsHungUp()
-            state = state.copy(flowState = InitiatingCallState.FlowState.CallHungUp)
+            state = state.copy(flowState = InitiatingCallState.FlowState.CallClosed)
         }
     }
 }

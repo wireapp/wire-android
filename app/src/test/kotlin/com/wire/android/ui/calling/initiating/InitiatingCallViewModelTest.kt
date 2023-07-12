@@ -66,7 +66,7 @@ class InitiatingCallViewModelTest {
             coVerify(exactly = 1) { endCall(any()) }
             coVerify(exactly = 1) { callRinger.stop() }
         }
-        assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallHungUp }
+        assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallClosed }
     }
 
     @Test

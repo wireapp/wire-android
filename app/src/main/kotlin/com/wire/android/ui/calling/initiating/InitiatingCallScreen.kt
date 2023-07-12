@@ -71,8 +71,7 @@ fun InitiatingCallScreen(
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
     when (initiatingCallViewModel.state.flowState) {
-        InitiatingCallState.FlowState.CallClosed,
-        InitiatingCallState.FlowState.CallHungUp -> navigator.navigateBack()
+        InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
         InitiatingCallState.FlowState.CallEstablished ->
             navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
         InitiatingCallState.FlowState.Default -> {

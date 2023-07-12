@@ -133,20 +133,6 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenNoIncomingCalls_whenObserveCalled_thenCallNotificationHides() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement()
-            .withIncomingCalls(listOf())
-            .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.SomeOther)
-            .arrange()
-
-        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
-        runCurrent()
-
-        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
-    }
-
-    @Test
     fun givenSomeIncomingCalls_whenObserving_thenCallNotificationShowed() = runTestWithCancellation(dispatcherProvider.main()) {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf(provideCall()))

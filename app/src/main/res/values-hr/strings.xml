@@ -332,7 +332,7 @@
     <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">Your Username</string>
     <string name="create_account_username_placeholder">jane.doe</string>
-    <string name="create_account_username_label">USERNAME</string>
+    <string name="create_account_username_label">KORISNIČKO IME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
@@ -344,17 +344,17 @@
     <string name="conversation_label_conversations">CONVERSATIONS</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
-    <string name="label_message_status_deleted">Deleted</string>
-    <string name="label_message_status_edited">Edited</string>
-    <string name="conversations_screen_title">Conversations</string>
-    <string name="conversations_all_tab_title">All</string>
+    <string name="label_message_status_deleted">Izbrisano</string>
+    <string name="label_message_status_edited">Uređeno</string>
+    <string name="conversations_screen_title">Razgovori</string>
+    <string name="conversations_all_tab_title">Svi</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
-    <string name="group_name_title">Group Name</string>
+    <string name="group_name_title">Naziv grupe</string>
     <string name="group_name_placeholder">Enter a name</string>
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="protocol">Protocol</string>
@@ -375,8 +375,8 @@
     <string name="asset_download_dialog_text">Do you want to open the file or save it to your
         device\'s download folder?
  </string>
-    <string name="asset_download_dialog_open_text">Open</string>
-    <string name="asset_download_dialog_save_text">Save</string>
+    <string name="asset_download_dialog_open_text">Otvori</string>
+    <string name="asset_download_dialog_save_text">Spremi</string>
     <string name="member_name_deleted_label">Deleted account</string>
     <string name="member_name_you_label_titlecase">You</string>
     <string name="member_name_you_label_lowercase">you</string>
@@ -397,7 +397,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
-    <string name="conversation_options_guests_label">Guests</string>
+    <string name="conversation_options_guests_label">Gosti</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
@@ -408,16 +408,16 @@
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
     <string name="disable_services_dialog_title">Disable services access?</string>
     <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
-    <string name="leave_group_conversation_menu_item">Leave Group…</string>
-    <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
+    <string name="leave_group_conversation_menu_item">Napusti grupu…</string>
+    <string name="leave_group_conversation_dialog_title">Napusti “%s”?</string>
     <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
-    <string name="delete_group_conversation_menu_item">Delete Group…</string>
+    <string name="delete_group_conversation_menu_item">Obriši Grupu…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
-    <string name="import_media_send_button_title">Send</string>
+    <string name="import_media_send_button_title">Pošalji</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
@@ -431,16 +431,16 @@
     <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Attach File</string>
+    <string name="attachment_share_file">Priloži datoteku</string>
     <string name="attachment_share_image">Attach Picture</string>
     <string name="attachment_take_photo">Take Photo</string>
     <string name="attachment_record_video">Record Video</string>
     <string name="attachment_voice_message">Audio Message</string>
     <string name="attachment_share_location">Share Location</string>
     <!-- User Profile -->
-    <string name="user_profile_title">User Profile</string>
+    <string name="user_profile_title">Korisnički profil</string>
     <string name="user_profile_close_description">Close User profile</string>
-    <string name="user_profile_logout">Log out</string>
+    <string name="user_profile_logout">Odjava</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_availability">Availability</string>
     <string name="user_profile_status_available">Available</string>
@@ -457,9 +457,9 @@
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
     <string name="user_profile_group_remove_button">Remove from group</string>
-    <string name="user_profile_logging_out_progress">Logging out...</string>
+    <string name="user_profile_logging_out_progress">Odjava...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Remove from group?</string>
+    <string name="dialog_remove_conversation_member_title">Ukloni iz grupe?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
     <string name="group_role_admin">Admin</string>
@@ -479,34 +479,34 @@
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
-    <string name="label_add_to_favourites">Add to Favorites</string>
+    <string name="label_add_to_favourites">Dodaj u Favorite</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content…</string>
-    <string name="label_block">Block</string>
-    <string name="label_unblock">Unblock</string>
-    <string name="label_leave_group">Leave Group</string>
-    <string name="label_delete_group">Delete Group</string>
+    <string name="label_block">Blokiraj</string>
+    <string name="label_unblock">Odblokiraj</string>
+    <string name="label_leave_group">Napusti grupu</string>
+    <string name="label_delete_group">Obriši Grupu</string>
     <!-- Muting options BottomSheet -->
-    <string name="muting_option_all_allowed_title">Everything</string>
+    <string name="muting_option_all_allowed_title">Sve</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
     <string name="muting_option_only_mentions_title">Mentions and replies</string>
     <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
-    <string name="muting_option_all_muted_title">Nothing</string>
+    <string name="muting_option_all_muted_title">Ništa</string>
     <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
     <!--Profile image-->
-    <string name="profile_image_top_bar_label">Profile picture</string>
-    <string name="profile_image_modal_sheet_header_title">Change Image</string>
-    <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
+    <string name="profile_image_top_bar_label">Slika profila</string>
+    <string name="profile_image_modal_sheet_header_title">Promijeni Sliku</string>
+    <string name="profile_image_choose_from_gallery_menu_item">Izaberi iz galerije</string>
     <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
-    <string name="profile_image_change_image_button_label">Change Picture…</string>
+    <string name="profile_image_change_image_button_label">Promijeni sliku…</string>
     <!--Conversation-->
-    <string name="label_message_details">Message Details</string>
-    <string name="label_copy">Copy</string>
-    <string name="label_share">Share</string>
-    <string name="label_edit">Edit</string>
-    <string name="label_delete">Delete</string>
-    <string name="info_message_copied">Message copied</string>
+    <string name="label_message_details">Detalji o poruci</string>
+    <string name="label_copy">Kopiraj</string>
+    <string name="label_share">Podijeli</string>
+    <string name="label_edit">Uredi</string>
+    <string name="label_delete">Izbriši</string>
+    <string name="info_message_copied">Poruka kopirana</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
     <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>

@@ -52,12 +52,13 @@ jobs:
         run: sudo apt-get install -y python3-pip
 
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
-      # This name is referenced in the publish-test-results workflow.
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          files: |
+          # This name is referenced in the publish-test-results workflow.
+          name: test-results
+          path: |
             **/build/test-results/testDevDebugUnitTest/**/*.xml
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml

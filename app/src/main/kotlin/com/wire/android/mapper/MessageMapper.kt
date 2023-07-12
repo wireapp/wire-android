@@ -173,6 +173,7 @@ class MessageMapper @Inject constructor(
                 Message.Status.READ -> MessageFlowStatus.Read(1) // TODO add read count
                 Message.Status.FAILED -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FAILED_REMOTELY -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
+                Message.Status.DELIVERED -> MessageFlowStatus.Delivered
             }
         }
 

@@ -22,7 +22,7 @@ private object Dependencies {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.19.0"
     const val junit = "junit:junit:4.13"
-    const val kluent = "org.amshove.kluent:kluent:1.68"
+    const val kluent = "org.amshove.kluent:kluent:1.73"
     const val hilt = "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
     const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.1.2"
     const val junit5 = "de.mannodermaus.gradle.plugins:android-junit5:1.9.3.0"

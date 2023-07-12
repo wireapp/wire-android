@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          files: |
+          path: |
             **/build/test-results/testDevDebugUnitTest/**/*.xml
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml

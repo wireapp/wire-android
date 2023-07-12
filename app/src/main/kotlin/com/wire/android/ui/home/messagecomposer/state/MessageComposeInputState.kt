@@ -55,12 +55,12 @@ sealed class MessageComposeInputState {
         inputFocused: Boolean = this.inputFocused,
         selfDeletionTimer: SelfDeletionTimer
     ): MessageComposeInputState {
-        val isSelfDeletingType = selfDeletionTimer !is SelfDeletionTimer.Disabled && selfDeletionTimer.toDuration() > ZERO
+        val isSelfDeletingType = selfDeletionTimer !is SelfDeletionTimer.Disabled && selfDeletionTimer.duration != null
 
         return when {
             isSelfDeletingType -> {
                 val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(
-                    selfDeletionDuration = selfDeletionTimer.toDuration().toSelfDeletionDuration(),
+                    selfDeletionDuration = selfDeletionTimer.duration.toSelfDeletionDuration(),
                     isEnforced = selfDeletionTimer.isEnforced,
                     attachmentOptionsDisplayed = attachmentOptionsDisplayed
                 )

@@ -312,10 +312,14 @@ class ConversationInfoViewModelTest {
             ConversationVerificationStatus.VERIFIED,
             viewModel.conversationInfoViewState.mlsVerificationStatus
         )
+        assertEquals(
+            null,
+            viewModel.conversationInfoViewState.proteusVerificationStatus
+        )
     }
 
     @Test
-    fun `given conversation does not support MLS, then mlsVerificationStatus is null`() = runTest {
+    fun `given conversation is PROTEUS verified, then mlsVerificationStatus is null`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withMLSVerificationStatus(
@@ -332,6 +336,10 @@ class ConversationInfoViewModelTest {
             null,
             viewModel.conversationInfoViewState.mlsVerificationStatus
         )
+        assertEquals(
+            ConversationVerificationStatus.VERIFIED,
+            viewModel.conversationInfoViewState.proteusVerificationStatus
+        )
     }
 
     @Test
@@ -347,5 +355,34 @@ class ConversationInfoViewModelTest {
             null,
             viewModel.conversationInfoViewState.mlsVerificationStatus
         )
+        assertEquals(
+            null,
+            viewModel.conversationInfoViewState.proteusVerificationStatus
+        )
     }
+
+    @Test
+    fun `given conversation is PROTEUS not verified, then proteusVerificationStatus is not verified`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withMLSVerificationStatus(
+                ConversationVerificationStatusResult.Success(
+                    ConversationProtocol.PROTEUS,
+                    ConversationVerificationStatus.NOT_VERIFIED
+                )
+            )
+            .withSelfUser()
+            .arrange()
+
+        //then
+        assertEquals(
+            ConversationVerificationStatus.NOT_VERIFIED,
+            viewModel.conversationInfoViewState.proteusVerificationStatus
+        )
+        assertEquals(
+            null,
+            viewModel.conversationInfoViewState.mlsVerificationStatus
+        )
+    }
+
 }

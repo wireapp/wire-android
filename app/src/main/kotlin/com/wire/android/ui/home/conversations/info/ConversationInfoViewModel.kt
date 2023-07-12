@@ -84,8 +84,13 @@ class ConversationInfoViewModel @Inject constructor(
         viewModelScope.launch {
             val result = getConversationMLSVerificationStatus(conversationId)
             if (result is ConversationVerificationStatusResult.Success) {
-                if (result.protocol == ConversationProtocol.MLS)
-                    conversationInfoViewState = conversationInfoViewState.copy(mlsVerificationStatus = result.status)
+                when (result.protocol) {
+                    ConversationProtocol.MLS ->
+                        conversationInfoViewState = conversationInfoViewState.copy(mlsVerificationStatus = result.status)
+
+                    ConversationProtocol.PROTEUS ->
+                        conversationInfoViewState = conversationInfoViewState.copy(proteusVerificationStatus = result.status)
+                }
             }
         }
     }

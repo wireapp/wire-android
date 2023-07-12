@@ -102,7 +102,15 @@ fun ConversationScreenTopAppBar(
                 if (conversationInfoViewState.mlsVerificationStatus == ConversationVerificationStatus.VERIFIED) {
                     Icon(
                         modifier = Modifier.padding(start = dimensions().spacing4x),
-                        painter = painterResource(id = R.drawable.ic_mls_certificate_valid),
+                        painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
+                        tint = colorsScheme().mlsVerifiedIconColor,
+                        contentDescription = stringResource(R.string.content_description_mls_certificate_valid)
+                    )
+                }
+                if (conversationInfoViewState.proteusVerificationStatus == ConversationVerificationStatus.VERIFIED) {
+                    Icon(
+                        modifier = Modifier.padding(start = dimensions().spacing4x),
+                        painter = painterResource(id = R.drawable.ic_certificate_valid_proteus),
                         tint = colorsScheme().mlsVerifiedIconColor,
                         contentDescription = stringResource(R.string.content_description_mls_certificate_valid)
                     )

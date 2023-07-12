@@ -1202,6 +1202,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationMLSVerificationStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).getConversationMLSVerificationStatus
+    fun provideGetConversationVerificationStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
 }

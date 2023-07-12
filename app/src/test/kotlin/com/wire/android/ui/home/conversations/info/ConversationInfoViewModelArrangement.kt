@@ -70,7 +70,7 @@ class ConversationInfoViewModelArrangement {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    private lateinit var getConversationMLSVerificationStatus: GetConversationVerificationStatusUseCase
+    private lateinit var getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
@@ -81,7 +81,7 @@ class ConversationInfoViewModelArrangement {
             observerSelfUser,
             wireSessionImageLoader,
             TestDispatcherProvider(),
-            getConversationMLSVerificationStatus
+            getConversationVerificationStatus
         )
     }
 
@@ -95,7 +95,7 @@ class ConversationInfoViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
-        coEvery { getConversationMLSVerificationStatus(any()) } returns ConversationVerificationStatusResult.Success(
+        coEvery { getConversationVerificationStatus(any()) } returns ConversationVerificationStatusResult.Success(
             ConversationProtocol.PROTEUS,
             ConversationVerificationStatus.NOT_VERIFIED
         )
@@ -112,8 +112,8 @@ class ConversationInfoViewModelArrangement {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
     }
 
-    suspend fun withMLSVerificationStatus(result: ConversationVerificationStatusResult) = apply {
-        coEvery { getConversationMLSVerificationStatus(any()) } returns result
+    suspend fun withVerificationStatus(result: ConversationVerificationStatusResult) = apply {
+        coEvery { getConversationVerificationStatus(any()) } returns result
     }
 
     fun arrange() = this to viewModel

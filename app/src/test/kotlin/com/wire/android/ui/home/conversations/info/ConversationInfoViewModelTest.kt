@@ -275,10 +275,10 @@ class ConversationInfoViewModelTest {
     }
 
     @Test
-    fun `given conversation is not MLS verified, then mlsVerificationStatus is not verified`() = runTest {
+    fun `given a not-verified MLS conversation, then mlsVerificationStatus is not verified`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(
+            .withVerificationStatus(
                 ConversationVerificationStatusResult.Success(
                     ConversationProtocol.MLS,
                     ConversationVerificationStatus.NOT_VERIFIED
@@ -298,7 +298,7 @@ class ConversationInfoViewModelTest {
     fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(
+            .withVerificationStatus(
                 ConversationVerificationStatusResult.Success(
                     ConversationProtocol.MLS,
                     ConversationVerificationStatus.VERIFIED
@@ -319,10 +319,10 @@ class ConversationInfoViewModelTest {
     }
 
     @Test
-    fun `given conversation is PROTEUS verified, then mlsVerificationStatus is null`() = runTest {
+    fun `given a verified Proteus conversation, then proteusVerificationStatus is verified`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(
+            .withVerificationStatus(
                 ConversationVerificationStatusResult.Success(
                     ConversationProtocol.PROTEUS,
                     ConversationVerificationStatus.VERIFIED
@@ -343,10 +343,10 @@ class ConversationInfoViewModelTest {
     }
 
     @Test
-    fun `given Failure while getting MLS verification, then mlsVerificationStatus is null`() = runTest {
+    fun `given Failure while getting an MLS conversation's verification status, then mlsVerificationStatus is null`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(ConversationVerificationStatusResult.Failure(StorageFailure.DataNotFound))
+            .withVerificationStatus(ConversationVerificationStatusResult.Failure(StorageFailure.DataNotFound))
             .withSelfUser()
             .arrange()
 
@@ -362,10 +362,10 @@ class ConversationInfoViewModelTest {
     }
 
     @Test
-    fun `given conversation is PROTEUS not verified, then proteusVerificationStatus is not verified`() = runTest {
+    fun `given a not-verified Protues conversation, then proteusVerificationStatus is not verified`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withMLSVerificationStatus(
+            .withVerificationStatus(
                 ConversationVerificationStatusResult.Success(
                     ConversationProtocol.PROTEUS,
                     ConversationVerificationStatus.NOT_VERIFIED

@@ -66,7 +66,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val dispatchers: DispatcherProvider,
-    private val getConversationMLSVerificationStatus: GetConversationVerificationStatusUseCase
+    private val getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
@@ -82,7 +82,7 @@ class ConversationInfoViewModel @Inject constructor(
             selfUserId = observerSelfUser().first().id
         }
         viewModelScope.launch {
-            val result = getConversationMLSVerificationStatus(conversationId)
+            val result = getConversationVerificationStatus(conversationId)
             if (result is ConversationVerificationStatusResult.Success) {
                 when (result.protocol) {
                     ConversationProtocol.MLS ->

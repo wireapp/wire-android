@@ -1010,7 +1010,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="automatically_delete_message_after">Nachrichten automatisch löschen nach:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Message will be deleted once you are online</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
         <item quantity="other">Noch %1$d Wochen</item>

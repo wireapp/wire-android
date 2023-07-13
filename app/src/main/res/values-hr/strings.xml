@@ -20,7 +20,7 @@
   -->
 <resources>
     <string name="app_version">Verzija aplikacije</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="build_variant_name">Build verzija</string>
     <string name="label_new">Novo</string>
     <string name="label_login">Prijava</string>
     <string name="label_ok">U redu</string>
@@ -44,10 +44,10 @@
     <string name="label_message_sent_failure">Poruka se ne može poslati zbog problema s vezom.</string>
     <string name="label_message_edit_sent_failure">Uređena poruka nije mogla biti poslana zbog problema s vezom.</string>
     <string name="label_message_sent_remotely_failure">Poruka nije mogla biti poslana jer se nemože pristupiti %s backend-u.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_edit_sent_remotely_failure">Uređena poruka nije mogla biti poslana jer se nemože pristupiti %s backend-u.</string>
     <string name="label_message_receive_failure">Greška pri preuzimanju</string>
     <string name="label_message_decryption_failure_message">Poruka se ne može dešifrirati.</string>
-    <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
+    <string name="label_message_decryption_failure_informative_message">Pokušajte resetirati sesiju zbog generiranja novih ključeva za enkripciju.</string>
     <string name="label_message_knock">%s pingao/la</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
@@ -839,7 +839,7 @@
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
-    <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This setting does not apply to group conversations.</string>
+    <string name="settings_send_read_receipts_description">Ako je opcija isključena, nećete moći vidjeti potvrde o čitanju poruka od drugih ljudi. Ova postavka se ne primjenjuje na grupne razgovore.</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -917,7 +917,7 @@
     <string name="conversation_content_deleted">Conversation content was deleted</string>
     <string name="group_content_delete_failure">Group content could not be deleted</string>
     <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
-    <string name="group_label">group</string>
+    <string name="group_label">grupa</string>
     <string name="conversation_label">conversation</string>
     <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>

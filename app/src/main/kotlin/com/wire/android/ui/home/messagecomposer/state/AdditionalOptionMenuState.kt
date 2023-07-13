@@ -20,6 +20,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 
 enum class AdditionalOptionMenuState {
@@ -82,5 +83,24 @@ class AdditionalOptionStateHolder {
 
     fun toAttachmentAndAdditionalOptionsMenu() {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+    }
+
+    companion object {
+        fun saver(): Saver<AdditionalOptionStateHolder, *> = Saver(
+            save = {
+                listOf(
+                    it.selectedOption,
+                    it.additionalOptionsSubMenuState,
+                    it.additionalOptionState
+                )
+            },
+            restore = {
+                AdditionalOptionStateHolder().apply {
+                    selectedOption = it[0] as AdditionalOptionSelectItem
+                    additionalOptionsSubMenuState = it[1] as AdditionalOptionSubMenuState
+                    additionalOptionState = it[2] as AdditionalOptionMenuState
+                }
+            }
+        )
     }
 }

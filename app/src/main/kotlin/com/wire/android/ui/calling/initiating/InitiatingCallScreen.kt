@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -70,23 +71,24 @@ fun InitiatingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
-    when (initiatingCallViewModel.state.flowState) {
-        InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
-        InitiatingCallState.FlowState.CallEstablished ->
-            navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
-        InitiatingCallState.FlowState.Default -> {
-            with(sharedCallingViewModel) {
-                InitiatingCallContent(
-                    callState = callState,
-                    toggleMute = ::toggleMute,
-                    toggleSpeaker = ::toggleSpeaker,
-                    toggleVideo = ::toggleVideo,
-                    onHangUpCall = initiatingCallViewModel::hangUpCall,
-                    onVideoPreviewCreated = ::setVideoPreview,
-                    onSelfClearVideoPreview = ::clearVideoPreview
-                )
-            }
+    LaunchedEffect(initiatingCallViewModel.state.flowState) {
+        when (initiatingCallViewModel.state.flowState) {
+            InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
+            InitiatingCallState.FlowState.CallEstablished ->
+                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
+            InitiatingCallState.FlowState.Default -> { /* do nothing */ }
         }
+    }
+    with(sharedCallingViewModel) {
+        InitiatingCallContent(
+            callState = callState,
+            toggleMute = ::toggleMute,
+            toggleSpeaker = ::toggleSpeaker,
+            toggleVideo = ::toggleVideo,
+            onHangUpCall = initiatingCallViewModel::hangUpCall,
+            onVideoPreviewCreated = ::setVideoPreview,
+            onSelfClearVideoPreview = ::clearVideoPreview
+        )
     }
 }
 

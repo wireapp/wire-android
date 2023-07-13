@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -86,28 +87,30 @@ fun IncomingCallScreen(
             )
         }
     }
-
-    when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
-        is IncomingCallState.FlowState.CallClosed -> navigator.navigateBack()
-        is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
-            NavigationCommand(
-                OngoingCallScreenDestination(flowState.conversationId),
-                BackStackMode.REMOVE_CURRENT_AND_REPLACE
-            )
-        )
-        is IncomingCallState.FlowState.Default ->
-            with(sharedCallingViewModel) {
-                IncomingCallContent(
-                    callState = callState,
-                    toggleMute = { sharedCallingViewModel.toggleMute(true) },
-                    toggleSpeaker = ::toggleSpeaker,
-                    toggleVideo = ::toggleVideo,
-                    declineCall = incomingCallViewModel::declineCall,
-                    acceptCall = audioPermissionCheck::launch,
-                    onVideoPreviewCreated = ::setVideoPreview,
-                    onSelfClearVideoPreview = ::clearVideoPreview
+    LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
+        when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
+            is IncomingCallState.FlowState.CallClosed -> navigator.navigateBack()
+            is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
+                NavigationCommand(
+                    OngoingCallScreenDestination(flowState.conversationId),
+                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
                 )
-            }
+            )
+
+            is IncomingCallState.FlowState.Default -> { /* do nothing */ }
+        }
+    }
+    with(sharedCallingViewModel) {
+        IncomingCallContent(
+            callState = callState,
+            toggleMute = { sharedCallingViewModel.toggleMute(true) },
+            toggleSpeaker = ::toggleSpeaker,
+            toggleVideo = ::toggleVideo,
+            declineCall = incomingCallViewModel::declineCall,
+            acceptCall = audioPermissionCheck::launch,
+            onVideoPreviewCreated = ::setVideoPreview,
+            onSelfClearVideoPreview = ::clearVideoPreview
+        )
     }
 }
 

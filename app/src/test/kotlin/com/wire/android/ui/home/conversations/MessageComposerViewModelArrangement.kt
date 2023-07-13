@@ -31,6 +31,7 @@ import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -338,7 +339,10 @@ internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUs
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
             every { it.messageTime } returns MessageTime("")
-            every { it.messageStatus } returns MessageStatus(flowStatus = MessageFlowStatus.Sent)
+            every { it.messageStatus } returns MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                expirationStatus = ExpirationStatus.NotExpirable
+            )
         }
         every { it.messageContent } returns null
     }

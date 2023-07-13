@@ -78,7 +78,6 @@ fun RecordAudioComponent(
                 viewModel.getButtonState() != RecordAudioButtonState.ENABLED
             ) {
                 viewModel.stopRecording()
-                viewModel.discardRecording(onCloseRecordAudio = {})
             }
         }
 

@@ -63,7 +63,7 @@ class CustomizationTest {
             Customization.CustomizationOption.DefaultOnly
         )
 
-        result.flavorMap["dev"]!!["foo"] shouldBeEqualTo "default"
+        result.flavorSettings.flavorMap["dev"]!!["foo"] shouldBeEqualTo "default"
     }
 
     @Test
@@ -94,6 +94,6 @@ class CustomizationTest {
             Customization.CustomizationOption.FromFile(customFile)
         )
 
-        result.flavorMap["dev"]!!["foo"] shouldBeEqualTo "custom"
+        result.flavorSettings.flavorMap["dev"]!!["foo"] shouldBeEqualTo "custom"
     }
 }

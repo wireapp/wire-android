@@ -20,6 +20,7 @@ package com.wire.android.media.audiomessage
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.core.net.toUri
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.merge
 import java.io.File
 import javax.inject.Inject
 
+@ViewModelScoped
 class RecordAudioMessagePlayer @Inject constructor(
     private val context: Context,
     private val audioMediaPlayer: MediaPlayer

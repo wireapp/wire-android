@@ -62,6 +62,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -236,7 +237,7 @@ class WireActivity : AppCompatActivity() {
                     onClick = onUpdateClick,
                     type = WireDialogButtonType.Primary
                 ),
-                properties = DialogProperties(
+                properties = wireDialogPropertiesBuilder(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false,
                     usePlatformDefaultWidth = true

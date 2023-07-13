@@ -29,7 +29,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlin.time.Duration
+import com.wire.kalium.logic.util.isPositiveNotNull
 
 class MessageCompositionInputStateHolder(
     private val messageComposition: MutableState<MessageComposition>,
@@ -39,7 +39,7 @@ class MessageCompositionInputStateHolder(
         private set
 
     private val messageType = derivedStateOf {
-        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
+        if (selfDeletionTimer.value.duration.isPositiveNotNull()) {
             MessageType.SelfDeleting(selfDeletionTimer.value)
         } else {
             MessageType.Normal

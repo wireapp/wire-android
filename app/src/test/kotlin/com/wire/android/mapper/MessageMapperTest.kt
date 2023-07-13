@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageEditStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
@@ -123,7 +124,10 @@ class MessageMapperTest {
                 time = message2.date.uiMessageDateTime(),
                 source = MessageSource.OtherUser,
                 membership = Membership.Guest,
-                status = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false))
+                status = MessageStatus(
+                    flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
+                    expirationStatus = ExpirationStatus.NotExpirable
+                )
             )
         )
         assert(
@@ -132,7 +136,8 @@ class MessageMapperTest {
                 time = message3.date.uiMessageDateTime(),
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Sent,
-                    editStatus = MessageEditStatus.Edited(now.uiMessageDateTime() ?: "")
+                    editStatus = MessageEditStatus.Edited(now.uiMessageDateTime() ?: ""),
+                    expirationStatus = ExpirationStatus.NotExpirable
                 )
             )
         )
@@ -140,7 +145,11 @@ class MessageMapperTest {
             checkMessageData(
                 uiMessage = uiMessage4,
                 time = message4.date.uiMessageDateTime(),
-                status = MessageStatus(flowStatus = MessageFlowStatus.Sent, isDeleted = true)
+                status = MessageStatus(
+                    flowStatus = MessageFlowStatus.Sent,
+                    isDeleted = true,
+                    expirationStatus = ExpirationStatus.NotExpirable
+                )
             )
         )
 
@@ -148,7 +157,11 @@ class MessageMapperTest {
             checkMessageData(
                 uiMessage = uiMessage5,
                 time = message5.date.uiMessageDateTime(),
-                status = MessageStatus(flowStatus = MessageFlowStatus.Failure.Decryption(false), isDeleted = false)
+                status = MessageStatus(
+                    flowStatus = MessageFlowStatus.Failure.Decryption(false),
+                    isDeleted = false,
+                    expirationStatus = ExpirationStatus.NotExpirable
+                )
             )
         )
 
@@ -156,7 +169,11 @@ class MessageMapperTest {
             checkMessageData(
                 uiMessage = uiMessage6,
                 time = message6.date.uiMessageDateTime(),
-                status = MessageStatus(flowStatus = MessageFlowStatus.Failure.Decryption(true), isDeleted = false)
+                status = MessageStatus(
+                    flowStatus = MessageFlowStatus.Failure.Decryption(true),
+                    isDeleted = false,
+                    expirationStatus = ExpirationStatus.NotExpirable
+                )
             )
         )
     }
@@ -166,7 +183,10 @@ class MessageMapperTest {
         time: String?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
-        status: MessageStatus = MessageStatus(flowStatus = MessageFlowStatus.Sent)
+        status: MessageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
+        )
     ): Boolean {
         return (uiMessage?.source == source && uiMessage.header.membership == membership
                 && uiMessage.header.messageTime.formattedDate == time
@@ -229,4 +249,4 @@ private fun Message.Regular.failureToDecrypt(isDecryptionResolved: Boolean) =
                 senderUserId = this.senderUserId,
                 isDecryptionResolved = isDecryptionResolved
             )
-    )
+        )

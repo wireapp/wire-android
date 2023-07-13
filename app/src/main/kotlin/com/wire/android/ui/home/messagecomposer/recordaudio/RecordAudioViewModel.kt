@@ -110,8 +110,10 @@ class RecordAudioViewModelImpl @Inject constructor(
 
         viewModelScope.launch {
             assetLimitInMegabyte = getAssetSizeLimit(isImage = false)
-            observeAudioFileSize()
 
+            launch {
+                observeAudioFileSize()
+            }
             launch {
                 observeScreenState()
             }
@@ -283,6 +285,7 @@ class RecordAudioViewModelImpl @Inject constructor(
                 )
             )
             onComplete()
+            // TODO(RecordAudio): Question: Should we remove the file here as well?
         }
     }
 

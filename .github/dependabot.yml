@@ -9,8 +9,12 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    reviewers:
+      - "wireapp/android"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    reviewers:
+      - "wireapp/android"

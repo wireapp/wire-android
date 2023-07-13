@@ -35,7 +35,7 @@ object AndroidClient {
     const val appId = "com.wire.android"
     const val namespace = appId
     val versionCode = Versionizer().versionCode
-    const val versionName = "4.2.1"
+    const val versionName = "4.2.2"
     const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
 

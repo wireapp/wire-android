@@ -156,7 +156,7 @@
     <string name="content_description_edit">Uredi</string>
     <string name="content_description_calling_call_muted">Call Muted</string>
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
-    <string name="content_description_calling_call_paused_camera">Paused Camera</string>
+    <string name="content_description_calling_call_paused_camera">Pauzirana Kamera</string>
     <string name="content_description_more_emojis">More emojis</string>
     <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <string name="content_description_message_sending_status">Message sending status</string>
@@ -200,7 +200,7 @@
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">Start Using Wire</string>
     <!-- API Versioning Dialogs -->
-    <string name="api_versioning_client_update_required_title">Update required</string>
+    <string name="api_versioning_client_update_required_title">Potrebno ažuriranje</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>

@@ -80,7 +80,7 @@
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blokiran</string>
     <string name="label_and">i</string>
-    <string name="label_retry">Retry</string>
+    <string name="label_retry">Pokušaj ponovo</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Pokaži lozinku</string>
@@ -91,7 +91,7 @@
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_open_asset_icon">Otvori ikonu</string>
     <string name="content_description_add_to_favourite">Dodaj u Favorite</string>
     <string name="content_description_move_to_folder">Premjesti u mapu</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -126,13 +126,13 @@
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Open Message Details</string>
-    <string name="content_description_copy_the_message">Copy the message</string>
+    <string name="content_description_copy_the_message">Kopiraj poruku</string>
     <string name="content_description_share_the_file">Share the selected file with other app</string>
-    <string name="content_description_delete_the_message">Delete the message</string>
-    <string name="content_description_edit_the_message">Edit the message</string>
-    <string name="content_description_more_options">More options</string>
-    <string name="content_description_add_contact">Add contact</string>
-    <string name="content_description_image_message">Image message</string>
+    <string name="content_description_delete_the_message">Izbriši poruku</string>
+    <string name="content_description_edit_the_message">Uredi poruku</string>
+    <string name="content_description_more_options">Više opcija</string>
+    <string name="content_description_add_contact">Dodaj kontakt</string>
+    <string name="content_description_image_message">Slikovna poruka</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>

@@ -53,10 +53,10 @@
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_deliver_later">%s получит ваше сообщение позже.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
-        <item quantity="one">1 participant from %2$s</item>
+        <item quantity="one">1 участник из %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
         <item quantity="many">%1$d participants from %2$s</item>
-        <item quantity="other">%1$d participants from %2$s</item>
+        <item quantity="other">%1$d участников из %2$s</item>
     </plurals>
     <string name="label_try_again">Повторить</string>
     <string name="label_reset_session">Сбросить сессию</string>
@@ -168,7 +168,7 @@
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
-    <string name="archive_screen_title">Archive</string>
+    <string name="archive_screen_title">Архив</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Настройки</string>
     <string name="app_settings_screen_title">App Settings</string>
@@ -206,14 +206,14 @@
     <string name="api_versioning_server_version_not_supported_title">Версия сервера не поддерживается</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
     <!-- Migration -->
-    <string name="migration_title">Setting up Wire</string>
-    <string name="migration_message">Please wait while we set up the app for you</string>
-    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
+    <string name="migration_title">Настройка Wire</string>
+    <string name="migration_message">Пожалуйста, подождите, пока мы настроим приложение для вас</string>
+    <string name="migration_message_unknown">Пожалуйста, подождите, пока мы перенесём ваши данные</string>
     <string name="migration_accounts_message">Migrating your accounts...</string>
     <string name="migration_messages_message">Перенос ваших сообщений...</string>
     <string name="migration_title_step">Шаг %1$d/%2$d</string>
     <string name="migration_title_almost_done">Почти готово!</string>
-    <string name="migration_title_updated">Setting up Wire</string>
+    <string name="migration_title_updated">Настройка Wire</string>
     <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
     <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
@@ -239,7 +239,7 @@
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
-    <string name="login_tab_email">EMAIL</string>
+    <string name="login_tab_email">ЭЛЕКТРОННАЯ ПОЧТА</string>
     <string name="login_tab_sso">SSO LOGIN</string>
     <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Пожалуйста, введите правильный SSO код.</string>
@@ -333,10 +333,10 @@
     <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">Your Username</string>
     <string name="create_account_username_placeholder">jane.doe</string>
-    <string name="create_account_username_label">USERNAME</string>
+    <string name="create_account_username_label">ИМЯ ПОЛЬЗОВАТЕЛЯ</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">Это имя пользователя уже занято. Пожалуйста, выберите другое.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
+    <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9 и _</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>

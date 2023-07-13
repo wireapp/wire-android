@@ -55,7 +55,7 @@ coil = "2.4.0"
 commonmark = "0.21.0"
 
 # Logging
-dataDog = "1.18.1"
+dataDog = "1.19.3"
 
 # Other Tools
 aboutLibraries = "10.8.0"

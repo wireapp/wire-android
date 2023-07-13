@@ -277,15 +277,19 @@ class RecordAudioViewModelImpl @Inject constructor(
         onAudioRecorded: (UriAsset) -> Unit,
         onComplete: () -> Unit
     ) {
-        state.outputFile?.let {
-            onAudioRecorded(
-                UriAsset(
-                    uri = it.toUri(),
-                    saveToDeviceIfInvalid = false
+        viewModelScope.launch {
+            recordAudioMessagePlayer.stop()
+            recordAudioMessagePlayer.close()
+            state.outputFile?.let {
+                onAudioRecorded(
+                    UriAsset(
+                        uri = it.toUri(),
+                        saveToDeviceIfInvalid = false
+                    )
                 )
-            )
-            onComplete()
-            // TODO(RecordAudio): Question: Should we remove the file here as well?
+                onComplete()
+                // TODO(RecordAudio): Question: Should we remove the file here as well?
+            }
         }
     }
 

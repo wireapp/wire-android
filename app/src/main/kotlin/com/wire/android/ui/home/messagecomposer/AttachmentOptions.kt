@@ -60,8 +60,7 @@ fun AttachmentOptionsComponent(
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean,
-    modifier: Modifier = Modifier
+    isFileSharingEnabled: Boolean
 ) {
     Box(modifier = Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
         val attachmentOptions = buildAttachmentOptionItems(
@@ -251,8 +250,6 @@ private data class AttachmentOptionItem(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    val context = LocalContext.current
-
     AttachmentOptionsComponent(
         {},
         isFileSharingEnabled = true,

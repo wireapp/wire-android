@@ -126,8 +126,7 @@ fun AdditionalOptionSubMenu(
                 tempWritableImageUri = tempWritableImageUri,
                 tempWritableVideoUri = tempWritableVideoUri,
                 isFileSharingEnabled = isFileSharingEnabled,
-                onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-                modifier = modifier
+                onRecordAudioMessageClicked = onRecordAudioMessageClicked
             )
         }
 

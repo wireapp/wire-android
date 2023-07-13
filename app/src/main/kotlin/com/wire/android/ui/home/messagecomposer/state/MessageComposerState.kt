@@ -349,7 +349,7 @@ data class MessageComposerState(
 
     fun updateSelfDeletionTime(newSelfDeletionTimer: SelfDeletionTimer) = with(newSelfDeletionTimer) {
         currentSelfDeletionTimer = newSelfDeletionTimer
-        val newSelfDeletionDuration = newSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+        val newSelfDeletionDuration = newSelfDeletionTimer.duration.toSelfDeletionDuration()
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = messageComposeInputState.messageText,
             inputFocused = true,
@@ -358,7 +358,7 @@ data class MessageComposerState(
         )
     }
 
-    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletionTimer.duration.toSelfDeletionDuration()
 
     fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletionTimer) {
         // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level

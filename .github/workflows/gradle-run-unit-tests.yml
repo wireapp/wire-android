@@ -76,7 +76,7 @@ jobs:
           path: app/build/reports/jacoco
 
       - name: Upload Test Report
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: "app/build/reports/jacoco/jacocoReport/jacocoReport.xml"
 

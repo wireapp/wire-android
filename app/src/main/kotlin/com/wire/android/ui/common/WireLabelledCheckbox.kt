@@ -44,6 +44,8 @@ fun WireLabelledCheckbox(
     label: String,
     checked: Boolean,
     onCheckClicked: ((Boolean) -> Unit),
+    maxLine: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Visible,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     contentPadding: PaddingValues = PaddingValues(dimensions().spacing0x),
     modifier: Modifier = Modifier
@@ -69,8 +71,8 @@ fun WireLabelledCheckbox(
         Text(
             text = label,
             style = MaterialTheme.wireTypography.body01,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 2,
+            overflow = overflow,
+            maxLines = maxLine,
             modifier = Modifier.weight(1f)
         )
     }

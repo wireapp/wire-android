@@ -124,7 +124,7 @@ class RecordAudioViewModelImpl @Inject constructor(
     }
 
     private suspend fun observeUserIsInCall() {
-        observeEstablishedCalls.invoke().collect {
+        observeEstablishedCalls().collect {
             hasOngoingCall = it.isNotEmpty()
         }
     }

@@ -38,24 +38,26 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration
 
-sealed class UIMessage(
-    open val header: MessageHeader,
-    open val source: MessageSource
-) {
+sealed interface UIMessage {
+    val header: MessageHeader
+    val source: MessageSource
+    val messageContent: UIMessageContent?
+    val sendingFailed: Boolean
+    val decryptionFailed: Boolean
+    val isPending: Boolean
 
     data class Regular(
         override val header: MessageHeader,
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
-        val messageContent: UIMessageContent.Regular?,
+        override val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
-    ) : UIMessage(header, source) {
-        val isTextMessage = messageContent is UIMessageContent.TextMessage
+    ) : UIMessage {
         val isDeleted: Boolean = header.messageStatus.isDeleted
-        val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
-        val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
-        val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
+        override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
@@ -66,10 +68,11 @@ sealed class UIMessage(
     data class System(
         override val header: MessageHeader,
         override val source: MessageSource,
-        val messageContent: UIMessageContent.SystemMessage
-    ) : UIMessage(header, source) {
-        val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
-        val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val messageContent: UIMessageContent.SystemMessage
+    ) : UIMessage {
+        override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
     }
 }
 
@@ -148,10 +151,11 @@ sealed class MessageFlowStatus {
     data class Read(val count: Int) : MessageFlowStatus()
 }
 
+@Stable
 data class MessageStatus(
     val flowStatus: MessageFlowStatus,
+    val expirationStatus: ExpirationStatus,
     val editStatus: MessageEditStatus = MessageEditStatus.NonEdited,
-    val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable,
     val isDeleted: Boolean = false
 ) {
 

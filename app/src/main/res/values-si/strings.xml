@@ -1065,7 +1065,7 @@
     <string name="settings_myaccount_logout">Delete Account</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
     <string name="delete_acount_dialog_title">Delete Account</string>
-    <string name="delete_acount_dialog_text">If you continue, will send a message via email. Follow the link to permanetly delete your account.</string>
+    <string name="delete_acount_dialog_text">If you continue, we will send a message via email. Follow the link to permanently delete your account.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
     <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable. The device verification takes place automatically using a certificate and replaces the previous manual process. This way, you communicate with the highest security standard.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure. The device verification takes place automatically using a certificate.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>

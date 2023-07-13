@@ -10,7 +10,7 @@ List<String> defineFlavor() {
     if (branchName == "main") {
         return ['Beta']
     } else if (branchName == "develop") {
-        return ['Staging', 'Dev']
+        return ['Staging']
     } else if (branchName == "prod") {
         return ['Prod']
     } else if (branchName == "internal") {

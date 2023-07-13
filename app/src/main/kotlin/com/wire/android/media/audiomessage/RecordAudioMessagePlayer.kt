@@ -86,7 +86,7 @@ class RecordAudioMessagePlayer @Inject constructor(
     // The collected value is updated for our single recorded audio.
     // The audio position can be either updated manually by the user or from the Slider component or
     // from the player itself.
-    val observableAudioMessagesState: Flow<AudioState> =
+    val audioMessageStateFlow: Flow<AudioState> =
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioStateUpdate ->
             when (audioStateUpdate) {
                 is RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate -> {

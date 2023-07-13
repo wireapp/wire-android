@@ -254,7 +254,7 @@ class RecordAudioViewModelTest {
                 )
             )
 
-            coEvery { recordAudioMessagePlayer.observableAudioMessagesState } returns flowOf(
+            coEvery { recordAudioMessagePlayer.audioMessageStateFlow } returns flowOf(
                 AudioState.DEFAULT
             )
             coEvery { recordAudioMessagePlayer.stop() } returns Unit

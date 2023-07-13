@@ -142,7 +142,7 @@ class RecordAudioViewModelImpl @Inject constructor(
 
     private fun observeAudioPlayerState() {
         viewModelScope.launch {
-            recordAudioMessagePlayer.observableAudioMessagesState.collect {
+            recordAudioMessagePlayer.audioMessageStateFlow.collect {
                 state = state.copy(
                     audioState = it
                 )

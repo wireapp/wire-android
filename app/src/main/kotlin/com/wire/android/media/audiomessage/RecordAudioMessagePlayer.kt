@@ -57,16 +57,15 @@ class RecordAudioMessagePlayer @Inject constructor(
             extraBufferCapacity = 1
         )
 
-    // MediaPlayer API does not have any mechanism that would inform as about the currentPosition,
+    // MediaPlayer API does not have any mechanism that would inform us about the currentPosition,
     // in a callback manner, therefore we need to create a timer manually that ticks every 1 second
     // and emits the current position
     private val mediaPlayerPosition = flow {
-        delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
+            delay(UPDATE_POSITION_INTERVAL_IN_MS)
             if (currentAudioFile != null && audioMediaPlayer.isPlaying) {
                 emit(audioMediaPlayer.currentPosition)
             }
-            delay(UPDATE_POSITION_INTERVAL_IN_MS)
         }
     }.distinctUntilChanged()
 

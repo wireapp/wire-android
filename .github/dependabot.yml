@@ -6,6 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
+    open-pull-requests-limit: 1
     directory: "/"
     schedule:
       interval: "daily"
@@ -13,6 +14,7 @@ updates:
       - "wireapp/android"
 
   - package-ecosystem: "github-actions"
+    open-pull-requests-limit: 1
     directory: "/"
     schedule:
       interval: "weekly"

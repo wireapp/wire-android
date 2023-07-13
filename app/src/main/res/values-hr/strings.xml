@@ -656,7 +656,7 @@
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Molimo pokušajte ponovno</string>
     <string name="error_server_miscommunication_title">Serverska greška</string>
-    <string name="error_server_miscommunication_message">Please try again</string>
+    <string name="error_server_miscommunication_message">Molimo pokušajte ponovno</string>
     <string name="error_socket_title">Invalid information</string>
     <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
     <string name="error_no_network_title">Waiting for network</string>

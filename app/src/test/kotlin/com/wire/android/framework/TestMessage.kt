@@ -22,6 +22,7 @@ package com.wire.android.framework
 
 import com.wire.android.mapper.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -129,7 +130,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
 
     val MEMBER_REMOVED_MESSAGE = Message.System(
@@ -138,7 +140,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
     val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageContentMetadata(
         AssetContent(
@@ -156,7 +159,10 @@ object TestMessage {
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Sent),
+        messageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
+        ),
         messageId = "messageID",
         connectionState = null,
         isSenderDeleted = false,
@@ -176,7 +182,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
 
     val CONVERSATION_CREATED_MESSAGE = Message.System(
@@ -185,7 +192,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
 
     val PREVIEW = MessagePreview(

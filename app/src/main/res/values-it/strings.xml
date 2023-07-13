@@ -1011,7 +1011,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="automatically_delete_message_after">Elimina automaticamente il messaggio dopo:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Dopo che un partecipante ha visualizzato il tuo messaggio e il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Dopo che %1$s ha visto il tuo messaggio e che il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Message will be deleted once you are online</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
     <plurals name="weeks_left">
         <item quantity="one">1 settimana rimanente</item>
         <item quantity="other">%1$d settimane rimanenti</item>

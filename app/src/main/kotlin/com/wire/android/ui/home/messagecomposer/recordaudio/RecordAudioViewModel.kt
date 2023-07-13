@@ -135,7 +135,6 @@ class RecordAudioViewModelImpl @Inject constructor(
                 currentScreen == CurrentScreen.InBackground
             ) {
                 stopRecording()
-                discardRecording(onCloseRecordAudio = {})
             }
         }
     }

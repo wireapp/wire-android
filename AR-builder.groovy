@@ -375,10 +375,22 @@ pipeline {
                         echo 'Checking folder before S3 Bucket upload'
                         sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
                         echo 'Uploading file to S3 Bucket'
-                        s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/")
+                        s3Upload(
+                                acl: 'Private',
+                                workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/",
+                                includePathPattern: 'com.wire.android-*.apk',
+                                bucket: 'z-lohika',
+                                path: "megazord/android/reloaded/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                        )
                         script {
                             if (params.SOURCE_BRANCH.startsWith("PR-") || params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "release/candidate") {
-                                s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${params.SOURCE_BRANCH}/")
+                                s3Upload(
+                                        acl: 'Private',
+                                        workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/",
+                                        includePathPattern: 'com.wire.android-*.apk',
+                                        bucket: 'z-lohika',
+                                        path: "megazord/android/reloaded/by-branch/${params.SOURCE_BRANCH}/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                                )
                             }
                         }
                     }

@@ -19,7 +19,6 @@
 
 package customization
 
-import groovy.json.JsonSlurper
 import org.ajoberstar.grgit.Credentials
 import org.ajoberstar.grgit.Grgit
 import java.io.File
@@ -29,6 +28,7 @@ object Customization {
 
     internal const val GIT_PROPERTIES_FILE_NAME = "local.properties"
     internal const val CUSTOM_CHECKOUT_DIR_NAME = "custom"
+    internal const val CUSTOM_RESOURCES_OVERRIDE_DIR_NAME = "resources"
     internal const val CUSTOM_JSON_FILE_NAME = "custom-reloaded.json"
     internal const val DEFAULT_JSON_FILE_NAME = "default.json"
 
@@ -45,33 +45,50 @@ object Customization {
      * according to the specified [customizationOption].
      * Will attempt to read [CustomizationGitProperty] from environment variables
      * or [GIT_PROPERTIES_FILE_NAME] file if [customizationOption] is null.
-     * @return the [NormalizedFlavorSettings], result from the importing of configuration files.
+     * @return the [BuildTimeConfiguration], result from the importing of configuration files.
+     */
+    fun getBuildtimeConfiguration(
+        rootDir: File
+    ): BuildTimeConfiguration {
+        val isCustomFromGit = properties.readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
+        return if (isCustomFromGit) {
+            val customFile = getCustomisationFileFromGitProperties(rootDir)
+            getBuildtimeConfiguration(rootDir, CustomizationOption.FromFile(customFile))
+        } else {
+            getBuildtimeConfiguration(rootDir, CustomizationOption.DefaultOnly)
+        }
+    }
+
+    /**
+     * Basing all the work on the [rootDir], import configuration files
+     * according to the specified [customizationOption].
+     * @return the [BuildTimeConfiguration], result from the importing of configuration files.
      */
     fun getBuildtimeConfiguration(
         rootDir: File,
-        customizationOption: CustomizationOption? = null
-    ): NormalizedFlavorSettings {
+        customizationOption: CustomizationOption
+    ): BuildTimeConfiguration {
+
         val defaultConfigFile = File(rootDir, DEFAULT_JSON_FILE_NAME)
         val defaultConfig = configurationFileImporter.loadConfigsFromFile(defaultConfigFile)
 
-        return when (customizationOption) {
+        val normalizedFlavorSettings = when (customizationOption) {
             is CustomizationOption.DefaultOnly -> defaultConfig
 
             is CustomizationOption.FromFile -> getCustomBuildConfigs(
                 defaultConfig,
                 customizationOption.customJsonFile
             )
+        }
 
-            null -> {
-                val isCustomFromGit = properties.readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
-                if (isCustomFromGit) {
-                    val customFile = getCustomisationFileFromGitProperties(rootDir)
-                    getCustomBuildConfigs(defaultConfig, customFile)
-                } else {
-                    defaultConfig
-                }
+        val resourcesOverrideDirectory = when(customizationOption){
+            is CustomizationOption.DefaultOnly -> null
+            is CustomizationOption.FromFile -> {
+                File(customizationOption.customJsonFile.parentFile, CUSTOM_RESOURCES_OVERRIDE_DIR_NAME)
+                    .takeIf { it.exists() }
             }
         }
+        return BuildTimeConfiguration(normalizedFlavorSettings, resourcesOverrideDirectory)
     }
 
     /**

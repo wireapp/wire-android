@@ -30,6 +30,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -54,6 +55,10 @@ internal fun CustomServerDialog(
         ),
 
         buttonsHorizontalAlignment = true,
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        ),
         onDismiss = onDismiss,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDismiss,

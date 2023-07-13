@@ -1012,7 +1012,7 @@ URL del backend:
     <string name="automatically_delete_message_after">Borrar el mensaje automáticamente después de:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Message will be deleted once you are online</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
     <plurals name="weeks_left">
         <item quantity="one">Falta 1 semana</item>
         <item quantity="other">Faltan %1$d semanas</item>

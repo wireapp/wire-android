@@ -99,7 +99,7 @@ class PrivacySettingsViewModel @Inject constructor(
 
     fun setScreenshotCensoringConfig(isEnabled: Boolean) {
         viewModelScope.launch {
-            when (withContext(dispatchers.io()) { persistScreenshotCensoringConfig(isEnabled) }) {
+            when (persistScreenshotCensoringConfig(isEnabled)) {
                 is PersistScreenshotCensoringConfigResult.Failure -> {
                     appLogger.e("Something went wrong while updating screenshot censoring config")
                 }

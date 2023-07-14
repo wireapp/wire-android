@@ -121,7 +121,7 @@
     <string name="content_description_avatar_preview">Preview of profile picture</string>
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
-    <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_right_arrow">Desna strelica</string>
     <string name="content_description_left_arrow">Go back</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
@@ -177,7 +177,7 @@
     <string name="support_screen_title">Podrška</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
-    <string name="search_no_results">No matches found</string>
+    <string name="search_no_results">Nije pronađen nijedan rezultat</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Ostalo</string>
@@ -243,10 +243,8 @@
     <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
-    <string name="deleted_user_error_title">Deleted account</string>
-    <string name="deleted_user_error_message">You were logged out because your account was
-        deleted.
-    </string>
+    <string name="deleted_user_error_title">Obrisan kontakt</string>
+    <string name="deleted_user_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
     <string name="removed_client_error_title">Removed Device</string>
     <string name="removed_client_error_message">You were logged out because your device was
         removed.
@@ -277,7 +275,7 @@
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
     <!-- Delete Message -->
-    <string name="delete_message_dialog_title">Delete Message?</string>
+    <string name="delete_message_dialog_title">Obriši Poruku?</string>
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
     <string name="label_delete_for_me">Izbriši za mene</string>
     <string name="label_delete_for_everyone">Izbriši za sve</string>
@@ -641,13 +639,13 @@
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
-    <string name="label_contacts">CONTACTS</string>
+    <string name="label_contacts">KONTAKTI</string>
     <string name="label_new_group">New Group</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
-    <string name="label_learn_more_searching_user">Learn more</string>
+    <string name="label_learn_more_searching_user">Saznaj više</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">Kontakti</string>

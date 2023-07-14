@@ -1,0 +1,47 @@
+name: "Cherry-pick from rc to develop"
+
+on:
+    pull_request:
+        branches:
+            - release/candidate
+        types:
+            - closed
+
+jobs:
+    cherry-pick:
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.merged == true
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+
+            - name: Extract branch name and remove prefix
+              id: extract
+              run: |
+                  PR_BRANCH="${{ github.event.pull_request.head.ref }}"
+                  PREFIX=$(echo $PR_BRANCH | cut -d'/' -f 1)
+                  SUFFIX=$(echo $PR_BRANCH | cut -d'/' -f 3-)
+                  NEW_BRANCH_NAME="$PREFIX/$SUFFIX"
+                  echo "::set-output name=newBranchName::$NEW_BRANCH_NAME"
+
+            - name: Cherry-pick commits
+              run: |
+                  git fetch origin develop:develop
+                  git checkout -b ${{ steps.extract.outputs.newBranchName }} develop
+                  COMMITS=$(git log --pretty=format:"%H" --reverse ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+                  for COMMIT in $COMMITS; do
+                    git cherry-pick $COMMIT --strategy-option ours
+                  done
+                  git push origin ${{ steps.extract.outputs.newBranchName }}
+
+            - name: Create PR
+              id: cpr
+              uses: peter-evans/create-pull-request@v5
+              with:
+                  title: Cherry-pick to develop
+                  base: develop
+                  branch: "${{ steps.extract.outputs.newBranchName }}"
+                  body: ${{ github.event.pull_request.body }}

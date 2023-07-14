@@ -20,6 +20,7 @@
 
 package com.wire.android.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -37,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -137,7 +139,8 @@ class WireActivity : AppCompatActivity() {
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
-                LocalSnackbarHostState provides snackbarHostState
+                LocalSnackbarHostState provides snackbarHostState,
+                LocalActivity provides this
             ) {
                 WireTheme {
                     Column {
@@ -435,4 +438,8 @@ class WireActivity : AppCompatActivity() {
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
+}
+
+val LocalActivity = staticCompositionLocalOf<Activity> {
+    error("No Activity provided")
 }

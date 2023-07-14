@@ -164,6 +164,9 @@
     <string name="content_description_message_error_status">Message error status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
+    <string name="content_description_record_audio_button_start">Record Audio</string>
+    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
+    <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -605,7 +608,7 @@
     <string name="last_message_replied">replied to you</string>
     <string name="last_message_other_changed_conversation_name">changed conversation name</string>
     <string name="last_message_self_changed_conversation_name">changed conversation name</string>
-    <string name="last_message_calling">%1$s calling...</string>
+    <string name="last_message_calling">%1$s zove...</string>
     <string name="last_message_self_user_joined_conversation">joined the conversation.</string>
     <string name="last_message_self_user_left_conversation">left the conversation.</string>
     <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
@@ -655,7 +658,7 @@
     <string name="error_unknown_message">Molimo pokušajte ponovno</string>
     <string name="error_server_miscommunication_title">Serverska greška</string>
     <string name="error_server_miscommunication_message">Molimo pokušajte ponovno</string>
-    <string name="error_socket_title">Invalid information</string>
+    <string name="error_socket_title">Nevažeća informacija</string>
     <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
     <string name="error_no_network_title">Waiting for network</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
@@ -668,7 +671,7 @@
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">Found no app to open the selected file</string>
-    <string name="error_conversation_deleting_message">The message could not be deleted</string>
+    <string name="error_conversation_deleting_message">Poruka se ne može izbrisati</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">Something went wrong. The message could not be sent.</string>
@@ -696,12 +699,12 @@
     <string name="notification_not_supported_issue">Feature not supported</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>
-    <string name="notification_action_reply">Reply</string>
+    <string name="notification_action_reply">Odgovor</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_action_hang_up_call">Hang Up</string>
+    <string name="notification_action_hang_up_call">Poklopi</string>
     <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_call_content">%s calling...</string>
@@ -1093,4 +1096,17 @@
     <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Podsjeti me kasnije</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
+    <!-- Record Audio -->
+    <string name="record_audio_start_label">Start Recording</string>
+    <string name="record_audio_recording_label">Recording Audio...</string>
+    <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
+    <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
+    <string name="record_audio_discard_dialog_discard_button">Discard</string>
+    <string name="record_audio_permission_denied_dialog_title">Microphone Access</string>
+    <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
+    <string name="record_audio_permission_denied_dialog_settings_button">Settings</string>
+    <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
+    <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
+    <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
 </resources>

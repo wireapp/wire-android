@@ -44,10 +44,7 @@ fun InitialSyncScreen(
     LaunchedEffect(Unit) {
         delay(DefaultDurationMillis.toLong()) // it can be triggered instantly so it's added to keep smooth transitions
         viewModel.waitUntilSyncIsCompleted {
-            navigator.navigate(
-                navigationCommand = NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE),
-                onlyIfResumed = false // it can be triggered instantly even before the screen is fully in resumed state
-            )
+            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         }
     }
 }

@@ -35,7 +35,7 @@ class Navigator(val finish: () -> Unit, val navController: NavHostController) {
      * or when we simply don't want to make more than one navigation action at a time (skip some destinations instantly).
      * More here: https://composedestinations.rafaelcosta.xyz/navigation/basics#avoiding-duplicate-navigation
      */
-    fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean = true) {
+    fun navigate(navigationCommand: NavigationCommand, onlyIfResumed: Boolean = false) {
         if (onlyIfResumed && !isResumed) return
         navController.navigateToItem(navigationCommand)
     }
@@ -47,7 +47,7 @@ class Navigator(val finish: () -> Unit, val navController: NavHostController) {
      * or when we simply don't want to make more than one navigation action at a time (skip some destinations instantly).
      * More here: https://composedestinations.rafaelcosta.xyz/navigation/basics#avoiding-duplicate-navigation
      */
-    fun navigateBack(onlyIfResumed: Boolean = true) {
+    fun navigateBack(onlyIfResumed: Boolean = false) {
         if (onlyIfResumed && !isResumed) return
         if (!navController.popBackStack()) finish()
     }

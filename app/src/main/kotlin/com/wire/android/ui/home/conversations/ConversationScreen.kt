@@ -304,7 +304,7 @@ private fun ConversationScreen(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -361,7 +361,7 @@ private fun ConversationScreen(
         is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                currentlySelected = messageComposerViewState.value.selfDeletionTimer.toDuration().toSelfDeletionDuration(),
+                currentlySelected = messageComposerViewState.value.selfDeletionTimer.duration.toSelfDeletionDuration(),
                 onSelfDeletionDurationChanged = { newTimer ->
                     onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
                 }
@@ -451,7 +451,7 @@ private fun ConversationScreenContent(
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
@@ -564,7 +564,7 @@ fun MessageList(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowEditingOption: (UIMessage.Regular) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit
@@ -630,7 +630,8 @@ fun MessageList(
                 is UIMessage.System -> SystemMessageItem(
                     message = message,
                     onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                    onSelfDeletingMessageRead = onSelfDeletingMessageRead
                 )
             }
         }

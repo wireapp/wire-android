@@ -39,6 +39,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.DurationUnit
@@ -497,8 +498,8 @@ class MessageComposerViewModelTest {
                     expectedTimer
                 )
             }
-            assert(viewModel.messageComposerViewState.value.selfDeletionTimer is SelfDeletionTimer.Enabled)
-            assert(viewModel.messageComposerViewState.value.selfDeletionTimer.toDuration() == expectedDuration)
+            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
+            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
         }
 
     @Test
@@ -521,7 +522,7 @@ class MessageComposerViewModelTest {
                     true
                 )
             }
-            assert(viewModel.messageComposerViewState.value.selfDeletionTimer is SelfDeletionTimer.Enabled)
-            assert(viewModel.messageComposerViewState.value.selfDeletionTimer.toDuration() == expectedDuration)
+            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
+            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
         }
 }

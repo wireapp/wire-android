@@ -53,7 +53,7 @@ fun RecordAudioComponent(
     onAudioRecorded: (UriAsset) -> Unit,
     onCloseRecordAudio: () -> Unit
 ) {
-    val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModelImpl>()
+    val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
 
     val recordAudioFlow = RecordAudioFlow(

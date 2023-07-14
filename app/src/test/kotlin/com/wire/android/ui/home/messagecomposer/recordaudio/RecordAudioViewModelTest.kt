@@ -224,7 +224,7 @@ class RecordAudioViewModelTest {
         val currentScreenManager = mockk<CurrentScreenManager>()
 
         val viewModel by lazy {
-            RecordAudioViewModelImpl(
+            RecordAudioViewModel(
                 recordAudioMessagePlayer = recordAudioMessagePlayer,
                 observeEstablishedCalls = observeEstablishedCalls,
                 currentScreenManager = currentScreenManager,

@@ -40,35 +40,13 @@ import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
 
 @Suppress("TooManyFunctions")
-interface RecordAudioViewModel {
-    fun getButtonState(): RecordAudioButtonState
-    fun getDiscardDialogState(): RecordAudioDialogState
-    fun getPermissionsDeniedDialogState(): RecordAudioDialogState
-    fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState
-    fun getInfoMessage(): SharedFlow<UIText>
-    fun getOutputFile(): File?
-    fun getAudioState(): AudioState
-    fun startRecording()
-    fun stopRecording()
-    fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit)
-    fun onDismissDiscardDialog()
-    fun showPermissionsDeniedDialog()
-    fun onDismissPermissionsDeniedDialog()
-    fun onDismissMaxFileSizeReachedDialog()
-    fun discardRecording(onCloseRecordAudio: () -> Unit)
-    fun sendRecording(onAudioRecorded: (UriAsset) -> Unit, onComplete: () -> Unit)
-    fun onPlayAudio()
-    fun onSliderPositionChange(position: Int)
-}
-
-@Suppress("TooManyFunctions")
 @HiltViewModel
-class RecordAudioViewModelImpl @Inject constructor(
+class RecordAudioViewModel @Inject constructor(
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder
-) : RecordAudioViewModel, ViewModel() {
+) : ViewModel() {
 
     private var state: RecordAudioState by mutableStateOf(RecordAudioState())
 
@@ -76,21 +54,21 @@ class RecordAudioViewModelImpl @Inject constructor(
 
     private val infoMessage = MutableSharedFlow<UIText>()
 
-    override fun getButtonState(): RecordAudioButtonState = state.buttonState
+    fun getButtonState(): RecordAudioButtonState = state.buttonState
 
-    override fun getDiscardDialogState(): RecordAudioDialogState = state.discardDialogState
+    fun getDiscardDialogState(): RecordAudioDialogState = state.discardDialogState
 
-    override fun getPermissionsDeniedDialogState(): RecordAudioDialogState =
+    fun getPermissionsDeniedDialogState(): RecordAudioDialogState =
         state.permissionsDeniedDialogState
 
-    override fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState =
+    fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState =
         state.maxFileSizeReachedDialogState
 
-    override fun getOutputFile(): File? = state.outputFile
+    fun getOutputFile(): File? = state.outputFile
 
-    override fun getAudioState(): AudioState = state.audioState
+    fun getAudioState(): AudioState = state.audioState
 
-    override fun getInfoMessage(): SharedFlow<UIText> = infoMessage.asSharedFlow()
+    fun getInfoMessage(): SharedFlow<UIText> = infoMessage.asSharedFlow()
 
     init {
         observeAudioPlayerState()
@@ -143,7 +121,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun startRecording() {
+    fun startRecording() {
         if (hasOngoingCall) {
             viewModelScope.launch {
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
@@ -163,7 +141,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun stopRecording() {
+    fun stopRecording() {
         if (state.buttonState == RecordAudioButtonState.RECORDING) {
             state = state.copy(
                 buttonState = RecordAudioButtonState.READY_TO_SEND
@@ -173,7 +151,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         audioMediaRecorder.release()
     }
 
-    override fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {
+    fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {
         when (state.buttonState) {
             RecordAudioButtonState.ENABLED -> onCloseRecordAudio()
             RecordAudioButtonState.RECORDING,
@@ -185,31 +163,31 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onDismissDiscardDialog() {
+    fun onDismissDiscardDialog() {
         state = state.copy(
             discardDialogState = RecordAudioDialogState.Hidden
         )
     }
 
-    override fun showPermissionsDeniedDialog() {
+    fun showPermissionsDeniedDialog() {
         state = state.copy(
             permissionsDeniedDialogState = RecordAudioDialogState.Shown
         )
     }
 
-    override fun onDismissPermissionsDeniedDialog() {
+    fun onDismissPermissionsDeniedDialog() {
         state = state.copy(
             permissionsDeniedDialogState = RecordAudioDialogState.Hidden
         )
     }
 
-    override fun onDismissMaxFileSizeReachedDialog() {
+    fun onDismissMaxFileSizeReachedDialog() {
         state = state.copy(
             maxFileSizeReachedDialogState = RecordAudioDialogState.Hidden
         )
     }
 
-    override fun discardRecording(onCloseRecordAudio: () -> Unit) {
+    fun discardRecording(onCloseRecordAudio: () -> Unit) {
         viewModelScope.launch {
             state.outputFile?.toPath()?.deleteIfExists()
             recordAudioMessagePlayer.stop()
@@ -223,7 +201,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun sendRecording(
+    fun sendRecording(
         onAudioRecorded: (UriAsset) -> Unit,
         onComplete: () -> Unit
     ) {
@@ -243,7 +221,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onPlayAudio() {
+    fun onPlayAudio() {
         state.outputFile?.let { audioFile ->
             viewModelScope.launch {
                 recordAudioMessagePlayer.playAudio(
@@ -253,7 +231,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onSliderPositionChange(position: Int) {
+    fun onSliderPositionChange(position: Int) {
         viewModelScope.launch {
             recordAudioMessagePlayer.setPosition(
                 position = position

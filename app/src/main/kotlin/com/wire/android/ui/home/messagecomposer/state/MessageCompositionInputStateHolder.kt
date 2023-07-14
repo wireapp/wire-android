@@ -121,6 +121,7 @@ class MessageCompositionInputStateHolder(
     }
 
     companion object {
+        @Suppress("MagicNumber")
         fun saver(): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
                 listOf(

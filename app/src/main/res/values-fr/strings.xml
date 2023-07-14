@@ -163,6 +163,9 @@
     <string name="content_description_message_error_status">Message error status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
+    <string name="content_description_record_audio_button_start">Record Audio</string>
+    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
+    <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -1072,4 +1075,17 @@
     <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
+    <!-- Record Audio -->
+    <string name="record_audio_start_label">Start Recording</string>
+    <string name="record_audio_recording_label">Recording Audio...</string>
+    <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
+    <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
+    <string name="record_audio_discard_dialog_discard_button">Discard</string>
+    <string name="record_audio_permission_denied_dialog_title">Microphone Access</string>
+    <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
+    <string name="record_audio_permission_denied_dialog_settings_button">Settings</string>
+    <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
+    <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
+    <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
 </resources>

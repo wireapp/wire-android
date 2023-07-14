@@ -271,7 +271,7 @@ class WireActivity : AppCompatActivity() {
                     onCancel = viewModel::cancelJoinConversation,
                     onJoinClick = { code, key, domain ->
                         viewModel.joinConversationViaCode(code, key, domain) {
-                            NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)
+                            navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED))
                         }
                     }
                 )
@@ -444,15 +444,12 @@ class WireActivity : AppCompatActivity() {
         ) {
             return
         } else {
+            val navigate: (NavigationCommand) -> Unit = { navigationCommands.tryEmit(it) }
             viewModel.handleDeepLink(
                 intent = intent,
                 onResult = ::handleDeepLinkResult,
-                onOpenConversation = {
-                    navigationCommands.tryEmit(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED))
-                },
-                onIsSharingIntent = {
-                    navigationCommands.tryEmit(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED))
-                }
+                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
+                onIsSharingIntent = { navigate(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED)) }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }

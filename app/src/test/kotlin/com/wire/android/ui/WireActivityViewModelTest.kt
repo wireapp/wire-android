@@ -78,7 +78,7 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@Suppress("MaxLineLength")
+@Suppress("MaxLineLength", "MaximumLineLength")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {

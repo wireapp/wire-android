@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("MaximumLineLength")
+
 package com.wire.android.ui
 
 import android.content.Intent
@@ -78,7 +80,7 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@Suppress("MaxLineLength", "MaximumLineLength")
+@Suppress("MaxLineLength")
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {

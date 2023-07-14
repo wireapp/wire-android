@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -53,12 +54,19 @@ fun rememberMessageComposerStateHolder(
             messageComposerViewState.value.selfDeletionTimer
         }
     }
-
-    val messageCompositionInputStateHolder = remember {
+    val messageCompositionInputStateHolder = rememberSaveable(
+        saver = MessageCompositionInputStateHolder.saver()
+    ) {
         MessageCompositionInputStateHolder(
             messageComposition = messageCompositionHolder.messageComposition,
             selfDeletionTimer = selfDeletionTimer,
         )
+    }
+
+    val additionalOptionStateHolder = rememberSaveable(
+        saver = AdditionalOptionStateHolder.saver()
+    ) {
+        AdditionalOptionStateHolder()
     }
 
     return remember {
@@ -67,7 +75,7 @@ fun rememberMessageComposerStateHolder(
             modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
-            additionalOptionStateHolder = AdditionalOptionStateHolder()
+            additionalOptionStateHolder = additionalOptionStateHolder
         )
     }
 }
@@ -134,6 +142,11 @@ class MessageComposerStateHolder(
     fun toAudioRecording() {
         messageCompositionInputStateHolder.hide()
         additionalOptionStateHolder.toAudioRecording()
+    }
+
+    fun toCloseAudioRecording() {
+        messageCompositionInputStateHolder.show()
+        additionalOptionStateHolder.hideAudioRecording()
     }
 
     fun onKeyboardVisibilityChanged(isVisible: Boolean) {

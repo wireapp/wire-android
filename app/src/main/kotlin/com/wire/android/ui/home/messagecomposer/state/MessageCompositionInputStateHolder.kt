@@ -23,6 +23,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
@@ -33,7 +34,7 @@ import com.wire.kalium.logic.util.isPositiveNotNull
 
 class MessageCompositionInputStateHolder(
     private val messageComposition: MutableState<MessageComposition>,
-    selfDeletionTimer: State<SelfDeletionTimer>
+    private val selfDeletionTimer: State<SelfDeletionTimer>
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
         private set
@@ -111,8 +112,41 @@ class MessageCompositionInputStateHolder(
         inputFocused = true
     }
 
+    fun show() {
+        inputVisibility = true
+    }
+
     fun hide() {
         inputVisibility = false
+    }
+
+    companion object {
+        @Suppress("MagicNumber")
+        fun saver(): Saver<MessageCompositionInputStateHolder, *> = Saver(
+            save = {
+                listOf(
+                    it.messageComposition,
+                    it.selfDeletionTimer,
+                    it.inputFocused,
+                    it.inputType,
+                    it.inputVisibility,
+                    it.inputState,
+                    it.inputSize
+                )
+            },
+            restore = {
+                MessageCompositionInputStateHolder(
+                    messageComposition = it[0] as MutableState<MessageComposition>,
+                    selfDeletionTimer = it[1] as State<SelfDeletionTimer>
+                ).apply {
+                    inputFocused = it[2] as Boolean
+                    inputType = it[3] as MessageCompositionType
+                    inputVisibility = it[4] as Boolean
+                    inputState = it[5] as MessageCompositionInputState
+                    inputSize = it[6] as MessageCompositionInputSize
+                }
+            }
+        )
     }
 }
 

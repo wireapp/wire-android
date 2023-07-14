@@ -21,22 +21,20 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -111,9 +109,12 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
-    additionalOptionsState: AdditionalOptionSubMenuState,
     onRecordAudioMessageClicked: () -> Unit,
+    onCloseRecordAudio: () -> Unit,
+    additionalOptionsState: AdditionalOptionSubMenuState,
+    snackbarHostState: SnackbarHostState,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     modifier: Modifier
@@ -125,15 +126,15 @@ fun AdditionalOptionSubMenu(
                 tempWritableImageUri = tempWritableImageUri,
                 tempWritableVideoUri = tempWritableVideoUri,
                 isFileSharingEnabled = isFileSharingEnabled,
-                onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-                modifier = modifier
+                onRecordAudioMessageClicked = onRecordAudioMessageClicked
             )
         }
 
         AdditionalOptionSubMenuState.RecordAudio -> {
             RecordAudioComponent(
-                onAudioRecorded = {},
-                modifier = modifier
+                snackbarHostState = snackbarHostState,
+                onAudioRecorded = onAudioRecorded,
+                onCloseRecordAudio = onCloseRecordAudio
             )
         }
         // non functional for now
@@ -142,18 +143,6 @@ fun AdditionalOptionSubMenu(
         AdditionalOptionSubMenuState.Gif -> {}
         AdditionalOptionSubMenuState.Hidden -> {}
     }
-}
-
-@Composable
-fun RecordAudioComponent(
-    onAudioRecorded: () -> Unit,
-    modifier: Modifier
-) {
-    Box(
-        Modifier
-            .size(32.dp)
-            .background(Color.Red)
-    )
 }
 
 @Composable

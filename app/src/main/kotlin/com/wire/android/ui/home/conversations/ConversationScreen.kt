@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -515,7 +516,8 @@ private fun ConversationScreen(
                     onSearchMentionQueryChanged = requestMentions,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableImageUri = tempWritableImageUri,
-                    tempWritableVideoUri = tempWritableVideoUri
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    snackBarHostState = conversationScreenState.snackBarHostState
                 )
             }
         }
@@ -555,7 +557,8 @@ private fun ConversationScreenContent(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?
+    tempWritableVideoUri: Uri?,
+    snackBarHostState: SnackbarHostState
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -565,6 +568,7 @@ private fun ConversationScreenContent(
 
     MessageComposer(
         messageComposerStateHolder = messageComposerStateHolder,
+        snackbarHostState = snackBarHostState,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,

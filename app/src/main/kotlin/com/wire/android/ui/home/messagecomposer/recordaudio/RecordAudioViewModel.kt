@@ -17,24 +17,18 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.content.Context
-import android.media.MediaRecorder
-import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,10 +36,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
-import kotlin.properties.Delegates
 
 @Suppress("TooManyFunctions")
 interface RecordAudioViewModel {
@@ -56,7 +48,7 @@ interface RecordAudioViewModel {
     fun getInfoMessage(): SharedFlow<UIText>
     fun getOutputFile(): File?
     fun getAudioState(): AudioState
-    fun startRecording(context: Context)
+    fun startRecording()
     fun stopRecording()
     fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit)
     fun onDismissDiscardDialog()
@@ -72,18 +64,13 @@ interface RecordAudioViewModel {
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class RecordAudioViewModelImpl @Inject constructor(
-    private val kaliumFileSystem: KaliumFileSystem,
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
-    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val currentScreenManager: CurrentScreenManager
+    private val currentScreenManager: CurrentScreenManager,
+    private val audioMediaRecorder: AudioMediaRecorder
 ) : RecordAudioViewModel, ViewModel() {
 
     private var state: RecordAudioState by mutableStateOf(RecordAudioState())
-
-    private var assetLimitInMegabyte by Delegates.notNull<Long>()
-
-    private var mediaRecorder: MediaRecorder? = null
 
     private var hasOngoingCall: Boolean = false
 
@@ -109,8 +96,6 @@ class RecordAudioViewModelImpl @Inject constructor(
         observeAudioPlayerState()
 
         viewModelScope.launch {
-            assetLimitInMegabyte = getAssetSizeLimit(isImage = false)
-
             launch {
                 observeAudioFileSize()
             }
@@ -120,6 +105,15 @@ class RecordAudioViewModelImpl @Inject constructor(
             launch {
                 observeUserIsInCall()
             }
+        }
+    }
+
+    private suspend fun observeAudioFileSize() {
+        audioMediaRecorder.getMaxFileSizeReached().collect { recordAudioDialogState ->
+            stopRecording()
+            state = state.copy(
+                maxFileSizeReachedDialogState = recordAudioDialogState
+            )
         }
     }
 
@@ -149,7 +143,7 @@ class RecordAudioViewModelImpl @Inject constructor(
         }
     }
 
-    override fun startRecording(context: Context) {
+    override fun startRecording() {
         if (hasOngoingCall) {
             viewModelScope.launch {
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
@@ -159,56 +153,13 @@ class RecordAudioViewModelImpl @Inject constructor(
                 buttonState = RecordAudioButtonState.RECORDING
             )
 
-            setUpMediaRecorder(context = context)
+            audioMediaRecorder.setUp()
 
-            try {
-                mediaRecorder?.prepare()
-                mediaRecorder?.start()
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-                appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")
-            } catch (e: IOException) {
-                e.printStackTrace()
-                appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}")
-            }
-        }
-    }
-
-    private fun setUpMediaRecorder(context: Context) {
-        if (mediaRecorder == null) {
-            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(context)
-            } else {
-                MediaRecorder()
-            }
-
-            val outputFile = kaliumFileSystem
-                .tempFilePath(TEMP_RECORDING_AUDIO_FILE)
-                .toFile()
             state = state.copy(
-                outputFile = outputFile
+                outputFile = audioMediaRecorder.outputFile
             )
 
-            mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-            mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            mediaRecorder?.setOutputFile(outputFile)
-            mediaRecorder?.setMaxFileSize(assetLimitInMegabyte)
-
-            observeAudioFileSize()
-        }
-    }
-
-    private fun observeAudioFileSize() {
-        mediaRecorder?.setOnInfoListener { _, what, _ ->
-            if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
-                stopRecording()
-                state = state.copy(
-                    maxFileSizeReachedDialogState = RecordAudioDialogState.MaxFileSizeReached(
-                        maxSize = assetLimitInMegabyte.div(SIZE_OF_1MB)
-                    )
-                )
-            }
+            audioMediaRecorder.startRecording()
         }
     }
 
@@ -217,9 +168,9 @@ class RecordAudioViewModelImpl @Inject constructor(
             state = state.copy(
                 buttonState = RecordAudioButtonState.READY_TO_SEND
             )
-            mediaRecorder?.stop()
+            audioMediaRecorder.stop()
         }
-        mediaRecorder?.release()
+        audioMediaRecorder.release()
     }
 
     override fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {
@@ -313,10 +264,5 @@ class RecordAudioViewModelImpl @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
-    }
-
-    private companion object {
-        const val TEMP_RECORDING_AUDIO_FILE = "temp_recording.mp3"
-        const val SIZE_OF_1MB = 1024 * 1024
     }
 }

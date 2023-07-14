@@ -57,7 +57,7 @@ fun RecordAudioComponent(
     val context = LocalContext.current
 
     val recordAudioFlow = RecordAudioFlow(
-        startRecording = { viewModel.startRecording(context = context) },
+        startRecording = { viewModel.startRecording() },
         showPermissionsDeniedDialog = viewModel::showPermissionsDeniedDialog
     )
 

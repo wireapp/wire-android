@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.content.Context
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -25,10 +24,8 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
@@ -51,13 +48,13 @@ class RecordAudioViewModelTest {
     fun `given user is in a call, when start recording audio, then a info message will be shown`() =
         runTest {
             // given
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withEstablishedCall()
                 .arrange()
 
             viewModel.getInfoMessage().test {
                 // when
-                viewModel.startRecording(context = arrangement.context)
+                viewModel.startRecording()
 
                 // then
                 val result = awaitItem()
@@ -72,11 +69,11 @@ class RecordAudioViewModelTest {
     fun `given user is not in a call, when start recording audio, then recording screen is shown`() =
         runTest {
             // given
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .arrange()
 
             // when
-            viewModel.startRecording(context = arrangement.context)
+            viewModel.startRecording()
 
             // then
             assertEquals(
@@ -89,10 +86,10 @@ class RecordAudioViewModelTest {
     fun `given user is recording audio, when stopping the recording, then send audio button is shown`() =
         runTest {
             // given
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .arrange()
 
-            viewModel.startRecording(context = arrangement.context)
+            viewModel.startRecording()
 
             // when
             viewModel.stopRecording()
@@ -125,10 +122,10 @@ class RecordAudioViewModelTest {
     fun `given user is recording, when closing audio recording view, then discard audio recording dialog is shown`() =
         runTest {
             // given
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .arrange()
 
-            viewModel.startRecording(context = arrangement.context)
+            viewModel.startRecording()
 
             // when
             viewModel.showDiscardRecordingDialog {
@@ -195,10 +192,10 @@ class RecordAudioViewModelTest {
     fun `given user recorded an audio, when discarding the audio, then file is deleted`() =
         runTest {
             // given
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .arrange()
 
-            viewModel.startRecording(context = arrangement.context)
+            viewModel.startRecording()
             viewModel.stopRecording()
 
             // when
@@ -221,20 +218,17 @@ class RecordAudioViewModelTest {
 
     private class Arrangement {
 
-        val context = mockk<Context>()
-        val kaliumFileSystem = mockk<KaliumFileSystem>()
         val recordAudioMessagePlayer = mockk<RecordAudioMessagePlayer>()
-        val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
+        val audioMediaRecorder = mockk<AudioMediaRecorder>()
         val observeEstablishedCalls = mockk<ObserveEstablishedCallsUseCase>()
         val currentScreenManager = mockk<CurrentScreenManager>()
 
         val viewModel by lazy {
             RecordAudioViewModelImpl(
-                kaliumFileSystem = kaliumFileSystem,
                 recordAudioMessagePlayer = recordAudioMessagePlayer,
-                getAssetSizeLimit = getAssetSizeLimit,
                 observeEstablishedCalls = observeEstablishedCalls,
-                currentScreenManager = currentScreenManager
+                currentScreenManager = currentScreenManager,
+                audioMediaRecorder = audioMediaRecorder
             )
         }
 
@@ -242,11 +236,19 @@ class RecordAudioViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             val fakeKaliumFileSystem = FakeKaliumFileSystem()
-            every { kaliumFileSystem.tempFilePath(any()) } returns fakeKaliumFileSystem
-                .tempFilePath("temp_recording.mp3")
 
-            coEvery { getAssetSizeLimit(isImage = false) } returns GetAssetSizeLimitUseCaseImpl
-                .ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            every { audioMediaRecorder.setUp() } returns Unit
+            every { audioMediaRecorder.startRecording() } returns Unit
+            every { audioMediaRecorder.stop() } returns Unit
+            every { audioMediaRecorder.release() } returns Unit
+            every { audioMediaRecorder.outputFile } returns fakeKaliumFileSystem
+                .tempFilePath("temp_recording.mp3")
+                .toFile()
+            coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
+                RecordAudioDialogState.MaxFileSizeReached(
+                    maxSize = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+                )
+            )
 
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
                 CurrentScreen.Conversation(

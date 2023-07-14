@@ -32,6 +32,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -268,5 +269,35 @@ class ConversationInfoViewModelTest {
             assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
             cancel()
         }
+    }
+
+    @Test
+    fun `given screenshot censoring disabled, when observing it, then set screenshotCensoringEnabled state to false`() = runTest {
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withSelfUser()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.conversationInfoViewState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given screenshot censoring enabled by user, when observing it, then set screenshotCensoringEnabled state to true`() = runTest {
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withSelfUser()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.conversationInfoViewState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given screenshot censoring enforced by team, when observing it, then set screenshotCensoringEnabled state to true`() = runTest {
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withSelfUser()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.conversationInfoViewState.screenshotCensoringEnabled)
     }
 }

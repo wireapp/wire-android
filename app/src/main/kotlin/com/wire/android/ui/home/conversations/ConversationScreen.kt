@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import android.app.Activity
 import android.net.Uri
 import android.view.WindowManager
 import androidx.compose.foundation.layout.Box

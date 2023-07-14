@@ -55,7 +55,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,

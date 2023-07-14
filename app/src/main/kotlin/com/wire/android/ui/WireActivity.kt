@@ -457,7 +457,7 @@ class WireActivity : AppCompatActivity() {
 
     private fun handleDeepLinkResult(result: DeepLinkResult) {
         val navigate: (NavigationCommand) -> Unit = { navigationCommands.tryEmit(it) }
-        when(result) {
+        when (result) {
             is DeepLinkResult.SSOLogin ->
                 navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED))
             is DeepLinkResult.MigrationLogin ->
@@ -473,7 +473,7 @@ class WireActivity : AppCompatActivity() {
                 navigate(NavigationCommand(ConversationScreenDestination(result.conversationsId), BackStackMode.UPDATE_EXISTED))
             is DeepLinkResult.OpenOtherUserProfile ->
                 navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
-            is DeepLinkResult.JoinConversation ->{
+            is DeepLinkResult.JoinConversation -> {
                 // do nothing, already handled in ViewModel
             }
             is DeepLinkResult.Unknown ->

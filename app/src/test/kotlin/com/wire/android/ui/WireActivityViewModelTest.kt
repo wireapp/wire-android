@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("MaximumLineLength")
+
 package com.wire.android.ui
 
 import android.content.Intent

@@ -77,8 +77,8 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                     state = state.copy(
                         isLoading = selfDeletingMessages.isEnforcedByTeam || !isSelfAnAdmin,
                         isEnabled = selfDeletingMessages.isEnforcedByGroup,
-                        remotelySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration(),
-                        locallySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration()
+                        remotelySelected = selfDeletingMessages.duration?.toSelfDeletionDuration(),
+                        locallySelected = selfDeletingMessages.duration?.toSelfDeletionDuration()
                     )
                 }
         }

@@ -169,7 +169,7 @@ fun SelfDeletionTimerButton(
     isDisabled: Boolean,
     onSelfDeletionTimerClicked: () -> Unit
 ) {
-    val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.userDuration != ZERO
+    val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.duration != null
     Box(
         modifier = modifier
             .padding(start = dimensions().spacing16x)

@@ -396,7 +396,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun startSelfDeletion(uiMessage: UIMessage.Regular) {
+    fun startSelfDeletion(uiMessage: UIMessage) {
         enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
     }
 

@@ -130,7 +130,7 @@ fun GroupConversationSettings(
                     title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
                     subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
                     trailingOnText = if (state.selfDeletionTimer.isEnforced) {
-                        "(${state.selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.asString()})"
+                        "(${state.selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString()})"
                     } else {
                         null
                     },

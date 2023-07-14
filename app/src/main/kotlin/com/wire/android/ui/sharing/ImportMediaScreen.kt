@@ -70,11 +70,11 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
+import com.wire.kalium.logic.util.isPositiveNotNull
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlin.time.Duration
 
 @RootNavGraph
 @Destination
@@ -220,7 +220,7 @@ fun ImportMediaRegularContent(
         )
         MenuModalSheetLayout(
             menuItems = SelfDeletionMenuItems(
-                currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.toDuration().toSelfDeletionDuration(),
+                currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
                 hideEditMessageMenu = importMediaScreenState::hideBottomSheetMenu,
                 onSelfDeletionDurationChanged = onNewSelfDeletionTimerPicked,
             ),
@@ -313,8 +313,8 @@ private fun ImportMediaBottomBar(
     checkRestrictionsAndSendImportedMedia: () -> Unit,
 ) {
     val selfDeletionTimer = state.selfDeletingTimer
-    val shortDurationLabel = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel
-    val mainButtonText = if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+    val shortDurationLabel = selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel
+    val mainButtonText = if (selfDeletionTimer.duration.isPositiveNotNull()) {
         "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})"
     } else {
         stringResource(id = R.string.import_media_send_button_title)

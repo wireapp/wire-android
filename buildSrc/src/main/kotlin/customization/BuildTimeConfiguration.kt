@@ -1,5 +1,12 @@
 package customization
 
+import java.io.File
+
+data class BuildTimeConfiguration(
+    val flavorSettings: NormalizedFlavorSettings,
+    val customResourceOverrideDirectory: File?
+)
+
 data class NormalizedFlavorSettings(
     val flavorMap: Map<String, Map<String, Any?>>
 )

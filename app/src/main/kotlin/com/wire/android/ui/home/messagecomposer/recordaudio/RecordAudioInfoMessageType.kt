@@ -14,36 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
  */
-package customization
+package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import flavor.ProductFlavors
+import com.wire.android.R
+import com.wire.android.model.SnackBarMessage
+import com.wire.android.util.ui.UIText
 
-/**
- * By convention use the prefix FEATURE_ for every
- * defined functionality that will be under a feature flag.
- */
-enum class Features {
-    FEATURE_SEARCH,
-    FEATURE_CONVERSATIONS
-}
+sealed class RecordAudioInfoMessageType(override val uiText: UIText) : SnackBarMessage {
 
-/**
- * Defines a map for activated flags per product flavor.
- */
-object FeatureFlags {
-    val activated = mapOf(
-
-        //Enabled Features for DEV Product Flavor
-        ProductFlavors.Dev to setOf(
-            Features.FEATURE_SEARCH,
-            Features.FEATURE_CONVERSATIONS
-        ),
-
-        //Enabled Features for INTERNAL Product Flavor
-        ProductFlavors.Internal to setOf(
-            Features.FEATURE_CONVERSATIONS
+    // Unable to Record Audio due to being in a call
+    object UnableToRecordAudioCall : RecordAudioInfoMessageType(
+        UIText.StringResource(
+            R.string.record_audio_unable_due_to_ongoing_call
         )
     )
 }

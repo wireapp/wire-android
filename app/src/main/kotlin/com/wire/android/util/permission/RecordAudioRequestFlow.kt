@@ -21,7 +21,7 @@
 package com.wire.android.util.permission
 
 import android.content.Context
-import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,43 +32,59 @@ import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun rememberRecordAudioRequestFlow(
-    onAudioRecorded: (Boolean) -> Unit,
-    onPermissionDenied: () -> Unit,
-    targetAudioFileUri: Uri
+    onPermissionAllowed: () -> Unit,
+    onPermissionDenied: () -> Unit
 ): RecordAudioRequestFlow {
     val context = LocalContext.current
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val allPermissionGranted = permissions.values.all { true }
+            val allPermissionGranted = permissions.all { it.value }
             if (allPermissionGranted) {
-                // TODO: launch record audio flow
+                onPermissionAllowed()
             } else {
                 onPermissionDenied()
             }
         }
 
     return remember {
-        RecordAudioRequestFlow(context, requestPermissionLauncher)
+        RecordAudioRequestFlow(
+            context,
+            requestPermissionLauncher,
+            onPermissionAllowed
+        )
     }
 }
 
 class RecordAudioRequestFlow(
     private val context: Context,
-    private val audioRecordPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
+    private val audioRecordPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>,
+    private val onPermissionAllowed: () -> Unit
 ) {
     fun launch() {
-        if (context.checkPermission(android.Manifest.permission.RECORD_AUDIO) &&
-            context.checkPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-        ) {
-            // TODO: launch record audio flow
+        if (checkRecordAudioPermissions(context = context)) {
+            onPermissionAllowed()
         } else {
-            audioRecordPermissionLauncher.launch(
-                arrayOf(
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-            )
+            audioRecordPermissionLauncher.launch(getRecordAudioPermissions())
         }
     }
 }
+
+private fun getRecordAudioPermissions() =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(android.Manifest.permission.RECORD_AUDIO)
+    } else {
+        arrayOf(
+            android.Manifest.permission.RECORD_AUDIO,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+    }
+
+private fun checkRecordAudioPermissions(
+    context: Context
+): Boolean =
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        context.checkPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+    } else {
+        true
+    } && context.checkPermission(android.Manifest.permission.RECORD_AUDIO)

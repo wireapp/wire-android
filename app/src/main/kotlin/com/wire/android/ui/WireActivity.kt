@@ -42,7 +42,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -64,6 +63,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -239,7 +239,7 @@ class WireActivity : AppCompatActivity() {
                     onClick = onUpdateClick,
                     type = WireDialogButtonType.Primary
                 ),
-                properties = DialogProperties(
+                properties = wireDialogPropertiesBuilder(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false,
                     usePlatformDefaultWidth = true

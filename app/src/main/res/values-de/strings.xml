@@ -165,7 +165,7 @@
     <string name="content_description_message_read_status">Message read status</string>
     <string name="content_description_record_audio_button_start">Record Audio</string>
     <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
-    <string name="content_description_record_audio_button_send">Send Audio Message</string>
+    <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
@@ -1079,15 +1079,15 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
-    <string name="record_audio_recording_label">Recording Audio...</string>
-    <string name="record_audio_send_label">Send Audio Message</string>
-    <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
-    <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
-    <string name="record_audio_discard_dialog_discard_button">Discard</string>
-    <string name="record_audio_permission_denied_dialog_title">Microphone Access</string>
-    <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
+    <string name="record_audio_recording_label">Audio-Aufnahme…</string>
+    <string name="record_audio_send_label">Audionachricht senden</string>
+    <string name="record_audio_discard_dialog_title">Audionachricht verwerfen?</string>
+    <string name="record_audio_discard_dialog_text">Die Audionachricht wird gelöscht und Sie können sie nicht versenden.</string>
+    <string name="record_audio_discard_dialog_discard_button">Verwerfen</string>
+    <string name="record_audio_permission_denied_dialog_title">Mikrofon-Zugriff</string>
+    <string name="record_audio_permission_denied_dialog_text">Wire benötigt die Berechtigung, Ihr Mikrofon zum Aufnehmen von Audionachrichten zu verwenden. Erlauben Sie den Zugriff in Ihren Geräteeinstellungen.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Einstellungen</string>
-    <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
+    <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
 </resources>

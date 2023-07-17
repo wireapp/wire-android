@@ -34,7 +34,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,7 +50,6 @@ import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
-import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 import com.wire.android.util.ui.KeyboardHeight
 
@@ -61,10 +59,9 @@ fun AttachmentOptionsComponent(
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean,
-    modifier: Modifier = Modifier
+    isFileSharingEnabled: Boolean
 ) {
-    Box(modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
+    Box(modifier = Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
         val attachmentOptions = buildAttachmentOptionItems(
             isFileSharingEnabled,
             tempWritableImageUri,
@@ -175,14 +172,6 @@ private fun ShareCurrentLocationFlow() =
     )
 
 @Composable
-private fun RecordAudioFlow() =
-    rememberRecordAudioRequestFlow(
-        onAudioRecorded = { /* TODO: call vm to share raw pic data */ },
-        targetAudioFileUri = Uri.EMPTY,
-        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-    )
-
-@Composable
 private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
@@ -195,7 +184,6 @@ private fun buildAttachmentOptionItems(
     val cameraFlow = TakePictureFlow(tempWritableImageUri, remember { { onFilePicked(UriAsset(it, false)) } })
     val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, remember { { onFilePicked(UriAsset(it, true)) } })
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
-    val recordAudioFlow = RecordAudioFlow()
 
     return buildList {
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -261,8 +249,6 @@ private data class AttachmentOptionItem(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
-    val context = LocalContext.current
-
     AttachmentOptionsComponent(
         {},
         isFileSharingEnabled = true,

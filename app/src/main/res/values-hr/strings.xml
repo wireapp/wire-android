@@ -20,7 +20,7 @@
   -->
 <resources>
     <string name="app_version">Verzija aplikacije</string>
-    <string name="build_variant_name">Build verzija</string>
+    <string name="build_variant_name">Build varijanta</string>
     <string name="label_new">Novo</string>
     <string name="label_login">Prijava</string>
     <string name="label_ok">U redu</string>

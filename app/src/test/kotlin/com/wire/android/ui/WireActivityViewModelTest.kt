@@ -643,7 +643,6 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) { arrangement.clearNewClientsForUser(USER_ID) }
     }
 
-
     @Test
     fun `given screenshot censoring disabled, when observing it, then set screenshotCensoringEnabled state to false`() = runTest {
         val (_, viewModel) = Arrangement()

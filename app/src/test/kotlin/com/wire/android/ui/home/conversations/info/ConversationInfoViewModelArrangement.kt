@@ -32,8 +32,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -67,9 +65,6 @@ class ConversationInfoViewModelArrangement {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
-    @MockK
-    private lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
-
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper,
@@ -77,7 +72,6 @@ class ConversationInfoViewModelArrangement {
             navigationManager,
             observeConversationDetails,
             observerSelfUser,
-            observeScreenshotCensoringConfigUseCase,
             wireSessionImageLoader,
             TestDispatcherProvider()
         )
@@ -93,7 +87,6 @@ class ConversationInfoViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
-        coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
@@ -105,10 +98,6 @@ class ConversationInfoViewModelArrangement {
 
     suspend fun withSelfUser() = apply {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
-    }
-
-    suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {
-        coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

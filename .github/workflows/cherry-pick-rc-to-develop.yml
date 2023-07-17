@@ -1,0 +1,59 @@
+name: "Cherry-pick from rc to develop"
+
+on:
+    pull_request:
+        branches:
+            - release/candidate
+        types:
+            - closed
+
+jobs:
+    cherry-pick:
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.merged == true
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive # Needed in order to fetch Kalium sources for building
+                  fetch-depth: 0
+
+            - name: Extract branch name and remove prefix
+              id: extract
+              run: |
+                  PR_BRANCH="${{ github.event.pull_request.head.ref }}"
+                  if echo "$PR_BRANCH" | grep -q "/rc-"; then
+                    NEW_BRANCH_NAME=$(echo $PR_BRANCH | sed 's|/rc-|/|')
+                    echo "New branch name: $NEW_BRANCH_NAME"
+                    echo "::set-output name=newBranchName::$NEW_BRANCH_NAME"
+                    echo "::set-output name=shouldCherryPick::true"
+                  else
+                    echo "Branch name does not contain '/rc-', skipping cherry-pick"
+                    echo "::set-output name=shouldCherryPick::false"
+                  fi
+
+            - name: Cherry-pick commits
+              if: steps.extract.outputs.shouldCherryPick == 'true'
+              run: |
+                  git fetch origin develop:develop
+                  git checkout -b ${{ steps.extract.outputs.newBranchName }} develop
+                  COMMITS=$(git log --pretty=format:"%H" --reverse ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+                  echo "Cherry-picking these commits: $COMMITS"
+                  for COMMIT in $COMMITS; do
+                    git cherry-pick -x $COMMIT --strategy-option theirs || true
+                    git add .
+                    git cherry-pick --continue || true
+                  done
+                  git push origin ${{ steps.extract.outputs.newBranchName }}
+
+            - name: Create PR
+              if: steps.extract.outputs.shouldCherryPick == 'true'
+              id: cpr
+              uses: peter-evans/create-pull-request@v5
+              with:
+                  title: ${{ github.event.pull_request.title }}
+                  base: develop
+                  assignees: ${{ github.event.pull_request.user.login }}
+                  branch: "${{ steps.extract.outputs.newBranchName }}"
+                  body: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"

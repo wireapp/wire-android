@@ -349,7 +349,7 @@
     <string name="label_message_status_edited">Uređeno</string>
     <string name="conversations_screen_title">Razgovori</string>
     <string name="conversations_all_tab_title">Svi</string>
-    <string name="conversations_calls_tab_title">Calls</string>
+    <string name="conversations_calls_tab_title">Pozivi</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>

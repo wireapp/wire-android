@@ -1013,7 +1013,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="automatically_delete_message_after">Nachrichten automatisch löschen nach:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Sobald Sie online sind, verschwindet diese Notiz.</string>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
         <item quantity="other">Noch %1$d Wochen</item>
@@ -1066,10 +1066,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_log_options_description">"Dadurch werden anonymisierte Informationen zur Fehlerbehebung lokal gespeichert. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
     <string name="notification_obfuscated_message">Jemand hat eine Nachricht gesendet</string>
-    <string name="settings_licenses_settings_label">License Information</string>
+    <string name="settings_licenses_settings_label">Lizenzen</string>
     <string name="settings_myaccount_logout">Delete Account</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
-    <string name="delete_acount_dialog_title">Delete Account</string>
+    <string name="delete_acount_dialog_title">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_text">If you continue, we will send a message via email. Follow the link to permanently delete your account.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
     <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable. The device verification takes place automatically using a certificate and replaces the previous manual process. This way, you communicate with the highest security standard.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>

@@ -475,7 +475,31 @@ private fun MessageContent(
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = onOpenProfile,
+                    buttonList = null,
+                    onButtonClick = null,
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
+        }
+
+        is UIMessageContent.Composite -> {
+            Column {
+                messageContent.messageBody?.quotedMessage?.let {
+                    VerticalSpace.x4()
+                    when (it) {
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+                    }
+                    VerticalSpace.x4()
+                }
+                MessageBody(
+                    messageBody = messageContent.messageBody,
+                    isAvailable = !message.isPending && message.isAvailable,
+                    onLongClick = onLongClick,
+                    onOpenProfile = onOpenProfile,
+                    buttonList = messageContent.buttonList,
+                    onButtonClick = { TODO() },
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }

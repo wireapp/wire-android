@@ -247,7 +247,9 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.TeamMemberRemoved -> UILastMessageContent.None // TODO
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
-                    message = UIText.DynamicString((content as WithUser.Text).messageBody),
+                    message = (content as WithUser.Text).messageBody?.let {
+                        UIText.DynamicString(it)
+                    },
                     separator = ": "
                 )
 

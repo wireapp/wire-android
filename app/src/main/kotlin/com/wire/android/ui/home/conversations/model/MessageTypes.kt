@@ -20,24 +20,29 @@
 
 package com.wire.android.ui.home.conversations.model
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
@@ -68,12 +73,16 @@ import org.commonmark.parser.Parser
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
-    messageBody: MessageBody,
+    messageBody: MessageBody?,
     isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
+    buttonList: List<MessageButton>?,
+    onButtonClick: ((String) -> Unit)?
 ) {
-    val (displayMentions, text) = mapToDisplayMentions(messageBody.message, LocalContext.current.resources)
+    val (displayMentions, text) = messageBody?.message?.let {
+        mapToDisplayMentions(it, LocalContext.current.resources)
+    } ?: TODO()
 
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
@@ -92,7 +101,46 @@ internal fun MessageBody(
     )
 
     MarkdownDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
+    buttonList?.also {
+        MessageButtonsContent(it, onButtonClick)
+    }
 }
+
+@Composable
+fun MessageButtonsContent(buttonList: List<MessageButton>, onClick: ((String) -> Unit)?) {
+    Column(
+        modifier = Modifier
+            .wrapContentSize()
+    ) {
+        for (index in buttonList.indices) {
+            MessageButton(button = buttonList[index], onClick = onClick)
+            if (index != buttonList.lastIndex) {
+                Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
+            }
+        }
+    }
+}
+
+@SuppressLint("RememberReturnType")
+@Composable
+fun MessageButton(button: MessageButton, onClick: ((String) -> Unit)?) {
+    val onCLick = remember(button.isSelected) {
+        onClick?.let {
+            if (!button.isSelected) {
+                { onClick(button.id) }
+            } else {
+                { }
+            }
+        }
+    }?: { }
+
+    WireSecondaryButton(
+        text = button.text,
+        onClick = onCLick,
+        loading = button.isSelected,
+    )
+}
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

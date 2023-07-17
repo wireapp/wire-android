@@ -34,7 +34,6 @@ data class ConversationInfoViewState(
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
     val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
-    val screenshotCensoringEnabled: Boolean = true,
 )
 
 sealed class ConversationDetailsData {

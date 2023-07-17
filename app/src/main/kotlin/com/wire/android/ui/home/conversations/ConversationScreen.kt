@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.conversations
 
 import android.net.Uri
-import android.view.WindowManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +52,6 @@ import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
@@ -125,18 +122,6 @@ fun ConversationScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
-
-    val activity = LocalActivity.current
-    DisposableEffect(conversationInfoViewModel.conversationInfoViewState.screenshotCensoringEnabled) {
-        if (conversationInfoViewModel.conversationInfoViewState.screenshotCensoringEnabled) {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-        onDispose {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationCallViewModel.navigateToInitiatingCallScreen()

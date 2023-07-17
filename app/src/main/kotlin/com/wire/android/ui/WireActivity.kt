@@ -24,6 +24,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -152,6 +153,7 @@ class WireActivity : AppCompatActivity() {
                             startDestination = startDestination,
                             onComplete = onComplete
                         )
+                        handleScreenshotCensoring()
                         handleDialogs()
                     }
                 }
@@ -208,6 +210,17 @@ class WireActivity : AppCompatActivity() {
             onDispose {
                 navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
                 navController.removeOnDestinationChangedListener(currentScreenManager)
+            }
+        }
+    }
+
+    @Composable
+    private fun handleScreenshotCensoring() {
+        LaunchedEffect(viewModel.globalAppState.screenshotCensoringEnabled) {
+            if (viewModel.globalAppState.screenshotCensoringEnabled) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
         }
     }

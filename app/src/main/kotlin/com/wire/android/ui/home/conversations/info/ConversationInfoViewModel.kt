@@ -48,8 +48,6 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -63,7 +61,6 @@ class ConversationInfoViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
-    private val observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
@@ -78,22 +75,11 @@ class ConversationInfoViewModel @Inject constructor(
 
     init {
         getSelfUserId()
-        observeScreenshotCensoringConfig()
     }
 
     private fun getSelfUserId() {
         viewModelScope.launch {
             selfUserId = observerSelfUser().first().id
-        }
-    }
-
-    private fun observeScreenshotCensoringConfig() {
-        viewModelScope.launch {
-            observeScreenshotCensoringConfigUseCase().collect {
-                conversationInfoViewState = conversationInfoViewState.copy(
-                    screenshotCensoringEnabled = it is ObserveScreenshotCensoringConfigResult.Enabled
-                )
-            }
         }
     }
 

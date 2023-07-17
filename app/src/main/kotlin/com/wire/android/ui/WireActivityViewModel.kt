@@ -69,6 +69,8 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -109,6 +111,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeNewClients: ObserveNewClientsUseCase,
     private val clearNewClientsForUser: ClearNewClientsForUserUseCase,
     private val currentScreenManager: CurrentScreenManager,
+    private val observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -138,6 +141,13 @@ class WireActivityViewModel @Inject constructor(
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
     init {
+        observeSyncState()
+        observeUpdateAppState()
+        observeNewClientState()
+        observeScreenshotCensoringConfigState()
+    }
+
+    private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
@@ -146,6 +156,9 @@ class WireActivityViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collect { _observeSyncFlowState.emit(it) }
         }
+    }
+
+    private fun observeUpdateAppState() {
         viewModelScope.launch(dispatchers.io()) {
             observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()
@@ -153,6 +166,9 @@ class WireActivityViewModel @Inject constructor(
                     globalAppState = globalAppState.copy(updateAppDialog = it)
                 }
         }
+    }
+
+    private fun observeNewClientState() {
         viewModelScope.launch(dispatchers.io()) {
             currentScreenManager.observeCurrentScreen(this)
                 .flatMapLatest {
@@ -163,6 +179,16 @@ class WireActivityViewModel @Inject constructor(
                     val newClientDialog = NewClientsData.fromUseCaseResul(it)
                     globalAppState = globalAppState.copy(newClientDialog = newClientDialog)
                 }
+        }
+    }
+
+    private fun observeScreenshotCensoringConfigState() {
+        viewModelScope.launch {
+            observeScreenshotCensoringConfigUseCase().collect {
+                globalAppState = globalAppState.copy(
+                    screenshotCensoringEnabled = it is ObserveScreenshotCensoringConfigResult.Enabled
+                )
+            }
         }
     }
 
@@ -527,5 +553,6 @@ data class GlobalAppState(
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
-    val newClientDialog: NewClientsData? = null
+    val newClientDialog: NewClientsData? = null,
+    val screenshotCensoringEnabled: Boolean = true,
 )

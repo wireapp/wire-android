@@ -54,5 +54,6 @@ jobs:
               with:
                   title: ${{ github.event.pull_request.title }}
                   base: develop
+                  assignees: ${{ github.event.pull_request.user.login }}
                   branch: "${{ steps.extract.outputs.newBranchName }}"
-                  body: "${{ format('Cherry pick from the original PR: #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"
+                  body: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"

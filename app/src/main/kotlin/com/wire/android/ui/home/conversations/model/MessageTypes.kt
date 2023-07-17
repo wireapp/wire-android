@@ -82,7 +82,7 @@ internal fun MessageBody(
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
-    } ?: TODO()
+    } ?: Pair(emptyList(), null)
 
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
@@ -99,8 +99,9 @@ internal fun MessageBody(
         StrikethroughExtension.builder().requireTwoTildes(true).build(),
         TablesExtension.create()
     )
-
-    MarkdownDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
+    text?.also {
+        MarkdownDocument(Parser.builder().extensions(extensions).build().parse(it) as Document, nodeData)
+    }
     buttonList?.also {
         MessageButtonsContent(it, onButtonClick)
     }
@@ -132,7 +133,7 @@ fun MessageButton(button: MessageButton, onClick: ((String) -> Unit)?) {
                 { }
             }
         }
-    }?: { }
+    } ?: { }
 
     WireSecondaryButton(
         text = button.text,

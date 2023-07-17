@@ -25,6 +25,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
@@ -644,17 +645,19 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given screenshot censoring disabled, when observing it, then set screenshotCensoringEnabled state to false`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
-            .arrange()
-        advanceUntilIdle()
-        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
-    }
+    fun `given session and screenshot censoring disabled, when observing it, then set state to false`() = runTest {
+            val (_, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
+                .arrange()
+            advanceUntilIdle()
+            assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+        }
 
     @Test
-    fun `given screenshot censoring enabled by user, when observing it, then set screenshotCensoringEnabled state to true`() = runTest {
+    fun `given session and screenshot censoring enabled by user, when observing it, then set state to true`() = runTest {
         val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
             .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
             .arrange()
         advanceUntilIdle()
@@ -662,12 +665,23 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given screenshot censoring enforced by team, when observing it, then set screenshotCensoringEnabled state to true`() = runTest {
+    fun `given session and screenshot censoring enforced by team, when observing it, then set state to true`() = runTest {
         val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
             .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
             .arrange()
         advanceUntilIdle()
         assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given no session, when observing screenshot censoring, then set state to false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
     }
 
     private class Arrangement {
@@ -687,6 +701,8 @@ class WireActivityViewModelTest {
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
             coEvery { observeNewClients() } returns flowOf()
+            every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
+                    observeScreenshotCensoringConfigUseCase
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         }
@@ -741,6 +757,9 @@ class WireActivityViewModelTest {
         @MockK
         private lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
 
+        @MockK
+        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -759,7 +778,7 @@ class WireActivityViewModelTest {
                 observeNewClients = observeNewClients,
                 clearNewClientsForUser = clearNewClientsForUser,
                 currentScreenManager = currentScreenManager,
-                observeScreenshotCensoringConfigUseCase = observeScreenshotCensoringConfigUseCase
+                observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory
             )
         }
 

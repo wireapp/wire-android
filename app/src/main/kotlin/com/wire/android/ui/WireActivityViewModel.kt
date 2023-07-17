@@ -30,6 +30,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -70,7 +71,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -111,7 +111,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeNewClients: ObserveNewClientsUseCase,
     private val clearNewClientsForUser: ClearNewClientsForUserUseCase,
     private val currentScreenManager: CurrentScreenManager,
-    private val observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase,
+    private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -183,12 +183,17 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun observeScreenshotCensoringConfigState() {
-        viewModelScope.launch {
-            observeScreenshotCensoringConfigUseCase().collect {
-                globalAppState = globalAppState.copy(
-                    screenshotCensoringEnabled = it is ObserveScreenshotCensoringConfigResult.Enabled
-                )
-            }
+        viewModelScope.launch(dispatchers.io()) {
+            observeUserId
+                .flatMapLatest {
+                    it?.let {
+                        observeScreenshotCensoringConfigUseCaseProviderFactory.create(it).observeScreenshotCensoringConfig()
+                    } ?: flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+                }.collect {
+                    globalAppState = globalAppState.copy(
+                        screenshotCensoringEnabled = it is ObserveScreenshotCensoringConfigResult.Enabled
+                    )
+                }
         }
     }
 

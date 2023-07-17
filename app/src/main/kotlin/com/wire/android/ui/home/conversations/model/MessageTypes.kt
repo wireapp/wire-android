@@ -140,8 +140,6 @@ fun MessageButton(button: MessageButton, onClick: ((String) -> Unit)?) {
         onClick = onCLick,
         loading = button.isSelected,
     )
-}
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

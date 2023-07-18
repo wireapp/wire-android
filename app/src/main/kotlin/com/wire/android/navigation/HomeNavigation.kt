@@ -22,6 +22,7 @@ package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -57,7 +58,7 @@ enum class HomeNavigationItem(
     @DrawableRes val icon: Int,
     val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
-    val content: (HomeStateHolder) -> (@Composable (NavBackStackEntry) -> Unit)
+    val content: (HomeStateHolder) -> (@Composable AnimatedContentScope.(NavBackStackEntry) -> Unit)
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,

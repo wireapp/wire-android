@@ -127,10 +127,6 @@ class RecordAudioViewModel @Inject constructor(
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
             }
         } else {
-            state = state.copy(
-                buttonState = RecordAudioButtonState.RECORDING
-            )
-
             audioMediaRecorder.setUp()
 
             state = state.copy(
@@ -138,6 +134,10 @@ class RecordAudioViewModel @Inject constructor(
             )
 
             audioMediaRecorder.startRecording()
+
+            state = state.copy(
+                buttonState = RecordAudioButtonState.RECORDING
+            )
         }
     }
 

@@ -843,6 +843,9 @@
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
     <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This setting does not apply to group conversations.</string>
+    <string name="settings_censor_screenshots">Censor screenshots</string>
+    <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>

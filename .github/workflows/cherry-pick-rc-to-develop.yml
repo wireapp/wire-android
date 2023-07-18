@@ -12,6 +12,9 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event.pull_request.merged == true
 
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -19,36 +22,38 @@ jobs:
                   submodules: recursive # Needed in order to fetch Kalium sources for building
                   fetch-depth: 0
 
-            - name: Extract branch name and remove prefix
+            - name: Append -cherry-pick to branch name
               id: extract
               run: |
                   PR_BRANCH="${{ github.event.pull_request.head.ref }}"
-                  if echo "$PR_BRANCH" | grep -q "/rc-"; then
-                    NEW_BRANCH_NAME=$(echo $PR_BRANCH | sed 's|/rc-|/|')
-                    echo "New branch name: $NEW_BRANCH_NAME"
-                    echo "::set-output name=newBranchName::$NEW_BRANCH_NAME"
+                  NEW_BRANCH_NAME="${PR_BRANCH}-cherry-pick"
+                  echo "New branch name: $NEW_BRANCH_NAME"
+                  echo "::set-output name=newBranchName::$NEW_BRANCH_NAME"
+
+            - name: Check if changes only in kalium submodule
+              id: check_changes
+              run: |
+                  NUM_CHANGES=$(git diff origin/develop --name-only | grep -v '^kalium/' | wc -l)
+                  if [ "$NUM_CHANGES" -gt 0 ]; then
                     echo "::set-output name=shouldCherryPick::true"
                   else
-                    echo "Branch name does not contain '/rc-', skipping cherry-pick"
+                    echo "No changes outside of kalium submodule, skipping cherry-pick"
                     echo "::set-output name=shouldCherryPick::false"
                   fi
 
             - name: Cherry-pick commits
-              if: steps.extract.outputs.shouldCherryPick == 'true'
+              if: steps.check_changes.outputs.shouldCherryPick == 'true'
               run: |
                   git fetch origin develop:develop
                   git checkout -b ${{ steps.extract.outputs.newBranchName }} develop
-                  COMMITS=$(git log --pretty=format:"%H" --reverse ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
-                  echo "Cherry-picking these commits: $COMMITS"
-                  for COMMIT in $COMMITS; do
-                    git cherry-pick -x $COMMIT --strategy-option theirs || true
-                    git add .
-                    git cherry-pick --continue || true
-                  done
+                  # Cherry-picking the last commit on the base branch
+                  git cherry-pick -x ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true
+                  git add .
+                  git cherry-pick --continue || true
                   git push origin ${{ steps.extract.outputs.newBranchName }}
 
             - name: Create PR
-              if: steps.extract.outputs.shouldCherryPick == 'true'
+              if: steps.check_changes.outputs.shouldCherryPick == 'true'
               id: cpr
               uses: peter-evans/create-pull-request@v5
               with:

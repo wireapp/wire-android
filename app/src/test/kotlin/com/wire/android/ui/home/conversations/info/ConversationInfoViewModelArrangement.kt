@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
-
 class ConversationInfoViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")

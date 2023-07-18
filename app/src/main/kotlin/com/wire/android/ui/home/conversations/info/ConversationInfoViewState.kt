@@ -33,7 +33,7 @@ data class ConversationInfoViewState(
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
-    val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE
+    val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
 )
 
 sealed class ConversationDetailsData {

@@ -65,7 +65,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
@@ -102,10 +102,11 @@ fun InactiveMessageComposerInput(
 
 @Composable
 fun ActiveMessageComposerInput(
-    messageComposition: MessageComposition,
+    messageText: TextFieldValue,
+    quotedMessage: UIQuotedMessage.UIQuotedData?,
     inputSize: MessageCompositionInputSize,
     inputType: MessageCompositionType,
-    inputVisiblity: Boolean,
+    inputVisibility: Boolean,
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
@@ -119,7 +120,7 @@ fun ActiveMessageComposerInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (inputVisiblity) {
+    if (inputVisibility) {
         Column(
             modifier = modifier
                 .wrapContentSize()
@@ -130,7 +131,6 @@ fun ActiveMessageComposerInput(
                 onCollapseClick = onToggleInputSize
             )
 
-            val quotedMessage = messageComposition.quotedMessage
             if (quotedMessage != null) {
                 Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                     QuotedMessagePreview(
@@ -157,7 +157,7 @@ fun ActiveMessageComposerInput(
                 MessageComposerTextInput(
                     inputFocused = inputFocused,
                     colors = inputType.inputTextColor(),
-                    messageText = messageComposition.messageTextFieldValue,
+                    messageText = messageText,
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = onInputFocusedChanged,

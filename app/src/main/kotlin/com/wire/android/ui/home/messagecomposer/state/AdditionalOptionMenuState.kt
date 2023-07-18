@@ -18,10 +18,12 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
+import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
+import kotlinx.parcelize.Parcelize
 
 enum class AdditionalOptionMenuState {
     AttachmentAndAdditionalOptionsMenu,
@@ -45,16 +47,20 @@ enum class AdditionalOptionSelectItem {
     None,
 }
 
-class AdditionalOptionStateHolder {
+class AdditionalOptionStateHolder(
+    ininitialSelectedOption : AdditionalOptionSelectItem= AdditionalOptionSelectItem.None,
+    initialOptionsSubMenuState : AdditionalOptionSubMenuState= AdditionalOptionSubMenuState.Hidden,
+    initialOptionStateHolder: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+) {
 
-    var selectedOption by mutableStateOf(AdditionalOptionSelectItem.None)
+    var selectedOption by mutableStateOf(ininitialSelectedOption)
 
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-        AdditionalOptionSubMenuState.Hidden
+        initialOptionsSubMenuState
     )
         private set
 
-    var additionalOptionState: AdditionalOptionMenuState by mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu)
+    var additionalOptionState: AdditionalOptionMenuState by mutableStateOf(initialOptionStateHolder)
         private set
 
     fun showAdditionalOptionsMenu() {
@@ -85,22 +91,22 @@ class AdditionalOptionStateHolder {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }
 
-    companion object {
-        fun saver(): Saver<AdditionalOptionStateHolder, *> = Saver(
-            save = {
-                listOf(
-                    it.selectedOption,
-                    it.additionalOptionsSubMenuState,
-                    it.additionalOptionState
-                )
-            },
-            restore = {
-                AdditionalOptionStateHolder().apply {
-                    selectedOption = it[0] as AdditionalOptionSelectItem
-                    additionalOptionsSubMenuState = it[1] as AdditionalOptionSubMenuState
-                    additionalOptionState = it[2] as AdditionalOptionMenuState
-                }
-            }
-        )
-    }
+//    companion object {
+//        fun saver(): Saver<AdditionalOptionStateHolder, *> = Saver(
+//            save = {
+//                listOf(
+//                    it.selectedOption,
+//                    it.additionalOptionsSubMenuState,
+//                    it.additionalOptionState
+//                )
+//            },
+//            restore = {
+//                AdditionalOptionStateHolder().apply {
+//                    selectedOption = it[0] as AdditionalOptionSelectItem
+//                    additionalOptionsSubMenuState = it[1] as AdditionalOptionSubMenuState
+//                    additionalOptionState = it[2] as AdditionalOptionMenuState
+//                }
+//            }
+//        )
+//    }
 }

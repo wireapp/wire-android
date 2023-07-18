@@ -20,18 +20,24 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.util.isPositiveNotNull
 
 @Suppress("LongParameterList")
 @Composable
@@ -39,43 +45,50 @@ fun rememberMessageComposerStateHolder(
     messageComposerViewState: MutableState<MessageComposerViewState>,
     modalBottomSheetState: WireModalSheetState
 ): MessageComposerStateHolder {
-    val context = LocalContext.current
-
-    val messageCompositionHolder = remember {
-        MessageCompositionHolder(
-            context = context
-        )
+    // we "extract" the initialization outside of MessageComposition to be able to
+    // invoke rememberSaveable with the  built-in TextFieldValue.Saver, this is needed
+    // for rebuilding the UI on Activity recreation.
+    val messageText = rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
     }
 
-    // we derive the selfDeletionTimer from the messageCompositionHolder as a state in order to "observe" the changes to it
-    // which are made "externally" and not inside the MessageComposer.
-    val selfDeletionTimer = remember {
+    val messageCompositionHolder = MessageCompositionHolder(
+        context = LocalContext.current,
+        messageText = messageText
+    )
+
+    val messageType = remember {
         derivedStateOf {
-            messageComposerViewState.value.selfDeletionTimer
+            val selfDeletionTimer = messageComposerViewState.value.selfDeletionTimer
+
+            if (selfDeletionTimer.duration.isPositiveNotNull()) {
+                MessageType.SelfDeleting(selfDeletionTimer)
+            } else {
+                MessageType.Normal
+            }
         }
     }
-    val messageCompositionInputStateHolder = rememberSaveable(
-        saver = MessageCompositionInputStateHolder.saver()
-    ) {
-        MessageCompositionInputStateHolder(
-            messageComposition = messageCompositionHolder.messageComposition,
-            selfDeletionTimer = selfDeletionTimer,
+
+    return rememberSaveable(
+        saver = MessageComposerStateHolder.saver(
+            context = LocalContext.current,
+            modalBottomSheetState = modalBottomSheetState,
+            messageComposerViewState = messageComposerViewState,
+            messageType = messageType,
+            messageTextFieldValue = messageText
         )
-    }
-
-    val additionalOptionStateHolder = rememberSaveable(
-        saver = AdditionalOptionStateHolder.saver()
     ) {
-        AdditionalOptionStateHolder()
-    }
+        val messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+            messageTextFieldValue = messageText,
+            messageType = messageType
+        )
 
-    return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
-            additionalOptionStateHolder = additionalOptionStateHolder
+            additionalOptionStateHolder = AdditionalOptionStateHolder()
         )
     }
 }
@@ -85,13 +98,56 @@ fun rememberMessageComposerStateHolder(
  * of the state to the parent Composables
  */
 class MessageComposerStateHolder(
+    val modalBottomSheetState: WireModalSheetState,
     val messageComposerViewState: MutableState<MessageComposerViewState>,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
-    val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState
+    val additionalOptionStateHolder: AdditionalOptionStateHolder
 ) {
-    val messageComposition = messageCompositionHolder.messageComposition
+    companion object {
+        @Suppress("MagicNumber")
+        fun saver(
+            context: Context,
+            modalBottomSheetState: WireModalSheetState,
+            messageType: State<MessageType>,
+            messageComposerViewState: MutableState<MessageComposerViewState>,
+            messageTextFieldValue: MutableState<TextFieldValue>
+        ): Saver<MessageComposerStateHolder, *> = Saver(
+            save = {
+                listOf(
+                    it.additionalOptionStateHolder.selectedOption,
+                    it.additionalOptionStateHolder.additionalOptionsSubMenuState,
+                    it.additionalOptionStateHolder.additionalOptionState,
+                    it.messageCompositionInputStateHolder.inputSize,
+                    it.messageCompositionInputStateHolder.inputVisibility,
+                    it.messageCompositionInputStateHolder.inputFocused,
+                    it.messageCompositionInputStateHolder.inputState
+                )
+            },
+            restore = {
+                MessageComposerStateHolder(
+                    messageComposerViewState = messageComposerViewState,
+                    messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+                        messageTextFieldValue = messageTextFieldValue,
+                        messageType = messageType,
+                        inputSize = it[3] as MessageCompositionInputSize,
+                        inputVisibility = it[4] as Boolean,
+                        inputFocused = it[5] as Boolean,
+                        inputState = it[6] as MessageCompositionInputState
+                    ),
+                    messageCompositionHolder = MessageCompositionHolder(
+                        context = context
+                    ),
+                    additionalOptionStateHolder = AdditionalOptionStateHolder(
+                        ininitialSelectedOption = it[0] as AdditionalOptionSelectItem,
+                        initialOptionsSubMenuState = it[1] as AdditionalOptionSubMenuState,
+                        initialOptionStateHolder = it[2] as AdditionalOptionMenuState,
+                    ),
+                    modalBottomSheetState = modalBottomSheetState
+                )
+            }
+        )
+    }
 
     val isTransitionToKeyboardOnGoing
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&

@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
@@ -33,36 +34,31 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.util.isPositiveNotNull
 
 class MessageCompositionInputStateHolder(
-    private val messageComposition: MutableState<MessageComposition>,
-    private val selfDeletionTimer: State<SelfDeletionTimer>
+    private val messageTextFieldValue: State<TextFieldValue>,
+    private val messageType: State<MessageType>,
+    inputType: MessageCompositionType = MessageCompositionType.Composing(
+        messageTextFieldValue = messageTextFieldValue,
+        messageType = messageType
+    ),
+    inputFocused: Boolean = false,
+    inputVisibility: Boolean = true,
+    inputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
+    inputState: MessageCompositionInputState = MessageCompositionInputState.INACTIVE
 ) {
-    var inputFocused: Boolean by mutableStateOf(false)
+    var inputFocused: Boolean by mutableStateOf(inputFocused)
         private set
 
-    private val messageType = derivedStateOf {
-        if (selfDeletionTimer.value.duration.isPositiveNotNull()) {
-            MessageType.SelfDeleting(selfDeletionTimer.value)
-        } else {
-            MessageType.Normal
-        }
-    }
+    var inputType: MessageCompositionType by mutableStateOf(inputType)
 
-    var inputType: MessageCompositionType by mutableStateOf(
-        MessageCompositionType.Composing(
-            messageCompositionState = messageComposition,
-            messageType = messageType
-        )
-    )
-
-    var inputVisibility by mutableStateOf(true)
+    var inputVisibility by mutableStateOf(inputVisibility)
         private set
 
     var inputState: MessageCompositionInputState by mutableStateOf(
-        MessageCompositionInputState.INACTIVE
+        inputState
     )
 
     var inputSize by mutableStateOf(
-        MessageCompositionInputSize.COLLAPSED
+        inputSize
     )
         private set
 
@@ -82,15 +78,15 @@ class MessageCompositionInputStateHolder(
 
     fun toEdit() {
         inputType = MessageCompositionType.Editing(
-            messageCompositionState = messageComposition,
-            messageCompositionSnapShot = messageComposition.value
+            messageTextFieldValue = messageTextFieldValue,
+            messageTextFieldValueSnapShot = messageTextFieldValue.value
         )
         toActive(true)
     }
 
     fun toComposing() {
         inputType = MessageCompositionType.Composing(
-            messageCompositionState = messageComposition,
+            messageTextFieldValue = messageTextFieldValue,
             messageType = messageType
         )
         toActive(true)
@@ -119,35 +115,6 @@ class MessageCompositionInputStateHolder(
     fun hide() {
         inputVisibility = false
     }
-
-    companion object {
-        @Suppress("MagicNumber")
-        fun saver(): Saver<MessageCompositionInputStateHolder, *> = Saver(
-            save = {
-                listOf(
-                    it.messageComposition,
-                    it.selfDeletionTimer,
-                    it.inputFocused,
-                    it.inputType,
-                    it.inputVisibility,
-                    it.inputState,
-                    it.inputSize
-                )
-            },
-            restore = {
-                MessageCompositionInputStateHolder(
-                    messageComposition = it[0] as MutableState<MessageComposition>,
-                    selfDeletionTimer = it[1] as State<SelfDeletionTimer>
-                ).apply {
-                    inputFocused = it[2] as Boolean
-                    inputType = it[3] as MessageCompositionType
-                    inputVisibility = it[4] as Boolean
-                    inputState = it[5] as MessageCompositionInputState
-                    inputSize = it[6] as MessageCompositionInputSize
-                }
-            }
-        )
-    }
 }
 
 sealed class MessageCompositionType {
@@ -162,11 +129,11 @@ sealed class MessageCompositionType {
     @Composable
     open fun backgroundColor(): Color = colorsScheme().messageComposerBackgroundColor
 
-    class Composing(messageCompositionState: MutableState<MessageComposition>, val messageType: State<MessageType>) :
+    class Composing(messageTextFieldValue: State<TextFieldValue>, val messageType: State<MessageType>) :
         MessageCompositionType() {
 
         val isSendButtonEnabled by derivedStateOf {
-            messageCompositionState.value.messageText.isNotBlank()
+            messageTextFieldValue.value.text.isNotBlank()
         }
 
         @Composable
@@ -183,15 +150,15 @@ sealed class MessageCompositionType {
     }
 
     class Editing(
-        messageCompositionState: MutableState<MessageComposition>,
-        val messageCompositionSnapShot: MessageComposition
+        messageTextFieldValue: State<TextFieldValue>,
+        private val messageTextFieldValueSnapShot: TextFieldValue
     ) : MessageCompositionType() {
 
         @Composable
         override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
 
         val isEditButtonEnabled by derivedStateOf {
-            messageCompositionState.value.messageText != messageCompositionSnapShot.messageText
+            messageTextFieldValue.value.text != messageTextFieldValueSnapShot.text
         }
     }
 }

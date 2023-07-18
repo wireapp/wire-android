@@ -1,0 +1,47 @@
+name: Publish Test Results
+
+# Takes the artifacts uploaded by run-unit-tests and publishes them in PRs as a comment.
+# This is needed in order to support PRs created from forks, as PRs from Forks or Dependabot
+# run in read-only mode and can't comment on PRs, for example.
+# More context here: https://github.blog/changelog/2021-02-19-github-actions-workflows-triggered-by-dependabot-prs-will-run-with-read-only-permissions/
+# This work-around makes it so that:
+#   - this workflow is triggered by the end of the test workflow, instead
+#     of being triggered directly by the PR
+#   - we can control the permissions to only have what's needed to write comments, etc.
+
+on:
+    workflow_run:
+        workflows: [Run Unit Tests]
+        types:
+            - completed
+permissions: {}
+
+jobs:
+    test-results:
+        name: Publish Test Results
+        runs-on: ubuntu-latest
+        if: github.event.workflow_run.conclusion != 'skipped'
+
+        # Limit permissions to only what's needed
+        permissions:
+            checks: write
+
+            # needed to write the PR comment with the results
+            pull-requests: write
+            # required in order to download step to access artifacts API
+            actions: read
+
+        steps:
+            - name: Download and Extract Artifacts
+              uses: dawidd6/action-download-artifact@v2
+              with:
+                  run_id: ${{ github.event.workflow_run.id }}
+                  path: artifacts
+
+            - name: Publish Test Results
+              uses: EnricoMi/publish-unit-test-result-action@v2
+              with:
+                  commit: ${{ github.event.workflow_run.head_sha }}
+                  event_file: artifacts/Event File/event.json
+                  event_name: ${{ github.event.workflow_run.event }}
+                  files: "artifacts/test-results/**/*.xml"

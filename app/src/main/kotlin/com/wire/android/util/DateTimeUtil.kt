@@ -48,6 +48,11 @@ private val readReceiptDateTimeFormat = SimpleDateFormat(
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
 
+private val audioFileDateTimeFormat = SimpleDateFormat(
+    "yyyy-MM-dd-hh-mm-ss",
+    Locale.getDefault()
+).apply { timeZone = TimeZone.getDefault() }
+
 private val fullDateShortTimeFormatter = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT)
 fun String.formatMediumDateTime(): String? =
     try {
@@ -79,6 +84,9 @@ fun String.uiMessageDateTime(): String? = this
     }
 
 fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
+
+fun Instant.audioFileDateTime(): String = audioFileDateTimeFormat
+    .format(Date(this.toEpochMilliseconds()))
 
 fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())
 

@@ -41,7 +41,7 @@ class WireModalSheetState(
     var currentValue: SheetValue by mutableStateOf(initialValue)
         private set
 
-    suspend fun show() {
+    fun show() {
         currentValue = SheetValue.Expanded
     }
 

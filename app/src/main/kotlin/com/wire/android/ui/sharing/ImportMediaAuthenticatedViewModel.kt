@@ -31,7 +31,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider

@@ -38,7 +38,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
@@ -629,6 +629,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideEndCallOnConversationChangeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): EndCallOnConversationChangeUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.endCallOnConversationChange
+
+    @ViewModelScoped
+    @Provides
     fun provideMuteCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MuteCallUseCase =
         coreLogic.getSessionScope(currentAccount).calls.muteCall
 
@@ -928,14 +936,6 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): ObserveSecurityClassificationLabelUseCase =
         coreLogic.getSessionScope(currentAccount).observeSecurityClassificationLabel
-
-    @ViewModelScoped
-    @Provides
-    fun provideAutoVersionAuthScopeUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        authServerConfigProvider: AuthServerConfigProvider
-    ): AutoVersionAuthScopeUseCase =
-        coreLogic.versionedAuthenticationScope(authServerConfigProvider.authServer.value)
 
     @ViewModelScoped
     @Provides

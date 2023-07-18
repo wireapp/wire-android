@@ -122,8 +122,8 @@ class MessageMapper @Inject constructor(
         }
     }
 
-    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
-        val expirationData = (message as? Message.Regular)?.expirationData
+    private fun provideExpirationData(message: Message): ExpirationStatus {
+        val expirationData = message.expirationData
         return if (expirationData == null) {
             ExpirationStatus.NotExpirable
         } else {

@@ -29,9 +29,9 @@ These differences are:
 
 ## Required software
 
-In order to build Wire for Android locally, it is necessary to install the following tools on the local machine:
+In order to build Wire for Android locally, it is necessary to have the following tools installed:
 
-- JDK 11
+- JDK 17
 - Android SDK
 - Android NDK
 

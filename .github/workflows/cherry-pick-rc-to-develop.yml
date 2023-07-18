@@ -19,7 +19,6 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
               with:
-                  submodules: recursive # Needed in order to fetch Kalium sources for building
                   fetch-depth: 0
 
             - name: Append -cherry-pick to branch name
@@ -60,5 +59,6 @@ jobs:
                   title: ${{ github.event.pull_request.title }}
                   base: develop
                   assignees: ${{ github.event.pull_request.user.login }}
+                  labels: cherry-pick
                   branch: "${{ steps.extract.outputs.newBranchName }}"
                   body: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"

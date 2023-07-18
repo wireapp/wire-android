@@ -1,0 +1,63 @@
+name: "Cherry-pick from rc to develop"
+
+on:
+    pull_request:
+        branches:
+            - release/candidate
+        types:
+            - closed
+
+jobs:
+    cherry-pick:
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.merged == true
+
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Append -cherry-pick to branch name
+              id: extract
+              run: |
+                  PR_BRANCH="${{ github.event.pull_request.head.ref }}"
+                  NEW_BRANCH_NAME="${PR_BRANCH}-cherry-pick"
+                  echo "New branch name: $NEW_BRANCH_NAME"
+                  echo "::set-output name=newBranchName::$NEW_BRANCH_NAME"
+
+            - name: Check if changes only in kalium submodule
+              id: check_changes
+              run: |
+                  NUM_CHANGES=$(git diff origin/develop --name-only | grep -v '^kalium/' | wc -l)
+                  if [ "$NUM_CHANGES" -gt 0 ]; then
+                    echo "::set-output name=shouldCherryPick::true"
+                  else
+                    echo "No changes outside of kalium submodule, skipping cherry-pick"
+                    echo "::set-output name=shouldCherryPick::false"
+                  fi
+
+            - uses: fregante/setup-git-user@v2
+
+            - name: Cherry-pick commits
+              if: steps.check_changes.outputs.shouldCherryPick == 'true'
+              run: |
+                  git fetch origin develop:develop
+                  git checkout -b ${{ steps.extract.outputs.newBranchName }} develop
+                  # Cherry-picking the last commit on the base branch
+                  git cherry-pick -x ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true
+                  git add .
+                  git cherry-pick --continue || true
+                  git push origin ${{ steps.extract.outputs.newBranchName }}
+
+            - name: Create PR
+              if: steps.check_changes.outputs.shouldCherryPick == 'true'
+              env:
+                  PR_TITLE: ${{ github.event.pull_request.title }}
+                  PR_BRANCH: ${{ steps.extract.outputs.newBranchName }}
+                  PR_ASSIGNEE: ${{ github.event.pull_request.user.login }}
+                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"
+              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base develop --head $PR_BRANCH --label "cherry-pick" --assignee "$PR_ASSIGNEE"

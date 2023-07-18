@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -34,6 +35,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
@@ -151,6 +153,16 @@ fun DeviceDetailsContent(
                     DeviceDetailSectionContent(
                         stringResource(id = R.string.label_client_added_time),
                         AnnotatedString(it)
+                    )
+                    Divider(color = MaterialTheme.wireColorScheme.background)
+                }
+            }
+
+            state.device.lastActiveInWholeWeeks?.let {
+                item {
+                    DeviceDetailSectionContent(
+                        stringResource(id = R.string.label_client_last_active_label),
+                        AnnotatedString(state.device.lastActiveDescription() ?: "")
                     )
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }

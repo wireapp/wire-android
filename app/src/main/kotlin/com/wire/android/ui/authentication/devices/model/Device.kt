@@ -20,17 +20,24 @@
 
 package com.wire.android.ui.authentication.devices.model
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.util.inWholeWeeks
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
+import kotlinx.datetime.Clock
 
 data class Device(
     val name: UIText = UIText.DynamicString(""),
     val clientId: ClientId = ClientId(""),
     val registrationTime: String? = null,
+    val lastActiveInWholeWeeks: Int? = null,
     val isValid: Boolean = true,
     val isVerified: Boolean = false
 ) {
@@ -38,7 +45,7 @@ data class Device(
         client.displayName(),
         client.id,
         client.registrationTime?.toIsoDateTimeString(),
-        true,
+        client.lastActiveInWholeWeeks(),
         client.isVerified
     )
 }
@@ -50,3 +57,22 @@ data class Device(
 fun Client.displayName(): UIText = (model ?: deviceType?.name)?.let {
     UIText.DynamicString(it)
 } ?: UIText.StringResource(R.string.device_name_unknown)
+
+fun Client.lastActiveInWholeWeeks(): Int? {
+    return lastActive?.let { (Clock.System.now() - it).inWholeWeeks.toInt() }
+}
+
+@Stable
+@Composable
+fun Device.lastActiveDescription(): String? =
+    lastActiveInWholeWeeks?.let {
+        if (it == 0) {
+            stringResource(R.string.label_client_last_active_time_zero_weeks)
+        } else {
+            stringResource(
+                R.string.label_client_last_active_time,
+                pluralStringResource(R.plurals.weeks_long_label, it, it)
+            )
+        }
+    }
+

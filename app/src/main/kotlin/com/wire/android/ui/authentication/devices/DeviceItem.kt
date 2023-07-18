@@ -47,8 +47,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
@@ -199,11 +202,20 @@ private fun DeviceItemTexts(
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
     val details: String = if (!device.registrationTime.isNullOrBlank()) {
-        stringResource(
-            R.string.remove_device_id_and_time_label,
-            device.clientId.formatAsString(),
-            device.registrationTime.formatMediumDateTime() ?: ""
-        )
+        if (device.lastActiveInWholeWeeks != null) {
+            stringResource(
+                R.string.remove_device_id_and_time_label_active_label,
+                device.clientId.formatAsString(),
+                device.registrationTime.formatMediumDateTime() ?: "",
+                device.lastActiveDescription() ?: ""
+            )
+        } else {
+            stringResource(
+                R.string.remove_device_id_and_time_label,
+                device.clientId.formatAsString(),
+                device.registrationTime.formatMediumDateTime() ?: ""
+            )
+        }
     } else {
         stringResource(
             R.string.remove_device_id_label,

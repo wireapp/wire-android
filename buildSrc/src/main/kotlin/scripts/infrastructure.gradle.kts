@@ -20,7 +20,7 @@
 
 package scripts
 
-import BuildPlugins
+import findVersion
 import scripts.Variants_gradle.Default
 import java.util.Properties
 
@@ -29,7 +29,7 @@ tasks.register("clean", Delete::class) {
 }
 
 tasks.named<Wrapper>("wrapper") {
-    gradleVersion = BuildPlugins.Versions.gradleVersion
+    gradleVersion = findVersion("gradle").requiredVersion
     distributionType = Wrapper.DistributionType.ALL
 }
 

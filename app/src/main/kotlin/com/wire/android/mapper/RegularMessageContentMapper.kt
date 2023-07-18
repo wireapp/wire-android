@@ -22,6 +22,8 @@ package com.wire.android.mapper
 
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -32,6 +34,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
@@ -40,6 +43,8 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
@@ -51,7 +56,8 @@ class RegularMessageMapper @Inject constructor(
 
     fun mapMessage(
         message: Message.Regular,
-        sender: User?
+        sender: User?,
+        userList: List<User>
     ) = when (val content = message.content) {
         is Asset -> {
             when (val metadata = content.value.metadata) {
@@ -64,7 +70,7 @@ class RegularMessageMapper @Inject constructor(
 
                 is AssetContent.AssetMetadata.Image, is AssetContent.AssetMetadata.Video, null -> {
                     val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-                    toUIMessageContent(assetMessageContentMetadata, message, sender)
+                    toUIMessageContent(assetMessageContentMetadata, message, sender, userList, message.deliveryStatus)
                 }
             }
         }
@@ -77,9 +83,17 @@ class RegularMessageMapper @Inject constructor(
             }
         )
 
-        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
-        else -> toText(message.conversationId, content)
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(
+            content.mimeType,
+            content.sizeInBytes,
+            content.name,
+            userList,
+            message.deliveryStatus
+        )
+
+        else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }
+
     private fun mapAudio(
         assetContent: AssetContent,
         metadata: AssetContent.AssetMetadata.Audio,
@@ -96,7 +110,12 @@ class RegularMessageMapper @Inject constructor(
         }
     }
 
-    fun toText(conversationId: ConversationId, content: MessageContent): UIMessageContent.TextMessage {
+    fun toText(
+        conversationId: ConversationId,
+        content: MessageContent,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
+    ): UIMessageContent.TextMessage {
         val messageTextContent = (content as? MessageContent.Text)
 
         val quotedMessage = messageTextContent?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
@@ -119,7 +138,12 @@ class RegularMessageMapper @Inject constructor(
                 else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
             },
             quotedMessage = quotedMessage
-        ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+        ).let { messageBody ->
+            UIMessageContent.TextMessage(
+                messageBody = messageBody,
+                deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
+            )
+        }
     }
 
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = UIQuotedMessage.UIQuotedData(
@@ -155,7 +179,13 @@ class RegularMessageMapper @Inject constructor(
         }
     )
 
-    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
+    fun toUIMessageContent(
+        assetMessageContentMetadata: AssetMessageContentMetadata,
+        message: Message,
+        sender: User?,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
+    ): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
@@ -174,7 +204,8 @@ class RegularMessageMapper @Inject constructor(
                         width = assetMessageContentMetadata.imgWidth,
                         height = assetMessageContentMetadata.imgHeight,
                         uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus
+                        downloadStatus = downloadStatus,
+                        deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
 
@@ -186,7 +217,8 @@ class RegularMessageMapper @Inject constructor(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
                         uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus
+                        downloadStatus = downloadStatus,
+                        deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
             }
@@ -195,12 +227,15 @@ class RegularMessageMapper @Inject constructor(
     private fun toRestrictedAsset(
         mimeType: String,
         assetSize: Long,
-        assetName: String
+        assetName: String,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
     ): UIMessageContent {
         return UIMessageContent.RestrictedAsset(
             mimeType = mimeType,
             assetSizeInBytes = assetSize,
-            assetName = assetName
+            assetName = assetName,
+            deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
         )
     }
 }
@@ -233,4 +268,20 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 private fun String?.orUnknownName(): UIText = when {
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
+}
+
+private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {
+    return when (deliveryStatus) {
+        is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
+            failedRecipients = deliveryStatus.recipientsFailedDelivery
+                .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
+                .toPersistentList(),
+            noClients = deliveryStatus.recipientsFailedWithNoClients
+                .groupBy { it.domain }
+                .mapValues { (_, userIds) -> userIds.map { UIText.DynamicString(userList.findUser(userId = it)?.name.orEmpty()) } }
+                .toPersistentMap()
+        )
+
+        is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
+    }
 }

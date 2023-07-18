@@ -40,7 +40,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -59,9 +58,10 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
+import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -213,14 +213,14 @@ class WireActivity : AppCompatActivity() {
     private fun handleDialogs() {
         updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
         joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
-        customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        customBackendDialog()
         maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
         accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
         newClientDialog(
             viewModel.globalAppState.newClientDialog,
             viewModel::openDeviceManager,
             viewModel::switchAccount,
-            viewModel::dismissNewClientDialog
+            viewModel::dismissNewClientsDialog
         )
     }
 
@@ -236,7 +236,7 @@ class WireActivity : AppCompatActivity() {
                     onClick = onUpdateClick,
                     type = WireDialogButtonType.Primary
                 ),
-                properties = DialogProperties(
+                properties = wireDialogPropertiesBuilder(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false,
                     usePlatformDefaultWidth = true
@@ -265,9 +265,16 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun customBackendDialog(shouldShow: Boolean) {
-        if (shouldShow) {
-            CustomBEDeeplinkDialog(viewModel)
+    private fun customBackendDialog() {
+        with(viewModel) {
+            if (globalAppState.customBackendDialog != null) {
+                CustomServerDialog(
+                    serverLinksTitle = globalAppState.customBackendDialog!!.serverLinks.title,
+                    serverLinksApi = globalAppState.customBackendDialog!!.serverLinks.api,
+                    onDismiss = this::dismissCustomBackendDialog,
+                    onConfirm = this::customBackendDialogProceedButtonClicked
+                )
+            }
         }
     }
 
@@ -333,28 +340,35 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun newClientDialog(
-        data: NewClientData?,
+        data: NewClientsData?,
         openDeviceManager: () -> Unit,
         switchAccount: (UserId) -> Unit,
-        dismiss: () -> Unit
+        dismiss: (UserId) -> Unit
     ) {
         data?.let {
-            val date = data.date.formatMediumDateTime() ?: ""
             val title: String
             val text: String
             val btnText: String
             val btnAction: () -> Unit
+            val dismissAction: () -> Unit = { dismiss(data.userId) }
+            val devicesList = data.clientsInfo.map {
+                stringResource(
+                    R.string.new_device_dialog_message_defice_info,
+                    it.date.formatMediumDateTime() ?: "",
+                    it.deviceInfo.asString()
+                )
+            }.joinToString("")
             when (data) {
-                is NewClientData.OtherUser -> {
+                is NewClientsData.OtherUser -> {
                     title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
-                    text = stringResource(R.string.new_device_dialog_other_user_message, date, data.deviceInfo.asString())
+                    text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccount(data.userId) }
                 }
 
-                is NewClientData.CurrentUser -> {
+                is NewClientsData.CurrentUser -> {
                     title = stringResource(R.string.new_device_dialog_current_user_title)
-                    text = stringResource(R.string.new_device_dialog_current_user_message, date, data.deviceInfo.asString())
+                    text = stringResource(R.string.new_device_dialog_current_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_current_user_btn)
                     btnAction = openDeviceManager
                 }
@@ -362,10 +376,10 @@ class WireActivity : AppCompatActivity() {
             WireDialog(
                 title = title,
                 text = text,
-                onDismiss = dismiss,
+                onDismiss = dismissAction,
                 optionButton1Properties = WireDialogButtonProperties(
                     onClick = {
-                        dismiss()
+                        dismissAction()
                         btnAction()
                     },
                     text = btnText,
@@ -373,10 +387,9 @@ class WireActivity : AppCompatActivity() {
                 ),
                 optionButton2Properties = WireDialogButtonProperties(
                     text = stringResource(id = R.string.label_ok),
-                    onClick = dismiss,
+                    onClick = dismissAction,
                     type = WireDialogButtonType.Primary
-                ),
-                properties = DialogProperties(usePlatformDefaultWidth = true)
+                )
             )
         }
     }

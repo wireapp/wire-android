@@ -47,9 +47,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 object FeatureVisibilityFlags {
     const val AppSettings = false
     const val BackUpSettings = true
-    const val AudioMessagesIcon = false
+    const val AudioMessagesIcon = true
     const val ShareLocationIcon = false
-    const val RichTextIcon = false
+    const val RichTextIcon = true
     const val EmojiIcon = false
     const val GifIcon = false
     const val PingIcon = true

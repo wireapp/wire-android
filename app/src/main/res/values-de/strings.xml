@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">App-Version: %s</string>
-    <string name="build_variant_name">Version: %s</string>
+    <string name="app_version">App-Version</string>
+    <string name="build_variant_name">Version</string>
     <string name="label_new">Neu</string>
     <string name="label_login">Anmelden</string>
     <string name="label_ok">OK</string>
@@ -830,12 +830,12 @@
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client-ID</string>
     <string name="label_device_id">Geräte-ID: %1$s</string>
-    <string name="label_code_commit_id">Commit-Hash: %1$s</string>
-    <string name="label_client_id">Client-ID: %1$s</string>
+    <string name="label_code_commit_id">Commit-Hash</string>
+    <string name="label_client_id">Client-ID</string>
     <string name="label_client_added_time">HINZUGEFÜGT</string>
     <string name="label_client_device_id">GERÄTE-ID</string>
-    <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete: %1$s</string>
-    <string name="label_mls_client_id">MLS-Client-ID: %1$s</string>
+    <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete</string>
+    <string name="label_mls_client_id">MLS-Client-ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
     <string name="conversation_empty_list_title">Willkommen 👋</string>
     <string name="label_no_conversation_found">Keine Unterhaltungen gefunden.</string>
@@ -939,10 +939,11 @@
     <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ihr Benutzerkonto wurde verwendet</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nAuf: %2$s \n\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät und setzen Sie Ihr Passwort zurück.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nAuf: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät und setzen Sie Ihr Passwort zurück.</string>
     <string name="new_device_dialog_current_user_btn">Geräte verwalten</string>
     <string name="new_device_dialog_other_user_title">Ihr Benutzerkonto \"%1$s (@%2$s)” wurde verwendet:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nAuf: %2$s \n\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät, indem Sie in den Einstellungen \"Geräte verwalten\" auswählen, und setzen Sie Ihr Passwort zurück.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät, indem Sie in den Einstellungen \"Geräte verwalten\" auswählen, und setzen Sie Ihr Passwort zurück.</string>
     <string name="new_device_dialog_other_user_btn">Benutzerkonto wechseln</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s sind der Unterhaltung beigetreten</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s Ist der Unterhaltung beigetreten</string>

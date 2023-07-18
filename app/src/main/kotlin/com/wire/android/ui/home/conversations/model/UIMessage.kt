@@ -26,11 +26,8 @@ import androidx.compose.runtime.Stable
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
-import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
-import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -39,39 +36,51 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
-sealed class UIMessage(
-    open val header: MessageHeader,
-    open val source: MessageSource
-) {
+sealed interface UIMessage {
+    val header: MessageHeader
+    val source: MessageSource
+    val messageContent: UIMessageContent?
+    val sendingFailed: Boolean
+    val decryptionFailed: Boolean
+    val isPending: Boolean
 
     data class Regular(
         override val header: MessageHeader,
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
-        val messageContent: UIMessageContent.Regular?,
+        override val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
-        val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
-    ) : UIMessage(header, source) {
-        val isTextMessage = messageContent is UIMessageContent.TextMessage
-        val isDeleted: Boolean = header.messageStatus == Deleted
-        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
-        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
-        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
-        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
-        val isPending: Boolean = header.messageStatus.isPending
+    ) : UIMessage {
+        val isDeleted: Boolean = header.messageStatus.isDeleted
+        override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
+        override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
+        val isAssetMessage = messageContent is UIMessageContent.AssetMessage
+        || messageContent is UIMessageContent.ImageMessage
+        || messageContent is UIMessageContent.AudioAssetMessage
+        val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
     }
 
     data class System(
         override val header: MessageHeader,
         override val source: MessageSource,
-        val messageContent: UIMessageContent.SystemMessage
-    ) : UIMessage(header, source) {
-        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
-        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
-        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
+        override val messageContent: UIMessageContent.SystemMessage
+    ) : UIMessage {
+        override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
+        val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
+        val singleUserAddFailed: Boolean =
+            messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
     }
 }
 
@@ -106,43 +115,67 @@ sealed class ExpirationStatus {
     object NotExpirable : ExpirationStatus()
 }
 
-sealed class MessageStatus(
-    open val errorText: UIText? = null, // error description text shown below the content of the message
-    open val badgeText: UIText? = null, // text shown between the user name and the content in the outlined box with a text inside
-    open val isPending: Boolean = false // if true then such message is still being sent
+sealed class MessageEditStatus {
+    object NonEdited : MessageEditStatus()
+    data class Edited(val formattedEditTimeStamp: String) : MessageEditStatus()
+}
+
+sealed class MessageFlowStatus {
+
+    object Sending : MessageFlowStatus()
+    object Sent : MessageFlowStatus()
+    sealed class Failure(val errorText: UIText) : MessageFlowStatus() {
+        sealed class Send(errorText: UIText) : Failure(errorText) {
+            data class Locally(val isEdited: Boolean) : Send(
+                if (isEdited) {
+                    UIText.StringResource(R.string.label_message_edit_sent_failure)
+                } else {
+                    UIText.StringResource(R.string.label_message_sent_failure)
+                }
+            )
+
+            data class Remotely(val isEdited: Boolean, val backendWithFailure: String) : Send(
+                if (isEdited) {
+                    UIText.StringResource(
+                        R.string.label_message_edit_sent_remotely_failure,
+                        backendWithFailure
+                    )
+                } else {
+                    UIText.StringResource(
+                        R.string.label_message_sent_remotely_failure,
+                        backendWithFailure
+                    )
+                }
+            )
+        }
+
+        data class Decryption(val isDecryptionResolved: Boolean) : Failure(
+            UIText.StringResource(R.string.label_message_decryption_failure_message)
+        )
+    }
+
+    object Delivered : MessageFlowStatus()
+
+    data class Read(val count: Int) : MessageFlowStatus()
+}
+
+@Stable
+data class MessageStatus(
+    val flowStatus: MessageFlowStatus,
+    val expirationStatus: ExpirationStatus,
+    val editStatus: MessageEditStatus = MessageEditStatus.NonEdited,
+    val isDeleted: Boolean = false
 ) {
-    sealed class MessageSendFailureStatus : MessageStatus() {
-        abstract override val errorText: UIText
-    }
 
-    data class Untouched(override val isPending: Boolean = false) : MessageStatus()
-    object Deleted : MessageStatus() {
-        override val badgeText: UIText = UIText.StringResource(R.string.deleted_message_text)
-    }
+    // text shown between the user name and the content in the outlined box with a text inside
+    val badgeText: UIText? = when {
+        isDeleted -> UIText.StringResource(R.string.deleted_message_text)
+        editStatus is MessageEditStatus.Edited -> UIText.StringResource(
+            R.string.label_message_status_edited_with_date,
+            editStatus.formattedEditTimeStamp
+        )
 
-    data class Edited(val formattedEditTimeStamp: String, override val isPending: Boolean = false) : MessageStatus() {
-        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
-    }
-
-    data class EditSendFailure(val formattedEditTimeStamp: String) : MessageSendFailureStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_edit_sent_failure)
-        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
-    }
-
-    object SendFailure : MessageSendFailureStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_failure)
-    }
-
-    data class SendRemotelyFailure(val backendWithFailure: String) : MessageSendFailureStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure)
-    }
-
-    object ReceiveFailure : MessageStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_receive_failure)
-    }
-
-    data class DecryptionFailure(val isDecryptionResolved: Boolean) : MessageStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_decryption_failure_message)
+        else -> null
     }
 }
 
@@ -170,15 +203,23 @@ sealed class UIMessageContent {
      */
     object IncompleteAssetMessage : UIMessageContent()
 
-    data class TextMessage(val messageBody: MessageBody) : Regular()
+    interface PartialDeliverable {
+        val deliveryStatus: DeliveryStatusContent
+    }
+
+    data class TextMessage(
+        val messageBody: MessageBody,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     object Deleted : Regular()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
-        val assetName: String
-    ) : Regular()
+        val assetName: String,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     @Stable
     data class AssetMessage(
@@ -187,8 +228,9 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     data class ImageMessage(
         val assetId: AssetId,
@@ -196,8 +238,9 @@ sealed class UIMessageContent {
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     @Stable
     data class AudioAssetMessage(
@@ -206,8 +249,9 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
@@ -324,6 +368,11 @@ sealed class UIMessageContent {
         )
 
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
+        class MLSWrongEpochWarning : SystemMessage(
+            iconResId = R.drawable.ic_info,
+            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
+            isSmallIcon = true
+        )
 
         data class ConversationMessageCreated(
             val author: UIText,
@@ -344,6 +393,15 @@ sealed class UIMessageContent {
             R.drawable.ic_contact,
             R.string.label_system_message_conversation_started_with_members
         )
+
+        data class MemberFailedToAdd(
+            val memberNames: Map<String, List<UIText>>
+        ) : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_failed_add_members_details
+        ) {
+            val usersCount = memberNames.values.flatten().size
+        }
     }
 }
 
@@ -391,4 +449,21 @@ enum class MessageSource {
 
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
+}
+
+@Stable
+sealed interface DeliveryStatusContent {
+    class PartialDelivery(
+        val failedRecipients: ImmutableList<UIText> = persistentListOf(),
+        val noClients: ImmutableMap<String, List<UIText>> = persistentMapOf(),
+    ) : DeliveryStatusContent {
+        val hasFailures: Boolean
+            get() = totalUsersWithFailures > 0
+
+        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList() }
+        val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
+        val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
+    }
+
+    object CompleteDelivery : DeliveryStatusContent
 }

@@ -22,7 +22,9 @@ package com.wire.android.framework
 
 import com.wire.android.mapper.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -44,6 +46,23 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 object TestMessage {
+
+    val FAILED_DECRYPTION = Message.Regular(
+        id = "messageID",
+        content = MessageContent.FailedDecryption(
+            null,
+            senderUserId = UserId("user-id", "domain"),
+            isDecryptionResolved = false
+        ),
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        senderClientId = ClientId("client-id"),
+        status = Message.Status.SENT,
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
+    )
+
     val TEXT_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Text("Some Text Message"),
@@ -92,6 +111,17 @@ object TestMessage {
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
+    val UNKNOWN_MESSAGE = Message.Regular(
+        id = "messageID",
+        content = MessageContent.Unknown("some-unhandled-message"),
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        senderClientId = ClientId("client-id"),
+        status = Message.Status.SENT,
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
+    )
 
     fun buildAssetMessage(assetContent: AssetContent) = Message.Regular(
         id = "messageID",
@@ -111,7 +141,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
 
     val MEMBER_REMOVED_MESSAGE = Message.System(
@@ -120,7 +151,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
     val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageContentMetadata(
         AssetContent(
@@ -138,7 +170,10 @@ object TestMessage {
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched(),
+        messageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
+        ),
         messageId = "messageID",
         connectionState = null,
         isSenderDeleted = false,
@@ -158,7 +193,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
 
     val CONVERSATION_CREATED_MESSAGE = Message.System(
@@ -167,7 +203,8 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT
+        status = Message.Status.SENT,
+        expirationData = null
     )
 
     val PREVIEW = MessagePreview(

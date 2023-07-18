@@ -143,7 +143,7 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     }?.also { downloadedUri -> resolver.copyFile(downloadedUri, downloadedDataPath) }
 }
 
-private fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
+fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
     openOutputStream(destinationUri).use { outputStream ->
         val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
         var len: Int
@@ -368,7 +368,7 @@ private fun Cursor.getValidMimeType(): String =
 private fun Cursor.getValidSize(): Long =
     getColumnIndex(SIZE).run { takeIf { it > -1 }?.let { getLong(it) } ?: 0L }
 
-data class FileMetaData(val name: String = "", val size: Long = 0L, val mimeType: String = "")
+data class FileMetaData(val name: String = "", val sizeInBytes: Long = 0L, val mimeType: String = "")
 
 fun isImageFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("image/")

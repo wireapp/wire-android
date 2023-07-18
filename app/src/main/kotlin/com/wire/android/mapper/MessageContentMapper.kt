@@ -38,7 +38,12 @@ class MessageContentMapper @Inject constructor(
         return when (message) {
             is Message.Regular -> {
                 when (message.visibility) {
-                    Message.Visibility.VISIBLE -> regularMessageMapper.mapMessage(message, userList.findUser(message.senderUserId))
+                    Message.Visibility.VISIBLE -> regularMessageMapper.mapMessage(
+                        message,
+                        userList.findUser(message.senderUserId),
+                        userList
+                    )
+
                     Message.Visibility.DELETED -> UIMessageContent.Deleted // for deleted , there is a state label displayed only
                     Message.Visibility.HIDDEN -> null // we don't want to show hidden message content in any way
                 }

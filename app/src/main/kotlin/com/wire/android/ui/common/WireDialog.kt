@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,15 +52,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalComposeUiApi::class)
+@Stable
+fun wireDialogPropertiesBuilder(
+    dismissOnBackPress: Boolean = true,
+    dismissOnClickOutside: Boolean = true,
+    usePlatformDefaultWidth: Boolean = false
+): DialogProperties = DialogProperties(
+    dismissOnBackPress = dismissOnBackPress,
+    dismissOnClickOutside = dismissOnClickOutside,
+    usePlatformDefaultWidth = usePlatformDefaultWidth
+)
+
 @Composable
 fun WireDialog(
     title: String,
@@ -177,28 +188,33 @@ private fun WireDialogContent(
                 }
             }
 
-            if (buttonsHorizontalAlignment)
+            if (buttonsHorizontalAlignment) {
                 Row(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     dismissButtonProperties.getButton(Modifier.weight(1f))
-                    if (dismissButtonProperties != null)
+                    if (dismissButtonProperties != null) {
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     optionButton1Properties.getButton(Modifier.weight(1f))
-                    if (optionButton2Properties != null)
+                    if (optionButton2Properties != null) {
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     optionButton2Properties.getButton(Modifier.weight(1f))
                 }
-            else
+            } else {
                 Column(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     optionButton1Properties.getButton()
 
-                    if (optionButton2Properties != null)
+                    if (optionButton2Properties != null) {
                         Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     optionButton2Properties.getButton()
 
-                    if (dismissButtonProperties != null)
+                    if (dismissButtonProperties != null) {
                         Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                    }
                     dismissButtonProperties.getButton()
                 }
+            }
         }
     }
 }
@@ -210,8 +226,10 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
             when (type) {
                 WireDialogButtonType.Primary ->
                     WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+
                 WireDialogButtonType.Secondary ->
                     WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+
                 WireDialogButtonType.Tertiary ->
                     WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
             }
@@ -249,7 +267,7 @@ fun PreviewWireDialog() {
                         fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
                         fontStyle = MaterialTheme.wireTypography.body01.fontStyle
                     )
-                    withStyle(style) { append("text") }
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
                 },
             ) {
                 WirePasswordTextField(

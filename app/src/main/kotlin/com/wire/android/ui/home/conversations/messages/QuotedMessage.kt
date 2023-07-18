@@ -17,6 +17,7 @@
  *
  *
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.conversations.messages
 
@@ -27,8 +28,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,6 +51,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
@@ -193,17 +197,22 @@ private fun QuotedMessageContent(
             )
             .padding(dimensions().spacing4x)
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
         Box(modifier = Modifier.padding(start = dimensions().spacing4x)) {
             startContent()
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-            modifier = Modifier.padding(vertical = dimensions().spacing4x)
+            modifier = Modifier
+                .padding(vertical = dimensions().spacing4x)
+                .weight(1.0f) // Fill the remaining space
         ) {
             QuotedMessageTopRow(senderName, displayReplyArrow = style == COMPLETE)
             Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
-                Column(verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
+                ) {
                     centerContent()
                     if (style == COMPLETE) {
                         footerContent()
@@ -211,18 +220,16 @@ private fun QuotedMessageContent(
                 }
             }
         }
-
-        // Make sure the end content is all the way to the end by spacing it
-        Spacer(
-            modifier = modifier
-                .weight(1f)
-                .fillMaxWidth()
-        )
         val endContentExtraPadding = if (style == COMPLETE) dimensions().spacing4x else dimensions().spacing0x
         Box(
             modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(bottom = endContentExtraPadding, top = endContentExtraPadding, end = endContentExtraPadding)
+                .padding(
+                    bottom = endContentExtraPadding,
+                    top = endContentExtraPadding,
+                    end = endContentExtraPadding
+                )
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
             endContent()
         }
@@ -321,7 +328,11 @@ private fun QuotedText(
 private fun QuotedMessageOriginalDate(
     originalDateTimeText: UIText
 ) {
-    Text(originalDateTimeText.asString(), style = typography().subline01, color = colorsScheme().secondaryText)
+    Text(
+        originalDateTimeText.asString(),
+        style = typography().subline01,
+        color = colorsScheme().secondaryText,
+    )
 }
 
 @Composable
@@ -333,25 +344,103 @@ private fun QuotedImage(
     style: QuotedMessageStyle,
     modifier: Modifier
 ) {
-    val imageDimension = if (style == COMPLETE) dimensions().spacing56x else dimensions().spacing40x
-    QuotedMessageContent(senderName.asString(), style = style, modifier = modifier, endContent = {
+
+    if (style == PREVIEW) {
+
+        // Standard quoted message layout
+        val imageDimension = dimensions().spacing40x
+        QuotedMessageContent(senderName.asString(), style = style, modifier = modifier, endContent = {
+            Image(
+                painter = asset.paint(),
+                contentDescription = stringResource(R.string.content_description_image_message),
+                modifier = Modifier
+                    .width(imageDimension)
+                    .height(imageDimension)
+                    .clip(RoundedCornerShape(dimensions().spacing8x)),
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Crop
+            )
+        }, startContent = {
+            startContent()
+        }, centerContent = {
+            MainContentText(stringResource(R.string.notification_shared_picture))
+        }, footerContent = {
+            QuotedMessageOriginalDate(originalDateTimeText)
+        })
+    } else {
+
+        // Similar to the standard layout, but the space for the image stretches
+        // according to the height of the message content
+        val quoteOutlineShape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x, Alignment.Start),
+            modifier = modifier
+                .background(
+                    color = MaterialTheme.wireColorScheme.surfaceVariant,
+                    shape = quoteOutlineShape
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.divider,
+                    shape = quoteOutlineShape
+                )
+                .padding(dimensions().spacing4x)
+                .fillMaxWidth()
+        ) {
+            // This is the composable that does the trick of stretching the image
+            AutosizeContainer(asset = asset) {
+                QuotedMessageTopRow(senderName.asString(), displayReplyArrow = true)
+                MainContentText(stringResource(R.string.notification_shared_picture))
+                QuotedMessageOriginalDate(originalDateTimeText)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AutosizeContainer(
+    modifier: Modifier = Modifier,
+    asset: ImageAsset.PrivateAsset,
+    content: @Composable () -> Unit
+) {
+    val imageDimension = Dimension.value(dimensions().spacing56x)
+    // ConstraintLayout is used to measure the text content and then
+    // resize the image to match the height of the text
+    ConstraintLayout(modifier = modifier.fillMaxWidth().padding(dimensions().spacing8x)) {
+        val (leftSide, rightSide) = createRefs()
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.constrainAs(leftSide) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(rightSide.start)
+                width = Dimension.fillToConstraints
+                height = Dimension.wrapContent
+            }
+        ) {
+            content()
+        }
         Image(
             painter = asset.paint(),
             contentDescription = stringResource(R.string.content_description_image_message),
             modifier = Modifier
-                .width(imageDimension)
-                .height(imageDimension)
-                .clip(RoundedCornerShape(dimensions().spacing8x)),
+                .constrainAs(rightSide) {
+                    top.linkTo(leftSide.top)
+                    bottom.linkTo(leftSide.bottom)
+                    end.linkTo(parent.end)
+                    width = imageDimension
+                    height = Dimension.fillToConstraints
+                }.clip(RoundedCornerShape(dimensions().spacing8x))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                    shape = RoundedCornerShape(dimensions().spacing8x)
+                ),
             alignment = Alignment.Center,
             contentScale = ContentScale.Crop
         )
-    }, startContent = {
-        startContent()
-    }, centerContent = {
-        MainContentText(stringResource(R.string.notification_shared_picture))
-    }, footerContent = {
-        QuotedMessageOriginalDate(originalDateTimeText)
-    })
+    }
 }
 
 @Composable
@@ -419,8 +508,6 @@ private fun QuotedGenericAsset(
                 painter = painterResource(R.drawable.ic_file),
                 contentDescription = null,
                 modifier = modifier
-                    .width(dimensions().spacing24x)
-                    .width(dimensions().spacing24x)
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
             )

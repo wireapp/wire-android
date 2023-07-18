@@ -24,6 +24,8 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.MessageEditStatus
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -36,6 +38,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
@@ -54,9 +57,21 @@ class MessageMapper @Inject constructor(
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
-            when (val content = message.content) {
-                is MessageContent.MemberChange -> content.members
-                else -> listOf()
+            when (message) {
+                is Message.Regular -> {
+                    when (val failureType = message.deliveryStatus) {
+                        is DeliveryStatus.CompleteDelivery -> listOf()
+                        is DeliveryStatus.PartialDelivery ->
+                            failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
+                    }
+                }
+                is Message.System -> {
+                    when (val content = message.content) {
+                        is MessageContent.MemberChange -> content.members
+                        else -> listOf()
+                    }
+                }
+                is Message.Signaling -> listOf()
             }
         )
     }.distinct()
@@ -103,23 +118,24 @@ class MessageMapper @Inject constructor(
         }
 
         return when (content) {
-            is UIMessageContent.Regular -> {
+            is UIMessageContent.Regular ->
                 UIMessage.Regular(
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
                     messageFooter = footer,
-                    userAvatarData = getUserAvatarData(sender),
-                    expirationStatus = provideExpirationData(message)
+                    userAvatarData = getUserAvatarData(sender)
                 )
-            }
+
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
                 )
+
             null -> null
+
             /**
              * IncompleteAssetMessage is a displayable asset that's missing the remote data.
              * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
@@ -129,8 +145,8 @@ class MessageMapper @Inject constructor(
         }
     }
 
-    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
-        val expirationData = (message as? Message.Regular)?.expirationData
+    private fun provideExpirationData(message: Message): ExpirationStatus {
+        val expirationData = message.expirationData
         return if (expirationData == null) {
             ExpirationStatus.NotExpirable
         } else {
@@ -167,29 +183,36 @@ class MessageMapper @Inject constructor(
         clientId = (message as? Message.Sendable)?.senderClientId
     )
 
-    private fun getMessageStatus(message: Message.Standalone) = when {
-        message.status == Message.Status.FAILED && message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-            MessageStatus.EditSendFailure(
-                isoFormatter.fromISO8601ToTimeFormat(
-                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+    private fun getMessageStatus(message: Message.Standalone): MessageStatus {
+        val isMessageEdited = message is Message.Regular && message.editStatus is Message.EditStatus.Edited
+
+        val content = message.content
+        val flowStatus = if (content is MessageContent.FailedDecryption) {
+            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved)
+        } else {
+            when (message.status) {
+                Message.Status.PENDING -> MessageFlowStatus.Sending
+                Message.Status.SENT -> MessageFlowStatus.Sent
+                Message.Status.READ -> MessageFlowStatus.Read(1) // TODO add read count
+                Message.Status.FAILED -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
+                Message.Status.FAILED_REMOTELY -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
+            }
+        }
+
+        return MessageStatus(
+            flowStatus = flowStatus,
+            editStatus = if (message is Message.Regular && message.editStatus is Message.EditStatus.Edited) {
+                MessageEditStatus.Edited(
+                    isoFormatter.fromISO8601ToTimeFormat(
+                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                    )
                 )
-            )
-
-        message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
-        message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
-        message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-            MessageStatus.Edited(
-                isoFormatter.fromISO8601ToTimeFormat(
-                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
-                ),
-                message.status == Message.Status.PENDING
-            )
-
-        message is Message.Regular && message.content is MessageContent.FailedDecryption ->
-            MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
-
-        else -> MessageStatus.Untouched(message.status == Message.Status.PENDING)
+            } else {
+                MessageEditStatus.NonEdited
+            },
+            expirationStatus = provideExpirationData(message),
+            isDeleted = message.visibility == Message.Visibility.DELETED
+        )
     }
 
     private fun getUserAvatarData(sender: User?) = UserAvatarData(

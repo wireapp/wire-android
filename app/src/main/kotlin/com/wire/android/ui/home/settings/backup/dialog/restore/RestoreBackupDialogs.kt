@@ -45,7 +45,8 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.home.messagecomposer.attachment.FileBrowserFlow
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.home.messagecomposer.FileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.roundToInt
 
@@ -83,6 +84,10 @@ fun EnterRestorePasswordDialog(
             title = stringResource(R.string.backup_label_enter_password),
             text = stringResource(R.string.backup_dialog_restore_backup_password_message),
             onDismiss = onCancelBackupRestore,
+            properties = wireDialogPropertiesBuilder(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            ),
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = onCancelBackupRestore,
                 text = stringResource(id = R.string.label_cancel),

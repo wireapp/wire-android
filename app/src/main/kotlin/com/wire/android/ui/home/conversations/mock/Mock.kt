@@ -31,7 +31,10 @@ import coil.request.ImageResult
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageEditStatus
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -47,6 +50,10 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.network.NetworkState
+import com.wire.kalium.logic.network.NetworkStateObserver
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
@@ -56,7 +63,10 @@ val mockHeader = MessageHeader(
     membership = Membership.Guest,
     isLegalHold = true,
     messageTime = MessageTime("12.23pm"),
-    messageStatus = MessageStatus.Untouched(),
+    messageStatus = MessageStatus(
+        flowStatus = MessageFlowStatus.Sent,
+        expirationStatus = ExpirationStatus.NotExpirable
+    ),
     messageId = "",
     connectionState = ConnectionState.ACCEPTED,
     isSenderDeleted = false,
@@ -95,7 +105,11 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override suspend fun execute(request: ImageRequest): ImageResult = TODO("Not yet implemented")
     override fun newBuilder(): ImageLoader.Builder = TODO("Not yet implemented")
     override fun shutdown() = TODO("Not yet implemented")
-})
+},
+    object : NetworkStateObserver {
+        override fun observeNetworkState(): StateFlow<NetworkState> = MutableStateFlow(NetworkState.ConnectedWithInternet)
+    }
+    )
 
 fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
     userAvatarData = UserAvatarData(
@@ -107,7 +121,10 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched(),
+        messageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
+        ),
         messageId = "",
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
@@ -138,7 +155,10 @@ fun mockedImg(
 @Suppress("MagicNumber")
 fun mockedImageUIMessage(
     uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
-    messageStatus: MessageStatus = MessageStatus.Untouched(false),
+    messageStatus: MessageStatus = MessageStatus(
+        flowStatus = MessageFlowStatus.Sent,
+        expirationStatus = ExpirationStatus.NotExpirable
+    )
 ) = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = MessageHeader(
@@ -166,7 +186,10 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.Guest,
             isLegalHold = true,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Untouched(),
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
@@ -192,7 +215,10 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.Guest,
             isLegalHold = true,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Deleted,
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Delivered, isDeleted = true,
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "2",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
@@ -209,7 +235,11 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "3",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
@@ -226,7 +256,11 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "4",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
@@ -243,7 +277,11 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Deleted,
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Delivered,
+                isDeleted = true,
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "5",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
@@ -269,7 +307,11 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "6",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,
@@ -286,7 +328,11 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+            messageStatus = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
+                expirationStatus = ExpirationStatus.NotExpirable
+            ),
             messageId = "7",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,

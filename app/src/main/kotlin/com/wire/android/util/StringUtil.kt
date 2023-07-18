@@ -40,3 +40,8 @@ fun String.sha256(): String {
     val md = MessageDigest.getInstance("SHA-256")
     return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
 }
+
+fun String.toTitleCase(delimiter: String = " ", separator: String = " "): String =
+    this.split(delimiter).joinToString(separator = separator) {
+        it.lowercase().replaceFirstChar(Char::titlecaseChar)
+    }

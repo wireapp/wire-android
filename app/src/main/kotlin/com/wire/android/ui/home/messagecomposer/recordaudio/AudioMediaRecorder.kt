@@ -88,12 +88,10 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    fun startRecording(onStarted: () -> Unit) {
+    fun startRecording() {
         try {
             mediaRecorder?.prepare()
             mediaRecorder?.start()
-
-            onStarted()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
             appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")

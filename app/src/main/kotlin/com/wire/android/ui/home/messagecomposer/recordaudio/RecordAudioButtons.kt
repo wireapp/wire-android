@@ -116,7 +116,9 @@ fun RecordAudioButtonRecording(
         iconResId = R.drawable.ic_stop,
         contentDescription = R.string.content_description_record_audio_button_stop,
         buttonColor = colorsScheme().recordAudioStopColor,
-        bottomText = R.string.record_audio_recording_label
+        bottomText = R.string.record_audio_recording_label,
+        buttonState = if(seconds > 0) WireButtonState.Default else WireButtonState.Disabled
+
     )
 }
 
@@ -160,7 +162,8 @@ fun RecordAudioButton(
     @DrawableRes iconResId: Int,
     @StringRes contentDescription: Int,
     buttonColor: Color,
-    @StringRes bottomText: Int
+    @StringRes bottomText: Int,
+    buttonState: WireButtonState = WireButtonState.Default
 ) {
     Column(
         modifier = modifier,
@@ -186,7 +189,7 @@ fun RecordAudioButton(
             colors = wireSecondaryButtonColors().copy(
                 enabled = buttonColor
             ),
-            state = WireButtonState.Default
+            state = buttonState
         )
         Spacer(modifier = Modifier.height(dimensions().spacing16x))
         Text(

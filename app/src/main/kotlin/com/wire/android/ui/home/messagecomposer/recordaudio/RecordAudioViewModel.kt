@@ -133,11 +133,11 @@ class RecordAudioViewModel @Inject constructor(
                 outputFile = audioMediaRecorder.outputFile
             )
 
-            audioMediaRecorder.startRecording(onStarted = {
-                state = state.copy(
-                    buttonState = RecordAudioButtonState.RECORDING
-                )
-            })
+            audioMediaRecorder.startRecording()
+
+            state = state.copy(
+                buttonState = RecordAudioButtonState.RECORDING
+            )
         }
     }
 

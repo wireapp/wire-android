@@ -373,10 +373,11 @@ private fun Content(
     getOtherUserClients: () -> Unit,
     onDeviceClick: (Device) -> Unit
 ) {
-    Column {
-        OtherUserConnectionStatusInfo(state.connectionState, state.membership)
-        x24()
-        Crossfade(targetState = tabItems to state) { (tabItems, state) ->
+
+    Crossfade(targetState = tabItems to state) { (tabItems, state) ->
+        Column {
+            OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+            x24()
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
                 state.connectionState == ConnectionState.ACCEPTED -> {
@@ -424,6 +425,7 @@ private fun Content(
             }
         }
     }
+
 }
 
 @Composable

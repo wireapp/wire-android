@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,10 +27,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CompositeMessageViewModel @Inject constructor() : ViewModel() {
+class CompositeMessagesViewModel @Inject constructor() : ViewModel() {
 
     var pendingButtons = mutableStateMapOf<String, String>()
-        private set
+        @VisibleForTesting
+        set
 
     fun onButtonClicked(messageId: String, buttonId: String) {
         if (pendingButtons.containsKey(messageId)) return

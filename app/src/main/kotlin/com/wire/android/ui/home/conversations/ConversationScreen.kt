@@ -120,7 +120,7 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    compositeMessagesViewModel: CompositeMessageViewModel = viewModel()
+    compositeMessagesViewModel: CompositeMessagesViewModel = viewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
@@ -308,7 +308,7 @@ private fun ConversationScreen(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
-    compositeMessagesViewModel: CompositeMessageViewModel,
+    compositeMessagesViewModel: CompositeMessagesViewModel,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,

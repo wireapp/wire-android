@@ -40,6 +40,8 @@ jobs:
                     echo "::set-output name=shouldCherryPick::false"
                   fi
 
+            - uses: fregante/setup-git-user@v2
+
             - name: Cherry-pick commits
               if: steps.check_changes.outputs.shouldCherryPick == 'true'
               run: |

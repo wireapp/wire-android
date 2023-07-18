@@ -830,6 +830,9 @@
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">කියවූ බවට ලදුපත යවන්න</string>
     <string name="settings_send_read_receipts_description">මෙය අක්‍රිය නම්, ඔබට අන් අයගෙන් කියවූ බවට ලදුපත් දැකීමට නොහැකියි. සමූහ සංවාද සඳහා මෙම සැකසුම අදාළ නොවේ.</string>
+    <string name="settings_censor_screenshots">Censor screenshots</string>
+    <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <!--Devices -->
     <string name="devices_title">ඔබගේ උපාංග</string>
     <string name="current_device_label">වත්මන් උපාංගය</string>

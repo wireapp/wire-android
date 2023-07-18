@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,6 +63,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
@@ -82,6 +84,7 @@ import kotlin.time.Duration
 @Composable
 fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
+    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
@@ -111,6 +114,7 @@ fun MessageComposer(
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
                     messageComposerStateHolder = messageComposerStateHolder,
+                    snackbarHostState = snackbarHostState,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
@@ -118,6 +122,9 @@ fun MessageComposer(
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping) },
                     onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
+                    onAudioRecorded = {
+                        onSendMessageBundle(AttachmentPickedBundle(it))
+                    },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
@@ -132,10 +139,12 @@ fun MessageComposer(
 @Composable
 private fun EnabledMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
+    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onSendButtonClicked: () -> Unit,
     onPingOptionClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
@@ -157,16 +166,18 @@ private fun EnabledMessageComposer(
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
                         messageComposerStateHolder = messageComposerStateHolder,
+                        snackbarHostState = snackbarHostState,
                         tempWritableVideoUri = tempWritableVideoUri,
                         tempWritableImageUri = tempWritableImageUri,
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
                         onAttachmentPicked = onAttachmentPicked,
+                        onAudioRecorded = onAudioRecorded,
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                         onClearMentionSearchResult = onClearMentionSearchResult,
-                        onPingOptionClicked = onPingOptionClicked,
+                        onPingOptionClicked = onPingOptionClicked
                     )
                 }
 
@@ -239,12 +250,14 @@ private fun InactiveMessageComposer(
 @Composable
 private fun ActiveMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
+    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
+    onAudioRecorded: (UriAsset) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
@@ -413,8 +426,11 @@ private fun ActiveMessageComposer(
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                            snackbarHostState = snackbarHostState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
+                            onCloseRecordAudio = ::toCloseAudioRecording,
                             onAttachmentPicked = onAttachmentPicked,
+                            onAudioRecorded = onAudioRecorded,
                             tempWritableImageUri = tempWritableImageUri,
                             tempWritableVideoUri = tempWritableVideoUri,
                             modifier = Modifier
@@ -440,7 +456,10 @@ private fun ActiveMessageComposer(
             }
 
             BackHandler {
-                onTransitionToInActive()
+                if (additionalOptionStateHolder
+                    .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+                    onTransitionToInActive()
+                }
             }
         }
     }
@@ -472,6 +491,7 @@ fun MessageComposerPreview() {
         onClearMentionSearchResult = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
-        tempWritableImageUri = null
+        tempWritableImageUri = null,
+        snackbarHostState = SnackbarHostState()
     )
 }

@@ -57,18 +57,9 @@ fun ReactionOption(
                     ) {
                         Button(
                             onClick = {
-                                // TODO remove when all emojis will be available
-                                if (emoji == "❤️") {
-                                    // So we display the pretty emoji,
-                                    // but we match the ugly one sent from other platforms
-                                    val correctedEmoji = "❤"
-                                    onReactionClick(correctedEmoji)
-                                }
+                                onReactionClick(emoji)
                             },
-                            modifier = Modifier
-                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-                                // TODO remove when all emojis will be available
-                                .alpha(if (emoji == "❤️") 1F else 0.3F),
+                            modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
                             contentPadding = PaddingValues(dimensions().spacing8x),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.wireColorScheme.surface,

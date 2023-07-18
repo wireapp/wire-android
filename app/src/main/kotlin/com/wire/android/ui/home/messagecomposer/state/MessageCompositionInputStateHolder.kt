@@ -23,13 +23,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import kotlin.time.Duration
+import com.wire.kalium.logic.util.isPositiveNotNull
 
 class MessageCompositionInputStateHolder(
     private val messageComposition: MutableState<MessageComposition>,
@@ -39,7 +40,7 @@ class MessageCompositionInputStateHolder(
         private set
 
     private val messageType = derivedStateOf {
-        if (selfDeletionTimer.value.toDuration() > Duration.ZERO) {
+        if (selfDeletionTimer.value.duration.isPositiveNotNull()) {
             MessageType.SelfDeleting(selfDeletionTimer.value)
         } else {
             MessageType.Normal
@@ -111,8 +112,38 @@ class MessageCompositionInputStateHolder(
         inputFocused = true
     }
 
+    fun show() {
+        inputVisibility = true
+    }
+
     fun hide() {
         inputVisibility = false
+    }
+
+    companion object {
+        @Suppress("MagicNumber")
+        fun saver(
+            messageComposition: MutableState<MessageComposition>,
+            selfDeletionTimer: State<SelfDeletionTimer>
+        ): Saver<MessageCompositionInputStateHolder, *> = Saver(
+            save = {
+                listOf(
+                    it.inputFocused,
+                    it.inputVisibility,
+                    it.inputState,
+                )
+            },
+            restore = {
+                MessageCompositionInputStateHolder(
+                    messageComposition = messageComposition,
+                    selfDeletionTimer = selfDeletionTimer
+                ).apply {
+                    inputFocused = it[0] as Boolean
+                    inputVisibility = it[1] as Boolean
+                    inputState = it[2] as MessageCompositionInputState
+                }
+            }
+        )
     }
 }
 

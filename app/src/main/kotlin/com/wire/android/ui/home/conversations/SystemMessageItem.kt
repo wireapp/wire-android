@@ -78,8 +78,21 @@ import com.wire.android.util.ui.toUIText
 fun SystemMessageItem(
     message: UIMessage.System,
     onFailedMessageRetryClicked: (String) -> Unit = {},
-    onFailedMessageCancelClicked: (String) -> Unit = {}
+    onFailedMessageCancelClicked: (String) -> Unit = {},
+    onSelfDeletingMessageRead: (UIMessage) -> Unit = {}
 ) {
+    val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
+    if (
+        selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable &&
+        !message.isPending &&
+        !message.sendingFailed
+    ) {
+        startDeletionTimer(
+            message = message,
+            expirableTimer = selfDeletionTimerState,
+            onStartMessageSelfDeletion = onSelfDeletingMessageRead
+        )
+    }
     val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier

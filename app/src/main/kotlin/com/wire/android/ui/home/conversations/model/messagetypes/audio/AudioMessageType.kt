@@ -31,7 +31,6 @@ import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -40,6 +39,7 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -82,7 +82,35 @@ fun AudioMessage(
 }
 
 @Composable
+fun RecordedAudioMessage(
+    audioMediaPlayingState: AudioMediaPlayingState,
+    totalTimeInMs: AudioState.TotalTimeInMs,
+    currentPositionInMs: Int,
+    onPlayButtonClick: () -> Unit,
+    onSliderPositionChange: (Float) -> Unit,
+    onAudioMessageLongClick: (() -> Unit)? = null
+) {
+    Box(
+        modifier = Modifier.apply {
+            padding(top = dimensions().spacing4x)
+            padding(dimensions().spacing8x)
+        }
+    ) {
+        SuccessfulAudioMessage(
+            modifier = Modifier.padding(horizontal = dimensions().spacing24x),
+            audioMediaPlayingState = audioMediaPlayingState,
+            totalTimeInMs = totalTimeInMs,
+            currentPositionInMs = currentPositionInMs,
+            onPlayButtonClick = onPlayButtonClick,
+            onSliderPositionChange = onSliderPositionChange,
+            onAudioMessageLongClick = onAudioMessageLongClick
+        )
+    }
+}
+
+@Composable
 private fun SuccessfulAudioMessage(
+    modifier: Modifier = Modifier,
     audioMediaPlayingState: AudioMediaPlayingState,
     totalTimeInMs: AudioState.TotalTimeInMs,
     currentPositionInMs: Int,
@@ -97,7 +125,7 @@ private fun SuccessfulAudioMessage(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(dimensions().audioMessageHeight)
             .clickable(Clickable(enabled = onAudioMessageLongClick != null, onLongClick = onAudioMessageLongClick)),

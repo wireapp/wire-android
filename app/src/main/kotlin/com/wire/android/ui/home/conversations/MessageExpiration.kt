@@ -257,45 +257,41 @@ class SelfDeletionTimerHelper(private val context: Context) {
 
 @Composable
 fun startDeletionTimer(
-    message: UIMessage.Regular,
+    message: UIMessage,
     expirableTimer: SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable,
-    onStartMessageSelfDeletion: (UIMessage.Regular) -> Unit
+    onStartMessageSelfDeletion: (UIMessage) -> Unit
 ) {
-    message.messageContent?.let {
-        when (val messageContent = message.messageContent) {
-            is UIMessageContent.AssetMessage -> startAssetDeletion(
-                expirableTimer = expirableTimer,
-                onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                downloadStatus = messageContent.downloadStatus
-            )
+    when (val messageContent = message.messageContent) {
+        is UIMessageContent.AssetMessage -> startAssetDeletion(
+            expirableTimer = expirableTimer,
+            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+            downloadStatus = messageContent.downloadStatus
+        )
 
-            is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
-                expirableTimer = expirableTimer,
-                onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                downloadStatus = messageContent.downloadStatus
-            )
+        is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
+            expirableTimer = expirableTimer,
+            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+            downloadStatus = messageContent.downloadStatus
+        )
 
-            is UIMessageContent.ImageMessage -> startAssetDeletion(
-                expirableTimer = expirableTimer,
-                onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                downloadStatus = messageContent.downloadStatus
-            )
+        is UIMessageContent.ImageMessage -> startAssetDeletion(
+            expirableTimer = expirableTimer,
+            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+            downloadStatus = messageContent.downloadStatus
+        )
 
-            is UIMessageContent.TextMessage -> {
-                LaunchedEffect(Unit) {
-                    onStartMessageSelfDeletion(message)
-                }
-                LaunchedEffect(expirableTimer.timeLeft) {
-                    with(expirableTimer) {
-                        if (timeLeft != ZERO) {
-                            delay(updateInterval())
-                            decreaseTimeLeft(updateInterval())
-                        }
+        else -> {
+            LaunchedEffect(Unit) {
+                onStartMessageSelfDeletion(message)
+            }
+            LaunchedEffect(expirableTimer.timeLeft) {
+                with(expirableTimer) {
+                    if (timeLeft != ZERO) {
+                        delay(updateInterval())
+                        decreaseTimeLeft(updateInterval())
                     }
                 }
             }
-
-            else -> {}
         }
     }
 }

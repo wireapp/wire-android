@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
@@ -73,12 +74,14 @@ import org.commonmark.parser.Parser
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
+    messageId: String,
     messageBody: MessageBody?,
     isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     buttonList: List<MessageButton>?,
-    onButtonClick: ((String) -> Unit)?
+    pendingButton: String?,
+    onButtonClick: ((messageId: String, buttonId: String) -> Unit)?
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
@@ -103,18 +106,35 @@ internal fun MessageBody(
         MarkdownDocument(Parser.builder().extensions(extensions).build().parse(it) as Document, nodeData)
     }
     buttonList?.also {
-        MessageButtonsContent(it, onButtonClick)
+        MessageButtonsContent(
+            messageId = messageId,
+            buttonList = it,
+            onClick = onButtonClick,
+            pendingButton = pendingButton
+        )
     }
 }
 
 @Composable
-fun MessageButtonsContent(buttonList: List<MessageButton>, onClick: ((String) -> Unit)?) {
+fun MessageButtonsContent(
+    messageId: String,
+    pendingButton: String?,
+    buttonList: List<MessageButton>,
+    onClick: ((messageId: String, buttonId: String) -> Unit)?
+) {
     Column(
         modifier = Modifier
             .wrapContentSize()
     ) {
+
         for (index in buttonList.indices) {
-            MessageButton(button = buttonList[index], onClick = onClick)
+            val button = buttonList[index]
+            MessageButton(
+                messageId = messageId,
+                isPending = pendingButton == button.id,
+                button = button,
+                onClick = onClick
+            )
             if (index != buttonList.lastIndex) {
                 Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
             }
@@ -124,21 +144,27 @@ fun MessageButtonsContent(buttonList: List<MessageButton>, onClick: ((String) ->
 
 @SuppressLint("RememberReturnType")
 @Composable
-fun MessageButton(button: MessageButton, onClick: ((String) -> Unit)?) {
-    val onCLick = remember(button.isSelected) {
+fun MessageButton(
+    messageId: String,
+    button: MessageButton,
+    isPending: Boolean,
+    onClick: ((messageId: String, buttonId: String) -> Unit)?
+) {
+    val onCLick = remember(button.isSelected && isPending) {
         onClick?.let {
             if (!button.isSelected) {
-                { onClick(button.id) }
+                { onClick(messageId, button.id) }
             } else {
                 { }
             }
-        }
-    } ?: { }
+        } ?: { }
+    }
 
     WireSecondaryButton(
+        loading = isPending,
         text = button.text,
         onClick = onCLick,
-        loading = button.isSelected,
+        state = if (button.isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
 

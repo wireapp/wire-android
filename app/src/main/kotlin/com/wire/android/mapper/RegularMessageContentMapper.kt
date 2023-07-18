@@ -113,8 +113,7 @@ class RegularMessageMapper @Inject constructor(
                     MessageButton(
                         id = it.id,
                         text = it.text,
-                        isSelected = it.isSelected,
-                        isPending = it.isPending
+                        isSelected = it.isSelected
                     )
                 },
                 deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)

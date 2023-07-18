@@ -185,7 +185,7 @@ sealed class UILastMessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : UILastMessageContent()
 
-    data class SenderWithMessage(val sender: UIText, val message: UIText?, val separator: String = " ") : UILastMessageContent()
+    data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
 
     data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
@@ -478,6 +478,5 @@ sealed interface DeliveryStatusContent {
 data class MessageButton(
     val id: String,
     val text: String,
-    val isPending: Boolean,
     val isSelected: Boolean,
 )

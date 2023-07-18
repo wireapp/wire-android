@@ -55,7 +55,7 @@ jobs:
               if: steps.check_changes.outputs.shouldCherryPick == 'true'
               env:
                   PR_TITLE: ${{ github.event.pull_request.title }}
-                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"
                   PR_BRANCH: ${{ steps.extract.outputs.newBranchName }}
                   PR_ASSIGNEE: ${{ github.event.pull_request.user.login }}
-              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base develop --head $PR_BRANCH -label cherry-pick $PR_ASSIGNEE
+                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"
+              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base develop --head $PR_BRANCH --label "cherry-pick" --assignee "$PR_ASSIGNEE"

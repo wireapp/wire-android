@@ -23,14 +23,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
 class CompositeMessageViewModel @Inject constructor() : ViewModel() {
-    private val lock: Mutex = Mutex()
 
     var pendingButtons = mutableStateMapOf<String, String>()
         private set
@@ -46,6 +42,7 @@ class CompositeMessageViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    @Suppress("MagicNumber")
     suspend fun doStuff() {
         delay(5000)
     }

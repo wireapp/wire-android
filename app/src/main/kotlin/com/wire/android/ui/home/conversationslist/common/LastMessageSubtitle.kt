@@ -44,7 +44,8 @@ fun LastMessageSubtitle(text: UIText) {
 @Composable
 fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: String) {
     Text(
-        text = "${author.asString(LocalContext.current.resources)}$separator${text.asString(LocalContext.current.resources)}",        style = MaterialTheme.wireTypography.subline01.copy(
+        text = "${author.asString(LocalContext.current.resources)}$separator${text.asString(LocalContext.current.resources)}",
+        style = MaterialTheme.wireTypography.subline01.copy(
             color = MaterialTheme.wireColorScheme.secondaryText
         ),
         maxLines = 1,

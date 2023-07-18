@@ -19,7 +19,6 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
               with:
-                  submodules: recursive # Needed in order to fetch Kalium sources for building
                   fetch-depth: 0
 
             - name: Append -cherry-pick to branch name

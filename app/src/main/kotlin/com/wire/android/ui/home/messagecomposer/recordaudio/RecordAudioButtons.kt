@@ -118,7 +118,6 @@ fun RecordAudioButtonRecording(
         buttonColor = colorsScheme().recordAudioStopColor,
         bottomText = R.string.record_audio_recording_label,
         buttonState = if(seconds > 0) WireButtonState.Default else WireButtonState.Disabled
-
     )
 }
 

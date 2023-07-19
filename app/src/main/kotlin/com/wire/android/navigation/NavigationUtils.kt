@@ -34,8 +34,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
                 val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                popBackStack(inclusive) {
-                    currentBackStack.value.firstOrNull { it.destination.route != null } }
+                popBackStack(inclusive) { currentBackStack.value.firstOrNull { it.destination.route != null } }
             }
             BackStackMode.REMOVE_CURRENT -> {
                 popBackStack(true) { currentBackStack.value.lastOrNull { it.destination.route != null } }

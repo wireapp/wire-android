@@ -55,11 +55,14 @@ fun rememberMessageComposerStateHolder(
         }
     }
     val messageCompositionInputStateHolder = rememberSaveable(
-        saver = MessageCompositionInputStateHolder.saver()
+        saver = MessageCompositionInputStateHolder.saver(
+            messageComposition = messageCompositionHolder.messageComposition,
+            selfDeletionTimer = selfDeletionTimer
+        )
     ) {
         MessageCompositionInputStateHolder(
             messageComposition = messageCompositionHolder.messageComposition,
-            selfDeletionTimer = selfDeletionTimer,
+            selfDeletionTimer = selfDeletionTimer
         )
     }
 

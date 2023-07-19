@@ -50,6 +50,8 @@ fun PrivacySettingsConfigScreen(
         PrivacySettingsScreenContent(
             isReadReceiptsEnabled = state.isReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
+            screenshotCensoringConfig = state.screenshotCensoringConfig,
+            setScreenshotCensoringConfig = ::setScreenshotCensoringConfig,
             onBackPressed = navigator::navigateBack
         )
     }
@@ -59,6 +61,8 @@ fun PrivacySettingsConfigScreen(
 fun PrivacySettingsScreenContent(
     isReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
+    screenshotCensoringConfig: ScreenshotCensoringConfig,
+    setScreenshotCensoringConfig: (Boolean) -> Unit,
     onBackPressed: () -> Unit
 ) {
     Scaffold(topBar = {
@@ -79,6 +83,26 @@ fun PrivacySettingsScreenContent(
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
             )
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.settings_censor_screenshots),
+                switchState = when (screenshotCensoringConfig) {
+                    ScreenshotCensoringConfig.DISABLED ->
+                        SwitchState.Enabled(value = false, onCheckedChange = setScreenshotCensoringConfig)
+
+                    ScreenshotCensoringConfig.ENABLED_BY_USER ->
+                        SwitchState.Enabled(value = true, onCheckedChange = setScreenshotCensoringConfig)
+
+                    ScreenshotCensoringConfig.ENFORCED_BY_TEAM ->
+                        SwitchState.Disabled(value = true)
+                },
+                arrowType = ArrowType.NONE,
+                subtitle = stringResource(
+                    id = when (screenshotCensoringConfig) {
+                        ScreenshotCensoringConfig.ENFORCED_BY_TEAM -> R.string.settings_censor_screenshots_enforced_by_team_description
+                        else -> R.string.settings_censor_screenshots_description
+                    }
+                )
+            )
         }
     }
 }
@@ -86,5 +110,5 @@ fun PrivacySettingsScreenContent(
 @Composable
 @Preview
 fun PreviewSendReadReceipts() {
-    PrivacySettingsScreenContent(true, {}, {})
+    PrivacySettingsScreenContent(true, {}, ScreenshotCensoringConfig.DISABLED, {}, {})
 }

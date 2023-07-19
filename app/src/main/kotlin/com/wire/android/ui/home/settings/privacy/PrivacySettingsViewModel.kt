@@ -30,7 +30,12 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigResult
+import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -40,6 +45,8 @@ class PrivacySettingsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
     private val observeReadReceiptsEnabled: ObserveReadReceiptsEnabledUseCase,
+    private val persistScreenshotCensoringConfig: PersistScreenshotCensoringConfigUseCase,
+    private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(PrivacySettingsState())
@@ -47,8 +54,24 @@ class PrivacySettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeReadReceiptsEnabled().collect {
-                state = state.copy(isReadReceiptsEnabled = it)
+            combine(
+                observeReadReceiptsEnabled(),
+                observeScreenshotCensoringConfig(),
+                ::Pair
+            ).collect { (readReceiptsEnabled, screenshotCensoringConfig) ->
+                state = state.copy(
+                    isReadReceiptsEnabled = readReceiptsEnabled,
+                    screenshotCensoringConfig = when (screenshotCensoringConfig) {
+                        ObserveScreenshotCensoringConfigResult.Disabled ->
+                            ScreenshotCensoringConfig.DISABLED
+
+                        ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser ->
+                            ScreenshotCensoringConfig.ENABLED_BY_USER
+
+                        ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings ->
+                            ScreenshotCensoringConfig.ENFORCED_BY_TEAM
+                    }
+                )
             }
         }
     }
@@ -63,6 +86,20 @@ class PrivacySettingsViewModel @Inject constructor(
                 is ReadReceiptStatusConfigResult.Success -> {
                     appLogger.d("Read receipts config changed")
                     state = state.copy(isReadReceiptsEnabled = isEnabled)
+                }
+            }
+        }
+    }
+
+    fun setScreenshotCensoringConfig(isEnabled: Boolean) {
+        viewModelScope.launch {
+            when (persistScreenshotCensoringConfig(isEnabled)) {
+                is PersistScreenshotCensoringConfigResult.Failure -> {
+                    appLogger.e("Something went wrong while updating screenshot censoring config")
+                }
+
+                is PersistScreenshotCensoringConfigResult.Success -> {
+                    appLogger.d("Screenshot censoring config changed")
                 }
             }
         }

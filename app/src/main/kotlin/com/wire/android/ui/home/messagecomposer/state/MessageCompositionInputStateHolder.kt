@@ -34,7 +34,7 @@ import com.wire.kalium.logic.util.isPositiveNotNull
 
 class MessageCompositionInputStateHolder(
     private val messageComposition: MutableState<MessageComposition>,
-    private val selfDeletionTimer: State<SelfDeletionTimer>
+    selfDeletionTimer: State<SelfDeletionTimer>
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
         private set
@@ -122,28 +122,25 @@ class MessageCompositionInputStateHolder(
 
     companion object {
         @Suppress("MagicNumber")
-        fun saver(): Saver<MessageCompositionInputStateHolder, *> = Saver(
+        fun saver(
+            messageComposition: MutableState<MessageComposition>,
+            selfDeletionTimer: State<SelfDeletionTimer>
+        ): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
                 listOf(
-                    it.messageComposition,
-                    it.selfDeletionTimer,
                     it.inputFocused,
-                    it.inputType,
                     it.inputVisibility,
                     it.inputState,
-                    it.inputSize
                 )
             },
             restore = {
                 MessageCompositionInputStateHolder(
-                    messageComposition = it[0] as MutableState<MessageComposition>,
-                    selfDeletionTimer = it[1] as State<SelfDeletionTimer>
+                    messageComposition = messageComposition,
+                    selfDeletionTimer = selfDeletionTimer
                 ).apply {
-                    inputFocused = it[2] as Boolean
-                    inputType = it[3] as MessageCompositionType
-                    inputVisibility = it[4] as Boolean
-                    inputState = it[5] as MessageCompositionInputState
-                    inputSize = it[6] as MessageCompositionInputSize
+                    inputFocused = it[0] as Boolean
+                    inputVisibility = it[1] as Boolean
+                    inputState = it[2] as MessageCompositionInputState
                 }
             }
         )

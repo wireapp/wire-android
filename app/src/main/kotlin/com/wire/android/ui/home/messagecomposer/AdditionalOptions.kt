@@ -62,6 +62,7 @@ fun AdditionalOptionsMenu(
     selectedOption: AdditionalOptionSelectItem,
     isFileSharingEnabled: Boolean,
     isSelfDeletingSettingEnabled: Boolean,
+    isSelfDeletingActive: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
     onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
@@ -82,8 +83,9 @@ fun AdditionalOptionsMenu(
                     isFileSharingEnabled = isFileSharingEnabled,
                     isEditing = isEditing,
                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+                    isSelfDeletingActive = isSelfDeletingActive,
                     isMentionActive = isMentionActive,
-                    onMentionButtonClicked = onMentionButtonClicked ?: {},
+                    onMentionButtonClicked = onMentionButtonClicked,
                     onAdditionalOptionsMenuClicked = onAdditionalOptionsMenuClicked,
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
@@ -156,6 +158,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     onPingClicked: () -> Unit = {},
     onSelfDeletionOptionButtonClicked: () -> Unit,
     isSelfDeletingSettingEnabled: Boolean,
+    isSelfDeletingActive : Boolean,
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -172,6 +175,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onPingButtonClicked = onPingClicked,
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+            isSelfDeletingActive= isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked
         )

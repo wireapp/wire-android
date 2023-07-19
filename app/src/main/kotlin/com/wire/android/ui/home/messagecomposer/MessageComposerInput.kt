@@ -87,7 +87,7 @@ fun InactiveMessageComposerInput(
             focusColor = Color.Transparent,
             placeholderColor = colorsScheme().secondaryText
         ),
-        placeHolder = stringResource(id = R.string.label_type_a_message),
+        placeHolderText = stringResource(id = R.string.label_type_a_message),
         messageText = messageText,
         onMessageTextChanged = {
             // non functional
@@ -159,7 +159,7 @@ fun ActiveMessageComposerInput(
                     inputFocused = inputFocused,
                     colors = inputType.inputTextColor(),
                     messageText = messageComposition.messageTextFieldValue,
-                    placeHolder = inputType.labelText(),
+                    placeHolderText = inputType.labelText(),
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = onInputFocusedChanged,
@@ -211,7 +211,7 @@ private fun MessageComposerTextInput(
     colors: WireTextFieldColors,
     singleLine: Boolean,
     messageText: TextFieldValue,
-    placeHolder: String,
+    placeHolderText: String,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit = {},
     onSelectedLineIndexChanged: (Int) -> Unit = { },
@@ -236,7 +236,7 @@ private fun MessageComposerTextInput(
         maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
-        placeholderText = " " + stringResource(R.string.label_type_a_message),
+        placeholderText = " $placeHolderText",
         modifier = modifier.then(
             Modifier
                 .onFocusChanged { focusState ->

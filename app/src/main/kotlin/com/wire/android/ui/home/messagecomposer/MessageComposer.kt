@@ -79,6 +79,7 @@ import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlin.time.Duration
 
 @Composable
@@ -399,6 +400,7 @@ private fun ActiveMessageComposer(
                                     isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
                                     isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+                                    isSelfDeletingActive = messageComposerViewState.value.selfDeletionTimer.duration.isPositiveNotNull(),
                                     isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
                                     onMentionButtonClicked = {
                                         messageCompositionHolder.startMention(

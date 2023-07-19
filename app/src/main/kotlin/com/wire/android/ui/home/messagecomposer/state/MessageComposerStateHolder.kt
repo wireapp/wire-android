@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.util.isPositiveNotNull
 
 @Suppress("LongParameterList")
 @Composable
@@ -54,6 +55,7 @@ fun rememberMessageComposerStateHolder(
             messageComposerViewState.value.selfDeletionTimer
         }
     }
+
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageComposition = messageCompositionHolder.messageComposition,
@@ -95,7 +97,6 @@ class MessageComposerStateHolder(
     val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
-
     val isTransitionToKeyboardOnGoing
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
                 !KeyboardHelper.isKeyboardVisible() &&
@@ -108,6 +109,7 @@ class MessageComposerStateHolder(
 
     val isSelfDeletingSettingEnabled = messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Disabled &&
             messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Enforced
+
 
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()

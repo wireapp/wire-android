@@ -87,6 +87,7 @@ fun InactiveMessageComposerInput(
             focusColor = Color.Transparent,
             placeholderColor = colorsScheme().secondaryText
         ),
+        placeHolder = stringResource(id = R.string.label_type_a_message),
         messageText = messageText,
         onMessageTextChanged = {
             // non functional
@@ -105,7 +106,7 @@ fun ActiveMessageComposerInput(
     messageComposition: MessageComposition,
     inputSize: MessageCompositionInputSize,
     inputType: MessageCompositionType,
-    inputVisiblity: Boolean,
+    inputVisibility: Boolean,
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
@@ -119,7 +120,7 @@ fun ActiveMessageComposerInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (inputVisiblity) {
+    if (inputVisibility) {
         Column(
             modifier = modifier
                 .wrapContentSize()
@@ -158,6 +159,7 @@ fun ActiveMessageComposerInput(
                     inputFocused = inputFocused,
                     colors = inputType.inputTextColor(),
                     messageText = messageComposition.messageTextFieldValue,
+                    placeHolder = inputType.labelText(),
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = onInputFocusedChanged,
@@ -209,6 +211,7 @@ private fun MessageComposerTextInput(
     colors: WireTextFieldColors,
     singleLine: Boolean,
     messageText: TextFieldValue,
+    placeHolder: String,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit = {},
     onSelectedLineIndexChanged: (Int) -> Unit = { },

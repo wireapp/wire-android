@@ -350,7 +350,7 @@ private fun ActiveMessageComposer(
                                         messageComposition = messageComposition.value,
                                         inputSize = messageCompositionInputStateHolder.inputSize,
                                         inputType = messageCompositionInputStateHolder.inputType,
-                                        inputVisiblity = messageCompositionInputStateHolder.inputVisibility,
+                                        inputVisibility = messageCompositionInputStateHolder.inputVisibility,
                                         inputFocused = messageCompositionInputStateHolder.inputFocused,
                                         onInputFocusedChanged = ::onInputFocusedChanged,
                                         onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,

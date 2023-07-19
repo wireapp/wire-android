@@ -202,13 +202,9 @@ class RecordAudioMessagePlayer @Inject constructor(
         )
     }
 
-    private fun clearAudioFileAndResetAudioMediaPlayer() {
+    suspend fun stop() {
         currentAudioFile = null
         audioMediaPlayer.reset()
-    }
-
-    suspend fun stop() {
-        clearAudioFileAndResetAudioMediaPlayer()
         audioMessageStateUpdate.emit(
             RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
                 audioMediaPlayingState = AudioMediaPlayingState.Stopped
@@ -217,7 +213,6 @@ class RecordAudioMessagePlayer @Inject constructor(
     }
 
     fun close() {
-        clearAudioFileAndResetAudioMediaPlayer()
         audioMediaPlayer.release()
     }
 

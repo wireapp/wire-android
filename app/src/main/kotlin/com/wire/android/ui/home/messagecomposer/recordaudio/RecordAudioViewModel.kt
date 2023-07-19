@@ -241,7 +241,6 @@ class RecordAudioViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        stopRecording()
         recordAudioMessagePlayer.close()
     }
 }

@@ -268,6 +268,7 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="remove_device_label">Twoje urz&#261;dzenia</string>
     <string name="remove_device_id_and_time_label">ID: %1$s
 Dodane: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Usun&#261;&#263; poni&#380;sze urz&#261;dzenie?</string>
     <string name="remove_device_invalid_password">Nieprawid&#322;owe has&#322;o</string>
@@ -897,6 +898,9 @@ URL serwera:
     <string name="label_code_commit_id">Kod &#378;r&#243;d&#322;owy: %1$s</string>
     <string name="label_client_id">ID klienta: %1$s</string>
     <string name="label_client_added_time">DODANO</string>
+    <string name="label_client_last_active_label">LAST ACTIVE</string>
+    <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
+    <string name="label_client_last_active_time">%1$s ago</string>
     <string name="label_client_device_id">ID URZ&#260;DZENIA</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>

@@ -84,6 +84,7 @@ fun RecordAudioComponent(
 
         // When the effect leaves the Composition, remove the observer
         onDispose {
+            viewModel.stopRecording()
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }

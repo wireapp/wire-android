@@ -35,13 +35,13 @@ androidx-workManager = "2.8.1"
 androidx-browser = "1.3.0"
 
 # Compose
-compose = "1.4.3"
+compose = "1.5.0-beta03"
 compose-material = "1.4.3"
 compose-activity = "1.6.1"
 compose-compiler = "1.4.7"
 compose-constraint = "1.0.1"
 compose-material3 = "1.1.0"
-compose-navigation = "2.5.3"
+compose-navigation = "2.6.0"
 
 # Hilt
 hilt = "2.45"
@@ -49,7 +49,7 @@ hilt-composeNavigation = "1.0.0"
 hilt-work = "1.0.0"
 
 # Android UI
-accompanist = "0.28.0"
+accompanist = "0.31.3-beta"
 material = "1.5.0"
 coil = "2.4.0"
 commonmark = "0.21.0"

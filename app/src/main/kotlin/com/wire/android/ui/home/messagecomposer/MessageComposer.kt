@@ -213,11 +213,6 @@ private fun InactiveMessageComposer(
 
             Box(
                 Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = { onTransitionToActive(false) }
-                        )
-                    }
                     .background(color = colorsScheme().backgroundVariant)
                     .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
             ) {

@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
@@ -93,7 +92,6 @@ class CompositeMessagesViewModelTest {
             MockKAnnotations.init(this)
             every { savedStateHandle.get<String>(any()) } returns CONVERSION_ID_STRING
         }
-
 
         private val viewModel = CompositeMessagesViewModel(sendButtonActionMessage, qualifiedIdMapper, savedStateHandle)
 

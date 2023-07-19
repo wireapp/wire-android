@@ -536,6 +536,7 @@ class LoginSSOViewModelTest {
             CLIENT_ID,
             ClientType.Permanent,
             Instant.DISTANT_FUTURE,
+            null,
             false,
             isValid = true,
             DeviceType.Desktop,

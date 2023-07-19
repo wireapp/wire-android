@@ -89,6 +89,7 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
@@ -1201,6 +1202,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): DeleteAccountUseCase =
         coreLogic.getSessionScope(currentAccount).users.deleteAccount
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendButtonActionMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SendButtonActionMessageUseCase =
+        coreLogic.getSessionScope(currentAccount).messages.sendButtonActionMessage
 
     @ViewModelScoped
     @Provides

@@ -155,7 +155,7 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+        private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
         @Suppress("ComplexMethod")
         fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {

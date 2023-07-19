@@ -120,7 +120,7 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    compositeMessagesViewModel: CompositeMessagesViewModel = viewModel()
+    compositeMessagesViewModel: CompositeMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }

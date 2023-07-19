@@ -21,13 +21,16 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CompositeMessagesViewModel @Inject constructor() : ViewModel() {
+class CompositeMessagesViewModel @Inject constructor(
+    private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase
+) : ViewModel() {
 
     var pendingButtons = mutableStateMapOf<String, String>()
         @VisibleForTesting

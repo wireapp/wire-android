@@ -304,5 +304,13 @@ class MessageComposerStateHolderTest {
             TextFieldValue("").text,
             messageCompositionHolder.messageComposition.value.messageTextFieldValue.text
         )
+        assertEquals(
+            null,
+            messageCompositionHolder.messageComposition.value.quotedMessage
+        )
+        assertEquals(
+            null,
+            messageCompositionHolder.messageComposition.value.quotedMessageId
+        )
     }
 }

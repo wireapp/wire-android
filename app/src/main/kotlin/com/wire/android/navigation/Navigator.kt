@@ -25,7 +25,7 @@ import com.wire.android.ui.NavGraphs
 
 class Navigator(val finish: () -> Unit, val navController: NavHostController) {
     private val isResumed: Boolean
-        get() = navController.currentBackStackEntry?.getLifecycle()?.currentState == Lifecycle.State.RESUMED
+        get() = navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED
 
     /**
      * Navigates to the specified screen.

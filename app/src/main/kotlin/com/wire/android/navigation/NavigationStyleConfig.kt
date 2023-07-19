@@ -22,7 +22,6 @@ package com.wire.android.navigation
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -47,8 +46,8 @@ object KeepOnScreenPopUpNavigationAnimation : PopUpDestinationStyleAnimated, Scr
 
 @OptIn(ExperimentalAnimationApi::class)
 private interface PopUpDestinationStyleAnimated : DestinationStyle.Animated {
-    override fun AnimatedContentScope<NavBackStackEntry>.enterTransition() = expandInToView()
-    override fun AnimatedContentScope<NavBackStackEntry>.exitTransition() = shrinkOutFromView()
+    override fun AnimatedContentScope.enterTransition() = expandInToView()
+    override fun AnimatedContentScope.exitTransition() = shrinkOutFromView()
 }
 
 @OptIn(ExperimentalAnimationApi::class)

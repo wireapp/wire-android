@@ -258,6 +258,8 @@ class MessageCompositionHolder(
         messageComposition.update {
             it.copy(
                 messageTextFieldValue = TextFieldValue(""),
+                quotedMessageId = null,
+                quotedMessage = null,
                 editMessageId = null
             )
         }

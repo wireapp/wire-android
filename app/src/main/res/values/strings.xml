@@ -883,7 +883,7 @@
     <string name="label_code_commit_id">Commit Hash: %1$s</string>
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
-    <string name="label_client_last_active_label">LAST_ACTIVE</string>
+    <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
     <string name="label_client_device_id">DEVICE ID</string>

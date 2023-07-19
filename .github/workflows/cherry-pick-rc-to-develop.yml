@@ -48,7 +48,7 @@ jobs:
                   git fetch origin develop:develop
                   git checkout -b ${{ steps.extract.outputs.newBranchName }} develop
                   # Cherry-picking the last commit on the base branch
-                  git cherry-pick -x ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true
+                  git cherry-pick ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true
                   git add .
                   git cherry-pick --continue || true
                   git push origin ${{ steps.extract.outputs.newBranchName }}

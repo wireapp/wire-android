@@ -121,6 +121,8 @@ import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -1199,6 +1201,20 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): DeleteAccountUseCase =
         coreLogic.getSessionScope(currentAccount).users.deleteAccount
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistScreenshotCensoringConfigUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): PersistScreenshotCensoringConfigUseCase = coreLogic.getSessionScope(currentAccount).persistScreenshotCensoringConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveScreenshotCensoringConfigUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveScreenshotCensoringConfigUseCase = coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
 
     @ViewModelScoped
     @Provides

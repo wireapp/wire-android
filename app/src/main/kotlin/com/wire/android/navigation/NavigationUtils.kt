@@ -20,11 +20,13 @@
 
 package com.wire.android.navigation
 
+import android.annotation.SuppressLint
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.wire.android.appLogger
 import com.wire.kalium.logger.obfuscateId
 
+@SuppressLint("RestrictedApi")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
     appLogger.d("[$TAG] -> command: ${command.destination.obfuscateId()}")
     currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
@@ -32,20 +34,20 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
                 val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
+                popBackStack(inclusive) { currentBackStack.value.firstOrNull { it.destination.route != null } }
             }
             BackStackMode.REMOVE_CURRENT -> {
-                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+                popBackStack(true) { currentBackStack.value.lastOrNull { it.destination.route != null } }
             }
             BackStackMode.REMOVE_CURRENT_AND_REPLACE -> {
-                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+                popBackStack(true) { currentBackStack.value.lastOrNull { it.destination.route != null } }
                 NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
+                    popBackStack(true) { currentBackStack.value.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
                 }
             }
             BackStackMode.UPDATE_EXISTED -> {
                 NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
+                    popBackStack(true) { currentBackStack.value.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
                 }
             }
             BackStackMode.NONE -> {

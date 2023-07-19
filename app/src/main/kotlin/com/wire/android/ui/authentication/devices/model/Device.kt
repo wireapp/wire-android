@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
@@ -75,4 +74,3 @@ fun Device.lastActiveDescription(): String? =
             )
         }
     }
-

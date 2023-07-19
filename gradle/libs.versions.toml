@@ -50,7 +50,7 @@ hilt-work = "1.0.0"
 
 # Android UI
 accompanist = "0.31.3-beta"
-material = "1.5.0"
+material = "1.9.0"
 coil = "2.4.0"
 commonmark = "0.21.0"
 

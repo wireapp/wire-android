@@ -101,7 +101,6 @@ data class WireColorScheme(
     val unclassifiedBannerForegroundColor: Color,
     val recordAudioStartColor: Color,
     val recordAudioStopColor: Color,
-    val mlsVerifiedIconColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -233,7 +232,6 @@ private val LightWireColorScheme = WireColorScheme(
     unclassifiedBannerForegroundColor = Color.White,
     recordAudioStartColor = WireColorPalette.LightBlue500,
     recordAudioStopColor = WireColorPalette.LightRed500,
-    mlsVerifiedIconColor = WireColorPalette.LightGreen500
 )
 
 // Dark WireColorScheme
@@ -339,7 +337,6 @@ private val DarkWireColorScheme = WireColorScheme(
     unclassifiedBannerForegroundColor = Color.Black,
     recordAudioStopColor = WireColorPalette.LightRed500,
     recordAudioStartColor = WireColorPalette.LightBlue500,
-    mlsVerifiedIconColor = WireColorPalette.LightGreen500
 )
 
 @PackagePrivate

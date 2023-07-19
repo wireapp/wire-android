@@ -277,68 +277,57 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a not-verified MLS conversation, then mlsVerificationStatus is not verified`() = runTest {
         // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.MLS,
+            ConversationVerificationStatus.NOT_VERIFIED
+        )
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(
-                ConversationVerificationStatusResult.Success(
-                    ConversationProtocol.MLS,
-                    ConversationVerificationStatus.NOT_VERIFIED
-                )
-            )
+            .withVerificationStatus(result)
             .withSelfUser()
             .arrange()
 
         // then
         assertEquals(
-            ConversationVerificationStatus.NOT_VERIFIED,
-            viewModel.conversationInfoViewState.mlsVerificationStatus
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
         )
     }
 
     @Test
     fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
         // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.MLS,
+            ConversationVerificationStatus.VERIFIED
+        )
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(
-                ConversationVerificationStatusResult.Success(
-                    ConversationProtocol.MLS,
-                    ConversationVerificationStatus.VERIFIED
-                )
-            )
+            .withVerificationStatus(result)
             .withSelfUser()
             .arrange()
 
         // then
         assertEquals(
-            ConversationVerificationStatus.VERIFIED,
-            viewModel.conversationInfoViewState.mlsVerificationStatus
-        )
-        assertEquals(
-            null,
-            viewModel.conversationInfoViewState.proteusVerificationStatus
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
         )
     }
 
     @Test
     fun `given a verified Proteus conversation, then proteusVerificationStatus is verified`() = runTest {
         // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.PROTEUS,
+            ConversationVerificationStatus.VERIFIED
+        )
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(
-                ConversationVerificationStatusResult.Success(
-                    ConversationProtocol.PROTEUS,
-                    ConversationVerificationStatus.VERIFIED
-                )
-            )
+            .withVerificationStatus(result)
             .withSelfUser()
             .arrange()
 
         // then
         assertEquals(
-            null,
-            viewModel.conversationInfoViewState.mlsVerificationStatus
-        )
-        assertEquals(
-            ConversationVerificationStatus.VERIFIED,
-            viewModel.conversationInfoViewState.proteusVerificationStatus
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
         )
     }
 
@@ -353,35 +342,28 @@ class ConversationInfoViewModelTest {
         // then
         assertEquals(
             null,
-            viewModel.conversationInfoViewState.mlsVerificationStatus
-        )
-        assertEquals(
-            null,
-            viewModel.conversationInfoViewState.proteusVerificationStatus
+            viewModel.conversationInfoViewState.verificationStatus
         )
     }
 
     @Test
-    fun `given a not-verified Protues conversation, then proteusVerificationStatus is not verified`() = runTest {
+    fun `given a not-verified Proteus conversation, then proteusVerificationStatus is not verified`() = runTest {
         // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.PROTEUS,
+            ConversationVerificationStatus.NOT_VERIFIED
+        )
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withVerificationStatus(
-                ConversationVerificationStatusResult.Success(
-                    ConversationProtocol.PROTEUS,
-                    ConversationVerificationStatus.NOT_VERIFIED
-                )
+                result
             )
             .withSelfUser()
             .arrange()
 
         // then
         assertEquals(
-            ConversationVerificationStatus.NOT_VERIFIED,
-            viewModel.conversationInfoViewState.proteusVerificationStatus
-        )
-        assertEquals(
-            null,
-            viewModel.conversationInfoViewState.mlsVerificationStatus
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
         )
     }
 }

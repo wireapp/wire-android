@@ -42,6 +42,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -84,13 +85,7 @@ class ConversationInfoViewModel @Inject constructor(
         viewModelScope.launch {
             val result = getConversationVerificationStatus(conversationId)
             if (result is ConversationVerificationStatusResult.Success) {
-                when (result.protocol) {
-                    ConversationProtocol.MLS ->
-                        conversationInfoViewState = conversationInfoViewState.copy(mlsVerificationStatus = result.status)
-
-                    ConversationProtocol.PROTEUS ->
-                        conversationInfoViewState = conversationInfoViewState.copy(proteusVerificationStatus = result.status)
-                }
+                conversationInfoViewState = conversationInfoViewState.copy(verificationStatus = result)
             }
         }
     }

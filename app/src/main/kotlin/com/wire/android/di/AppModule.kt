@@ -71,6 +71,7 @@ object AppModule {
     fun provideNotificationManagerCompat(appContext: Context): NotificationManagerCompat =
         NotificationManagerCompat.from(appContext)
 
+    @Singleton
     @Provides
     fun provideNetworkStateObserver(appContext: Context): NetworkStateObserver =
         NetworkStateObserverImpl(appContext)

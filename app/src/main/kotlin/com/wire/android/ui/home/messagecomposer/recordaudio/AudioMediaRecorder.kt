@@ -21,9 +21,11 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import com.wire.android.appLogger
+import com.wire.android.util.audioFileDateTime
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -73,7 +75,7 @@ class AudioMediaRecorder @Inject constructor(
             }
 
             outputFile = kaliumFileSystem
-                .tempFilePath(TEMP_RECORDING_AUDIO_FILE)
+                .tempFilePath(getRecordingAudioFileName())
                 .toFile()
 
             mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -122,7 +124,8 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     private companion object {
-        const val TEMP_RECORDING_AUDIO_FILE = "temp_recording.mp3"
+        fun getRecordingAudioFileName(): String =
+            "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.mp3"
         const val SIZE_OF_1MB = 1024 * 1024
     }
 }

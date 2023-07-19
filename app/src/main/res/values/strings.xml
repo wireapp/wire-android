@@ -283,6 +283,7 @@
     </string>
     <string name="remove_device_label">YOUR DEVICES</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
@@ -847,6 +848,9 @@
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
     <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This setting does not apply to group conversations.</string>
+    <string name="settings_censor_screenshots">Censor screenshots</string>
+    <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -879,6 +883,9 @@
     <string name="label_code_commit_id">Commit Hash: %1$s</string>
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
+    <string name="label_client_last_active_label">LAST ACTIVE</string>
+    <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
+    <string name="label_client_last_active_time">%1$s ago</string>
     <string name="label_client_device_id">DEVICE ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>

@@ -205,14 +205,14 @@ class MessageCompositionHolder(
     ) {
         val originalValue = messageComposition.value.messageTextFieldValue
 
-        val isBold = markdown == RichTextMarkdown.Bold
+        val isHeader = markdown == RichTextMarkdown.Header
 
         val range = originalValue.selection
         val selectedText = originalValue.getSelectedText()
         val stringBuilder = StringBuilder(originalValue.annotatedString)
         val markdownLength = markdown.value.length
         val markdownLengthComplete =
-            if (isBold) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
+            if (isHeader) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
 
         val rangeEnd = if (selectedText.contains(markdown.value)) {
             // Remove Markdown
@@ -226,13 +226,13 @@ class MessageCompositionHolder(
         } else {
             // Add Markdown
             stringBuilder.insert(range.start, markdown.value)
-            if (isBold.not()) stringBuilder.insert(range.end + markdownLength, markdown.value)
+            if (isHeader.not()) stringBuilder.insert(range.end + markdownLength, markdown.value)
 
             range.end + markdownLengthComplete
         }
 
         val (selectionStart, selectionEnd) = if (range.start == range.end) {
-            if (isBold) Pair(rangeEnd, rangeEnd)
+            if (isHeader) Pair(rangeEnd, rangeEnd)
             else {
                 val middleMarkdownRange = rangeEnd - markdownLength
                 Pair(middleMarkdownRange, middleMarkdownRange)

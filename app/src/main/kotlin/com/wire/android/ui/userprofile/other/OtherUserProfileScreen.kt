@@ -31,6 +31,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -76,6 +77,7 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.spacers.VerticalSpace.x24
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -374,43 +376,55 @@ private fun Content(
     getOtherUserClients: () -> Unit,
     onDeviceClick: (Device) -> Unit
 ) {
+
     Crossfade(targetState = tabItems to state) { (tabItems, state) ->
-        when {
-            state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
-            state.connectionState == ConnectionState.ACCEPTED ->
-                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                    HorizontalPager(
-                        modifier = Modifier.fillMaxSize(),
-                        state = pagerState,
-                        count = tabItems.size
-                    ) { pageIndex ->
-                        when (val tabItem = tabItems[pageIndex]) {
-                            OtherUserProfileTabItem.DETAILS ->
-                                OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+        Column {
+            OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+            x24()
+            when {
+                state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
+                state.connectionState == ConnectionState.ACCEPTED -> {
+                    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                        HorizontalPager(
+                            modifier = Modifier.fillMaxSize(),
+                            state = pagerState,
+                            count = tabItems.size
+                        ) { pageIndex ->
+                            when (val tabItem = tabItems[pageIndex]) {
+                                OtherUserProfileTabItem.DETAILS ->
+                                    OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
 
-                            OtherUserProfileTabItem.GROUP ->
-                                OtherUserProfileGroup(
-                                    state,
-                                    lazyListStates[tabItem]!!,
-                                    openRemoveConversationMemberDialog,
-                                    openChangeRoleBottomSheet
-                                )
+                                OtherUserProfileTabItem.GROUP ->
+                                    OtherUserProfileGroup(
+                                        state,
+                                        lazyListStates[tabItem]!!,
+                                        openRemoveConversationMemberDialog,
+                                        openChangeRoleBottomSheet
+                                    )
 
-                            OtherUserProfileTabItem.DEVICES -> {
-                                getOtherUserClients()
-                                OtherUserDevicesScreen(
-                                    lazyListState = lazyListStates[tabItem]!!,
-                                    state = state,
-                                    onDeviceClick = onDeviceClick
-                                )
+                                OtherUserProfileTabItem.DEVICES -> {
+                                    getOtherUserClients()
+                                    OtherUserDevicesScreen(
+                                        lazyListState = lazyListStates[tabItem]!!,
+                                        state = state,
+                                        onDeviceClick = onDeviceClick
+                                    )
+                                }
                             }
                         }
                     }
                 }
 
-            state.connectionState == ConnectionState.BLOCKED -> Box {} // no content visible for blocked users
-            else -> {
-                OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+                state.groupState != null -> {
+                    OtherUserProfileGroup(
+                        state,
+                        lazyListStates[OtherUserProfileTabItem.DETAILS]!!,
+                        openRemoveConversationMemberDialog,
+                        openChangeRoleBottomSheet
+                    )
+                }
+
+                else -> Box {}
             }
         }
     }

@@ -30,8 +30,6 @@ import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.network.NetworkStateObserver
-import com.wire.kalium.logic.network.NetworkStateObserverImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -70,11 +68,6 @@ object AppModule {
     @Provides
     fun provideNotificationManagerCompat(appContext: Context): NotificationManagerCompat =
         NotificationManagerCompat.from(appContext)
-
-    @Singleton
-    @Provides
-    fun provideNetworkStateObserver(appContext: Context): NetworkStateObserver =
-        NetworkStateObserverImpl(appContext)
 
     @Provides
     fun provideNotificationManager(appContext: Context): NotificationManager =

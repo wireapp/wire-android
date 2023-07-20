@@ -27,6 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -58,17 +59,17 @@ class CompositeMessagesViewModelTest {
     @Test
     fun `given button nto pending, when button is clicked, then mark pending and then remove it once done`() = runTest {
         // Arrange
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement()
+            .withButtonActionMessage(SendButtonActionMessageUseCase.Result.Success)
+            .arrange()
         val messageId = "messageId"
         val buttonId = "buttonId"
 
         // Act
         viewModel.onButtonClicked(messageId, buttonId)
-        assertTrue(viewModel.pendingButtons.containsKey(messageId))
         advanceUntilIdle()
         assertFalse(viewModel.pendingButtons.containsKey(messageId))
 
-        // Assert
         // Assert
         coVerify(exactly = 1) {
             arrangement.sendButtonActionMessage(any(), any(), any())

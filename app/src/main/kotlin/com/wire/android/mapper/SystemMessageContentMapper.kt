@@ -60,7 +60,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
         is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
         is MessageContent.HistoryLost -> mapConversationHistoryLost()
-        is MessageContent.HistoryLostProtocolChanged -> mapConverationHistoryListProtocolChanged()
+        is MessageContent.HistoryLostProtocolChanged -> mapConversationHistoryListProtocolChanged()
         is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
         is MessageContent.ConversationCreated -> mapConversationCreated(message.senderUserId, message.date, members)
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
@@ -245,12 +245,15 @@ class SystemMessageContentMapper @Inject constructor(
     }
 
     private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage =
-        UIMessageContent.SystemMessage.HistoryLost()
-
-    private fun mapConverationHistoryListProtocolChanged(): UIMessageContent.SystemMessage =
-        UIMessageContent.SystemMessage.HistoryLostProtocolChanged()
+        UIMessageContent.SystemMessage.HistoryLost
     private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.MLSWrongEpochWarning()
+    private fun mapConversationHistoryListProtocolChanged(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.HistoryLostProtocolChanged
+    private fun mapConversationDegraded(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationDegraded(protocol)
+
+
 
     private fun mapConversationVerified(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.ConversationVerified(protocol)

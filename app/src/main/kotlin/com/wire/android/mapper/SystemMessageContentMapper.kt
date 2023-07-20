@@ -252,9 +252,6 @@ class SystemMessageContentMapper @Inject constructor(
         UIMessageContent.SystemMessage.HistoryLostProtocolChanged
     private fun mapConversationDegraded(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.ConversationDegraded(protocol)
-
-
-
     private fun mapConversationVerified(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.ConversationVerified(protocol)
 

@@ -30,7 +30,7 @@ object TestClient {
     val CLIENT_ID = ClientId("test")
 
     val CLIENT = Client(
-        id =  CLIENT_ID,
+        id = CLIENT_ID,
         type = ClientType.Permanent,
         registrationTime = Instant.DISTANT_FUTURE,
         lastActive = Instant.DISTANT_PAST,

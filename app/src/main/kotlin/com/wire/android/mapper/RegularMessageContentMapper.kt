@@ -115,8 +115,7 @@ class RegularMessageMapper @Inject constructor(
                         text = it.text,
                         isSelected = it.isSelected
                     )
-                },
-                deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)
+                }
             )
         }
 

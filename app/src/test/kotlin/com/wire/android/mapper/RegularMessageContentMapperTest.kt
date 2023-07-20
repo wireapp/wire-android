@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -285,7 +286,8 @@ class RegularMessageContentMapperTest {
             botService = null,
             deleted = false,
             defederated = false,
-            isProteusVerified = false
+            isProteusVerified = false,
+            supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
 
         val userMembers = listOf(TestUser.MEMBER_SELF.user, TestUser.MEMBER_OTHER.user)

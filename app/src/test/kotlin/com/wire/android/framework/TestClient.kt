@@ -30,7 +30,16 @@ object TestClient {
     val CLIENT_ID = ClientId("test")
 
     val CLIENT = Client(
-        CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, Instant.DISTANT_PAST, false,
-        isValid = true, DeviceType.Desktop, "label", null, null
+        id =  CLIENT_ID,
+        type = ClientType.Permanent,
+        registrationTime = Instant.DISTANT_FUTURE,
+        lastActive = Instant.DISTANT_PAST,
+        isVerified = false,
+        isValid = true,
+        deviceType = DeviceType.Desktop,
+        label = "label",
+        model = null,
+        isMLSCapable = false,
+        mlsPublicKeys = null
     )
 }

@@ -165,11 +165,15 @@ fun MessageButtonItem(
         pendingButtonId == button.id
     }
 
+    val state = if (button.isSelected) WireButtonState.Selected
+    else if (pendingButtonId != null) WireButtonState.Disabled
+    else WireButtonState.Default
+
     WireSecondaryButton(
         loading = isPending,
         text = button.text,
         onClick = onCLick,
-        state = if (button.isSelected) WireButtonState.Selected else if (pendingButtonId != null) WireButtonState.Disabled else WireButtonState.Default
+        state = state
     )
 }
 

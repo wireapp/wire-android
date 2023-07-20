@@ -26,6 +26,7 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -46,7 +47,8 @@ object TestUser {
         connectionStatus = ConnectionState.ACCEPTED,
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
-        availabilityStatus = UserAvailabilityStatus.AVAILABLE
+        availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+        supportedProtocols = setOf(SupportedProtocol.PROTEUS)
     )
     val OTHER_USER = OtherUser(
         USER_ID.copy(value = "otherValue"),
@@ -63,7 +65,8 @@ object TestUser {
         userType = UserType.INTERNAL,
         botService = null,
         deleted = false,
-        defederated = false
+        defederated = false,
+        supportedProtocols = setOf(SupportedProtocol.PROTEUS)
     )
     val MEMBER_SELF = MemberDetails(SELF_USER, Member.Role.Admin)
     val MEMBER_OTHER = MemberDetails(OTHER_USER, Member.Role.Member)

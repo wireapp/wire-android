@@ -24,12 +24,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.framework.TestClient
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.data.client.Client
-import com.wire.kalium.logic.data.client.ClientType
-import com.wire.kalium.logic.data.client.DeviceType
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -42,7 +39,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -167,10 +163,6 @@ class RegisterDeviceViewModelTest {
     }
 
     companion object {
-        val CLIENT_ID = ClientId("test")
-        val CLIENT = Client(
-            CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, Instant.DISTANT_PAST, false,
-            isValid = true, DeviceType.Desktop, "label", null, null
-        )
+        val CLIENT = TestClient.CLIENT
     }
 }

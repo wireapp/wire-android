@@ -33,6 +33,7 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -107,7 +108,8 @@ fun testSelfUser(i: Int): SelfUser = SelfUser(
     connectionStatus = ConnectionState.NOT_CONNECTED,
     previewPicture = null,
     completePicture = null,
-    availabilityStatus = UserAvailabilityStatus.NONE
+    availabilityStatus = UserAvailabilityStatus.NONE,
+    supportedProtocols = setOf(SupportedProtocol.PROTEUS)
 )
 
 fun testOtherUser(i: Int): OtherUser = OtherUser(
@@ -125,7 +127,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     userType = UserType.INTERNAL,
     botService = null,
     deleted = false,
-    defederated = false
+    defederated = false,
+    supportedProtocols = setOf(SupportedProtocol.PROTEUS)
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

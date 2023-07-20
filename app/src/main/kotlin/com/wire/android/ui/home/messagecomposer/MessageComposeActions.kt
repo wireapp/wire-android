@@ -47,7 +47,7 @@ fun MessageComposeActions(
     isFileSharingEnabled: Boolean = true,
     isMentionActive: Boolean = true,
     isSelfDeletingSettingEnabled: Boolean = true,
-    isSelfDeletingActive : Boolean = false,
+    isSelfDeletingActive: Boolean = false,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingButtonClicked: () -> Unit,

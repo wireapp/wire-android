@@ -32,7 +32,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import com.wire.kalium.logic.util.isPositiveNotNull
 
 @Suppress("LongParameterList")
 @Composable
@@ -109,7 +108,6 @@ class MessageComposerStateHolder(
 
     val isSelfDeletingSettingEnabled = messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Disabled &&
             messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Enforced
-
 
     fun toInActive() {
         messageCompositionInputStateHolder.toInActive()

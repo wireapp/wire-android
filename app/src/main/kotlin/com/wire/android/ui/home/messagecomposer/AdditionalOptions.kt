@@ -158,7 +158,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     onPingClicked: () -> Unit = {},
     onSelfDeletionOptionButtonClicked: () -> Unit,
     isSelfDeletingSettingEnabled: Boolean,
-    isSelfDeletingActive : Boolean,
+    isSelfDeletingActive: Boolean,
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -175,7 +175,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onPingButtonClicked = onPingClicked,
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-            isSelfDeletingActive= isSelfDeletingActive,
+            isSelfDeletingActive = isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked
         )

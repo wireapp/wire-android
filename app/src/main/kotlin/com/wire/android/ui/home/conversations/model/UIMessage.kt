@@ -420,12 +420,12 @@ sealed class UIMessageContent {
             }
         )
 
-        object HistoryLost: SystemMessage(
+        object HistoryLost : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_history_lost,
             true)
 
-        object  HistoryLostProtocolChanged: SystemMessage(
+        object HistoryLostProtocolChanged : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_history_lost_protocol_changed,
             true

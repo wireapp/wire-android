@@ -251,8 +251,6 @@ class SystemMessageContentMapper @Inject constructor(
     private fun mapConversationDegraded(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.ConversationDegraded(protocol)
 
-
-
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
         is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is SelfUser -> when (type) {

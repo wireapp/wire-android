@@ -511,7 +511,6 @@ private fun MessageContent(
                     messageId = message.header.messageId,
                     pendingButton = pendingButtonsMap[message.header.messageId]
                 )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }
 

@@ -214,9 +214,8 @@ sealed class UIMessageContent {
 
     data class Composite(
         val messageBody: MessageBody?,
-        val buttonList: List<MessageButton>,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : Regular(), PartialDeliverable
+        val buttonList: List<MessageButton>
+    ) : Regular()
 
     object Deleted : Regular()
 

@@ -168,7 +168,7 @@
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
-    <string name="vault_screen_title">Vault</string>
+    <string name="vault_screen_title">Valv</string>
     <string name="archive_screen_title">Archive</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Inställningar</string>
@@ -282,7 +282,7 @@
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Delete Message?</string>
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
-    <string name="label_delete_for_me">Delete for Me</string>
+    <string name="label_delete_for_me">Radera för mig</string>
     <string name="label_delete_for_everyone">Delete for Everyone</string>
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
@@ -400,7 +400,7 @@
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
     <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
-    <string name="conversation_options_guests_label">Guests</string>
+    <string name="conversation_options_guests_label">Gäster</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
@@ -488,8 +488,8 @@
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
-    <string name="label_leave_group">Leave Group</string>
-    <string name="label_delete_group">Delete Group</string>
+    <string name="label_leave_group">Lämna grupp</string>
+    <string name="label_delete_group">Radera grupp</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
@@ -506,9 +506,9 @@
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy</string>
-    <string name="label_share">Share</string>
-    <string name="label_edit">Edit</string>
-    <string name="label_delete">Delete</string>
+    <string name="label_share">Dela</string>
+    <string name="label_edit">Redigera</string>
+    <string name="label_delete">Radera</string>
     <string name="info_message_copied">Message copied</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
@@ -603,7 +603,7 @@
     <string name="last_message_replied">replied to you</string>
     <string name="last_message_other_changed_conversation_name">changed conversation name</string>
     <string name="last_message_self_changed_conversation_name">changed conversation name</string>
-    <string name="last_message_calling">%1$s calling...</string>
+    <string name="last_message_calling">%1$s ringer...</string>
     <string name="last_message_self_user_joined_conversation">joined the conversation.</string>
     <string name="last_message_self_user_left_conversation">left the conversation.</string>
     <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
@@ -622,12 +622,12 @@
         <item quantity="other">%1$d mentions</item>
     </plurals>
     <plurals name="unread_event_reply">
-        <item quantity="one">%1$d reply</item>
-        <item quantity="other">%1$d replies</item>
+        <item quantity="one">%1$d svar</item>
+        <item quantity="other">%1$d svar</item>
     </plurals>
     <plurals name="unread_event_message">
-        <item quantity="one">%1$d message</item>
-        <item quantity="other">%1$d messages</item>
+        <item quantity="one">%1$d meddelande</item>
+        <item quantity="other">%1$d meddelanden</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
@@ -732,7 +732,7 @@
     <string name="connectivity_status_bar_connecting">Connecting</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
-    <string name="connection_label_connect">Connect</string>
+    <string name="connection_label_connect">Anslut</string>
     <string name="connection_label_cancel_request">Cancel Request</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
@@ -810,7 +810,7 @@
     <string name="settings_app_settings_label">App Settings</string>
     <string name="settings_privacy_settings_label">Privacy Settings</string>
     <string name="settings_network_settings_label">Network Settings</string>
-    <string name="settings_manage_devices_label">Manage your Devices</string>
+    <string name="settings_manage_devices_label">Hantera dina enheter</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
@@ -821,7 +821,7 @@
     <string name="settings_myaccount_email">EMAIL</string>
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
-    <string name="settings_myaccount_reset_password">Reset Password</string>
+    <string name="settings_myaccount_reset_password">Återställ lösenord</string>
     <!--Settings, My Account > Display name -->
     <string name="settings_myaccount_display_name_title">Your profile name</string>
     <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
@@ -852,7 +852,7 @@
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
-    <string name="label_share_logs">Share Logs</string>
+    <string name="label_share_logs">Dela loggar</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
@@ -873,7 +873,7 @@
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
-    <string name="conversation_empty_list_title">Welcome 👋</string>
+    <string name="conversation_empty_list_title">Välkommen 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>
     <string name="label_reactions">Reactions</string>
@@ -899,11 +899,11 @@
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
     <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
-    <string name="backup_label_enter_password">Enter password</string>
+    <string name="backup_label_enter_password">Ange lösenord</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
-    <string name="backup_dialog_create_backup_save">Save File</string>
-    <string name="backup_dialog_create_backup_share">Share File</string>
+    <string name="backup_dialog_create_backup_save">Spara fil</string>
+    <string name="backup_dialog_create_backup_share">Dela fil</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Wrong backup file</string>
@@ -914,8 +914,8 @@
     <string name="conversation_content_deleted">Conversation content was deleted</string>
     <string name="group_content_delete_failure">Group content could not be deleted</string>
     <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
-    <string name="group_label">group</string>
-    <string name="conversation_label">conversation</string>
+    <string name="group_label">grupp</string>
+    <string name="conversation_label">konversation</string>
     <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
     <string name="label_proxy_password">PROXY PASSWORD</string>
@@ -931,8 +931,8 @@
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-    <string name="update_app_dialog_button">Update</string>
-    <string name="cancel_login_button_label">Cancel</string>
+    <string name="update_app_dialog_button">Uppdatera</string>
+    <string name="cancel_login_button_label">Avbryt</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
@@ -959,9 +959,9 @@
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
-    <string name="guest_link_button_create_link">Create Link</string>
-    <string name="guest_link_button_copy_link">Copy Link</string>
-    <string name="guest_link_button_share_link">Share Link</string>
+    <string name="guest_link_button_create_link">Skapa länk</string>
+    <string name="guest_link_button_copy_link">Kopiera länk</string>
+    <string name="guest_link_button_share_link">Dela länk</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
@@ -978,7 +978,7 @@
     <string name="new_device_dialog_current_user_title">Your account was used on</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
     <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
-    <string name="new_device_dialog_current_user_btn">Manage Devices</string>
+    <string name="new_device_dialog_current_user_btn">Hantera enheter</string>
     <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
     <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Switch Account</string>
@@ -991,7 +991,7 @@
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">unknown</string>
-    <string name="device_name_unknown">Unknown device</string>
+    <string name="device_name_unknown">Okänd enhet</string>
     <string name="create_account_email_title">Your Email</string>
     <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
     <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
@@ -1040,24 +1040,24 @@
         <item quantity="other">%1$d seconds left</item>
     </plurals>
     <plurals name="weeks_long_label">
-        <item quantity="one">1 week</item>
-        <item quantity="other">%1$d weeks</item>
+        <item quantity="one">1 vecka</item>
+        <item quantity="other">%1$d veckor</item>
     </plurals>
     <plurals name="days_long_label">
-        <item quantity="one">1 day</item>
-        <item quantity="other">%1$d days</item>
+        <item quantity="one">1 dag</item>
+        <item quantity="other">%1$d dagar</item>
     </plurals>
     <plurals name="hours_long_label">
-        <item quantity="one">1 hour</item>
-        <item quantity="other">%1$d hours</item>
+        <item quantity="one">1 timme</item>
+        <item quantity="other">%1$d timmar</item>
     </plurals>
     <plurals name="minutes_long_label">
-        <item quantity="one">1 minute</item>
-        <item quantity="other">%1$d minutes</item>
+        <item quantity="one">1 minut</item>
+        <item quantity="other">%1$d minuter</item>
     </plurals>
     <plurals name="seconds_long_label">
-        <item quantity="one">1 second</item>
-        <item quantity="other">%1$d seconds</item>
+        <item quantity="one">1 sekund</item>
+        <item quantity="other">%1$d sekunder</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
     <string name="one_week_short_label">1w</string>
@@ -1072,15 +1072,15 @@
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message">Someone sent a Message</string>
     <string name="settings_licenses_settings_label">License Information</string>
-    <string name="settings_myaccount_logout">Delete Account</string>
+    <string name="settings_myaccount_logout">Radera konto</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
-    <string name="delete_acount_dialog_title">Delete Account</string>
+    <string name="delete_acount_dialog_title">Radera konto</string>
     <string name="delete_acount_dialog_text">If you continue, we will send a message via email. Follow the link to permanently delete your account.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
     <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable. The device verification takes place automatically using a certificate and replaces the previous manual process. This way, you communicate with the highest security standard.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure. The device verification takes place automatically using a certificate.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
-    <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
+    <string name="end_to_end_identity_required_dialog_snooze_button">Påminn mig senare</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
@@ -1091,7 +1091,7 @@
     <string name="record_audio_discard_dialog_discard_button">Discard</string>
     <string name="record_audio_permission_denied_dialog_title">Microphone Access</string>
     <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
-    <string name="record_audio_permission_denied_dialog_settings_button">Settings</string>
+    <string name="record_audio_permission_denied_dialog_settings_button">Inställningar</string>
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>

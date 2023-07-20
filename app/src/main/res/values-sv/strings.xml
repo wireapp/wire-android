@@ -170,7 +170,7 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Valv</string>
     <string name="archive_screen_title">Archive</string>
-    <string name="user_profile_screen_title">User Profile</string>
+    <string name="user_profile_screen_title">Användarprofil</string>
     <string name="settings_screen_title">Inställningar</string>
     <string name="app_settings_screen_title">App Settings</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
@@ -187,7 +187,7 @@
     <string name="settings_backup_create">Create a Backup</string>
     <string name="settings_backup_restore">Restore from Backup</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Want to chat with friends and family?</string>
+    <string name="welcome_footer_text">Vill du chatta med vänner och familj?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
     <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
@@ -268,7 +268,7 @@
     <string name="remove_device_message">Remove one of your other devices to start using Wire on
         this one.
     </string>
-    <string name="remove_device_label">YOUR DEVICES</string>
+    <string name="remove_device_label">DINA ENHETER</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
     <string name="remove_device_id_label">ID: %1$s</string>

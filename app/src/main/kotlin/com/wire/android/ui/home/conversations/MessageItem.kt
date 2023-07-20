@@ -103,7 +103,9 @@ fun MessageItem(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onFailedMessageRetryClicked: (String) -> Unit = {},
-    onFailedMessageCancelClicked: (String) -> Unit = {}
+    onFailedMessageCancelClicked: (String) -> Unit = {},
+    onMessageButtonClicked: (messageId: String, buttonId: String) -> Unit,
+    pendingButtonsMap: Map<String, String> = emptyMap()
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -158,7 +160,7 @@ fun MessageItem(
 
                 val isProfileRedirectEnabled =
                     header.userId != null &&
-                        !(header.isSenderDeleted || header.isSenderUnavailable)
+                            !(header.isSenderDeleted || header.isSenderUnavailable)
 
                 if (showAuthor) {
                     val avatarClickable = remember {
@@ -229,7 +231,9 @@ fun MessageItem(
                                         onAssetClick = currentOnAssetClicked,
                                         onImageClick = currentOnImageClick,
                                         onLongClick = onLongClick,
-                                        onOpenProfile = onOpenProfile
+                                        onOpenProfile = onOpenProfile,
+                                        onMessageButtonClicked = onMessageButtonClicked,
+                                        pendingButtonsMap = pendingButtonsMap,
                                     )
                                 }
                                 if (isMyMessage) {
@@ -444,6 +448,8 @@ private fun MessageContent(
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onMessageButtonClicked: (messageId: String, buttonId: String) -> Unit,
+    pendingButtonsMap: Map<String, String>,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onLongClick: (() -> Unit)? = null,
@@ -475,9 +481,36 @@ private fun MessageContent(
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = onOpenProfile,
+                    buttonList = null,
+                    onButtonClick = null,
+                    pendingButton = null,
+                    messageId = message.header.messageId
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
+        }
+
+        is UIMessageContent.Composite -> {
+            Column {
+                messageContent.messageBody?.quotedMessage?.let {
+                    VerticalSpace.x4()
+                    when (it) {
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+                    }
+                    VerticalSpace.x4()
+                }
+                MessageBody(
+                    messageBody = messageContent.messageBody,
+                    isAvailable = !message.isPending && message.isAvailable,
+                    onLongClick = onLongClick,
+                    onOpenProfile = onOpenProfile,
+                    buttonList = messageContent.buttonList,
+                    onButtonClick = onMessageButtonClicked,
+                    messageId = message.header.messageId,
+                    pendingButton = pendingButtonsMap[message.header.messageId]
+                )
             }
         }
 

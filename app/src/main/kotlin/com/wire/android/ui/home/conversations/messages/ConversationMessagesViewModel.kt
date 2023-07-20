@@ -43,13 +43,13 @@ import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -68,6 +68,7 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -96,6 +97,7 @@ class ConversationMessagesViewModel @Inject constructor(
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
+        private set
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!

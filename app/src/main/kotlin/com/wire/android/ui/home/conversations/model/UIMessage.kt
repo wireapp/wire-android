@@ -212,6 +212,11 @@ sealed class UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
+    data class Composite(
+        val messageBody: MessageBody?,
+        val buttonList: List<MessageButton>
+    ) : Regular()
+
     object Deleted : Regular()
 
     data class RestrictedAsset(
@@ -467,3 +472,10 @@ sealed interface DeliveryStatusContent {
 
     object CompleteDelivery : DeliveryStatusContent
 }
+
+@Stable
+data class MessageButton(
+    val id: String,
+    val text: String,
+    val isSelected: Boolean,
+)

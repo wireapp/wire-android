@@ -32,6 +32,9 @@ jobs:
             actions: read
 
         steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
             - name: Download and Extract Artifacts
               uses: dawidd6/action-download-artifact@v2
               with:
@@ -45,6 +48,8 @@ jobs:
                   event_file: artifacts/Event File/event.json
                   event_name: ${{ github.event.workflow_run.event }}
                   files: "artifacts/test-results/**/*.xml"
+
+            - uses: fregante/setup-git-user@v2
 
             - name: Post link to apks
               if: github.event.workflow_run.conclusion == 'success'

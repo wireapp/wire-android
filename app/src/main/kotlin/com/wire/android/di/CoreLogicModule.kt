@@ -124,6 +124,7 @@ import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logic.network.NetworkStateObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -174,6 +175,11 @@ class CoreLogicModule {
             kaliumConfigs = kaliumConfigs
         )
     }
+
+    @Singleton
+    @Provides
+    fun provideNetworkStateObserver(@KaliumCoreLogic coreLogic: CoreLogic): NetworkStateObserver =
+        coreLogic.networkStateObserver
 
     @Provides
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =

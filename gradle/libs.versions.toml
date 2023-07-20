@@ -49,7 +49,7 @@ hilt-composeNavigation = "1.0.0"
 hilt-work = "1.0.0"
 
 # Android UI
-accompanist = "0.31.3-beta"
+accompanist = "0.31.6-SNAPSHOT"
 material = "1.9.0"
 coil = "2.4.0"
 commonmark = "0.21.0"

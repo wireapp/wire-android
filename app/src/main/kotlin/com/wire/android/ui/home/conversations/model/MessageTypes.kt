@@ -59,6 +59,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -129,9 +130,9 @@ fun MessageButtonsContent(
 
         for (index in buttonList.indices) {
             val button = buttonList[index]
-            MessageButton(
+            MessageButtonItem(
                 messageId = messageId,
-                isPending = pendingButton == button.id,
+                pendingButtonId = pendingButton,
                 button = button,
                 onClick = onClick
             )
@@ -144,13 +145,13 @@ fun MessageButtonsContent(
 
 @SuppressLint("RememberReturnType")
 @Composable
-fun MessageButton(
+fun MessageButtonItem(
     messageId: String,
     button: MessageButton,
-    isPending: Boolean,
+    pendingButtonId: MessageButtonId?,
     onClick: ((messageId: String, buttonId: String) -> Unit)?
 ) {
-    val onCLick = remember(button.isSelected && isPending) {
+    val onCLick = remember(button.isSelected) {
         onClick?.let {
             if (!button.isSelected) {
                 { onClick(messageId, button.id) }
@@ -160,11 +161,15 @@ fun MessageButton(
         } ?: { }
     }
 
+    val isPending = remember(pendingButtonId) {
+        pendingButtonId == button.id
+    }
+
     WireSecondaryButton(
         loading = isPending,
         text = button.text,
         onClick = onCLick,
-        state = if (button.isSelected) WireButtonState.Selected else WireButtonState.Default
+        state = if (button.isSelected) WireButtonState.Selected else if (pendingButtonId != null) WireButtonState.Disabled else WireButtonState.Default
     )
 }
 

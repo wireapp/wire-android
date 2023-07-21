@@ -22,4 +22,9 @@ package com.wire.android.ui.home.settings.privacy
 
 data class PrivacySettingsState(
     val isReadReceiptsEnabled: Boolean = true,
+    val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER
 )
+
+enum class ScreenshotCensoringConfig {
+    DISABLED, ENABLED_BY_USER, ENFORCED_BY_TEAM
+}

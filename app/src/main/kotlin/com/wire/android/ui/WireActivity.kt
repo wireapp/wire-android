@@ -20,9 +20,11 @@
 
 package com.wire.android.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -37,10 +39,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -62,6 +64,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -137,7 +140,8 @@ class WireActivity : AppCompatActivity() {
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
                 LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
-                LocalSnackbarHostState provides snackbarHostState
+                LocalSnackbarHostState provides snackbarHostState,
+                LocalActivity provides this
             ) {
                 WireTheme {
                     Column {
@@ -149,6 +153,7 @@ class WireActivity : AppCompatActivity() {
                             startDestination = startDestination,
                             onComplete = onComplete
                         )
+                        handleScreenshotCensoring()
                         handleDialogs()
                     }
                 }
@@ -210,6 +215,17 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
+    private fun handleScreenshotCensoring() {
+        LaunchedEffect(viewModel.globalAppState.screenshotCensoringEnabled) {
+            if (viewModel.globalAppState.screenshotCensoringEnabled) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
+    }
+
+    @Composable
     private fun handleDialogs() {
         updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
         joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
@@ -236,7 +252,7 @@ class WireActivity : AppCompatActivity() {
                     onClick = onUpdateClick,
                     type = WireDialogButtonType.Primary
                 ),
-                properties = DialogProperties(
+                properties = wireDialogPropertiesBuilder(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false,
                     usePlatformDefaultWidth = true
@@ -435,4 +451,8 @@ class WireActivity : AppCompatActivity() {
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
+}
+
+val LocalActivity = staticCompositionLocalOf<Activity> {
+    error("No Activity provided")
 }

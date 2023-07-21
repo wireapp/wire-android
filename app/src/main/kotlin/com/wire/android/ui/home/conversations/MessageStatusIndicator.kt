@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -50,22 +50,28 @@ fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modif
             Box(
                 Modifier
                     .background(Color.Red)
-                    .size(32.dp))
+                    .size(32.dp)
+            )
         }
 
         MessageFlowStatus.Delivered -> {
-            Box(
-                Modifier
-                    .background(Color.Blue)
-                    .size(32.dp))
+            Icon(
+                modifier = modifier,
+                painter = painterResource(id = R.drawable.ic_message_delivered),
+                tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
+                contentDescription = stringResource(R.string.content_description_message_delivered_status),
+            )
         }
 
         is MessageFlowStatus.Read -> {
-            Box(
-                Modifier
-                    .background(Color.Green)
-                    .size(32.dp)){
-                Text(text = status.count.toString())
+            Row {
+                Icon(
+                    modifier = modifier,
+                    painter = painterResource(id = R.drawable.ic_message_read),
+                    tint = MaterialTheme.wireColorScheme.error,
+                    contentDescription = stringResource(R.string.content_description_message_read_status),
+                )
+                Text(status.count.toString())
             }
         }
 

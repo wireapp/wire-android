@@ -53,7 +53,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
@@ -74,6 +74,10 @@ class ConversationInfoViewModel @Inject constructor(
     private lateinit var selfUserId: UserId
 
     init {
+        getSelfUserId()
+    }
+
+    private fun getSelfUserId() {
         viewModelScope.launch {
             selfUserId = observerSelfUser().first().id
         }

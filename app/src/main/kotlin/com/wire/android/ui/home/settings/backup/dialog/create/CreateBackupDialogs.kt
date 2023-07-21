@@ -46,6 +46,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCreateFileFlow
 import java.util.Locale
@@ -111,6 +112,10 @@ fun CreateBackupDialog(
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
         buttonsHorizontalAlignment = false,
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        ),
         optionButton1Properties = WireDialogButtonProperties(
             onClick = fileStep::launch,
             text = stringResource(R.string.backup_dialog_create_backup_save),

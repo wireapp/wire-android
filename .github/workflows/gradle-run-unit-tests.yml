@@ -32,7 +32,7 @@ jobs:
           cache: gradle
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+        uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
 
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
@@ -52,12 +52,13 @@ jobs:
         run: sudo apt-get install -y python3-pip
 
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
-      # This name is referenced in the publish-test-results workflow.
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          files: |
+          # This name is referenced in the publish-test-results workflow.
+          name: test-results
+          path: |
             **/build/test-results/testDevDebugUnitTest/**/*.xml
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
@@ -75,7 +76,7 @@ jobs:
           path: app/build/reports/jacoco
 
       - name: Upload Test Report
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: "app/build/reports/jacoco/jacocoReport/jacocoReport.xml"
 

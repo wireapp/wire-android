@@ -616,8 +616,8 @@
         <item quantity="other">%1$d pings</item>
     </plurals>
     <plurals name="unread_event_call">
-        <item quantity="one">%1$d missed call</item>
-        <item quantity="other">%1$d missed calls</item>
+        <item quantity="one">%1$d missat samtal</item>
+        <item quantity="other">%1$d missade samtal</item>
     </plurals>
     <plurals name="unread_event_mention">
         <item quantity="one">%1$d mention</item>
@@ -635,8 +635,8 @@
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
-    <string name="label_new_group">New Group</string>
-    <string name="label_new_conversation">New Conversation</string>
+    <string name="label_new_group">Ny grupp</string>
+    <string name="label_new_conversation">Ny konversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
@@ -699,13 +699,13 @@
     <string name="notification_action_hang_up_call">Hang Up</string>
     <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call…</string>
-    <string name="notification_group_call_content">%s calling...</string>
+    <string name="notification_group_call_content">%s ringer...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
-    <string name="calling_button_label_microphone">Microphone</string>
-    <string name="calling_button_label_camera">Camera</string>
+    <string name="calling_button_label_microphone">Mikrofon</string>
+    <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">Speaker</string>
     <string name="calling_button_label_flip">Flip</string>
     <string name="calling_button_label_decline">Decline</string>
@@ -805,7 +805,7 @@
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Account Settings</string>
-    <string name="settings_devices_label">Devices</string>
+    <string name="settings_devices_label">Enheter</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
     <string name="settings_your_account_label">Account Details</string>
@@ -819,7 +819,7 @@
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
-    <string name="settings_myaccount_username">USERNAME</string>
+    <string name="settings_myaccount_username">ANVÄNDARNAMN</string>
     <string name="settings_myaccount_email">EMAIL</string>
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
@@ -855,7 +855,7 @@
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Dela loggar</string>
-    <string name="label_delete_logs">Delete All Logs</string>
+    <string name="label_delete_logs">Radera alla loggar</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
     <string name="label_mls_option_title">MLS Options</string>
@@ -869,8 +869,8 @@
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
     <string name="label_client_last_active_label">LAST ACTIVE</string>
-    <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
-    <string name="label_client_last_active_time">%1$s ago</string>
+    <string name="label_client_last_active_time_zero_weeks">Mindre än en vecka sedan</string>
+    <string name="label_client_last_active_time">%1$s sedan</string>
     <string name="label_client_device_id">DEVICE ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
@@ -888,7 +888,7 @@
     <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed, and you can encrypt it with a password.</string>
     <string name="backup_dialog_create_backup_now">Back Up Now</string>
     <string name="backup_dialog_create_backup_title">Creating Backup</string>
-    <string name="backup_dialog_create_backup_subtitle">Saving conversations...</string>
+    <string name="backup_dialog_create_backup_subtitle">Sparar konversationer...</string>
     <string name="backup_dialog_create_error_title">Something went wrong</string>
     <string name="backup_dialog_create_error_subtitle">Backup could not be created. Please try again or contact Wire support.</string>
     <string name="backup_label_conversation_successfully_saved">Conversations successfully saved</string>

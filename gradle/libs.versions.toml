@@ -73,7 +73,7 @@ androidx-text-archCore = "2.1.0"
 junit4 = "4.13"
 junit5 = "5.8.2"
 kluent = "1.73"
-mockk = "1.13.4"
+mockk = "1.13.5"
 okio = "3.2.0"
 turbine = "1.0.0"
 

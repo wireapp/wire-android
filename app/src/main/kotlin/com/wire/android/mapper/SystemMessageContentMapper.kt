@@ -61,6 +61,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
         is MessageContent.ConversationCreated -> mapConversationCreated(message.senderUserId, message.date, members)
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
+        is MessageContent.ConversationDegraded -> mapConversationDegraded(content)
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -235,6 +236,9 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
     private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.MLSWrongEpochWarning()
+    private fun mapConversationDegraded(content: MessageContent.ConversationDegraded): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationDegraded(content)
+
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
         is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is SelfUser -> when (type) {

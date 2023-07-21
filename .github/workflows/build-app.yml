@@ -44,12 +44,3 @@ jobs:
       with:
           name: wire-android-${{inputs.flavour}}-pr-${{ github.event.pull_request.number }}.apk
           path: ./wire-android-${{inputs.flavour}}-pr-${{ github.event.pull_request.number }}.apk
-    - name: Post link to apk
-      if: success()
-      env:
-        GITHUB_USER: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        CHECKS_LINK="https://github.com/wireapp/wire-android-reloaded/actions/runs/${{ github.run_id }}"
-        gh pr comment "${{github.head_ref}}" --body "Build (${{inputs.flavour}}) available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
-

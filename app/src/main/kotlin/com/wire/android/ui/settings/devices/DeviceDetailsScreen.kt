@@ -37,6 +37,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
@@ -159,6 +160,16 @@ fun DeviceDetailsContent(
                     DeviceDetailSectionContent(
                         stringResource(id = R.string.label_client_added_time),
                         AnnotatedString(it)
+                    )
+                    Divider(color = MaterialTheme.wireColorScheme.background)
+                }
+            }
+
+            state.device.lastActiveInWholeWeeks?.let {
+                item {
+                    DeviceDetailSectionContent(
+                        stringResource(id = R.string.label_client_last_active_label),
+                        AnnotatedString(state.device.lastActiveDescription() ?: "")
                     )
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }

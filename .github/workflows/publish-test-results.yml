@@ -32,6 +32,9 @@ jobs:
             actions: read
 
         steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
             - name: Download and Extract Artifacts
               uses: dawidd6/action-download-artifact@v2
               with:
@@ -45,3 +48,19 @@ jobs:
                   event_file: artifacts/Event File/event.json
                   event_name: ${{ github.event.workflow_run.event }}
                   files: "artifacts/test-results/**/*.xml"
+
+            - uses: fregante/setup-git-user@v2
+
+            - name: Post link to apks
+              if: github.event.workflow_run.conclusion == 'success'
+              env:
+                  EVENT_FILE_PATH: artifacts/Event File/event.json
+                  GITHUB_USER: ${{ github.actor }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  # Get the PR number based on the event file uploaded by the test workflow.
+                  # The event file is a JSON containing the data of the event that triggered the tests.
+                  # In this case, it will contain information about the PR.
+              run: |
+                  CHECKS_LINK="https://github.com/wireapp/wire-android-reloaded/actions/runs/${{ github.event.workflow_run.id }}"
+                  PR_NUMBER=$(jq --raw-output .pull_request.number "$EVENT_FILE_PATH")
+                  gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"

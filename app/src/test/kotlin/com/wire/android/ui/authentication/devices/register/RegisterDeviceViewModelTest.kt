@@ -169,7 +169,7 @@ class RegisterDeviceViewModelTest {
     companion object {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
-            CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, false,
+            CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, Instant.DISTANT_PAST, false,
             isValid = true, DeviceType.Desktop, "label", null
         )
     }

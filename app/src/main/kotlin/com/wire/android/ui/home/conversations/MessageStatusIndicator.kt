@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,7 +64,9 @@ fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modif
             Box(
                 Modifier
                     .background(Color.Green)
-                    .size(32.dp))
+                    .size(32.dp)){
+                Text(text = status.count.toString())
+            }
         }
 
         is MessageFlowStatus.Failure -> Icon(

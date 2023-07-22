@@ -1026,20 +1026,20 @@
         <item quantity="other">%1$d weeks left</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 day left</item>
-        <item quantity="other">%1$d days left</item>
+        <item quantity="one">1 dag kvar</item>
+        <item quantity="other">%1$d dagar kvar</item>
     </plurals>
     <plurals name="hours_left">
-        <item quantity="one">1 hour left</item>
-        <item quantity="other">%1$d hours left</item>
+        <item quantity="one">1 timme kvar</item>
+        <item quantity="other">%1$d timmar kvar</item>
     </plurals>
     <plurals name="minutes_left">
-        <item quantity="one">1 minute left</item>
-        <item quantity="other">%1$d minutes left</item>
+        <item quantity="one">1 minut kvar</item>
+        <item quantity="other">%1$d minuter kvar</item>
     </plurals>
     <plurals name="seconds_left">
-        <item quantity="one">1 second left</item>
-        <item quantity="other">%1$d seconds left</item>
+        <item quantity="one">1 sekund kvar</item>
+        <item quantity="other">%1$d sekunder kvar</item>
     </plurals>
     <plurals name="weeks_long_label">
         <item quantity="one">1 vecka</item>

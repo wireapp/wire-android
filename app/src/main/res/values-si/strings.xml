@@ -244,7 +244,7 @@
     <string name="login_password_label">මුරපදය</string>
     <string name="login_tab_email">වි-තැපෑල</string>
     <string name="login_tab_sso">SSO පිවිසුම</string>
-    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
+    <string name="login_sso_code_label">SSO කේතය හෝ වි-තැපෑල</string>
     <string name="login_error_invalid_sso_code">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="login_error_invalid_sso_code_format">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="deleted_user_error_title">මකාදැමූ ගිණුමකි</string>
@@ -325,14 +325,14 @@
     <string name="create_account_details_team_name_placeholder">Team Awesome</string>
     <string name="create_account_details_team_name_label">කණ්ඩායමේ නම</string>
     <string name="create_account_details_password_description">කුඩා අකුරක්, ලොකු අකුරක්, අංකයක් සහ විශේෂ අකුරක් සමඟ, අවම වශයෙන් අකුරු 8 ක් භාවිතා කරන්න.</string>
-    <string name="create_account_details_password_error">Invalid password</string>
+    <string name="create_account_details_password_error">මුරපදය වලංගු නොවේ</string>
     <string name="create_account_details_password_not_matching_error">මුරපද නොගැළපේ</string>
-    <string name="create_account_details_confirm_password_label">CONFIRM PASSWORD</string>
+    <string name="create_account_details_confirm_password_label">මුරපදය තහවුරු කරන්න</string>
     <string name="create_account_code_text">සත්‍යාපන කේතය සඳහා ඔබගේ %1$s වි-තැපෑල පරීක්‍ෂා කර එය පහතින් යොදන්න.</string>
     <string name="create_account_code_resend">කේතය නැවත යවන්න</string>
     <string name="create_account_code_error">වලංගු නොවන කේතයකි, හෝ උපරිම උත්සාහයන් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න, හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
     <string name="create_account_code_error_title">සාවද්‍ය තොරතුරකි</string>
-    <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>
+    <string name="create_account_code_error_team_members_limit_reached">මෙම කණ්ඩායම එහි සාමාජිකත්‍ව සීමාවට ලඟා වී ඇත.</string>
     <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
     <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">පරිශ්‍රීලක නාමය</string>

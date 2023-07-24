@@ -93,7 +93,7 @@ internal fun WireDropDown(
             selectedIndex,
             defaultItemIndex
         )
-    } else stringResource(R.string.last_message_composite_with_miossing_text)
+    } else stringResource(R.string.wire_dropdown_placeholder)
     val borderColor = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline
     val shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
 

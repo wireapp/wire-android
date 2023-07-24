@@ -253,7 +253,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
                 is WithUser.Composite -> {
                     val text = (content as WithUser.Composite).messageBody?.let { UIText.DynamicString(it) }
-                        ?: UIText.StringResource(R.string.last_message_composite_with_miossing_text)
+                        ?: UIText.StringResource(R.string.last_message_composite_with_missing_text)
                     UILastMessageContent.SenderWithMessage(
                         sender = userUIText,
                         message = text,

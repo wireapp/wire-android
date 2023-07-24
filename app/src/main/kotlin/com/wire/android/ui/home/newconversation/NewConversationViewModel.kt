@@ -100,6 +100,13 @@ class NewConversationViewModel @Inject constructor(
         groupOptionsState = groupOptionsState.copy(error = null)
     }
 
+    fun onDiscardGroupCreationClick() {
+        groupOptionsState = groupOptionsState.copy(error = null)
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
+    }
+
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
     }
@@ -225,6 +232,13 @@ class NewConversationViewModel @Inject constructor(
             is CreateGroupConversationUseCase.Result.UnknownFailure -> {
                 appLogger.w("Error while creating a group ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.Unknown)
+            }
+
+            is CreateGroupConversationUseCase.Result.BackendConflictFailure -> {
+                groupOptionsState = groupOptionsState.copy(
+                    isLoading = false,
+                    error = GroupOptionState.Error.ConflictedBackends(result.domains)
+                )
             }
         }
     }

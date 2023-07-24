@@ -21,15 +21,14 @@ plugins {
     `kotlin-dsl`
 }
 
-// Configure the build-logic plugins to target JDK 11
-// TODO: Upgrade Jenkins image to support JDK 17 and bump it here too
+// Configure the build-logic plugins to target JDK 17
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 }
 

@@ -232,7 +232,7 @@ private fun EnabledMessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         Column {

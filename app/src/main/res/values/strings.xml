@@ -167,6 +167,8 @@
     <string name="content_description_record_audio_button_start">Record Audio</string>
     <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
+    <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
+    <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
 
     <!-- Non translatable strings-->
     <string name="url_support" translatable="false">https://support.wire.com</string>

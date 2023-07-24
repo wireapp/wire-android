@@ -125,7 +125,7 @@ class AudioMediaRecorder @Inject constructor(
 
     private companion object {
         fun getRecordingAudioFileName(): String =
-            "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.mp3"
+            "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.m4a"
         const val SIZE_OF_1MB = 1024 * 1024
     }
 }

@@ -50,7 +50,6 @@ class MessageCompositionHolder(
     }
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
-
     fun setReply(message: UIMessage.Regular) {
         val senderId = message.header.userId ?: return
 

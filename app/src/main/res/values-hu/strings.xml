@@ -563,6 +563,7 @@
     <string name="label_system_message_conversation_started_with_members">%1$s résztvevővel</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_members_details">%1$s-t nem sikerült hozzáadni a csoporthoz, mivel a(z) %2$s kiszolgálót nem sikerült elérni.</string>
+    <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Hozzáadott 1 személyt a beszélgetéshez</item>

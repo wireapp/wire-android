@@ -19,17 +19,31 @@ package com.wire.android.ui.home.conversations
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.SavedStateViewModel
+import com.wire.kalium.logic.data.id.MessageButtonId
+import com.wire.kalium.logic.data.id.MessageId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CompositeMessagesViewModel @Inject constructor() : ViewModel() {
+class CompositeMessagesViewModel @Inject constructor(
+    private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
+    qualifiedIdMapper: QualifiedIdMapper,
+    savedStateHandle: SavedStateHandle,
+) : SavedStateViewModel(savedStateHandle) {
 
-    var pendingButtons = mutableStateMapOf<String, String>()
+    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
+
+    var pendingButtons = mutableStateMapOf<MessageId, MessageButtonId>()
         @VisibleForTesting
         set
 
@@ -38,14 +52,9 @@ class CompositeMessagesViewModel @Inject constructor() : ViewModel() {
 
         pendingButtons[messageId] = buttonId
         viewModelScope.launch {
-            doStuff()
+            sendButtonActionMessageUseCase(conversationId, messageId, buttonId)
         }.invokeOnCompletion {
             pendingButtons.remove(messageId)
         }
-    }
-
-    @Suppress("MagicNumber")
-    suspend fun doStuff() {
-        delay(5000)
     }
 }

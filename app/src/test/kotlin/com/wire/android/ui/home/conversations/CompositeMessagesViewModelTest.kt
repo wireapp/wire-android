@@ -17,11 +17,19 @@
  */
 package com.wire.android.ui.home.conversations
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -38,31 +46,59 @@ class CompositeMessagesViewModelTest {
 
         // Act
         viewModel.onButtonClicked(messageId, buttonId)
+        advanceUntilIdle()
 
         // Assert
-        // TODO assert that the use case is not called
+        coVerify(exactly = 0) {
+            arrangement.sendButtonActionMessage(any(), any(), any())
+        }
     }
 
     @Test
     fun `given button nto pending, when button is clicked, then mark pending and then remove it once done`() = runTest {
         // Arrange
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement()
+            .withButtonActionMessage(SendButtonActionMessageUseCase.Result.Success)
+            .arrange()
         val messageId = "messageId"
         val buttonId = "buttonId"
 
         // Act
         viewModel.onButtonClicked(messageId, buttonId)
-        assertTrue(viewModel.pendingButtons.containsKey(messageId))
         advanceUntilIdle()
         assertFalse(viewModel.pendingButtons.containsKey(messageId))
 
         // Assert
-        // TODO assert that the use case is called called
+        coVerify(exactly = 1) {
+            arrangement.sendButtonActionMessage(any(), any(), any())
+        }
+    }
+
+    private companion object {
+        const val CONVERSION_ID_STRING = "some-dummy-value@some.dummy.domain"
     }
 
     private class Arrangement {
 
-        private val viewModel = CompositeMessagesViewModel()
+        @MockK
+        lateinit var sendButtonActionMessage: SendButtonActionMessageUseCase
+        val qualifiedIdMapper: QualifiedIdMapper = QualifiedIdMapperImpl(null)
+
+        @MockK
+        lateinit var savedStateHandle: SavedStateHandle
+
+        init {
+            MockKAnnotations.init(this)
+            every { savedStateHandle.get<String>(any()) } returns CONVERSION_ID_STRING
+        }
+
+        private val viewModel = CompositeMessagesViewModel(sendButtonActionMessage, qualifiedIdMapper, savedStateHandle)
+
+        fun withButtonActionMessage(
+            result: SendButtonActionMessageUseCase.Result
+        ) = apply {
+            coEvery { sendButtonActionMessage(any(), any(), any()) } returns result
+        }
 
         fun arrange() = this to viewModel
     }

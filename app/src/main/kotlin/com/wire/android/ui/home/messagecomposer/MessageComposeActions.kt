@@ -47,6 +47,7 @@ fun MessageComposeActions(
     isFileSharingEnabled: Boolean = true,
     isMentionActive: Boolean = true,
     isSelfDeletingSettingEnabled: Boolean = true,
+    isSelfDeletingActive: Boolean = false,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingButtonClicked: () -> Unit,
@@ -70,6 +71,7 @@ fun MessageComposeActions(
             onRichEditingButtonClicked,
             onGifButtonClicked,
             isSelfDeletingSettingEnabled,
+            isSelfDeletingActive,
             onSelfDeletionOptionButtonClicked,
             onPingButtonClicked,
             onMentionButtonClicked
@@ -86,6 +88,7 @@ private fun ComposingActions(
     onRichEditingButtonClicked: () -> Unit,
     onGifButtonClicked: () -> Unit,
     isSelfDeletingSettingEnabled: Boolean,
+    isSelfDeletingActive: Boolean,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     onPingButtonClicked: () -> Unit,
     onMentionButtonClicked: () -> Unit
@@ -112,7 +115,7 @@ private fun ComposingActions(
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
             if (isSelfDeletingSettingEnabled) SelfDeletingMessageAction(
-                isSelected = false,
+                isSelected = isSelfDeletingActive,
                 onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (PingIcon) PingAction(onPingButtonClicked)
@@ -131,8 +134,6 @@ fun EditingActions(
     onRichEditingButtonClicked: () -> Unit,
     onMentionButtonClicked: () -> Unit
 ) {
-    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,

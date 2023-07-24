@@ -404,10 +404,8 @@ sealed class UIMessageContent {
             val usersCount = memberNames.values.flatten().size
         }
 
-        data class ConversationDegraded(
-            val content: MessageContent.ConversationDegraded
-        ) : SystemMessage(
-            if (content.protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+        data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
+            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_conversation_degraded_proteus,
             R.string.label_system_message_conversation_degraded
         )

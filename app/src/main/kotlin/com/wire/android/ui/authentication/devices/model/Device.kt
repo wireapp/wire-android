@@ -41,11 +41,12 @@ data class Device(
     val isVerified: Boolean = false
 ) {
     constructor(client: Client) : this(
-        client.displayName(),
-        client.id,
-        client.registrationTime?.toIsoDateTimeString(),
-        client.lastActiveInWholeWeeks(),
-        client.isVerified
+        name = client.displayName(),
+        clientId = client.id,
+        registrationTime = client.registrationTime?.toIsoDateTimeString(),
+        lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
+        isValid = client.isVerified,
+        isVerified = client.isVerified
     )
 }
 

@@ -3,11 +3,10 @@
 gradle = "7.6.1"
 
 # Kotlin
-kotlin = "1.8.21"
+kotlin = "1.9.0"
 
 # KotlinX
 coroutines = "1.7.1"
-ktx = "1.8.0"
 ktx-dateTime = "0.4.0"
 ktx-immutableCollections = "0.3.5"
 ktx-serialization = "1.3.2"
@@ -38,7 +37,7 @@ androidx-browser = "1.3.0"
 compose = "1.5.0-beta03"
 compose-material = "1.4.3"
 compose-activity = "1.6.1"
-compose-compiler = "1.4.7"
+compose-compiler = "1.5.0"
 compose-constraint = "1.0.1"
 compose-material3 = "1.1.0"
 compose-navigation = "2.6.0"

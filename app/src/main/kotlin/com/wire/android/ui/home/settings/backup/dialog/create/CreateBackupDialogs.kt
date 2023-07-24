@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.settings.backup.dialog.create
 
+import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,7 +46,9 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.rememberCreateFileFlow
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -91,19 +94,40 @@ fun SetBackupPasswordDialog(
 fun CreateBackupDialog(
     isBackupCreationCompleted: Boolean,
     createBackupProgress: Float,
-    onSaveBackup: () -> Unit,
+    backupFileName: String,
+    onSaveBackup: (Uri) -> Unit,
+    onShareBackup: () -> Unit,
     onDismissDialog: () -> Unit
 ) {
     val progress by animateFloatAsState(targetValue = createBackupProgress)
+    val fileStep = rememberCreateFileFlow(
+        onFileCreated = {
+            onSaveBackup(it)
+            onDismissDialog()
+        },
+        onPermissionDenied = { /* do nothing */ },
+        fileName = backupFileName
+    )
     WireDialog(
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
+        buttonsHorizontalAlignment = false,
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        ),
         optionButton1Properties = WireDialogButtonProperties(
+            onClick = fileStep::launch,
+            text = stringResource(R.string.backup_dialog_create_backup_save),
+            type = WireDialogButtonType.Primary,
+            state = if (isBackupCreationCompleted) WireButtonState.Default else WireButtonState.Disabled
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
             onClick = {
-                onSaveBackup()
+                onShareBackup()
                 onDismissDialog()
             },
-            text = stringResource(R.string.backup_dialog_create_backup_save),
+            text = stringResource(R.string.backup_dialog_create_backup_share),
             type = WireDialogButtonType.Primary,
             state = if (isBackupCreationCompleted) WireButtonState.Default else WireButtonState.Disabled
         ),

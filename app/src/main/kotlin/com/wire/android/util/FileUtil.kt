@@ -143,7 +143,7 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     }?.also { downloadedUri -> resolver.copyFile(downloadedUri, downloadedDataPath) }
 }
 
-private fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
+fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
     openOutputStream(destinationUri).use { outputStream ->
         val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
         var len: Int

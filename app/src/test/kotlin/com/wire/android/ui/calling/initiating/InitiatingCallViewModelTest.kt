@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling.initiating
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.ConversationId
@@ -35,38 +36,23 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class InitiatingCallViewModelTest {
 
-    private val dispatcher = StandardTestDispatcher()
-
-    @BeforeEach
-    fun setup() {
-        Dispatchers.setMain(dispatcher)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest(dispatcher) {
+    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withEndingCall()
+            .withStartCallSucceeding()
             .arrange()
 
         // When
@@ -86,6 +72,7 @@ class InitiatingCallViewModelTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withNoInternetConnection()
+            .withStartCallSucceeding()
             .arrange()
 
         // When
@@ -144,8 +131,10 @@ class InitiatingCallViewModelTest {
             every {
                 qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
             } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+            coEvery { isLastCallClosed.invoke(any(), any()) } returns flowOf(false)
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
+            every { callRinger.ring(any(), any(), any()) } returns Unit
         }
 
         fun withEndingCall(): Arrangement = apply {
@@ -158,6 +147,10 @@ class InitiatingCallViewModelTest {
             coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
             coEvery { navigationManager.navigateBack() } returns Unit
+        }
+
+        fun withStartCallSucceeding() = apply {
+            coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.Success
         }
 
         fun arrange() = this to initiatingCallViewModel

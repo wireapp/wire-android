@@ -38,7 +38,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
@@ -110,6 +110,7 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -121,7 +122,10 @@ import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logic.network.NetworkStateObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -172,6 +176,11 @@ class CoreLogicModule {
             kaliumConfigs = kaliumConfigs
         )
     }
+
+    @Singleton
+    @Provides
+    fun provideNetworkStateObserver(@KaliumCoreLogic coreLogic: CoreLogic): NetworkStateObserver =
+        coreLogic.networkStateObserver
 
     @Provides
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
@@ -634,6 +643,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideEndCallOnConversationChangeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): EndCallOnConversationChangeUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.endCallOnConversationChange
+
+    @ViewModelScoped
+    @Provides
     fun provideMuteCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MuteCallUseCase =
         coreLogic.getSessionScope(currentAccount).calls.muteCall
 
@@ -936,14 +953,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideAutoVersionAuthScopeUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        authServerConfigProvider: AuthServerConfigProvider
-    ): AutoVersionAuthScopeUseCase =
-        coreLogic.versionedAuthenticationScope(authServerConfigProvider.authServer.value)
-
-    @ViewModelScoped
-    @Provides
     fun provideIsCallRunningUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isCallRunning
 
@@ -1196,4 +1205,31 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): RefreshConversationsWithoutMetadataUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.refreshConversationsWithoutMetadata
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeleteAccountUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): DeleteAccountUseCase =
+        coreLogic.getSessionScope(currentAccount).users.deleteAccount
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistScreenshotCensoringConfigUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): PersistScreenshotCensoringConfigUseCase = coreLogic.getSessionScope(currentAccount).persistScreenshotCensoringConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveScreenshotCensoringConfigUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveScreenshotCensoringConfigUseCase = coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationVerificationStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
 }

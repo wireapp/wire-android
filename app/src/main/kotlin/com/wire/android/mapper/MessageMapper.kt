@@ -85,40 +85,17 @@ class MessageMapper @Inject constructor(
         )
 
         val footer = if (message is Message.Regular) {
-            // TODO find ugly and proper heart emoji and merge them to ugly one 😅
-            val totalHeartsCount = message.reactions.totalReactions
-                .filterKeys { isHeart(it) }.values
-                .sum()
-
-            val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
-
             MessageFooter(
                 message.id,
-                message.reactions.totalReactions
-                    .filter { !isHeart(it.key) }
-                    .run {
-                        if (totalHeartsCount != 0) {
-                            plus("❤" to totalHeartsCount)
-                        } else {
-                            this
-                        }
-                    },
+                message.reactions.totalReactions,
                 message.reactions.selfUserReactions
-                    .filter { isHeart(it) }.toSet()
-                    .run {
-                        if (hasSelfHeart) {
-                            plus("❤")
-                        } else {
-                            this
-                        }
-                    }
             )
         } else {
             MessageFooter(message.id)
         }
 
         return when (content) {
-            is UIMessageContent.Regular -> {
+            is UIMessageContent.Regular ->
                 UIMessage.Regular(
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
@@ -126,7 +103,6 @@ class MessageMapper @Inject constructor(
                     messageFooter = footer,
                     userAvatarData = getUserAvatarData(sender)
                 )
-            }
 
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
@@ -136,6 +112,7 @@ class MessageMapper @Inject constructor(
                 )
 
             null -> null
+
             /**
              * IncompleteAssetMessage is a displayable asset that's missing the remote data.
              * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
@@ -145,8 +122,8 @@ class MessageMapper @Inject constructor(
         }
     }
 
-    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
-        val expirationData = (message as? Message.Regular)?.expirationData
+    private fun provideExpirationData(message: Message): ExpirationStatus {
+        val expirationData = message.expirationData
         return if (expirationData == null) {
             ExpirationStatus.NotExpirable
         } else {
@@ -185,14 +162,22 @@ class MessageMapper @Inject constructor(
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {
         val isMessageEdited = message is Message.Regular && message.editStatus is Message.EditStatus.Edited
-        return MessageStatus(
-            flowStatus = when (message.status) {
+
+        val content = message.content
+        val flowStatus = if (content is MessageContent.FailedDecryption) {
+            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved)
+        } else {
+            when (message.status) {
                 Message.Status.PENDING -> MessageFlowStatus.Sending
                 Message.Status.SENT -> MessageFlowStatus.Sent
                 Message.Status.READ -> MessageFlowStatus.Read(1) // TODO add read count
                 Message.Status.FAILED -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FAILED_REMOTELY -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
-            },
+            }
+        }
+
+        return MessageStatus(
+            flowStatus = flowStatus,
             editStatus = if (message is Message.Regular && message.editStatus is Message.EditStatus.Edited) {
                 MessageEditStatus.Edited(
                     isoFormatter.fromISO8601ToTimeFormat(

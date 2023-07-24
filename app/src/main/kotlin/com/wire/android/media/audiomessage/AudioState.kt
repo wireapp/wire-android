@@ -61,3 +61,17 @@ sealed class AudioMediaPlayerStateUpdate(
         val totalTimeInMs: Int
     ) : AudioMediaPlayerStateUpdate(messageId)
 }
+
+sealed class RecordAudioMediaPlayerStateUpdate {
+    data class RecordAudioMediaPlayingStateUpdate(
+        val audioMediaPlayingState: AudioMediaPlayingState
+    ) : RecordAudioMediaPlayerStateUpdate()
+
+    data class PositionChangeUpdate(
+        val position: Int
+    ) : RecordAudioMediaPlayerStateUpdate()
+
+    data class TotalTimeUpdate(
+        val totalTimeInMs: Int
+    ) : RecordAudioMediaPlayerStateUpdate()
+}

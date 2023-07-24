@@ -256,8 +256,10 @@ class MessageNotificationManager
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
             .apply {
-                author?.name.also {
-                    setName(it)
+                if (this@intoStyledMessage !is NotificationMessage.ObfuscatedMessage) {
+                    author?.name.also {
+                        setName(it)
+                    }
                 }
                 author?.image?.toBitmap()?.let {
                     setIcon(IconCompat.createWithAdaptiveBitmap(it))
@@ -265,7 +267,7 @@ class MessageNotificationManager
             }
             .build()
 
-        val message = when (this) {
+        val message = when (this@intoStyledMessage) {
             is NotificationMessage.Text -> if (isQuotingSelfUser) context.getString(R.string.notification_reply, text) else text
             is NotificationMessage.Comment -> italicTextFromResId(textResId.value)
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)

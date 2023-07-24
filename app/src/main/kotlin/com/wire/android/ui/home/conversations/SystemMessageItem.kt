@@ -17,6 +17,7 @@
  *
  *
  */
+@file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.conversations
 
@@ -77,8 +78,21 @@ import com.wire.android.util.ui.toUIText
 fun SystemMessageItem(
     message: UIMessage.System,
     onFailedMessageRetryClicked: (String) -> Unit = {},
-    onFailedMessageCancelClicked: (String) -> Unit = {}
+    onFailedMessageCancelClicked: (String) -> Unit = {},
+    onSelfDeletingMessageRead: (UIMessage) -> Unit = {}
 ) {
+    val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
+    if (
+        selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable &&
+        !message.isPending &&
+        !message.sendingFailed
+    ) {
+        startDeletionTimer(
+            message = message,
+            expirableTimer = selfDeletionTimerState,
+            onStartMessageSelfDeletion = onSelfDeletingMessageRead
+        )
+    }
     val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier
@@ -315,6 +329,39 @@ fun PreviewSystemMessageKnock() {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddSingle() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    mapOf("wire.com" to listOf(UIText.DynamicString("Barbara Cotolina")))
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddMultiple() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    mapOf(
+                        "wire.com" to listOf(
+                            UIText.DynamicString("Barbara Cotolina"),
+                            UIText.DynamicString("Albert Lewis")
+                        )
+                    )
+                )
             )
         )
     }

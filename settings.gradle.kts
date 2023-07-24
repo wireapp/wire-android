@@ -18,12 +18,13 @@
  *
  */
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         mavenCentral()
     }
 }
 
-//Include all the existent modules in the project
+// Include all the existent modules in the project
 rootDir
     .walk()
     .maxDepth(1)
@@ -35,10 +36,7 @@ rootDir
         include(":${it.name}")
     }
 
-includeBuild("kalium") {
-    // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
-    dependencySubstitution {
-        substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
-        substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
-    }
-}
+// A work-around where we define the included builds in a different file
+// so Reloaded's Dependabot doesn't try to look into Kalium's build.gradle.kts, which is inaccessible as it is a git submodule.
+// See: https://github.com/dependabot/dependabot-core/issues/7201#issuecomment-1571319655
+apply(from = "include_builds.gradle.kts")

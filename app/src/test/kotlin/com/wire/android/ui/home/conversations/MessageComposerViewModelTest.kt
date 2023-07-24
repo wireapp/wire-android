@@ -26,8 +26,10 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.Ping
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import io.mockk.coVerify
@@ -37,6 +39,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.DurationUnit
@@ -47,67 +50,73 @@ import kotlin.time.toDuration
 class MessageComposerViewModelTest {
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() = runTest {
-        // Given
-        val (_, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .arrange()
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() =
+        runTest {
+            // Given
+            val (_, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
 
-        // When
-        viewModel.showDeleteMessageDialog("", true)
+            // When
+            viewModel.showDeleteMessageDialog("", true)
 
-        // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId)
-        )
-    }
-
-    @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() = runTest {
-        // Given
-        val (_, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .arrange()
-
-        // When
-        viewModel.showDeleteMessageDialog("", false)
-
-        // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
-    }
+            // Then
+            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Hidden,
+                forEveryone = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId)
+            )
+        }
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() = runTest {
-        // Given
-        val (_, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .arrange()
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() =
+        runTest {
+            // Given
+            val (_, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
 
-        // When
-        viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
+            // When
+            viewModel.showDeleteMessageDialog("", false)
 
-        // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
-    }
+            // Then
+            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
+                forEveryone = DeleteMessageDialogActiveState.Hidden
+            )
+        }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() =
+        runTest {
+            // Given
+            val (_, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
+
+            // When
+            viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
+
+            // Then
+            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
+                forEveryone = DeleteMessageDialogActiveState.Hidden
+            )
+        }
 
     @Test
     fun `validate deleteMessageDialogsState states when dialogs are dismissed`() {
         // Given
-        val (_, viewModel) = MessageComposerViewModelArrangement().arrange()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
 
         // When
         viewModel.deleteMessageHelper.onDeleteDialogDismissed()
 
         // Then
         viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden, forEveryone = DeleteMessageDialogActiveState.Hidden
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
 
@@ -131,107 +140,162 @@ class MessageComposerViewModelTest {
     }
 
     @Test
-    fun `given a failure, when deleting messages, then the delete dialog state is closed`() = runTest {
-        // Given
-        val (_, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withFailureOnDeletingMessages()
-            .arrange()
+    fun `given a failure, when deleting messages, then the delete dialog state is closed`() =
+        runTest {
+            // Given
+            val (_, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withFailureOnDeletingMessages()
+                .arrange()
 
-        viewModel.messageComposerViewState
-        // When
-        viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+            viewModel.messageComposerViewState
+            // When
+            viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
-        // Then
-        val expectedState = DeleteMessageDialogsState.States(
-            DeleteMessageDialogActiveState.Hidden,
-            DeleteMessageDialogActiveState.Hidden
-        )
-        assertEquals(expectedState, viewModel.deleteMessageDialogsState)
-    }
-
-    @Test
-    fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
-        // Given
-        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(false, limit)
-            .arrange()
-        val mockedAttachment = AssetBundle(
-            "file/x-zip", "Mocked-data-path".toPath(), 1L, "mocked_file.zip", AttachmentType.GENERIC_FILE
-        )
-
-        // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
-
-        // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-    }
+            // Then
+            val expectedState = DeleteMessageDialogsState.States(
+                DeleteMessageDialogActiveState.Hidden,
+                DeleteMessageDialogActiveState.Hidden
+            )
+            assertEquals(expectedState, viewModel.deleteMessageDialogsState)
+        }
 
     @Test
-    fun `given the user sends an image message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
-        // Given
-        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-        val assetPath = "mocked-asset-data-path".toPath()
-        val assetContent = "some-dummy-image".toByteArray()
-        val assetName = "mocked_image.jpeg"
-        val assetSize = 1L
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withStoredAsset(assetPath, assetContent)
-            .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(true, limit)
-            .arrange()
-        val mockedAttachment = AssetBundle(
-            "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE
-        )
+    fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .arrange()
+            val mockedAttachment = AssetBundle(
+                "file/x-zip",
+                "Mocked-data-path".toPath(),
+                1L,
+                "mocked_file.zip",
+                AttachmentType.GENERIC_FILE
+            )
 
-        // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+            // When
+            viewModel.sendAttachment(mockedAttachment)
 
-        // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    fun `given the user picks a null attachment, when invoking sendAttachmentMessage, no use case gets called`() = runTest {
-        // Given
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withSuccessfulSendAttachmentMessage()
-            .arrange()
-        val mockedAttachment = null
-
-        // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
-
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-    }
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
 
     @Test
-    fun `given a user picks an image asset larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() = runTest {
-        // Given
-        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-        val mockedAttachment = AssetBundle(
-            "image/jpeg", "some-data-path".toPath(), limit + 1L, "mocked_image.jpeg", AttachmentType.IMAGE
-        )
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(true, limit)
-            .withGetAssetBundleFromUri(mockedAttachment)
-            .arrange()
-        val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
+    fun `given the user sends an image message, when invoked, then sendAssetMessageUseCase gets called`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val assetPath = "mocked-asset-data-path".toPath()
+            val assetContent = "some-dummy-image".toByteArray()
+            val assetName = "mocked_image.jpeg"
+            val assetSize = 1L
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withStoredAsset(assetPath, assetContent)
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(true, limit)
+                .arrange()
+            val mockedAttachment = AssetBundle(
+                "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE
+            )
 
-        // When
-        viewModel.attachmentPicked(mockedUri)
+            // When
+            viewModel.sendAttachment(mockedAttachment)
 
-        // Then
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-        assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
-    }
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+
+    @Test
+    fun `given the user picks a null attachment, when invoking sendAttachmentMessage, no use case gets called`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .arrange()
+            val mockedAttachment = null
+
+            // When
+            viewModel.sendAttachment(mockedAttachment)
+
+            coVerify(inverse = true) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+
+    @Test
+    fun `given a user picks an image asset larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val mockedAttachment = AssetBundle(
+                "image/jpeg",
+                "some-data-path".toPath(),
+                limit + 1L,
+                "mocked_image.jpeg",
+                AttachmentType.IMAGE
+            )
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(true, limit)
+                .withGetAssetBundleFromUri(mockedAttachment)
+                .arrange()
+            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
+            )
+
+            // When
+            viewModel.sendMessage(mockedMessageBundle)
+
+            // Then
+            coVerify(inverse = true) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+        }
 
     @Test
     fun `given that a free user picks an asset larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
@@ -239,7 +303,11 @@ class MessageComposerViewModelTest {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
-                "file/x-zip", "some-data-path".toPath(), limit + 1L, "mocked_asset.zip", AttachmentType.GENERIC_FILE
+                "file/x-zip",
+                "some-data-path".toPath(),
+                limit + 1L,
+                "mocked_asset.zip",
+                AttachmentType.GENERIC_FILE
             )
             val (arrangement, viewModel) = MessageComposerViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -247,23 +315,39 @@ class MessageComposerViewModelTest {
                 .withGetAssetSizeLimitUseCase(false, limit)
                 .withGetAssetBundleFromUri(mockedAttachment)
                 .arrange()
-            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
+            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
+            )
 
             // When
-            viewModel.attachmentPicked(mockedUri)
+            viewModel.sendMessage(mockedMessageBundle)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+            coVerify(inverse = true) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
     @Test
-    fun `given that a user picks too large asset that heeds saving if invalid, when invoked, then saveToExternalMediaStorage is called`() =
+    fun `given that a user picks too large asset that needs saving if invalid, when invoked, then saveToExternalMediaStorage is called`() =
         runTest {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
-                "file/x-zip", "some-data-path".toPath(), limit + 1L, "mocked_asset.zip", AttachmentType.GENERIC_FILE
+                "file/x-zip",
+                "some-data-path".toPath(),
+                limit + 1L,
+                "mocked_asset.zip",
+                AttachmentType.GENERIC_FILE
             )
             val (arrangement, viewModel) = MessageComposerViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -272,15 +356,35 @@ class MessageComposerViewModelTest {
                 .withGetAssetBundleFromUri(mockedAttachment)
                 .withSaveToExternalMediaStorage("mocked_image.jpeg")
                 .arrange()
-            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
+            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                attachmentUri = UriAsset("mocked_image.jpeg".toUri(), true)
+            )
 
             // When
-            viewModel.attachmentPicked(mockedUri)
+            viewModel.sendMessage(mockedMessageBundle)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            coVerify { arrangement.fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) }
-            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+            coVerify(inverse = true) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            coVerify {
+                arrangement.fileManager.saveToExternalMediaStorage(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
     @Test
@@ -295,88 +399,130 @@ class MessageComposerViewModelTest {
                 .withGetAssetBundleFromUri(null)
                 .withSaveToExternalMediaStorage("mocked_image.jpeg")
                 .arrange()
-            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
+            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
+            )
 
             // When
             viewModel.infoMessage.test {
-                viewModel.attachmentPicked(mockedUri)
+                viewModel.sendMessage(mockedMessageBundle)
 
                 // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+                coVerify(inverse = true) {
+                    arrangement.sendAssetMessage.invoke(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
                 assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
             }
         }
 
     @Test
-    fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() = runTest {
-        // Given
-        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(false, limit)
-            .arrange()
-        val mockedAttachment = AssetBundle(
-            "file/x-zip", "some-data-path".toPath(), limit + 1, "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
-        )
+    fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .arrange()
+            val mockedAttachment = AssetBundle(
+                "file/x-zip",
+                "some-data-path".toPath(),
+                limit + 1,
+                "mocked_asset.jpeg",
+                AttachmentType.GENERIC_FILE
+            )
 
-        // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+            // When
+            viewModel.sendAttachment(mockedAttachment)
 
-        // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-        assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
-    }
-
-    @Test
-    fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() = runTest {
-        // Given
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .arrange()
-
-        // When
-        viewModel.sendPing()
-
-        // Then
-        coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
-        verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
-    }
-
-    @Test
-    fun `given that a user updates the self-deleting message timer, when invoked, then the timer gets successfully updated`() = runTest {
-        // Given
-        val expectedDuration = 1.toDuration(DurationUnit.HOURS)
-        val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withPersistSelfDeletionStatus()
-            .arrange()
-
-        // When
-        viewModel.updateSelfDeletingMessages(expectedTimer)
-
-        // Then
-        coVerify(exactly = 1) { arrangement.persistSelfDeletionStatus.invoke(arrangement.conversationId, expectedTimer) }
-        assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
-        assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
-    }
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
+        }
 
     @Test
-    fun `given a valid observed enforced self-deleting message timer, when invoked, then the timer gets successfully updated`() = runTest {
-        // Given
-        val expectedDuration = 1.toDuration(DurationUnit.DAYS)
-        val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withObserveSelfDeletingStatus(expectedTimer)
-            .arrange()
+    fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
 
-        // When
+            // When
+            viewModel.sendMessage(
+                messageBundle = Ping
+            )
 
-        // Then
-        coVerify(exactly = 1) { arrangement.observeConversationSelfDeletionStatus.invoke(arrangement.conversationId, true) }
-        assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
-        assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
-    }
+            // Then
+            coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
+            verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
+        }
+
+    @Test
+    fun `given that a user updates the self-deleting message timer, when invoked, then the timer gets successfully updated`() =
+        runTest {
+            // Given
+            val expectedDuration = 1.toDuration(DurationUnit.HOURS)
+            val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withPersistSelfDeletionStatus()
+                .arrange()
+
+            // When
+            viewModel.updateSelfDeletingMessages(expectedTimer)
+
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.persistSelfDeletionStatus.invoke(
+                    arrangement.conversationId,
+                    expectedTimer
+                )
+            }
+            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
+            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
+        }
+
+    @Test
+    fun `given a valid observed enforced self-deleting message timer, when invoked, then the timer gets successfully updated`() =
+        runTest {
+            // Given
+            val expectedDuration = 1.toDuration(DurationUnit.DAYS)
+            val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withObserveSelfDeletingStatus(expectedTimer)
+                .arrange()
+
+            // When
+
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.observeConversationSelfDeletionStatus.invoke(
+                    arrangement.conversationId,
+                    true
+                )
+            }
+            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
+            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
+        }
 }

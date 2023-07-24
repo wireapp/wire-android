@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.settings.backup.dialog.create
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +37,8 @@ fun CreateBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
     onCreateBackup: (String) -> Unit,
-    onSaveBackup: () -> Unit,
+    onSaveBackup: (Uri) -> Unit,
+    onShareBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit
 ) {
     val backupDialogStateHolder = rememberBackUpDialogState()
@@ -48,18 +50,20 @@ fun CreateBackupDialogFlow(
                     isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
                     onCreateBackup = { password ->
-                        toCreateBackup()
+                        toCreatingBackup()
                         onCreateBackup(password)
                     },
                     onDismissDialog = onCancelCreateBackup
                 )
             }
 
-            BackUpDialogStep.CreatingBackup -> {
+            is BackUpDialogStep.CreatingBackup,
+            is BackUpDialogStep.Finished -> {
                 CreateBackupStep(
                     backUpAndRestoreState = backUpAndRestoreState,
                     backupDialogStateHolder = backupDialogStateHolder,
                     onSaveBackup = onSaveBackup,
+                    onShareBackup = onShareBackup,
                     onCancelCreateBackup = onCancelCreateBackup
                 )
             }
@@ -74,7 +78,7 @@ fun CreateBackupDialogFlow(
         }
     }
 
-    BackHandler(backupDialogStateHolder.currentBackupDialogStep != BackUpDialogStep.CreatingBackup) {
+    BackHandler(backupDialogStateHolder.currentBackupDialogStep !is BackUpDialogStep.CreatingBackup) {
         onCancelCreateBackup()
     }
 }
@@ -83,17 +87,16 @@ fun CreateBackupDialogFlow(
 private fun CreateBackupStep(
     backUpAndRestoreState: BackupAndRestoreState,
     backupDialogStateHolder: CreateBackupDialogStateHolder,
-    onSaveBackup: () -> Unit,
+    onSaveBackup: (Uri) -> Unit,
+    onShareBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit
 ) {
     with(backupDialogStateHolder) {
         LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
             when (val progress = backUpAndRestoreState.backupCreationProgress) {
                 BackupCreationProgress.Failed -> toBackupFailure()
-                BackupCreationProgress.Finished -> toFinished()
-                is BackupCreationProgress.InProgress -> {
-                    backupProgress = progress.value
-                }
+                is BackupCreationProgress.Finished -> toFinished(progress.fileName)
+                is BackupCreationProgress.InProgress -> toCreatingBackup(progress.value)
             }
         }
 
@@ -101,6 +104,8 @@ private fun CreateBackupStep(
             isBackupCreationCompleted = isBackupFinished,
             createBackupProgress = backupProgress,
             onSaveBackup = onSaveBackup,
+            onShareBackup = onShareBackup,
+            backupFileName = backupFileName,
             onDismissDialog = onCancelCreateBackup
         )
     }

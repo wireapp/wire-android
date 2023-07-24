@@ -27,7 +27,11 @@ import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.conversation.ConversationProtocol
+import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -212,5 +216,98 @@ class ConversationInfoViewModelTest {
             assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
             cancel()
         }
+    }
+
+    @Test
+    fun `given a not-verified MLS conversation, then mlsVerificationStatus is not verified`() = runTest {
+        // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.MLS,
+            ConversationVerificationStatus.NOT_VERIFIED
+        )
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withVerificationStatus(result)
+            .withSelfUser()
+            .arrange()
+
+        // then
+        assertEquals(
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
+        )
+    }
+
+    @Test
+    fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
+        // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.MLS,
+            ConversationVerificationStatus.VERIFIED
+        )
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withVerificationStatus(result)
+            .withSelfUser()
+            .arrange()
+
+        // then
+        assertEquals(
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
+        )
+    }
+
+    @Test
+    fun `given a verified Proteus conversation, then proteusVerificationStatus is verified`() = runTest {
+        // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.PROTEUS,
+            ConversationVerificationStatus.VERIFIED
+        )
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withVerificationStatus(result)
+            .withSelfUser()
+            .arrange()
+
+        // then
+        assertEquals(
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
+        )
+    }
+
+    @Test
+    fun `given Failure while getting an MLS conversation's verification status, then mlsVerificationStatus is null`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withVerificationStatus(ConversationVerificationStatusResult.Failure(StorageFailure.DataNotFound))
+            .withSelfUser()
+            .arrange()
+
+        // then
+        assertEquals(
+            null,
+            viewModel.conversationInfoViewState.verificationStatus
+        )
+    }
+
+    @Test
+    fun `given a not-verified Proteus conversation, then proteusVerificationStatus is not verified`() = runTest {
+        // Given
+        val result = ConversationVerificationStatusResult.Success(
+            ConversationProtocol.PROTEUS,
+            ConversationVerificationStatus.NOT_VERIFIED
+        )
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withVerificationStatus(
+                result
+            )
+            .withSelfUser()
+            .arrange()
+
+        // then
+        assertEquals(
+            result,
+            viewModel.conversationInfoViewState.verificationStatus
+        )
     }
 }

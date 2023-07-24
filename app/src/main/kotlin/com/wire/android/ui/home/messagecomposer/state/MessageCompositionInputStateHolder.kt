@@ -26,6 +26,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
@@ -159,6 +161,9 @@ sealed class MessageCompositionType {
     @Composable
     open fun backgroundColor(): Color = colorsScheme().messageComposerBackgroundColor
 
+    @Composable
+    open fun labelText(): String = stringResource(R.string.label_type_a_message)
+
     class Composing(messageCompositionState: MutableState<MessageComposition>, val messageType: State<MessageType>) :
         MessageCompositionType() {
 
@@ -176,6 +181,13 @@ sealed class MessageCompositionType {
             )
         } else {
             super.inputTextColor()
+        }
+
+        @Composable
+        override fun labelText(): String = if (messageType.value is MessageType.SelfDeleting) {
+            stringResource(id = R.string.self_deleting_message_label)
+        } else {
+            super.labelText()
         }
     }
 

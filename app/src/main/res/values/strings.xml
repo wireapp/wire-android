@@ -582,6 +582,7 @@
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group as the backend of %2$s could not be reached.</string>
+    <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>

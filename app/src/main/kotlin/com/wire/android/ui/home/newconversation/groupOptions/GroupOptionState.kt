@@ -35,6 +35,5 @@ data class GroupOptionState(
         data class ConflictedBackends(val domains: List<String>) : Error
 
         val isConflictedBackends get() = this is ConflictedBackends
-
     }
 }

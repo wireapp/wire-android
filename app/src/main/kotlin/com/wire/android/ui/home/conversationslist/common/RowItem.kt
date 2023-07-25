@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -48,7 +49,7 @@ fun RowItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
-                .height(MaterialTheme.wireDimensions.conversationItemRowHeight)
+                .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationItemRowHeight)
                 .fillMaxWidth()
                 .clickable(clickable)
         ) {

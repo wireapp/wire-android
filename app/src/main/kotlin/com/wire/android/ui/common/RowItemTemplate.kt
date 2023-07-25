@@ -23,6 +23,7 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun RowItemTemplate(
         leadingIcon()
         Column(
             modifier = Modifier
-                .weight(1f)
+//                .weight(1f)
                 .padding(start = dimensions().spacing8x)
         ) {
             title()
@@ -54,7 +55,7 @@ fun RowItemTemplate(
         }
         Box(
             modifier = Modifier
-                .wrapContentWidth()
+                .wrapContentSize()
                 .padding(horizontal = dimensions().spacing8x)
         ) {
             actions()

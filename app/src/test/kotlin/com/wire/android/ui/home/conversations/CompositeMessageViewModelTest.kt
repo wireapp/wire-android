@@ -29,8 +29,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -43,7 +41,7 @@ class CompositeMessageViewModelTest {
         // Arrange
         val (arrangement, viewModel) = Arrangement().arrange()
         val buttonId = "buttonId"
-        viewModel.pendingButtonId  = buttonId
+        viewModel.pendingButtonId = buttonId
 
         // Act
         viewModel.onButtonClicked(buttonId)
@@ -78,7 +76,6 @@ class CompositeMessageViewModelTest {
     private companion object {
         const val CONVERSION_ID_STRING = "some-dummy-value@some.dummy.domain"
         const val MESSAGE_ID = "message-id"
-
     }
 
     private class Arrangement {

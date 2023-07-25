@@ -39,7 +39,7 @@ fun TextMessageEditMenuItems(
         if (!isUploading) {
             if (!isEphemeral && !isComposite) add { ReactionOption(onReactionClick) }
             add { MessageDetailsMenuOption(onDetailsClick) }
-            onCopyClick?.also {  add { CopyItemMenuOption(it) } }
+            onCopyClick?.also { add { CopyItemMenuOption(it) } }
             if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
             if (!isEphemeral && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
         }

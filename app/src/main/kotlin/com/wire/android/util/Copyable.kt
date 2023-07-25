@@ -19,7 +19,11 @@ package com.wire.android.util
 
 import android.content.res.Resources
 
-
+/**
+ * Interface for classes that can be copied to the clipboard.
+ * @see [TextMessageEditMenuItems]
+ * if a UIMessage implement this interface the copy option will be displayed in the edit menu.
+ */
 interface Copyable {
     fun textToCopy(resources: Resources): String?
 }

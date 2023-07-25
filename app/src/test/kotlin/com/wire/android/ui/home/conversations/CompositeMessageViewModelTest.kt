@@ -44,7 +44,7 @@ class CompositeMessageViewModelTest {
         viewModel.pendingButtonId = buttonId
 
         // Act
-        viewModel.onButtonClicked(buttonId)
+        viewModel.sendButtonActionMessage(buttonId)
         advanceUntilIdle()
 
         // Assert
@@ -63,7 +63,7 @@ class CompositeMessageViewModelTest {
         val buttonId = "buttonId"
 
         // Act
-        viewModel.onButtonClicked(buttonId)
+        viewModel.sendButtonActionMessage(buttonId)
         advanceUntilIdle()
         assertNull(viewModel.pendingButtonId)
 

@@ -137,7 +137,7 @@ fun MessageButtonsContent(
             MessageButtonItem(
                 pendingButtonId = viewModel.pendingButtonId,
                 button = button,
-                onClick = viewModel::onButtonClicked
+                doButtonAction = viewModel::sendButtonActionMessage
             )
             if (index != buttonList.lastIndex) {
                 Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
@@ -151,16 +151,16 @@ fun MessageButtonsContent(
 fun MessageButtonItem(
     button: MessageButton,
     pendingButtonId: MessageButtonId?,
-    onClick: ((buttonId: String) -> Unit)?
+    doButtonAction: ((buttonId: String) -> Unit)
 ) {
     val onCLick = remember(button.isSelected) {
-        onClick?.let {
+        doButtonAction.let {
             if (!button.isSelected) {
-                { onClick(button.id) }
+                { doButtonAction(button.id) }
             } else {
                 { }
             }
-        } ?: { }
+        }
     }
 
     val isPending = remember(pendingButtonId) {

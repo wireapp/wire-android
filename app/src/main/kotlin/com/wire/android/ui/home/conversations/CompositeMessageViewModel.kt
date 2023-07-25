@@ -51,7 +51,7 @@ class CompositeMessageViewModel @Inject constructor(
         @VisibleForTesting
         set
 
-    fun onButtonClicked(buttonId: String) {
+    fun sendButtonActionMessage(buttonId: String) {
         if (pendingButtonId != null) return
 
         pendingButtonId = buttonId

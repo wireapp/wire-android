@@ -123,7 +123,6 @@ fun LibraryItemPreview() {
                 " Mauris convallis arcu non tellus facilisis ullamcorper." +
                 " Morbi massa turpis, vulputate sit amet urna eget, scelerisque efficitur neque." +
                 " Nam rutrum, ante eu aliquam elementum, urna neque fermentum leo, vel commodo lectus purus et nulla." +
-                " In laoreet sem viverra orci pulvinar ultricies. Fusce porta ultrices ipsum eget convallis." +
-                " Pellentesque ac elementum nibh, scelerisque pharetra orci. Proin fermentum, purus non egestas feugiat, nibh justo imperdiet risus, non scelerisque velit felis eu nisl. "
+                " In laoreet sem viverra orci pulvinar ultricies. Fusce porta ultrices ipsum eget convallis."
     ) {}
 }

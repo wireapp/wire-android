@@ -29,23 +29,24 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-class CompositeMessagesViewModelTest {
+class CompositeMessageViewModelTest {
 
     @Test
     fun `given pending button, when button is clicked, then do Nothing`() = runTest {
         // Arrange
         val (arrangement, viewModel) = Arrangement().arrange()
-        val messageId = "messageId"
         val buttonId = "buttonId"
-        viewModel.pendingButtons[messageId] = buttonId
+        viewModel.pendingButtonId  = buttonId
 
         // Act
-        viewModel.onButtonClicked(messageId, buttonId)
+        viewModel.onButtonClicked(buttonId)
         advanceUntilIdle()
 
         // Assert
@@ -60,13 +61,13 @@ class CompositeMessagesViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withButtonActionMessage(SendButtonActionMessageUseCase.Result.Success)
             .arrange()
-        val messageId = "messageId"
+
         val buttonId = "buttonId"
 
         // Act
-        viewModel.onButtonClicked(messageId, buttonId)
+        viewModel.onButtonClicked(buttonId)
         advanceUntilIdle()
-        assertFalse(viewModel.pendingButtons.containsKey(messageId))
+        assertNull(viewModel.pendingButtonId)
 
         // Assert
         coVerify(exactly = 1) {
@@ -76,6 +77,8 @@ class CompositeMessagesViewModelTest {
 
     private companion object {
         const val CONVERSION_ID_STRING = "some-dummy-value@some.dummy.domain"
+        const val MESSAGE_ID = "message-id"
+
     }
 
     private class Arrangement {
@@ -90,9 +93,10 @@ class CompositeMessagesViewModelTest {
         init {
             MockKAnnotations.init(this)
             every { savedStateHandle.get<String>(any()) } returns CONVERSION_ID_STRING
+            every { savedStateHandle.get<String>(any()) } returns MESSAGE_ID
         }
 
-        private val viewModel = CompositeMessagesViewModel(sendButtonActionMessage, qualifiedIdMapper, savedStateHandle)
+        private val viewModel = CompositeMessageViewModel(sendButtonActionMessage, qualifiedIdMapper, savedStateHandle)
 
         fun withButtonActionMessage(
             result: SendButtonActionMessageUseCase.Result

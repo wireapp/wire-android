@@ -135,7 +135,7 @@ fun MessageButtonsContent(
         for (index in buttonList.indices) {
             val button = buttonList[index]
             MessageButtonItem(
-                pendingButtonId = viewModel.pendingButtons,
+                pendingButtonId = viewModel.pendingButtonId,
                 button = button,
                 onClick = viewModel::onButtonClicked
             )

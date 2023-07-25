@@ -47,18 +47,18 @@ class CompositeMessageViewModel @Inject constructor(
 
     private val messageId: String = savedStateHandle.get<String>(EXTRA_MESSAGE_ID)!!
 
-    var pendingButtons: MessageButtonId? by mutableStateOf(null)
+    var pendingButtonId: MessageButtonId? by mutableStateOf(null)
         @VisibleForTesting
         set
 
     fun onButtonClicked(buttonId: String) {
-        if (pendingButtons != null) return
+        if (pendingButtonId != null) return
 
-        pendingButtons = buttonId
+        pendingButtonId = buttonId
         viewModelScope.launch {
             sendButtonActionMessageUseCase(conversationId, messageId, buttonId)
         }.invokeOnCompletion {
-            pendingButtons = null
+            pendingButtonId = null
         }
     }
 

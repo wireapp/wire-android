@@ -47,7 +47,7 @@ fun RowItemTemplate(
         leadingIcon()
         Column(
             modifier = Modifier
-//                .weight(1f)
+                .weight(1f)
                 .padding(start = dimensions().spacing8x)
         ) {
             title()
@@ -55,7 +55,7 @@ fun RowItemTemplate(
         }
         Box(
             modifier = Modifier
-                .wrapContentSize()
+                .wrapContentWidth()
                 .padding(horizontal = dimensions().spacing8x)
         ) {
             actions()

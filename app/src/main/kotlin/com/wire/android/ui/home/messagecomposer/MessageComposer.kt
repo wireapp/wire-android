@@ -55,7 +55,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -106,15 +108,30 @@ fun MessageComposer(
         val securityClassificationType = messageComposerViewState.value.securityClassificationType
 
         when (messageComposerViewState.value.interactionAvailability) {
-            InteractionAvailability.BLOCKED_USER -> DisabledInteractionMessageComposer(
-                securityClassificationType = securityClassificationType,
-                warningText = R.string.label_system_message_blocked_user,
-                messageListContent = messageListContent
-            )
+            InteractionAvailability.BLOCKED_USER -> {
+                DisabledInteractionMessageComposer(
+                    securityClassificationType = securityClassificationType,
+                    warningText = LocalContext.current.resources.stringWithStyledArgs(
+                        R.string.label_system_message_user_not_available,
+                        MaterialTheme.wireTypography.body01,
+                        MaterialTheme.wireTypography.body02,
+                        colorsScheme().secondaryText,
+                        colorsScheme().onBackground,
+                    ),
+                    messageListContent = messageListContent
+                )
+            }
 
             InteractionAvailability.DELETED_USER -> DisabledInteractionMessageComposer(
                 securityClassificationType = securityClassificationType,
-                warningText = R.string.label_system_message_user_not_available,
+                warningText = LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.label_system_message_blocked_user,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    colorsScheme().secondaryText,
+                    colorsScheme().onBackground,
+                    stringResource(id = R.string.member_name_you_label_titlecase)
+                ),
                 messageListContent = messageListContent
             )
 
@@ -149,10 +166,10 @@ fun MessageComposer(
     }
 }
 
+
 @Composable
 private fun DisabledInteractionMessageComposer(
-    @StringRes
-    warningText: Int? = null,
+    warningText: AnnotatedString?,
     messageListContent: @Composable () -> Unit,
     securityClassificationType: SecurityClassificationType,
 ) {
@@ -191,13 +208,7 @@ private fun DisabledInteractionMessageComposer(
                             .size(dimensions().spacing12x)
                     )
                     Text(
-                        text = LocalContext.current.resources.stringWithStyledArgs(
-                            warningText,
-                            MaterialTheme.wireTypography.body01,
-                            MaterialTheme.wireTypography.body02,
-                            colorsScheme().secondaryText,
-                            colorsScheme().onBackground,
-                        ),
+                        text = warningText,
                         style = MaterialTheme.wireTypography.body01,
                         maxLines = 1,
                         modifier = Modifier

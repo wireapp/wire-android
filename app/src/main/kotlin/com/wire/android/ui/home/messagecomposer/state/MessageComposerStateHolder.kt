@@ -54,6 +54,7 @@ fun rememberMessageComposerStateHolder(
             messageComposerViewState.value.selfDeletionTimer
         }
     }
+
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageComposition = messageCompositionHolder.messageComposition,
@@ -95,7 +96,6 @@ class MessageComposerStateHolder(
     val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
-
     val isTransitionToKeyboardOnGoing
         @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
                 !KeyboardHelper.isKeyboardVisible() &&

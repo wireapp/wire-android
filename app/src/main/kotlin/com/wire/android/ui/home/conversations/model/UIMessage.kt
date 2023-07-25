@@ -31,6 +31,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
@@ -65,8 +66,8 @@ sealed interface UIMessage {
         override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
-        || messageContent is UIMessageContent.ImageMessage
-        || messageContent is UIMessageContent.AudioAssetMessage
+                || messageContent is UIMessageContent.ImageMessage
+                || messageContent is UIMessageContent.AudioAssetMessage
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
     }
 
@@ -402,6 +403,12 @@ sealed class UIMessageContent {
         ) {
             val usersCount = memberNames.values.flatten().size
         }
+
+        data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
+            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+            else R.drawable.ic_conversation_degraded_proteus,
+            R.string.label_system_message_conversation_degraded
+        )
     }
 }
 

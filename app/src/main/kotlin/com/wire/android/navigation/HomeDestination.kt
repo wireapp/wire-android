@@ -115,8 +115,7 @@ sealed class HomeDestination(
         val bottomTabItems = listOf<HomeDestination>()
 
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
-        private val map: Map<String, HomeDestination> = values().associateBy { it.direction.route }
-        fun fromRoute(fullRoute: String): HomeDestination? = map[fullRoute.getPrimaryRoute()]
+        fun fromRoute(fullRoute: String): HomeDestination? = values().find { it.direction.route == fullRoute.getPrimaryRoute() }
         fun values(): Array<HomeDestination> =
             arrayOf(Conversations, Calls, Mentions, Settings, Vault, Archive, Support, GiveFeedback, ReportBug)
     }

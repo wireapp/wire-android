@@ -22,24 +22,27 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,12 +51,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -75,7 +81,9 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSta
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.KeyboardHeight
+import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -98,19 +106,23 @@ fun MessageComposer(
         val securityClassificationType = messageComposerViewState.value.securityClassificationType
 
         when (messageComposerViewState.value.interactionAvailability) {
-            InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(
-                securityClassificationType = securityClassificationType
+            InteractionAvailability.BLOCKED_USER -> DisabledInteractionMessageComposer(
+                securityClassificationType = securityClassificationType,
+                warningText = R.string.label_system_message_blocked_user,
+                messageListContent = messageListContent
             )
 
-            InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(
-                securityClassificationType = securityClassificationType
+            InteractionAvailability.DELETED_USER -> DisabledInteractionMessageComposer(
+                securityClassificationType = securityClassificationType,
+                warningText = R.string.label_system_message_user_not_available,
+                messageListContent = messageListContent
             )
 
-            InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
-                MessageComposerClassifiedBanner(
-                    securityClassificationType = securityClassificationType,
-                    paddingValues = PaddingValues(vertical = dimensions().spacing16x)
-                )
+            InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> DisabledInteractionMessageComposer(
+                securityClassificationType = securityClassificationType,
+                warningText = null,
+                messageListContent = messageListContent
+            )
 
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
@@ -133,6 +145,68 @@ fun MessageComposer(
                     tempWritableImageUri = tempWritableImageUri
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun DisabledInteractionMessageComposer(
+    @StringRes
+    warningText: Int? = null,
+    messageListContent: @Composable () -> Unit,
+    securityClassificationType: SecurityClassificationType,
+) {
+    Surface(color = colorsScheme().messageComposerBackgroundColor) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            val fillRemainingSpaceBetweenMessageListContentAndMessageComposer = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+
+            Box(
+                Modifier
+                    .background(color = colorsScheme().backgroundVariant)
+                    .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
+            ) {
+                messageListContent()
+            }
+            if (warningText != null) {
+                Divider(color = MaterialTheme.wireColorScheme.outline)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = colorsScheme().backgroundVariant)
+                        .padding(dimensions().spacing16x)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_conversation),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing8x)
+                            .size(dimensions().spacing12x)
+                    )
+                    Text(
+                        text = LocalContext.current.resources.stringWithStyledArgs(
+                            warningText,
+                            MaterialTheme.wireTypography.body01,
+                            MaterialTheme.wireTypography.body02,
+                            colorsScheme().secondaryText,
+                            colorsScheme().onBackground,
+                        ),
+                        style = MaterialTheme.wireTypography.body01,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .weight(weight = 1f, fill = false)
+                            .padding(start = dimensions().spacing16x)
+                    )
+                }
+            }
+            MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
         }
     }
 }
@@ -454,7 +528,8 @@ private fun ActiveMessageComposer(
 
             BackHandler {
                 if (additionalOptionStateHolder
-                    .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+                        .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
+                ) {
                     onTransitionToInActive()
                 }
             }

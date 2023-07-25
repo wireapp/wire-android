@@ -66,8 +66,7 @@ fun PreviewMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -96,8 +95,7 @@ fun PreviewMessageWithReactions() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -137,8 +135,7 @@ fun PreviewMessageWithReply() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -168,8 +165,7 @@ fun PreviewDeletedMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -200,8 +196,7 @@ fun PreviewFailedSendMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -232,8 +227,7 @@ fun PreviewFailedDecryptionMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -254,8 +248,7 @@ fun PreviewAssetMessageWithReactions() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -344,8 +337,7 @@ fun PreviewImageMessageUploaded() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -366,8 +358,7 @@ fun PreviewImageMessageUploading() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -394,8 +385,7 @@ fun PreviewImageMessageFailedUpload() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -417,8 +407,7 @@ fun PreviewMessageWithSystemMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = { },
-                conversationDetailsData = ConversationDetailsData.None,
-                onMessageButtonClicked = { _, _ -> }
+                conversationDetailsData = ConversationDetailsData.None
             )
             SystemMessageItem(
                 mockMessageWithKnock.copy(
@@ -462,8 +451,7 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None,
-            onMessageButtonClicked = { _, _ -> }
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }
@@ -485,8 +473,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
-                conversationDetailsData = ConversationDetailsData.None,
-                onMessageButtonClicked = { _, _ -> }
+                conversationDetailsData = ConversationDetailsData.None
             )
             MessageItem(
                 message = mockMessageWithText.copy(
@@ -508,8 +495,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
-                conversationDetailsData = ConversationDetailsData.None,
-                onMessageButtonClicked = { _, _ -> }
+                conversationDetailsData = ConversationDetailsData.None
             )
             MessageItem(
                 message = mockMessageWithText.copy(
@@ -531,8 +517,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
-                conversationDetailsData = ConversationDetailsData.None,
-                onMessageButtonClicked = { _, _ -> }
+                conversationDetailsData = ConversationDetailsData.None
             )
         }
     }

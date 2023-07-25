@@ -40,11 +40,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
+import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.EXTRA_MESSAGE_ID
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
@@ -80,9 +84,7 @@ internal fun MessageBody(
     isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    buttonList: List<MessageButton>?,
-    pendingButton: String?,
-    onButtonClick: ((messageId: String, buttonId: String) -> Unit)?
+    buttonList: List<MessageButton>?
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
@@ -110,8 +112,6 @@ internal fun MessageBody(
         MessageButtonsContent(
             messageId = messageId,
             buttonList = it,
-            onClick = onButtonClick,
-            pendingButton = pendingButton
         )
     }
 }
@@ -119,10 +119,14 @@ internal fun MessageBody(
 @Composable
 fun MessageButtonsContent(
     messageId: String,
-    pendingButton: String?,
     buttonList: List<MessageButton>,
-    onClick: ((messageId: String, buttonId: String) -> Unit)?
 ) {
+    val viewModel = hiltViewModelScoped<CompositeMessageViewModel>(
+        key = "${CompositeMessageViewModel.ARGS_KEY}$messageId",
+        defaultArguments = bundleOf(
+            EXTRA_MESSAGE_ID to messageId,
+        )
+    )
     Column(
         modifier = Modifier
             .wrapContentSize()
@@ -131,10 +135,9 @@ fun MessageButtonsContent(
         for (index in buttonList.indices) {
             val button = buttonList[index]
             MessageButtonItem(
-                messageId = messageId,
-                pendingButtonId = pendingButton,
+                pendingButtonId = viewModel.pendingButtons,
                 button = button,
-                onClick = onClick
+                onClick = viewModel::onButtonClicked
             )
             if (index != buttonList.lastIndex) {
                 Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
@@ -146,15 +149,14 @@ fun MessageButtonsContent(
 @SuppressLint("RememberReturnType")
 @Composable
 fun MessageButtonItem(
-    messageId: String,
     button: MessageButton,
     pendingButtonId: MessageButtonId?,
-    onClick: ((messageId: String, buttonId: String) -> Unit)?
+    onClick: ((buttonId: String) -> Unit)?
 ) {
     val onCLick = remember(button.isSelected) {
         onClick?.let {
             if (!button.isSelected) {
-                { onClick(messageId, button.id) }
+                { onClick(button.id) }
             } else {
                 { }
             }

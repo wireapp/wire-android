@@ -119,7 +119,6 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    compositeMessagesViewModel: CompositeMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
@@ -220,7 +219,6 @@ fun ConversationScreen(
         onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
-        compositeMessagesViewModel = compositeMessagesViewModel
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -307,7 +305,6 @@ private fun ConversationScreen(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
-    compositeMessagesViewModel: CompositeMessagesViewModel,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
@@ -425,8 +422,6 @@ private fun ConversationScreen(
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     snackBarHostState = conversationScreenState.snackBarHostState,
-                    onMessageButtonClicked = compositeMessagesViewModel::onButtonClicked,
-                    pendingButtonsMap = compositeMessagesViewModel.pendingButtons,
                 )
             }
             MenuModalSheetLayout(
@@ -465,8 +460,6 @@ private fun ConversationScreenContent(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
-    onMessageButtonClicked: (messageId: String, buttonId: String) -> Unit,
-    pendingButtonsMap: Map<String, String>,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     snackBarHostState: SnackbarHostState
@@ -499,8 +492,6 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onMessageButtonClicked = onMessageButtonClicked,
-                pendingButtonsMap = pendingButtonsMap
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -581,8 +572,6 @@ fun MessageList(
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
-    onMessageButtonClicked: (messageId: String, buttonId: String) -> Unit,
-    pendingButtonsMap: Map<String, String>
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -639,8 +628,6 @@ fun MessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                         onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onMessageButtonClicked = onMessageButtonClicked,
-                        pendingButtonsMap = pendingButtonsMap
                     )
                 }
 
@@ -713,7 +700,6 @@ fun PreviewConversationScreen() {
         tempWritableVideoUri = null,
         onFailedMessageRetryClicked = {},
         requestMentions = {},
-        onClearMentionSearchResult = {},
-        compositeMessagesViewModel = hiltViewModel()
+        onClearMentionSearchResult = {}
     )
 }

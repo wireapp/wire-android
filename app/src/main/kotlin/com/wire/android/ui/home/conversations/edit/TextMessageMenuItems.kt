@@ -27,19 +27,20 @@ import com.wire.android.ui.edit.ReplyMessageOption
 fun TextMessageEditMenuItems(
     isEphemeral: Boolean,
     isUploading: Boolean,
+    isComposite: Boolean,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onReplyClick: () -> Unit,
-    onCopyClick: () -> Unit,
+    onCopyClick: (() -> Unit)?,
     onReactionClick: (String) -> Unit,
     onEditClick: (() -> Unit)? = null
 ): List<@Composable () -> Unit> {
     return buildList {
         if (!isUploading) {
-            if (!isEphemeral) add { ReactionOption(onReactionClick) }
+            if (!isEphemeral && !isComposite) add { ReactionOption(onReactionClick) }
             add { MessageDetailsMenuOption(onDetailsClick) }
-            if (!isEphemeral) add { CopyItemMenuOption(onCopyClick) }
-            if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
+            onCopyClick?.also {  add { CopyItemMenuOption(it) } }
+            if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
             if (!isEphemeral && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
         }
         add { DeleteItemMenuOption(onDeleteClick) }

@@ -18,13 +18,15 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.EXTRA_MESSAGE_ID
 import com.wire.kalium.logic.data.id.MessageButtonId
-import com.wire.kalium.logic.data.id.MessageId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
@@ -33,28 +35,34 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CompositeMessagesViewModel @Inject constructor(
+class CompositeMessageViewModel @Inject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
     qualifiedIdMapper: QualifiedIdMapper,
     savedStateHandle: SavedStateHandle,
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel() {
 
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
-    var pendingButtons = mutableStateMapOf<MessageId, MessageButtonId>()
+    private val messageId: String = savedStateHandle.get<String>(EXTRA_MESSAGE_ID)!!
+
+    var pendingButtons: MessageButtonId? by mutableStateOf(null)
         @VisibleForTesting
         set
 
-    fun onButtonClicked(messageId: String, buttonId: String) {
-        if (pendingButtons.containsKey(messageId)) return
+    fun onButtonClicked(buttonId: String) {
+        if (pendingButtons != null) return
 
-        pendingButtons[messageId] = buttonId
+        pendingButtons = buttonId
         viewModelScope.launch {
             sendButtonActionMessageUseCase(conversationId, messageId, buttonId)
         }.invokeOnCompletion {
-            pendingButtons.remove(messageId)
+            pendingButtons = null
         }
+    }
+
+    companion object {
+        const val ARGS_KEY = "CompositeMessageViewModelKey"
     }
 }

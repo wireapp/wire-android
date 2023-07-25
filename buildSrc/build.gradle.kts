@@ -23,10 +23,10 @@ private object Dependencies {
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.0"
     const val junit = "junit:junit:4.13"
     const val kluent = "org.amshove.kluent:kluent:1.73"
-    const val hilt = "com.google.dagger:hilt-android-gradle-plugin:2.47"
     const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.1.2"
     const val junit5 = "de.mannodermaus.gradle.plugins:android-junit5:1.9.3.0"
     const val grgit = "org.ajoberstar.grgit:grgit-core:5.2.0"
+    const val javapoet = "com.squareup:javapoet:1.13.0"
 }
 
 plugins {
@@ -47,10 +47,10 @@ dependencies {
     implementation(Dependencies.kotlinGradlePlugin)
     implementation(Dependencies.detektGradlePlugin)
     implementation(Dependencies.spotless)
-    implementation(Dependencies.hilt)
     implementation(Dependencies.junit5)
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.kluent)
     implementation(Dependencies.grgit)
+    implementation(Dependencies.javapoet) // https://github.com/google/dagger/issues/3068
 }

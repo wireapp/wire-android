@@ -94,52 +94,60 @@ fun SettingsItem(
     )
 }
 
-enum class SettingsItem(val id: String, val title: UIText, val direction: Direction) {
-    AppSettings(
+sealed class SettingsItem(val direction: Direction, val id: String, val title: UIText) {
+    data object AppSettings : SettingsItem(
         id = "general_app_settings",
         title = UIText.StringResource(R.string.app_settings_screen_title),
         direction = AppSettingsScreenDestination
-    ),
-    YourAccount(
+    )
+
+    data object YourAccount : SettingsItem(
         id = "your_account_settings",
         title = UIText.StringResource(R.string.settings_your_account_label),
         direction = MyAccountScreenDestination
-    ),
-    NetworkSettings(
+    )
+
+    data object NetworkSettings : SettingsItem(
         id = "network_settings",
         title = UIText.StringResource(R.string.settings_network_settings_label),
         direction = NetworkSettingsScreenDestination
-    ),
-    ManageDevices(
+    )
+
+    data object ManageDevices : SettingsItem(
         id = "manage_devices",
         title = UIText.StringResource(R.string.settings_manage_devices_label),
         direction = SelfDevicesScreenDestination
-    ),
-    PrivacySettings(
+    )
+
+    data object PrivacySettings : SettingsItem(
         id = "privacy_settings",
         title = UIText.StringResource(R.string.settings_privacy_settings_label),
         direction = PrivacySettingsConfigScreenDestination
-    ),
-    Licenses(
+    )
+
+    data object Licenses : SettingsItem(
         id = "other_licenses",
         title = UIText.StringResource(R.string.settings_licenses_settings_label),
         direction = LicensesScreenDestination
-    ),
-    BackupAndRestore(
+    )
+
+    data object BackupAndRestore : SettingsItem(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),
         direction = BackupAndRestoreScreenDestination
-    ),
-    Support(
+    )
+
+    data object Support : SettingsItem(
         id = "other_support",
         title = UIText.StringResource(R.string.support_screen_title),
         direction = SupportScreenDestination
-    ),
-    DebugSettings(
+    )
+
+    data object DebugSettings : SettingsItem(
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
         direction = DebugScreenDestination
-    );
+    )
 }
 
 @PreviewMultipleThemes

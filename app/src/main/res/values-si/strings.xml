@@ -298,23 +298,23 @@
     <string name="create_personal_account_summary_title">පෞද්. ගිණුම සෑදිණි</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
     <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
-    <string name="create_personal_account_details_text">Enter your personal details:</string>
+    <string name="create_personal_account_details_text">ඔබගේ විස්තර යොදන්න:</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
     <string name="create_team_title">කණ්ඩායමක් සාදන්න</string>
     <string name="create_team_summary_title">කණ්ඩායම සෑදිණි</string>
     <string name="create_team_content_title">නොමිලේ වයර්</string>
     <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
-    <string name="create_team_learn_more">Learn more about plans and pricing</string>
-    <string name="create_team_email_text">Enter your email to create your team:</string>
-    <string name="create_team_details_text">Enter your email to create your team:</string>
+    <string name="create_team_learn_more">සැලසුම් හා මිලකරණය ගැන තව දැනගන්න</string>
+    <string name="create_team_email_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
+    <string name="create_team_details_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
     <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
     <string name="create_account_email_placeholder">කසුන්@නිදසුන.ලංකා</string>
     <string name="create_account_email_label">වි-තැපෑල</string>
     <string name="create_account_email_footer_text">දැනටමත් ගිණුමක් තිබේද? </string>
     <string name="create_account_email_terms_dialog_title">භාවිත නියම</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
-    <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
-    <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
+    <string name="create_account_email_terms_dialog_view_policy">භා.නි. හා රහස්‍යතා ප්‍රතිපත්තිය බලන්න</string>
+    <string name="create_account_email_already_in_use_error">වි-තැපෑල දැනටමත් භාවිතයේ ඇත.</string>
     <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
@@ -322,7 +322,7 @@
     <string name="create_account_details_first_name_label">මුල් නම</string>
     <string name="create_account_details_last_name_placeholder">කසුන්</string>
     <string name="create_account_details_last_name_label">අග නම</string>
-    <string name="create_account_details_team_name_placeholder">Team Awesome</string>
+    <string name="create_account_details_team_name_placeholder">කණ්ඩායම කදිමයි</string>
     <string name="create_account_details_team_name_label">කණ්ඩායමේ නම</string>
     <string name="create_account_details_password_description">කුඩා අකුරක්, ලොකු අකුරක්, අංකයක් සහ විශේෂ අකුරක් සමඟ, අවම වශයෙන් අකුරු 8 ක් භාවිතා කරන්න.</string>
     <string name="create_account_details_password_error">මුරපදය වලංගු නොවේ</string>
@@ -376,7 +376,7 @@
     <string name="asset_message_downloaded_internally_text">බාගත වී ඇත</string>
     <string name="asset_message_saved_externally_text">සුරැකිණි</string>
     <string name="asset_message_failed_download_text">ගොනුව නොතිබේ</string>
-    <string name="asset_message_failed_upload_text">File upload failed</string>
+    <string name="asset_message_failed_upload_text">ගොනුව උඩුගත නොවිණි</string>
     <string name="asset_download_dialog_text">Do you want to open the file or save it to your
         device\'s download folder?
  </string>
@@ -447,7 +447,7 @@
     <string name="user_profile_close_description">පරිශ්‍රීලක පැතිකඩ වසන්න</string>
     <string name="user_profile_logout">නික්මෙන්න</string>
     <string name="user_profile_other_accs">ඔබගේ වෙනත් ගිණුම්</string>
-    <string name="user_profile_status_availability">Availability</string>
+    <string name="user_profile_status_availability">තත්‍වය</string>
     <string name="user_profile_status_available">සිටිනවා</string>
     <string name="user_profile_status_busy">කාර්යබහුලයි</string>
     <string name="user_profile_status_away">නොසිටියි</string>
@@ -460,7 +460,7 @@
     <string name="user_profile_group_role">භූමිකාව</string>
     <string name="user_profile_role_in_group">”%s” හි භූමිකාව</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
-    <string name="user_profile_unblock_user">Unblock User</string>
+    <string name="user_profile_unblock_user">අනවහිර කරන්න</string>
     <string name="user_profile_group_remove_button">සමූහයෙන් ඉවත් කරන්න</string>
     <string name="user_profile_logging_out_progress">නික්මෙමින්...</string>
     <!-- Remove Conversation Member Dialog -->
@@ -513,8 +513,8 @@
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
-    <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
-    <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>
+    <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
+    <string name="conversation_banner_federated_externals_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_guests_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, අමුත්තන් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ අමුත්තන් සිටියි</string>
@@ -544,10 +544,10 @@
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
     <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
     <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
-    <string name="label_system_message_user_not_available">This user is no longer available</string>
-    <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
-    <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
+    <string name="label_system_message_user_not_available">මෙම පරිශ්‍රීලකයා තවදුරටත් නැත</string>
+    <string name="label_system_message_new_conversation_receipt_mode">කියවූ බවට ලදුපත් %1$s</string>
+    <string name="label_system_message_read_receipt_changed_by_self">%1$s සැමට කියවූ බටව ලදුපත් %2$s කළා</string>
+    <string name="label_system_message_read_receipt_changed_by_other">%1$s සැමට කියවූ බටව ලදුපත් %2$s කළා</string>
     <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
     <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
     <string name="label_system_message_activated">සක්‍රියයි</string>
@@ -796,7 +796,7 @@
     <string name="read_receipts_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
     <string name="disable_guests_dialog_title">අමුත්තන්ට ඉඩ නොදේ ද?</string>
     <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
-    <string name="disable_guests_dialog_button">Not Allow Guests</string>
+    <string name="disable_guests_dialog_button">අමුත්තන්ට ඉඩ නොදෙන්න</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">අවහිර කරන්නද?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. They will not be notified about this.</string>
@@ -956,7 +956,7 @@
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">ඉබේ මැකෙන පණිවිඩ</string>
-    <string name="self_deleting_messages_option">Enforce message deletion</string>
+    <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
     <!-- guest room link -->
@@ -1008,17 +1008,17 @@
     <string name="title_video_could_not_be_sent">දෘශ්‍යකය යැවීමට නොහැකි විය</string>
     <string name="title_image_could_not_be_sent">ඡායාරූපය යැවීමට නොහැකි විය</string>
     <string name="title_file_could_not_be_sent">ගොනුව යැවීමට නොහැකි විය</string>
-    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
-    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
-    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
-    <string name="label_file_saved_to_device">The file was saved to your device.</string>
+    <string name="label_shared_video_too_large">උපරිම මෙ.බ. %d ක දෘශ්‍යකයක් යැවීමට හැකිය.</string>
+    <string name="label_shared_image_too_large">උපරිම මෙ.බ. %d ක රූපයක් යැවීමට හැකිය.</string>
+    <string name="label_shared_file_too_large">උපරිම මෙ.බ. %d ක ගොනුවක් යැවීමට හැකිය.</string>
+    <string name="label_file_saved_to_device">ගොනුව ඔබගේ උපාංගයට සුරකින ලදි.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">ඉබේ මැකෙන පණිවිඩය • %1$s</string>
     <string name="self_deleting_message_label">ඉබේ මැකෙන පණිවිඩය</string>
     <string name="self_deleting_messages_team_setting_disabled">පණිවිඩ ස්වයං මැකීම අබලයි.</string>
     <string name="self_deleting_messages_team_setting_enabled">ඉබේ මැකෙන පණිවිඩ සබලයි. පණිවිඩයක් ලිවීමට පෙර කාලය සැකසීමට හැකිය.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">ඉබේ මැකෙන පණිවිඩ දැන් අනිවාර්යයි. නව පණිවිඩ %1$s කට පසු ඉබේ මැකෙනු ඇත.</string>
-    <string name="automatically_delete_message_after">Automatically delete message after:</string>
+    <string name="automatically_delete_message_after">මෙයින් පසුව පණිවිඩය මකන්න:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
@@ -1072,11 +1072,11 @@
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
+    <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
     <string name="notification_obfuscated_message">යමෙක් පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
     <string name="settings_myaccount_logout">ගිණුම මකන්න</string>
-    <string name="app_not_found_for_action">No Application has been found to do Action</string>
+    <string name="app_not_found_for_action">ක්‍රියාමාර්ගය සඳහා සුදුසු යෙදුමක් හමු නොවිණි</string>
     <string name="delete_acount_dialog_title">ගිණුම මකන්න</string>
     <string name="delete_acount_dialog_text">ඉදිරියට ගියහොත්, අපි වි-තැපෑලෙන් පණිවිඩයක් එවන්නෙමු. ඔබගේ ගිණුම සදහටම මකා දැමීමට සබැඳිය අනුගමනය කරන්න.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>

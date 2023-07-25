@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.to
 import com.wire.android.util.formatFullDateShortTime
 import com.wire.android.util.orDefault
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
@@ -61,6 +62,8 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
         is MessageContent.ConversationCreated -> mapConversationCreated(message.senderUserId, message.date, members)
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
+        is MessageContent.ConversationDegradedMLS -> mapConversationDegraded(Conversation.Protocol.MLS)
+        is MessageContent.ConversationDegradedProteus -> mapConversationDegraded(Conversation.Protocol.PROTEUS)
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -241,6 +244,9 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
     private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.MLSWrongEpochWarning()
+    private fun mapConversationDegraded(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationDegraded(protocol)
+
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
         is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is SelfUser -> when (type) {

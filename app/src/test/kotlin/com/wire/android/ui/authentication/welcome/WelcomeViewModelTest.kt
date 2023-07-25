@@ -36,6 +36,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -70,7 +71,7 @@ class WelcomeViewModelTest {
     @Test
     fun `given a navigation, when it's go to login, then should emit NavigationCommand login`() = runTest {
         welcomeViewModel.goToLogin()
-
+        advanceUntilIdle()
         coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs())) }
     }
 
@@ -78,6 +79,7 @@ class WelcomeViewModelTest {
     fun `given a navigation, when it's go to create private account, then should emit NavigationCommand create personal account`() =
         runTest {
             welcomeViewModel.goToCreatePrivateAccount()
+            advanceUntilIdle()
 
             coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs())) }
         }
@@ -85,6 +87,7 @@ class WelcomeViewModelTest {
     @Test
     fun `given a navigation, when it's go to create enterprise account, then should emit NavigationCommand create team`() = runTest {
         welcomeViewModel.goToCreateEnterpriseAccount()
+        advanceUntilIdle()
 
         coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs())) }
     }
@@ -92,6 +95,7 @@ class WelcomeViewModelTest {
     @Test
     fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() = runTest {
         welcomeViewModel.navigateBack()
+        advanceUntilIdle()
 
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }

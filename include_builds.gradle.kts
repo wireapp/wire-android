@@ -15,12 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.model
-
-import com.wire.android.ui.home.messagecomposer.model.UiMention
-
-data class SendMessageBundle(
-    val message: String,
-    val mentions: List<UiMention>,
-    val quotedMessageId: String?
-)
+includeBuild("kalium") {
+    // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
+    dependencySubstitution {
+        substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
+        substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
+    }
+}

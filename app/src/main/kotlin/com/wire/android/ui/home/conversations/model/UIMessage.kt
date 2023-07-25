@@ -27,10 +27,11 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
@@ -43,37 +44,41 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
-sealed class UIMessage(
-    open val header: MessageHeader,
-    open val source: MessageSource
-) {
+sealed interface UIMessage {
+    val header: MessageHeader
+    val source: MessageSource
+    val messageContent: UIMessageContent?
+    val sendingFailed: Boolean
+    val decryptionFailed: Boolean
+    val isPending: Boolean
 
     data class Regular(
         override val header: MessageHeader,
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
-        val messageContent: UIMessageContent.Regular?,
+        override val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
-    ) : UIMessage(header, source) {
+    ) : UIMessage {
         val isDeleted: Boolean = header.messageStatus.isDeleted
-        val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
-        val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
-        val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
+        override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
-        || messageContent is UIMessageContent.ImageMessage
-        || messageContent is UIMessageContent.AudioAssetMessage
+                || messageContent is UIMessageContent.ImageMessage
+                || messageContent is UIMessageContent.AudioAssetMessage
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
     }
 
     data class System(
         override val header: MessageHeader,
         override val source: MessageSource,
-        val messageContent: UIMessageContent.SystemMessage
-    ) : UIMessage(header, source) {
-        val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
-        val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val messageContent: UIMessageContent.SystemMessage
+    ) : UIMessage {
+        override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
         val singleUserAddFailed: Boolean =
             messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
@@ -155,10 +160,11 @@ sealed class MessageFlowStatus {
     data class Read(val count: Int) : MessageFlowStatus()
 }
 
+@Stable
 data class MessageStatus(
     val flowStatus: MessageFlowStatus,
+    val expirationStatus: ExpirationStatus,
     val editStatus: MessageEditStatus = MessageEditStatus.NonEdited,
-    val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable,
     val isDeleted: Boolean = false
 ) {
 
@@ -397,6 +403,12 @@ sealed class UIMessageContent {
         ) {
             val usersCount = memberNames.values.flatten().size
         }
+
+        data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
+            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+            else R.drawable.ic_conversation_degraded_proteus,
+            R.string.label_system_message_conversation_degraded
+        )
     }
 }
 

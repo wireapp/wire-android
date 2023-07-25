@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.sync
 
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
@@ -21,38 +22,22 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class FeatureFlagNotificationViewModelTest {
 
-    private val mainThreadSurrogate = StandardTestDispatcher()
-
-    @BeforeEach
-    fun setUp() {
-        Dispatchers.setMain(mainThreadSurrogate)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun givenNoCurrentUser_thenSharingRestricted() = runTest(mainThreadSurrogate) {
+    fun givenNoCurrentUser_thenSharingRestricted() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
@@ -66,7 +51,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest(mainThreadSurrogate) {
+    fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
@@ -81,7 +66,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest(mainThreadSurrogate) {
+    fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
@@ -99,7 +84,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest(mainThreadSurrogate) {
+    fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
@@ -114,7 +99,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenSelfDeletionDialogIsShown_whenDismissingIt_thenInvokeMarkSelfDeletionStatusAsNotified() = runTest(mainThreadSurrogate) {
+    fun givenSelfDeletionDialogIsShown_whenDismissingIt_thenInvokeMarkSelfDeletionStatusAsNotified() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .arrange()
@@ -128,7 +113,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenE2EIRequired_thenShowDialog() = runTest(mainThreadSurrogate) {
+    fun givenE2EIRequired_thenShowDialog() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod)
             .arrange()
@@ -139,7 +124,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenE2EIRequiredDialogShown_whenSnoozeCalled_thenItSnoozedAndDialogShown() = runTest(mainThreadSurrogate) {
+    fun givenE2EIRequiredDialogShown_whenSnoozeCalled_thenItSnoozedAndDialogShown() = runTest {
         val gracePeriod = 1.days
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))
@@ -156,7 +141,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenSnoozeE2EIRequiredDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest(mainThreadSurrogate) {
+    fun givenSnoozeE2EIRequiredDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
         val gracePeriod = 1.days
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))

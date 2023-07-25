@@ -85,33 +85,10 @@ class MessageMapper @Inject constructor(
         )
 
         val footer = if (message is Message.Regular) {
-            // TODO find ugly and proper heart emoji and merge them to ugly one 😅
-            val totalHeartsCount = message.reactions.totalReactions
-                .filterKeys { isHeart(it) }.values
-                .sum()
-
-            val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
-
             MessageFooter(
                 message.id,
-                message.reactions.totalReactions
-                    .filter { !isHeart(it.key) }
-                    .run {
-                        if (totalHeartsCount != 0) {
-                            plus("❤" to totalHeartsCount)
-                        } else {
-                            this
-                        }
-                    },
+                message.reactions.totalReactions,
                 message.reactions.selfUserReactions
-                    .filter { isHeart(it) }.toSet()
-                    .run {
-                        if (hasSelfHeart) {
-                            plus("❤")
-                        } else {
-                            this
-                        }
-                    }
             )
         } else {
             MessageFooter(message.id)
@@ -145,8 +122,8 @@ class MessageMapper @Inject constructor(
         }
     }
 
-    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
-        val expirationData = (message as? Message.Regular)?.expirationData
+    private fun provideExpirationData(message: Message): ExpirationStatus {
+        val expirationData = message.expirationData
         return if (expirationData == null) {
             ExpirationStatus.NotExpirable
         } else {

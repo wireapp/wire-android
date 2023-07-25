@@ -21,9 +21,11 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestClient
@@ -34,7 +36,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -59,6 +60,8 @@ import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
+import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -78,9 +81,11 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {
 
     @Test
@@ -135,7 +140,7 @@ class WireActivityViewModelTest {
 
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
     }
 
     @Test
@@ -149,7 +154,7 @@ class WireActivityViewModelTest {
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
     }
 
     @Test
@@ -158,13 +163,14 @@ class WireActivityViewModelTest {
             .withNoCurrentSession()
             .withMigrationRequired()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
 
         assertEquals(NavigationItem.Migration.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-        assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
+        assertEquals(null, viewModel.globalAppState.customBackendDialog)
     }
 
     @Test
@@ -638,6 +644,46 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) { arrangement.clearNewClientsForUser(USER_ID) }
     }
 
+    @Test
+    fun `given session and screenshot censoring disabled, when observing it, then set state to false`() = runTest {
+            val (_, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
+                .arrange()
+            advanceUntilIdle()
+            assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+        }
+
+    @Test
+    fun `given session and screenshot censoring enabled by user, when observing it, then set state to true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given session and screenshot censoring enforced by team, when observing it, then set state to true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given no session, when observing screenshot censoring, then set state to false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -655,6 +701,10 @@ class WireActivityViewModelTest {
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
             coEvery { observeNewClients() } returns flowOf()
+            every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
+                    observeScreenshotCensoringConfigUseCase
+            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         }
 
         @MockK
@@ -672,8 +722,7 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
 
-        @MockK
-        private lateinit var authServerConfigProvider: AuthServerConfigProvider
+        var authServerConfigProvider: AuthServerConfigProvider = AuthServerConfigProvider()
 
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase
@@ -705,6 +754,12 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var currentScreenManager: CurrentScreenManager
 
+        @MockK
+        private lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
+
+        @MockK
+        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -723,6 +778,7 @@ class WireActivityViewModelTest {
                 observeNewClients = observeNewClients,
                 clearNewClientsForUser = clearNewClientsForUser,
                 currentScreenManager = currentScreenManager,
+                observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory
             )
         }
 
@@ -733,6 +789,7 @@ class WireActivityViewModelTest {
 
         fun withNoCurrentSession(): Arrangement {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Failure.SessionNotFound)
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
             return this
         }
 
@@ -803,6 +860,10 @@ class WireActivityViewModelTest {
 
         fun withCurrentScreen(currentScreenFlow: StateFlow<CurrentScreen>) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
+        }
+
+        suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {
+            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

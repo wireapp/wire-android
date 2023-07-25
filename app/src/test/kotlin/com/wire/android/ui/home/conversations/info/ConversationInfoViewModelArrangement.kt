@@ -27,9 +27,13 @@ import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ConversationProtocol
+import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
+import com.wire.kalium.logic.feature.conversation.GetConversationVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -40,7 +44,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-
 
 class ConversationInfoViewModelArrangement {
 
@@ -66,6 +69,9 @@ class ConversationInfoViewModelArrangement {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var getConversationVerificationStatus: GetConversationVerificationStatusUseCase
+
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper,
@@ -74,7 +80,8 @@ class ConversationInfoViewModelArrangement {
             observeConversationDetails,
             observerSelfUser,
             wireSessionImageLoader,
-            TestDispatcherProvider()
+            TestDispatcherProvider(),
+            getConversationVerificationStatus
         )
     }
 
@@ -88,6 +95,10 @@ class ConversationInfoViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
+        coEvery { getConversationVerificationStatus(any()) } returns ConversationVerificationStatusResult.Success(
+            ConversationProtocol.PROTEUS,
+            ConversationVerificationStatus.NOT_VERIFIED
+        )
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
@@ -99,6 +110,10 @@ class ConversationInfoViewModelArrangement {
 
     suspend fun withSelfUser() = apply {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
+    }
+
+    suspend fun withVerificationStatus(result: ConversationVerificationStatusResult) = apply {
+        coEvery { getConversationVerificationStatus(any()) } returns result
     }
 
     fun arrange() = this to viewModel

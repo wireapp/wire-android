@@ -46,6 +46,8 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
+import com.wire.kalium.logic.feature.conversation.GetConversationVerificationStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,7 +55,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationInfoViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
@@ -62,7 +64,8 @@ class ConversationInfoViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
@@ -74,8 +77,18 @@ class ConversationInfoViewModel @Inject constructor(
     private lateinit var selfUserId: UserId
 
     init {
+        getSelfUserId()
+    }
+
+    private fun getSelfUserId() {
         viewModelScope.launch {
             selfUserId = observerSelfUser().first().id
+        }
+        viewModelScope.launch {
+            val result = getConversationVerificationStatus(conversationId)
+            if (result is ConversationVerificationStatusResult.Success) {
+                conversationInfoViewState = conversationInfoViewState.copy(verificationStatus = result)
+            }
         }
     }
 
@@ -114,6 +127,7 @@ class ConversationInfoViewModel @Inject constructor(
                     navigateToHome()
                 }
             }
+
             is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
         }
     }
@@ -122,6 +136,7 @@ class ConversationInfoViewModel @Inject constructor(
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+
             else -> false to false
         }
 

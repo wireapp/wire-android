@@ -21,12 +21,13 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 
 data class LoginState(
     val userIdentifier: TextFieldValue = TextFieldValue(""),
     val userIdentifierEnabled: Boolean = true,
     val password: TextFieldValue = TextFieldValue(""),
-    val ssoCode: TextFieldValue = TextFieldValue(""),
+    val userInput: TextFieldValue = TextFieldValue(""),
     val proxyIdentifier: TextFieldValue = TextFieldValue(""),
     val proxyPassword: TextFieldValue = TextFieldValue(""),
     val ssoLoginLoading: Boolean = false,
@@ -35,7 +36,8 @@ data class LoginState(
     val emailLoginEnabled: Boolean = false,
     val isProxyAuthRequired: Boolean = false,
     val loginError: LoginError = LoginError.None,
-    val isProxyEnabled: Boolean = false
+    val isProxyEnabled: Boolean = false,
+    val customServerDialogState: CustomServerDialogState? = null,
 )
 
 fun LoginState.updateEmailLoginEnabled() =
@@ -45,4 +47,4 @@ fun LoginState.updateEmailLoginEnabled() =
     )
 
 fun LoginState.updateSSOLoginEnabled() =
-    copy(ssoLoginEnabled = ssoCode.text.isNotEmpty() && !ssoLoginLoading)
+    copy(ssoLoginEnabled = userInput.text.isNotEmpty() && !ssoLoginLoading)

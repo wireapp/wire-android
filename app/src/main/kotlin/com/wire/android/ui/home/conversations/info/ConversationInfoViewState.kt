@@ -27,13 +27,15 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 
 data class ConversationInfoViewState(
     val conversationName: UIText = UIText.DynamicString(""),
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
-    val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE
+    val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
+    val verificationStatus: ConversationVerificationStatusResult.Success? = null,
 )
 
 sealed class ConversationDetailsData {

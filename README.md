@@ -27,11 +27,11 @@ These differences are:
 - the open source project does not include the API keys of 3rd party services.
 - the open source project links against the open source Wire audio-video-signaling (AVS) library. The binary Play Store client links against an AVS version that contains proprietary improvements for the call quality.
 
-## Prerequisites
+## Required software
 
-In order to build Wire for Android locally, it is necessary to install the following tools on the local machine:
+In order to build Wire for Android locally, it is necessary to have the following tools installed:
 
-- JDK 11
+- JDK 17
 - Android SDK
 - Android NDK
 

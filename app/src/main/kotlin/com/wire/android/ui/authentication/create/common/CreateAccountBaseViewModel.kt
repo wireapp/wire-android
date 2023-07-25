@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -42,6 +43,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -64,7 +66,7 @@ abstract class CreateAccountBaseViewModel(
     private val navigationManager: NavigationManager,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    private val authScope: AutoVersionAuthScopeUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -129,10 +131,12 @@ abstract class CreateAccountBaseViewModel(
                         emailState = emailState.copy(showServerVersionNotSupportedDialog = true)
                         return@launch
                     }
+
                     is FetchApiVersionResult.Failure.TooNewVersion -> {
                         emailState = emailState.copy(showClientUpdateDialog = true)
                         return@launch
                     }
+
                     is FetchApiVersionResult.Failure.Generic -> {
                         return@launch
                     }
@@ -157,7 +161,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -165,10 +169,12 @@ abstract class CreateAccountBaseViewModel(
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
@@ -223,8 +229,10 @@ abstract class CreateAccountBaseViewModel(
             val detailsError = when {
                 !validatePasswordUseCase(detailsState.password.text) ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
+
                 detailsState.password.text != detailsState.confirmPassword.text ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError
+
                 else -> CreateAccountDetailsViewState.DetailsError.None
             }
             detailsState = detailsState.copy(
@@ -251,7 +259,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -259,10 +267,12 @@ abstract class CreateAccountBaseViewModel(
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
@@ -278,7 +288,7 @@ abstract class CreateAccountBaseViewModel(
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -286,10 +296,12 @@ abstract class CreateAccountBaseViewModel(
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
@@ -304,6 +316,7 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
+
                     is RegisterResult.Success -> it
                 }
             }
@@ -319,6 +332,7 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
+
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
@@ -328,6 +342,7 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
+
                     is RegisterClientResult.Success -> {
                         onCodeSuccess()
                     }
@@ -345,6 +360,7 @@ abstract class CreateAccountBaseViewModel(
                 email = emailState.email.text.trim().lowercase(),
                 emailActivationCode = codeState.code.text.text
             )
+
         CreateAccountFlowType.CreateTeam ->
             RegisterParam.Team(
                 firstName = detailsState.firstName.text.trim(),
@@ -360,7 +376,6 @@ abstract class CreateAccountBaseViewModel(
     private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.CodeError) {
         codeState = if (codeError is CreateAccountCodeViewState.CodeError.None) {
             codeState.copy(error = codeError)
-
         } else {
             codeState.copy(loading = false, error = codeError)
         }
@@ -421,6 +436,7 @@ private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
     is RegisterClientResult.Failure.InvalidCredentials ->
         throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")
+
     is RegisterClientResult.Failure.PasswordAuthRequired ->
         throw WillNeverOccurError("RegisterClient: password required to register client after creating new account with email")
 }
@@ -439,5 +455,6 @@ private fun RegisterResult.Failure.toCodeError() = when (this) {
 private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
         CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists
 }

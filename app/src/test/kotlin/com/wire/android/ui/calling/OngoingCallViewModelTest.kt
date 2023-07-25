@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -39,11 +40,15 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.extension.ExtendWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
 
     @MockK

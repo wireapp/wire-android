@@ -332,7 +332,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 jobs.add(job)
             }
             jobs.joinAll()
-            onSent(conversation.conversationId)
+            withContext(dispatchers.main()) {
+                onSent(conversation.conversationId)
+            }
         }
     }
 

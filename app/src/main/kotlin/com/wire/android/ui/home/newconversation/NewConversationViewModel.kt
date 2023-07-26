@@ -155,12 +155,12 @@ class NewConversationViewModel @Inject constructor(
                 createGroupForTeamAccounts(true, onCreated)
             } else {
                 // Personal Account
-                createGroupForPersonalAccounts()
+                createGroupForPersonalAccounts(onCreated)
             }
         }
     }
 
-    private fun createGroupForPersonalAccounts() {
+    private fun createGroupForPersonalAccounts(onCreated: (ConversationId) -> Unit) {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
@@ -173,7 +173,7 @@ class NewConversationViewModel @Inject constructor(
                     access = Conversation.defaultGroupAccess
                 )
             )
-            handleNewGroupCreationResult(result)
+            handleNewGroupCreationResult(result)?.let(onCreated)
         }
     }
 

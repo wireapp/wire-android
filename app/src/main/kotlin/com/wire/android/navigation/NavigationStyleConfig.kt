@@ -20,11 +20,12 @@
 
 package com.wire.android.navigation
 
-import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.ramcosta.composedestinations.spec.DestinationStyleAnimated
 
 enum class ScreenMode {
     KEEP_ON, // keep screen on while that NavigationItem is visible (i.e CallScreen)
@@ -45,9 +46,9 @@ object KeepOnScreenPopUpNavigationAnimation : PopUpDestinationStyleAnimated, Scr
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-private interface PopUpDestinationStyleAnimated : DestinationStyle.Animated {
-    override fun AnimatedContentScope.enterTransition() = expandInToView()
-    override fun AnimatedContentScope.exitTransition() = shrinkOutFromView()
+private interface PopUpDestinationStyleAnimated : DestinationStyleAnimated {
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() = expandInToView()
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() = shrinkOutFromView()
 }
 
 @OptIn(ExperimentalAnimationApi::class)

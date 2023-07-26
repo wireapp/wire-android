@@ -35,8 +35,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,16 +56,19 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.DialogErrorStrings
+import com.wire.android.util.DialogAnnotatedErrorStrings
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -84,6 +91,11 @@ fun GroupOptionScreen(
         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
         onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
         onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
+        onEditParticipantsClick = {
+            newConversationViewModel.onGroupOptionsErrorDismiss()
+            navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+        },
+        onDiscardGroupCreationClick = newConversationViewModel::onDiscardGroupCreationClick,
         onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
     )
 }
@@ -99,6 +111,8 @@ fun GroupOptionScreenContent(
     onNotAllowGuestsClicked: () -> Unit,
     onAllowGuestsClicked: () -> Unit,
     onErrorDismissed: () -> Unit,
+    onEditParticipantsClick: () -> Unit,
+    onDiscardGroupCreationClick: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     with(groupOptionState) {
@@ -119,7 +133,7 @@ fun GroupOptionScreenContent(
         }
 
         error?.let {
-            ErrorDialog(it, onErrorDismissed)
+            ErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
         }
         if (showAllowGuestsDialog) {
             AllowGuestsDialog(onAllowGuestsDialogDismissed, onNotAllowGuestsClicked, onAllowGuestsClicked)
@@ -232,7 +246,9 @@ private fun GroupOptionState.ContinueButton(
         loading = isLoading,
         trailingIcon = if (isLoading) null else Icons.Filled.ChevronRight.Icon(),
         state = if (continueEnabled && !isLoading) WireButtonState.Default else WireButtonState.Disabled,
-        modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.wireDimensions.spacing16x)
     )
 }
 
@@ -263,25 +279,80 @@ private fun AllowGuestsDialog(
 }
 
 @Composable
-private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> Unit) {
+private fun ErrorDialog(
+    error: GroupOptionState.Error,
+    onDismiss: () -> Unit,
+    onAccept: () -> Unit,
+    onCancel: () -> Unit
+) {
     val dialogStrings = when (error) {
-        is GroupOptionState.Error.LackingConnection -> DialogErrorStrings(
+        is GroupOptionState.Error.LackingConnection -> DialogAnnotatedErrorStrings(
             stringResource(R.string.error_no_network_title),
-            stringResource(R.string.error_no_network_message)
+            buildAnnotatedString { append(stringResource(R.string.error_no_network_message)) }
         )
 
-        is GroupOptionState.Error.Unknown -> DialogErrorStrings(
+        is GroupOptionState.Error.Unknown -> DialogAnnotatedErrorStrings(
             stringResource(R.string.error_unknown_title),
-            stringResource(R.string.error_unknown_message)
+            buildAnnotatedString { append(stringResource(R.string.error_unknown_message)) }
+        )
+
+        is GroupOptionState.Error.ConflictedBackends -> DialogAnnotatedErrorStrings(
+            title = stringResource(id = R.string.group_can_not_be_created_title),
+            annotatedMessage = buildAnnotatedString {
+                val description = stringResource(
+                    id = R.string.group_can_not_be_created_federation_conflict_description,
+                    error.domains.dropLast(1).joinToString(", "),
+                    error.domains.last()
+                )
+                val learnMore = stringResource(id = R.string.label_learn_more)
+
+                append(description)
+                append(' ')
+
+                withStyle(
+                    style = SpanStyle(
+                        color = colorsScheme().primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(learnMore)
+                }
+                addStringAnnotation(
+                    tag = MarkdownConstants.TAG_URL,
+                    annotation = stringResource(id = R.string.url_support),
+                    start = description.length + 1,
+                    end = description.length + 1 + learnMore.length
+                )
+            }
         )
     }
+
     WireDialog(
-        dialogStrings.title, dialogStrings.message,
-        onDismiss = onErrorDismissed,
+        dialogStrings.title,
+        dialogStrings.annotatedMessage,
+        onDismiss = onDismiss,
+        buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onErrorDismissed,
-            text = stringResource(id = R.string.label_ok),
+            onClick = if (error.isConflictedBackends) onAccept else onDismiss,
+            text = stringResource(
+                id = if (error.isConflictedBackends) {
+                    R.string.group_can_not_be_created_edit_participiant_list
+                } else {
+                    R.string.label_ok
+                }
+            ),
             type = WireDialogButtonType.Primary,
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = onCancel,
+            text = stringResource(
+                id = if (error is GroupOptionState.Error.ConflictedBackends) {
+                    R.string.group_can_not_be_created_discard_group_creation
+                } else {
+                    R.string.label_ok
+                }
+            ),
+            type = WireDialogButtonType.Secondary,
         )
     )
 }
@@ -291,6 +362,6 @@ private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> U
 fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
-        {}, {}, {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

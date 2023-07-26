@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.markdown.MarkdownConsts.BULLET_MARK
+import com.wire.android.ui.markdown.MarkdownConstants.BULLET_MARK
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.BulletList
 import org.commonmark.node.Document

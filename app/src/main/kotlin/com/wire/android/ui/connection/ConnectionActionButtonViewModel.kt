@@ -29,8 +29,6 @@ import com.wire.android.appLogger
 import com.wire.android.model.ActionableState
 import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
-import com.wire.android.model.updateState
-import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -39,7 +37,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -61,7 +58,7 @@ import javax.inject.Inject
 
 interface ConnectionActionButtonViewModel {
 
-    fun actionableState(): ActionableState<ConnectionState>
+    fun actionableState(): ActionableState
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
@@ -86,27 +83,26 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
-    private val extraConnectionState: ConnectionState = ConnectionState.valueOf(savedStateHandle.get<String>(EXTRA_CONNECTION_STATE)!!)
 
-    private var state: ActionableState<ConnectionState> by mutableStateOf(ActionableState(extraConnectionState))
+    private var state: ActionableState by mutableStateOf(ActionableState())
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
-    override fun actionableState(): ActionableState<ConnectionState> = state
+    override fun actionableState(): ActionableState = state
 
     override fun onSendConnectionRequest() {
         viewModelScope.launch {
             state = state.performAction()
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
-                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                    appLogger.e(("Couldn't send a connection request to user ${userId.toLogString()}"))
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_error))
                 }
 
                 is SendConnectionRequestResult.Success -> {
-                    state = state.updateState(ConnectionState.SENT)
+                    state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
                 }
             }
@@ -118,13 +114,13 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             state = state.performAction()
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't cancel a connect request to user $userId"))
+                    appLogger.e(("Couldn't cancel a connection request to user ${userId.toLogString()}"))
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_cancel_error))
                 }
 
                 is CancelConnectionRequestUseCaseResult.Success -> {
-                    state = state.updateState(ConnectionState.NOT_CONNECTED)
+                    state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_canceled))
                 }
             }
@@ -136,13 +132,13 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             state = state.performAction()
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't accept a connect request to user $userId"))
+                    appLogger.e(("Couldn't accept a connection request to user ${userId.toLogString()}"))
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_accept_error))
                 }
 
                 is AcceptConnectionRequestUseCaseResult.Success -> {
-                    state = state.updateState(ConnectionState.ACCEPTED)
+                    state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_accepted))
                 }
             }
@@ -154,13 +150,13 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             state = state.performAction()
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't ignore a connect request to user $userId"))
+                    appLogger.e(("Couldn't ignore a connection request to user ${userId.toLogString()}"))
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
                 }
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = state.updateState(ConnectionState.IGNORED)
+                    state = state.finishAction()
                     onSuccess(userName)
                 }
             }
@@ -172,14 +168,14 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             state = state.performAction()
             when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 is UnblockUserResult.Failure -> {
-                    appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
+                    appLogger.e("Error while unblocking user ${userId.toLogString()} ; Error ${result.coreFailure}")
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.error_unblocking_user))
                 }
 
                 UnblockUserResult.Success -> {
-                    appLogger.i("User $userId was unblocked")
-                    state = state.updateState(ConnectionState.ACCEPTED)
+                    appLogger.i("User ${userId.toLogString()} was unblocked")
+                    state = state.finishAction()
                 }
             }
         }
@@ -205,8 +201,8 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 }
 
 @Suppress("EmptyFunctionBlock")
-class ConnectionActionButtonPreviewModel(private val state: ActionableState<ConnectionState>) : ConnectionActionButtonViewModel {
-    override fun actionableState(): ActionableState<ConnectionState> = state
+class ConnectionActionButtonPreviewModel(private val state: ActionableState) : ConnectionActionButtonViewModel {
+    override fun actionableState(): ActionableState = state
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}

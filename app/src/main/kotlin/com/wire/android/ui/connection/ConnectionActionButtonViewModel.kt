@@ -155,7 +155,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             state = state.performAction()
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't ignore a connect request to user ${userId.toLogString()}"))
+                    appLogger.e(("Couldn't ignore a connection request to user ${userId.toLogString()}"))
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
                 }

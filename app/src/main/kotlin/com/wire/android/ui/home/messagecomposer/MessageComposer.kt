@@ -22,7 +22,6 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -165,7 +164,6 @@ fun MessageComposer(
         }
     }
 }
-
 
 @Composable
 private fun DisabledInteractionMessageComposer(
@@ -539,7 +537,7 @@ private fun ActiveMessageComposer(
 
             BackHandler {
                 if (additionalOptionStateHolder
-                        .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
+                    .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
                 ) {
                     onTransitionToInActive()
                 }

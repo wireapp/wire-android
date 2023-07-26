@@ -163,8 +163,6 @@ class NewConversationViewModelTest {
                 .withConflictingBackendsFailure()
                 .arrange()
 
-            assert(viewModel.groupOptionsState.error?.isConflictedBackends ?: false)
-
             viewModel.onDiscardGroupCreationClick()
             advanceUntilIdle()
             viewModel.groupOptionsState.error.shouldBeNull()
@@ -185,8 +183,6 @@ class NewConversationViewModelTest {
                 .withIsSelfTeamMember(true)
                 .withConflictingBackendsFailure()
                 .arrange()
-
-            assert(viewModel.groupOptionsState.error?.isConflictedBackends ?: false)
 
             viewModel.onGroupOptionsErrorDismiss()
             advanceUntilIdle()

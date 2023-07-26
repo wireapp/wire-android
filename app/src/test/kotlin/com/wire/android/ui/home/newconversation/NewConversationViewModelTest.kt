@@ -160,11 +160,9 @@ class NewConversationViewModelTest {
         runTest {
             val (arrangement, viewModel) = NewConversationViewModelArrangement()
                 .withIsSelfTeamMember(true)
-                .withConflictingBackendsFailureOnCreatingGroup()
+                .withConflictingBackendsFailure()
                 .arrange()
 
-            viewModel.createGroup()
-            advanceUntilIdle()
             assert(viewModel.groupOptionsState.error?.isConflictedBackends ?: false)
 
             viewModel.onDiscardGroupCreationClick()
@@ -185,8 +183,10 @@ class NewConversationViewModelTest {
         runTest {
             val (_, viewModel) = NewConversationViewModelArrangement()
                 .withIsSelfTeamMember(true)
-                .withConflictingBackendsFailureOnCreatingGroup()
+                .withConflictingBackendsFailure()
                 .arrange()
+
+            assert(viewModel.groupOptionsState.error?.isConflictedBackends ?: false)
 
             viewModel.onGroupOptionsErrorDismiss()
             advanceUntilIdle()

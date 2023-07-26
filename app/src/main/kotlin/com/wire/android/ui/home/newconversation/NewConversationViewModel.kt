@@ -226,6 +226,10 @@ class NewConversationViewModel @Inject constructor(
                 appLogger.w("Error while creating a group ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.Unknown)
             }
+
+            is CreateGroupConversationUseCase.Result.BackendConflictFailure -> {
+                // TODO: handle this case
+            }
         }
     }
 

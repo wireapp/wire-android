@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations.model
 
-import android.annotation.SuppressLint
 import android.content.res.Resources
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -131,52 +130,33 @@ fun MessageButtonsContent(
         modifier = Modifier
             .wrapContentSize()
     ) {
-
         for (index in buttonList.indices) {
             val button = buttonList[index]
-            MessageButtonItem(
-                pendingButtonId = viewModel.pendingButtonId,
-                button = button,
-                doButtonAction = viewModel::sendButtonActionMessage
+            val onCLick = remember(button.isSelected) {
+                if (!button.isSelected) {
+                    { viewModel.sendButtonActionMessage(button.id) }
+                } else {
+                    { }
+                }
+            }
+
+            val isPending = viewModel.pendingButtonId == button.id
+
+            val state = if (button.isSelected) WireButtonState.Selected
+            else if (viewModel.pendingButtonId != null) WireButtonState.Disabled
+            else WireButtonState.Default
+
+            WireSecondaryButton(
+                loading = isPending,
+                text = button.text,
+                onClick = onCLick,
+                state = state
             )
             if (index != buttonList.lastIndex) {
                 Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
             }
         }
     }
-}
-
-@SuppressLint("RememberReturnType")
-@Composable
-fun MessageButtonItem(
-    button: MessageButton,
-    pendingButtonId: MessageButtonId?,
-    doButtonAction: ((buttonId: String) -> Unit)
-) {
-    val onCLick = remember(button.isSelected) {
-        doButtonAction.let {
-            if (!button.isSelected) {
-                { doButtonAction(button.id) }
-            } else {
-                { }
-            }
-        }
-    }
-
-    val isPending = remember(pendingButtonId) {
-        pendingButtonId == button.id
-    }
-
-    val state = if (button.isSelected) WireButtonState.Selected
-    else if (pendingButtonId != null) WireButtonState.Disabled
-    else WireButtonState.Default
-
-    WireSecondaryButton(
-        loading = isPending,
-        text = button.text,
-        onClick = onCLick,
-        state = state
-    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

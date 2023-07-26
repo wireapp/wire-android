@@ -230,6 +230,12 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
+    fun withConflictingBackendsFailureOnCreatingGroup() = apply {
+        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.BackendConflictFailure(
+            listOf("bella.wire.link", "foma.wire.link")
+        )
+    }
+
     fun withIsSelfTeamMember(result: Boolean) = apply {
         coEvery { isSelfTeamMember() } returns result
     }

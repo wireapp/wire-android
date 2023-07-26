@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.markdown
 
-object MarkdownConsts {
+object MarkdownConstants {
     const val TAG_URL = "linkTag"
     const val TAG_MENTION = "mentionTag"
     const val MENTION_MARK = "&&"

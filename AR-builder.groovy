@@ -404,6 +404,7 @@ pipeline {
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
                                     params.FLAVOR == 'Beta' &&
+                                    params.SOURCE_BRANCH == 'main' &&
                                     params.BUILD_TYPE == 'Release' &&
                                     params.CHANGE_ID == null
                         }
@@ -465,7 +466,7 @@ pipeline {
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
                                     params.FLAVOR == 'Internal' &&
-                                    params.SOURCE_BRANCH == 'Internal' &&
+                                    params.SOURCE_BRANCH == 'internal' &&
                                     params.BUILD_TYPE == 'Compat' &&
                                     params.CHANGE_ID == null
                         }

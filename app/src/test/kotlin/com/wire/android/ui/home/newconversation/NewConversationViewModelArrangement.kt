@@ -29,6 +29,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -227,6 +228,12 @@ internal class NewConversationViewModelArrangement {
     fun withUnknownFailureOnCreatingGroup() = apply {
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.UnknownFailure(
             CoreFailure.MissingClientRegistration
+        )
+    }
+
+    fun withConflictingBackendsFailure() = apply {
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(
+            error = GroupOptionState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
         )
     }
 

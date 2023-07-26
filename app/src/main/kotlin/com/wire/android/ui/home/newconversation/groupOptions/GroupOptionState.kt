@@ -32,5 +32,8 @@ data class GroupOptionState(
     sealed interface Error {
         object Unknown : Error
         object LackingConnection : Error
+        data class ConflictedBackends(val domains: List<String>) : Error
+
+        val isConflictedBackends get() = this is ConflictedBackends
     }
 }

@@ -66,12 +66,12 @@ jobs:
                   gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
 
             - uses: actions/setup-node@v3
-                with:
-                node-version: 18
+              with:
+                  node-version: 18
             - name: Install datadog-ci
-                run: npm install -g @datadog/datadog-ci
+              run: npm install -g @datadog/datadog-ci
             - name: "Upload results"
-                env:
-                    DD_API_KEY: ${{ secrets.DD_API_KEY }}
-                run: |
-                    DATADOG_API_KEY="${DD_API_KEY}" DD_ENV=ci DATADOG_SITE=datadoghq.eu datadog-ci junit upload --service wire-android ./artifacts/test-results/**/*.xml
+              env:
+                  DD_API_KEY: ${{ secrets.DD_API_KEY }}
+              run: |
+                  DATADOG_API_KEY="${DD_API_KEY}" DD_ENV=ci DATADOG_SITE=datadoghq.eu datadog-ci junit upload --service wire-android ./artifacts/test-results/**/*.xml

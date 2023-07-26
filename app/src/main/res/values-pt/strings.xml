@@ -36,16 +36,16 @@
     <string name="label_add_device">Adicionar dispositivo</string>
     <string name="label_learn_more">Saiba mais</string>
     <string name="label_removing">Removendo…</string>
-    <string name="label_logging_in">Entrando…</string>
+    <string name="label_logging_in">Iniciando sessão…</string>
     <string name="label_membership_guest">Convidado</string>
     <string name="label_membership_external">Externo</string>
     <string name="label_membership_service">Serviço</string>
     <string name="label_user_deleted">Excluído</string>
-    <string name="label_message_sent_failure">A mensagem não pôde ser enviada devido a problemas de conectividade.</string>
-    <string name="label_message_edit_sent_failure">A mensagem editada não pôde ser enviada devido a problemas de conectividade.</string>
+    <string name="label_message_sent_failure">A mensagem não pôde ser enviada devido a problemas de conexão.</string>
+    <string name="label_message_edit_sent_failure">A mensagem editada não pôde ser enviada devido a problemas de conexão.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
-    <string name="label_message_receive_failure">Erro de download</string>
+    <string name="label_message_receive_failure">Erro ao baixar</string>
     <string name="label_message_decryption_failure_message">A mensagem não pôde ser descriptografada.</string>
     <string name="label_message_decryption_failure_informative_message">Tente redefinir a sessão para gerar novas chaves de criptografia.</string>
     <string name="label_message_knock">%s chamou</string>
@@ -58,7 +58,7 @@
     </plurals>
     <string name="label_try_again">Tentar novamente</string>
     <string name="label_reset_session">Redefinir sessão</string>
-    <string name="label_reset_session_success">Sessão reiniciada com sucesso</string>
+    <string name="label_reset_session_success">Sessão redefinida com sucesso</string>
     <string name="label_federated_membership">Federado</string>
     <string name="label_update">Atualizar</string>
     <string name="label_close">Fechar</string>
@@ -70,8 +70,8 @@
     <string name="label_show_details">Show Details</string>
     <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Editado em %s</string>
-    <string name="label_on">Ligado</string>
-    <string name="label_off">Desligado</string>
+    <string name="label_on">Ativado</string>
+    <string name="label_off">Desativado</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desabilitar</string>
     <string name="folder_label_access">Acesso</string>
@@ -83,14 +83,14 @@
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Logo do aplicativo</string>
     <string name="content_description_reveal_password">Mostrar senha</string>
-    <string name="content_description_hide_password">Esconder senha</string>
+    <string name="content_description_hide_password">Ocultar senha</string>
     <string name="content_description_search_back">Ícone de busca</string>
     <string name="content_description_clear_content">Limpar conteúdo</string>
     <string name="content_description_user_avatar">Imagem de perfil</string>
     <string name="content_description_muted_conversation">Conversa silenciada</string>
     <string name="content_description_check">Marca de seleção</string>
     <string name="content_description_download_icon">Ícone de download</string>
-    <string name="content_description_open_asset_icon">Ícone abrir</string>
+    <string name="content_description_open_asset_icon">Ícone de abrir</string>
     <string name="content_description_add_to_favourite">Adicionar aos Favoritos</string>
     <string name="content_description_move_to_folder">Mover para pasta</string>
     <string name="content_description_move_to_archive">Arquivar</string>

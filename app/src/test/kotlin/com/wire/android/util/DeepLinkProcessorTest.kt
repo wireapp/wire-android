@@ -201,7 +201,7 @@ class DeepLinkProcessorTest {
         )
     }
 
-    class Arrangement() {
+    class Arrangement {
 
         @MockK
         private lateinit var accountSwitchUseCase: AccountSwitchUseCase
@@ -211,7 +211,6 @@ class DeepLinkProcessorTest {
 
         @MockK
         internal lateinit var uri: Uri
-
 
         init {
             MockKAnnotations.init(this)
@@ -288,7 +287,7 @@ class DeepLinkProcessorTest {
         const val FAKE_REMOTE_SERVER_ID = "SOME_LOCATION_UUID"
         const val FAKE_REMOTE_SERVER_URL = "SOME_URL"
         const val FAKE_ERROR = "forbidden"
-        val CONVERSATION_ID =  ConversationId("some_conversation", "domain")
+        val CONVERSATION_ID = ConversationId("some_conversation", "domain")
         val CURRENT_USER_ID = UserId("some_user", "domain")
         val OTHER_USER_ID = UserId("other_user", "other_domain")
     }

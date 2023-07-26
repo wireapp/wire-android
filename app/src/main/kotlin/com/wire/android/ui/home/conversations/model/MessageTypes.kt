@@ -55,7 +55,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
-import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
+import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme

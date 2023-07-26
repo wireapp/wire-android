@@ -44,8 +44,8 @@ fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberTrackingAnimatedNavController() {
         NewConversationNavigationItem.fromRoute(
-        it
-    )?.itemName
+            it
+        )?.itemName
     }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -108,6 +108,14 @@ fun NewConversationRouter() {
                         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
                         onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
                         onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
+                        onEditParticipantsClick = {
+                            newConversationViewModel.onGroupOptionsErrorDismiss()
+                            newConversationNavController.popBackStack(
+                                route = NewConversationNavigationItem.SearchListNavHostScreens.route,
+                                inclusive = false
+                            )
+                        },
+                        onDiscardGroupCreationClick = newConversationViewModel::onDiscardGroupCreationClick,
                         onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
                     )
                 }

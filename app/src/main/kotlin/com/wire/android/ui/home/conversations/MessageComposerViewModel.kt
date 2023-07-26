@@ -177,12 +177,12 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
         observeConversationInteractionAvailability(conversationId).collect { result ->
-//            messageComposerViewState.value = messageComposerViewState.value.copy(
-//                interactionAvailability = when (result) {
-//                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
-//                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
-//                }
-//            )
+            messageComposerViewState.value = messageComposerViewState.value.copy(
+                interactionAvailability = when (result) {
+                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
+                }
+            )
         }
     }
 

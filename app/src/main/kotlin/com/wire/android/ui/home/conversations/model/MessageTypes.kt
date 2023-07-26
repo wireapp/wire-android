@@ -62,7 +62,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD

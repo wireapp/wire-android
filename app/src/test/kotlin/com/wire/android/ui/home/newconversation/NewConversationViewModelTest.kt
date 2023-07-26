@@ -178,7 +178,6 @@ class NewConversationViewModelTest {
                     )
                 )
             }
-
         }
 
     @Test

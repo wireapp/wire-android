@@ -57,7 +57,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.markdown.MarkdownConsts
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -186,7 +186,7 @@ private fun WireDialogContent(
                     modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
                     onClick = { offset ->
                         text.getStringAnnotations(
-                            tag = MarkdownConsts.TAG_URL,
+                            tag = MarkdownConstants.TAG_URL,
                             start = offset,
                             end = offset,
                         ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }

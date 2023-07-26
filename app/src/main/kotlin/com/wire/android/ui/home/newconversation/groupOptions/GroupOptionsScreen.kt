@@ -57,7 +57,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
-import com.wire.android.ui.markdown.MarkdownConsts
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.DialogAnnotatedErrorStrings
@@ -311,7 +311,7 @@ private fun ErrorDialog(
                     append(learnMore)
                 }
                 addStringAnnotation(
-                    tag = MarkdownConsts.TAG_URL,
+                    tag = MarkdownConstants.TAG_URL,
                     annotation = stringResource(id = R.string.url_support),
                     start = description.length + 1,
                     end = description.length + 1 + learnMore.length

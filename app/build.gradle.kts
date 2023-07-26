@@ -178,7 +178,7 @@ dependencies {
     debugImplementation(libs.leakCanary)
 
     // oauth dependencies
-    implementation(Libraries.OAuth.openIdAppAuth)
+    implementation(libs.openIdAppOauth)
 
     // Internal, dev, beta and staging only tracking & logging
     devImplementation(libs.dataDog.core)

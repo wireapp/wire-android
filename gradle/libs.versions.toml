@@ -56,6 +56,9 @@ commonmark = "0.21.0"
 # Logging
 dataDog = "1.19.3"
 
+#OAuth
+openIdAppAuth = "0.11.1"
+
 # Other Tools
 aboutLibraries = "10.8.0"
 leakCanary = "2.7"
@@ -175,6 +178,9 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 # Logging
 dataDog-core = { module = "com.datadoghq:dd-sdk-android", version.ref = "dataDog" }
 dataDog-compose = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "dataDog" }
+
+# OAuth
+openIdAppOauth = { module = "net.openid:appauth", version.ref = "openIdAppAuth" }
 
 # Material
 material = { module = "com.google.android.material:material", version.ref = "material" }

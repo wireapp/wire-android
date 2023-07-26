@@ -36,7 +36,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,12 +49,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -71,8 +67,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.stringWithStyledArgs
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun InactiveMessageComposerInput(
@@ -247,77 +241,6 @@ private fun MessageComposerTextInput(
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )
-}
-
-@Composable
-fun BlockedUserComposerInput(securityClassificationType: SecurityClassificationType) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorsScheme().backgroundVariant)
-            .padding(dimensions().spacing16x)
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_conversation),
-            tint = MaterialTheme.colorScheme.onBackground,
-            contentDescription = "",
-            modifier = Modifier
-                .padding(start = dimensions().spacing8x)
-                .size(dimensions().spacing12x)
-        )
-        Text(
-            text = LocalContext.current.resources.stringWithStyledArgs(
-                R.string.label_system_message_blocked_user,
-                MaterialTheme.wireTypography.body01,
-                MaterialTheme.wireTypography.body02,
-                colorsScheme().secondaryText,
-                colorsScheme().onBackground,
-                stringResource(id = R.string.member_name_you_label_titlecase)
-            ),
-            style = MaterialTheme.wireTypography.body01,
-            maxLines = 1,
-            modifier = Modifier
-                .weight(weight = 1f, fill = false)
-                .padding(start = dimensions().spacing16x)
-        )
-    }
-    MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
-}
-
-@Composable
-fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationType) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorsScheme().backgroundVariant)
-            .padding(dimensions().spacing16x)
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_conversation),
-            tint = MaterialTheme.colorScheme.onBackground,
-            contentDescription = "",
-            modifier = Modifier
-                .padding(start = dimensions().spacing8x)
-                .size(dimensions().spacing12x)
-        )
-        Text(
-            text = LocalContext.current.resources.stringWithStyledArgs(
-                R.string.label_system_message_user_not_available,
-                MaterialTheme.wireTypography.body01,
-                MaterialTheme.wireTypography.body02,
-                colorsScheme().secondaryText,
-                colorsScheme().onBackground,
-            ),
-            style = MaterialTheme.wireTypography.body01,
-            maxLines = 1,
-            modifier = Modifier
-                .weight(weight = 1f, fill = false)
-                .padding(start = dimensions().spacing16x)
-        )
-    }
-    MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
 }
 
 @Composable

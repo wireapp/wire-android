@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.ui.common.LinkSpannableString
-import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
-import com.wire.android.ui.markdown.MarkdownConsts.TAG_URL
+import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
+import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
@@ -267,7 +267,7 @@ fun appendLinksAndMentions(
                         end = it.start + it.length
                     )
                     addStringAnnotation(
-                        tag = MarkdownConsts.TAG_MENTION,
+                        tag = MarkdownConstants.TAG_MENTION,
                         annotation = it.userId.toString(),
                         start = it.start,
                         end = it.start + it.length

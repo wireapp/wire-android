@@ -20,11 +20,10 @@
 
 package com.wire.android.ui.home.conversationslist.common
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -35,20 +34,21 @@ import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.theme.wireDimensions
 
-
-//TODO: added onRowClick only for UI-Design purpose
-@OptIn(ExperimentalFoundationApi::class)
+// TODO: added onRowClick only for UI-Design purpose
 @Composable
 fun RowItem(
     clickable: Clickable,
     modifier: Modifier = Modifier,
     content: @Composable (RowScope.() -> Unit),
 ) {
-    SurfaceBackgroundWrapper(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.conversationItemPadding)) {
+    SurfaceBackgroundWrapper(
+        modifier = Modifier
+            .padding(vertical = MaterialTheme.wireDimensions.conversationItemPadding)
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
-                .height(MaterialTheme.wireDimensions.conversationItemRowHeight)
+                .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationItemRowHeight)
                 .fillMaxWidth()
                 .clickable(clickable)
         ) {

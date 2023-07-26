@@ -20,22 +20,25 @@ package com.wire.android.ui.home.settings.about.licenses
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mikepenz.aboutlibraries.entity.Library
-import com.mikepenz.aboutlibraries.ui.compose.util.author
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 
 @Composable
 fun WireLibraries(
@@ -68,7 +71,7 @@ inline fun LazyListScope.libraryItems(
     items(libraries) { library ->
         LibraryItem(
             library.name,
-            library.author
+            library.owner
         ) {
             onLibraryClick.invoke(library)
         }
@@ -82,21 +85,44 @@ fun LibraryItem(
     onClick: () -> Unit,
 ) {
     RowItemTemplate(
+        modifier = Modifier
+            .wrapContentHeight()
+            .padding(start = dimensions().spacing8x),
         title = {
-            androidx.compose.material3.Text(
+            Text(
                 style = MaterialTheme.wireTypography.title02,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = libName,
-                modifier = Modifier.padding(start = dimensions().spacing8x)
             )
-
-            androidx.compose.material3.Text(
+        },
+        subtitle = {
+            Text(
+                modifier = Modifier.wrapContentHeight(),
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.secondaryText,
-                text = libAuthor,
-                modifier = Modifier.padding(start = dimensions().spacing8x)
+                text = libAuthor
             )
         },
         clickable = Clickable(enabled = true, onClick = onClick)
     )
+}
+
+val Library.owner: String
+    get() = organization?.name ?: developers.takeIf { it.isNotEmpty() }?.map { it.name }?.joinToString(", ") ?: String.EMPTY
+
+@Preview
+@Composable
+fun LibraryItemPreview() {
+    LibraryItem(
+        libName = "Lorem ipsum dolor sit amet, consectetur adipiscing elit." +
+                " Mauris et dui a erat tempus convallis id nec nunc." +
+                " Cras vehicula quis massa non sagittis.",
+        libAuthor = "Lorem ipsum dolor sit amet, consectetur adipiscing elit." +
+                " Mauris et dui a erat tempus convallis id nec nunc." +
+                " Cras vehicula quis massa non sagittis." +
+                " Mauris convallis arcu non tellus facilisis ullamcorper." +
+                " Morbi massa turpis, vulputate sit amet urna eget, scelerisque efficitur neque." +
+                " Nam rutrum, ante eu aliquam elementum, urna neque fermentum leo, vel commodo lectus purus et nulla." +
+                " In laoreet sem viverra orci pulvinar ultricies. Fusce porta ultrices ipsum eget convallis."
+    ) {}
 }

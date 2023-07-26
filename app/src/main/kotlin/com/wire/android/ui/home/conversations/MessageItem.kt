@@ -104,8 +104,6 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
-    onMessageButtonClicked: (messageId: String, buttonId: String) -> Unit,
-    pendingButtonsMap: Map<String, String> = emptyMap()
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -232,8 +230,6 @@ fun MessageItem(
                                         onImageClick = currentOnImageClick,
                                         onLongClick = onLongClick,
                                         onOpenProfile = onOpenProfile,
-                                        onMessageButtonClicked = onMessageButtonClicked,
-                                        pendingButtonsMap = pendingButtonsMap,
                                     )
                                 }
                                 if (isMyMessage) {
@@ -448,8 +444,6 @@ private fun MessageContent(
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
-    onMessageButtonClicked: (messageId: String, buttonId: String) -> Unit,
-    pendingButtonsMap: Map<String, String>,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onLongClick: (() -> Unit)? = null,
@@ -483,8 +477,6 @@ private fun MessageContent(
                     onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,
                     buttonList = null,
-                    onButtonClick = null,
-                    pendingButton = null,
                     messageId = message.header.messageId
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -507,9 +499,7 @@ private fun MessageContent(
                     onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,
                     buttonList = messageContent.buttonList,
-                    onButtonClick = onMessageButtonClicked,
                     messageId = message.header.messageId,
-                    pendingButton = pendingButtonsMap[message.header.messageId]
                 )
             }
         }

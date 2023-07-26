@@ -44,6 +44,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
@@ -98,6 +99,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -460,7 +462,7 @@ class WireActivity : AppCompatActivity() {
         ) {
             return
         } else {
-            val navigate: (NavigationCommand) -> Unit = { navigationCommands.tryEmit(it) }
+            val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
                 onResult = ::handleDeepLinkResult,
@@ -472,28 +474,38 @@ class WireActivity : AppCompatActivity() {
     }
 
     private fun handleDeepLinkResult(result: DeepLinkResult) {
-        val navigate: (NavigationCommand) -> Unit = { navigationCommands.tryEmit(it) }
+        val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
         when (result) {
-            is DeepLinkResult.SSOLogin ->
+            is DeepLinkResult.SSOLogin -> {
                 navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED))
-            is DeepLinkResult.MigrationLogin ->
+            }
+            is DeepLinkResult.MigrationLogin -> {
                 navigate(NavigationCommand(LoginScreenDestination(result.userHandle), BackStackMode.UPDATE_EXISTED))
+            }
             is DeepLinkResult.CustomServerConfig -> {
                 // do nothing, already handled in ViewModel
             }
-            is DeepLinkResult.IncomingCall ->
+            is DeepLinkResult.IncomingCall -> {
+                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 navigate(NavigationCommand(IncomingCallScreenDestination(result.conversationsId)))
-            is DeepLinkResult.OngoingCall ->
+            }
+            is DeepLinkResult.OngoingCall -> {
                 navigate(NavigationCommand(OngoingCallScreenDestination(result.conversationsId)))
-            is DeepLinkResult.OpenConversation ->
+            }
+            is DeepLinkResult.OpenConversation -> {
+                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 navigate(NavigationCommand(ConversationScreenDestination(result.conversationsId), BackStackMode.UPDATE_EXISTED))
-            is DeepLinkResult.OpenOtherUserProfile ->
+            }
+            is DeepLinkResult.OpenOtherUserProfile -> {
+                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
+            }
             is DeepLinkResult.JoinConversation -> {
                 // do nothing, already handled in ViewModel
             }
-            is DeepLinkResult.Unknown ->
+            is DeepLinkResult.Unknown -> {
                 appLogger.e("unknown deeplink result $result")
+            }
         }
     }
 

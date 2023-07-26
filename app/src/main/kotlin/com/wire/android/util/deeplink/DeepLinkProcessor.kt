@@ -24,6 +24,7 @@ import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -48,11 +49,11 @@ sealed class DeepLinkResult {
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
 
-    data class IncomingCall(val conversationsId: ConversationId) : DeepLinkResult()
+    data class IncomingCall(val conversationsId: ConversationId, val switchedAccount: Boolean = false) : DeepLinkResult()
 
     data class OngoingCall(val conversationsId: ConversationId) : DeepLinkResult()
-    data class OpenConversation(val conversationsId: ConversationId) : DeepLinkResult()
-    data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
+    data class OpenConversation(val conversationsId: ConversationId, val switchedAccount: Boolean = false) : DeepLinkResult()
+    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) : DeepLinkResult()
     data class JoinConversation(val code: String, val key: String, val domain: String?) : DeepLinkResult()
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
 }
@@ -65,22 +66,22 @@ class DeepLinkProcessor @Inject constructor(
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     suspend operator fun invoke(uri: Uri): DeepLinkResult {
-        switchAccountIfNeeded(uri)
+        val switchedAccount = switchAccountIfNeeded(uri)
 
         return when (uri.host) {
             ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
             SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
-            INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
+            INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri, switchedAccount)
             ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
-            CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
-            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
+            CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, switchedAccount)
+            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount)
             MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
             JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
             else -> DeepLinkResult.Unknown
         }
     }
 
-    private suspend fun switchAccountIfNeeded(uri: Uri) {
+    private suspend fun switchAccountIfNeeded(uri: Uri): Boolean {
         uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)?.let { userId ->
             val shouldSwitchAccount = when (val result = currentSession()) {
                 is CurrentSessionResult.Failure.Generic -> true
@@ -88,19 +89,20 @@ class DeepLinkProcessor @Inject constructor(
                 is CurrentSessionResult.Success -> result.accountInfo.userId != userId
             }
             if (shouldSwitchAccount) {
-                accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+                return accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) == SwitchAccountResult.SwitchedToAnotherAccount
             }
         }
+        return false
     }
 
-    private fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult =
+    private fun getOpenConversationDeepLinkResult(uri: Uri, switchedAccount: Boolean): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
-            DeepLinkResult.OpenConversation(conversationId)
+            DeepLinkResult.OpenConversation(conversationId, switchedAccount)
         } ?: DeepLinkResult.Unknown
 
-    private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri): DeepLinkResult =
+    private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri, switchedAccount: Boolean): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
-            DeepLinkResult.OpenOtherUserProfile(it)
+            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
         } ?: DeepLinkResult.Unknown
 
     private fun getOpenMigrationLoginDeepLinkResult(uri: Uri): DeepLinkResult =
@@ -113,9 +115,9 @@ class DeepLinkProcessor @Inject constructor(
         DeepLinkResult.CustomServerConfig(it)
     } ?: DeepLinkResult.Unknown
 
-    private fun getIncomingCallDeepLinkResult(uri: Uri) =
+    private fun getIncomingCallDeepLinkResult(uri: Uri, switchedAccount: Boolean) =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
-            DeepLinkResult.IncomingCall(it)
+            DeepLinkResult.IncomingCall(it, switchedAccount)
         } ?: DeepLinkResult.Unknown
 
     private fun getOngoingCallDeepLinkResult(uri: Uri) =

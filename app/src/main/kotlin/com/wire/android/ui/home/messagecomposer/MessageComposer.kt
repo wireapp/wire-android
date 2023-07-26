@@ -112,11 +112,12 @@ fun MessageComposer(
                 DisabledInteractionMessageComposer(
                     securityClassificationType = securityClassificationType,
                     warningText = LocalContext.current.resources.stringWithStyledArgs(
-                        R.string.label_system_message_user_not_available,
+                        R.string.label_system_message_blocked_user,
                         MaterialTheme.wireTypography.body01,
                         MaterialTheme.wireTypography.body02,
                         colorsScheme().secondaryText,
                         colorsScheme().onBackground,
+                        stringResource(id = R.string.member_name_you_label_titlecase)
                     ),
                     messageListContent = messageListContent
                 )
@@ -125,12 +126,11 @@ fun MessageComposer(
             InteractionAvailability.DELETED_USER -> DisabledInteractionMessageComposer(
                 securityClassificationType = securityClassificationType,
                 warningText = LocalContext.current.resources.stringWithStyledArgs(
-                    R.string.label_system_message_blocked_user,
+                    R.string.label_system_message_user_not_available,
                     MaterialTheme.wireTypography.body01,
                     MaterialTheme.wireTypography.body02,
                     colorsScheme().secondaryText,
                     colorsScheme().onBackground,
-                    stringResource(id = R.string.member_name_you_label_titlecase)
                 ),
                 messageListContent = messageListContent
             )

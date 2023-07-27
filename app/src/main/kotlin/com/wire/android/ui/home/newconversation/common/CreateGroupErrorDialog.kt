@@ -56,7 +56,8 @@ fun CreateGroupErrorDialog(
             annotatedMessage = buildAnnotatedString {
                 val description = stringResource(
                     id = R.string.group_can_not_be_created_federation_conflict_description,
-                    error.domains.joinToString(", ")
+                    error.domains.dropLast(1).joinToString(", "),
+                    error.domains.last()
                 )
                 val learnMore = stringResource(id = R.string.label_learn_more)
 

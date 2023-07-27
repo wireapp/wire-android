@@ -59,6 +59,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
@@ -95,7 +96,10 @@ fun GroupOptionScreen(
             newConversationViewModel.onGroupOptionsErrorDismiss()
             navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
         },
-        onDiscardGroupCreationClick = newConversationViewModel::onDiscardGroupCreationClick,
+        onDiscardGroupCreationClick = {
+            newConversationViewModel.onGroupOptionsErrorDismiss()
+            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+        },
         onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
     )
 }

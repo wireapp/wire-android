@@ -95,13 +95,6 @@ class NewConversationViewModel @Inject constructor(
         groupOptionsState = groupOptionsState.copy(error = null)
     }
 
-    fun onDiscardGroupCreationClick() {
-        groupOptionsState = groupOptionsState.copy(error = null)
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        }
-    }
-
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
     }
@@ -231,6 +224,7 @@ class NewConversationViewModel @Inject constructor(
                     isLoading = false,
                     error = GroupOptionState.Error.ConflictedBackends(result.domains)
                 )
+                null
             }
         }
     }

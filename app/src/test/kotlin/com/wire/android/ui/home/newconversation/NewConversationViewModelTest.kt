@@ -27,9 +27,6 @@ import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -154,27 +151,6 @@ class NewConversationViewModelTest {
 
         viewModel.groupOptionsState.error.shouldBeNull()
     }
-
-    @Test
-    fun `given create group conflicted backends error, when clicked discard group, then error should be cleaned`() =
-        runTest {
-            val (arrangement, viewModel) = NewConversationViewModelArrangement()
-                .withIsSelfTeamMember(true)
-                .withConflictingBackendsFailure()
-                .arrange()
-
-            viewModel.onDiscardGroupCreationClick()
-            advanceUntilIdle()
-            viewModel.groupOptionsState.error.shouldBeNull()
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.Home.getRouteWithArgs(),
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
-            }
-        }
 
     @Test
     fun `given create group conflicted backends error, when clicked on dismiss, then error should be cleaned`() =

@@ -1104,4 +1104,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
+    <string name="last_message_composite_with_missing_text">sent an interactive message</string>
 </resources>

@@ -74,4 +74,4 @@ jobs:
               env:
                   DD_API_KEY: ${{ secrets.DD_API_KEY }}
               run: |
-                  DATADOG_API_KEY="${DD_API_KEY}" DD_ENV=ci DATADOG_SITE=datadoghq.eu datadog-ci junit upload --service wire-android ./artifacts/test-results/**/*.xml
+                  DATADOG_API_KEY="${DD_API_KEY}" DD_ENV=ci DATADOG_SITE=datadoghq.eu find ./artifacts/test-results -name "*.xml" -type f | tr '\n' ' ' | xargs -L 1 datadog-ci junit upload --service wire-android-reloaded .

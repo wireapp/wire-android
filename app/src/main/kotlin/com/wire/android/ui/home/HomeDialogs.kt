@@ -172,11 +172,7 @@ fun E2EIdRequiredWithSnoozeDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        )
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 

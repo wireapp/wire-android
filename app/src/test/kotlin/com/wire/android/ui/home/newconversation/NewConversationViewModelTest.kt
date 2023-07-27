@@ -30,7 +30,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
@@ -124,7 +124,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.LackingConnection
+        viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.LackingConnection
     }
 
     @Test
@@ -137,7 +137,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.Unknown
+        viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.Unknown
     }
 
     @Test
@@ -160,9 +160,9 @@ class NewConversationViewModelTest {
                 .withConflictingBackendsFailure()
                 .arrange()
 
-            viewModel.onGroupOptionsErrorDismiss()
+            viewModel.onCreateGroupErrorDismiss()
             advanceUntilIdle()
-            viewModel.groupOptionsState.error.shouldBeNull()
+            viewModel.createGroupState.error.shouldBeNull()
         }
 
     @Test
@@ -174,7 +174,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error.shouldBeNull()
+        viewModel.createGroupState.error.shouldBeNull()
 
         coVerify {
             arrangement.createGroupConversation(
@@ -203,7 +203,7 @@ class NewConversationViewModelTest {
             viewModel.createGroup(arrangement.onGroupCreated)
             advanceUntilIdle()
 
-            viewModel.groupOptionsState.error.shouldBeNull()
+            viewModel.createGroupState.error.shouldBeNull()
 
             coVerify {
                 arrangement.createGroupConversation(

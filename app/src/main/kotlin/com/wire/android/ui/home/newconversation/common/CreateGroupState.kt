@@ -14,17 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.newconversation.common
 
-package com.wire.android.ui.home.newconversation.groupOptions
+data class CreateGroupState(
+    val error: Error? = null
+) {
+    sealed interface Error {
+        object Unknown : Error
+        object LackingConnection : Error
+        data class ConflictedBackends(val domains: List<String>) : Error
 
-data class GroupOptionState(
-    val continueEnabled: Boolean = true,
-    val isLoading: Boolean = false,
-    val isAllowGuestEnabled: Boolean = true,
-    val isAllowServicesEnabled: Boolean = true,
-    val isReadReceiptEnabled: Boolean = true,
-    val showAllowGuestsDialog: Boolean = false
-)
+        val isConflictedBackends get() = this is ConflictedBackends
+    }
+}

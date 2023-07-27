@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
@@ -84,7 +85,7 @@ fun NetworkSettingsScreenContent(
 @Composable
 private fun getSwitchState(isWebSocketEnabled: Boolean, setWebSocketState: (Boolean) -> Unit): SwitchState {
     val context = LocalContext.current
-    return if (context.isGoogleServicesAvailable()) {
+    return if (BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT || context.isGoogleServicesAvailable()) {
         SwitchState.Enabled(
             value = isWebSocketEnabled,
             onCheckedChange = setWebSocketState

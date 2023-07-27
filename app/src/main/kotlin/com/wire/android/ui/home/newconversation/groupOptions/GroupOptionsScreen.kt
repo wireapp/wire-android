@@ -65,7 +65,6 @@ import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.DialogAnnotatedErrorStrings
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph

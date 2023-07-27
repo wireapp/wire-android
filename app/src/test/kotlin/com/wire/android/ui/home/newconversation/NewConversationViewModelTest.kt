@@ -149,7 +149,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error.shouldBeNull()
+        viewModel.createGroupState.error.shouldBeNull()
     }
 
     @Test

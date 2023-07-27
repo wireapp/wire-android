@@ -165,17 +165,16 @@ class NewConversationViewModel @Inject constructor(
     private fun createGroupForPersonalAccounts(onCreated: (ConversationId) -> Unit) {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
-//            val result = createGroupConversation(
-//                name = newGroupState.groupName.text,
-//                // TODO: change the id in Contact to UserId instead of String
-//                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-//                options = ConversationOptions().copy(
-//                    protocol = ConversationOptions.Protocol.PROTEUS,
-//                    accessRole = Conversation.defaultGroupAccessRoles,
-//                    access = Conversation.defaultGroupAccess
-//                )
-//            )
-            val result = CreateGroupConversationUseCase.Result.BackendConflictFailure(listOf("some.com", "other.com"))
+            val result = createGroupConversation(
+                name = newGroupState.groupName.text,
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                options = ConversationOptions().copy(
+                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    accessRole = Conversation.defaultGroupAccessRoles,
+                    access = Conversation.defaultGroupAccess
+                )
+            )
             handleNewGroupCreationResult(result)?.let(onCreated)
         }
     }

@@ -80,7 +80,7 @@ fun GroupOptionScreen(
 
     GroupOptionScreenContent(
         groupOptionState = newConversationViewModel.groupOptionsState,
-        createGroupState = createGroupState,
+        createGroupState = newConversationViewModel.createGroupState,
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
@@ -90,14 +90,14 @@ fun GroupOptionScreen(
         onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
         onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
         onEditParticipantsClick = {
-            newConversationViewModel.onGroupOptionsErrorDismiss()
+            newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
         },
         onDiscardGroupCreationClick = {
-            newConversationViewModel.onGroupOptionsErrorDismiss()
+            newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
-        onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
+        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss
     )
 }
 

@@ -30,7 +30,10 @@ import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupOptionScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -57,6 +60,20 @@ fun NewGroupNameScreen(
         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated,
         onBackPressed = navigator::navigateBack
     )
+    newConversationViewModel.createGroupState.error?.let {
+        CreateGroupErrorDialog(
+            error = it,
+            onDismiss = newConversationViewModel::onCreateGroupErrorDismiss,
+            onAccept = {
+                newConversationViewModel.onCreateGroupErrorDismiss()
+                navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+            },
+            onCancel = {
+                newConversationViewModel.onCreateGroupErrorDismiss()
+                navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            },
+        )
+    }
 }
 
 @Composable

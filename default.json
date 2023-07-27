@@ -82,6 +82,7 @@
     "wipe_on_cookie_invalid": false,
     "wipe_on_device_removal": false,
     "wipe_on_rooted_device": false,
+    "websocket_enabled_by_default": true,
 
     "firebase_push_sender_id": "782078216207",
     "firebase_app_id": "1:782078216207:android:d3db2443512d2055",

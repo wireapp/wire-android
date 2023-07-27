@@ -25,14 +25,20 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameScreen
+import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 
 @Composable
 fun NewGroupScreen(
     newGroupState: GroupMetadataState,
+    createGroupState: CreateGroupState,
     onGroupNameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
     onGroupNameErrorAnimated: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onErrorDismissed: () -> Unit,
+    onEditParticipantsClick: () -> Unit,
+    onDiscardGroupCreationClick: () -> Unit
 ) {
     GroupNameScreen(
         newGroupState = newGroupState,
@@ -41,6 +47,9 @@ fun NewGroupScreen(
         onGroupNameErrorAnimated = onGroupNameErrorAnimated,
         onBackPressed = onBackPressed
     )
+    createGroupState.error?.let {
+        CreateGroupErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
+    }
 }
 
 @Composable

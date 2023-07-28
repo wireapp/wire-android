@@ -310,7 +310,7 @@ internal class ConnectionActionButtonHiltArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
         mockUri()
-        every { savedStateHandle.scopedArgs<ConnectionActionButtonArgs>()} returns ConnectionActionButtonArgs(
+        every { savedStateHandle.scopedArgs<ConnectionActionButtonArgs>() } returns ConnectionActionButtonArgs(
             TestUser.USER_ID, TestUser.SELF_USER.name ?: ""
         )
 

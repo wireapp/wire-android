@@ -23,8 +23,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CompositeMessageArgs(
     val messageId: String
-): ScopedArgs {
-    override val key = "${ARGS_KEY}:${messageId}"
+) : ScopedArgs {
+    override val key = "$ARGS_KEY:$messageId"
 
     companion object {
         const val ARGS_KEY = "CompositeMessageArgsKey"

@@ -26,7 +26,7 @@ data class ConnectionActionButtonArgs(
     val userId: UserId,
     val userName: String
 ) : ScopedArgs {
-    override val key = "${ARGS_KEY}:${userId}"
+    override val key = "$ARGS_KEY:$userId"
 
     companion object {
         const val ARGS_KEY = "ConnectionActionButtonArgsKey"

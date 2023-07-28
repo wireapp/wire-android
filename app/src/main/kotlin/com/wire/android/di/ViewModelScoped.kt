@@ -32,7 +32,7 @@ inline fun <reified R : ScopedArgs> SavedStateHandle.scopedArgs(): R =
     scopedArgs(R::class, this)
 
 @OptIn(InternalSerializationApi::class)
-fun <R: ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateHandle): R =
+fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateHandle): R =
     Bundlizer.unbundle(argsClass.serializer(), argsContainer.toBundle())
 
 @OptIn(InternalSerializationApi::class)
@@ -42,6 +42,7 @@ inline fun <reified T : ViewModel, reified R : ScopedArgs> hiltViewModelScoped(a
     return hiltViewModelScoped(key = arguments?.key, defaultArguments = bundle)
 }
 
+@Suppress("SpreadOperator")
 fun SavedStateHandle.toBundle() = bundleOf(*(keys().map { it to get<Any>(it) }.toTypedArray()))
 
 interface ScopedArgs {

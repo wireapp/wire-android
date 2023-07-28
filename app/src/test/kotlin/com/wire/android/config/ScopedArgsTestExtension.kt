@@ -42,7 +42,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
  * @ExtendWith(ScopedArgsTestExtension::class)
  */
 @ExperimentalCoroutinesApi
-class ScopedArgsTestExtension() : BeforeEachCallback, AfterEachCallback {
+class ScopedArgsTestExtension : BeforeEachCallback, AfterEachCallback {
 
     override fun beforeEach(context: ExtensionContext?) {
         mockkStatic("com.wire.android.di.ViewModelScopedKt")

@@ -17,7 +17,6 @@
  */
 package com.wire.android.di
 
-import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
@@ -37,10 +36,8 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
 
 @OptIn(InternalSerializationApi::class)
 @Composable
-inline fun <reified T : ViewModel, reified R : ScopedArgs> hiltViewModelScoped(arguments: R? = null): T {
-    val bundle = arguments?.let { Bundlizer.bundle(R::class.serializer(), it) } ?: Bundle.EMPTY
-    return hiltViewModelScoped(key = arguments?.key, defaultArguments = bundle)
-}
+inline fun <reified T : ViewModel, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): T =
+    hiltViewModelScoped(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
 
 @Suppress("SpreadOperator")
 fun SavedStateHandle.toBundle() = bundleOf(*(keys().map { it to get<Any>(it) }.toTypedArray()))

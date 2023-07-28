@@ -22,3 +22,4 @@ package com.wire.android.navigation
 
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_NAME = "extra_user_name"
+const val EXTRA_MESSAGE_ID = "extra_message_id"

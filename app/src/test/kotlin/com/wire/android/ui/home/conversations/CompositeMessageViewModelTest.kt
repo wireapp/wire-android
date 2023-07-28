@@ -19,6 +19,9 @@ package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.ScopedArgsTestExtension
+import com.wire.android.di.scopedArgs
+import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
@@ -27,12 +30,14 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkStatic
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(ScopedArgsTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class CompositeMessageViewModelTest {
 
@@ -89,8 +94,9 @@ class CompositeMessageViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            mockkStatic("com.wire.android.di.ViewModelScopedKt")
             every { savedStateHandle.get<String>(any()) } returns CONVERSION_ID_STRING
-            every { savedStateHandle.get<String>(any()) } returns MESSAGE_ID
+            every { savedStateHandle.scopedArgs<CompositeMessageArgs>() } returns CompositeMessageArgs(MESSAGE_ID)
         }
 
         private val viewModel = CompositeMessageViewModel(sendButtonActionMessage, qualifiedIdMapper, savedStateHandle)

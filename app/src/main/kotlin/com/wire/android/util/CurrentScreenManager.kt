@@ -203,6 +203,8 @@ sealed class CurrentScreen {
                 NavigationItem.CreatePersonalAccount,
                 NavigationItem.CreateTeam,
                 NavigationItem.CreateAccountSummary,
+                NavigationItem.Migration,
+                NavigationItem.InitialSync,
                 NavigationItem.RemoveDevices -> AuthRelated
 
                 else -> SomeOther

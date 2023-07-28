@@ -30,13 +30,23 @@ import androidx.navigation.NavDestination
 import com.wire.android.appLogger
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
+import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
+import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.Destination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.CoroutineScope
@@ -149,8 +159,12 @@ sealed class CurrentScreen {
 
     // Import media screen is opened
     object ImportMedia : CurrentScreen()
+
     // SelfDevices screen is opened
     object DeviceManager : CurrentScreen()
+
+    // Auth related screen is opened
+    object AuthRelated : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
@@ -182,6 +196,17 @@ sealed class CurrentScreen {
                 is ImportMediaScreenDestination -> ImportMedia
 
                 is SelfDevicesScreenDestination -> DeviceManager
+
+                is WelcomeScreenDestination,
+                is LoginScreenDestination,
+                is CreatePersonalAccountOverviewScreenDestination,
+                is CreateTeamAccountOverviewScreenDestination,
+                is CreateAccountEmailScreenDestination,
+                is CreateAccountDetailsScreenDestination,
+                is CreateAccountSummaryScreenDestination,
+                is MigrationScreenDestination,
+                is InitialSyncScreenDestination,
+                is RemoveDeviceScreenDestination -> AuthRelated
 
                 else -> SomeOther
             }

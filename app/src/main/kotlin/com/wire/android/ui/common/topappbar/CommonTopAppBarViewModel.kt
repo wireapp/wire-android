@@ -65,6 +65,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                     when (it) {
                         is CurrentSessionResult.Failure.Generic,
                         CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.Info.None)
+
                         is CurrentSessionResult.Success -> {
                             val userId = it.accountInfo.userId
                             combine(
@@ -100,14 +101,20 @@ class CommonTopAppBarViewModel @Inject constructor(
     ): ConnectivityUIState.Info {
         val canDisplayActiveCall = currentScreen !is CurrentScreen.OngoingCallScreen
 
+        val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
+
         if (activeCall != null && canDisplayActiveCall) {
             return ConnectivityUIState.Info.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
         }
 
-        return when (connectivity) {
-            Connectivity.WAITING_CONNECTION -> ConnectivityUIState.Info.WaitingConnection
-            Connectivity.CONNECTING -> ConnectivityUIState.Info.Connecting
-            Connectivity.CONNECTED -> ConnectivityUIState.Info.None
+        return if (canDisplayConnectivityIssues) {
+            when (connectivity) {
+                Connectivity.WAITING_CONNECTION -> ConnectivityUIState.Info.WaitingConnection
+                Connectivity.CONNECTING -> ConnectivityUIState.Info.Connecting
+                Connectivity.CONNECTED -> ConnectivityUIState.Info.None
+            }
+        } else {
+            ConnectivityUIState.Info.None
         }
     }
 

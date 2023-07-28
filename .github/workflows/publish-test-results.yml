@@ -76,4 +76,4 @@ jobs:
                   DD_ENV: ci
                   DATADOG_SITE: datadoghq.eu
               run: |
-                  find ./artifacts/test-results -name "*.xml" -type f | tr '\n' ' ' | xargs -L 1 datadog-ci junit upload --service wire-android-reloaded .
+                  find ./artifacts -name "*.xml" -type f | tr '\n' ' ' | xargs -L 1 datadog-ci junit upload --service wire-android-reloaded .

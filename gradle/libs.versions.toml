@@ -9,7 +9,7 @@ kotlin = "1.9.0"
 coroutines = "1.7.1"
 ktx-dateTime = "0.4.0"
 ktx-immutableCollections = "0.3.5"
-ktx-serialization = "1.3.2"
+ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
 google-gms = "4.3.15"

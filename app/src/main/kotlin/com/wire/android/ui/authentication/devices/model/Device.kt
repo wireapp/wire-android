@@ -45,7 +45,7 @@ data class Device(
         clientId = client.id,
         registrationTime = client.registrationTime?.toIsoDateTimeString(),
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
-        isValid = client.isVerified,
+        isValid = client.isValid,
         isVerified = client.isVerified
     )
 }

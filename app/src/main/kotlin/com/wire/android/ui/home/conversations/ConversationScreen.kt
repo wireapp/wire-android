@@ -141,7 +141,7 @@ fun ConversationScreen(
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
-    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>
+    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
@@ -517,7 +517,7 @@ private fun ConversationScreen(
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    snackBarHostState = conversationScreenState.snackBarHostState
+                    snackBarHostState = conversationScreenState.snackBarHostState,
                 )
             }
         }
@@ -587,7 +587,7 @@ private fun ConversationScreenContent(
                 onShowEditingOption = onShowEditingOptions,
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -667,7 +667,7 @@ fun MessageList(
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
-    onFailedMessageCancelClicked: (String) -> Unit
+    onFailedMessageCancelClicked: (String) -> Unit,
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -723,7 +723,7 @@ fun MessageList(
                         onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     )
                 }
 

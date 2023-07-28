@@ -72,6 +72,8 @@ jobs:
               run: npm install -g @datadog/datadog-ci
             - name: "Upload results"
               env:
-                  DD_API_KEY: ${{ secrets.DD_API_KEY }}
+                  DATADOG_API_KEY: ${{ secrets.DD_API_KEY }}
+                  DD_ENV: ci
+                  DATADOG_SITE: datadoghq.eu
               run: |
-                  DATADOG_API_KEY="${DD_API_KEY}" DD_ENV=ci DATADOG_SITE=datadoghq.eu datadog-ci junit upload --service wire-android ./artifacts/test-results/**/*.xml
+                  find ./artifacts -name "*.xml" -type f | tr '\n' ' ' | xargs -L 1 datadog-ci junit upload --service wire-android-reloaded .

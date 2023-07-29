@@ -499,6 +499,7 @@ class WireActivityViewModel @Inject constructor(
         is CurrentScreen.IncomingCallScreen,
         is CurrentScreen.OngoingCallScreen,
         is CurrentScreen.OtherUserProfile,
+        CurrentScreen.AuthRelated,
         CurrentScreen.SomeOther -> true
     }
 }

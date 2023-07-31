@@ -244,7 +244,7 @@
     <string name="login_password_label">PASSWORT</string>
     <string name="login_tab_email">E-MAIL-ADRESSE</string>
     <string name="login_tab_sso">SSO</string>
-    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
+    <string name="login_sso_code_label">SSO-CODE ODER E-MAIL-ADRESSE</string>
     <string name="login_error_invalid_sso_code">Bitte geben Sie einen gültigen SSO-Code ein.</string>
     <string name="login_error_invalid_sso_code_format">Geben Sie einen gültigen SSO-Code ein</string>
     <string name="deleted_user_error_title">Gelöschtes Benutzerkonto</string>
@@ -272,7 +272,7 @@
     </string>
     <string name="remove_device_label">IHRE GERÄTE</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nHinzugefügt: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nHinzugefügt: %2$s\nAktiv: %3$s</string>
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
@@ -372,7 +372,7 @@
     
     </string>
     <string name="group_can_not_be_created_title">Gruppe kann nicht erstellt werden</string>
-    <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
+    <string name="group_can_not_be_created_federation_conflict_description">Personen aus den Backens %1$s und %2$s können nicht an derselben Gruppenunterhaltung teilnehmen.\n\nUm die Gruppe zu erstellen, entfernen Sie die betroffenen Teilnehmer.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Teilnehmerliste bearbeiten</string>
     <string name="group_can_not_be_created_discard_group_creation">Gruppenerstellung verwerfen</string>
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
@@ -864,9 +864,9 @@
     <string name="label_delete_logs">Alle Protokolle löschen</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
-    <string name="label_mls_option_title">MLS Options</string>
+    <string name="label_mls_option_title">MLS-Optionen</string>
     <string name="label_enable_logging">Protokollierung aktivieren</string>
-    <string name="label_proteus_option_title">Proteus Options</string>
+    <string name="label_proteus_option_title">Proteus-Optionen</string>
     <string name="label_enable_encrypted_proteus_storage">Verschlüsselte Proteus-Speicherung aktivieren</string>
     <string name="label_debug_title">Fehlerbehebung</string>
     <string name="label_client_option_title">Client-ID</string>
@@ -1088,9 +1088,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
     <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable. The device verification takes place automatically using a certificate and replaces the previous manual process. This way, you communicate with the highest security standard.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure. The device verification takes place automatically using a certificate.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
-    <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
-    <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
-    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
+    <string name="end_to_end_identity_required_dialog_positive_button">Zertifikat erhalten</string>
+    <string name="end_to_end_identity_required_dialog_snooze_button">Später erinnern</string>
+    <string name="end_to_end_identity_snooze_dialog_text">Sie können das Zertifikat während der nächsten %1$s in Ihren Wire-Einstellungen abrufen. Öffnen Sie Geräte und wählen Sie Zertifikat erhalten für Ihr aktuelles Gerät.\nUm Wire weiterhin ohne Unterbrechung nutzen zu können, rufen Sie es rechtzeitig ab – es dauert nicht lange.</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
     <string name="record_audio_recording_label">Audio-Aufnahme…</string>

@@ -417,3 +417,4 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val DATA_COPY_BUFFER_SIZE = 2048
 const val SDK_VERSION = 33
+const val AUDIO_MIME_TYPE = "audio/mp4"

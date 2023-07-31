@@ -17,7 +17,6 @@
  */
 package com.wire.android.util
 
-
 import android.content.Context
 import com.wire.android.BuildConfig
 import com.wire.android.util.extension.isGoogleServicesAvailable

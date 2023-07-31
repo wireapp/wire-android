@@ -525,4 +525,42 @@ class MessageComposerViewModelTest {
             assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
             assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
         }
+
+
+
+    @Test
+    fun `given the user sends an audio message, when invoked, then sendAssetMessageUseCase gets called`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val assetPath = "mocked-asset-data-path".toPath()
+            val assetContent = "some-dummy-audio".toByteArray()
+            val assetName = "mocked_audio.m4a"
+            val assetSize = 1L
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withStoredAsset(assetPath, assetContent)
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .arrange()
+            val mockedAttachment = AssetBundle(
+                "audio/mp4", assetPath, assetSize, assetName, AttachmentType.AUDIO
+            )
+
+            // When
+            viewModel.sendAttachment(mockedAttachment)
+
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.sendAssetMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
 }

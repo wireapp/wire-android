@@ -50,7 +50,7 @@ class SystemMessageContentMapper @Inject constructor(
     fun mapMessage(
         message: Message.System,
         members: List<User>
-    ) = when (val content = message.content) {
+    ): UIMessageContent = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
@@ -64,6 +64,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
         is MessageContent.ConversationDegradedMLS -> mapConversationDegraded(Conversation.Protocol.MLS)
         is MessageContent.ConversationDegradedProteus -> mapConversationDegraded(Conversation.Protocol.PROTEUS)
+        is MessageContent.Federation -> mapFederationMessage(content)
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -181,7 +182,7 @@ class SystemMessageContentMapper @Inject constructor(
         content: MemberChange,
         senderUserId: UserId,
         userList: List<User>
-    ): UIMessageContent.SystemMessage? {
+    ): UIMessageContent.SystemMessage {
         val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
         val isSelfTriggered = sender is SelfUser
@@ -222,12 +223,15 @@ class SystemMessageContentMapper @Inject constructor(
             is FailedToAdd ->
                 UIMessageContent.SystemMessage.MemberFailedToAdd(mapFailedToAddUsersByDomain(content.members, userList))
 
-            is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.MemberRemoved(
-                author = authorName,
-                memberNames = memberNameList,
-                isSelfTriggered = false
+            is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
+                memberNames = memberNameList
             )
         }
+    }
+
+    private fun mapFederationMessage(content: MessageContent.Federation) = when (content) {
+        is MessageContent.Federation.ConnectionRemoved -> UIMessageContent.SystemMessage.FederationRemoved(content.domainList)
+        is MessageContent.Federation.Removed -> UIMessageContent.SystemMessage.FederationRemoved(listOf(content.domain))
     }
 
     private fun mapFailedToAddUsersByDomain(members: List<UserId>, userList: List<User>): Map<String, List<UIText>> {

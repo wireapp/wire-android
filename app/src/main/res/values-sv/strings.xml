@@ -171,7 +171,7 @@
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Valv</string>
-    <string name="archive_screen_title">Archive</string>
+    <string name="archive_screen_title">Arkiv</string>
     <string name="user_profile_screen_title">Användarprofil</string>
     <string name="settings_screen_title">Inställningar</string>
     <string name="app_settings_screen_title">App Settings</string>
@@ -285,7 +285,7 @@
     <string name="delete_message_dialog_title">Delete Message?</string>
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
     <string name="label_delete_for_me">Radera för mig</string>
-    <string name="label_delete_for_everyone">Delete for Everyone</string>
+    <string name="label_delete_for_everyone">Radera för alla</string>
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
@@ -310,7 +310,7 @@
     <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
-    <string name="create_account_email_footer_text">Already have an account? </string>
+    <string name="create_account_email_footer_text">Har du redan ett konto? </string>
     <string name="create_account_email_terms_dialog_title">Terms of Use</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
@@ -372,7 +372,7 @@
     </string>
     <string name="group_can_not_be_created_title">Group can’t be created</string>
     <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
+    <string name="group_can_not_be_created_edit_participiant_list">Redigera deltagarlista</string>
     <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
     <string name="asset_message_tap_to_download_text">Tryck för att hämta</string>
     <string name="asset_message_upload_in_progress_text">Laddar upp…</string>
@@ -400,7 +400,7 @@
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
-    <string name="conversation_details_group_participants_add">Add participants</string>
+    <string name="conversation_details_group_participants_add">Lägg till deltagare</string>
     <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
@@ -424,7 +424,7 @@
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
     <!-- Import/Export External Media -->
-    <string name="import_media_content_title">Share With Wire</string>
+    <string name="import_media_content_title">Dela med Wire</string>
     <string name="import_media_searchbar_title">Sök efter konversation</string>
     <string name="import_media_send_button_title">Skicka</string>
     <string name="export_media_subject_title">Delar media från Wire</string>

@@ -526,8 +526,6 @@ class MessageComposerViewModelTest {
             assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
         }
 
-
-
     @Test
     fun `given the user sends an audio message, when invoked, then sendAssetMessageUseCase gets called`() =
         runTest {

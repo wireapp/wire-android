@@ -25,6 +25,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageButton
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.time.ISOFormatter
@@ -90,6 +91,33 @@ class RegularMessageMapper @Inject constructor(
             userList,
             message.deliveryStatus
         )
+
+        is MessageContent.Composite -> {
+            val text = content.textContent?.let { textContent ->
+                val quotedMessage = textContent.quotedMessageDetails?.let { mapQuoteData(message.conversationId, it) }
+                    ?: if (textContent.quotedMessageReference?.quotedMessageId != null) {
+                        UIQuotedMessage.UnavailableData
+                    } else {
+                        null
+                    }
+
+                MessageBody(
+                    message = UIText.DynamicString(textContent.value, content.textContent?.mentions.orEmpty()),
+                    quotedMessage = quotedMessage
+                )
+            }
+
+            UIMessageContent.Composite(
+                messageBody = text,
+                buttonList = content.buttonList.map {
+                    MessageButton(
+                        id = it.id,
+                        text = it.text,
+                        isSelected = it.isSelected
+                    )
+                }
+            )
+        }
 
         else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }

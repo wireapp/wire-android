@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.model
 
+import android.content.res.Resources
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
@@ -28,6 +29,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.util.Copyable
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -211,7 +213,16 @@ sealed class UIMessageContent {
     data class TextMessage(
         val messageBody: MessageBody,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : Regular(), PartialDeliverable
+    ) : Regular(), PartialDeliverable, Copyable {
+        override fun textToCopy(resources: Resources): String = messageBody.message.asString(resources)
+    }
+
+    data class Composite(
+        val messageBody: MessageBody?,
+        val buttonList: List<MessageButton>
+    ) : Regular(), Copyable {
+        override fun textToCopy(resources: Resources): String? = messageBody?.message?.asString(resources)
+    }
 
     object Deleted : Regular()
 
@@ -498,3 +509,10 @@ sealed interface DeliveryStatusContent {
 
     object CompleteDelivery : DeliveryStatusContent
 }
+
+@Stable
+data class MessageButton(
+    val id: String,
+    val text: String,
+    val isSelected: Boolean,
+)

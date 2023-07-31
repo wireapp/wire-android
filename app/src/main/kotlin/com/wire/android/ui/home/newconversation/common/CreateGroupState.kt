@@ -15,11 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.markdown
+package com.wire.android.ui.home.newconversation.common
 
-object MarkdownConsts {
-    const val TAG_URL = "linkTag"
-    const val TAG_MENTION = "mentionTag"
-    const val MENTION_MARK = "&&"
-    const val BULLET_MARK = "\u2022"
+data class CreateGroupState(
+    val error: Error? = null
+) {
+    sealed interface Error {
+        object Unknown : Error
+        object LackingConnection : Error
+        data class ConflictedBackends(val domains: List<String>) : Error
+
+        val isConflictedBackends get() = this is ConflictedBackends
+    }
 }

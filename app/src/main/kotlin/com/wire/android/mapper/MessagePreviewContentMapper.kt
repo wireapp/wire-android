@@ -247,9 +247,19 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.TeamMemberRemoved -> UILastMessageContent.None // TODO
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
-                    message = UIText.DynamicString((content as WithUser.Text).messageBody),
+                    message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
                     separator = ": "
                 )
+
+                is WithUser.Composite -> {
+                    val text = (content as WithUser.Composite).messageBody?.let { UIText.DynamicString(it) }
+                        ?: UIText.StringResource(R.string.last_message_composite_with_missing_text)
+                    UILastMessageContent.SenderWithMessage(
+                        sender = userUIText,
+                        message = text,
+                        separator = ": "
+                    )
+                }
 
                 is WithUser.MissedCall -> UILastMessageContent.TextMessage(
                     MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))

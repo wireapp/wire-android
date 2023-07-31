@@ -571,7 +571,6 @@ const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_NAME = "extra_user_name"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_USER_HANDLE = "extra_user_handle"
-const val EXTRA_CONNECTION_STATE = "extra_connection_state"
 
 const val EXTRA_NEW_EMAIL = "extra_new_email"
 

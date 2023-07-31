@@ -223,7 +223,11 @@ private fun ClickableText(
     val currentOnLongClick by rememberUpdatedState(newValue = onLongClick)
     val currentLayoutResult by rememberUpdatedState(layoutResult)
 
-    val pressIndicator = Modifier.pointerInput(Unit) {
+    // even though the rememberUpdateState, should be working, we still do not get the reference to the correct
+    // lambda's mainly when we scroll to the top of the list and then back to the bottom, it looks like, the reference
+    // does not get updated to point to the correct lambda. currentLayoutResult, should be good enough as the key
+    // because it should be updated with each "ClickableText" also we are referencing it inside pointerInput.
+    val pressIndicator = Modifier.pointerInput(currentLayoutResult.value) {
         detectTapGestures(
             onTap = { pos ->
                 currentLayoutResult.value?.let { layoutResult ->

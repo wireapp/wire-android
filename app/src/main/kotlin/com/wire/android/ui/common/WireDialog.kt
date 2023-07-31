@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -60,6 +61,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -163,6 +165,8 @@ private fun WireDialogContent(
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     content: @Composable (() -> Unit)? = null
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Surface(
         modifier = modifier.padding(MaterialTheme.wireDimensions.dialogCardMargin),
         shape = shape,
@@ -181,10 +185,17 @@ private fun WireDialogContent(
                 modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
             )
             text?.let {
-                Text(
+                ClickableText(
                     text = text,
                     style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
+                    onClick = { offset ->
+                        text.getStringAnnotations(
+                            tag = MarkdownConstants.TAG_URL,
+                            start = offset,
+                            end = offset,
+                        ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                    }
                 )
             }
             content?.let {

@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.common.ClickableText
-import com.wire.android.ui.markdown.MarkdownConsts.TAG_MENTION
-import com.wire.android.ui.markdown.MarkdownConsts.TAG_URL
+import com.wire.android.ui.markdown.MarkdownConstants.TAG_MENTION
+import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 
 @Composable
 fun MarkdownText(

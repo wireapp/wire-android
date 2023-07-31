@@ -52,13 +52,15 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
+import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.DialogErrorStrings
 
 @Composable
 fun GroupOptionScreen(
     groupOptionState: GroupOptionState,
+    createGroupState: CreateGroupState,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -67,10 +69,13 @@ fun GroupOptionScreen(
     onNotAllowGuestsClicked: () -> Unit,
     onAllowGuestsClicked: () -> Unit,
     onBackPressed: () -> Unit,
+    onEditParticipantsClick: () -> Unit,
+    onDiscardGroupCreationClick: () -> Unit,
     onErrorDismissed: () -> Unit,
 ) {
     GroupOptionScreenContent(
         groupOptionState = groupOptionState,
+        createGroupState = createGroupState,
         onAllowGuestChanged = onAllowGuestChanged,
         onAllowServicesChanged = onAllowServicesChanged,
         onReadReceiptChanged = onReadReceiptChanged,
@@ -79,13 +84,16 @@ fun GroupOptionScreen(
         onAllowGuestsDialogDismissed = onAllowGuestsDialogDismissed,
         onNotAllowGuestsClicked = onNotAllowGuestsClicked,
         onAllowGuestsClicked = onAllowGuestsClicked,
-        onErrorDismissed = onErrorDismissed,
+        onEditParticipantsClick = onEditParticipantsClick,
+        onDiscardGroupCreationClick = onDiscardGroupCreationClick,
+        onErrorDismissed = onErrorDismissed
     )
 }
 
 @Composable
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
+    createGroupState: CreateGroupState,
     onAllowGuestChanged: ((Boolean) -> Unit),
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
@@ -94,6 +102,8 @@ fun GroupOptionScreenContent(
     onNotAllowGuestsClicked: () -> Unit,
     onAllowGuestsClicked: () -> Unit,
     onErrorDismissed: () -> Unit,
+    onEditParticipantsClick: () -> Unit,
+    onDiscardGroupCreationClick: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     with(groupOptionState) {
@@ -113,8 +123,8 @@ fun GroupOptionScreenContent(
             )
         }
 
-        error?.let {
-            ErrorDialog(it, onErrorDismissed)
+        createGroupState.error?.let {
+            CreateGroupErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
         }
         if (showAllowGuestsDialog) {
             AllowGuestsDialog(onAllowGuestsDialogDismissed, onNotAllowGuestsClicked, onAllowGuestsClicked)
@@ -227,7 +237,9 @@ private fun GroupOptionState.ContinueButton(
         loading = isLoading,
         trailingIcon = if (isLoading) null else Icons.Filled.ChevronRight.Icon(),
         state = if (continueEnabled && !isLoading) WireButtonState.Default else WireButtonState.Disabled,
-        modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.wireDimensions.spacing16x)
     )
 }
 
@@ -258,34 +270,11 @@ private fun AllowGuestsDialog(
 }
 
 @Composable
-private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> Unit) {
-    val dialogStrings = when (error) {
-        is GroupOptionState.Error.LackingConnection -> DialogErrorStrings(
-            stringResource(R.string.error_no_network_title),
-            stringResource(R.string.error_no_network_message)
-        )
-
-        is GroupOptionState.Error.Unknown -> DialogErrorStrings(
-            stringResource(R.string.error_unknown_title),
-            stringResource(R.string.error_unknown_message)
-        )
-    }
-    WireDialog(
-        dialogStrings.title, dialogStrings.message,
-        onDismiss = onErrorDismissed,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onErrorDismissed,
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        )
-    )
-}
-
-@Composable
 @Preview
 fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
-        {}, {}, {}, {}, {}, {}, {}, {}, {}
+        CreateGroupState(),
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

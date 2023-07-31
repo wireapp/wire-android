@@ -14,17 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util
 
-package com.wire.android.ui.home.newconversation.groupOptions
+import android.content.res.Resources
 
-data class GroupOptionState(
-    val continueEnabled: Boolean = true,
-    val isLoading: Boolean = false,
-    val isAllowGuestEnabled: Boolean = true,
-    val isAllowServicesEnabled: Boolean = true,
-    val isReadReceiptEnabled: Boolean = true,
-    val showAllowGuestsDialog: Boolean = false
-)
+/**
+ * Interface for classes that can be copied to the clipboard.
+ * @see [TextMessageEditMenuItems]
+ * if a UIMessage implement this interface the copy option will be displayed in the edit menu.
+ */
+interface Copyable {
+    fun textToCopy(resources: Resources): String?
+}

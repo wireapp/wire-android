@@ -25,11 +25,9 @@ package com.wire.android.model
  * like:
  * - blocking button action when some action is already triggered
  */
-data class ActionableState<T>(
-    val state: T,
+data class ActionableState(
     val isPerformingAction: Boolean = false
 )
 
-fun <T> ActionableState<T>.performAction(): ActionableState<T> = this.copy(isPerformingAction = true)
-fun <T> ActionableState<T>.finishAction(): ActionableState<T> = this.copy(isPerformingAction = false)
-fun <T> ActionableState<T>.updateState(newState: T): ActionableState<T> = this.copy(state = newState, isPerformingAction = false)
+fun ActionableState.performAction(): ActionableState = this.copy(isPerformingAction = true)
+fun ActionableState.finishAction(): ActionableState = this.copy(isPerformingAction = false)

@@ -27,10 +27,13 @@ import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
@@ -124,7 +127,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.LackingConnection
+        viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.LackingConnection
     }
 
     @Test
@@ -137,7 +140,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.Unknown
+        viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.Unknown
     }
 
     @Test
@@ -149,8 +152,42 @@ class NewConversationViewModelTest {
         viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error.shouldBeNull()
+        viewModel.createGroupState.error.shouldBeNull()
     }
+
+    @Test
+    fun `given create group conflicted backends error, when clicked discard group, then error should be cleaned`() =
+        runTest {
+            val (arrangement, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .withConflictingBackendsFailure()
+                .arrange()
+
+            viewModel.onDiscardGroupCreationClick()
+            advanceUntilIdle()
+            viewModel.createGroupState.error.shouldBeNull()
+            coVerify(exactly = 1) {
+                arrangement.navigationManager.navigate(
+                    NavigationCommand(
+                        NavigationItem.Home.getRouteWithArgs(),
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
+            }
+        }
+
+    @Test
+    fun `given create group conflicted backends error, when clicked on dismiss, then error should be cleaned`() =
+        runTest {
+            val (_, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .withConflictingBackendsFailure()
+                .arrange()
+
+            viewModel.onCreateGroupErrorDismiss()
+            advanceUntilIdle()
+            viewModel.createGroupState.error.shouldBeNull()
+        }
 
     @Test
     fun `given self is not a team member, when creating group, then the group is created with the correct values`() = runTest {
@@ -161,7 +198,7 @@ class NewConversationViewModelTest {
         viewModel.createGroup()
         advanceUntilIdle()
 
-        viewModel.groupOptionsState.error.shouldBeNull()
+        viewModel.createGroupState.error.shouldBeNull()
 
         coVerify {
             arrangement.createGroupConversation(
@@ -179,32 +216,33 @@ class NewConversationViewModelTest {
     }
 
     @Test
-    fun `given self is team member and guests are enabled, when creating group, then the group is created with the correct values`() = runTest {
-        val (arrangement, viewModel) = NewConversationViewModelArrangement()
-            .withIsSelfTeamMember(true)
-            .withServicesEnabled(false)
-            .withGuestEnabled(true)
-            .arrange()
+    fun `given self is team member and guests are enabled, when creating group, then the group is created with the correct values`() =
+        runTest {
+            val (arrangement, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .withServicesEnabled(false)
+                .withGuestEnabled(true)
+                .arrange()
 
-        viewModel.createGroup()
-        advanceUntilIdle()
+            viewModel.createGroup()
+            advanceUntilIdle()
 
-        viewModel.groupOptionsState.error.shouldBeNull()
+            viewModel.createGroupState.error.shouldBeNull()
 
-        coVerify {
-            arrangement.createGroupConversation(
-                viewModel.newGroupState.groupName.text,
-                viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                ConversationOptions(
-                    setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
-                    setOf(Conversation.AccessRole.TEAM_MEMBER, Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                    true,
-                    ConversationOptions.Protocol.PROTEUS,
-                    null
+            coVerify {
+                arrangement.createGroupConversation(
+                    viewModel.newGroupState.groupName.text,
+                    viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                    ConversationOptions(
+                        setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                        setOf(Conversation.AccessRole.TEAM_MEMBER, Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
+                        true,
+                        ConversationOptions.Protocol.PROTEUS,
+                        null
+                    )
                 )
-            )
+            }
         }
-    }
 
     @Test
     fun `when search with search query, return failure for known and public search`() {
@@ -223,12 +261,12 @@ class NewConversationViewModelTest {
             // Then
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState
-                is SearchResultState.Failure,
+                        is SearchResultState.Failure,
                 true
             )
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState
-                is SearchResultState.Failure,
+                        is SearchResultState.Failure,
                 true
             )
         }

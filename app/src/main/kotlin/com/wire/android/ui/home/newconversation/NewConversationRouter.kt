@@ -44,8 +44,8 @@ fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberTrackingAnimatedNavController() {
         NewConversationNavigationItem.fromRoute(
-        it
-    )?.itemName
+            it
+        )?.itemName
     }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -81,6 +81,7 @@ fun NewConversationRouter() {
                     NewGroupScreen(
                         onBackPressed = newConversationNavController::popBackStack,
                         newGroupState = newConversationViewModel.newGroupState,
+                        createGroupState = newConversationViewModel.createGroupState,
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
                         onContinuePressed = {
                             if (newConversationViewModel.newGroupState.isSelfTeamMember == true) {
@@ -91,7 +92,16 @@ fun NewConversationRouter() {
                                 newConversationViewModel.createGroup()
                             }
                         },
-                        onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
+                        onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated,
+                        onEditParticipantsClick = {
+                            newConversationViewModel.onCreateGroupErrorDismiss()
+                            newConversationNavController.popBackStack(
+                                route = NewConversationNavigationItem.SearchListNavHostScreens.route,
+                                inclusive = false
+                            )
+                        },
+                        onDiscardGroupCreationClick = newConversationViewModel::onDiscardGroupCreationClick,
+                        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss
                     )
                 }
             )
@@ -102,13 +112,22 @@ fun NewConversationRouter() {
                         onBackPressed = newConversationNavController::popBackStack,
                         onCreateGroup = newConversationViewModel::createGroup,
                         groupOptionState = newConversationViewModel.groupOptionsState,
+                        createGroupState = newConversationViewModel.createGroupState,
                         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
                         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
                         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
                         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
                         onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
                         onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
-                        onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
+                        onEditParticipantsClick = {
+                            newConversationViewModel.onCreateGroupErrorDismiss()
+                            newConversationNavController.popBackStack(
+                                route = NewConversationNavigationItem.SearchListNavHostScreens.route,
+                                inclusive = false
+                            )
+                        },
+                        onDiscardGroupCreationClick = newConversationViewModel::onDiscardGroupCreationClick,
+                        onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss
                     )
                 }
             )

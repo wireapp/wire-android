@@ -30,6 +30,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.util.Copyable
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
@@ -49,39 +50,40 @@ fun EditMessageMenuItems(
 ): List<@Composable () -> Unit> {
     val localContext = LocalContext.current
 
-    val onCopyItemClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onCopyClick(
-                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(
-                        localContext.resources
-                    )
-                )
+    val isComposite = remember(message.header.messageId) {
+        message.messageContent is UIMessageContent.Composite
+    }
+
+    val onCopyItemClick: (() -> Unit)? = remember(message.header.messageId) {
+        (message.messageContent as? Copyable)?.textToCopy(localContext.resources)?.let {
+            {
+                hideEditMessageMenu { onCopyClick(it) }
             }
         }
     }
-    val onDeleteItemClick = remember(message) {
+
+    val onDeleteItemClick = remember(message.header.messageId) {
         {
             hideEditMessageMenu {
                 onDeleteClick(message.header.messageId, message.isMyMessage)
             }
         }
     }
-    val onReactionItemClick = remember(message) {
+    val onReactionItemClick = remember(message.header.messageId) {
         { emoji: String ->
             hideEditMessageMenu {
                 onReactionClick(message.header.messageId, emoji)
             }
         }
     }
-    val onReplyItemClick = remember(message) {
+    val onReplyItemClick = remember(message.header.messageId) {
         {
             hideEditMessageMenu {
                 onReplyClick(message)
             }
         }
     }
-    val onDetailsItemClick = remember(message) {
+    val onDetailsItemClick = remember(message.header.messageId) {
         {
             hideEditMessageMenu {
                 onDetailsClick(message.header.messageId, message.isMyMessage)
@@ -132,6 +134,7 @@ fun EditMessageMenuItems(
         TextMessageEditMenuItems(
             isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
             isUploading = message.isPending,
+            isComposite = isComposite,
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
             onReactionClick = onReactionItemClick,

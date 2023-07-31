@@ -171,6 +171,7 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
 
     <!-- Non translatable strings-->
+    <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
     <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/212053645-Like-a-message</string>
@@ -384,6 +385,10 @@
     <string name="empty_group_name_error">Please enter a group name</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
+    <string name="group_can_not_be_created_title">Group can’t be created</string>
+    <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
+    <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
+    <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_upload_in_progress_text">Uploading…</string>
     <string name="asset_message_download_in_progress_text">Downloading…</string>
@@ -1127,4 +1132,6 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
+
+    <string name="last_message_composite_with_missing_text">sent an interactive message</string>
 </resources>

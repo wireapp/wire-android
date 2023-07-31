@@ -25,6 +25,7 @@ import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.extension.isGoogleServicesAvailable
+import com.wire.android.util.isWebsocketEnabledByDefault
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
@@ -69,7 +70,7 @@ class KaliumConfigsModule {
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
-            isWebSocketEnabledByDefault = !context.isGoogleServicesAvailable()
+            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context)
         )
     }
 }

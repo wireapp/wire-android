@@ -2,10 +2,8 @@ package com.wire.android.media.audiomessage
 
 import android.content.Context
 import android.media.MediaPlayer
-import android.media.MediaPlayer.SEEK_CLOSEST
 import android.media.MediaPlayer.SEEK_CLOSEST_SYNC
 import android.net.Uri
-import android.util.Log
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult

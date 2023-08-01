@@ -46,6 +46,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ENABLE_GUEST_ROOM_LINK("enable_guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
     ENABLE_BLACKLIST("enable_blacklist", ConfigType.BOOLEAN),
+    WEBSOCKET_ENABLED_BY_DEFAULT("websocket_enabled_by_default", ConfigType.BOOLEAN),
 
     /**
      * Security/Cryptography stuff

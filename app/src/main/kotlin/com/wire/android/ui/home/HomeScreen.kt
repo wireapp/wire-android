@@ -128,20 +128,20 @@ fun HomeScreen(
             )
         }
 
-//        e2EIRequired?.let {
-//            E2EIRequiredDialog(
-//                result = e2EIRequired,
-//                getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
-//                snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
-//            )
-//        }
+        e2EIRequired?.let {
+            E2EIRequiredDialog(
+                result = e2EIRequired,
+                getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
+                snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+            )
+        }
 
-//        e2EISnoozeInfo?.let {
-//            E2EIdSnoozeDialog(
-//                state = e2EISnoozeInfo,
-//                dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
-//            )
-//        }
+        e2EISnoozeInfo?.let {
+            E2EIdSnoozeDialog(
+                state = e2EISnoozeInfo,
+                dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+            )
+        }
     }
 
     HomeContent(

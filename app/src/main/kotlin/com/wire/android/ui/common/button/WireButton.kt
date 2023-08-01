@@ -147,7 +147,7 @@ private fun InnerButtonBox(
     val trailingItem: (@Composable () -> Unit) = {
         Crossfade(targetState = (trailingIcon != null) to loading) { (hasTrailingIcon, loading) ->
             when {
-                hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon!!)
+                hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon ?: {})
                 loading -> WireCircularProgressIndicator(progressColor = contentColor)
             }
         }

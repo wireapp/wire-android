@@ -17,31 +17,61 @@
  */
 package com.wire.android.di
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import com.sebaslogen.resaca.ScopedViewModelContainer
+import com.sebaslogen.resaca.ScopedViewModelOwner
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import kotlin.reflect.KClass
 
+/**
+ * Returns a proper scoped arguments instance from the given [SavedStateHandle] for the scoped [ViewModel].
+ */
 inline fun <reified R : ScopedArgs> SavedStateHandle.scopedArgs(): R =
     scopedArgs(R::class, this)
 
+/**
+ * Returns a proper scoped arguments instance from the given [SavedStateHandle].
+ *
+ * @param argsClass the class of the arguments, must implement [ScopedArgs] and be serializable
+ * @param argsContainer the [SavedStateHandle] to get the arguments from
+ */
 @OptIn(InternalSerializationApi::class)
 fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateHandle): R =
     Bundlizer.unbundle(argsClass.serializer(), argsContainer.toBundle())
 
+/**
+ * Custom implementation of [hiltViewModelScoped] that takes proper scoped serializable arguments that implement [ScopedArgs]
+ * and provides them into scoped [ViewModel] converting it automatically to [Bundle] using [Bundlizer].
+ * Proper key will be taken from the [ScopedArgs.key] property.
+ *
+ * @param arguments The arguments that will be provided to the [ViewModel], must implement [ScopedArgs] and be serializable
+ */
 @OptIn(InternalSerializationApi::class)
 @Composable
 inline fun <reified T : ViewModel, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): T =
     hiltViewModelScoped(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
 
-@Suppress("SpreadOperator")
-fun SavedStateHandle.toBundle() = bundleOf(*(keys().map { it to get<Any>(it) }.toTypedArray()))
 
+/**
+ * Creates a [Bundle] with all key-values from the given [SavedStateHandle].
+ */
+@Suppress("SpreadOperator")
+fun SavedStateHandle.toBundle(): Bundle = bundleOf(*(keys().map { it to get<Any>(it) }.toTypedArray()))
+
+/**
+ * Interface for arguments for scoped ViewModels.
+ * It is used to provide a unique key for the scoped ViewModel.
+ */
 interface ScopedArgs {
     val key: Any?
 }

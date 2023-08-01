@@ -24,6 +24,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.media.PingRinger
+import com.wire.android.services.OngoingCallData
 import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -241,7 +243,7 @@ class WireNotificationManager @Inject constructor(
             appLogger.i("$TAG no Users -> hide all the notifications")
             messagesNotificationManager.hideAllNotifications()
             callNotificationManager.hideAllNotifications()
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopOngoingCallServiceForAll()
 
             return
         }
@@ -270,6 +272,7 @@ class WireNotificationManager @Inject constructor(
 
     private fun stopObservingForUser(userId: UserId, observingJobs: HashMap<UserId, ObservingJobs>) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)
+        servicesManager.stopOngoingCallServiceForUser(userId)
         observingJobs[userId]?.cancelAll()
         observingJobs.remove(userId)
     }
@@ -391,29 +394,28 @@ class WireNotificationManager @Inject constructor(
                 if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
-                    try {
-                        coreLogic.getSessionScope(userId).calls
-                            .establishedCall()
-                            .map {
-                                it.firstOrNull()?.let { call ->
-                                    OngoingCallData(callNotificationManager.getNotificationTitle(call), call.conversationId, userId)
+                    coreLogic.getGlobalScope().observeValidAccounts().flatMapLatest {
+                        if (it.any { (selfUser, _) -> selfUser.id == userId }) { // if given userId has a valid session
+                            coreLogic.getSessionScope(userId).calls
+                                .establishedCall()
+                                .map {
+                                    it.firstOrNull()?.let { call ->
+                                        OngoingCallData(userId, call.conversationId, callNotificationManager.getNotificationTitle(call))
+                                    }
                                 }
-                            }
-                    } catch (e: IllegalStateException) {
-                        flowOf(null)
+                        } else flowOf(null)
                     }
                 }
             }
             .distinctUntilChanged()
+            .onCompletion {
+                servicesManager.stopOngoingCallServiceForUser(userId)
+            }
             .collect { ongoingCallData ->
                 if (ongoingCallData == null) {
-                    servicesManager.stopOngoingCallService()
+                    servicesManager.stopOngoingCallServiceForUser(userId)
                 } else {
-                    servicesManager.startOngoingCallService(
-                        ongoingCallData.notificationTitle,
-                        ongoingCallData.conversationId,
-                        ongoingCallData.userId
-                    )
+                    servicesManager.startOngoingCallService(ongoingCallData)
                 }
             }
     }
@@ -473,8 +475,6 @@ class WireNotificationManager @Inject constructor(
         val userId: QualifiedID,
         val userName: String
     )
-
-    private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)
 
     private data class ObservingJobs(
         val currentScreenJob: Job,

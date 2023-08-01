@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="app_version">Versão do aplicativo</string>
+    <string name="build_variant_name">Variante de compilação</string>
     <string name="label_new">Novo</string>
     <string name="label_login">Iniciar sessão</string>
     <string name="label_ok">OK</string>
@@ -861,18 +861,18 @@ URL do backend:
     <string name="label_fetching_your_messages">Recebendo novas mensagens</string>
     <string name="label_text_copied">Texto copiado para a área de transferência</string>
     <string name="label_logs_option_title">Registros</string>
-    <string name="label_share_logs">Compartilhar Logs</string>
-    <string name="label_delete_logs">Excluir todos os Logs</string>
+    <string name="label_share_logs">Compartilhar registros</string>
+    <string name="label_delete_logs">Excluir todos os registros</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
     <string name="label_mls_option_title">MLS Options</string>
-    <string name="label_enable_logging">Ativar Logging</string>
+    <string name="label_enable_logging">Habilitar registro</string>
     <string name="label_proteus_option_title">Proteus Options</string>
     <string name="label_enable_encrypted_proteus_storage">Ativar armazenamento protegido por criptografia do Proteus</string>
-    <string name="label_debug_title">Configurações de debug</string>
+    <string name="label_debug_title">Configurações de depuração</string>
     <string name="label_client_option_title">ID do Cliente</string>
     <string name="label_device_id">ID do Dispositivo: %1$s</string>
-    <string name="label_code_commit_id">Hash do Commit: %1$s</string>
+    <string name="label_code_commit_id">Hash do commit: %1$s</string>
     <string name="label_client_id">ID do Cliente: %1$s</string>
     <string name="label_client_added_time">ADICIONADO</string>
     <string name="label_client_last_active_label">LAST ACTIVE</string>
@@ -1078,9 +1078,9 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="five_minutes_short_label">5m</string>
     <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
-    <string name="label_debug_data">Debug data</string>
-    <string name="title_internal_debugging">Internal debugging</string>
-    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
+    <string name="label_debug_data">Dados de depuração</string>
+    <string name="title_internal_debugging">Depuração interna</string>
+    <string name="label_log_options_description">"Isso armazena informações anônimas de solução de problemas localmente. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Nenhum aplicativo encontrado para abrir a pasta de downloads"</string>
     <string name="notification_obfuscated_message">Someone sent a Message</string>
     <string name="settings_licenses_settings_label">License Information</string>

@@ -28,7 +28,7 @@ import java.io.File
 class FileUtilTest {
 
     @TempDir
-    val tempDir = File("temp-dir")
+    lateinit var tempDir: File
 
     @Test
     fun `given file does not exist when finding first unique name in directory then return this name`() {

@@ -239,11 +239,16 @@ class MessageComposerViewModel @Inject constructor(
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
-                    handleAttachment(messageBundle)
+                    handleAssetMessageBundle(
+                        attachmentUri = messageBundle.attachmentUri
+                    )
                 }
 
                 is ComposableMessageBundle.AudioMessageBundle -> {
-                    handleAudioMessageBundle(messageBundle)
+                    handleAssetMessageBundle(
+                        attachmentUri = messageBundle.attachmentUri,
+                        audioPath = messageBundle.attachmentUri.uri.path?.toPath()
+                    )
                 }
 
                 is ComposableMessageBundle.SendTextMessageBundle -> {
@@ -263,23 +268,6 @@ class MessageComposerViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private suspend fun handleAttachment(
-        messageBundle: ComposableMessageBundle.AttachmentPickedBundle
-    ) {
-        handleAssetMessageBundle(
-            attachmentUri = messageBundle.attachmentUri
-        )
-    }
-
-    private suspend fun handleAudioMessageBundle(
-        messageBundle: ComposableMessageBundle.AudioMessageBundle
-    ) {
-        handleAssetMessageBundle(
-            attachmentUri = messageBundle.attachmentUri,
-            audioPath = messageBundle.attachmentUri.uri.path?.toPath()
-        )
     }
 
     private suspend fun handleAssetMessageBundle(

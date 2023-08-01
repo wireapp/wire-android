@@ -159,7 +159,7 @@ fun ConversationScreen(
     }
 
     LaunchedEffect(Unit) {
-        conversationInfoViewModel.observeConversationDetails()
+        conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
     }
 
     with(conversationCallViewModel) {

@@ -21,12 +21,12 @@
 package com.wire.android.ui.home.conversations.info
 
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -71,6 +71,9 @@ class ConversationInfoViewModelArrangement {
     @MockK
     private lateinit var getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 
+    @MockK(relaxed = true)
+    lateinit var onNotFound: () -> Unit
+
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper,
@@ -78,7 +81,6 @@ class ConversationInfoViewModelArrangement {
             observeConversationDetails,
             observerSelfUser,
             wireSessionImageLoader,
-            TestDispatcherProvider(),
             getConversationVerificationStatus
         )
     }
@@ -105,6 +107,10 @@ class ConversationInfoViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("id@domain")
         } returns QualifiedID("id", "domain")
         conversationDetailsChannel.send(conversationDetails)
+    }
+
+    suspend fun withConversationDetailFailure(failure: StorageFailure) = apply {
+        coEvery { observeConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Failure(failure))
     }
 
     suspend fun withSelfUser() = apply {

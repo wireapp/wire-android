@@ -26,14 +26,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -56,7 +57,6 @@ class ConversationInfoViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val dispatchers: DispatcherProvider,
     private val getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -89,18 +89,24 @@ class ConversationInfoViewModel @Inject constructor(
         is removed without back params indicating that the user actually have just done that. The info about the group being removed
         could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
     */
-    suspend fun observeConversationDetails() {
-        observeConversationDetails(conversationId).collect(::handleConversationDetailsResult)
+    suspend fun observeConversationDetails(onNotFound: () -> Unit) {
+        observeConversationDetails(conversationId)
+            .collect { it.handleConversationDetailsResult(onNotFound) }
     }
 
-    private fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
-        when (conversationDetailsResult) {
+    private fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
+        when (this) {
             is ObserveConversationDetailsUseCase.Result.Failure -> {
-                // Nothing to do
+                when (val failure = this.storageFailure) {
+                    is StorageFailure.DataNotFound -> onNotFound()
+
+                    is StorageFailure.Generic ->
+                        appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
+                }
             }
 
             is ObserveConversationDetailsUseCase.Result.Success -> handleConversationDetails(
-                conversationDetailsResult.conversationDetails
+                this.conversationDetails
             )
         }
     }

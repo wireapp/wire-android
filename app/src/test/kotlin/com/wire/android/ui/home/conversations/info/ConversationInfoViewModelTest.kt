@@ -32,6 +32,7 @@ import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ConversationProtocol
 import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -64,7 +65,7 @@ class ConversationInfoViewModelTest {
     fun `given an other mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .withMentionedUserId(TestUser.OTHER_USER.id)
@@ -85,7 +86,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -107,7 +108,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
@@ -123,7 +124,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -146,7 +147,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -191,7 +192,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
@@ -208,7 +209,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             val actualAvatar = viewModel.conversationInfoViewState.conversationAvatar
             // When - Then
@@ -309,5 +310,20 @@ class ConversationInfoViewModelTest {
             result,
             viewModel.conversationInfoViewState.verificationStatus
         )
+    }
+
+    @Test
+    fun `given conversation details are not found, when observing details, then call onNotFound`() = runTest {
+        // Given
+        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailFailure(StorageFailure.DataNotFound)
+            .withSelfUser()
+            .arrange()
+        launch { viewModel.observeConversationDetails(arrangement.onNotFound) }.run {
+            advanceUntilIdle()
+            // When - Then
+            verify(exactly = 1) { arrangement.onNotFound() }
+            cancel()
+        }
     }
 }

@@ -79,10 +79,13 @@ class AudioMediaRecorder @Inject constructor(
                 .toFile()
 
             mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mediaRecorder?.setAudioSamplingRate(SAMPLING_RATE)
             mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            mediaRecorder?.setOutputFile(outputFile)
+            mediaRecorder?.setAudioChannels(AUDIO_CHANNELS)
+            mediaRecorder?.setAudioEncodingBitRate(AUDIO_ENCONDING_BIT_RATE)
             mediaRecorder?.setMaxFileSize(assetLimitInMegabyte)
+            mediaRecorder?.setOutputFile(outputFile)
 
             observeAudioFileSize()
         }
@@ -127,5 +130,8 @@ class AudioMediaRecorder @Inject constructor(
         fun getRecordingAudioFileName(): String =
             "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.m4a"
         const val SIZE_OF_1MB = 1024 * 1024
+        const val AUDIO_CHANNELS = 1
+        const val SAMPLING_RATE = 44100
+        const val AUDIO_ENCONDING_BIT_RATE = 96000
     }
 }

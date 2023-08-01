@@ -147,21 +147,23 @@ private fun InnerButtonBox(
     val trailingItem: (@Composable () -> Unit) = {
         Crossfade(targetState = (trailingIcon != null) to loading) { (hasTrailingIcon, loading) ->
             when {
-                hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon!!)
+                hasTrailingIcon -> Tint(contentColor = contentColor, content = trailingIcon ?: {})
                 loading -> WireCircularProgressIndicator(progressColor = contentColor)
             }
         }
     }
-    Box(contentAlignment = Alignment.Center,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.wrapContentWidth(),
     ) {
         var startItemWidth by remember { mutableStateOf(0) }
         var endItemWidth by remember { mutableStateOf(0) }
         val borderItemsMaxWidth = with(LocalDensity.current) { max(startItemWidth, endItemWidth).toDp() }
 
-        Box(modifier = Modifier
-            .align(Alignment.CenterStart)
-            .onGloballyPositioned { startItemWidth = it.size.width },
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .onGloballyPositioned { startItemWidth = it.size.width },
         ) { if (leadingIconAlignment == IconAlignment.Border) leadingItem() }
 
         Row(

@@ -34,18 +34,16 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MigrateClientsDataUseCaseTest {
 
     @TempDir
-    val proteusDir = File("proteus")
+    lateinit var proteusDir: File
 
     @Test
     fun `given session file name without domain when fixing session file names then return updated session file with domain`() = runTest {

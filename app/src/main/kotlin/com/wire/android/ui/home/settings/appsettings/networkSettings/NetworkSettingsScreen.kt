@@ -36,7 +36,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
-import com.wire.android.util.extension.isGoogleServicesAvailable
+import com.wire.android.util.isWebsocketEnabledByDefault
 
 @Composable
 fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = hiltViewModel()) {
@@ -68,31 +68,21 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            GroupConversationOptionsItem(
-                title = stringResource(R.string.settings_keep_connection_to_websocket),
-                subtitle = stringResource(
-                    R.string.settings_keep_connection_to_websocket_description,
-                    backendName
-                ),
-                switchState = getSwitchState(isWebSocketEnabled, setWebSocketState),
-                arrowType = ArrowType.NONE
-            )
+            if (!isWebsocketEnabledByDefault(LocalContext.current)) {
+                GroupConversationOptionsItem(
+                    title = stringResource(R.string.settings_keep_connection_to_websocket),
+                    subtitle = stringResource(
+                        R.string.settings_keep_connection_to_websocket_description,
+                        backendName
+                    ),
+                    switchState = SwitchState.Enabled(
+                        value = isWebSocketEnabled,
+                        onCheckedChange = setWebSocketState
+                    ),
+                    arrowType = ArrowType.NONE
+                )
+            }
         }
-    }
-}
-
-@Composable
-private fun getSwitchState(isWebSocketEnabled: Boolean, setWebSocketState: (Boolean) -> Unit): SwitchState {
-    val context = LocalContext.current
-    return if (context.isGoogleServicesAvailable()) {
-        SwitchState.Enabled(
-            value = isWebSocketEnabled,
-            onCheckedChange = setWebSocketState
-        )
-    } else {
-        SwitchState.Disabled(
-            value = isWebSocketEnabled,
-        )
     }
 }
 

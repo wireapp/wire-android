@@ -58,7 +58,7 @@ fun JoinConversationViaDeepLinkDialog(
     requirePassword: Boolean,
     onFlowCompleted: (conversationId: ConversationId?) -> Unit
 ) {
-    val viewModel = hiltViewModelScoped<JoinViaDeepLInkDialogViewModel>()
+    val viewModel = hiltViewModelScoped<JoinConversationViaCodeViewModel>()
 
     val isLoading: Boolean = remember(viewModel.state) {
         viewModel.state is JoinViaDeepLinkDialogState.Loading

@@ -26,5 +26,5 @@ sealed interface JoinViaDeepLinkDialogState {
     data class Joined(val convId: ConversationId?) : JoinViaDeepLinkDialogState
     data object Loading: JoinViaDeepLinkDialogState
     data object UnknownError: JoinViaDeepLinkDialogState
-    data object None: JoinViaDeepLinkDialogState
+    data object Idle: JoinViaDeepLinkDialogState
 }

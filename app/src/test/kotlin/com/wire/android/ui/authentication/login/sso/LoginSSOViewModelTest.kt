@@ -541,6 +541,7 @@ class LoginSSOViewModelTest {
             isValid = true,
             DeviceType.Desktop,
             "label",
+            null,
             null
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)

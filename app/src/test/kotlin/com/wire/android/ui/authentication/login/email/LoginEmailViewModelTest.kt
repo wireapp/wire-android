@@ -497,7 +497,7 @@ class LoginEmailViewModelTest {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
             CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, Instant.DISTANT_PAST, false,
-            isValid = true, DeviceType.Desktop, "label", null
+            isValid = true, DeviceType.Desktop, "label", null, null
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AuthTokens(

@@ -35,7 +35,12 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.snackbar.collectAndShowSnackbar
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -46,7 +51,20 @@ fun ConnectionActionButton(
     connectionStatus: ConnectionState,
     viewModel: ConnectionActionButtonViewModel =
         hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonArgs>(ConnectionActionButtonArgs(userId, userName))
+            .also { LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage) }
 ) {
+    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
+
+    UnblockUserDialogContent(
+        dialogState = unblockUserDialogState,
+        onUnblock = { viewModel.onUnblockUser() },
+        isLoading = viewModel.actionableState().isPerformingAction,
+    )
+
+    if (!viewModel.actionableState().isPerformingAction) {
+        unblockUserDialogState.dismiss()
+    }
+
     when (connectionStatus) {
         ConnectionState.SENT -> WireSecondaryButton(
             text = stringResource(R.string.connection_label_cancel_request),
@@ -54,11 +72,13 @@ fun ConnectionActionButton(
             onClick = viewModel::onCancelConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         )
+
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
             loading = viewModel.actionableState().isPerformingAction,
             onClick = viewModel::onOpenConversation,
         )
+
         ConnectionState.IGNORED -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_accept),
             loading = viewModel.actionableState().isPerformingAction,
@@ -72,6 +92,7 @@ fun ConnectionActionButton(
                 )
             }
         )
+
         ConnectionState.PENDING -> Column {
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),
@@ -102,14 +123,23 @@ fun ConnectionActionButton(
                 }
             )
         }
+
         ConnectionState.BLOCKED -> {
             WireSecondaryButton(
                 text = stringResource(R.string.user_profile_unblock_user),
                 loading = viewModel.actionableState().isPerformingAction,
-                onClick = viewModel::onUnblockUser,
+                onClick = {
+                    unblockUserDialogState.show(
+                        UnblockUserDialogState(
+                            userId = userId,
+                            userName = userName
+                        )
+                    )
+                },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             )
         }
+
         ConnectionState.NOT_CONNECTED,
         ConnectionState.CANCELLED,
         ConnectionState.MISSING_LEGALHOLD_CONSENT -> WirePrimaryButton(

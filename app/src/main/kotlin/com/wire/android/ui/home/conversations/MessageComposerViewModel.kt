@@ -87,6 +87,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
+import okio.Path
+import okio.Path.Companion.toPath
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
@@ -237,7 +239,16 @@ class MessageComposerViewModel @Inject constructor(
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
-                    handleAttachment(messageBundle)
+                    handleAssetMessageBundle(
+                        attachmentUri = messageBundle.attachmentUri
+                    )
+                }
+
+                is ComposableMessageBundle.AudioMessageBundle -> {
+                    handleAssetMessageBundle(
+                        attachmentUri = messageBundle.attachmentUri,
+                        audioPath = messageBundle.attachmentUri.uri.path?.toPath()
+                    )
                 }
 
                 is ComposableMessageBundle.SendTextMessageBundle -> {
@@ -259,21 +270,24 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleAttachment(
-        messageBundle: ComposableMessageBundle.AttachmentPickedBundle
+    private suspend fun handleAssetMessageBundle(
+        attachmentUri: UriAsset,
+        audioPath: Path? = null
     ) {
-        with(messageBundle) {
-            val tempCachePath = kaliumFileSystem.rootCachePath
-            val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-            if (assetBundle != null) {
-                // The max limit for sending assets changes between user and asset types.
-                // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-                val maxSizeLimitInBytes =
-                    getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-                handleBundle(assetBundle, maxSizeLimitInBytes, messageBundle.attachmentUri)
-            } else {
-                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-            }
+        val tempCachePath = kaliumFileSystem.rootCachePath
+        val assetBundle = fileManager.getAssetBundleFromUri(
+            attachmentUri = attachmentUri.uri,
+            tempCachePath = tempCachePath,
+            audioPath = audioPath
+        )
+        if (assetBundle != null) {
+            // The max limit for sending assets changes between user and asset types.
+            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
+            val maxSizeLimitInBytes =
+                getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
+            handleBundle(assetBundle, maxSizeLimitInBytes, attachmentUri)
+        } else {
+            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
         }
     }
 

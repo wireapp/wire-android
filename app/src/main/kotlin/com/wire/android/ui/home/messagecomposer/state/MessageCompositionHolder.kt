@@ -50,7 +50,6 @@ class MessageCompositionHolder(
     }
 
     val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
-
     fun setReply(message: UIMessage.Regular) {
         val senderId = message.header.userId ?: return
 
@@ -425,6 +424,10 @@ sealed class ComposableMessageBundle : MessageBundle {
     ) : ComposableMessageBundle()
 
     data class AttachmentPickedBundle(
+        val attachmentUri: UriAsset
+    ) : ComposableMessageBundle()
+
+    data class AudioMessageBundle(
         val attachmentUri: UriAsset
     ) : ComposableMessageBundle()
 }

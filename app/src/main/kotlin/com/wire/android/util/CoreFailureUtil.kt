@@ -21,6 +21,7 @@
 package com.wire.android.util
 
 import android.content.res.Resources
+import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
@@ -31,10 +32,12 @@ fun CoreFailure.dialogErrorStrings(resources: Resources): DialogErrorStrings = w
         resources.getString(R.string.error_no_network_title),
         resources.getString(R.string.error_no_network_message)
     )
+
     is NetworkFailure.ServerMiscommunication -> DialogErrorStrings(
         resources.getString(R.string.error_server_miscommunication_title),
         resources.getString(R.string.error_server_miscommunication_message)
     )
+
     else -> DialogErrorStrings(
         resources.getString(R.string.error_unknown_title),
         resources.getString(R.string.error_unknown_message)
@@ -48,3 +51,4 @@ fun CoreFailure.uiText(): UIText = when (this) {
 }
 
 data class DialogErrorStrings(val title: String, val message: String)
+data class DialogAnnotatedErrorStrings(val title: String, val annotatedMessage: AnnotatedString)

@@ -35,6 +35,7 @@ import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -84,6 +85,7 @@ class NewConversationViewModel @Inject constructor(
     )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
+    var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState())
 
     init {
         viewModelScope.launch {
@@ -96,8 +98,15 @@ class NewConversationViewModel @Inject constructor(
         newGroupState = GroupNameValidator.onGroupNameChange(newText, newGroupState)
     }
 
-    fun onGroupOptionsErrorDismiss() {
-        groupOptionsState = groupOptionsState.copy(error = null)
+    fun onCreateGroupErrorDismiss() {
+        createGroupState = createGroupState.copy(error = null)
+    }
+
+    fun onDiscardGroupCreationClick() {
+        createGroupState = createGroupState.copy(error = null)
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
     }
 
     fun onAllowGuestStatusChanged(status: Boolean) {
@@ -185,7 +194,7 @@ class NewConversationViewModel @Inject constructor(
     private fun createGroupForTeamAccounts(shouldCheckGuests: Boolean = true) {
         if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
-            newGroupState = newGroupState.copy(isLoading = true)
+            groupOptionsState = groupOptionsState.copy(isLoading = true)
             val result = createGroupConversation(
                 name = newGroupState.groupName.text,
                 // TODO: change the id in Contact to UserId instead of String
@@ -219,12 +228,22 @@ class NewConversationViewModel @Inject constructor(
 
             CreateGroupConversationUseCase.Result.SyncFailure -> {
                 appLogger.d("Can't create group due to SyncFailure")
-                groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.LackingConnection)
+                groupOptionsState = groupOptionsState.copy(isLoading = false)
+                newGroupState = newGroupState.copy(isLoading = false)
+                createGroupState = createGroupState.copy(error = CreateGroupState.Error.LackingConnection)
             }
 
             is CreateGroupConversationUseCase.Result.UnknownFailure -> {
                 appLogger.w("Error while creating a group ${result.cause}")
-                groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.Unknown)
+                groupOptionsState = groupOptionsState.copy(isLoading = false)
+                newGroupState = newGroupState.copy(isLoading = false)
+                createGroupState = createGroupState.copy(error = CreateGroupState.Error.Unknown)
+            }
+
+            is CreateGroupConversationUseCase.Result.BackendConflictFailure -> {
+                groupOptionsState = groupOptionsState.copy(isLoading = false)
+                newGroupState = newGroupState.copy(isLoading = false)
+                createGroupState = createGroupState.copy(error = CreateGroupState.Error.ConflictedBackends(result.domains))
             }
         }
     }

@@ -1,5 +1,3 @@
-import com.wire.android.gradle.version.Versionizer
-
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -17,14 +15,11 @@ import com.wire.android.gradle.version.Versionizer
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-object AndroidSdk {
-    const val min = 26
-    const val compile = 33
-    const val target = compile
-}
+package com.wire.android.ui.markdown
 
-object AndroidApp {
-    const val id = "com.wire.android"
-    const val versionName = "4.4.0"
-    val versionCode = Versionizer().versionCode
+object MarkdownConstants {
+    const val TAG_URL = "linkTag"
+    const val TAG_MENTION = "mentionTag"
+    const val MENTION_MARK = "&&"
+    const val BULLET_MARK = "\u2022"
 }

@@ -145,8 +145,12 @@ sealed class CurrentScreen {
 
     // Import media screen is opened
     object ImportMedia : CurrentScreen()
+
     // SelfDevices screen is opened
     object DeviceManager : CurrentScreen()
+
+    // Auth related screen is opened
+    object AuthRelated : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
@@ -155,7 +159,7 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+        private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
         @Suppress("ComplexMethod")
         fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
@@ -170,26 +174,39 @@ sealed class CurrentScreen {
                         ?.let { Conversation(it) }
                         ?: SomeOther
                 }
+
                 NavigationItem.OtherUserProfile -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
                         ?.let { OtherUserProfile(it) }
                         ?: SomeOther
                 }
+
                 NavigationItem.OngoingCall -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
                         ?.let { OngoingCallScreen(it) }
                         ?: SomeOther
                 }
+
                 NavigationItem.IncomingCall -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
                         ?.let { IncomingCallScreen(it) }
                         ?: SomeOther
                 }
+
                 NavigationItem.ImportMedia -> ImportMedia
                 NavigationItem.SelfDevices -> DeviceManager
+                NavigationItem.Welcome,
+                NavigationItem.Login,
+                NavigationItem.CreatePersonalAccount,
+                NavigationItem.CreateTeam,
+                NavigationItem.CreateAccountSummary,
+                NavigationItem.Migration,
+                NavigationItem.InitialSync,
+                NavigationItem.RemoveDevices -> AuthRelated
+
                 else -> SomeOther
             }
         }

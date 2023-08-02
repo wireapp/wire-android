@@ -20,11 +20,13 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,8 +64,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.feature.conversation.ConversationProtocol
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,6 +101,20 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
+                if (conversationInfoViewState.verificationStatus?.status == ConversationVerificationStatus.VERIFIED) {
+                    val (iconId, contentDescriptionId) = when (conversationInfoViewState.verificationStatus.protocol) {
+                        ConversationProtocol.MLS ->
+                            R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
+
+                        ConversationProtocol.PROTEUS ->
+                            R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
+                    }
+                    Image(
+                        modifier = Modifier.padding(start = dimensions().spacing4x),
+                        painter = painterResource(id = iconId),
+                        contentDescription = stringResource(contentDescriptionId)
+                    )
+                }
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),

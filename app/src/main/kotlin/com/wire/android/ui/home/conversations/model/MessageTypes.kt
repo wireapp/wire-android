@@ -26,19 +26,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
+import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.EXTRA_MESSAGE_ID
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
@@ -46,7 +55,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
-import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
+import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
@@ -68,12 +77,16 @@ import org.commonmark.parser.Parser
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
-    messageBody: MessageBody,
+    messageId: String,
+    messageBody: MessageBody?,
     isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
+    buttonList: List<MessageButton>?
 ) {
-    val (displayMentions, text) = mapToDisplayMentions(messageBody.message, LocalContext.current.resources)
+    val (displayMentions, text) = messageBody?.message?.let {
+        mapToDisplayMentions(it, LocalContext.current.resources)
+    } ?: Pair(emptyList(), null)
 
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
@@ -90,8 +103,59 @@ internal fun MessageBody(
         StrikethroughExtension.builder().requireTwoTildes(true).build(),
         TablesExtension.create()
     )
+    text?.also {
+        MarkdownDocument(Parser.builder().extensions(extensions).build().parse(it) as Document, nodeData)
+    }
+    buttonList?.also {
+        MessageButtonsContent(
+            messageId = messageId,
+            buttonList = it,
+        )
+    }
+}
 
-    MarkdownDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
+@Composable
+fun MessageButtonsContent(
+    messageId: String,
+    buttonList: List<MessageButton>,
+) {
+    val viewModel = hiltViewModelScoped<CompositeMessageViewModel>(
+        key = "${CompositeMessageViewModel.ARGS_KEY}$messageId",
+        defaultArguments = bundleOf(
+            EXTRA_MESSAGE_ID to messageId,
+        )
+    )
+    Column(
+        modifier = Modifier
+            .wrapContentSize()
+    ) {
+        for (index in buttonList.indices) {
+            val button = buttonList[index]
+            val onCLick = remember(button.isSelected) {
+                if (!button.isSelected) {
+                    { viewModel.sendButtonActionMessage(button.id) }
+                } else {
+                    { }
+                }
+            }
+
+            val isPending = viewModel.pendingButtonId == button.id
+
+            val state = if (button.isSelected) WireButtonState.Selected
+            else if (viewModel.pendingButtonId != null) WireButtonState.Disabled
+            else WireButtonState.Default
+
+            WireSecondaryButton(
+                loading = isPending,
+                text = button.text,
+                onClick = onCLick,
+                state = state
+            )
+            if (index != buttonList.lastIndex) {
+                Spacer(modifier = Modifier.padding(top = dimensions().spacing8x))
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

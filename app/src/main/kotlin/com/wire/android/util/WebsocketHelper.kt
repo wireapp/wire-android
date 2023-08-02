@@ -1,5 +1,3 @@
-import com.wire.android.gradle.version.Versionizer
-
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -17,14 +15,15 @@ import com.wire.android.gradle.version.Versionizer
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-object AndroidSdk {
-    const val min = 26
-    const val compile = 33
-    const val target = compile
-}
+package com.wire.android.util
 
-object AndroidApp {
-    const val id = "com.wire.android"
-    const val versionName = "4.4.0"
-    val versionCode = Versionizer().versionCode
-}
+import android.content.Context
+import com.wire.android.BuildConfig
+import com.wire.android.util.extension.isGoogleServicesAvailable
+
+/**
+ * If [BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT] is true, the websocket should be enabled by default always.
+ * Otherwise, it should be enabled by default only if Google Play Services are not available.
+ */
+fun isWebsocketEnabledByDefault(context: Context) =
+    BuildConfig.WEBSOCKET_ENABLED_BY_DEFAULT || !context.isGoogleServicesAvailable()

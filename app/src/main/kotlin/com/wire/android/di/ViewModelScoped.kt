@@ -56,7 +56,6 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
 inline fun <reified T : ViewModel, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): T =
     hiltViewModelScoped(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
 
-
 /**
  * Creates a [Bundle] with all key-values from the given [SavedStateHandle].
  */

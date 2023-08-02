@@ -34,10 +34,12 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -157,9 +159,13 @@ fun ConversationScreen(
             navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(conversationCallViewModel.conversationId)))
         }
     }
+    // this is to prevent from double navigating back after user deletes a group on group details screen
+    // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
+    var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
+    LaunchedEffect(alreadyDeletedByUser) {
+        if (!alreadyDeletedByUser)
+            conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
     }
 
     with(conversationCallViewModel) {
@@ -306,6 +312,7 @@ fun ConversationScreen(
             is Value -> {
                 resultNavigator.setResult(result.value)
                 resultNavigator.navigateBack()
+                alreadyDeletedByUser = true
             }
         }
     }

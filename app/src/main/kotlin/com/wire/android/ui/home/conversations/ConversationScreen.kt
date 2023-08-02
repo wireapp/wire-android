@@ -165,8 +165,9 @@ fun ConversationScreen(
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(alreadyDeletedByUser) {
-        if (!alreadyDeletedByUser)
+        if (!alreadyDeletedByUser) {
             conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
+        }
     }
 
     with(conversationCallViewModel) {

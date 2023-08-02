@@ -300,7 +300,6 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
         }
 
-
         is MessagePreviewContent.Ephemeral -> {
             val ephemeralContent = (content as MessagePreviewContent.Ephemeral)
             if (ephemeralContent.isGroupConversation) {

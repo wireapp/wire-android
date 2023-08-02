@@ -47,6 +47,7 @@ class SystemMessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {
 
+    @Suppress("ComplexMethod")
     fun mapMessage(
         message: Message.System,
         members: List<User>

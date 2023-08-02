@@ -79,6 +79,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
 
+@Suppress("ComplexMethod")
 @Composable
 fun SystemMessageItem(
     message: UIMessage.System,

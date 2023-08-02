@@ -71,7 +71,7 @@ internal class NewConversationViewModelArrangement {
             SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         )
         coEvery { searchKnownUsers(any()) } returns flowOf(
-            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
+            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(FEDERATED_KNOWN_USER)))
         )
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         every { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
@@ -87,7 +87,7 @@ internal class NewConversationViewModelArrangement {
             membership = Membership.Federated
         )
 
-        every { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
+        every { contactMapper.fromOtherUser(FEDERATED_KNOWN_USER) } returns Contact(
             id = "knownValue",
             domain = "domain",
             name = "knownUsername",
@@ -100,7 +100,7 @@ internal class NewConversationViewModelArrangement {
             membership = Membership.Federated
         )
 
-        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(KNOWN_USER)))
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(FEDERATED_KNOWN_USER)))
 
         coEvery { getAllServices() } returns flowOf(listOf<ServiceDetails>())
     }
@@ -176,10 +176,11 @@ internal class NewConversationViewModelArrangement {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
             botService = null,
-            deleted = false
+            deleted = false,
+            defederated = false
         )
 
-        val KNOWN_USER = OtherUser(
+        val FEDERATED_KNOWN_USER = OtherUser(
             TestUser.USER_ID.copy(value = "knownValue"),
             name = "knownUsername",
             handle = "knownHandle",
@@ -193,7 +194,8 @@ internal class NewConversationViewModelArrangement {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
             botService = null,
-            deleted = false
+            deleted = false,
+            defederated = false
         )
     }
 

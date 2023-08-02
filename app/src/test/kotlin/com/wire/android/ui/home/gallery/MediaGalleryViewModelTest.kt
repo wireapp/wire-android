@@ -331,7 +331,8 @@ class MediaGalleryViewModelTest {
                 UserType.INTERNAL,
                 UserAvailabilityStatus.AVAILABLE,
                 null,
-                false
+                false,
+                defederated = false
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,

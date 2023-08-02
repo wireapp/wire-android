@@ -56,7 +56,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
@@ -136,10 +135,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
-@OptIn(
-    ExperimentalPagerApi::class,
-    ExperimentalMaterial3Api::class,
-)
 @Composable
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
@@ -332,7 +327,6 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun TopBarFooter(
     state: OtherUserProfileState,
@@ -363,7 +357,7 @@ private fun TopBarFooter(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     state: OtherUserProfileState,

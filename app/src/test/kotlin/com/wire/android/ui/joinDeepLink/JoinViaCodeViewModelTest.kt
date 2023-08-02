@@ -62,10 +62,10 @@ class JoinViaCodeViewModelTest {
     }
 
     @Test
-    fun `given valid code, when joining conversion and user us already a member, then udate state`() {
+    fun `given valid code, when joining conversion and user us already a member, then update state`() {
         val (code, key, domain) = Triple("code", "key", "domain")
         val conversationId = ConversationId("id", "domain")
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withJoinConversationCode(
                 JoinConversationViaCodeUseCase.Result.Success.Unchanged(conversationId)
             )

@@ -267,14 +267,16 @@ class WireActivity : AppCompatActivity() {
             when (it) {
                 is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
                     errorState = it,
-                    onCancel = viewModel::cancelJoinConversation
+                    onCancel = viewModel::onJoinConversationFlowCompleted
                 )
 
                 is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
-                    it,
-                    false,
-                    onCancel = viewModel::cancelJoinConversation,
-                    onJoinClick = viewModel::joinConversationViaCode
+                    name = it.conversationName,
+                    code = it.code,
+                    domain = it.domain,
+                    key = it.key,
+                    requirePassword = it.passwordProtected,
+                    onFlowCompleted = viewModel::onJoinConversationFlowCompleted
                 )
             }
         }

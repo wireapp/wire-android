@@ -63,7 +63,6 @@ import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
-import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -386,7 +385,8 @@ class WireActivityViewModel @Inject constructor(
                                         result.name,
                                         code,
                                         key,
-                                        domain
+                                        domain,
+                                        result.isPasswordProtected
                                     )
                                 )
                         }
@@ -399,43 +399,9 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun joinConversationViaCode(
-        code: String,
-        key: String,
-        domain: String?
-    ) = viewModelScope.launch {
-        when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Failure.Generic -> globalAppState = globalAppState.copy(conversationJoinedDialog = null)
-
-            CurrentSessionResult.Failure.SessionNotFound -> globalAppState = globalAppState.copy(conversationJoinedDialog = null)
-
-            is CurrentSessionResult.Success -> {
-                coreLogic.sessionScope(currentSession.accountInfo.userId) {
-                    when (val result = conversations.joinConversationViaCode(code, key, domain)) {
-                        is JoinConversationViaCodeUseCase.Result.Failure -> {
-                            appLogger.e("something went wrong during handling the join conversation deep link: ${result.failure}")
-                            globalAppState = globalAppState.copy(conversationJoinedDialog = null)
-                        }
-
-                        is JoinConversationViaCodeUseCase.Result.Success -> {
-                            globalAppState = globalAppState.copy(conversationJoinedDialog = null)
-                            result.conversationId?.let {
-                                openConversation(it)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }.invokeOnCompletion {
-        // in case of failure, we need to dismiss the dialog
-        it?.let {
-            globalAppState = globalAppState.copy(conversationJoinedDialog = null)
-        }
-    }
-
-    fun cancelJoinConversation() {
+    fun onJoinConversationFlowCompleted(conversionID: ConversationId? = null) {
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+        conversionID?.also { openConversation(it) }
     }
 
     private fun shouldGoToWelcome(): Boolean = !hasValidCurrentSession()

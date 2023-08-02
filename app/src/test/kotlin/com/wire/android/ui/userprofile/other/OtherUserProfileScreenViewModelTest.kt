@@ -222,7 +222,7 @@ class OtherUserProfileScreenViewModelTest {
         val OTHER_USER = OtherUser(
             USER_ID,
             name = "some_name",
-            handle="some_handle",
+            handle = "some_handle",
             email = "some_email",
             phone = "some_phone",
             accentId = 1,

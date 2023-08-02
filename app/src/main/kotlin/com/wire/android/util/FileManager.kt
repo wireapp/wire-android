@@ -109,12 +109,17 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     suspend fun getAssetBundleFromUri(
         attachmentUri: Uri,
         tempCachePath: Path,
+        audioPath: Path? = null,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
         try {
-            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
+            val assetFileName = context.getFileName(attachmentUri)
+                ?: throw IOException("The selected asset has an invalid name")
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
-            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
+            val assetPath = audioPath ?: fullTempAssetPath
+            val mimeType = if (audioPath != null) AUDIO_MIME_TYPE else attachmentUri
+                .getMimeType(context)
+                .orDefault(DEFAULT_FILE_MIME_TYPE)
             val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
             val assetSize = if (attachmentType == AttachmentType.IMAGE) {
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
@@ -123,7 +128,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
                 //  of video assets hitting the max limit.
                 copyToPath(attachmentUri, fullTempAssetPath)
             }
-            AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+            AssetBundle(mimeType, assetPath, assetSize, assetFileName, attachmentType)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
             null

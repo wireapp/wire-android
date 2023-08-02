@@ -48,6 +48,7 @@ import org.commonmark.node.Link
 import org.commonmark.node.Node
 import org.commonmark.node.OrderedList
 import org.commonmark.node.Paragraph
+import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
@@ -160,7 +161,10 @@ fun inlineChildren(
 
             is HardLineBreak -> {
                 annotatedString.append("\n")
-                annotatedString.pop()
+            }
+
+            is SoftLineBreak -> {
+                annotatedString.append("\n")
             }
 
             is Link -> {

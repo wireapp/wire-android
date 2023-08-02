@@ -263,7 +263,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationStartedWithMembers,
         is SystemMessage.ConversationMessageTimerDeactivated,
         is SystemMessage.FederationMemberRemoved,
-        is SystemMessage.FederationRemoved,
+        is SystemMessage.FederationStopped,
         is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -400,6 +400,76 @@ fun PreviewSystemMessageFailedToAddMultiple() {
     }
 }
 
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationMemberRemoved() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationMemberRemoved(
+                    listOf(
+                        "Barbara Cotolina".toUIText(),
+                        "Albert Lewis".toUIText()
+                    )
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationMemberRemoved7Users() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationMemberRemoved(
+                    listOf(
+                        "Albert Lewis".toUIText(),
+                        "Bert Strunk".toUIText(),
+                        "Claudia Schiffer".toUIText(),
+                        "Dorothee Friedrich".toUIText(),
+                        "Erich Weinert".toUIText(),
+                        "Frieda Kahlo".toUIText(),
+                        "Gudrun Gut".toUIText()
+                    )
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationStopped() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationStopped(
+                    listOf(
+                        "bella.wire.link",
+                        "foma.wire.link"
+                    )
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationStoppedSelf() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationStopped(
+                    listOf("foma.wire.link")
+                )
+            )
+        )
+    }
+}
+
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
@@ -422,7 +492,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberFailedToAdd -> this.usersCount > SINGLE_EXPANDABLE_THRESHOLD
         is SystemMessage.ConversationDegraded -> false
-        is SystemMessage.FederationRemoved -> false
+        is SystemMessage.FederationStopped -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources): String = when {
@@ -505,7 +575,7 @@ fun SystemMessage.annotatedString(
                 if (usersCount > SINGLE_EXPANDABLE_THRESHOLD) expanded else true
             )
 
-        is SystemMessage.FederationRemoved -> domainList.toTypedArray()
+        is SystemMessage.FederationStopped -> domainList.toTypedArray()
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)

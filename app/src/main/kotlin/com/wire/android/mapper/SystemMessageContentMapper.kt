@@ -64,7 +64,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
         is MessageContent.ConversationDegradedMLS -> mapConversationDegraded(Conversation.Protocol.MLS)
         is MessageContent.ConversationDegradedProteus -> mapConversationDegraded(Conversation.Protocol.PROTEUS)
-        is MessageContent.Federation -> mapFederationMessage(content)
+        is MessageContent.FederationStopped -> mapFederationMessage(content)
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -229,9 +229,9 @@ class SystemMessageContentMapper @Inject constructor(
         }
     }
 
-    private fun mapFederationMessage(content: MessageContent.Federation) = when (content) {
-        is MessageContent.Federation.ConnectionRemoved -> UIMessageContent.SystemMessage.FederationRemoved(content.domainList)
-        is MessageContent.Federation.Removed -> UIMessageContent.SystemMessage.FederationRemoved(listOf(content.domain))
+    private fun mapFederationMessage(content: MessageContent.FederationStopped) = when (content) {
+        is MessageContent.FederationStopped.ConnectionRemoved -> UIMessageContent.SystemMessage.FederationStopped(content.domainList)
+        is MessageContent.FederationStopped.Removed -> UIMessageContent.SystemMessage.FederationStopped(listOf(content.domain))
     }
 
     private fun mapFailedToAddUsersByDomain(members: List<UserId>, userList: List<User>): Map<String, List<UIText>> {

@@ -331,7 +331,7 @@ sealed class UIMessageContent {
             }
         )
 
-        data class FederationRemoved(
+        data class FederationStopped(
             val domainList: List<String>
         ) : SystemMessage(
             R.drawable.ic_info,

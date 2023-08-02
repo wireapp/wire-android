@@ -17,8 +17,11 @@
  */
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -46,16 +49,36 @@ fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modif
             tint = MaterialTheme.wireColorScheme.error,
             contentDescription = stringResource(R.string.content_description_message_error_status),
         )
-        // TODO handle read, sent and delivered status
-//        MessageFlowStatus.Sent -> Icon(
-//            modifier = modifier,
-//            painter = painterResource(id = R.drawable.ic_message_delivered),
-//            tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
-//            contentDescription = stringResource(R.string.content_description_message_delivered_status),
-//        )
-//        is MessageFlowStatus.Read -> {}
-//        MessageFlowStatus.Delivered -> TODO()
-        else -> HorizontalSpace.x16()
+
+        MessageFlowStatus.Sent -> {
+            Icon(
+                modifier = modifier,
+                painter = painterResource(id = R.drawable.ic_message_sent),
+                tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
+                contentDescription = stringResource(R.string.content_description_message_sent_status),
+            )
+        }
+
+        MessageFlowStatus.Delivered -> {
+            Icon(
+                modifier = modifier,
+                painter = painterResource(id = R.drawable.ic_message_delivered),
+                tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
+                contentDescription = stringResource(R.string.content_description_message_delivered_status),
+            )
+        }
+
+        is MessageFlowStatus.Read -> {
+            Row {
+                Icon(
+                    modifier = modifier,
+                    painter = painterResource(id = R.drawable.ic_message_read),
+                    tint = MaterialTheme.wireColorScheme.error,
+                    contentDescription = stringResource(R.string.content_description_message_read_status),
+                )
+                Text(status.count.toString())
+            }
+        }
     }
 }
 

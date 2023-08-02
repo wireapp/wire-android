@@ -113,11 +113,9 @@ dependencies {
     ksp(libs.compose.destinations.ksp)
 
     // Accompanist
-    implementation(libs.accompanist.pager)
     implementation(libs.accompanist.systemUI)
     implementation(libs.accompanist.placeholder)
     implementation(libs.accompanist.navAnimation)
-    implementation(libs.accompanist.indicator)
     implementation(libs.accompanist.flowLayout)
 
     implementation(libs.androidx.paging3)

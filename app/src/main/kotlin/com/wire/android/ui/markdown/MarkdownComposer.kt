@@ -159,11 +159,7 @@ fun inlineChildren(
                 annotatedString.pop()
             }
 
-            is HardLineBreak -> {
-                annotatedString.append("\n")
-            }
-
-            is SoftLineBreak -> {
+            is HardLineBreak, is SoftLineBreak -> {
                 annotatedString.append("\n")
             }
 

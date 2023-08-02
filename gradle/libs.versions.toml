@@ -17,7 +17,7 @@ android-gradlePlugin = "7.4.1"
 desugaring = "1.1.5"
 firebaseBOM = "31.4.0"
 fragment = "1.5.6"
-resaca = "2.3.4"
+resaca = "2.4.6"
 visibilityModifiers = "1.1.0"
 
 # AndroidX

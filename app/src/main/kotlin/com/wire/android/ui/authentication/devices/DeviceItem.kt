@@ -216,7 +216,7 @@ private fun DeviceItemTexts(
                 .shimmerPlaceholder(visible = placeholder)
         )
     }
-    
+
     val proteusDetails: String = if (!device.registrationTime.isNullOrBlank()) {
         if (device.lastActiveInWholeWeeks != null) {
             stringResource(

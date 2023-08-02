@@ -158,7 +158,7 @@ fun MessageItem(
 
                 val isProfileRedirectEnabled =
                     header.userId != null &&
-                        !(header.isSenderDeleted || header.isSenderUnavailable)
+                            !(header.isSenderDeleted || header.isSenderUnavailable)
 
                 if (showAuthor) {
                     val avatarClickable = remember {
@@ -524,14 +524,14 @@ private fun MessageContent(
             val audioMessageState: AudioState = audioMessagesState[message.header.messageId]
                 ?: AudioState.DEFAULT
 
-            val adjustedMessageState: AudioState = remember(audioMessagesState) {
+            val totalTimeInMs = remember(audioMessageState.totalTimeInMs) {
                 audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())
             }
 
             AudioMessage(
-                audioMediaPlayingState = adjustedMessageState.audioMediaPlayingState,
-                totalTimeInMs = adjustedMessageState.totalTimeInMs,
-                currentPositionInMs = adjustedMessageState.currentPositionInMs,
+                audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
+                totalTimeInMs = totalTimeInMs,
+                currentPositionInMs = audioMessageState.currentPositionInMs,
                 onPlayButtonClick = { onAudioClick(message.header.messageId) },
                 onSliderPositionChange = { position ->
                     onChangeAudioPosition(message.header.messageId, position.toInt())

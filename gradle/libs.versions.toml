@@ -61,7 +61,7 @@ aboutLibraries = "10.8.0"
 leakCanary = "2.7"
 
 # Testing
-androidx-espresso = "3.4.0"
+androidx-espresso = "3.5.1"
 androidx-test-core = "1.5.0"
 androidx-test-extensions = "1.1.5"
 androidx-test-orchestrator = "1.4.1"

@@ -52,17 +52,20 @@ class JoinConversationViaCodeViewModel @Inject constructor(
         code: String,
         key: String,
         domain: String?
-    ) = viewModelScope.launch {
-        val result = joinViaCode(
-            code = code,
-            key = key,
-            domain = domain,
-            password = passwordOrNull()
-        )
-        state = when (result) {
-            is JoinConversationViaCodeUseCase.Result.Success -> JoinViaDeepLinkDialogState.Joined(result.conversationId)
-            is JoinConversationViaCodeUseCase.Result.Failure.Generic -> JoinViaDeepLinkDialogState.UnknownError
-            JoinConversationViaCodeUseCase.Result.Failure.IncorrectPassword -> JoinViaDeepLinkDialogState.WrongPassword
+    ) {
+        state = JoinViaDeepLinkDialogState.Loading
+        viewModelScope.launch {
+            val result = joinViaCode(
+                code = code,
+                key = key,
+                domain = domain,
+                password = passwordOrNull()
+            )
+            state = when (result) {
+                is JoinConversationViaCodeUseCase.Result.Success -> JoinViaDeepLinkDialogState.Joined(result.conversationId)
+                is JoinConversationViaCodeUseCase.Result.Failure.Generic -> JoinViaDeepLinkDialogState.UnknownError
+                JoinConversationViaCodeUseCase.Result.Failure.IncorrectPassword -> JoinViaDeepLinkDialogState.WrongPassword
+            }
         }
     }
 }

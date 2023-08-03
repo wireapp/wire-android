@@ -337,6 +337,7 @@ class WireActivityViewModel @Inject constructor(
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
                             // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
+                            appLogger.d("user is already a member of the conversation")
                             onSuccess(result.conversationId)
                         } else {
                             globalAppState =
@@ -359,9 +360,8 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun onJoinConversationFlowCompleted(conversionID: ConversationId? = null) {
+    fun onJoinConversationFlowCompleted() {
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
-        conversionID?.also { openConversation(it) }
     }
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()

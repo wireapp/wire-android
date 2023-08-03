@@ -394,17 +394,19 @@ class WireNotificationManager @Inject constructor(
                 if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
-                    coreLogic.getGlobalScope().observeValidAccounts().flatMapLatest {
-                        if (it.any { (selfUser, _) -> selfUser.id == userId }) { // if given userId has a valid session
-                            coreLogic.getSessionScope(userId).calls
-                                .establishedCall()
-                                .map {
-                                    it.firstOrNull()?.let { call ->
-                                        OngoingCallData(userId, call.conversationId, callNotificationManager.getNotificationTitle(call))
-                                    }
+                    if (coreLogic.getGlobalScope().doesValidSessionExist(userId).doesValidSessionExist()) {
+                        coreLogic.getSessionScope(userId).calls
+                            .establishedCall()
+                            .map {
+                                it.firstOrNull()?.let { call ->
+                                    OngoingCallData(
+                                        userId = userId,
+                                        conversationId = call.conversationId,
+                                        notificationTitle = callNotificationManager.builder.getNotificationTitle(call)
+                                    )
                                 }
-                        } else flowOf(null)
-                    }
+                            }
+                    } else flowOf(null)
                 }
             }
             .distinctUntilChanged()

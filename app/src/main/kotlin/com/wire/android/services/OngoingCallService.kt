@@ -31,17 +31,17 @@ import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationConstants.CALL_ONGOING_NOTIFICATION_ID
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -61,7 +61,8 @@ class OngoingCallService : Service() {
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
-    private var currentObserveEstablishedCallJob: Pair<UserId, Job>? = null
+    @Inject
+    lateinit var servicesManager: ServicesManager
 
     private val scope by lazy {
         // There's no UI, no need to run anything using the Main/UI Dispatcher
@@ -69,6 +70,7 @@ class OngoingCallService : Service() {
     }
 
     override fun onCreate() {
+        serviceState.set(ServiceState.STARTED)
         super.onCreate()
         generatePlaceholderForegroundNotification()
     }
@@ -79,51 +81,23 @@ class OngoingCallService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appLogger.i("$TAG: onStartCommand")
-        val userIdString = intent?.getStringExtra(EXTRA_USER_ID)
-        val conversationIdString = intent?.getStringExtra(EXTRA_CONVERSATION_ID)
-        val callName = intent?.getStringExtra(EXTRA_CALL_NAME)
         val stopService = intent?.getBooleanExtra(EXTRA_STOP_SERVICE, false)
         generatePlaceholderForegroundNotification()
-        when {
-            stopService == true -> {
-                appLogger.i("$TAG: stopSelf. Reason: stopService was called")
-                stopSelf()
-            }
-
-            userIdString == null || conversationIdString == null || callName == null -> {
-                appLogger.w(
-                    "$TAG: stopSelf. Reason: some of the parameter is absent. " +
-                            "userIdString: ${userIdString?.obfuscateId()}, " +
-                            "conversationIdString: ${conversationIdString?.obfuscateId()}, " +
-                            "callName: $callName"
-                )
-                stopSelf()
-            }
-
-            else -> {
-                val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
-                generateForegroundNotification(callName, conversationIdString, userId)
-                currentObserveEstablishedCallJob?.let { (jobUserId, job) ->
-                    if (userId != jobUserId) { // if previous job was for different user, cancel it
-                        if (job.isActive) job.cancel()
-                        currentObserveEstablishedCallJob = null
-                    }
-                }
-                if (currentObserveEstablishedCallJob == null) { // if there is no job active, start a new one
-                    currentObserveEstablishedCallJob = userId to scope.launch {
-                        if (coreLogic.getGlobalScope().doesValidSessionExist(userId).doesValidSessionExist()) {
-                            coreLogic.getSessionScope(userId).calls.establishedCall().collect { establishedCall ->
-                                if (establishedCall.isEmpty()) {
-                                    appLogger.i("$TAG: stopSelf. Reason: call was ended")
-                                    stopSelf()
-                                }
-                            }
-                        } else {
-                            appLogger.i("$TAG: stopSelf. Reason: session was ended")
+        serviceState.set(ServiceState.FOREGROUND)
+        if (stopService == true) {
+            appLogger.i("$TAG: stopSelf. Reason: stopService was called")
+            stopSelf()
+        } else {
+            scope.launch {
+                servicesManager.currentlyOngoingCall()
+                    .collectLatest {
+                        if (it == null) {
+                            appLogger.i("$TAG: stopSelf. Reason: no ongoing calls")
                             stopSelf()
+                        } else {
+                            generateForegroundNotification(it.notificationTitle, it.conversationId.toString(), it.userId)
                         }
                     }
-                }
             }
         }
         return START_STICKY
@@ -131,42 +105,41 @@ class OngoingCallService : Service() {
 
     override fun onDestroy() {
         appLogger.i("$TAG: onDestroy")
+        serviceState.set(ServiceState.NOT_STARTED)
         super.onDestroy()
         scope.cancel()
     }
 
     private fun generateForegroundNotification(callName: String, conversationId: String, userId: UserId) {
         appLogger.i("$TAG: generating foregroundNotification...")
-        val notification: Notification = callNotificationManager.getOngoingCallNotification(callName, conversationId, userId)
+        val notification: Notification = callNotificationManager.builder.getOngoingCallNotification(callName, conversationId, userId)
         startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
         appLogger.i("$TAG: started foreground with proper notification")
     }
 
     private fun generatePlaceholderForegroundNotification() {
         appLogger.i("$TAG: generating foregroundNotification placeholder...")
-        val notification: Notification = callNotificationManager.getOngoingCallPlaceholderNotification()
+        val notification: Notification = callNotificationManager.builder.getOngoingCallPlaceholderNotification()
         startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
         appLogger.i("$TAG: started foreground with placeholder notification")
     }
 
     companion object {
         private const val TAG = "OngoingCallService"
-        private const val EXTRA_USER_ID = "user_id_extra"
-        private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"
-        private const val EXTRA_CALL_NAME = "call_name_extra"
         private const val EXTRA_STOP_SERVICE = "stop_service"
 
-        fun newIntent(context: Context, ongoingCallData: OngoingCallData): Intent =
-            Intent(context, OngoingCallService::class.java).apply {
-                putExtra(EXTRA_USER_ID, ongoingCallData.userId.toString())
-                putExtra(EXTRA_CONVERSATION_ID, ongoingCallData.conversationId.toString())
-                putExtra(EXTRA_CALL_NAME, ongoingCallData.notificationTitle)
-            }
+        fun newIntent(context: Context): Intent = Intent(context, OngoingCallService::class.java)
 
         fun newIntentToStop(context: Context): Intent =
             Intent(context, OngoingCallService::class.java).apply {
                 putExtra(EXTRA_STOP_SERVICE, true)
             }
+
+        var serviceState: AtomicReference<ServiceState> = AtomicReference(ServiceState.NOT_STARTED)
+    }
+
+    enum class ServiceState {
+        NOT_STARTED, STARTED, FOREGROUND
     }
 }
 

@@ -25,16 +25,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
@@ -47,30 +55,54 @@ import kotlin.reflect.KClass
 @Singleton
 class ServicesManager @Inject constructor(
     private val context: Context,
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val ongoingCallServiceForUsers = MutableStateFlow<List<OngoingCallData>>(emptyList())
 
+    suspend fun currentlyOngoingCall(): Flow<OngoingCallData?> = ongoingCallServiceForUsers
+        .combine(
+            coreLogic.getGlobalScope().observeValidAccounts()
+        ) { ongoingCalls: List<OngoingCallData>, validAccounts: List<Pair<SelfUser, Team?>> ->
+            ongoingCalls.lastOrNull { ongoingCallData ->
+                // filter out calls that are for accounts that are not valid anymore
+                validAccounts.any { (selfUser, _) -> selfUser.id == ongoingCallData.userId }
+            }
+        }
+        .debounce { if (it == null) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+        .distinctUntilChanged()
+
     init {
         scope.launch {
-            ongoingCallServiceForUsers
-                .debounce { if (it.isEmpty()) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
-                .distinctUntilChanged()
-                .collectLatest {
-                    if (it.isEmpty()) {
+            currentlyOngoingCall()
+                // we only want to start the service for the first ongoing call and let it handle keeping itself alive
+                .distinctUntilChangedBy { it != null }
+                .collectLatest { ongoingCallData: OngoingCallData? ->
+                    if (ongoingCallData == null) {
                         appLogger.i("ServicesManager: stopping OngoingCallService because there are no ongoing calls")
-                        // Instead of simply calling stopService(OngoingCallService::class), which can end up with a crash if it happens
-                        // before the service calls startForeground, we call the startService command with an empty data or some specific
-                        // argument that tells the service that it should stop itself right after calling startForeground.
-                        // This way, when this service is killed and recreated by the system, it will stop itself right after recreating,
-                        // so it won't cause any problems.
-                        startService(OngoingCallService.newIntentToStop(context))
-                    } else {
-                        it.last().let { ongoingCallData ->
-                            appLogger.i("ServicesManager: starting OngoingCallService")
-                            startService(OngoingCallService.newIntent(context, ongoingCallData))
+                        when (OngoingCallService.serviceState.get()) {
+                            OngoingCallService.ServiceState.STARTED -> {
+                                // Instead of simply calling stopService(OngoingCallService::class), which can end up with a crash if it
+                                // happens before the service calls startForeground, we call the startService command with an empty data
+                                // or some specific argument that tells the service that it should stop itself right after startForeground.
+                                // This way, when this service is killed and recreated by the system, it will stop itself right after
+                                // recreating so it won't cause any problems.
+                                startService(OngoingCallService.newIntentToStop(context))
+                                appLogger.i("ServicesManager: OngoingCallService stopped by passing stop argument")
+                            }
+                            OngoingCallService.ServiceState.FOREGROUND -> {
+                                // we can just stop the service, because it's already in foreground
+                                context.stopService(OngoingCallService.newIntent(context))
+                                appLogger.i("ServicesManager: OngoingCallService stopped by calling stopService")
+                            }
+                            else -> {
+                                appLogger.i("ServicesManager: OngoingCallService not running, nothing to stop")
+                            }
                         }
+                    } else {
+                        appLogger.i("ServicesManager: starting OngoingCallService")
+                        startService(OngoingCallService.newIntent(context))
                     }
                 }
         }
@@ -124,6 +156,7 @@ class ServicesManager @Inject constructor(
     }
 
     companion object {
-        private const val DEBOUNCE_TIME = 200L
+        @VisibleForTesting
+        internal const val DEBOUNCE_TIME = 200L
     }
 }

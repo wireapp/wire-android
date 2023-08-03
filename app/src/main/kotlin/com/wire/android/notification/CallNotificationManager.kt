@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,8 +47,9 @@ import javax.inject.Singleton
 @Singleton
 @Suppress("TooManyFunctions")
 class CallNotificationManager @Inject constructor(
-    private val context: Context,
-    dispatcherProvider: DispatcherProvider
+    context: Context,
+    dispatcherProvider: DispatcherProvider,
+    val builder: CallNotificationBuilder,
 ) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
@@ -95,14 +97,32 @@ class CallNotificationManager @Inject constructor(
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 
-    private fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
+    @VisibleForTesting
+    internal fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
         appLogger.i("$TAG: showing incoming call for user ${userId.toLogString()}")
-        val notification = getIncomingCallNotification(call, userId)
+        val notification = builder.getIncomingCallNotification(call, userId)
         notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, notification)
     }
 
     // Notifications
-    private fun getIncomingCallNotification(call: Call, userId: QualifiedID): Notification {
+
+    companion object {
+        private const val TAG = "CallNotificationManager"
+        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
+        @VisibleForTesting
+        internal const val DEBOUNCE_TIME = 200L
+
+        fun hideIncomingCallNotification(context: Context) {
+            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
+        }
+    }
+}
+
+@Singleton
+class CallNotificationBuilder @Inject constructor(
+    private val context: Context,
+) {
+    fun getIncomingCallNotification(call: Call, userId: QualifiedID): Notification {
         val conversationIdString = call.conversationId.toString()
         val userIdString = userId.toString()
         val title = getNotificationTitle(call)
@@ -192,14 +212,7 @@ class CallNotificationManager @Inject constructor(
         }
 
     companion object {
-        private const val TAG = "CallNotificationManager"
         private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
         private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
-        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
-        private const val DEBOUNCE_TIME = 200L
-
-        fun hideIncomingCallNotification(context: Context) {
-            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
-        }
     }
 }

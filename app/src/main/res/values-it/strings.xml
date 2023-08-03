@@ -241,9 +241,9 @@ Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#2
     <string name="remove_device_title">Rimuovi un dispositivo</string>
     <string name="remove_device_message">Rimuovi un altro dispositivo per iniziare ad usare Wire su questo.</string>
     <string name="remove_device_label">I TUOI DISPOSITIVI</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s
 Aggiunto: %2$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_dialog_title">Rimuovere il seguente dispositivo?</string>
     <string name="remove_device_invalid_password">Password invalida</string>
     <string name="remove_device_details_description">Rimuovi questo dispositivo se non lo usi pi&#249;. Sarai immediatamente disconnesso su questo dispositivo.</string>

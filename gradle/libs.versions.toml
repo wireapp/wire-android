@@ -18,6 +18,7 @@ desugaring = "1.1.5"
 firebaseBOM = "31.4.0"
 fragment = "1.5.6"
 resaca = "2.4.6"
+bundlizer = "0.7.0"
 visibilityModifiers = "1.1.0"
 
 # AndroidX
@@ -118,6 +119,7 @@ android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", versio
 visibilityModifiers = { module = "io.github.esentsov:kotlin-visibility", version.ref = "visibilityModifiers" }
 resaca-core = { module = "com.github.sebaslogen.resaca:resaca", version.ref = "resaca" }
 resaca-hilt = { module = "com.github.sebaslogen.resaca:resacahilt", version.ref = "resaca" }
+bundlizer-core = { module = "dev.ahmedmourad.bundlizer:bundlizer-core", version.ref = "bundlizer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBOM" }
 firebase-fcm = { module = "com.google.firebase:firebase-messaging-ktx" }
 
@@ -165,11 +167,9 @@ compose-destinations-core ={module = "io.github.raamcosta.compose-destinations:a
 compose-destinations-ksp ={module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 
 # Accompanist
-accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
 accompanist-systemUI = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-placeholder = { module = "com.google.accompanist:accompanist-placeholder", version.ref = "accompanist" }
 accompanist-navAnimation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist" }
-accompanist-indicator = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanist" }
 accompanist-flowLayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
 
 # Image Loading

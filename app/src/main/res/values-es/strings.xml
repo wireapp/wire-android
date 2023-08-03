@@ -241,9 +241,9 @@ URL del backend:
     <string name="remove_device_title">Eliminar un dispositivo</string>
     <string name="remove_device_message">Elimina uno de tus otros dispositivos para empezar a usar Wire en &#233;ste.</string>
     <string name="remove_device_label">TUS DISPOSITIVOS</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s
 Agregado: %2$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_dialog_title">&#191;Eliminar el siguiente dispositivo?</string>
     <string name="remove_device_invalid_password">Contrase&#241;a inv&#225;lida</string>
     <string name="remove_device_details_description">Elimina este dispositivo si has dejado de usarlo. Se cerrar&#225; la sesi&#243;n en este dispositivo inmediatamente.</string>

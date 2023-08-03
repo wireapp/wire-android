@@ -38,7 +38,8 @@ data class Device(
     val registrationTime: String? = null,
     val lastActiveInWholeWeeks: Int? = null,
     val isValid: Boolean = true,
-    val isVerified: Boolean = false
+    val isVerified: Boolean = false,
+    val mlsPublicKeys: Map<String, String>? = null
 ) {
     constructor(client: Client) : this(
         name = client.displayName(),
@@ -46,7 +47,8 @@ data class Device(
         registrationTime = client.registrationTime?.toIsoDateTimeString(),
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
-        isVerified = client.isVerified
+        isVerified = client.isVerified,
+        mlsPublicKeys = client.mlsPublicKeys
     )
 }
 

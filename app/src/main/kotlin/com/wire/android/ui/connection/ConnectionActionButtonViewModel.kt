@@ -26,17 +26,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.scopedArgs
 import com.wire.android.model.ActionableState
 import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -77,12 +74,12 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper
+    savedStateHandle: SavedStateHandle
 ) : ConnectionActionButtonViewModel, ViewModel() {
 
-    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-    val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
+    private val args: ConnectionActionButtonArgs = savedStateHandle.scopedArgs()
+    private val userId: QualifiedID = args.userId
+    val userName: String = args.userName
 
     private var state: ActionableState by mutableStateOf(ActionableState())
 
@@ -193,10 +190,6 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                 is CreateConversationResult.Success -> onSuccess(result.conversation.id)
             }
         }
-    }
-
-    companion object {
-        const val ARGS_KEY = "ConnectionActionButtonViewModelKey"
     }
 }
 

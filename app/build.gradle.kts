@@ -131,6 +131,7 @@ dependencies {
     // smaller view models
     implementation(libs.resaca.core)
     implementation(libs.resaca.hilt)
+    implementation(libs.bundlizer.core)
 
     // firebase
     implementation(platform(libs.firebase.bom))

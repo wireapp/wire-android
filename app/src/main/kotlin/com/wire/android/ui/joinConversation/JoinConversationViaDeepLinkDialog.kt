@@ -81,16 +81,16 @@ fun JoinConversationViaDeepLinkDialog(
         }
     }
 
-    val onCancel: () -> Unit = remember(viewModel.state is JoinViaDeepLinkDialogState.Joined) {
+    val onCancel: () -> Unit = remember(viewModel.state is JoinViaDeepLinkDialogState.Success) {
         {
-            if (viewModel.state !is JoinViaDeepLinkDialogState.Joined) {
+            if (viewModel.state !is JoinViaDeepLinkDialogState.Success) {
                 onFlowCompleted(null)
             } else {
-                onFlowCompleted((viewModel.state as JoinViaDeepLinkDialogState.Joined).convId)
+                onFlowCompleted((viewModel.state as JoinViaDeepLinkDialogState.Success).convId)
             }
         }
     }
-    if (viewModel.state is JoinViaDeepLinkDialogState.Joined) {
+    if (viewModel.state is JoinViaDeepLinkDialogState.Success) {
         onCancel()
     }
 

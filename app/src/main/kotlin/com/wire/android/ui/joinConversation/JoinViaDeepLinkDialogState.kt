@@ -23,8 +23,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Stable
 sealed interface JoinViaDeepLinkDialogState {
     data object WrongPassword : JoinViaDeepLinkDialogState
-    data class Joined(val convId: ConversationId?) : JoinViaDeepLinkDialogState
-    data object Loading: JoinViaDeepLinkDialogState
-    data object UnknownError: JoinViaDeepLinkDialogState
-    data object Idle: JoinViaDeepLinkDialogState
+    data class Success(val convId: ConversationId?) : JoinViaDeepLinkDialogState
+    data object Loading : JoinViaDeepLinkDialogState
+    data object UnknownError : JoinViaDeepLinkDialogState
+    data object Idle : JoinViaDeepLinkDialogState
 }

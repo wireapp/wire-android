@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 
-
 @Composable
 fun JoinConversationViaInviteLinkError(
     errorState: JoinConversationViaCodeState.Error,

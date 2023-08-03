@@ -24,7 +24,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 
-
 @Composable
 fun JoinConversationViaDeepLinkErrorDialog(
     errorMessage: String,

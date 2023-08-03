@@ -41,7 +41,7 @@ class JoinConversationViaCodeViewModel @Inject constructor(
     var password: TextFieldValue by mutableStateOf(TextFieldValue(String.EMPTY))
         private set
 
-    @VisibleForTesting fun passwordOrNull() = if (password.text.isBlank()) null else password.text
+    private fun passwordOrNull() = password.text.ifBlank { null }
 
     fun onPasswordUpdated(newPassword: TextFieldValue) {
         this.password = newPassword
@@ -62,11 +62,10 @@ class JoinConversationViaCodeViewModel @Inject constructor(
                 password = passwordOrNull()
             )
             state = when (result) {
-                is JoinConversationViaCodeUseCase.Result.Success -> JoinViaDeepLinkDialogState.Joined(result.conversationId)
+                is JoinConversationViaCodeUseCase.Result.Success -> JoinViaDeepLinkDialogState.Success(result.conversationId)
                 is JoinConversationViaCodeUseCase.Result.Failure.Generic -> JoinViaDeepLinkDialogState.UnknownError
                 JoinConversationViaCodeUseCase.Result.Failure.IncorrectPassword -> JoinViaDeepLinkDialogState.WrongPassword
             }
         }
     }
 }
-

@@ -58,11 +58,11 @@ class JoinViaCodeViewModelTest {
                 password = null
             )
         }
-        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Joined(conversationId)
+        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Success(conversationId)
     }
 
     @Test
-    fun `given valid code, when joining conversion and user us already a member, then update state`() {
+    fun `given valid code, when joining conversion and user us already a member, then update state`() = runTest {
         val (code, key, domain) = Triple("code", "key", "domain")
         val conversationId = ConversationId("id", "domain")
         val (_, viewModel) = Arrangement()
@@ -72,8 +72,9 @@ class JoinViaCodeViewModelTest {
             .arrange()
 
         viewModel.joinConversationViaCode(code, key, domain)
+        advanceUntilIdle()
 
-        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Joined(conversationId)
+        viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Success(conversationId)
     }
 
     @Test
@@ -148,7 +149,6 @@ class JoinViaCodeViewModelTest {
                 password = null
             )
         }
-        viewModel.passwordOrNull() `should be equal to` null
     }
 
     @Test
@@ -190,11 +190,9 @@ class JoinViaCodeViewModelTest {
             viewModel.onPasswordUpdated(TextFieldValue(password))
         }
 
-
         private val viewModel: JoinConversationViaCodeViewModel = JoinConversationViaCodeViewModel(joinViaCode)
 
         fun arrange() = Pair(this, viewModel)
-
     }
 
 }

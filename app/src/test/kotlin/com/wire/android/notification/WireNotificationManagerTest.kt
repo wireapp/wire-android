@@ -493,7 +493,6 @@ class WireNotificationManagerTest {
             verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
         }
 
-
     @Test
     fun givenAppInBackground_withInvalidAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {

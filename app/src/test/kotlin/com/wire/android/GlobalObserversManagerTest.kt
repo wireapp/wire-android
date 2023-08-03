@@ -4,7 +4,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.kalium.logic.CoreLogic
@@ -42,7 +41,7 @@ class GlobalObserversManagerTest {
             .arrange()
         manager.observe()
         coVerify(exactly = 1) { arrangement.notificationChannelsManager.createUserNotificationChannels(accounts) }
-        coVerify(exactly = 1) { arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(any(), any()) }
     }
 
     @Test
@@ -65,7 +64,6 @@ class GlobalObserversManagerTest {
         coVerify(exactly = 1) {
             arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(
                 listOf(TestUser.SELF_USER.id),
-                any(),
                 any()
             )
         }
@@ -82,16 +80,12 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var notificationManager: WireNotificationManager
 
-        @MockK
-        lateinit var navigationManager: NavigationManager
-
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
                 notificationChannelsManager = notificationChannelsManager,
-                notificationManager = notificationManager,
-                navigationManager = navigationManager
+                notificationManager = notificationManager
             )
         }
 

@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -54,7 +55,7 @@ class ClearSessionViewModel @Inject constructor(
         state = state.copy(showCancelLoginDialog = false)
     }
 
-    fun onCancelLoginClicked() {
+    fun onCancelLoginClicked(switchAccountActions: SwitchAccountActions) {
         state = state.copy(showCancelLoginDialog = false)
         viewModelScope.launch {
             currentSession().let {
@@ -72,9 +73,8 @@ class ClearSessionViewModel @Inject constructor(
             }
         }.invokeOnCompletion {
             viewModelScope.launch {
-                switchAccount(
-                    SwitchAccountParam.SwitchToNextAccountOrWelcome
-                )
+                switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+                    .callAction(switchAccountActions)
             }
         }
     }

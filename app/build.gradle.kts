@@ -26,6 +26,7 @@ plugins {
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.hilt.get().pluginId)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 
     id(libs.plugins.aboutLibraries.get().pluginId)
 
@@ -108,13 +109,13 @@ dependencies {
     implementation(libs.compose.navigation)
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.liveData)
+    implementation(libs.compose.destinations.core)
+    ksp(libs.compose.destinations.ksp)
 
     // Accompanist
-    implementation(libs.accompanist.pager)
     implementation(libs.accompanist.systemUI)
     implementation(libs.accompanist.placeholder)
     implementation(libs.accompanist.navAnimation)
-    implementation(libs.accompanist.indicator)
     implementation(libs.accompanist.flowLayout)
 
     implementation(libs.androidx.paging3)

@@ -22,23 +22,21 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -73,6 +71,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class GroupConversationDetailsViewModelTest {
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
@@ -188,7 +187,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -215,7 +213,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -254,7 +251,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -508,9 +504,6 @@ internal class GroupConversationDetailsViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -546,9 +539,6 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase
 
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
@@ -558,7 +548,6 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
-            navigationManager = navigationManager,
             dispatcher = TestDispatcherProvider(),
             observerSelfUser = observerSelfUser,
             observeConversationDetails = observeConversationDetails,
@@ -568,7 +557,6 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
             clearConversationContent = clearConversationContentUseCase,
             updateConversationReceiptMode = updateConversationReceiptMode,
@@ -578,29 +566,28 @@ internal class GroupConversationDetailsViewModelArrangement {
         )
     }
 
+    val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
+
         // Tests setup
-        val dummyConversationId = dummyConversationId.toString()
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
+
+        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
+            conversationId = conversationId
+        )
+        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
+            conversationId = conversationId
+        )
+
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns flowOf(null)
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
-        } returns QualifiedID("conv_id", "domain")
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
-    }
-
-    fun withSavedStateConversationId(conversationId: ConversationId) = apply {
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

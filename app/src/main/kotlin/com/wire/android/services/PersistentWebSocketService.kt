@@ -30,9 +30,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.PERSISTENT_NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
@@ -41,7 +38,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -74,9 +70,6 @@ class PersistentWebSocketService : Service() {
     lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
     @Inject
-    lateinit var navigationManager: NavigationManager
-
-    @Inject
     lateinit var notificationChannelsManager: NotificationChannelsManager
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -107,7 +100,7 @@ class PersistentWebSocketService : Service() {
                             notificationManager.observeNotificationsAndCallsPersistently(
                                 usersToObserve,
                                 scope
-                            ) { call -> openIncomingCall(call.conversationId) }
+                            )
 
                             statuses.map { persistentWebSocketStatus ->
                                 if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
@@ -121,12 +114,6 @@ class PersistentWebSocketService : Service() {
             }
         }
         return START_STICKY
-    }
-
-    private fun openIncomingCall(conversationId: ConversationId) {
-        scope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
-        }
     }
 
     private fun generateForegroundNotification() {

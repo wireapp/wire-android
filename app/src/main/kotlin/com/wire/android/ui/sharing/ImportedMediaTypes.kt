@@ -14,17 +14,17 @@ import com.wire.kalium.logic.util.splitFileExtension
 import okio.Path
 
 @Composable
-fun ImportedMediaItemView(item: ImportedMediaAsset, isMultipleImport: Boolean, imageLoader: WireSessionImageLoader) {
+fun ImportedMediaItemView(item: ImportedMediaAsset, isMultipleImport: Boolean) {
     when (item) {
         is ImportedMediaAsset.GenericAsset -> ImportedGenericAssetView(item, isMultipleImport)
-        is ImportedMediaAsset.Image -> ImportedImageView(item, isMultipleImport, imageLoader)
+        is ImportedMediaAsset.Image -> ImportedImageView(item, isMultipleImport)
     }
 }
 
 @Composable
-fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean, imageLoader: WireSessionImageLoader) {
+fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean) {
     MessageImage(
-        asset = ImageAsset.LocalImageAsset(imageLoader, item.dataUri, item.key),
+        asset = item.localImageAsset,
         imgParams = ImageMessageParams(item.width, item.height),
         uploadStatus = Message.UploadStatus.NOT_UPLOADED,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
@@ -73,6 +73,9 @@ sealed class ImportedMediaAsset(
         override val mimeType: String,
         override val dataPath: Path,
         override val dataUri: Uri,
-        override val key: String
-    ) : ImportedMediaAsset(name, size, mimeType, dataPath, dataUri, key)
+        override val key: String,
+        val wireSessionImageLoader: WireSessionImageLoader
+    ) : ImportedMediaAsset(name, size, mimeType, dataPath, dataUri, key) {
+        val localImageAsset = ImageAsset.LocalImageAsset(wireSessionImageLoader, dataUri, key)
+    }
 }

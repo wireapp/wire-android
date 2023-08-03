@@ -28,11 +28,11 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
@@ -52,6 +52,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -102,7 +103,7 @@ class ConnectionActionButtonViewModelTest {
     }
 
     @Test
-    fun `given success, when ignoring a connection request, then navigate back`() =
+    fun `given success, when ignoring a connection request, then calls onIgnoreSuccess`() =
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
@@ -110,11 +111,11 @@ class ConnectionActionButtonViewModelTest {
                 .arrange()
 
             // when
-            viewModel.onIgnoreConnectionRequest()
+            viewModel.onIgnoreConnectionRequest(arrangement.onIgnoreSuccess)
 
             // then
             coVerify(exactly = 1) { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            coVerify(exactly = 1) { arrangement.navigationManager.navigateBack(any()) }
+            verify { arrangement.onIgnoreSuccess(any()) }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
@@ -128,7 +129,7 @@ class ConnectionActionButtonViewModelTest {
 
             viewModel.infoMessage.test {
                 // when
-                viewModel.onIgnoreConnectionRequest()
+                viewModel.onIgnoreConnectionRequest(arrangement.onIgnoreSuccess)
 
                 // then
                 val result = awaitItem()
@@ -227,13 +228,13 @@ class ConnectionActionButtonViewModelTest {
                 .arrange()
 
             // when
-            viewModel.onOpenConversation()
+            viewModel.onOpenConversation(arrangement.onOpenConversation)
 
             // then
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
-                arrangement.navigationManager.navigate(any())
             }
+            verify { arrangement.onOpenConversation(any()) }
         }
 
     @Test
@@ -245,13 +246,13 @@ class ConnectionActionButtonViewModelTest {
                 .arrange()
 
             // when
-            viewModel.onOpenConversation()
+            viewModel.onOpenConversation(arrangement.onOpenConversation)
 
             // then
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
-                arrangement.navigationManager wasNot Called
             }
+            verify { arrangement.onOpenConversation wasNot Called }
         }
 
     companion object {
@@ -260,9 +261,6 @@ class ConnectionActionButtonViewModelTest {
 }
 
 internal class ConnectionActionButtonHiltArrangement {
-
-    @MockK
-    lateinit var navigationManager: NavigationManager
 
     @MockK
     lateinit var savedStateHandle: SavedStateHandle
@@ -294,9 +292,14 @@ internal class ConnectionActionButtonHiltArrangement {
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK(relaxed = true)
+    lateinit var onIgnoreSuccess: (userName: String) -> Unit
+
+    @MockK(relaxed = true)
+    lateinit var onOpenConversation: (conversationId: ConversationId) -> Unit
+
     private val viewModel by lazy {
         ConnectionActionButtonViewModelImpl(
-            navigationManager,
             TestDispatcherProvider(),
             sendConnectionRequest,
             cancelConnectionRequest,
@@ -320,8 +323,6 @@ internal class ConnectionActionButtonHiltArrangement {
         coEvery { getOrCreateOneToOneConversation(TestConversation.ID) } returns CreateConversationResult.Success(
             OtherUserProfileScreenViewModelTest.CONVERSATION
         )
-        coEvery { navigationManager.navigate(command = any()) } returns Unit
-        coEvery { navigationManager.navigateBack(any()) } returns Unit
 
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")

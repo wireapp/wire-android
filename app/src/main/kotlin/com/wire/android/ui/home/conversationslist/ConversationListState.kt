@@ -30,7 +30,6 @@ import kotlinx.collections.immutable.persistentMapOf
 
 data class ConversationListState(
     val searchQuery: String = "",
-    private val allConversations: List<ConversationItem> = persistentListOf(),
     val foldersWithConversations: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
     val hasNoConversations: Boolean = false,
     val conversationSearchResult: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
@@ -45,5 +44,5 @@ data class ConversationListState(
     val shouldShowJoinAnywayDialog: Boolean = false
 ) {
     fun findConversationById(conversationId: ConversationId): ConversationItem? =
-        allConversations.firstOrNull { it.conversationId == conversationId }
+        foldersWithConversations.values.flatten().firstOrNull { it.conversationId == conversationId }
 }

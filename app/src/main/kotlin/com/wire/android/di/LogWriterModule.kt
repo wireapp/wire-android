@@ -27,9 +27,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import java.io.File
 import javax.inject.Singleton
-
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -38,8 +36,7 @@ class LogWriterModule {
     @Singleton
     @Provides
     fun provideKaliumFileWriter(@ApplicationContext context: Context): LogFileWriter {
-        val logsDirectory = File(context.cacheDir, "logs")
+        val logsDirectory = LogFileWriter.logsDirectory(context)
         return LogFileWriter(logsDirectory)
     }
-
 }

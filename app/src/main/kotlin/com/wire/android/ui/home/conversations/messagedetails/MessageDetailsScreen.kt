@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -47,10 +49,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -62,8 +64,15 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = MessageDetailsNavArgs::class
+)
 @Composable
-fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
+fun MessageDetailsScreen(
+    navigator: Navigator,
+    viewModel: MessageDetailsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
 
     val reactionsLearnMoreUrl = stringResource(id = R.string.url_message_details_reactions_learn_more)
@@ -88,14 +97,13 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
 
     MessageDetailsScreenContent(
         messageDetailsState = viewModel.messageDetailsState,
-        onBackPressed = viewModel::navigateBack,
+        onBackPressed = navigator::navigateBack,
         onReactionsLearnMore = onReactionsLearnMore,
         onReadReceiptsLearnMore = onReadReceiptsLearnMore
     )
 }
 
 @OptIn(
-    ExperimentalPagerApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class
 )
@@ -106,20 +114,20 @@ private fun MessageDetailsScreenContent(
     onReactionsLearnMore: () -> Unit,
     onReadReceiptsLearnMore: () -> Unit
 ) {
+    val tabItems = provideMessageDetailsTabItems(
+        messageDetailsState = messageDetailsState,
+        isSelfMessage = messageDetailsState.isSelfMessage
+    )
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = MessageDetailsTab.values().map { rememberLazyListState() }
     val initialPageIndex = MessageDetailsTab.REACTIONS.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex)
+    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { tabItems.size })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val tabItems = provideMessageDetailsTabItems(
-        messageDetailsState = messageDetailsState,
-        isSelfMessage = messageDetailsState.isSelfMessage
-    )
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -152,7 +160,6 @@ private fun MessageDetailsScreenContent(
         CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
-                count = tabItems.size,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(internalPadding)

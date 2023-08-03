@@ -9,16 +9,14 @@ data class AudioState(
         val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)
     }
 
-    // before the user decides to play audio message, we are not able to determine total time ourself using
-    // MediaPlayer API, we are relying on the info retrieved from the other client, until then
-    fun sanitizeTotalTime(otherClientTotalTime: Int): AudioState {
-        if (totalTimeInMs is TotalTimeInMs.NotKnown) {
-            if (otherClientTotalTime != 0) {
-                return copy(totalTimeInMs = TotalTimeInMs.Known(otherClientTotalTime))
-            }
+    // if the back-end returned the total time, we use that, in case it didn't we use what we get from
+    // the [ConversationAudioMessagePlayer.kt] which will emit the time once the users play the audio.
+    fun sanitizeTotalTime(otherClientTotalTime: Int): TotalTimeInMs {
+        if (otherClientTotalTime != 0) {
+           return TotalTimeInMs.Known(otherClientTotalTime)
         }
 
-        return this
+        return totalTimeInMs
     }
 
     sealed class TotalTimeInMs {

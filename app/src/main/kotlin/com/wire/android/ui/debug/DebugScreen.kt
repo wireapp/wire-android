@@ -40,22 +40,39 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
+import com.wire.kalium.logic.data.user.UserId
 import java.io.File
 
+@RootNavGraph
+@Destination
 @Composable
-fun DebugScreen() {
-    UserDebugContent()
+fun DebugScreen(navigator: Navigator) {
+    UserDebugContent(
+        onNavigationPressed = navigator::navigateBack,
+        onManualMigrationPressed = {
+            navigator.navigate(NavigationCommand(MigrationScreenDestination(it), BackStackMode.CLEAR_WHOLE))
+        }
+    )
 }
 
 @Composable
-private fun UserDebugContent() {
+private fun UserDebugContent(
+    onNavigationPressed: () -> Unit,
+    onManualMigrationPressed: (currentAccount: UserId) -> Unit,
+) {
 
     val userDebugViewModel: UserDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
@@ -66,7 +83,7 @@ private fun UserDebugContent() {
                 title = stringResource(R.string.label_debug_title),
                 elevation = 0.dp,
                 navigationIconType = NavigationIconType.Back,
-                onNavigationPressed = userDebugViewModel::navigateBack
+                onNavigationPressed = onNavigationPressed
             )
         }
     ) { internalPadding ->
@@ -86,7 +103,8 @@ private fun UserDebugContent() {
                 DebugDataOptions(
                     appVersion = BuildConfig.VERSION_NAME,
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
-                    onCopyText = debugContentState::copyToClipboard
+                    onCopyText = debugContentState::copyToClipboard,
+                    onManualMigrationPressed = onManualMigrationPressed
                 )
             }
         }

@@ -26,9 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -38,7 +36,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase
 ) : ViewModel() {
@@ -47,7 +44,6 @@ class WelcomeViewModel @Inject constructor(
         private set
 
     var isThereActiveSession by mutableStateOf(false)
-
 
     init {
         observerAuthServer()
@@ -68,7 +64,7 @@ class WelcomeViewModel @Inject constructor(
                 when (it) {
                     is GetAllSessionsResult.Success -> {
                         isThereActiveSession =
-                            it.sessions.filterIsInstance<AccountInfo.Valid>().isNullOrEmpty().not()
+                            it.sessions.filterIsInstance<AccountInfo.Valid>().isEmpty().not()
                     }
                     is GetAllSessionsResult.Failure.Generic -> {}
                     GetAllSessionsResult.Failure.NoSessionFound -> {
@@ -78,30 +74,6 @@ class WelcomeViewModel @Inject constructor(
             }
         }
     }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun isProxyEnabled() = state.apiProxy != null
-
-    fun goToLogin() {
-        navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs()))
-    }
-
-    fun goToCreateEnterpriseAccount() {
-        navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs()))
-    }
-
-    fun goToCreatePrivateAccount() {
-        navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
-    }
-
-    private fun navigate(navigationCommand: NavigationCommand) {
-        viewModelScope.launch {
-            navigationManager.navigate(navigationCommand)
-        }
-    }
 }
+
+fun ServerConfig.Links.isProxyEnabled() = this.apiProxy != null

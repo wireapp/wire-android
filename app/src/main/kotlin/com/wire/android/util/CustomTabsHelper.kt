@@ -29,8 +29,9 @@ import com.wire.android.R
 
 object CustomTabsHelper {
 
+    fun launchUrl(context: Context, url: String) = launchUri(context, Uri.parse(url))
     @JvmStatic
-    fun launchUrl(context: Context, url: String) {
+    fun launchUri(context: Context, uri: Uri) {
         val builder = CustomTabsIntent.Builder()
             .setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_close))
             .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
@@ -38,6 +39,6 @@ object CustomTabsHelper {
 
         val customTabsIntent = builder.build()
         customTabsIntent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-        customTabsIntent.launchUrl(context, Uri.parse(url))
+        customTabsIntent.launchUrl(context, uri)
     }
 }

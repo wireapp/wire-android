@@ -24,15 +24,14 @@ package com.wire.android.ui.settings.devices
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestClient
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
-import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -40,6 +39,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class SelfDevicesViewModelTest {
 
@@ -58,8 +58,6 @@ class SelfDevicesViewModelTest {
         }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var observeClientsByUserId: ObserveClientsByUserIdUseCase
@@ -74,7 +72,6 @@ class SelfDevicesViewModelTest {
 
         private val viewModel by lazy {
             SelfDevicesViewModel(
-                navigationManager = navigationManager,
                 observeClientList = observeClientsByUserId,
                 currentAccountId = selfId,
                 currentClientIdUseCase = currentClientId,
@@ -86,7 +83,6 @@ class SelfDevicesViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             coEvery { currentClientId.invoke() } returns flowOf(TestClient.CLIENT_ID)
-            coEvery { navigationManager.navigate(command = any()) } returns Unit
             coEvery { fetchSelfClientsFromRemote.invoke() } returns SelfClientsResult.Success(listOf(), null)
             coEvery { observeClientsByUserId(any()) } returns flowOf(
                 ObserveClientsByUserIdUseCase.Result.Success(

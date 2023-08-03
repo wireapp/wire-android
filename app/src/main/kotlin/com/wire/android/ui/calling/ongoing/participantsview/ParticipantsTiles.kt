@@ -21,12 +21,15 @@
 package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -40,9 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.VerticalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
 import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
@@ -51,7 +51,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.user.UserId
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VerticalCallingPager(
     participants: List<UICallParticipant>,
@@ -68,11 +68,11 @@ fun VerticalCallingPager(
             .fillMaxWidth()
             .height(contentHeight)
     ) {
-        val pagerState = rememberPagerState()
-        val pagesCount = pagesCount(participants.size)
+        val pagerState = rememberPagerState(
+            pageCount = { pagesCount(participants.size) }
+        )
         Box {
             VerticalPager(
-                count = pagesCount,
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
@@ -116,7 +116,7 @@ fun VerticalCallingPager(
                 }
             }
             // we don't need to display the indicator if we have one page
-            if (pagesCount > 1) {
+            if (pagesCount(participants.size) > 1) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier

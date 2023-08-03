@@ -30,11 +30,6 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
@@ -42,6 +37,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -58,8 +54,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
@@ -93,7 +87,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
@@ -109,12 +102,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
-    savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper
+    savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
-    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-    private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
+    private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
+    private val userId: QualifiedID = otherUserProfileNavArgs.userId
+    private val conversationId: QualifiedID? = otherUserProfileNavArgs.conversationId
 
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
@@ -154,14 +147,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         }
                     }
                 }
-        }
-    }
-
-    override fun onDeviceClick(device: Device) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId, userId)))
-            )
         }
     }
 
@@ -386,6 +371,4 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             state = state.copy(securityClassificationType = result)
         }
     }
-
-    override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }

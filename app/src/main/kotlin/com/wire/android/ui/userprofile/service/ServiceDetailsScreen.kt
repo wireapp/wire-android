@@ -24,8 +24,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -40,8 +43,13 @@ import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = ServiceDetailsNavArgs::class
+)
 @Composable
 fun ServiceDetailsScreen(
+    navigator: Navigator,
     viewModel: ServiceDetailsViewModel = hiltViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -54,7 +62,7 @@ fun ServiceDetailsScreen(
     }
 
     ServiceDetailsContent(
-        navigateBack = viewModel::navigateBack,
+        navigateBack = navigator::navigateBack,
         addService = viewModel::addService,
         removeService = viewModel::removeService,
         serviceDetailsState = viewModel.serviceDetailsState,
@@ -197,5 +205,5 @@ private fun ServiceDetailsAddOrRemoveButton(
 @Preview
 @Composable
 fun PreviewServiceDetailsScreen() {
-    ServiceDetailsScreen()
+    ServiceDetailsContent({}, {}, {}, ServiceDetailsState(), SnackbarHostState())
 }

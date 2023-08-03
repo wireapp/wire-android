@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.util.withContext
-import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +33,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LicensesViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     @ApplicationContext context: Context
 ) : ViewModel() {
 
@@ -45,12 +43,6 @@ class LicensesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val libraryList = Libs.Builder().withContext(context).build().libraries
             state = state.copy(libraryList = libraryList)
-        }
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
         }
     }
 }

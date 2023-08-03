@@ -194,5 +194,4 @@ class JoinViaCodeViewModelTest {
 
         fun arrange() = Pair(this, viewModel)
     }
-
 }

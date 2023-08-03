@@ -410,7 +410,6 @@ class WireNotificationManager @Inject constructor(
                                 }
                         } else flowOf(null)
                     }
-
                 }
             }
             .distinctUntilChanged()

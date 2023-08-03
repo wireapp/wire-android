@@ -125,8 +125,8 @@ sealed class MessageEditStatus {
 
 sealed class MessageFlowStatus {
 
-    object Sending : MessageFlowStatus()
-    object Sent : MessageFlowStatus()
+    data object Sending : MessageFlowStatus()
+    data object Sent : MessageFlowStatus()
     sealed class Failure(val errorText: UIText) : MessageFlowStatus() {
         sealed class Send(errorText: UIText) : Failure(errorText) {
             data class Locally(val isEdited: Boolean) : Send(
@@ -157,7 +157,7 @@ sealed class MessageFlowStatus {
         )
     }
 
-    object Delivered : MessageFlowStatus()
+    data object Delivered : MessageFlowStatus()
 
     data class Read(val count: Long) : MessageFlowStatus()
 }

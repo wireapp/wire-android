@@ -73,9 +73,10 @@ fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modif
                 Icon(
                     modifier = modifier,
                     painter = painterResource(id = R.drawable.ic_message_read),
-                    tint = MaterialTheme.wireColorScheme.error,
+                    tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
                     contentDescription = stringResource(R.string.content_description_message_read_status),
                 )
+                HorizontalSpace.x4()
                 Text(status.count.toString())
             }
         }

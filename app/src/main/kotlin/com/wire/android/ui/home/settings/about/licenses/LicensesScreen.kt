@@ -31,16 +31,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 
+@RootNavGraph
+@Destination
 @Composable
 fun LicensesScreen(
+    navigator: Navigator,
     viewModel: LicensesViewModel = hiltViewModel()
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
-            onNavigationPressed = viewModel::navigateBack,
+            onNavigationPressed = navigator::navigateBack,
             elevation = 0.dp,
             title = stringResource(id = R.string.settings_licenses_settings_label)
         )

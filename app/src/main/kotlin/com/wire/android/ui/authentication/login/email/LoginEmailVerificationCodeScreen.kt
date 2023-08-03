@@ -47,11 +47,12 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
     viewModel: LoginEmailViewModel = hiltViewModel()
 ) = LoginEmailVerificationCodeContent(
     viewModel.secondFactorVerificationCodeState,
     viewModel.loginState.emailLoginLoading,
-    viewModel::onCodeChange,
+    { viewModel.onCodeChange(it, onSuccess) },
     viewModel::onCodeResend,
     viewModel::onCodeVerificationBackPress
 )
@@ -67,15 +68,19 @@ private fun LoginEmailVerificationCodeContent(
 ) {
     BackHandler { onBackPressed() }
     ConstraintLayout(
-        modifier = modifier.fillMaxSize().padding(dimensions().spacing32x)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(dimensions().spacing32x)
     ) {
         val (main, logo) = createRefs()
         Logo(
-            modifier = Modifier.height(dimensions().spacing24x).constrainAs(logo) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }
+            modifier = Modifier
+                .height(dimensions().spacing24x)
+                .constrainAs(logo) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                }
         )
         MainContent(
             codeState = verificationCodeState,

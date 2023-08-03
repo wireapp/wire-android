@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -61,56 +60,12 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
-import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
-import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.launch
-
-@Composable
-fun AddMembersSearchRouter(
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel()
-) {
-    SearchPeopleContent(
-        searchPeopleState = addMembersToConversationViewModel.state,
-        searchTitle = stringResource(id = R.string.label_add_participants),
-        actionButtonTitle = stringResource(id = R.string.label_continue),
-        onSearchQueryChanged = addMembersToConversationViewModel::searchQueryChanged,
-        onOpenUserProfile = addMembersToConversationViewModel::openUserProfile,
-        onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
-        onRemoveContactFromGroup = addMembersToConversationViewModel::removeContactFromGroup,
-        // Members search does not have the option to add a contact
-        onAddContact = { },
-        onGroupSelectionSubmitAction = addMembersToConversationViewModel::addMembersToConversation,
-        onClose = addMembersToConversationViewModel::close,
-        onServiceClicked = addMembersToConversationViewModel::onServiceClicked,
-        screenType = SearchPeopleScreenType.CONVERSATION_DETAILS
-    )
-}
-
-@Composable
-fun SearchPeopleRouter(
-    onGroupSelectionSubmitAction: () -> Unit,
-    searchAllPeopleViewModel: SearchAllPeopleViewModel,
-) {
-    SearchPeopleContent(
-        searchPeopleState = searchAllPeopleViewModel.state,
-        searchTitle = stringResource(id = R.string.label_new_conversation),
-        actionButtonTitle = stringResource(id = R.string.label_new_group),
-        onSearchQueryChanged = searchAllPeopleViewModel::searchQueryChanged,
-        onOpenUserProfile = searchAllPeopleViewModel::openUserProfile,
-        onAddContactToGroup = searchAllPeopleViewModel::addContactToGroup,
-        onRemoveContactFromGroup = searchAllPeopleViewModel::removeContactFromGroup,
-        onAddContact = searchAllPeopleViewModel::addContact,
-        onGroupSelectionSubmitAction = onGroupSelectionSubmitAction,
-        onClose = searchAllPeopleViewModel::close,
-        onServiceClicked = { },
-        screenType = SearchPeopleScreenType.NEW_CONVERSATION
-    )
-}
 
 @OptIn(
     ExperimentalPagerApi::class,
@@ -118,7 +73,7 @@ fun SearchPeopleRouter(
     ExperimentalFoundationApi::class
 )
 @Composable
-fun SearchPeopleContent(
+fun SearchPeopleScreen(
     searchPeopleState: SearchPeopleState,
     searchTitle: String,
     actionButtonTitle: String,
@@ -130,7 +85,8 @@ fun SearchPeopleContent(
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
-    screenType: SearchPeopleScreenType
+    screenType: SearchPeopleScreenType,
+    snackbarHost: @Composable () -> Unit = {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -141,6 +97,7 @@ fun SearchPeopleContent(
 
     with(searchPeopleState) {
         CollapsingTopBarScaffold(
+            snackbarHost = snackbarHost,
             topBarHeader = { elevation ->
                 AnimatedVisibility(
                     visible = !searchBarState.isSearchActive,
@@ -198,7 +155,7 @@ fun SearchPeopleContent(
                             ) { pageIndex ->
                                 when (SearchPeopleTabItem.values()[pageIndex]) {
                                     SearchPeopleTabItem.PEOPLE -> {
-                                        GetPeopleScreen(
+                                        SearchAllPeopleOrContactsScreen(
                                             isSearchActive = isSearchActive,
                                             searchQuery = searchQuery.text,
                                             noneSearchSucceed = noneSearchSucceed,
@@ -232,7 +189,7 @@ fun SearchPeopleContent(
                             }
                         }
                     } else {
-                        GetPeopleScreen(
+                        SearchAllPeopleOrContactsScreen(
                             isSearchActive = isSearchActive,
                             searchQuery = searchQuery.text,
                             noneSearchSucceed = noneSearchSucceed,
@@ -284,7 +241,7 @@ enum class SearchPeopleScreenType {
 }
 
 @Composable
-private fun GetPeopleScreen(
+private fun SearchAllPeopleOrContactsScreen(
     isSearchActive: Boolean,
     searchQuery: String,
     noneSearchSucceed: Boolean,
@@ -309,7 +266,7 @@ private fun GetPeopleScreen(
         lazyListState = lazyListState
     )
 } else {
-    ContactsScreen(
+    SearchContactsScreen(
         allKnownContactResult = initialContacts,
         contactsAddedToGroup = contactsAddedToGroup,
         onAddToGroup = onAddContactToGroup,

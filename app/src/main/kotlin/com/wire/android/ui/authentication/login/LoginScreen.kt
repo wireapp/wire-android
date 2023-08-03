@@ -21,7 +21,9 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Column
@@ -49,13 +51,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.navigation.rememberTrackingAnimatedNavController
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.smoothSlideInFromRight
 import com.wire.android.navigation.smoothSlideOutFromLeft
 import com.wire.android.ui.authentication.ServerTitle
@@ -74,6 +78,9 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -81,16 +88,32 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = LoginNavArgs::class
+)
 @Composable
-fun LoginScreen() {
-    val loginViewModel: LoginViewModel = hiltViewModel()
-    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+fun LoginScreen(
+    navigator: Navigator,
+    loginNavArgs: LoginNavArgs,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+) {
 
     LoginContent(
-        onBackPressed = { loginViewModel.navigateBack() },
+        navigator::navigateBack,
+        { initialSyncCompleted ->
+            navigator.navigate(
+                NavigationCommand(
+                    if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        },
+        { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
         loginViewModel,
         loginEmailViewModel,
-        ssoLoginResult = loginViewModel.ssoLoginResult
+        ssoLoginResult = loginNavArgs.ssoLoginResult
     )
 }
 
@@ -98,37 +121,25 @@ fun LoginScreen() {
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
-    val navController = rememberTrackingAnimatedNavController() { LoginNavigationItem.fromRoute(it)?.itemName }
     Column(modifier = Modifier.fillMaxSize()) {
-        AnimatedNavHost(
-            navController = navController,
-            startDestination = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
-        ) {
-            composable(
-                route = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route,
-                enterTransition = { smoothSlideInFromRight() },
-                exitTransition = { smoothSlideOutFromLeft() },
-                content = { MainLoginContent(onBackPressed, viewModel, loginEmailViewModel, ssoLoginResult) }
-            )
-            composable(
-                route = LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route,
-                enterTransition = { smoothSlideInFromRight() },
-                exitTransition = { smoothSlideOutFromLeft() },
-                content = { LoginEmailVerificationCodeScreen(loginEmailViewModel) }
-            )
+        /*
+         TODO: we can change it to be a nested navigation graph when Compose Destinations 2.0 is released,
+               right now it's not possible to make start destination for nested graph with mandatory arguments.
+               More on that here: https://github.com/raamcosta/compose-destinations/issues/185
+         */
+        AnimatedContent(
+            targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+            transitionSpec = { smoothSlideInFromRight() with smoothSlideOutFromLeft() }
+        ) { isCodeInputNecessary ->
+            if (isCodeInputNecessary) LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel)
+            else MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)
         }
-    }
-    val targetRoute: String = if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
-        LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route
-    } else {
-        LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
-    }
-    if (navController.currentDestination?.route != targetRoute) {
-        navController.navigate(targetRoute)
     }
 }
 
@@ -140,6 +151,8 @@ private fun LoginContent(
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
@@ -208,8 +221,8 @@ private fun MainLoginContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
+                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
@@ -344,6 +357,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme(isPreview = true) {
-        MainLoginContent(onBackPressed = { }, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent({}, {}, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

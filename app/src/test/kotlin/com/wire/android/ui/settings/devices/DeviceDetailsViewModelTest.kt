@@ -2,15 +2,15 @@ package com.wire.android.ui.settings.devices
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -27,6 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class DeviceDetailsViewModelTest {
 
     @Test
@@ -50,11 +52,11 @@ class DeviceDetailsViewModelTest {
             .arrange()
 
         // then
-        assertEquals(CLIENT_ID, viewModel.state?.device?.clientId)
+        assertEquals(CLIENT_ID, viewModel.state.device.clientId)
     }
 
     @Test
-    fun `given a self client id, when fetching details fails, then returns to device lists`() = runTest {
+    fun `given a self client id, when fetching details fails, then returns InitError`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
             .withRequiredMockSetup()
@@ -64,7 +66,7 @@ class DeviceDetailsViewModelTest {
             .arrange()
 
         // then
-        assertEquals(ClientId(""), viewModel.state.device?.clientId)
+        assert(viewModel.state.error is RemoveDeviceError.InitError)
     }
 
     @Test
@@ -77,12 +79,13 @@ class DeviceDetailsViewModelTest {
             .withDeleteDeviceResult(DeleteClientResult.Success)
             .arrange()
 
-        viewModel.removeDevice()
+        viewModel.removeDevice(arrangement.onSuccess)
 
         // then
         coVerify {
             arrangement.deleteClientUseCase(any())
         }
+        verify { arrangement.onSuccess() }
     }
 
     @Test
@@ -93,13 +96,14 @@ class DeviceDetailsViewModelTest {
             .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Success(true))
             .arrange()
 
-        viewModel.removeDevice()
+        viewModel.removeDevice(arrangement.onSuccess)
 
         coVerify {
             arrangement.deleteClientUseCase(any()) wasNot Called
         }
-        assertTrue(viewModel.state?.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-        assertTrue(viewModel.state?.error is RemoveDeviceError.None)
+        verify { arrangement.onSuccess wasNot Called }
+        assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+        assertTrue(viewModel.state.error is RemoveDeviceError.None)
     }
 
     @Test
@@ -116,8 +120,9 @@ class DeviceDetailsViewModelTest {
             coVerify {
                 arrangement.deleteClientUseCase(any()) wasNot Called
             }
-            assertTrue(viewModel.state?.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
-            assertTrue(viewModel.state?.error is RemoveDeviceError.None)
+            verify { arrangement.onSuccess wasNot Called }
+            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
+            assertTrue(viewModel.state.error is RemoveDeviceError.None)
         }
 
     @Test
@@ -130,14 +135,15 @@ class DeviceDetailsViewModelTest {
                 .withDeleteDeviceResult(DeleteClientResult.Failure.Generic(CoreFailure.Unknown(RuntimeException("error"))))
                 .arrange()
 
-            viewModel.removeDevice()
+            viewModel.removeDevice(arrangement.onSuccess)
             viewModel.clearDeleteClientError()
 
             coVerify {
                 arrangement.deleteClientUseCase.invoke(any()) wasNot Called
             }
-            assertTrue(viewModel.state?.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            assertTrue(viewModel.state?.error is RemoveDeviceError.None)
+            verify { arrangement.onSuccess wasNot Called }
+            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+            assertTrue(viewModel.state.error is RemoveDeviceError.None)
         }
 
     @Test
@@ -150,13 +156,14 @@ class DeviceDetailsViewModelTest {
                 .withDeleteDeviceResult(DeleteClientResult.Success)
                 .arrange()
 
-            viewModel.removeDevice()
-            viewModel.onRemoveConfirmed()
+            viewModel.removeDevice(arrangement.onSuccess)
+            viewModel.onRemoveConfirmed(arrangement.onSuccess)
             advanceUntilIdle()
 
             coVerify {
                 arrangement.deleteClientUseCase.invoke(any())
             }
+            verify { arrangement.onSuccess() }
             assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
             assertTrue((viewModel.state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.removeEnabled == false)
             assertTrue(viewModel.state.error is RemoveDeviceError.None)
@@ -172,18 +179,17 @@ class DeviceDetailsViewModelTest {
                 .withDeleteDeviceResult(DeleteClientResult.Success)
                 .arrange()
 
-            viewModel.removeDevice()
+            viewModel.removeDevice(arrangement.onSuccess)
 
             coVerify {
                 arrangement.deleteClientUseCase(any())
             }
-            assertTrue(viewModel.state?.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
-            assertTrue(viewModel.state?.error is RemoveDeviceError.None)
+            verify { arrangement.onSuccess() }
+            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
+            assertTrue(viewModel.state.error is RemoveDeviceError.None)
         }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -206,12 +212,14 @@ class DeviceDetailsViewModelTest {
         @MockK
         lateinit var observeUserInfo: ObserveUserInfoUseCase
 
+        @MockK(relaxed = true)
+        lateinit var onSuccess: () -> Unit
+
         val currentUserId = UserId("currentUserId", "currentUserDomain")
 
         val viewModel by lazy {
             DeviceDetailsViewModel(
                 savedStateHandle = savedStateHandle,
-                navigationManager = navigationManager,
                 deleteClient = deleteClientUseCase,
                 observeClientDetails = observeClientDetails,
                 isPasswordRequired = isPasswordRequiredUseCase,
@@ -254,8 +262,10 @@ class DeviceDetailsViewModelTest {
         }
 
         fun withRequiredMockSetup() = apply {
-            every { savedStateHandle.get<String>(any()) } returns "SOMETHING"
-            coEvery { navigationManager.navigate(any()) } returns Unit
+            every { savedStateHandle.navArgs<DeviceDetailsNavArgs>() } returns DeviceDetailsNavArgs(
+                userId = currentUserId,
+                clientId = CLIENT_ID
+            )
         }
 
         fun arrange() = this to viewModel

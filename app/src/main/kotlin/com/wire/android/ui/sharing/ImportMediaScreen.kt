@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,10 +37,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -50,11 +56,13 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.wireTypography
@@ -63,52 +71,80 @@ import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.kalium.logic.util.isPositiveNotNull
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
+@RootNavGraph
+@Destination
 @Composable
 fun ImportMediaScreen(
-    importMediaViewModel: ImportMediaUnauthenticatedViewModel = hiltViewModel(),
+    navigator: Navigator,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
 ) {
     featureFlagNotificationViewModel.loadInitialSync()
 
-    ImportMediaContent(importMediaViewModel, featureFlagNotificationViewModel)
-}
+    when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
+        FeatureFlagState.SharingRestrictedState.NO_USER -> {
+            ImportMediaLoggedOutContent(
+                fileSharingRestrictedState = fileSharingRestrictedState,
+                navigateBack = navigator::navigateBack
+            )
+        }
 
-@Composable
-fun ImportMediaContent(
-    unauthorizedViewModel: ImportMediaUnauthenticatedViewModel,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
-) {
+        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> {
+            val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
+            ImportMediaRestrictedContent(
+                fileSharingRestrictedState = fileSharingRestrictedState,
+                importMediaAuthenticatedState = importMediaViewModel.importMediaState,
+                navigateBack = navigator::navigateBack
+            )
+        }
 
-    when (val state = featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
-        FeatureFlagState.SharingRestrictedState.NO_USER -> ImportMediaLoggedOutContent(
-            fileSharingRestrictedState = state,
-            viewModel = unauthorizedViewModel
-        )
+        FeatureFlagState.SharingRestrictedState.NONE -> {
+            val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
+            ImportMediaRegularContent(
+                importMediaAuthenticatedState = importMediaViewModel.importMediaState,
+                onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
+                onConversationClicked = importMediaViewModel::onConversationClicked,
+                checkRestrictionsAndSendImportedMedia = {
+                    importMediaViewModel.checkRestrictionsAndSendImportedMedia {
+                        navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
+                    }
+                },
+                onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
+                infoMessage = importMediaViewModel.infoMessage,
+                navigateBack = navigator::navigateBack,
+            )
+            val context = LocalContext.current
+            LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
+                if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
+                    context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+                }
+            }
+        }
 
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> ImportMediaRestrictedContent(state)
-        FeatureFlagState.SharingRestrictedState.NONE -> ImportMediaRegularContent()
         null -> {
             // state is not calculated yet, need to wait to avoid crash while requesting currentUser where it's absent
         }
     }
 
-    BackHandler { unauthorizedViewModel.navigateBack() }
+    BackHandler { navigator.navigateBack() }
 }
 
 @Composable
 fun ImportMediaRestrictedContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
+    importMediaAuthenticatedState: ImportMediaAuthenticatedState,
+    navigateBack: () -> Unit,
 ) {
-    with(importMediaViewModel.importMediaState) {
+    with(importMediaAuthenticatedState) {
         Scaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
-                    onNavigationPressed = importMediaViewModel::navigateBack,
+                    onNavigationPressed = navigateBack,
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -123,7 +159,7 @@ fun ImportMediaRestrictedContent(
                 FileSharingRestrictedContent(
                     internalPadding,
                     fileSharingRestrictedState,
-                    importMediaViewModel::navigateBack
+                    navigateBack
                 )
             }
         )
@@ -131,21 +167,24 @@ fun ImportMediaRestrictedContent(
 }
 
 @Composable
-fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()) {
-    val context = LocalContext.current
-    LaunchedEffect(authorizedViewModel.importMediaState.importedAssets) {
-        if (authorizedViewModel.importMediaState.importedAssets.isEmpty()) {
-            context.getActivity()?.let { authorizedViewModel.handleReceivedDataFromSharingIntent(it) }
-        }
-    }
+fun ImportMediaRegularContent(
+    importMediaAuthenticatedState: ImportMediaAuthenticatedState,
+    onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
+    onConversationClicked: (conversationId: ConversationId) -> Unit,
+    checkRestrictionsAndSendImportedMedia: () -> Unit,
+    onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
+    infoMessage: SharedFlow<SnackBarMessage>,
+    navigateBack: () -> Unit,
+) {
+
     val importMediaScreenState = rememberImportMediaScreenState()
 
-    with(authorizedViewModel.importMediaState) {
+    with(importMediaAuthenticatedState) {
         Scaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
-                    onNavigationPressed = authorizedViewModel::navigateBack,
+                    onNavigationPressed = navigateBack,
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -163,33 +202,45 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
             },
             modifier = Modifier.background(colorsScheme().background),
             content = { internalPadding ->
-                ImportMediaContent(this, internalPadding, authorizedViewModel, importMediaScreenState.searchBarState)
+                ImportMediaContent(
+                    state = this,
+                    internalPadding = internalPadding,
+                    onSearchQueryChanged = onSearchQueryChanged,
+                    onConversationClicked = onConversationClicked,
+                    searchBarState = importMediaScreenState.searchBarState
+                )
             },
-            bottomBar = { ImportMediaBottomBar(authorizedViewModel, importMediaScreenState) }
+            bottomBar = {
+                ImportMediaBottomBar(
+                    state = this,
+                    importMediaScreenState = importMediaScreenState,
+                    checkRestrictionsAndSendImportedMedia = checkRestrictionsAndSendImportedMedia
+                )
+            }
         )
         MenuModalSheetLayout(
             menuItems = SelfDeletionMenuItems(
-                currentlySelected = authorizedViewModel.importMediaState.selfDeletingTimer.duration.toSelfDeletionDuration(),
+                currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
                 hideEditMessageMenu = importMediaScreenState::hideBottomSheetMenu,
-                onSelfDeletionDurationChanged = authorizedViewModel::onNewSelfDeletionTimerPicked,
+                onSelfDeletionDurationChanged = onNewSelfDeletionTimerPicked,
             ),
             sheetState = importMediaScreenState.bottomSheetState,
             coroutineScope = importMediaScreenState.coroutineScope
         )
     }
-    SnackBarMessage(authorizedViewModel.infoMessage, importMediaScreenState.snackbarHostState)
+    SnackBarMessage(infoMessage, importMediaScreenState.snackbarHostState)
 }
 
 @Composable
 fun ImportMediaLoggedOutContent(
-    viewModel: ImportMediaUnauthenticatedViewModel,
-    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState
+    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    navigateBack: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                onNavigationPressed = viewModel::navigateBack,
+                onNavigationPressed = navigateBack,
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },
@@ -198,7 +249,7 @@ fun ImportMediaLoggedOutContent(
             FileSharingRestrictedContent(
                 internalPadding,
                 fileSharingRestrictedState,
-                viewModel::navigateBack
+                navigateBack
             )
         }
     )
@@ -257,10 +308,11 @@ fun FileSharingRestrictedContent(
 
 @Composable
 private fun ImportMediaBottomBar(
-    importMediaViewModel: ImportMediaAuthenticatedViewModel,
-    importMediaScreenState: ImportMediaScreenState
+    state: ImportMediaAuthenticatedState,
+    importMediaScreenState: ImportMediaScreenState,
+    checkRestrictionsAndSendImportedMedia: () -> Unit,
 ) {
-    val selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer
+    val selfDeletionTimer = state.selfDeletingTimer
     val shortDurationLabel = selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel
     val mainButtonText = if (selfDeletionTimer.duration.isPositiveNotNull()) {
         "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})"
@@ -269,8 +321,8 @@ private fun ImportMediaBottomBar(
     }
     SendContentButton(
         mainButtonText = mainButtonText,
-        count = importMediaViewModel.currentSelectedConversationsCount(),
-        onMainButtonClick = importMediaViewModel::checkRestrictionsAndSendImportedMedia,
+        count = if (state.importedAssets.isNotEmpty()) state.selectedConversationItem.size else 0,
+        onMainButtonClick = checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
         onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
     )
@@ -279,9 +331,10 @@ private fun ImportMediaBottomBar(
 @Composable
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 private fun ImportMediaContent(
-    state: ImportMediaState,
+    state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
-    importMediaViewModel: ImportMediaAuthenticatedViewModel,
+    onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
+    onConversationClicked: (conversationId: ConversationId) -> Unit,
     searchBarState: SearchBarState
 ) {
     val importedItemsList: List<ImportedMediaAsset> = state.importedAssets
@@ -323,8 +376,7 @@ private fun ImportMediaContent(
                 ) { page ->
                     ImportedMediaItemView(
                         importedItemsList[page],
-                        isMultipleImport,
-                        importMediaViewModel.wireSessionImageLoader
+                        isMultipleImport
                     )
                 }
             }
@@ -339,7 +391,7 @@ private fun ImportMediaContent(
                 ),
                 searchQuery = searchBarState.searchQuery,
                 onSearchQueryChanged = {
-                    importMediaViewModel.onSearchQueryChanged(it)
+                    onSearchQueryChanged(it)
                     searchBarState.searchQueryChanged(it)
                 },
                 onInputClicked = searchBarState::openSearch,
@@ -354,9 +406,9 @@ private fun ImportMediaContent(
             ),
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,
-            onConversationSelectedOnRadioGroup = importMediaViewModel::onConversationClicked,
+            onConversationSelectedOnRadioGroup = onConversationClicked,
             searchQuery = searchBarState.searchQuery.text,
-            onOpenConversation = importMediaViewModel::onConversationClicked,
+            onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
             onOpenConversationNotificationsSettings = {},
@@ -380,12 +432,24 @@ private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>, snackbarH
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewImportMediaScreen() {
-    ImportMediaScreen(hiltViewModel())
+fun PreviewImportMediaScreenLoggedOut() {
+    ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER) {}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewImportMediaScreenRestricted() {
+    ImportMediaRestrictedContent(FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM, ImportMediaAuthenticatedState()) {}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewImportMediaScreenRegular() {
+    ImportMediaRegularContent(ImportMediaAuthenticatedState(), {}, {}, {}, {}, MutableSharedFlow()) {}
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaBottomBar() {
-    ImportMediaBottomBar(hiltViewModel(), rememberImportMediaScreenState())
+    ImportMediaBottomBar(ImportMediaAuthenticatedState(), rememberImportMediaScreenState()) {}
 }

@@ -21,23 +21,18 @@
 package com.wire.android.ui.home.conversations.info
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ConversationProtocol
 import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,87 +43,37 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ConversationInfoViewModelTest {
 
     @Test
-    fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {
+    fun `given a self mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
-        val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val userId = TestUser.SELF_USER_ID
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(oneOneDetails)
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
+            .withMentionedUserId(TestUser.SELF_USER.id)
             .arrange()
         // When
-        viewModel.navigateToProfile(userId.toString())
+        val result = viewModel.mentionedUserData(TestUser.SELF_USER.id.toString())
         // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
-        }
+        assertEquals(Pair(TestUser.SELF_USER.id, true), result)
     }
 
     @Test
-    fun `given self user group message, when clicking on avatar, then open self profile`() = runTest {
+    fun `given an other mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
-        val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val userId = TestUser.SELF_USER_ID
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(groupDetails)
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
+            .withMentionedUserId(TestUser.OTHER_USER.id)
             .arrange()
         // When
-        viewModel.navigateToProfile(userId.toString())
+        val result = viewModel.mentionedUserData(TestUser.OTHER_USER.id.toString())
         // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
-        }
-    }
-
-    @Test
-    fun `given other user 1on1 message, when clicking on avatar, then open other user profile without group data`() = runTest {
-        // Given
-        val oneOneDetails: ConversationDetails.OneOne = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val userId = UserId("other", "domain")
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(oneOneDetails)
-            .withSelfUser()
-            .arrange()
-        coEvery {
-            arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
-        } returns QualifiedID("other", "domain")
-
-        // When
-        viewModel.navigateToProfile(userId.toString())
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId))))
-        }
-    }
-
-    @Test
-    fun `given other user group message, when clicking on avatar, then open other user profile with group data`() = runTest {
-        // Given
-        val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val userId = UserId("other", "domain")
-        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
-            .withConversationDetailUpdate(groupDetails)
-            .withSelfUser()
-            .arrange()
-        coEvery {
-            arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
-        } returns QualifiedID("other", "domain")
-        launch { viewModel.observeConversationDetails() }.run {
-            advanceUntilIdle()
-            // When
-            viewModel.navigateToProfile(userId.toString())
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
-                )
-            }
-            cancel()
-        }
+        assertEquals(Pair(TestUser.OTHER_USER.id, false), result)
     }
 
     @Test
@@ -141,7 +86,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -163,7 +108,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
@@ -179,7 +124,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -202,7 +147,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
@@ -247,7 +192,7 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             // When - Then
             assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
@@ -264,7 +209,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
             .withSelfUser()
             .arrange()
-        launch { viewModel.observeConversationDetails() }.run {
+        launch { viewModel.observeConversationDetails {} }.run {
             advanceUntilIdle()
             val actualAvatar = viewModel.conversationInfoViewState.conversationAvatar
             // When - Then
@@ -365,5 +310,20 @@ class ConversationInfoViewModelTest {
             result,
             viewModel.conversationInfoViewState.verificationStatus
         )
+    }
+
+    @Test
+    fun `given conversation details are not found, when observing details, then call onNotFound`() = runTest {
+        // Given
+        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailFailure(StorageFailure.DataNotFound)
+            .withSelfUser()
+            .arrange()
+        launch { viewModel.observeConversationDetails(arrangement.onNotFound) }.run {
+            advanceUntilIdle()
+            // When - Then
+            verify(exactly = 1) { arrangement.onNotFound() }
+            cancel()
+        }
     }
 }

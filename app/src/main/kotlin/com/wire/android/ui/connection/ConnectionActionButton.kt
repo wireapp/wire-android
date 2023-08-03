@@ -41,6 +41,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.snackbar.collectAndShowSnackbar
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -49,6 +50,8 @@ fun ConnectionActionButton(
     userId: UserId,
     userName: String,
     connectionStatus: ConnectionState,
+    onConnectionRequestIgnored: (String) -> Unit = {},
+    onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
         hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonArgs>(ConnectionActionButtonArgs(userId, userName))
             .also { LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage) }
@@ -76,7 +79,7 @@ fun ConnectionActionButton(
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
             loading = viewModel.actionableState().isPerformingAction,
-            onClick = viewModel::onOpenConversation,
+            onClick = { viewModel.onOpenConversation(onOpenConversation) },
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(
@@ -112,7 +115,11 @@ fun ConnectionActionButton(
                 text = stringResource(R.string.connection_label_ignore),
                 loading = viewModel.actionableState().isPerformingAction,
                 state = WireButtonState.Error,
-                onClick = viewModel::onIgnoreConnectionRequest,
+                onClick = {
+                    viewModel.onIgnoreConnectionRequest {
+                        onConnectionRequestIgnored(it)
+                    }
+                },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 leadingIcon = {
                     Icon(

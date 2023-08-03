@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.newconversation.contacts
+package com.wire.android.ui.home.conversations.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +46,6 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
-import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -58,7 +55,7 @@ import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
-fun ContactsScreen(
+fun SearchContactsScreen(
     allKnownContactResult: SearchResultState,
     contactsAddedToGroup: List<Contact>,
     onOpenUserProfile: (Contact) -> Unit,

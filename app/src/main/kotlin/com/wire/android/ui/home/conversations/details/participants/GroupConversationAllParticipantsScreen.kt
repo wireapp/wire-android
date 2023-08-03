@@ -36,19 +36,41 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = GroupConversationAllParticipantsNavArgs::class
+)
 @Composable
-fun GroupConversationAllParticipantsScreen(viewModel: GroupConversationParticipantsViewModel = hiltViewModel()) {
+fun GroupConversationAllParticipantsScreen(
+    navigator: Navigator,
+    navArgs: GroupConversationAllParticipantsNavArgs,
+    viewModel: GroupConversationParticipantsViewModel = hiltViewModel()
+) {
     GroupConversationAllParticipantsContent(
-        onBackPressed = viewModel::navigateBack,
+        onBackPressed = navigator::navigateBack,
         groupParticipantsState = viewModel.groupParticipantsState,
-        onProfilePressed = viewModel::openProfile
+        onProfilePressed = { participant ->
+            when {
+                participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                participant.isService && participant.botService != null ->
+                    navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, navArgs.conversationId)))
+                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, navArgs.conversationId)))
+            }
+        },
     )
 }
 

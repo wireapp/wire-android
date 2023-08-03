@@ -23,15 +23,19 @@ package com.wire.android.ui.calling
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.navArgs
+import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
@@ -41,13 +45,16 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
 
@@ -55,16 +62,10 @@ class OngoingCallViewModelTest {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    private lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var establishedCall: ObserveEstablishedCallsUseCase
 
     @MockK
     private lateinit var requestVideoStreams: RequestVideoStreamsUseCase
-
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
@@ -76,28 +77,24 @@ class OngoingCallViewModelTest {
 
     @BeforeEach
     fun setup() {
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        every { savedStateHandle.set(any(), any<String>()) } returns Unit
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID(dummyConversationId)
-        } returns conversationId
+        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = conversationId)
+        coEvery { establishedCall.invoke() } returns flowOf(listOf(provideCall()))
+        coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
+        coEvery { globalDataStore.getShouldShowDoubleTapToast(any()) } returns false
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper,
-            currentUserId = currentUserId,
-            globalDataStore = globalDataStore,
-            navigationManager = navigationManager,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
-            currentScreenManager = currentScreenManager
+            currentScreenManager = currentScreenManager,
+            currentUserId = currentUserId,
+            globalDataStore = globalDataStore,
         )
     }
 
     @Test
-    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() {
+    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() = runTest {
         val expectedClients = listOf(
             CallClient(participant1.id.toString(), participant1.clientId),
             CallClient(participant3.id.toString(), participant3.clientId)
@@ -154,4 +151,19 @@ class OngoingCallViewModelTest {
         )
         val participants = listOf(participant1, participant2, participant3)
     }
+
+    private fun provideCall(id: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
+        conversationId = id,
+        status = CallStatus.ESTABLISHED,
+        callerId = "caller_id",
+        participants = listOf(),
+        isMuted = false,
+        isCameraOn = false,
+        maxParticipants = 0,
+        conversationName = "ONE_ON_ONE Name",
+        conversationType = Conversation.Type.ONE_ON_ONE,
+        callerName = "otherUsername",
+        callerTeamName = "team_1",
+        isCbrEnabled = false
+    )
 }

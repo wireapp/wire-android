@@ -31,9 +31,6 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
@@ -97,7 +94,6 @@ import javax.inject.Inject
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
@@ -175,6 +171,7 @@ class ConversationListViewModel @Inject constructor(
                         },
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
+                        // TODO: missing other lists and counters (for bottom tabs if we decide to bring them back)
                         searchQuery = searchQuery
                     )
                 }
@@ -199,17 +196,6 @@ class ConversationListViewModel @Inject constructor(
             refreshUsersWithoutMetadata()
             refreshConversationsWithoutMetadata()
         }
-    }
-
-    private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
-        conversationListState = conversationListState.copy(
-            allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
-            foldersWithConversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
-            hasNoConversations = conversationListDetails.none { it !is Self },
-            newActivityCount = 0L,
-            unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
-            missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
-        )
     }
 
     @Suppress("ComplexMethod")
@@ -287,38 +273,6 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun openConversation(conversationId: ConversationId) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))
-                )
-            )
-        }
-    }
-
-    fun openNewConversation() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.NewConversation.getRouteWithArgs()
-                )
-            )
-        }
-    }
-
-    fun openUserProfile(profileId: UserId) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(profileId)
-                    )
-                )
-            )
-        }
-    }
-
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
@@ -331,17 +285,17 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun joinAnyway(conversationId: ConversationId) {
+    fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
             }
-            joinOngoingCall(conversationId)
+            joinOngoingCall(conversationId, onJoined)
         }
     }
 
-    fun joinOngoingCall(conversationId: ConversationId) {
+    fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         this.conversationId = conversationId
         viewModelScope.launch {
             if (conversationListState.hasEstablishedCall) {
@@ -349,11 +303,7 @@ class ConversationListViewModel @Inject constructor(
             } else {
                 dismissJoinCallAnywayDialog()
                 answerCall(conversationId = conversationId)
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
-                    )
-                )
+                onJoined(conversationId)
             }
         }
     }

@@ -32,8 +32,7 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -43,7 +42,6 @@ import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -77,8 +75,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
@@ -102,11 +98,8 @@ class SharedCallingViewModel @Inject constructor(
 
     var callState by mutableStateOf(CallState())
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to SharedCallingViewModel"
-        }
-    )
+    private val callingNavArgs: CallingNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = callingNavArgs.conversationId
 
     init {
         viewModelScope.launch {
@@ -219,16 +212,9 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() {
+    fun hangUpCall(onCompleted: () -> Unit) {
         viewModelScope.launch {
-            stopVideo()
-            navigationManager.navigateBack()
-        }
-    }
-
-    fun hangUpCall() {
-        viewModelScope.launch {
-            navigateBack()
+            onCompleted()
             endCall(conversationId)
             // we need to update mute state to false, so if the user re-join the call te mic will will be muted
             muteCall(conversationId, false)

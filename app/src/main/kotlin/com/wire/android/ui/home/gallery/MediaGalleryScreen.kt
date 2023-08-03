@@ -35,7 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -45,8 +49,16 @@ import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 import com.wire.android.util.ui.openDownloadFolder
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = MediaGalleryNavArgs::class
+)
 @Composable
-fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
+fun MediaGalleryScreen(
+    navigator: Navigator,
+    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>
+) {
     val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
@@ -65,13 +77,13 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 MediaGalleryScreenTopAppBar(
                     title = screenTitle
                         ?: stringResource(R.string.media_gallery_default_title_name),
-                    onCloseClick = mediaGalleryViewModel::navigateBack,
+                    onCloseClick = navigator::navigateBack,
                     onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
                 )
             },
             content = { internalPadding ->
                 Box(modifier = Modifier.padding(internalPadding)) {
-                    MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
+                    MediaGalleryContent(navigator, mediaGalleryViewModel, mediaGalleryScreenState)
                 }
             },
             snackbarHost = {
@@ -92,7 +104,14 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 },
                 onDetailsClick = {
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageDetailsClicked()
+                    resultNavigator.setResult(
+                        MediaGalleryNavBackArgs(
+                            messageId = mediaGalleryViewModel.imageAsset.messageId,
+                            isSelfAsset = mediaGalleryViewModel.imageAsset.isSelfAsset,
+                            mediaGalleryActionType = MediaGalleryActionType.DETAIL
+                        )
+                    )
+                    resultNavigator.navigateBack()
                 },
                 onShareAsset = {
                     mediaGalleryScreenState.showContextualMenu(false)
@@ -101,11 +120,24 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 onDownloadAsset = onSaveImageWriteStorageRequest::launch,
                 onReplyClick = {
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageReplied()
+                    resultNavigator.setResult(
+                        MediaGalleryNavBackArgs(
+                            messageId = mediaGalleryViewModel.imageAsset.messageId,
+                            mediaGalleryActionType = MediaGalleryActionType.REPLY
+                        )
+                    )
+                    resultNavigator.navigateBack()
                 },
                 onReactionClick = { emoji ->
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageReacted(emoji)
+                    resultNavigator.setResult(
+                        MediaGalleryNavBackArgs(
+                            messageId = mediaGalleryViewModel.imageAsset.messageId,
+                            emoji = emoji,
+                            mediaGalleryActionType = MediaGalleryActionType.REACT
+                        )
+                    )
+                    resultNavigator.navigateBack()
                 },
                 onOpenAsset = null
             )
@@ -114,7 +146,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
 }
 
 @Composable
-fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
+fun MediaGalleryContent(navigator: Navigator, viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
     val context = LocalContext.current
     val uiState = viewModel.mediaGalleryViewState
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
@@ -149,7 +181,8 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
 
     DeleteMessageDialog(
         state = uiState.deleteMessageDialogsState,
-        actions = viewModel.deleteMessageHelper
+        actions = viewModel.deleteMessageHelper,
+        onDeleted = navigator::navigateBack
     )
 }
 

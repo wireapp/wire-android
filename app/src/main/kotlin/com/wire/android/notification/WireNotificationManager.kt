@@ -40,6 +40,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -394,19 +395,22 @@ class WireNotificationManager @Inject constructor(
                 if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
-                    if (coreLogic.getGlobalScope().doesValidSessionExist(userId).doesValidSessionExist()) {
-                        coreLogic.getSessionScope(userId).calls
-                            .establishedCall()
-                            .map {
-                                it.firstOrNull()?.let { call ->
-                                    OngoingCallData(
-                                        userId = userId,
-                                        conversationId = call.conversationId,
-                                        notificationTitle = callNotificationManager.builder.getNotificationTitle(call)
-                                    )
+                    coreLogic.getGlobalScope().doesValidSessionExist(userId).let {
+                        if (it is DoesValidSessionExistResult.Success && it.doesValidSessionExist) {
+                            coreLogic.getSessionScope(userId).calls
+                                .establishedCall()
+                                .map {
+                                    it.firstOrNull()?.let { call ->
+                                        OngoingCallData(
+                                            userId = userId,
+                                            conversationId = call.conversationId,
+                                            notificationTitle = callNotificationManager.builder.getNotificationTitle(call)
+                                        )
+                                    }
                                 }
-                            }
-                    } else flowOf(null)
+                        } else flowOf(null)
+                    }
+
                 }
             }
             .distinctUntilChanged()

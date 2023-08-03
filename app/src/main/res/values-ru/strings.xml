@@ -861,6 +861,7 @@
     <string name="settings_myaccount_display_name_error">Please enter your profile name</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">От 1 до 64 символов</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
     <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This setting does not apply to group conversations.</string>

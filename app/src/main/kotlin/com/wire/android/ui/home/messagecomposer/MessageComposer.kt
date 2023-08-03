@@ -71,6 +71,7 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
@@ -147,13 +148,12 @@ fun MessageComposer(
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
-                        onMessageSend()
+                        onClearMentionSearchResult()
+                        clearMessage()
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping) },
                     onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
-                    onAudioRecorded = {
-                        onSendMessageBundle(AttachmentPickedBundle(it))
-                    },
+                    onAudioRecorded = { onSendMessageBundle(AudioMessageBundle(it)) },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,

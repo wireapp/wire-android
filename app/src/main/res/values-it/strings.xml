@@ -264,10 +264,10 @@ Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#2
     <string name="remove_device_title">Rimuovi un dispositivo</string>
     <string name="remove_device_message">Rimuovi un altro dispositivo per iniziare ad usare Wire su questo.</string>
     <string name="remove_device_label">I TUOI DISPOSITIVI</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
-Aggiunto: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Rimuovere il seguente dispositivo?</string>
     <string name="remove_device_invalid_password">Password invalida</string>
     <string name="remove_device_details_description">Rimuovi questo dispositivo se non lo usi pi&#249;. Sarai immediatamente disconnesso su questo dispositivo.</string>
@@ -879,7 +879,7 @@ URL del backend:
     <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
-    <string name="label_client_device_id">ID DEL DISPOSITIVO</string>
+    <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connettiti con altre persone o crea un nuovo gruppo per iniziare a collaborare!</string>
@@ -891,6 +891,9 @@ URL del backend:
     <string name="label_wait_until_synchronised">Attendere fino a quando l\'app &#232; sincronizzata</string>
     <string name="label_wait_until_connected">Sei pregato di attendere il ripristino della connessione a Internet</string>
     <string name="label_textfield_optional_password">Password (opzionale)</string>
+    <string name="label_proteus_details">Proteus Device Details</string>
+    <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Imposta password</string>
     <string name="backup_dialog_create_backup_set_password_message">Il backup verr&#224; compresso e potrai cifrarlo con una password.</string>

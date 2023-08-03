@@ -861,6 +861,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_myaccount_display_name_error">Prosz&#281; wprowadzi&#263; nazw&#281; profilu</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Wymagane jest od 1 do 64 znak&#243;w</string>
     <string name="settings_myaccount_display_name_updated">Nazwa profilu zosta&#322;a zmieniona</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Wysy&#322;aj potwierdzenia odczytania</string>
     <string name="settings_send_read_receipts_description">Je&#347;li jest to wy&#322;&#261;czone, nie b&#281;dziesz m&#243;g&#322; zobaczy&#263; potwierdze&#324; odczytania od innych os&#243;b. Ustawienie to nie dotyczy rozm&#243;w grupowych.</string>

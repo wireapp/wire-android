@@ -426,6 +426,10 @@ sealed class ComposableMessageBundle : MessageBundle {
     data class AttachmentPickedBundle(
         val attachmentUri: UriAsset
     ) : ComposableMessageBundle()
+
+    data class AudioMessageBundle(
+        val attachmentUri: UriAsset
+    ) : ComposableMessageBundle()
 }
 
 object Ping : MessageBundle

@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,8 +41,8 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
-import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -114,8 +114,10 @@ fun CallerDetails(
             MembershipQualifierLabel(membership)
         }
         if (securityClassificationType != SecurityClassificationType.NONE) {
-            VerticalSpace.x8()
-            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+            SecurityClassificationBanner(
+                securityClassificationType = securityClassificationType,
+                modifier = Modifier.padding(top = dimensions().spacing8x)
+            )
         }
 
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {

@@ -69,7 +69,6 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -339,8 +338,7 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        VerticalSpace.x8()
-        SecurityClassificationBanner(classificationType)
+        SecurityClassificationBanner(classificationType, modifier = Modifier.padding(top = dimensions().spacing8x))
     }
 }
 

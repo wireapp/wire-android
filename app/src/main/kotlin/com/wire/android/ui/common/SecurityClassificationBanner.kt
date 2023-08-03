@@ -47,10 +47,11 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun SecurityClassificationBanner(
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    modifier: Modifier = Modifier
 ) {
     if (securityClassificationType != SecurityClassificationType.NONE) {
-        Column {
+        Column(modifier = modifier) {
             Divider(color = getDividerColorFor(securityClassificationType))
             Row(
                 horizontalArrangement = Arrangement.Center,

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.calling.ongoing.participantsview
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,16 +42,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 
 /**
  * Updating VerticalPagerIndicator from com.google.accompanist.pager to have the ability to add a border to the pager indicator
  */
-@ExperimentalPagerApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VerticalPagerIndicator(
     pagerState: PagerState,
@@ -87,7 +87,7 @@ fun VerticalPagerIndicator(
         Box(
             Modifier
                 .offset {
-                    val scrollPosition = (pagerState.currentPage + pagerState.currentPageOffset)
+                    val scrollPosition = (pagerState.currentPage + pagerState.currentPageOffsetFraction)
                         .coerceIn(
                             0f,
                             (pagerState.pageCount - 1)
@@ -108,12 +108,12 @@ fun VerticalPagerIndicator(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun PreviewVerticalPagerIndicator() {
     VerticalPagerIndicator(
         modifier = Modifier.padding(dimensions().spacing4x),
-        pagerState = rememberPagerState()
+        pagerState = rememberPagerState(pageCount = { 3 })
     )
 }

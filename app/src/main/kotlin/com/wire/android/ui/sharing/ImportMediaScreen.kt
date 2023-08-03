@@ -34,9 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -329,7 +328,7 @@ private fun ImportMediaBottomBar(
 }
 
 @Composable
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
@@ -339,7 +338,7 @@ private fun ImportMediaContent(
 ) {
     val importedItemsList: List<ImportedMediaAsset> = state.importedAssets
     val itemsToImport = importedItemsList.size
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(pageCount = { itemsToImport })
     val isMultipleImport = itemsToImport > 1
 
     Column(
@@ -370,9 +369,8 @@ private fun ImportMediaContent(
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
-                    count = itemsToImport,
                     contentPadding = contentPadding,
-                    itemSpacing = dimensions().spacing8x
+                    pageSpacing = dimensions().spacing8x
                 ) { page ->
                     ImportedMediaItemView(
                         importedItemsList[page],

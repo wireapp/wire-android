@@ -21,6 +21,7 @@
 package com.wire.android.ui.common
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,8 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.PagerState
+import androidx.compose.foundation.pager.PagerState
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsTabItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -104,10 +104,10 @@ private fun WireIndicator(modifier: Modifier = Modifier) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("MagicNumber")
-@OptIn(ExperimentalPagerApi::class)
 fun PagerState.calculateCurrentTab() = // change the tab if we go over half the offset
-    if (this.currentPageOffset.absoluteValue > 0.5f) this.targetPage else this.currentPage
+    if (this.currentPageOffsetFraction.absoluteValue > 0.5f) this.targetPage else this.currentPage
 
 interface TabItem {
     @get:StringRes

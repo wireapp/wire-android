@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -48,9 +50,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
@@ -68,7 +67,6 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalPagerApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class
 )
@@ -92,7 +90,7 @@ fun SearchPeopleScreen(
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = SearchPeopleTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = SearchPeopleTabItem.PEOPLE.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex)
+    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { SearchPeopleTabItem.values().size })
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
 
     with(searchPeopleState) {
@@ -149,7 +147,6 @@ fun SearchPeopleScreen(
                         CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                             HorizontalPager(
                                 state = pagerState,
-                                count = SearchPeopleTabItem.values().size,
                                 modifier = Modifier
                                     .fillMaxWidth()
                             ) { pageIndex ->

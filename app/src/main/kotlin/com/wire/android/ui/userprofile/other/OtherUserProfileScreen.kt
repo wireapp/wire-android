@@ -56,9 +56,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -159,6 +159,7 @@ fun OtherUserProfileScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @Composable
 fun OtherProfileScreenContent(
@@ -219,7 +220,7 @@ fun OtherProfileScreenContent(
         }
     }
     val initialPage = 0
-    val pagerState = rememberPagerState(initialPage = initialPage)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { tabItems.size })
     val lazyListStates = OtherUserProfileTabItem.values().associateWith { rememberLazyListState() }
     val currentTabState by remember(state, pagerState) {
         derivedStateOf { if (state.isDataLoading) 0 else pagerState.calculateCurrentTab() }
@@ -342,7 +343,7 @@ private fun TopBarHeader(
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
-    Crossfade(targetState = state.isDataLoading) {
+    Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
         UserProfileInfo(
             isLoading = state.isAvatarLoading,
             avatarAsset = state.userAvatarAsset,
@@ -358,6 +359,7 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarFooter(
     state: OtherUserProfileState,
@@ -402,7 +404,7 @@ private fun Content(
     onDeviceClick: (Device) -> Unit
 ) {
 
-    Crossfade(targetState = tabItems to state) { (tabItems, state) ->
+    Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
             OtherUserConnectionStatusInfo(state.connectionState, state.membership)
             x24()
@@ -413,7 +415,6 @@ private fun Content(
                         HorizontalPager(
                             modifier = Modifier.fillMaxSize(),
                             state = pagerState,
-                            count = tabItems.size
                         ) { pageIndex ->
                             when (val tabItem = tabItems[pageIndex]) {
                                 OtherUserProfileTabItem.DETAILS ->

@@ -271,9 +271,10 @@
         hier zu nutzen.
     </string>
     <string name="remove_device_label">IHRE GERÄTE</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s\nHinzugefügt: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nHinzugefügt: %2$s\nAktiv: %3$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
     <string name="remove_device_details_description">Entfernen Sie dieses Gerät, wenn Sie es nicht mehr nutzen. Sie werden sofort auf diesem Gerät abgemeldet.</string>
@@ -878,7 +879,7 @@
     <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
-    <string name="label_client_device_id">GERÄTE-ID</string>
+    <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
@@ -890,6 +891,9 @@
     <string name="label_wait_until_synchronised">Bitte warten Sie, bis die App synchronisiert ist</string>
     <string name="label_wait_until_connected">Bitte warten Sie, bis die Internetverbindung wiederhergestellt ist</string>
     <string name="label_textfield_optional_password">Passwort (optional)</string>
+    <string name="label_proteus_details">Proteus Device Details</string>
+    <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
     <string name="backup_dialog_create_backup_set_password_message">Das Backup wird komprimiert und Sie können es mit einem Passwort verschlüsseln.</string>

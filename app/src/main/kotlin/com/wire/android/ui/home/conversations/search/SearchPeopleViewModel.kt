@@ -114,7 +114,7 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    override fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
+    override suspend fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
         .map { result ->
             when (result) {
                 is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
@@ -265,7 +265,7 @@ abstract class SearchPeopleViewModel(
         .asStateFlow()
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
-    fun initialContactResultFlow() = getInitialContacts().map { result ->
+    suspend fun initialContactResultFlow() = getInitialContacts().map { result ->
         when (result) {
             is SearchResult.Failure -> {
                 SearchResultState.Failure(result.failureString)
@@ -359,7 +359,7 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    abstract fun getInitialContacts(): Flow<SearchResult>
+    abstract suspend fun getInitialContacts(): Flow<SearchResult>
 
     abstract suspend fun getInitialServices(): Flow<SearchResult>
 }

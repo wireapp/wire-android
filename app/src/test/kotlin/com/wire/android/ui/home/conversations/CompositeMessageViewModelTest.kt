@@ -19,6 +19,9 @@ package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.ScopedArgsTestExtension
+import com.wire.android.di.scopedArgs
+import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
@@ -35,6 +38,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(ScopedArgsTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class CompositeMessageViewModelTest {
 
@@ -91,7 +95,7 @@ class CompositeMessageViewModelTest {
         init {
             MockKAnnotations.init(this)
             every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(CONVERSATION_ID)
-            every { savedStateHandle.get<String>(any()) } returns MESSAGE_ID
+            every { savedStateHandle.scopedArgs<CompositeMessageArgs>() } returns CompositeMessageArgs(MESSAGE_ID)
         }
 
         private val viewModel = CompositeMessageViewModel(sendButtonActionMessage, savedStateHandle)

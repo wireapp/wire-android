@@ -22,19 +22,18 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.CurrentScreen
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
@@ -53,6 +52,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -63,13 +63,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class SharedCallingViewModelTest {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    private lateinit var navigationManager: NavigationManager
 
     @MockK
     private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
@@ -108,9 +106,6 @@ class SharedCallingViewModelTest {
     private lateinit var observeSpeaker: ObserveSpeakerUseCase
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     private lateinit var callRinger: CallRinger
 
     @MockK
@@ -128,28 +123,26 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase
 
+    @MockK(relaxed = true)
+    private lateinit var onCompleted: () -> Unit
+
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
     @BeforeEach
     fun setup() {
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSecurityClassificationLabel.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
         coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         sharedCallingViewModel = SharedCallingViewModel(
             savedStateHandle = savedStateHandle,
-            navigationManager = navigationManager,
             conversationDetails = observeConversationDetails,
             allCalls = allCalls,
             endCall = endCall,
@@ -167,7 +160,6 @@ class SharedCallingViewModelTest {
             wireSessionImageLoader = wireSessionImageLoader,
             userTypeMapper = userTypeMapper,
             currentScreenManager = currentScreenManager,
-            qualifiedIdMapper = qualifiedIdMapper,
             observeSecurityClassificationLabel = observeSecurityClassificationLabel,
             dispatchers = TestDispatcherProvider()
         )
@@ -282,14 +274,14 @@ class SharedCallingViewModelTest {
         coEvery { endCall(any()) } returns Unit
         coEvery { muteCall(any(), false) } returns Unit
         every { callRinger.stop() } returns Unit
-        coEvery { navigationManager.navigateBack() } returns Unit
 
-        sharedCallingViewModel.hangUpCall()
+        sharedCallingViewModel.hangUpCall(onCompleted)
         advanceUntilIdle()
 
         coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { muteCall(any(), false) }
         coVerify(exactly = 1) { callRinger.stop() }
+        verify(exactly = 1) { onCompleted() }
     }
 
     @Test

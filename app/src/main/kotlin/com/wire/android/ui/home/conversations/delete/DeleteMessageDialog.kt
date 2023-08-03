@@ -31,7 +31,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.util.dialogErrorStrings
 
 @Composable
-internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: DeleteMessageDialogHelper) {
+internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: DeleteMessageDialogHelper, onDeleted: () -> Unit = {}) {
     if (state is DeleteMessageDialogsState.States) {
         when {
             state.forEveryone is DeleteMessageDialogActiveState.Visible -> {
@@ -39,7 +39,9 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                     state = state.forEveryone,
                     onDialogDismiss = actions::onDeleteDialogDismissed,
                     onDeleteForMe = actions::showDeleteMessageForYourselfDialog,
-                    onDeleteForEveryone = actions::onDeleteMessage,
+                    onDeleteForEveryone = { messageId: String ->
+                        actions.onDeleteMessage(messageId = messageId, deleteForEveryone = true, onDeleted = onDeleted)
+                    },
                 )
                 if (state.forEveryone.error is DeleteMessageError.GenericError) {
                     DeleteMessageErrorDialog(state.forEveryone.error, actions::clearDeleteMessageError)
@@ -52,7 +54,9 @@ internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: Dele
                     DeleteMessageForYourselfDialog(
                         state = state.forYourself,
                         onDialogDismiss = actions::onDeleteDialogDismissed,
-                        onDeleteForMe = actions::onDeleteMessage
+                        onDeleteForMe = { messageId: String ->
+                            actions.onDeleteMessage(messageId = messageId, deleteForEveryone = false, onDeleted = onDeleted)
+                        },
                     )
                 }
             }
@@ -65,7 +69,7 @@ private fun DeleteMessageDialog(
     state: DeleteMessageDialogActiveState.Visible,
     onDialogDismiss: () -> Unit,
     onDeleteForMe: (String) -> Unit,
-    onDeleteForEveryone: (String, Boolean) -> Unit,
+    onDeleteForEveryone: (String) -> Unit,
 ) {
     WireDialog(
         title = stringResource(R.string.delete_message_dialog_title),
@@ -83,7 +87,7 @@ private fun DeleteMessageDialog(
             state = WireButtonState.Error
         ),
         optionButton2Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForEveryone(state.messageId, true) },
+            onClick = { onDeleteForEveryone(state.messageId) },
             text = stringResource(R.string.label_delete_for_everyone),
             type = WireDialogButtonType.Primary,
             state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
@@ -97,7 +101,7 @@ private fun DeleteMessageDialog(
 private fun DeleteMessageForYourselfDialog(
     state: DeleteMessageDialogActiveState.Visible,
     onDialogDismiss: () -> Unit,
-    onDeleteForMe: (String, Boolean) -> Unit,
+    onDeleteForMe: (String) -> Unit,
 ) {
     WireDialog(
         title = stringResource(R.string.delete_message_for_yourself_dialog_title),
@@ -109,7 +113,7 @@ private fun DeleteMessageForYourselfDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { onDeleteForMe(state.messageId, false) },
+            onClick = { onDeleteForMe(state.messageId) },
             text = stringResource(R.string.label_delete_for_me),
             type = WireDialogButtonType.Primary,
             state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,

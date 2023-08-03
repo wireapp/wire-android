@@ -25,35 +25,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CREATE_ACCOUNT_FLOW_TYPE
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.navArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CreateAccountSummaryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val type: CreateAccountFlowType = checkNotNull(
-        CreateAccountFlowType.fromRouteArg(savedStateHandle.getLiveData<String>(EXTRA_CREATE_ACCOUNT_FLOW_TYPE).value)
-    ) { "Unknown CreateAccountFlowType" }
+    private val createAccountSummaryNavArgs: CreateAccountSummaryNavArgs = savedStateHandle.navArgs()
+    private val type: CreateAccountFlowType = createAccountSummaryNavArgs.type
 
     var summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))
         private set
-
-    fun onSummaryContinue() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(NavigationItem.CreateUsername.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
-            )
-        }
-    }
 }

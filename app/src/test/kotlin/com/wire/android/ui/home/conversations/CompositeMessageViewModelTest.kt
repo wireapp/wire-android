@@ -19,8 +19,9 @@ package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class CompositeMessageViewModelTest {
 
     @Test
@@ -74,7 +76,7 @@ class CompositeMessageViewModelTest {
     }
 
     private companion object {
-        const val CONVERSION_ID_STRING = "some-dummy-value@some.dummy.domain"
+        val CONVERSATION_ID = ConversationId("some-dummy-value", "some.dummy.domain")
         const val MESSAGE_ID = "message-id"
     }
 
@@ -82,18 +84,17 @@ class CompositeMessageViewModelTest {
 
         @MockK
         lateinit var sendButtonActionMessage: SendButtonActionMessageUseCase
-        val qualifiedIdMapper: QualifiedIdMapper = QualifiedIdMapperImpl(null)
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
         init {
             MockKAnnotations.init(this)
-            every { savedStateHandle.get<String>(any()) } returns CONVERSION_ID_STRING
+            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(CONVERSATION_ID)
             every { savedStateHandle.get<String>(any()) } returns MESSAGE_ID
         }
 
-        private val viewModel = CompositeMessageViewModel(sendButtonActionMessage, qualifiedIdMapper, savedStateHandle)
+        private val viewModel = CompositeMessageViewModel(sendButtonActionMessage, savedStateHandle)
 
         fun withButtonActionMessage(
             result: SendButtonActionMessageUseCase.Result

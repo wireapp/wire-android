@@ -7,18 +7,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.EXTRA_BOT_SERVICE_ID
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.toQualifiedID
+import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
@@ -43,7 +40,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class ServiceDetailsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase,
     private val getServiceById: GetServiceByIdUseCase,
@@ -53,15 +49,12 @@ class ServiceDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val addServiceToConversation: AddServiceToConversationUseCase,
     private val serviceDetailsMapper: ServiceDetailsMapper,
-    savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _serviceId: ServiceId? =
-        serviceDetailsMapper.fromStringToServiceId(savedStateHandle.get<String>(EXTRA_BOT_SERVICE_ID)!!)
-    private lateinit var serviceId: ServiceId
-    private val conversationId: QualifiedID =
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.toQualifiedID(qualifiedIdMapper)
+    private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
+    private val serviceId: ServiceId = serviceDetailsMapper.fromBotServiceToServiceId(serviceDetailsNavArgs.botService)
+    private val conversationId: QualifiedID = serviceDetailsNavArgs.conversationId
 
     private lateinit var selfUserId: UserId
 
@@ -71,24 +64,19 @@ class ServiceDetailsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _serviceId?.let {
-                serviceId = it
+            serviceDetailsState = serviceDetailsState.copy(
+                serviceId = serviceId,
+                conversationId = conversationId,
+                isDataLoading = true,
+                isAvatarLoading = true
+            )
 
-                serviceDetailsState = serviceDetailsState.copy(
-                    serviceId = serviceId,
-                    conversationId = conversationId,
-                    isDataLoading = true,
-                    isAvatarLoading = true
-                )
-
-                selfUserId = observeSelfUser().first().id
-                getServiceDetailsAndUpdateViewState()
+            selfUserId = observeSelfUser().first().id
+            getServiceDetailsAndUpdateViewState()?.let {
                 observeIsServiceConversationMember()
-            } ?: serviceNotFound()
+            }
         }
     }
-
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun addService() {
         viewModelScope.launch {
@@ -128,9 +116,9 @@ class ServiceDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getServiceDetailsAndUpdateViewState() {
-        viewModelScope.launch {
-            getServiceById(serviceId = serviceId)?.let { service ->
+    private suspend fun getServiceDetailsAndUpdateViewState(): ServiceDetails? =
+        getServiceById(serviceId = serviceId).also { service ->
+            if (service != null) {
                 val serviceAvatarAsset = service.completeAssetId?.let { asset ->
                     ImageAsset.UserAvatarAsset(wireSessionImageLoader, asset)
                 }
@@ -141,9 +129,8 @@ class ServiceDetailsViewModel @Inject constructor(
                     serviceAvatarAsset = serviceAvatarAsset,
                     serviceDetails = service
                 )
-            } ?: serviceNotFound()
+            } else serviceNotFound()
         }
-    }
 
     private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> {
         return observeConversationRoleForUser(conversationId, selfUserId)
@@ -156,7 +143,6 @@ class ServiceDetailsViewModel @Inject constructor(
     }
 
     private suspend fun observeIsServiceConversationMember() {
-        viewModelScope.launch {
             observeIsServiceMember(
                 serviceId = serviceId,
                 conversationId = conversationId
@@ -170,7 +156,6 @@ class ServiceDetailsViewModel @Inject constructor(
                         groupInfo = groupInfo
                     )
                 }
-        }
     }
 
     private fun serviceNotFound() {

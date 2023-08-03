@@ -22,6 +22,7 @@ package com.wire.android.ui.userprofile.other
 
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.util.ui.UIText
@@ -51,16 +52,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class OtherUserProfileScreenViewModelTest {
-
-    @Test
-    fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-            .arrange()
-        viewModel.navigateBack()
-
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
-    }
 
     @Test
     fun `given a group conversationId, when loading the data, then return group state`() =
@@ -68,7 +61,7 @@ class OtherUserProfileScreenViewModelTest {
             // given
             val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-                .withConversationIdInSavedState(CONVERSATION_ID.toString())
+                .withConversationIdInSavedState(CONVERSATION_ID)
                 .withGetOneToOneConversation(GetOneToOneConversationUseCase.Result.Success(CONVERSATION))
                 .arrange()
 
@@ -78,30 +71,27 @@ class OtherUserProfileScreenViewModelTest {
             // then
             coVerify {
                 arrangement.observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
-                arrangement.navigationManager wasNot Called
             }
             assertEquals(groupState, expected)
             assertEquals(viewModel.state.conversationId, CONVERSATION_ID)
         }
 
     @Test
-    fun `given no conversationId, when loading the data, then return null group state`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
-                .withConversationIdInSavedState(null)
-                .arrange()
+    fun `given no conversationId, when loading the data, then return null group state`() = runTest {
+        // given
+        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+            .withConversationIdInSavedState(null)
+            .arrange()
 
-            // when
-            val groupState = viewModel.state.groupState
+        // when
+        val groupState = viewModel.state.groupState
 
-            // then
-            coVerify {
-                arrangement.observeConversationRoleForUserUseCase(any(), any()) wasNot Called
-                arrangement.navigationManager wasNot Called
-            }
-            assertEquals(groupState, null)
+        // then
+        coVerify {
+            arrangement.observeConversationRoleForUserUseCase(any(), any()) wasNot Called
         }
+        assertEquals(groupState, null)
+    }
 
     @Test
     fun `given a group conversationId, when changing the role, then the request should be configured correctly`() =
@@ -120,7 +110,6 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
-                    arrangement.navigationManager wasNot Called
                 }
                 expectNoEvents()
             }
@@ -143,7 +132,6 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
-                    arrangement.navigationManager wasNot Called
                 }
                 assertEquals(OtherUserProfileInfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
             }

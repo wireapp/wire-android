@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -50,11 +49,19 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
-import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.appLogger
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -68,8 +75,16 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel.GroupMetadataOperationResult
+import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
+import com.wire.android.ui.destinations.EditConversationNameScreenDestination
+import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
+import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
+import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -82,34 +97,127 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = GroupConversationDetailsNavArgs::class
+)
 @Composable
 fun GroupConversationDetailsScreen(
-    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    viewModel: GroupConversationDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+    navigator: Navigator,
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
+    groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
 ) {
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val resources = LocalContext.current.resources
+    val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
+
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
         bottomSheetEventsHandler = viewModel,
-        onBackPressed = viewModel::navigateBack,
-        openFullListPressed = viewModel::navigateToFullParticipantsList,
-        onProfilePressed = viewModel::openProfile,
-        onAddParticipantsPressed = viewModel::navigateToAddParticipants,
+        onBackPressed = navigator::navigateBack,
+        openFullListPressed = {
+            navigator.navigate(NavigationCommand(GroupConversationAllParticipantsScreenDestination(viewModel.conversationId)))
+        },
+        onProfilePressed = { participant ->
+            when {
+                participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                participant.isService && participant.botService != null ->
+                    navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, viewModel.conversationId)))
+                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
+            }
+        },
+        onAddParticipantsPressed = {
+            navigator.navigate(
+                NavigationCommand(
+                    AddMembersSearchScreenDestination(
+                        viewModel.conversationId,
+                        viewModel.groupOptionsState.value.isServicesAllowed
+                    )
+                )
+            )
+        },
         groupParticipantsState = viewModel.groupParticipantsState,
-        onLeaveGroup = viewModel::leaveGroup,
-        onDeleteGroup = viewModel::deleteGroup,
+        onLeaveGroup = {
+            viewModel.leaveGroup(
+                it,
+                onSuccess = {
+                    resultNavigator.setResult(
+                        GroupConversationDetailsNavBackArgs(
+                            groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
+                            hasLeftGroup = true,
+                            conversationName = it.conversationName
+                        )
+                    )
+                    resultNavigator.navigateBack()
+                },
+                onFailure = showSnackbarMessage
+            )
+        },
+        onDeleteGroup = {
+            viewModel.deleteGroup(
+                it,
+                onSuccess = {
+                    resultNavigator.setResult(
+                        GroupConversationDetailsNavBackArgs(
+                            groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
+                            isGroupDeleted = true,
+                            conversationName = it.conversationName
+                        )
+                    )
+                    resultNavigator.navigateBack()
+                },
+                onFailure = showSnackbarMessage
+            )
+        },
+        onEditGuestAccess = {
+            navigator.navigate(
+                NavigationCommand(
+                    EditGuestAccessScreenDestination(
+                        viewModel.conversationId,
+                        EditGuestAccessParams(
+                            viewModel.groupOptionsState.value.isGuestAllowed,
+                            viewModel.groupOptionsState.value.isServicesAllowed,
+                            viewModel.groupOptionsState.value.isUpdatingGuestAllowed
+                        )
+                    )
+                )
+            )
+        },
+        onEditSelfDeletingMessages = {
+            navigator.navigate(NavigationCommand(EditSelfDeletingMessagesScreenDestination(viewModel.conversationId)))
+        },
+        onEditGroupName = {
+            navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
+        },
         isLoading = viewModel.requestInProgress,
-        messages = viewModel.snackBarMessage,
-        checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
-        context = context
+        snackbarHostState = snackbarHostState
     )
+
+    val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
+    val successSnackBarMessage = stringResource(id = R.string.conversation_options_renamed)
+
+    groupConversationDetailResultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {
+                appLogger.i("Error with receiving navigation back args from editGroupName in GroupConversationDetailsScreen")
+            }
+
+            is NavResult.Value -> {
+                scope.launch {
+                    if (result.value) {
+                        snackbarHostState.showSnackbar(successSnackBarMessage)
+                    } else {
+                        snackbarHostState.showSnackbar(tryAgainSnackBarMessage)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(
@@ -126,15 +234,17 @@ private fun GroupConversationDetailsContent(
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
+    onEditGuestAccess: () -> Unit,
+    onEditSelfDeletingMessages: () -> Unit,
+    onEditGroupName: () -> Unit,
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
-    messages: SharedFlow<UIText>,
-    checkPendingSnackBarMessages: () -> GroupMetadataOperationResult = { GroupMetadataOperationResult.None },
-    context: Context = LocalContext.current
+    snackbarHostState: SnackbarHostState
 ) {
     val scope = rememberCoroutineScope()
+    val resources = LocalContext.current.resources
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -146,25 +256,19 @@ private fun GroupConversationDetailsContent(
 
     val sheetState = rememberWireModalSheetState()
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
-    val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
+    val closeBottomSheetAndShowSnackbarMessage: (UIText) -> Unit = remember {
+        {
+            scope.launch {
+                sheetState.hide()
+                snackbarHostState.showSnackbar(it.asString(resources))
+            }
+        }
+    }
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(messages) {
-        val result = checkPendingSnackBarMessages()
-        if (result is GroupMetadataOperationResult.Result) {
-            snackbarHostState.showSnackbar(result.message.asString(context.resources))
-        } else {
-            messages.collect {
-                closeBottomSheet()
-                snackbarHostState.showSnackbar(it.asString(context.resources))
-            }
-        }
-    }
 
     LaunchedEffect(conversationSheetState.conversationSheetContent) {
         // on each closing BottomSheet we revert BSContent to Home.
@@ -220,7 +324,10 @@ private fun GroupConversationDetailsContent(
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        lazyListState = lazyListStates[pageIndex]
+                        lazyListState = lazyListStates[pageIndex],
+                        onEditGuestAccess = onEditGuestAccess,
+                        onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                        onEditGroupName = onEditGroupName
                     )
 
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
@@ -253,7 +360,8 @@ private fun GroupConversationDetailsContent(
                 onMutingConversationStatusChange = {
                     bottomSheetEventsHandler.onMutingConversationStatusChange(
                         conversationSheetState.conversationId,
-                        conversationSheetState.conversationSheetContent!!.mutingConversationState
+                        conversationSheetState.conversationSheetContent!!.mutingConversationState,
+                        closeBottomSheetAndShowSnackbarMessage
                     )
                 },
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
@@ -284,7 +392,7 @@ private fun GroupConversationDetailsContent(
         dialogState = clearConversationDialogState,
         isLoading = isLoading,
         onClearConversationContent = {
-            bottomSheetEventsHandler.onClearConversationContent(it)
+            bottomSheetEventsHandler.onClearConversationContent(it, closeBottomSheetAndShowSnackbarMessage)
         }
     )
 }
@@ -309,7 +417,10 @@ fun PreviewGroupConversationDetails() {
             onDeleteGroup = {},
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
-            messages = MutableSharedFlow(),
+            snackbarHostState = remember { SnackbarHostState() },
+            onEditGroupName = {},
+            onEditSelfDeletingMessages = {},
+            onEditGuestAccess = {}
         )
     }
 }

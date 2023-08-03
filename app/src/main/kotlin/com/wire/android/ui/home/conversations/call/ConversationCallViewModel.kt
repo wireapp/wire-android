@@ -25,15 +25,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -55,11 +53,9 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList")
 class ConversationCallViewModel @Inject constructor(
-    qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val navigationManager: NavigationManager,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -67,9 +63,9 @@ class ConversationCallViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
+
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
 
     var establishedCallConversationId: QualifiedID? = null
@@ -109,28 +105,24 @@ class ConversationCallViewModel @Inject constructor(
             }
     }
 
-    fun joinAnyway() {
+    fun joinAnyway(onAnswered: (conversationId: ConversationId) -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
                 delay(DELAY_END_CALL)
             }
-            joinOngoingCall()
+            joinOngoingCall(onAnswered)
         }
     }
 
-    fun joinOngoingCall() {
+    fun joinOngoingCall(onAnswered: (conversationId: ConversationId) -> Unit) {
         viewModelScope.launch {
             if (conversationCallViewState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
             } else {
                 dismissJoinCallAnywayDialog()
                 answerCall(conversationId = conversationId)
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
-                    )
-                )
+                onAnswered(conversationId)
             }
         }
     }
@@ -143,16 +135,12 @@ class ConversationCallViewModel @Inject constructor(
         conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = false)
     }
 
-    fun navigateToInitiatingCallScreen() {
+    fun endEstablishedCallIfAny(onCompleted: () -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
             }
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.InitiatingCall.getRouteWithArgs(listOf(conversationId))
-                )
-            )
+            onCompleted()
         }
     }
 

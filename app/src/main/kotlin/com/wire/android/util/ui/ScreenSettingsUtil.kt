@@ -23,12 +23,13 @@ package com.wire.android.util.ui
 import android.app.Activity
 import android.os.Build
 import android.view.WindowManager
-import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.wire.android.navigation.ScreenMode
-import com.wire.android.navigation.getCurrentNavigationItem
+import com.wire.android.navigation.ScreenModeStyle
+import com.wire.android.navigation.toDestination
 
-fun Activity.updateScreenSettings(navController: NavController) {
-    val screenMode = navController.getCurrentNavigationItem()?.screenMode
+fun Activity.updateScreenSettings(navDestination: NavDestination) {
+    val screenMode = (navDestination.toDestination()?.style as? ScreenModeStyle)?.screenMode() ?: ScreenMode.NONE
     updateScreenSettings(screenMode)
 }
 
@@ -49,8 +50,8 @@ private fun Activity.wakeUpDevice() {
         setTurnScreenOn(true)
     } else {
         window.addFlags(
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                    or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -73,8 +74,8 @@ private fun Activity.removeScreenOnFlags() {
         setTurnScreenOn(false)
     } else {
         window.clearFlags(
-            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                    or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }

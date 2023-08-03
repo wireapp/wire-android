@@ -43,9 +43,18 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
+import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -55,6 +64,8 @@ import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -62,17 +73,36 @@ import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
+@CreatePersonalAccountNavGraph
+@CreateTeamAccountNavGraph
+@Destination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
-fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, serverConfig: ServerConfig.Links) {
-    CodeContent(
-        state = viewModel.codeState,
-        onCodeChange = { viewModel.onCodeChange(it) },
-        onResendCodePressed = { viewModel.resendCode() },
-        onBackPressed = viewModel::goBackToPreviousStep,
-        onErrorDismiss = viewModel::onCodeErrorDismiss,
-        onRemoveDeviceOpen = viewModel::onTooManyDevicesError,
-        serverConfig = serverConfig
-    )
+fun CreateAccountCodeScreen(
+    navigator: Navigator,
+    createAccountCodeViewModel: CreateAccountCodeViewModel = hiltViewModel()
+) {
+    with(createAccountCodeViewModel) {
+        fun navigateToSummaryScreen() = navigator.navigate(
+            NavigationCommand(
+                CreateAccountSummaryScreenDestination(CreateAccountSummaryNavArgs(createAccountNavArgs.flowType)),
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
+
+        CodeContent(
+            state = codeState,
+            onCodeChange = { onCodeChange(it, ::navigateToSummaryScreen) },
+            onResendCodePressed = ::resendCode,
+            onBackPressed = navigator::navigateBack,
+            onErrorDismiss = ::clearCodeError,
+            onRemoveDeviceOpen = {
+                clearCodeError()
+                clearCodeField()
+                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+            },
+            serverConfig = serverConfig
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -128,6 +158,7 @@ private fun CodeContent(
                     state = when (state.error) {
                         is CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
+
                         else -> WireTextFieldState.Default
                     },
                     modifier = Modifier.focusRequester(focusRequester)
@@ -171,22 +202,27 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_already_in_use_error)
     )
+
     CreateAccountCodeViewState.CodeError.DialogError.BlackListedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_blacklisted_error)
     )
+
     CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_domain_blocked_error)
     )
+
     CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_invalid_error)
     )
+
     CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
     )
+
     CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(
@@ -199,6 +235,7 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
     // TODO: sync with design about the error message
     CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists ->
         DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
+
     is CreateAccountCodeViewState.CodeError.DialogError.GenericError ->
         this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
 }

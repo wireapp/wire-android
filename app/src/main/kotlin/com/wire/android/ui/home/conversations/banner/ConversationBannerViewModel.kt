@@ -26,13 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +46,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class ConversationBannerViewModel @Inject constructor(
-    qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -54,9 +53,8 @@ class ConversationBannerViewModel @Inject constructor(
 
     var bannerState by mutableStateOf<UIText?>(null)
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     init {
         viewModelScope.launch {
@@ -102,7 +100,5 @@ class ConversationBannerViewModel @Inject constructor(
             (containsService) -> UIText.StringResource(R.string.conversation_banner_services_active)
             else -> null
         }
-
     }
-
 }

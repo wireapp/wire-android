@@ -53,9 +53,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
@@ -70,6 +75,9 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.AppSettingsScreenDestination
+import com.wire.android.ui.destinations.AvatarPickerScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -86,22 +94,27 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
+@RootNavGraph
+@Destination
 @Composable
-fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+fun SelfUserProfileScreen(
+    navigator: Navigator,
+    viewModelSelf: SelfUserProfileViewModel = hiltViewModel()
+) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = viewModelSelf::navigateBack,
-        logout = viewModelSelf::logout,
-        onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
-        onEditClick = viewModelSelf::editProfile,
+        onCloseClick = navigator::navigateBack,
+        logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
+        onChangeUserProfilePicture = { navigator.navigate(NavigationCommand(AvatarPickerScreenDestination)) },
+        onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
         onStatusClicked = viewModelSelf::changeStatusClick,
-        onAddAccountClick = viewModelSelf::addAccount,
+        onAddAccountClick = { navigator.navigate(NavigationCommand(WelcomeScreenDestination)) },
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::switchAccount,
+        onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
         isUserInCall = viewModelSelf::isUserInCall
     )
 }

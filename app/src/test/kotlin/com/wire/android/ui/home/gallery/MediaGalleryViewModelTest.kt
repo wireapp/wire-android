@@ -25,10 +25,11 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -38,7 +39,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -66,6 +66,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class MediaGalleryViewModelTest {
 
     @Test
@@ -126,27 +127,6 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
-    fun givenACorrectSetup_whenUserTriesNavigateBack_navigateBackGetsInvokedOnNavigationManager() = runTest {
-        // Given
-        val mockedConversation = mockedConversationDetails()
-        val mockedImage = "mocked-image".toByteArray()
-        val dummyDataPath = fakeKaliumFileSystem.tempFilePath("dummy-path")
-        val (arrangement, viewModel) = Arrangement()
-            .withStoredData(mockedImage, dummyDataPath)
-            .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong())
-            .arrange()
-
-        // When
-        viewModel.navigateBack()
-
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
-        }
-    }
-
-    @Test
     fun givenACorrectSetup_whenUserTriesToDeleteAnImage_DeleteDialogIsShown() = runTest {
         // Given
         val mockedConversation = mockedConversationDetails()
@@ -180,10 +160,10 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteMessageHelper.onDeleteMessage("", true)
+        viewModel.deleteMessageHelper.onDeleteMessage("", true, arrangement.onDeleted)
 
         // Then
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
+        coVerify(exactly = 1) { arrangement.onDeleted() }
     }
 
     @Test
@@ -201,10 +181,10 @@ class MediaGalleryViewModelTest {
 
         viewModel.snackbarMessage.test {
             // When
-            viewModel.deleteMessageHelper.onDeleteMessage("", true)
+            viewModel.deleteMessageHelper.onDeleteMessage("", true, arrangement.onDeleted)
 
             // Then
-            coVerify(exactly = 0) { arrangement.navigationManager.navigateBack() }
+            coVerify(exactly = 0) { arrangement.onDeleted() }
             assertEquals(MediaGallerySnackbarMessages.DeletingMessageError, awaitItem())
         }
     }
@@ -212,9 +192,6 @@ class MediaGalleryViewModelTest {
     private class Arrangement {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -229,17 +206,21 @@ class MediaGalleryViewModelTest {
         lateinit var fileManager: FileManager
 
         @MockK
-        private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        @MockK
         lateinit var deleteMessage: DeleteMessageUseCase
+
+        @MockK(relaxed = true)
+        lateinit var onDeleted: () -> Unit
 
         init {
             // Tests setup
             val dummyPrivateAsset = "some-conversationId:some-message-id:true:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
-            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns dummyConversationId
+            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
+                conversationId = dummyConversationId,
+                messageId = dummyPrivateAsset,
+                isSelfAsset = true,
+                isEphemeral = false
+            )
 
             coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)
         }
@@ -291,8 +272,6 @@ class MediaGalleryViewModelTest {
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
-            qualifiedIdMapper,
-            navigationManager,
             getConversationDetails,
             TestDispatcherProvider(),
             getImageData,

@@ -22,11 +22,11 @@ package com.wire.android.ui.calling.initiating
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -40,10 +40,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class InitiatingCallViewModelTest {
 
@@ -63,8 +65,8 @@ class InitiatingCallViewModelTest {
         with(arrangement) {
             coVerify(exactly = 1) { endCall(any()) }
             coVerify(exactly = 1) { callRinger.stop() }
-            coVerify(exactly = 1) { navigationManager.navigateBack() }
         }
+        assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallClosed }
     }
 
     @Test
@@ -99,40 +101,27 @@ class InitiatingCallViewModelTest {
         private lateinit var startCall: StartCallUseCase
 
         @MockK
-        private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        @MockK
         lateinit var callRinger: CallRinger
 
         @MockK
         lateinit var endCall: EndCallUseCase
 
-        @MockK
-        lateinit var navigationManager: NavigationManager
-
         val initiatingCallViewModel by lazy {
             InitiatingCallViewModel(
                 savedStateHandle = savedStateHandle,
-                navigationManager = navigationManager,
                 observeEstablishedCalls = establishedCalls,
                 startCall = startCall,
                 endCall = endCall,
                 isLastCallClosed = isLastCallClosed,
-                callRinger = callRinger,
-                qualifiedIdMapper = qualifiedIdMapper
+                callRinger = callRinger
             )
         }
 
         init {
             val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             MockKAnnotations.init(this)
-            every { savedStateHandle.get<String>(any()) } returns "${dummyConversationId.value}@${dummyConversationId.domain}"
-            every { savedStateHandle.set(any(), any<String>()) } returns Unit
-            every {
-                qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-            } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+            every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
             coEvery { isLastCallClosed.invoke(any(), any()) } returns flowOf(false)
-            coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
             every { callRinger.ring(any(), any(), any()) } returns Unit
         }
@@ -140,13 +129,11 @@ class InitiatingCallViewModelTest {
         fun withEndingCall(): Arrangement = apply {
             coEvery { endCall(any()) } returns Unit
             every { callRinger.stop() } returns Unit
-            coEvery { navigationManager.navigateBack() } returns Unit
         }
 
         fun withNoInternetConnection(): Arrangement = apply {
             coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
-            coEvery { navigationManager.navigateBack() } returns Unit
         }
 
         fun withStartCallSucceeding() = apply {

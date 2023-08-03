@@ -22,11 +22,14 @@ package com.wire.android.ui.calling.incoming
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
+import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -34,152 +37,174 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class IncomingCallViewModelTest {
 
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
+    class Arrangement {
 
-    @MockK
-    lateinit var navigationManager: NavigationManager
+        @MockK
+        private lateinit var savedStateHandle: SavedStateHandle
 
-    @MockK
-    lateinit var rejectCall: RejectCallUseCase
+        @MockK
+        lateinit var rejectCall: RejectCallUseCase
 
-    @MockK
-    lateinit var incomingCalls: GetIncomingCallsUseCase
+        @MockK
+        lateinit var incomingCalls: GetIncomingCallsUseCase
 
-    @MockK
-    lateinit var acceptCall: AnswerCallUseCase
+        @MockK
+        lateinit var acceptCall: AnswerCallUseCase
 
-    @MockK
-    private lateinit var callRinger: CallRinger
+        @MockK
+        lateinit var callRinger: CallRinger
 
-    @MockK
-    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+        @MockK
+        lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
-    @MockK
-    private lateinit var endCall: EndCallUseCase
+        @MockK
+        lateinit var endCall: EndCallUseCase
 
-    @MockK
-    private lateinit var muteCall: MuteCallUseCase
+        @MockK
+        lateinit var muteCall: MuteCallUseCase
 
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+        init {
+            MockKAnnotations.init(this)
+            every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
 
-    private lateinit var viewModel: IncomingCallViewModel
+            // Default empty values
+            coEvery { rejectCall(any()) } returns Unit
+            coEvery { acceptCall(any()) } returns Unit
+            every { callRinger.ring(any(), any()) } returns Unit
+            every { callRinger.stop() } returns Unit
+            coEvery { incomingCalls.invoke() } returns flowOf(listOf(provideCall()))
+            coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+            coEvery { muteCall(any(), any()) } returns Unit
+        }
 
-    @BeforeEach
-    fun setUp() {
-        MockKAnnotations.init(this)
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+        fun withEstablishedCalls(flow: Flow<List<Call>>) = apply {
+            coEvery { observeEstablishedCalls.invoke() } returns flow
+        }
 
-        // Default empty values
-        coEvery { navigationManager.navigateBack() } returns Unit
-        coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { rejectCall(any()) } returns Unit
-        coEvery { acceptCall(any()) } returns Unit
-        every { callRinger.ring(any(), any()) } returns Unit
-        every { callRinger.stop() } returns Unit
-        coEvery { incomingCalls.invoke() } returns flowOf(emptyList())
-        coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
+        fun withEndCall(action: suspend () -> Unit) = apply {
+            coEvery { endCall(any()) } coAnswers { action() }
+        }
 
-        viewModel = IncomingCallViewModel(
+        fun arrange() = this to IncomingCallViewModel(
             savedStateHandle = savedStateHandle,
-            navigationManager = navigationManager,
             incomingCalls = incomingCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             callRinger = callRinger,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
-            muteCall = muteCall,
-            qualifiedIdMapper = qualifiedIdMapper
+            muteCall = muteCall
         )
     }
 
     @Test
-    fun `given an incoming call, when the user decline the call, then the reject call use case is called`() {
-        clearAllMocks() // Ingores calls made during ViewModel initialization
-        every { callRinger.stop() } returns Unit
-        coEvery { rejectCall(conversationId = any()) } returns Unit
-        coEvery { navigationManager.navigateBack() } returns Unit
+    fun `given an incoming call, when the user decline the call, then the reject call use case is called`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
 
         viewModel.declineCall()
 
-        coVerify(exactly = 1) { rejectCall(conversationId = any()) }
-        verify(exactly = 1) { callRinger.stop() }
+        coVerify(exactly = 1) { arrangement.rejectCall(conversationId = any()) }
+        verify(exactly = 1) { arrangement.callRinger.stop() }
+        assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallClosed }
     }
+
     @Test
     fun `given no ongoing call, when user tries to accept an incoming call, then invoke answerCall call use case`() = runTest {
-        clearAllMocks() // Ingores calls made during ViewModel initialization
-        viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = false)
-
-        coEvery { navigationManager.navigate(command = any()) } returns Unit
-        coEvery { acceptCall(conversationId = any()) } returns Unit
-        every { callRinger.stop() } returns Unit
+        val (arrangement, viewModel) = Arrangement().arrange()
 
         viewModel.acceptCall()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { acceptCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
-        verify(exactly = 1) { callRinger.stop() }
-        coVerify(inverse = true) { endCall(any()) }
+        coVerify(exactly = 1) { arrangement.acceptCall(conversationId = any()) }
+        verify(exactly = 1) { arrangement.callRinger.stop() }
+        coVerify(inverse = true) { arrangement.endCall(any()) }
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
+        assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallAccepted }
     }
 
     @Test
-    fun `given an ongoing call, when user tries to accept an incoming call, then show JoinCallAnywayDialog`() {
-        viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
-        clearAllMocks() // Ingores calls made during ViewModel initialization
+    fun `given an ongoing call, when user tries to accept an incoming call, then show JoinCallAnywayDialog`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEstablishedCalls(flowOf(listOf(provideCall(ConversationId("value", "Domain")))))
+            .arrange()
 
         viewModel.acceptCall()
 
+        assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.Default }
         assertEquals(true, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
-        coVerify(inverse = true) { acceptCall(conversationId = any()) }
-        verify(inverse = true) { callRinger.stop() }
+        coVerify(inverse = true) { arrangement.acceptCall(conversationId = any()) }
+        verify(inverse = true) { arrangement.callRinger.stop() }
     }
 
     @Test
-    fun `given an ongoing call, when user confirms dialog to accept an incoming call, then end current call and accept the newer one`() {
-        viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
-        viewModel.establishedCallConversationId = ConversationId("value", "Domain")
-        coEvery { muteCall(any(), eq(false)) } returns Unit
-        coEvery { endCall(any()) } returns Unit
+    fun `given an ongoing call, when user confirms dialog to accept an incoming call, then end current call and accept the newer one`() =
+        runTest {
+            val establishedCallsChannel = Channel<List<Call>>(capacity = Channel.UNLIMITED)
+                .also { it.send(listOf(provideCall(ConversationId("value", "Domain")))) }
+            val (arrangement, viewModel) = Arrangement()
+                .withEstablishedCalls(establishedCallsChannel.consumeAsFlow())
+                .withEndCall { establishedCallsChannel.send(listOf()) }
+                .arrange()
 
-        viewModel.acceptCallAnyway()
+            viewModel.acceptCallAnyway()
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) { endCall(any()) }
-        coVerify(exactly = 1) { muteCall(any(), eq(false)) }
-    }
+            coVerify(exactly = 1) { arrangement.endCall(any()) }
+            coVerify(exactly = 1) { arrangement.muteCall(any(), eq(false)) }
+            assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallAccepted }
+        }
 
     @Test
-    fun `given join dialog displayed, when user dismisses it, then hide it`() {
-        viewModel.incomingCallState = viewModel.incomingCallState.copy(shouldShowJoinCallAnywayDialog = true)
+    fun `given join dialog displayed, when user dismisses it, then hide it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withEstablishedCalls(flowOf(listOf(provideCall())))
+            .arrange()
+
+        viewModel.acceptCall()
 
         viewModel.dismissJoinCallAnywayDialog()
 
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
+    }
+
+    companion object {
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
+        private fun provideCall(id: ConversationId = dummyConversationId, status: CallStatus = CallStatus.INCOMING) = Call(
+            conversationId = id,
+            status = status,
+            callerId = "caller_id",
+            participants = listOf(),
+            isMuted = false,
+            isCameraOn = false,
+            maxParticipants = 0,
+            conversationName = "ONE_ON_ONE Name",
+            conversationType = Conversation.Type.ONE_ON_ONE,
+            callerName = "otherUsername",
+            callerTeamName = "team_1",
+            isCbrEnabled = false
+        )
     }
 }

@@ -166,6 +166,7 @@ private fun computeGroupMetadataState(error: GroupMetadataState.NewGroupError) =
     if (error is GroupMetadataState.NewGroupError.TextFieldError) when (error) {
         GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError ->
             WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
+
         GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
             WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
     } else {

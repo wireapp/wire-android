@@ -22,8 +22,12 @@ package com.wire.android.ui.home.archive
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.UnderConstructionScreen
 
+@HomeNavGraph
+@Destination
 @Composable
 fun ArchiveScreen() {
     UnderConstructionScreen(screenName = "ArchiveScreen")

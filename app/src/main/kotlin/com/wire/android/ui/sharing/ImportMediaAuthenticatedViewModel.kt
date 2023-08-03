@@ -20,10 +20,6 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -80,16 +76,15 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val fileManager: FileManager,
-    private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    val wireSessionImageLoader: WireSessionImageLoader,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
-    var importMediaState by mutableStateOf(ImportMediaState())
+    var importMediaState by mutableStateOf(ImportMediaAuthenticatedState())
         private set
 
     private val mutableSearchQueryFlow = MutableStateFlow("")
@@ -259,15 +254,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         return matchingConversations
     }
 
-    fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
-        navigationManager.navigate(
-            NavigationCommand(
-                NavigationItem.Home.getRouteWithArgs(),
-                BackStackMode.REMOVE_CURRENT
-            )
-        )
-    }
-
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
         appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
@@ -316,7 +302,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
     }
 
-    fun checkRestrictionsAndSendImportedMedia() = viewModelScope.launch(dispatchers.default()) {
+    fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) = viewModelScope.launch(dispatchers.default()) {
         val conversation = importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
         val assetsToSend = importMediaState.importedAssets
 
@@ -346,7 +332,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 jobs.add(job)
             }
             jobs.joinAll()
-            navigateToConversation(conversation.conversationId)
+            withContext(dispatchers.main()) {
+                onSent(conversation.conversationId)
+            }
         }
     }
 
@@ -382,21 +370,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             )
         }
 
-    private suspend fun navigateToConversation(conversationId: ConversationId) {
-        navigationManager.navigate(
-            NavigationCommand(
-                NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)),
-                backStackMode = BackStackMode.CLEAR_TILL_START
-            )
-        )
-    }
-
-    fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {
-        importMediaState.selectedConversationItem.size
-    } else {
-        0
-    }
-
     private suspend fun handleImportedAsset(
         context: Context,
         importedAssetMimeType: String,
@@ -430,7 +403,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     dataUri = uri,
                     key = assetKey,
                     width = imgWidth,
-                    height = imgHeight
+                    height = imgHeight,
+                    wireSessionImageLoader = wireSessionImageLoader
                 )
             }
 
@@ -473,7 +447,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 }
 
 @Stable
-data class ImportMediaState(
+data class ImportMediaAuthenticatedState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val importedAssets: List<ImportedMediaAsset> = emptyList(),
     val isImporting: Boolean = false,

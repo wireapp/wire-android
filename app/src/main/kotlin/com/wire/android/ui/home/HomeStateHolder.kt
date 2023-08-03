@@ -37,8 +37,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.navigateToItemInHome
+import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -53,9 +53,10 @@ class HomeStateHolder(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val bottomSheetState: WireModalSheetState,
-    val currentNavigationItem: HomeNavigationItem,
+    val currentNavigationItem: HomeDestination,
     val snackBarHostState: SnackbarHostState,
-    val searchBarState: SearchBarState
+    val searchBarState: SearchBarState,
+    val navigator: Navigator
 ) {
 
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
@@ -102,24 +103,21 @@ class HomeStateHolder(
             drawerState.open()
         }
     }
-
-    fun navigateTo(homeNavigationItem: HomeNavigationItem) {
-        navigateToItemInHome(navController, homeNavigationItem)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberHomeScreenState(
+    navigator: Navigator,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberTrackingAnimatedNavController() { HomeNavigationItem.fromRoute(it)?.itemName },
+    navController: NavHostController = rememberTrackingAnimatedNavController() { HomeDestination.fromRoute(it)?.itemName },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ): HomeStateHolder {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val currentNavigationItem = currentRoute?.let { HomeNavigationItem.fromRoute(it) } ?: HomeNavigationItem.Conversations
+    val currentNavigationItem = currentRoute?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
 
     val searchBarState = rememberSearchbarState()
 
@@ -133,7 +131,8 @@ fun rememberHomeScreenState(
             bottomSheetState,
             currentNavigationItem,
             snackBarHostState,
-            searchBarState
+            searchBarState,
+            navigator
         )
     }
 

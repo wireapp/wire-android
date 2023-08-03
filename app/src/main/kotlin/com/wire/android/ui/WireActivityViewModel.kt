@@ -33,12 +33,9 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.migration.MigrationManager
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
@@ -53,7 +50,6 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -100,7 +96,6 @@ class WireActivityViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
-    private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -216,50 +211,43 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun navigateToNextAccountOrWelcome() {
-        viewModelScope.launch {
-            globalAppState = globalAppState.copy(blockUserUI = null)
-            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+    val initialAppState: InitialAppState
+        get() = when {
+            shouldMigrate() -> InitialAppState.NOT_MIGRATED
+            shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
+            else -> InitialAppState.LOGGED_IN
         }
-    }
-
-    fun startNavigationRoute(): String = when {
-        shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
-        shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-        else -> NavigationItem.Home.getRouteWithArgs()
-    }
 
     fun isSharingIntent(intent: Intent?): Boolean {
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
     @Suppress("ComplexMethod")
-    fun handleDeepLink(intent: Intent?) {
-        if (shouldGoToMigration()) {
+    fun handleDeepLink(
+        intent: Intent?,
+        onIsSharingIntent: () -> Unit,
+        onOpenConversation: (ConversationId) -> Unit,
+        onResult: (DeepLinkResult) -> Unit
+    ) {
+        if (shouldMigrate()) {
             // means User is Logged in, but didn't finish the migration yet.
             // so we need to finish migration first.
             return
         }
-
         viewModelScope.launch {
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
-                result is DeepLinkResult.SSOLogin -> openSsoLogin(result)
-                result is DeepLinkResult.MigrationLogin -> openMigrationLogin(result.userHandle)
+                result is DeepLinkResult.SSOLogin -> onResult(result)
+                result is DeepLinkResult.MigrationLogin -> onResult(result)
                 result is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
-
-                isSharingIntent(intent) -> navigateToImportMediaScreen()
-
-                shouldGoToWelcome() -> {
+                isSharingIntent(intent) -> onIsSharingIntent()
+                shouldLogIn() -> {
                     // to handle the deepLinks above user needs to be Logged in
-                    // do nothing, navigating to Login is handled by startNavigationRoute()
+                    // do nothing, already handled by initialAppState
                 }
-
-                result is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
-                result is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
-                result is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
-                result is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
-                result is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
+                result is DeepLinkResult.JoinConversation ->
+                    onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+                result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
         }
@@ -269,7 +257,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(customBackendDialog = null)
     }
 
-    fun customBackendDialogProceedButtonClicked() {
+    fun customBackendDialogProceedButtonClicked(onProceed: () -> Unit) {
         if (globalAppState.customBackendDialog != null) {
             viewModelScope.launch {
                 authServerConfigProvider.updateAuthServer(globalAppState.customBackendDialog!!.serverLinks)
@@ -277,7 +265,7 @@ class WireActivityViewModel @Inject constructor(
                 if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
                     globalAppState = globalAppState.copy(maxAccountDialog = true)
                 } else {
-                    navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+                    onProceed()
                 }
             }
         }
@@ -288,10 +276,19 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch { clearNewClientsForUser(userId) }
     }
 
-    fun switchAccount(userId: UserId) {
+    fun switchAccount(userId: UserId, actions: SwitchAccountActions, onComplete: () -> Unit) {
         viewModelScope.launch {
             accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
-            openDeviceManager()
+                .callAction(actions)
+            onComplete()
+        }
+    }
+
+    fun tryToSwitchAccount(actions: SwitchAccountActions) {
+        viewModelScope.launch {
+            globalAppState = globalAppState.copy(blockUserUI = null)
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
+                .callAction(actions)
         }
     }
 
@@ -305,44 +302,6 @@ class WireActivityViewModel @Inject constructor(
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
-        }
-    }
-
-    fun openDeviceManager() {
-        navigateTo(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs()))
-    }
-
-    private fun navigateToImportMediaScreen() {
-        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.UPDATE_EXISTED))
-    }
-
-    private fun openIncomingCall(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
-    }
-
-    private fun openOngoingCall(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))))
-    }
-
-    private fun openConversation(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED))
-    }
-
-    private fun openOtherUserProfile(userId: QualifiedID) {
-        navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
-    }
-
-    private fun openMigrationLogin(userHandle: String) {
-        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.UPDATE_EXISTED))
-    }
-
-    private fun openSsoLogin(ssoLogin: DeepLinkResult.SSOLogin) {
-        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)), BackStackMode.UPDATE_EXISTED))
-    }
-
-    private fun navigateTo(command: NavigationCommand) {
-        viewModelScope.launch {
-            navigationManager.navigate(command)
         }
     }
 
@@ -368,7 +327,8 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun onConversationInviteDeepLink(
         code: String,
         key: String,
-        domain: String?
+        domain: String?,
+        onSuccess: (ConversationId) -> Unit
     ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
@@ -378,7 +338,7 @@ class WireActivityViewModel @Inject constructor(
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
                             // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
-                            openConversation(result.conversationId)
+                            onSuccess(result.conversationId)
                         } else {
                             globalAppState =
                                 globalAppState.copy(
@@ -402,7 +362,8 @@ class WireActivityViewModel @Inject constructor(
     fun joinConversationViaCode(
         code: String,
         key: String,
-        domain: String?
+        domain: String?,
+        onSuccess: (ConversationId) -> Unit
     ) = viewModelScope.launch {
         when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
             is CurrentSessionResult.Failure.Generic -> globalAppState = globalAppState.copy(conversationJoinedDialog = null)
@@ -420,7 +381,7 @@ class WireActivityViewModel @Inject constructor(
                         is JoinConversationViaCodeUseCase.Result.Success -> {
                             globalAppState = globalAppState.copy(conversationJoinedDialog = null)
                             result.conversationId?.let {
-                                openConversation(it)
+                                onSuccess(it)
                             }
                         }
                     }
@@ -438,7 +399,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    private fun shouldGoToWelcome(): Boolean = !hasValidCurrentSession()
+    fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
     private fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
@@ -451,13 +412,8 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun shouldGoToMigration(): Boolean = runBlocking {
+    fun shouldMigrate(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
-    }
-
-    fun openProfile() {
-        dismissMaxAccountDialog()
-        navigateTo(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
     }
 
     fun dismissMaxAccountDialog() {
@@ -562,3 +518,7 @@ data class GlobalAppState(
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
 )
+
+enum class InitialAppState {
+    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN
+}

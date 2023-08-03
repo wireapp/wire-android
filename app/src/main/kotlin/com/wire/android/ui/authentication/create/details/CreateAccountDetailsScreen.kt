@@ -51,9 +51,16 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
+import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -64,27 +71,61 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.launch
 
+@CreatePersonalAccountNavGraph
+@CreateTeamAccountNavGraph
+@Destination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
-fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
+fun CreateAccountDetailsScreen(
+    navigator: Navigator,
+    createAccountDetailsViewModel: CreateAccountDetailsViewModel = hiltViewModel()
+) {
     clearAutofillTree()
-    DetailsContent(
-        state = viewModel.detailsState,
-        onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
-        onLastNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.LastName) },
-        onPasswordChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.Password) },
-        onConfirmPasswordChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword) },
-        onTeamNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
-        onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = { viewModel.onDetailsContinue() },
-        onErrorDismiss = viewModel::onDetailsErrorDismiss,
-        serverConfig = serverConfig
-    )
+    with(createAccountDetailsViewModel) {
+        fun navigateToCodeScreen() = navigator.navigate(
+            NavigationCommand(
+                CreateAccountCodeScreenDestination(
+                    createAccountNavArgs.copy(
+                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+                            firstName = detailsState.firstName.text.trim(),
+                            lastName = detailsState.lastName.text.trim(),
+                            password = detailsState.password.text,
+                            teamName = detailsState.teamName.text.trim()
+                        )
+                    )
+                )
+            )
+        )
+
+        DetailsContent(
+            state = detailsState,
+            onFirstNameChange = {
+                onDetailsChange(
+                    it,
+                    CreateAccountDetailsViewModel.DetailsFieldType.FirstName
+                )
+            },
+            onLastNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.LastName) },
+            onPasswordChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.Password) },
+            onConfirmPasswordChange = {
+                onDetailsChange(
+                    it,
+                    CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword
+                )
+            },
+            onTeamNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
+            onBackPressed = navigator::navigateBack,
+            onContinuePressed = { onDetailsContinue(::navigateToCodeScreen) },
+            onErrorDismiss = ::onDetailsErrorDismiss,
+            serverConfig = serverConfig
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

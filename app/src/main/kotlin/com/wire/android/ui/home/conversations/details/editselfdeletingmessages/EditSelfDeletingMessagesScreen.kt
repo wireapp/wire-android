@@ -43,7 +43,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.divider.WireDivider
@@ -58,8 +62,13 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = EditSelfDeletingMessagesNavArgs::class
+)
 @Composable
 fun EditSelfDeletingMessagesScreen(
+    navigator: Navigator,
     editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
@@ -70,7 +79,7 @@ fun EditSelfDeletingMessagesScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
-                onNavigationPressed = editSelfDeletingMessagesViewModel::navigateBack,
+                onNavigationPressed = navigator::navigateBack,
                 title = stringResource(id = R.string.self_deleting_messages_title)
             )
         }, snackbarHost = {
@@ -125,7 +134,7 @@ fun EditSelfDeletingMessagesScreen(
                 WireButton(
                     loading = state.isLoading,
                     state = if (state.didDurationChange()) WireButtonState.Default else WireButtonState.Disabled,
-                    onClick = ::applyNewDuration,
+                    onClick = { applyNewDuration(navigator::navigateBack) },
                     text = stringResource(id = R.string.label_apply),
                     modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)
                 )
@@ -160,5 +169,5 @@ fun SelectableSelfDeletingItem(
 @Preview
 @Composable
 fun PreviewEditSelfDeletingMessagesScreen() {
-    EditSelfDeletingMessagesScreen()
+    EditSelfDeletingMessagesScreen(rememberNavigator {})
 }

@@ -21,7 +21,6 @@
 package com.wire.android.ui.common.topappbar
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -195,9 +194,6 @@ class CommonTopAppBarViewModelTest {
         private var isCallMuted = true
 
         @MockK
-        private lateinit var navigationManager: NavigationManager
-
-        @MockK
         private lateinit var establishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
@@ -239,7 +235,6 @@ class CommonTopAppBarViewModelTest {
         private val commonTopAppBarViewModel by lazy {
             every { activeCall.isMuted } returns isCallMuted
             CommonTopAppBarViewModel(
-                navigationManager,
                 currentScreenManager,
                 coreLogic
             )

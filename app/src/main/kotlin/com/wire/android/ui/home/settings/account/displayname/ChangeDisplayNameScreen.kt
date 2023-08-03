@@ -42,7 +42,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -57,15 +61,32 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@RootNavGraph
+@Destination
 @Composable
-fun ChangeDisplayNameScreen(viewModel: ChangeDisplayNameViewModel = hiltViewModel()) {
+fun ChangeDisplayNameScreen(
+    viewModel: ChangeDisplayNameViewModel = hiltViewModel(),
+    navigator: Navigator,
+    resultNavigator: ResultBackNavigator<Boolean>
+) {
     with(viewModel) {
         ChangeDisplayNameContent(
             displayNameState,
             ::onNameChange,
-            ::saveDisplayName,
+            {
+                saveDisplayName(
+                    onFailure = {
+                        resultNavigator.setResult(false)
+                        resultNavigator.navigateBack()
+                    },
+                    onSuccess = {
+                        resultNavigator.setResult(true)
+                        resultNavigator.navigateBack()
+                    }
+                )
+            },
             ::onNameErrorAnimated,
-            ::navigateBack
+            navigator::navigateBack
         )
     }
 }
@@ -167,6 +188,7 @@ private fun computeNameErrorState(error: DisplayNameState.NameError) =
             DisplayNameState.NameError.TextFieldError.NameEmptyError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_error)
             )
+
             DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
             )

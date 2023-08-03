@@ -29,15 +29,11 @@ import com.wire.android.appLogger
 import com.wire.android.model.ActionableState
 import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -66,15 +62,14 @@ interface ConnectionActionButtonViewModel {
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
-    fun onIgnoreConnectionRequest()
+    fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit)
     fun onUnblockUser()
-    fun onOpenConversation()
+    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit)
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConnectionActionButtonViewModelImpl @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -87,7 +82,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 ) : ConnectionActionButtonViewModel, ViewModel() {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-    private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
+    val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
 
     private var state: ActionableState by mutableStateOf(ActionableState())
 
@@ -150,7 +145,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onIgnoreConnectionRequest() {
+    override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {
         viewModelScope.launch {
             state = state.performAction()
             when (ignoreConnectionRequest(userId)) {
@@ -162,11 +157,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.finishAction()
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_CONNECTION_IGNORED_USER_NAME to userName
-                        )
-                    )
+                    onSuccess(userName)
                 }
             }
         }
@@ -190,7 +181,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onOpenConversation() {
+    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {
         viewModelScope.launch {
             state = state.performAction()
             when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
@@ -199,13 +190,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                     state = state.finishAction()
                 }
 
-                is CreateConversationResult.Success ->
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
-                            backStackMode = BackStackMode.UPDATE_EXISTED
-                        )
-                    )
+                is CreateConversationResult.Success -> onSuccess(result.conversation.id)
             }
         }
     }
@@ -221,7 +206,7 @@ class ConnectionActionButtonPreviewModel(private val state: ActionableState) : C
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest() {}
+    override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
     override fun onUnblockUser() {}
-    override fun onOpenConversation() {}
+    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
 }

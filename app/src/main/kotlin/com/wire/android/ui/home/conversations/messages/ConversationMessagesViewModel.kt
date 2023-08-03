@@ -31,20 +31,14 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
-import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
-import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -52,7 +46,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
@@ -80,8 +73,6 @@ import kotlin.math.max
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
@@ -99,9 +90,8 @@ class ConversationMessagesViewModel @Inject constructor(
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
         private set
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
@@ -248,19 +238,6 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
-        appLogger.i("[$TAG][openMessageDetails] - isSelfMessage: $isSelfMessage")
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.MessageDetails.getRouteWithArgs(
-                        listOf(conversationId, messageId, isSelfMessage)
-                    )
-                )
-            )
-        }
-    }
-
     fun onResetSession(userId: UserId, clientId: String?) {
         viewModelScope.launch {
             when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
@@ -315,36 +292,17 @@ class ConversationMessagesViewModel @Inject constructor(
         lastImageMessageShownOnGallery = message
     }
 
-    /**
-     * This method is called to check whether we need to perform any pending action triggered by previously shown screens (e.g. reply or
-     * react to a specific message, show message details, etc.)
-     */
-    fun checkPendingActions(onMessageReply: (UIMessage.Regular) -> Unit) = viewModelScope.launch {
-        savedStateHandle.getBackNavArg<Pair<String, String>>(EXTRA_ON_MESSAGE_REACTED)?.let { (messageId, emoji) ->
-            toggleReaction(messageId, emoji)
-        }
-        savedStateHandle.getBackNavArg<String>(EXTRA_ON_MESSAGE_REPLIED)?.let { messageId ->
-            lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
-                // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
-                updateImageOnFullscreenMode(null)
-                // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
-                // is not the same one that we are replying to
-                if (onFullscreenMessage.header.messageId == messageId) {
-                    onMessageReply(onFullscreenMessage)
-                }
+    fun getAndResetLastFullscreenMessage(messageId: String): UIMessage.Regular? {
+        lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
+            // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
+            updateImageOnFullscreenMode(null)
+            // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
+            // is not the same one that we are replying to
+            if (onFullscreenMessage.header.messageId == messageId) {
+                return onFullscreenMessage
             }
         }
-        savedStateHandle.getBackNavArg<Pair<String, Boolean>>(EXTRA_ON_MESSAGE_DETAILS_CLICKED)?.let { (messageId, isSelfAsset) ->
-            lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
-                // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
-                updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
-                // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
-                // is not the same one that the one we are showing its details
-                if (onFullscreenMessage.header.messageId == messageId) {
-                    openMessageDetails(messageId, isSelfAsset)
-                }
-            }
-        }
+        return null
     }
 
     override fun onCleared() {
@@ -353,7 +311,6 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private companion object {
-        const val TAG = "ConversationMessagesViewModel"
         const val DEFAULT_ASSET_NAME = "Wire File"
     }
 }

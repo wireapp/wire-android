@@ -28,14 +28,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -53,8 +49,6 @@ import javax.inject.Inject
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
@@ -64,15 +58,14 @@ class IncomingCallViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
 ) : ViewModel() {
 
-    private val incomingCallConversationId: QualifiedID =
-        qualifiedIdMapper.fromStringToQualifiedID(checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to IncomingCallViewModel"
-        })
+    private val incomingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = incomingCallNavArgs.conversationId
 
-    lateinit var observeIncomingCallJob: Job
-    var establishedCallConversationId: ConversationId? = null
+    private lateinit var observeIncomingCallJob: Job
+    private var establishedCallConversationId: ConversationId? = null
 
     var incomingCallState by mutableStateOf(IncomingCallState())
+        private set
 
     init {
         viewModelScope.launch {
@@ -100,28 +93,22 @@ class IncomingCallViewModel @Inject constructor(
 
     private suspend fun observeIncomingCall() {
         incomingCalls().distinctUntilChanged().collect { calls ->
-            calls.find { call -> call.conversationId == incomingCallConversationId }.also {
+            calls.find { call -> call.conversationId == conversationId }.also {
                 if (it == null) {
-                    onCallClosed()
+                    callRinger.stop()
+                    incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
                 }
             }
-        }
-    }
-
-    private fun onCallClosed() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-            callRinger.stop()
         }
     }
 
     fun declineCall() {
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
-            launch { rejectCall(conversationId = incomingCallConversationId) }
+            launch { rejectCall(conversationId = conversationId) }
             launch {
-                navigationManager.navigateBack()
                 callRinger.stop()
+                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
             }
         }
     }
@@ -156,14 +143,8 @@ class IncomingCallViewModel @Inject constructor(
                 dismissJoinCallAnywayDialog()
                 observeIncomingCallJob.cancel()
 
-                acceptCall(conversationId = incomingCallConversationId)
-
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(incomingCallConversationId)),
-                        backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                    )
-                )
+                acceptCall(conversationId = conversationId)
+                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallAccepted(conversationId))
             }
         }
     }

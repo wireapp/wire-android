@@ -24,7 +24,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.util.VisibleForTesting
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
@@ -40,8 +39,7 @@ import javax.inject.Inject
 class ChangeHandleViewModel @Inject constructor(
     private val updateHandle: SetUserHandleUseCase,
     private val validateHandle: ValidateUserHandleUseCase,
-    private val getSelf: GetSelfUserUseCase,
-    private val navigationManager: NavigationManager
+    private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
     var state: ChangeHandleState by mutableStateOf(ChangeHandleState())
@@ -79,7 +77,7 @@ class ChangeHandleViewModel @Inject constructor(
         }
     }
 
-    fun onSaveClicked() {
+    fun onSaveClicked(onSuccess: () -> Unit) {
         viewModelScope.launch {
             when (val result = updateHandle(state.handle.text)) {
                 is SetUserHandleResult.Failure.Generic -> state =
@@ -91,7 +89,7 @@ class ChangeHandleViewModel @Inject constructor(
                 SetUserHandleResult.Failure.InvalidHandle -> state =
                     state.copy(error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
 
-                SetUserHandleResult.Success -> onBackPressed()
+                SetUserHandleResult.Success -> onSuccess()
             }
         }
     }
@@ -102,11 +100,5 @@ class ChangeHandleViewModel @Inject constructor(
 
     fun onErrorDismiss() {
         state = state.copy(error = HandleUpdateErrorState.None)
-    }
-
-    fun onBackPressed() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
     }
 }

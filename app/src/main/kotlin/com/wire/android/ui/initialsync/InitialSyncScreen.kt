@@ -20,15 +20,31 @@
 
 package com.wire.android.ui.initialsync
 
+import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.SettingUpWireScreenContent
+import com.wire.android.ui.destinations.HomeScreenDestination
+import kotlinx.coroutines.delay
 
+@RootNavGraph
+@Destination
 @Composable
-fun InitialSyncScreen(viewModel: InitialSyncViewModel = hiltViewModel()) {
+fun InitialSyncScreen(
+    navigator: Navigator,
+    viewModel: InitialSyncViewModel = hiltViewModel()
+) {
     SettingUpWireScreenContent()
     LaunchedEffect(Unit) {
-        viewModel.waitUntilSyncIsCompleted()
+        delay(DefaultDurationMillis.toLong()) // it can be triggered instantly so it's added to keep smooth transitions
+        viewModel.waitUntilSyncIsCompleted {
+            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+        }
     }
 }

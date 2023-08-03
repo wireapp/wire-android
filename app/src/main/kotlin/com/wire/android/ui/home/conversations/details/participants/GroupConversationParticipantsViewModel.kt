@@ -25,17 +25,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
-import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.user.BotService
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -44,19 +37,16 @@ import javax.inject.Inject
 @HiltViewModel
 open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    qualifiedIdMapper: QualifiedIdMapper
-) : GroupDetailsBaseViewModel(savedStateHandle) {
+) : SavedStateViewModel(savedStateHandle) {
 
     open val maxNumberOfItems get() = -1 // -1 means return whole list
 
     var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
 
     init {
         runRefreshUsersWithoutMetadata()
@@ -76,25 +66,5 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
                     groupParticipantsState = groupParticipantsState.copy(data = it)
                 }
         }
-    }
-
-    fun navigateBack() = viewModelScope.launch {
-        navigationManager.navigateBack()
-    }
-
-    fun openProfile(participant: UIParticipant) = viewModelScope.launch {
-        if (participant.isSelf) navigateToSelfProfile()
-        else if (participant.isService && participant.botService != null) navigateToServiceProfile(participant.botService)
-        else navigateToOtherProfile(participant.id)
-    }
-
-    private suspend fun navigateToSelfProfile() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
-
-    private suspend fun navigateToOtherProfile(id: UserId) =
-        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
-
-    private suspend fun navigateToServiceProfile(botServiceId: BotService) {
-        navigationManager.navigate(NavigationCommand(NavigationItem.ServiceDetails.getRouteWithArgs(listOf(botServiceId, conversationId))))
     }
 }

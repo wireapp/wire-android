@@ -21,16 +21,18 @@
 package com.wire.android.ui.home.conversations.info
 
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ConversationProtocol
 import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 import com.wire.kalium.logic.feature.conversation.GetConversationVerificationStatusUseCase
@@ -58,9 +60,6 @@ class ConversationInfoViewModelArrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -72,15 +71,16 @@ class ConversationInfoViewModelArrangement {
     @MockK
     private lateinit var getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 
+    @MockK(relaxed = true)
+    lateinit var onNotFound: () -> Unit
+
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper,
             savedStateHandle,
-            navigationManager,
             observeConversationDetails,
             observerSelfUser,
             wireSessionImageLoader,
-            TestDispatcherProvider(),
             getConversationVerificationStatus
         )
     }
@@ -88,7 +88,8 @@ class ConversationInfoViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
+
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
@@ -108,8 +109,16 @@ class ConversationInfoViewModelArrangement {
         conversationDetailsChannel.send(conversationDetails)
     }
 
+    suspend fun withConversationDetailFailure(failure: StorageFailure) = apply {
+        coEvery { observeConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Failure(failure))
+    }
+
     suspend fun withSelfUser() = apply {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
+    }
+
+    fun withMentionedUserId(id: UserId) = apply {
+        every { qualifiedIdMapper.fromStringToQualifiedID(id.toString()) } returns id
     }
 
     suspend fun withVerificationStatus(result: ConversationVerificationStatusResult) = apply {

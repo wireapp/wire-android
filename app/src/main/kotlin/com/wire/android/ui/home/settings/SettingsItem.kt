@@ -32,12 +32,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.AppSettingsScreenDestination
+import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
+import com.wire.android.ui.destinations.DebugScreenDestination
+import com.wire.android.ui.destinations.LicensesScreenDestination
+import com.wire.android.ui.destinations.MyAccountScreenDestination
+import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
+import com.wire.android.ui.destinations.PrivacySettingsConfigScreenDestination
+import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -85,52 +94,60 @@ fun SettingsItem(
     )
 }
 
-enum class SettingsItem(val id: String, val title: UIText, val navigationItem: NavigationItem) {
-    AppSettings(
+sealed class SettingsItem(val direction: Direction, val id: String, val title: UIText) {
+    data object AppSettings : SettingsItem(
         id = "general_app_settings",
         title = UIText.StringResource(R.string.app_settings_screen_title),
-        navigationItem = NavigationItem.AppSettings
-    ),
-    YourAccount(
+        direction = AppSettingsScreenDestination
+    )
+
+    data object YourAccount : SettingsItem(
         id = "your_account_settings",
         title = UIText.StringResource(R.string.settings_your_account_label),
-        navigationItem = NavigationItem.MyAccount
-    ),
-    NetworkSettings(
+        direction = MyAccountScreenDestination
+    )
+
+    data object NetworkSettings : SettingsItem(
         id = "network_settings",
         title = UIText.StringResource(R.string.settings_network_settings_label),
-        navigationItem = NavigationItem.NetworkSettings
-    ),
-    ManageDevices(
+        direction = NetworkSettingsScreenDestination
+    )
+
+    data object ManageDevices : SettingsItem(
         id = "manage_devices",
         title = UIText.StringResource(R.string.settings_manage_devices_label),
-        navigationItem = NavigationItem.SelfDevices
-    ),
-    PrivacySettings(
+        direction = SelfDevicesScreenDestination
+    )
+
+    data object PrivacySettings : SettingsItem(
         id = "privacy_settings",
         title = UIText.StringResource(R.string.settings_privacy_settings_label),
-        navigationItem = NavigationItem.PrivacySettings
-    ),
-    Licenses(
+        direction = PrivacySettingsConfigScreenDestination
+    )
+
+    data object Licenses : SettingsItem(
         id = "other_licenses",
         title = UIText.StringResource(R.string.settings_licenses_settings_label),
-        navigationItem = NavigationItem.Licenses
-    ),
-    BackupAndRestore(
+        direction = LicensesScreenDestination
+    )
+
+    data object BackupAndRestore : SettingsItem(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),
-        navigationItem = NavigationItem.BackupAndRestore
-    ),
-    Support(
+        direction = BackupAndRestoreScreenDestination
+    )
+
+    data object Support : SettingsItem(
         id = "other_support",
         title = UIText.StringResource(R.string.support_screen_title),
-        navigationItem = NavigationItem.Support
-    ),
-    DebugSettings(
+        direction = SupportScreenDestination
+    )
+
+    data object DebugSettings : SettingsItem(
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
-        navigationItem = NavigationItem.Debug
-    );
+        direction = DebugScreenDestination
+    )
 }
 
 @PreviewMultipleThemes

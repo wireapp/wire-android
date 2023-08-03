@@ -8,17 +8,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.EXTRA_DEVICE_ID
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -38,7 +35,6 @@ class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     @CurrentAccount
     private val currentUserId: UserId,
-    private val navigationManager: NavigationManager,
     private val deleteClient: DeleteClientUseCase,
     private val observeClientDetails: ObserveClientDetailsUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
@@ -47,12 +43,9 @@ class DeviceDetailsViewModel @Inject constructor(
     private val observeUserInfo: ObserveUserInfoUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    private val deviceId: ClientId = ClientId(
-        savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
-    )
-
-    private val userId: UserId =
-        savedStateHandle.get<String>(EXTRA_USER_ID)!!.let { QualifiedIdMapperImpl(null).fromStringToQualifiedID(it) }
+    private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
+    private val deviceId: ClientId = deviceDetailsNavArgs.clientId
+    private val userId: UserId = deviceDetailsNavArgs.userId
 
     var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(isSelfClient = isSelfClient))
         private set
@@ -96,7 +89,7 @@ class DeviceDetailsViewModel @Inject constructor(
                 when (result) {
                     is GetClientDetailsResult.Failure.Generic -> {
                         appLogger.e("Error getting self clients $result")
-                        navigateBack()
+                        state = state.copy(error = RemoveDeviceError.InitError)
                     }
 
                     is GetClientDetailsResult.Success -> {
@@ -111,7 +104,7 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun removeDevice() {
+    fun removeDevice(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -123,7 +116,7 @@ class DeviceDetailsViewModel @Inject constructor(
             }
             when (isPasswordRequired) {
                 true -> showDeleteClientDialog(state.device)
-                false -> deleteDevice(null)
+                false -> deleteDevice(null, onSuccess)
             }
         }
     }
@@ -137,7 +130,7 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun deleteDevice(password: String?) {
+    private suspend fun deleteDevice(password: String?, onSuccess: () -> Unit) {
         when (val result = deleteClient(DeleteClientParam(password, deviceId))) {
             is DeleteClientResult.Failure.Generic -> state = state.copy(
                 error = RemoveDeviceError.GenericError(result.genericFailure)
@@ -148,7 +141,7 @@ class DeviceDetailsViewModel @Inject constructor(
             )
 
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(state.device)
-            DeleteClientResult.Success -> navigateBack()
+            DeleteClientResult.Success -> onSuccess()
         }
     }
 
@@ -165,15 +158,15 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveConfirmed() {
-        (state?.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
+    fun onRemoveConfirmed(onSuccess: () -> Unit) {
+        (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible {
                 state.copy(
                     removeDeviceDialogState = it.copy(loading = true, removeEnabled = false)
                 )
             }
             viewModelScope.launch {
-                deleteDevice(dialogStateVisible.password.text)
+                deleteDevice(dialogStateVisible.password.text, onSuccess)
                 updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = false)) }
             }
         }
@@ -197,11 +190,5 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun clearDeleteClientError() {
         state = state.copy(error = RemoveDeviceError.None)
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
     }
 }

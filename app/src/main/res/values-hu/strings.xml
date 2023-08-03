@@ -835,6 +835,7 @@
     <string name="settings_myaccount_display_name_error">Adja meg profilnevét</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Legalább 1, legfeljebb 64 karakter</string>
     <string name="settings_myaccount_display_name_updated">Profilneve megváltozott</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Olvasási visszaigazolás küldése</string>
     <string name="settings_send_read_receipts_description">Ha ez ki van kapcsolva, akkor nem fogja látni a másoktól származó olvasási visszaigazolásokat. Ez a beállítás nem vonatkozik a csoportos beszélgetésekre.</string>

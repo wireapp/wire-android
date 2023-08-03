@@ -41,7 +41,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
@@ -270,9 +270,10 @@
         this one.
     </string>
     <string name="remove_device_label">YOUR DEVICES</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
@@ -556,7 +557,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -864,7 +865,7 @@
     <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
-    <string name="label_client_device_id">DEVICE ID</string>
+    <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
@@ -876,6 +877,9 @@
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
+    <string name="label_proteus_details">Proteus Device Details</string>
+    <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>
     <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed, and you can encrypt it with a password.</string>

@@ -27,23 +27,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
@@ -53,7 +45,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
@@ -88,7 +79,6 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -104,16 +94,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
-    savedStateHandle, navigationManager, observeConversationMembers, refreshUsersWithoutMetadata, qualifiedIdMapper,
+    savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
 ), GroupConversationDetailsBottomSheetEventsHandler {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
 
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
         private set
@@ -186,7 +174,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun leaveGroup(leaveGroupState: GroupDialogState) {
+    fun leaveGroup(
+        leaveGroupState: GroupDialogState,
+        onSuccess: () -> Unit,
+        onFailure: (UIText) -> Unit
+    ) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
@@ -196,36 +188,27 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 )
             }
             when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure -> showSnackBarMessage(response.cause.uiText())
-
-                RemoveMemberFromConversationUseCase.Result.Success -> {
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_LEFT_GROUP to true,
-                        )
-                    )
-                }
+                is RemoveMemberFromConversationUseCase.Result.Failure -> onFailure(response.cause.uiText())
+                RemoveMemberFromConversationUseCase.Result.Success -> onSuccess()
             }
             requestInProgress = false
         }
     }
 
-    fun deleteGroup(groupState: GroupDialogState) {
+    fun deleteGroup(
+        groupState: GroupDialogState,
+        onSuccess: () -> Unit,
+        onFailure: (UIText) -> Unit
+    ) {
         viewModelScope.launch {
             requestInProgress = true
             when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-                is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
-                Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
-                Result.Success -> {
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_GROUP_DELETED_NAME to groupState.conversationName,
-                        )
-                    )
-                }
+                is Result.Failure.GenericFailure -> onFailure(response.coreFailure.uiText())
+                Result.Failure.NoTeamFailure -> onFailure(CoreFailure.Unknown(null).uiText())
+                Result.Success -> onSuccess()
             }
+            requestInProgress = false
         }
-        requestInProgress = false
     }
 
     fun onServicesUpdate(enableServices: Boolean) {
@@ -337,35 +320,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
         _groupOptionsState.value = newState
     }
 
-    fun navigateToFullParticipantsList() = viewModelScope.launch {
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = NavigationItem.GroupConversationAllParticipants.getRouteWithArgs(listOf(conversationId))
-            )
-        )
-    }
-
-    fun navigateToAddParticipants() = viewModelScope.launch {
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = NavigationItem
-                    .AddConversationParticipants
-                    .getRouteWithArgs(
-                        listOf(
-                            conversationId,
-                            groupOptionsState.value.isServicesAllowed
-                        )
-                    )
-            )
-        )
-    }
-
-    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
+    override fun onMutingConversationStatusChange(
+        conversationId: ConversationId?,
+        status: MutedConversationStatus,
+        onMessage: (UIText) -> Unit
+    ) {
         conversationId?.let {
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> {
-                        showSnackBarMessage(UIText.StringResource(R.string.error_updating_muting_setting))
+                        onMessage(UIText.StringResource(R.string.error_updating_muting_setting))
                     }
 
                     ConversationUpdateStatusResult.Success -> {
@@ -376,29 +340,30 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onClearConversationContent(dialogState: DialogState) {
+    override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {
         viewModelScope.launch {
             requestInProgress = true
             with(dialogState) {
                 val result = withContext(dispatcher.io()) { clearConversationContent(conversationId) }
                 requestInProgress = false
-                clearContentSnackbarResult(result, conversationTypeDetail)
+                handleClearContentResult(result, conversationTypeDetail, onMessage)
             }
         }
     }
 
-    private suspend fun clearContentSnackbarResult(
+    private fun handleClearContentResult(
         clearContentResult: ClearConversationContentUseCase.Result,
-        conversationTypeDetail: ConversationTypeDetail
+        conversationTypeDetail: ConversationTypeDetail,
+        onMessage: (UIText) -> Unit
     ) {
         if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException(
             "Unsupported conversation type to clear content, something went wrong?"
         )
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))
+            onMessage(UIText.StringResource(R.string.group_content_delete_failure))
         } else {
-            showSnackBarMessage(UIText.StringResource(R.string.group_content_deleted))
+            onMessage(UIText.StringResource(R.string.group_content_deleted))
         }
     }
 
@@ -412,64 +377,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
-    }
-
-    fun navigateToEditGroupName() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.EditConversationName.getRouteWithArgs(listOf(conversationId))
-                )
-            )
-        }
-    }
-
-    fun navigateToEditSelfDeletingMessagesScreen() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.EditSelfDeletingMessages.getRouteWithArgs(
-                        listOf(conversationId)
-                    )
-                )
-            )
-        }
-    }
-
-    fun navigateToEditGuestAccessScreen() {
-        if (groupOptionsState.value.isUpdatingAllowed) {
-            viewModelScope.launch {
-                navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.EditGuestAccess.getRouteWithArgs(
-                            listOf(
-                                EditGuestAccessParams(
-                                    groupOptionsState.value.isGuestAllowed,
-                                    groupOptionsState.value.isServicesAllowed,
-                                    groupOptionsState.value.isUpdatingGuestAllowed
-                                ),
-                                conversationId
-                            )
-                        )
-                    )
-                )
-            }
-        }
-    }
-
-    fun checkForPendingMessages(): GroupMetadataOperationResult {
-        return with(savedStateHandle) {
-            when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
-                true -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.conversation_options_renamed))
-                false -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
-                else -> GroupMetadataOperationResult.None
-            }
-        }
-    }
-
-    sealed interface GroupMetadataOperationResult {
-        object None : GroupMetadataOperationResult
-        class Result(val message: UIText) : GroupMetadataOperationResult
     }
 
     companion object {

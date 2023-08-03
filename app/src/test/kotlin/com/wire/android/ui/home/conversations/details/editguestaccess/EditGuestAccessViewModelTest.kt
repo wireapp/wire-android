@@ -25,10 +25,10 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomL
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -47,18 +48,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+// TODO test not working, fix it
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class EditGuestAccessViewModelTest {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
@@ -89,7 +85,6 @@ class EditGuestAccessViewModelTest {
     @Before
     fun setUp() {
         editGuestAccessViewModel = EditGuestAccessViewModel(
-            navigationManager = navigationManager,
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeConversationMembers,
@@ -98,8 +93,15 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink = revokeGuestRoomLink,
             observeGuestRoomLink = observeGuestRoomLink,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper,
             observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag
+        )
+        every { savedStateHandle.navArgs<EditGuestAccessNavArgs>() } returns EditGuestAccessNavArgs(
+            conversationId = TestConversation.ID,
+            editGuessAccessParams = EditGuestAccessParams(
+                isGuestAccessAllowed = true,
+                isServicesAllowed = true,
+                isUpdatingGuestAccessAllowed = true
+            )
         )
     }
 

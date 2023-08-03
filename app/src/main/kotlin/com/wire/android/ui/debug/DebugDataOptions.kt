@@ -38,10 +38,6 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -80,7 +76,6 @@ class DebugDataOptionsViewModel
 @Inject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
-    private val navigationManager: NavigationManager,
     private val globalDataStore: GlobalDataStore,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
@@ -112,17 +107,6 @@ class DebugDataOptionsViewModel
     fun restartSlowSyncForRecovery() {
         viewModelScope.launch {
             restartSlowSyncProcessForRecovery()
-        }
-    }
-
-    fun onStartManualMigration() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
         }
     }
 
@@ -186,7 +170,8 @@ class DebugDataOptionsViewModel
 fun DebugDataOptions(
     appVersion: String,
     buildVariant: String,
-    onCopyText: (String) -> Unit
+    onCopyText: (String) -> Unit,
+    onManualMigrationPressed: (currentAccount: UserId) -> Unit
 ) {
 
     val viewModel: DebugDataOptionsViewModel = hiltViewModel()
@@ -256,7 +241,7 @@ fun DebugDataOptions(
         FolderHeader("Other Debug Options")
         if (viewModel.state.isManualMigrationAllowed) {
             ManualMigrationOptions(
-                onManualMigrationClicked = viewModel::onStartManualMigration
+                onManualMigrationClicked = { onManualMigrationPressed(viewModel.currentAccount) }
             )
         }
     }

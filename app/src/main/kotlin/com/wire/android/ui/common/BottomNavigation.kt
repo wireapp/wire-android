@@ -39,7 +39,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,18 +48,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WireBottomNavigationBar(
     items: List<WireBottomNavigationItemData>,
-    navController: NavController
+    selectedItemRoute: String,
+    onItemSelected: (WireBottomNavigationItemData) -> Unit
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,18 +81,10 @@ fun WireBottomNavigationBar(
 
                 WireBottomNavigationItem(
                     data = item,
-                    selected = currentRoute == item.route,
-                    modifier = modifier
-                ) {
-                    navController.navigate(item.route) {
-                        popUpTo(0) {
-                            saveState = true
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+                    modifier = modifier,
+                    selected = selectedItemRoute == item.route,
+                    onItemClick = onItemSelected
+                )
             }
         }
     }

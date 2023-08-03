@@ -28,23 +28,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
-import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.navigation.EXTRA_IMAGE_DATA
-import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
-import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
-import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -66,19 +60,21 @@ import javax.inject.Inject
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     wireSessionImageLoader: WireSessionImageLoader,
-    qualifiedIdMapper: QualifiedIdMapper,
-    private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
     private val fileManager: FileManager,
     private val deleteMessage: DeleteMessageUseCase
 ) : ViewModel() {
-    val imageAsset: ImageAsset.PrivateAsset =
-        savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(
-            wireSessionImageLoader,
-            qualifiedIdMapper
-        )
+
+    private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
+    val imageAsset: ImageAsset.PrivateAsset = ImageAsset.PrivateAsset(
+        wireSessionImageLoader,
+        mediaGalleryNavArgs.conversationId,
+        mediaGalleryNavArgs.messageId,
+        mediaGalleryNavArgs.isSelfAsset,
+        mediaGalleryNavArgs.isEphemeral
+    )
 
     private val messageId = imageAsset.messageId
     private val conversationId = imageAsset.conversationId
@@ -89,10 +85,10 @@ class MediaGalleryViewModel @Inject constructor(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone ->
+    ) { messageId: String, deleteForEveryone: Boolean, onDeleted: () -> Unit ->
         deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
             .onFailure { onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError) }
-            .onSuccess { navigateBack() }
+            .onSuccess { onDeleted() }
     }
 
     private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
@@ -127,20 +123,6 @@ class MediaGalleryViewModel @Inject constructor(
                     updateMediaGalleryTitle(getScreenTitle(it))
                 }
         }
-    }
-
-    fun onMessageReacted(emoji: String) = viewModelScope.launch {
-        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REACTED to Pair(messageId, emoji)))
-    }
-
-    fun onMessageReplied() = viewModelScope.launch {
-        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REPLIED to messageId))
-    }
-
-    fun onMessageDetailsClicked() = viewModelScope.launch {
-        navigationManager.navigateBack(
-            mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAsset.messageId, imageAsset.isSelfAsset))
-        )
     }
 
     private fun getScreenTitle(conversationDetails: ConversationDetails): String? =
@@ -185,12 +167,6 @@ class MediaGalleryViewModel @Inject constructor(
 
     private fun onSaveError() {
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloadError)
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
     }
 
     fun deleteCurrentImage() {

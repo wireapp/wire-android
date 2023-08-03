@@ -26,9 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.kalium.logic.data.user.UserId
@@ -37,13 +34,12 @@ import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class SelfDevicesViewModel @Inject constructor(
-    @CurrentAccount private val currentAccountId: UserId,
-    private val navigationManager: NavigationManager,
+    @CurrentAccount val currentAccountId: UserId,
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase
@@ -84,20 +80,6 @@ class SelfDevicesViewModel @Inject constructor(
     private fun loadClientsList() {
         viewModelScope.launch {
             fetchSelfClientsFromRemote()
-        }
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
-    }
-
-    fun navigateToDevice(device: Device) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId, currentAccountId))
-                )
-            )
         }
     }
 }

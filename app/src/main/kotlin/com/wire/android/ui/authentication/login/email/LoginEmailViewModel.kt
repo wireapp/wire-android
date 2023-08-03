@@ -30,7 +30,6 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
@@ -58,14 +57,12 @@ class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
-    navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider,
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
     savedStateHandle,
-    navigationManager,
     clientScopeProviderFactory,
     authServerConfigProvider,
     userDataStoreProvider,
@@ -77,7 +74,7 @@ class LoginEmailViewModel @Inject constructor(
     )
 
     @Suppress("LongMethod")
-    fun login() {
+    fun login(onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
@@ -128,7 +125,7 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        navigateAfterRegisterClientSuccess(storedUserId)
+                        onSuccess(isInitialSyncCompleted(storedUserId))
                     }
                 }
             }
@@ -220,10 +217,10 @@ class LoginEmailViewModel @Inject constructor(
         loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 
-    fun onCodeChange(newValue: CodeFieldValue) {
+    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
-            login()
+            login(onSuccess)
         }
     }
 

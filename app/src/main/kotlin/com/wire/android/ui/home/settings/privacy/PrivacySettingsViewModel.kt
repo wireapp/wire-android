@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
@@ -43,7 +42,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PrivacySettingsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
     private val observeReadReceiptsEnabled: ObserveReadReceiptsEnabledUseCase,
@@ -76,10 +74,6 @@ class PrivacySettingsViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
     }
 
     fun setReadReceiptsState(isEnabled: Boolean) {

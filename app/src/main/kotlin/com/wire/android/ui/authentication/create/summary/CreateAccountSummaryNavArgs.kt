@@ -14,25 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.authentication.create.summary
 
-package com.wire.android.ui.home.conversations.details
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 
-import androidx.lifecycle.SavedStateHandle
-import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.util.ui.UIText
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-
-open class GroupDetailsBaseViewModel(savedStateHandle: SavedStateHandle) : SavedStateViewModel(savedStateHandle) {
-
-    private val _snackBarMessenger = MutableSharedFlow<UIText>()
-    val snackBarMessage = _snackBarMessenger.asSharedFlow()
-
-    suspend fun showSnackBarMessage(message: UIText) {
-        _snackBarMessenger.emit(message)
-    }
-
-}
+data class CreateAccountSummaryNavArgs(
+    val type: CreateAccountFlowType
+)

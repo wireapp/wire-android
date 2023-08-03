@@ -77,6 +77,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginEmailScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -91,8 +93,13 @@ fun LoginEmailScreen(
         onUserIdentifierChange = loginEmailViewModel::onUserIdentifierChange,
         onPasswordChange = loginEmailViewModel::onPasswordChange,
         onDialogDismiss = loginEmailViewModel::onDialogDismiss,
-        onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
-        onLoginButtonClick = loginEmailViewModel::login,
+        onRemoveDeviceOpen = {
+            loginEmailViewModel.clearLoginErrors()
+            onRemoveDeviceNeeded()
+        },
+        onLoginButtonClick = {
+            loginEmailViewModel.login(onSuccess)
+        },
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope

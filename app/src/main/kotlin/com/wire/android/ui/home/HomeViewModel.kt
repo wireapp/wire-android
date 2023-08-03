@@ -28,16 +28,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
-import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -51,56 +42,29 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val globalDataStore: GlobalDataStore,
-    private val navigationManager: NavigationManager,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
-    logFileWriter: LogFileWriter
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var homeState by mutableStateOf(
-        HomeState(
-            logFilePath = logFileWriter.activeLoggingFile.absolutePath
-        )
-    )
+    var homeState by mutableStateOf(HomeState())
         private set
 
     init {
         loadUserAvatar()
     }
 
-    fun checkRequirements() {
+    fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
         viewModelScope.launch {
             val userId = getSelf().first().id
             when {
-                shouldTriggerMigrationForUser(userId) -> {
-                    navigationManager.navigate(
-                        NavigationCommand(
-                            NavigationItem.Migration.getRouteWithArgs(listOf(userId)),
-                            BackStackMode.CLEAR_WHOLE
-                        )
-                    )
-                    return@launch
-                }
-                needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
-                    navigationManager.navigate(
-                        NavigationCommand(
-                            NavigationItem.RegisterDevice.getRouteWithArgs(),
-                            BackStackMode.CLEAR_WHOLE
-                        )
-                    )
-                    return@launch
-                }
-                getSelf().first().handle.isNullOrEmpty() -> { // check if the user handle has been set and open the proper screen if not
-                    navigationManager.navigate(
-                        NavigationCommand(
-                            NavigationItem.CreateUsername.getRouteWithArgs(),
-                            BackStackMode.CLEAR_WHOLE
-                        )
-                    )
-                    return@launch
-                }
+                shouldTriggerMigrationForUser(userId) ->
+                    onRequirement(HomeRequirement.Migration(userId))
+                needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
+                    onRequirement(HomeRequirement.RegisterDevice)
+                getSelf().first().handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
+                    onRequirement(HomeRequirement.CreateAccountUsername)
                 shouldDisplayWelcomeToARScreen() -> {
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
                 }
@@ -111,24 +75,12 @@ class HomeViewModel @Inject constructor(
     private suspend fun shouldDisplayWelcomeToARScreen() =
         globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
 
-    fun checkPendingSnackbarState(): HomeSnackbarState? {
-        return with(savedStateHandle) {
-            getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-                ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
-                ?: getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
-                    ?.let { HomeSnackbarState.DeletedConversationGroupSuccess(it) }
-                ?: getBackNavArg<Boolean>(EXTRA_LEFT_GROUP)
-                    ?.let { if (it) HomeSnackbarState.LeftConversationSuccess else null }
-        }
-    }
-
     private fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 homeState = HomeState(
                     selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    selfUser.availabilityStatus,
-                    homeState.logFilePath
+                    selfUser.availabilityStatus
                 )
             }
         }
@@ -140,12 +92,4 @@ class HomeViewModel @Inject constructor(
             homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
         }
     }
-
-    fun navigateTo(item: NavigationItem) {
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
-        }
-    }
-
-    fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
 }

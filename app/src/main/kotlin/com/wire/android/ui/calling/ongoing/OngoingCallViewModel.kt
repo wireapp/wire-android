@@ -30,14 +30,13 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
@@ -52,23 +51,23 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
     @CurrentAccount
     private val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
-    private val navigationManager: NavigationManager,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
 
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
+
+    var state by mutableStateOf(OngoingCallState())
+        private set
 
     init {
         viewModelScope.launch {
@@ -89,7 +88,7 @@ class OngoingCallViewModel @Inject constructor(
                 val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
                 val isOnBackground = currentScreen is CurrentScreen.InBackground
                 if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
-                    navigateBack()
+                    state = state.copy(flowState = OngoingCallState.FlowState.CallClosed)
                 }
             }
     }
@@ -143,10 +142,6 @@ class OngoingCallViewModel @Inject constructor(
         viewModelScope.launch {
             globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
         }
-    }
-
-    private suspend fun navigateBack() {
-        navigationManager.navigateBack()
     }
 
     companion object {

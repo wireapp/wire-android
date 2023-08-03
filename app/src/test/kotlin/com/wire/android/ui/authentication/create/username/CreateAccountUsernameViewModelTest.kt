@@ -23,10 +23,6 @@ package com.wire.android.ui.authentication.create.username
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItemDestinationsRoutes
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
@@ -55,13 +51,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CreateAccountUsernameViewModelTest {
 
     @MockK
-    private lateinit var navigationManager: NavigationManager
-
-    @MockK
     private lateinit var validateUserHandleUseCase: ValidateUserHandleUseCase
 
     @MockK
     private lateinit var setUserHandleUseCase: SetUserHandleUseCase
+
+    @MockK(relaxed = true)
+    private lateinit var onSuccess: () -> Unit
 
     private lateinit var createAccountUsernameViewModel: CreateAccountUsernameViewModel
 
@@ -69,7 +65,7 @@ class CreateAccountUsernameViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        createAccountUsernameViewModel = CreateAccountUsernameViewModel(navigationManager, validateUserHandleUseCase, setUserHandleUseCase)
+        createAccountUsernameViewModel = CreateAccountUsernameViewModel(validateUserHandleUseCase, setUserHandleUseCase)
     }
 
     @Test
@@ -107,12 +103,11 @@ class CreateAccountUsernameViewModelTest {
     fun `given button is clicked, when setting the username, then show loading`() = runTest {
         every { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
-        coEvery { navigationManager.navigate(any()) } returns Unit
 
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("abc"))
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
         createAccountUsernameViewModel.state.loading shouldBeEqualTo false
-        createAccountUsernameViewModel.onContinue()
+        createAccountUsernameViewModel.onContinue(onSuccess)
         advanceUntilIdle()
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
         createAccountUsernameViewModel.state.loading shouldBeEqualTo false
@@ -123,18 +118,15 @@ class CreateAccountUsernameViewModelTest {
         val username = "abc"
         every { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid(username)
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Success
-        coEvery { navigationManager.navigate(any()) } returns Unit
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue(username))
 
-        createAccountUsernameViewModel.onContinue()
+        createAccountUsernameViewModel.onContinue(onSuccess)
         advanceUntilIdle()
 
         // FIXME: change to 1 once the viewModel is fixed
         verify(exactly = 2) { validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { setUserHandleUseCase.invoke(username) }
-        coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.INITIAL_SYNC, BackStackMode.CLEAR_WHOLE))
-        }
+        verify(exactly = 1) { onSuccess() }
     }
 
     @Test
@@ -142,7 +134,7 @@ class CreateAccountUsernameViewModelTest {
         every { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Invalid.TooShort("a")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.InvalidHandle
 
-        createAccountUsernameViewModel.onContinue()
+        createAccountUsernameViewModel.onContinue(onSuccess)
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.TextFieldError.UsernameInvalidError::class
@@ -153,7 +145,7 @@ class CreateAccountUsernameViewModelTest {
         every { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.HandleExists
 
-        createAccountUsernameViewModel.onContinue()
+        createAccountUsernameViewModel.onContinue(onSuccess)
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.TextFieldError.UsernameTakenError::class
@@ -165,7 +157,7 @@ class CreateAccountUsernameViewModelTest {
         every { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(networkFailure)
 
-        createAccountUsernameViewModel.onContinue()
+        createAccountUsernameViewModel.onContinue(onSuccess)
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class
@@ -178,7 +170,7 @@ class CreateAccountUsernameViewModelTest {
         every { validateUserHandleUseCase.invoke(any()) } returns ValidateUserHandleResult.Valid("abc")
         coEvery { setUserHandleUseCase.invoke(any()) } returns SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
 
-        createAccountUsernameViewModel.onContinue()
+        createAccountUsernameViewModel.onContinue(onSuccess)
         advanceUntilIdle()
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
                 HandleUpdateErrorState.DialogError.GenericError::class

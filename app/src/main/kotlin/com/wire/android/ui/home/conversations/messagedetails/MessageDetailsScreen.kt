@@ -50,7 +50,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -62,8 +65,15 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = MessageDetailsNavArgs::class
+)
 @Composable
-fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
+fun MessageDetailsScreen(
+    navigator: Navigator,
+    viewModel: MessageDetailsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
 
     val reactionsLearnMoreUrl = stringResource(id = R.string.url_message_details_reactions_learn_more)
@@ -88,7 +98,7 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
 
     MessageDetailsScreenContent(
         messageDetailsState = viewModel.messageDetailsState,
-        onBackPressed = viewModel::navigateBack,
+        onBackPressed = navigator::navigateBack,
         onReactionsLearnMore = onReactionsLearnMore,
         onReadReceiptsLearnMore = onReadReceiptsLearnMore
     )

@@ -24,11 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_ID
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -37,13 +36,11 @@ import javax.inject.Inject
 @HiltViewModel
 class CompositeMessageViewModel @Inject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
-    qualifiedIdMapper: QualifiedIdMapper,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private val messageId: String = savedStateHandle.get<String>(EXTRA_MESSAGE_ID)!!
 

@@ -44,19 +44,21 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
-import com.wire.android.navigation.popWithArguments
-import com.wire.android.navigation.rememberTrackingAnimatedNavController
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -65,6 +67,17 @@ import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.ImportMediaScreenDestination
+import com.wire.android.ui.destinations.IncomingCallScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfDevicesScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -76,27 +89,23 @@ import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalCoroutinesApi::class
-)
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var navigationManager: NavigationManager
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
@@ -108,6 +117,8 @@ class WireActivity : AppCompatActivity() {
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
 
+    val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -115,7 +126,11 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
 
         viewModel.observePersistentConnectionStatus()
-        val startDestination = viewModel.startNavigationRoute()
+        val startDestination = when (viewModel.initialAppState) {
+            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
+            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+            InitialAppState.LOGGED_IN -> HomeScreenDestination
+        }
         setComposableContent(startDestination) {
             handleDeepLink(intent, savedInstanceState)
         }
@@ -130,7 +145,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     private fun setComposableContent(
-        startDestination: String,
+        startDestination: Route,
         onComplete: () -> Unit
     ) {
         setContent {
@@ -145,36 +160,27 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     Column {
+                        val navigator = rememberNavigator(this@WireActivity::finish)
+                        val scope = rememberCoroutineScope()
                         CommonTopAppBar(
                             connectivityUIState = commonTopAppBarViewModel.connectivityState,
-                            onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen
+                            onReturnToCallClick = { establishedCall ->
+                                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
+                            }
                         )
-                        setUpNavigationGraph(
-                            startDestination = startDestination,
-                            onComplete = onComplete
+                        NavigationGraph(
+                            navigator = navigator,
+                            startDestination = startDestination
                         )
+                        // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
+                        // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
+                        setUpNavigation(navigator.navController, onComplete, scope)
                         handleScreenshotCensoring()
-                        handleDialogs()
+                        handleDialogs(navigator::navigate)
                     }
                 }
             }
         }
-    }
-
-    @Composable
-    fun setUpNavigationGraph(
-        startDestination: String,
-        onComplete: () -> Unit
-    ) {
-        val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-        val scope = rememberCoroutineScope()
-        NavigationGraph(
-            navController = navController,
-            startDestination = startDestination
-        )
-        // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
-        // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-        setUpNavigation(navController, onComplete, scope)
     }
 
     @Composable
@@ -186,23 +192,18 @@ class WireActivity : AppCompatActivity() {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
         LaunchedEffect(scope) {
-            navigationManager.navigateState
+            navigationCommands
                 .onSubscription { onComplete() }
                 .onEach { command ->
-                    if (command == null) return@onEach
                     currentKeyboardController?.hide()
                     currentNavController.navigateToItem(command)
                 }.launchIn(scope)
-
-            navigationManager.navigateBack.onEach {
-                if (!currentNavController.popWithArguments(it)) finish()
-            }.launchIn(scope)
         }
 
         DisposableEffect(navController) {
-            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { controller, _, _ ->
+            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, navDestination, _ ->
                 currentKeyboardController?.hide()
-                updateScreenSettings(controller)
+                updateScreenSettings(navDestination)
             }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)
@@ -226,16 +227,28 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleDialogs() {
+    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
         updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
-        customBackendDialog()
-        maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
-        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
+        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog, navigate)
+        customBackendDialog(navigate)
+        maxAccountDialog(
+            onConfirm = {
+                viewModel.dismissMaxAccountDialog()
+                navigate(NavigationCommand(SelfUserProfileScreenDestination))
+            },
+            onDismiss = viewModel::dismissMaxAccountDialog,
+            shouldShow = viewModel.globalAppState.maxAccountDialog
+        )
+        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI, navigate)
         newClientDialog(
             viewModel.globalAppState.newClientDialog,
-            viewModel::openDeviceManager,
-            viewModel::switchAccount,
+            { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
+            {
+                viewModel.switchAccount(
+                    userId = it,
+                    actions = NavigationSwitchAccountActions(navigate),
+                    onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })
+            },
             viewModel::dismissNewClientsDialog
         )
     }
@@ -262,7 +275,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?) {
+    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?, navigate: (NavigationCommand) -> Unit) {
         joinedDialogState?.let {
             when (it) {
                 is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
@@ -283,14 +296,14 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun customBackendDialog() {
+    private fun customBackendDialog(navigate: (NavigationCommand) -> Unit) {
         with(viewModel) {
             if (globalAppState.customBackendDialog != null) {
                 CustomServerDialog(
                     serverLinksTitle = globalAppState.customBackendDialog!!.serverLinks.title,
                     serverLinksApi = globalAppState.customBackendDialog!!.serverLinks.api,
                     onDismiss = this::dismissCustomBackendDialog,
-                    onConfirm = this::customBackendDialogProceedButtonClicked
+                    onConfirm = { customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
                 )
             }
         }
@@ -308,8 +321,10 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?) {
-        blockUserUI?.let { accountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?, navigate: (NavigationCommand) -> Unit) {
+        blockUserUI?.let {
+            accountLoggedOutDialog(reason = it) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
+        }
     }
 
     @Composable
@@ -360,7 +375,7 @@ class WireActivity : AppCompatActivity() {
     private fun newClientDialog(
         data: NewClientsData?,
         openDeviceManager: () -> Unit,
-        switchAccount: (UserId) -> Unit,
+        switchAccountAndOpenDeviceManager: (UserId) -> Unit,
         dismiss: (UserId) -> Unit
     ) {
         data?.let {
@@ -381,7 +396,7 @@ class WireActivity : AppCompatActivity() {
                     title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
                     text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
-                    btnAction = { switchAccount(data.userId) }
+                    btnAction = { switchAccountAndOpenDeviceManager(data.userId) }
                 }
 
                 is NewClientsData.CurrentUser -> {
@@ -445,8 +460,50 @@ class WireActivity : AppCompatActivity() {
         ) {
             return
         } else {
-            viewModel.handleDeepLink(intent)
+            val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
+            viewModel.handleDeepLink(
+                intent = intent,
+                onResult = ::handleDeepLinkResult,
+                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
+                onIsSharingIntent = { navigate(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED)) }
+            )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+        }
+    }
+
+    private fun handleDeepLinkResult(result: DeepLinkResult) {
+        val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
+        when (result) {
+            is DeepLinkResult.SSOLogin -> {
+                navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED))
+            }
+            is DeepLinkResult.MigrationLogin -> {
+                navigate(NavigationCommand(LoginScreenDestination(result.userHandle), BackStackMode.UPDATE_EXISTED))
+            }
+            is DeepLinkResult.CustomServerConfig -> {
+                // do nothing, already handled in ViewModel
+            }
+            is DeepLinkResult.IncomingCall -> {
+                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigate(NavigationCommand(IncomingCallScreenDestination(result.conversationsId)))
+            }
+            is DeepLinkResult.OngoingCall -> {
+                navigate(NavigationCommand(OngoingCallScreenDestination(result.conversationsId)))
+            }
+            is DeepLinkResult.OpenConversation -> {
+                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigate(NavigationCommand(ConversationScreenDestination(result.conversationsId), BackStackMode.UPDATE_EXISTED))
+            }
+            is DeepLinkResult.OpenOtherUserProfile -> {
+                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
+            }
+            is DeepLinkResult.JoinConversation -> {
+                // do nothing, already handled in ViewModel
+            }
+            is DeepLinkResult.Unknown -> {
+                appLogger.e("unknown deeplink result $result")
+            }
         }
     }
 

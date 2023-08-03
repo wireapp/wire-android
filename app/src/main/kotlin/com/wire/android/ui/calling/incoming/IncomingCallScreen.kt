@@ -32,14 +32,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -50,19 +58,25 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = CallingNavArgs::class,
+    style = WakeUpScreenPopUpNavigationAnimation::class
+)
 @Composable
 fun IncomingCallScreen(
+    navigator: Navigator,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
-
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
-        { incomingCallViewModel.acceptCall() },
-        { incomingCallViewModel.declineCall() }
+        incomingCallViewModel::acceptCall,
+        incomingCallViewModel::declineCall
     )
 
     with(incomingCallViewModel) {
@@ -73,7 +87,19 @@ fun IncomingCallScreen(
             )
         }
     }
+    LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
+        when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
+            is IncomingCallState.FlowState.CallClosed -> navigator.navigateBack()
+            is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
+                NavigationCommand(
+                    OngoingCallScreenDestination(flowState.conversationId),
+                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
+                )
+            )
 
+            is IncomingCallState.FlowState.Default -> { /* do nothing */ }
+        }
+    }
     with(sharedCallingViewModel) {
         IncomingCallContent(
             callState = callState,
@@ -81,7 +107,7 @@ fun IncomingCallScreen(
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = incomingCallViewModel::declineCall,
-            acceptCall = { audioPermissionCheck.launch() },
+            acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview
         )
@@ -113,7 +139,7 @@ private fun IncomingCallContent(
         sheetContent = {
             CallOptionsControls(
                 isMuted = callState.isMuted ?: true,
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
                 isSpeakerOn = callState.isSpeakerOn,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
@@ -169,7 +195,7 @@ private fun IncomingCallContent(
     ) {
         Box {
             CallVideoPreview(
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
@@ -206,5 +232,5 @@ private fun AudioBluetoothPermissionCheckFlow(
 @Preview
 @Composable
 fun PreviewIncomingCallScreen() {
-    IncomingCallScreen()
+    IncomingCallContent(CallState(), {}, {}, {}, {}, {}, {}, {})
 }

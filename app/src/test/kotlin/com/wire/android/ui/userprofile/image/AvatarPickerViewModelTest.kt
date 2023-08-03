@@ -27,10 +27,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.FileManager
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.CoreFailure.Unknown
@@ -50,6 +48,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -61,20 +60,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class AvatarPickerViewModelTest {
-
-    @Test
-    fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
-        // Given
-        val (arrangement, avatarPickerViewModel) = Arrangement()
-            .withSuccessfulInitialAvatarLoad()
-            .arrange()
-
-        // When
-        avatarPickerViewModel.navigateBack()
-
-        // Then
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
-    }
 
     @Test
     fun `given a valid image, when uploading the asset succeeds, then the useCase should be called and navigate back on success`() =
@@ -89,15 +74,15 @@ class AvatarPickerViewModelTest {
 
             avatarPickerViewModel.infoMessage.test {
                 // When
-                avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+                avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
 
                 // Then
-                coVerify {
-                    with(arrangement) {
+                with(arrangement) {
+                    coVerify {
                         uploadUserAvatarUseCase(any(), any())
                         userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
-                        avatarPickerViewModel.navigateBack()
                     }
+                    verify(exactly = 1) { onSuccess() }
                 }
 
                 expectNoEvents()
@@ -114,7 +99,7 @@ class AvatarPickerViewModelTest {
 
         avatarPickerViewModel.infoMessage.test {
             // When
-            avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+            avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
 
             // Then
             with(arrangement) {
@@ -122,6 +107,7 @@ class AvatarPickerViewModelTest {
                     uploadUserAvatarUseCase(any(), any())
                     avatarImageManager.getWritableAvatarUri(any()) wasNot Called
                 }
+                verify(exactly = 0) { onSuccess() }
             }
 
             assertEquals(AvatarPickerViewModel.InfoMessageType.UploadAvatarError.uiText, awaitItem())
@@ -129,8 +115,6 @@ class AvatarPickerViewModelTest {
     }
 
     private class Arrangement {
-
-        val navigationManager = mockk<NavigationManager>()
 
         val userDataStore = mockk<UserDataStore>()
 
@@ -142,7 +126,7 @@ class AvatarPickerViewModelTest {
 
         val context = mockk<Context>()
 
-        val fileManager = FileManager(context)
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
 
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -151,7 +135,6 @@ class AvatarPickerViewModelTest {
 
         val viewModel by lazy {
             AvatarPickerViewModel(
-                navigationManager,
                 userDataStore,
                 getAvatarAsset,
                 uploadUserAvatarUseCase,
@@ -180,7 +163,6 @@ class AvatarPickerViewModelTest {
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
             coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
             coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
-            coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }

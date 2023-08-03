@@ -14,23 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.migration
 
-package com.wire.android.ui.home.newconversation.common
+import com.wire.kalium.logic.data.user.UserId
 
-import com.wire.android.navigation.getPrimaryRoute
-
-enum class NewConversationNavigationItem(val route: String) {
-    NewGroupNameScreen("new_group_name"),
-    SearchListNavHostScreens("search_list_nav_host"),
-    GroupOptionsScreen("group_options_screen");
-
-    val itemName: String get() = ITEM_NAME_PREFIX + this.name
-    companion object {
-        private const val ITEM_NAME_PREFIX = "NewConversationNavigationItem."
-        private val map = NewConversationNavigationItem.values().associateBy { it.route }
-        fun fromRoute(fullRoute: String): NewConversationNavigationItem? = map[fullRoute.getPrimaryRoute()]
-    }
-}
+data class MigrationNavArgs(
+    val userId: UserId? = null
+)

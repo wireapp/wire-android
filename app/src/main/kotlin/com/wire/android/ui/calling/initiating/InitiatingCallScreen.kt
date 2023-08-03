@@ -33,14 +33,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.KeepOnScreenPopUpNavigationAnimation
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -48,13 +56,29 @@ import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = CallingNavArgs::class,
+    style = KeepOnScreenPopUpNavigationAnimation::class
+)
 @Composable
 fun InitiatingCallScreen(
+    navigator: Navigator,
+    navArgs: CallingNavArgs,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(initiatingCallViewModel.state.flowState) {
+        when (initiatingCallViewModel.state.flowState) {
+            InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
+            InitiatingCallState.FlowState.CallEstablished ->
+                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
+            InitiatingCallState.FlowState.Default -> { /* do nothing */ }
+        }
+    }
     with(sharedCallingViewModel) {
         InitiatingCallContent(
             callState = callState,
@@ -140,5 +164,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallScreen()
+    InitiatingCallContent(CallState(), {}, {}, {}, {}, {}, {})
 }

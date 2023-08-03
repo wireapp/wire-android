@@ -831,6 +831,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="settings_myaccount_display_name_error">Por favor, introduce tu nombre de perfil</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">M&#237;nimo de 1 y m&#225;ximo de 64 caracteres</string>
     <string name="settings_myaccount_display_name_updated">Tu nombre de perfil se ha cambiado</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Enviar recibos de lectura</string>
     <string name="settings_send_read_receipts_description">Si esto est&#225; DESACTIVADO, no podr&#225;s ver los recibos de lectura de otras personas. Esta configuraci&#243;n no se aplica a conversaciones de grupo.</string>

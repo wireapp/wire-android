@@ -89,6 +89,7 @@ fun Resources.annotatedText(
                 else -> {
                     pushStyle(style = toSpanStyle(normalStyle, useErrorColorIfApplies(isErrorString, errorColor, normalColor)))
                     append(piece)
+                    pop()
                 }
             }
         }

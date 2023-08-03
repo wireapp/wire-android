@@ -127,7 +127,6 @@ fun GroupConversationDetailsScreen(
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 participant.isService && participant.botService != null ->
                     navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, viewModel.conversationId)))
-
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },

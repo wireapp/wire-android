@@ -297,7 +297,7 @@ class MessageComposerStateHolderTest {
     fun `given state, when message is sent, then message is cleared`() = runTest {
         // given
         // when
-        state.onMessageSend()
+        state.clearMessage()
 
         // then
         assertEquals(

@@ -54,7 +54,6 @@ import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -182,10 +181,10 @@ fun UserProfileInfo(
                 )
             }
         }
-        if (securityClassificationType != SecurityClassificationType.NONE) {
-            VerticalSpace.x8()
-            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-        }
+        SecurityClassificationBanner(
+            securityClassificationType = securityClassificationType,
+            modifier = Modifier.padding(top = dimensions().spacing8x)
+        )
     }
 }
 

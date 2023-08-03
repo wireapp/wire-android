@@ -74,6 +74,7 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -96,7 +97,8 @@ fun OngoingCallScreen(
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
             OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
-            OngoingCallState.FlowState.Default -> { /* do nothing */ }
+            OngoingCallState.FlowState.Default -> { /* do nothing */
+            }
         }
     }
     with(sharedCallingViewModel.callState) {
@@ -321,12 +323,17 @@ private fun CallingControls(
     flipCamera: () -> Unit,
 ) {
     Column {
+        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
+            dimensions().spacing8x
+        } else {
+            dimensions().spacing16x
+        }
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = dimensions().spacing16x)
+                .padding(top = topPadding)
         ) {
             MicrophoneButton(isMuted = isMuted) { toggleMute() }
             CameraButton(
@@ -349,6 +356,7 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
+        VerticalSpace.x8()
         SecurityClassificationBanner(classificationType)
     }
 }

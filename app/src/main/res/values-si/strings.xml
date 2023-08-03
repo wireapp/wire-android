@@ -835,6 +835,7 @@
     <string name="settings_myaccount_display_name_error">ඔබගේ පැතිකඩ නාමය යොදන්න</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
     <string name="settings_myaccount_display_name_updated">පැතිකඩ නාමය වෙනස් විය</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">කියවූ බවට ලදුපත යවන්න</string>
     <string name="settings_send_read_receipts_description">මෙය අක්‍රිය නම්, ඔබට අන් අයගෙන් කියවූ බවට ලදුපත් දැකීමට නොහැකියි. සමූහ සංවාද සඳහා මෙම සැකසුම අදාළ නොවේ.</string>

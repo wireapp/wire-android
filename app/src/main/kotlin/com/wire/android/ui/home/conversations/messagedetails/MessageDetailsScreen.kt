@@ -128,7 +128,6 @@ private fun MessageDetailsScreenContent(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(

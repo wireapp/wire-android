@@ -836,6 +836,7 @@
     <string name="settings_myaccount_display_name_error">Bitte geben Sie Ihren Profilnamen ein</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="settings_myaccount_display_name_updated">Dein Profilname wurde geändert</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
     <string name="settings_send_read_receipts_description">Wenn diese Option deaktiviert ist, sehen Sie keine Lesebestätigungen von anderen. Gilt nicht für Gruppen.</string>

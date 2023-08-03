@@ -113,12 +113,10 @@ fun CallerDetails(
             VerticalSpace.x16()
             MembershipQualifierLabel(membership)
         }
-        if (securityClassificationType != SecurityClassificationType.NONE) {
-            SecurityClassificationBanner(
-                securityClassificationType = securityClassificationType,
-                modifier = Modifier.padding(top = dimensions().spacing8x)
-            )
-        }
+        SecurityClassificationBanner(
+            securityClassificationType = securityClassificationType,
+            modifier = Modifier.padding(top = dimensions().spacing8x)
+        )
 
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
             UserProfileAvatar(

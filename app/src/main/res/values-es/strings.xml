@@ -264,10 +264,10 @@ URL del backend:
     <string name="remove_device_title">Eliminar un dispositivo</string>
     <string name="remove_device_message">Elimina uno de tus otros dispositivos para empezar a usar Wire en &#233;ste.</string>
     <string name="remove_device_label">TUS DISPOSITIVOS</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
-Agregado: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">&#191;Eliminar el siguiente dispositivo?</string>
     <string name="remove_device_invalid_password">Contrase&#241;a inv&#225;lida</string>
     <string name="remove_device_details_description">Elimina este dispositivo si has dejado de usarlo. Se cerrar&#225; la sesi&#243;n en este dispositivo inmediatamente.</string>
@@ -879,7 +879,7 @@ URL del backend:
     <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
-    <string name="label_client_device_id">ID de dispositivo</string>
+    <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">&#161;Con&#233;ctate con otros o crea un nuevo grupo para empezar a colaborar!</string>
@@ -891,6 +891,9 @@ URL del backend:
     <string name="label_wait_until_synchronised">Espera hasta que la aplicaci&#243;n est&#233; sincronizada</string>
     <string name="label_wait_until_connected">Por favor espera hasta que la conexión de internet se haya recuperado</string>
     <string name="label_textfield_optional_password">Contrase&#241;a (opcional)</string>
+    <string name="label_proteus_details">Proteus Device Details</string>
+    <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Establecer contrase&#241;a</string>
     <string name="backup_dialog_create_backup_set_password_message">La copia de seguridad se comprimir&#225;, y podr&#225;s cifrarla con una contrase&#241;a.</string>

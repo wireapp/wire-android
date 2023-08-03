@@ -183,7 +183,6 @@ fun UserProfileInfo(
             }
         }
         if (securityClassificationType != SecurityClassificationType.NONE) {
-            VerticalSpace.x8()
             SecurityClassificationBanner(securityClassificationType = securityClassificationType)
         }
     }

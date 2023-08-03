@@ -268,10 +268,10 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
     <string name="remove_device_message">Usu&#324; jedno ze swoich innych urz&#261;dze&#324;, aby zacz&#261;&#263; u&#380;ywa&#263; Wire na tym.</string>
     <string name="remove_device_label">Twoje urz&#261;dzenia</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
-Dodane: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Usun&#261;&#263; poni&#380;sze urz&#261;dzenie?</string>
     <string name="remove_device_invalid_password">Nieprawid&#322;owe has&#322;o</string>
     <string name="remove_device_details_description">Usu&#324; to urz&#261;dzenie, je&#347;li przesta&#322;e&#347; z niego korzysta&#263;. Natychmiast zostaniesz wylogowany z tego urz&#261;dzenia.</string>
@@ -909,7 +909,7 @@ URL serwera:
     <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
-    <string name="label_client_device_id">ID URZ&#260;DZENIA</string>
+    <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Pod&#322;&#261;cz si&#281; z innymi lub utw&#243;rz now&#261; grup&#281;, aby rozpocz&#261;&#263; wsp&#243;&#322;prac&#281;!</string>
@@ -921,6 +921,9 @@ URL serwera:
     <string name="label_wait_until_synchronised">Prosz&#281; czeka&#263;, a&#380; aplikacja b&#281;dzie zsynchronizowana</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">Has&#322;o (opcjonalne)</string>
+    <string name="label_proteus_details">Proteus Device Details</string>
+    <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Ustaw has&#322;o</string>
     <string name="backup_dialog_create_backup_set_password_message">Kopia zapasowa b&#281;dzie skompresowana, a Ty mo&#380;esz j&#261; zaszyfrowa&#263; has&#322;em.</string>

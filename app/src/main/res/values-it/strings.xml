@@ -831,6 +831,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="settings_myaccount_display_name_error">Inserisci il tuo nome del profilo</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Minimo 1 e massimo 64 caratteri</string>
     <string name="settings_myaccount_display_name_updated">Il tuo nome del profilo &#232; stato modificato</string>
+    <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Invia Avviso di Lettura</string>
     <string name="settings_send_read_receipts_description">Se disattivato, non potrai vedere gli avvisi di lettura degli altri utenti. Questa impostazione non si applica alle conversazioni di gruppo.</string>

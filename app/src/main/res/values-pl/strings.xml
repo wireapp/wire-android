@@ -1160,4 +1160,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
+    <string name="join_conversation_dialog_password_label">Conversation Password</string>
+    <string name="join_conversation_dialog_password_placeholder">Enter password</string>
 </resources>

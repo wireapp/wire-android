@@ -113,7 +113,6 @@ fun CallerDetails(
             VerticalSpace.x16()
             MembershipQualifierLabel(membership)
         }
-
         SecurityClassificationBanner(
             securityClassificationType = securityClassificationType,
             modifier = Modifier.padding(top = dimensions().spacing8x)

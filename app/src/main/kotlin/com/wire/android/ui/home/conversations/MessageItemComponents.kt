@@ -136,8 +136,8 @@ private fun MultiUserDeliveryFailure(
                     ),
                     textAlign = TextAlign.Start
                 )
-                OfflineBackendsLearnMoreLink()
             }
+            OfflineBackendsLearnMoreLink()
         }
         VerticalSpace.x4()
         if (partialDeliveryFailureContent.expandable) {

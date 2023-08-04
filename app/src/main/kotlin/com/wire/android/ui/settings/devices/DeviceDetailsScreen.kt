@@ -53,6 +53,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -155,6 +156,24 @@ fun DeviceDetailsContent(
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
 
+            state.device.mlsPublicKeys?.forEach { (mlsProtocolType, mlsThumbprint) ->
+                item {
+                    DeviceMLSSignatureItem(mlsThumbprint, mlsProtocolType, screenState::copyMessage)
+                    Divider(color = MaterialTheme.wireColorScheme.background)
+                }
+            }
+
+            item {
+                FolderHeader(
+                    name = stringResource(id = R.string.label_proteus_details).uppercase(),
+                    modifier = Modifier
+                        .background(MaterialTheme.wireColorScheme.background)
+                        .fillMaxWidth()
+                )
+                DeviceIdItem(state, screenState::copyMessage)
+                Divider(color = MaterialTheme.wireColorScheme.background)
+            }
+
             state.device.registrationTime?.formatMediumDateTime()?.let {
                 item {
                     DeviceDetailSectionContent(
@@ -173,11 +192,6 @@ fun DeviceDetailsContent(
                     )
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
-            }
-
-            item {
-                DeviceIdItem(state, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
             }
 
             item {
@@ -227,7 +241,7 @@ fun DeviceDetailsContent(
 @Composable
 private fun DeviceIdItem(state: DeviceDetailsState, onCopy: (String) -> Unit) {
     DeviceDetailSectionContent(
-        sectionTitle = stringResource(id = R.string.label_client_device_id),
+        sectionTitle = stringResource(id = R.string.label_client_device_id).uppercase(),
         sectionText = AnnotatedString(state.device.clientId.formatAsString()),
         titleTrailingItem = {
             CopyButton(
@@ -255,6 +269,32 @@ fun DeviceKeyFingerprintItem(
                     clientFingerPrint?.let { fingerprint -> onCopy(fingerprint) }
                 },
                 state = if (clientFingerPrint != null) WireButtonState.Default else WireButtonState.Disabled
+            )
+        }
+    )
+}
+
+@Composable
+fun DeviceMLSSignatureItem(
+    mlsThumbprint: String,
+    mlsProtocolType: String,
+    onCopy: (String) -> Unit
+) {
+
+    FolderHeader(
+        name = stringResource(id = R.string.label_mls_signature, mlsProtocolType).uppercase(),
+        modifier = Modifier
+            .background(MaterialTheme.wireColorScheme.background)
+            .fillMaxWidth()
+    )
+
+    DeviceDetailSectionContent(
+        stringResource(id = R.string.label_mls_thumbprint),
+        sectionText = mlsThumbprint.formatAsFingerPrint(),
+        titleTrailingItem = {
+            CopyButton(
+                onCopyClicked = { onCopy(mlsThumbprint) },
+                state = WireButtonState.Default
             )
         }
     )
@@ -433,7 +473,8 @@ fun PreviewDeviceDetailsScreen() {
             device = Device(
                 clientId = ClientId(""),
                 name = UIText.DynamicString("My Device"),
-                registrationTime = "2022-03-24T18:02:30.360Z"
+                registrationTime = "2022-03-24T18:02:30.360Z",
+                mlsPublicKeys = mapOf("Ed25519" to "lekvmrlkgvnrelkmvrlgkvlknrgb0348gi34t09gj34v034ithjoievw")
             ),
             isCurrentDevice = false
         ),

@@ -62,10 +62,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -174,7 +173,7 @@ private fun WelcomeContent(
                             enterpriseDisabledWithProxyDialogState.show(
                                 enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                     R.string.create_team_not_supported_dialog_description,
-                                state.teams
+                                    state.teams
                                 )
                             )
                         } else {
@@ -204,7 +203,7 @@ private fun WelcomeContent(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun WelcomeCarousel() {
     val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
@@ -216,7 +215,7 @@ private fun WelcomeCarousel() {
     // list when we reach the end while keeping swipe capability both ways and from the user side it looks like an infinite loop both ways
     val circularItemsList = listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
     val initialPage = 1
-    val pagerState = rememberPagerState(initialPage = initialPage)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { circularItemsList.size })
 
     LaunchedEffect(pagerState) {
         autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
@@ -225,7 +224,6 @@ private fun WelcomeCarousel() {
     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         HorizontalPager(
             state = pagerState,
-            count = circularItemsList.size,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
             val (pageIconResId, pageText) = circularItemsList[page]
@@ -234,7 +232,7 @@ private fun WelcomeCarousel() {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
 private suspend fun autoScrollCarousel(
     pageState: PagerState,
     initialPage: Int,
@@ -261,8 +259,8 @@ private suspend fun autoScrollCarousel(
 
             else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach {
                 delay(
-                delay
-            )
+                    delay
+                )
             }
         }
     }.collect { (scrollToPage, animate) ->

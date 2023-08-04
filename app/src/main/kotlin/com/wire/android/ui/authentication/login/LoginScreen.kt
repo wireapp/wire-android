@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -51,9 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.HorizontalPager
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -145,7 +144,6 @@ private fun LoginContent(
 
 @OptIn(
     ExperimentalComposeUiApi::class,
-    ExperimentalPagerApi::class,
     ExperimentalFoundationApi::class,
 )
 @Composable
@@ -161,7 +159,10 @@ private fun MainLoginContent(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex)
+    val pagerState = rememberPagerState(
+        initialPage = initialPageIndex,
+        pageCount = { LoginTabItem.values().size }
+    )
 
     val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
@@ -215,7 +216,6 @@ private fun MainLoginContent(
         CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
-                count = LoginTabItem.values().size,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(internalPadding)
@@ -236,7 +236,6 @@ private fun MainLoginContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginErrorDialog(
     error: LoginError,

@@ -14,23 +14,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.connection
 
-package com.wire.android.framework
+import com.wire.android.di.ScopedArgs
+import com.wire.kalium.logic.data.user.UserId
+import kotlinx.serialization.Serializable
 
-import com.wire.kalium.logic.data.client.Client
-import com.wire.kalium.logic.data.client.ClientType
-import com.wire.kalium.logic.data.client.DeviceType
-import com.wire.kalium.logic.data.conversation.ClientId
-import kotlinx.datetime.Instant
+@Serializable
+data class ConnectionActionButtonArgs(
+    val userId: UserId,
+    val userName: String
+) : ScopedArgs {
+    override val key = "$ARGS_KEY:$userId"
 
-object TestClient {
-    val CLIENT_ID = ClientId("test")
-
-    val CLIENT = Client(
-        CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, Instant.DISTANT_PAST, false,
-        isValid = true, DeviceType.Desktop, "label", null, null
-    )
+    companion object {
+        const val ARGS_KEY = "ConnectionActionButtonArgsKey"
+    }
 }

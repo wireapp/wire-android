@@ -147,7 +147,8 @@ fun MessageComposer(
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
-                        onMessageSend()
+                        onClearMentionSearchResult()
+                        clearMessage()
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping) },
                     onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },

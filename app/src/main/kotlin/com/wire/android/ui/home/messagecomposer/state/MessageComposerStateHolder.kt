@@ -178,7 +178,7 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.clearFocus()
     }
 
-    fun onMessageSend() {
+    fun clearMessage() {
         messageCompositionHolder.clearMessage()
     }
 }

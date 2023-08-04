@@ -7,6 +7,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -60,8 +64,8 @@ fun JoinConversationViaDeepLinkDialog(
 ) {
     val viewModel = hiltViewModelScoped<JoinConversationViaCodeViewModel>()
 
-    val isLoading: Boolean = remember(viewModel.state) {
-        viewModel.state is JoinViaDeepLinkDialogState.Loading
+    val isLoading: Boolean by remember {
+        derivedStateOf { viewModel.state is JoinViaDeepLinkDialogState.Loading }
     }
 
     val joinButtonState = when {

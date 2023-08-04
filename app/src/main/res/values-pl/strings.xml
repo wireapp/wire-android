@@ -243,9 +243,9 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
     <string name="remove_device_message">Usu&#324; jedno ze swoich innych urz&#261;dze&#324;, aby zacz&#261;&#263; u&#380;ywa&#263; Wire na tym.</string>
     <string name="remove_device_label">Twoje urz&#261;dzenia</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s
 Dodane: %2$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_dialog_title">Usun&#261;&#263; poni&#380;sze urz&#261;dzenie?</string>
     <string name="remove_device_invalid_password">Nieprawid&#322;owe has&#322;o</string>
     <string name="remove_device_details_description">Usu&#324; to urz&#261;dzenie, je&#347;li przesta&#322;e&#347; z niego korzysta&#263;. Natychmiast zostaniesz wylogowany z tego urz&#261;dzenia.</string>

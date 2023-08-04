@@ -21,17 +21,24 @@ import androidx.compose.ui.text.input.TextFieldValue
 
 data class ChangeEmailState(
     val email: TextFieldValue = TextFieldValue(""),
-    val error: EmailError = EmailError.None,
     val isEmailTextEditEnabled: Boolean = true,
     val animatedEmailError: Boolean = false,
     val saveEnabled: Boolean = false,
+    val flowState: FlowState = FlowState.Default,
 ) {
-    sealed interface EmailError {
-        object None : EmailError
-        sealed interface TextFieldError : EmailError {
-            object AlreadyInUse : TextFieldError
-            object InvalidEmail : TextFieldError
-            object Generic : TextFieldError
+
+    sealed interface FlowState {
+        object Default : FlowState
+        object Loading : FlowState
+        data class Success(val newEmail: String) : FlowState
+        object NoChange : FlowState
+        sealed interface Error : FlowState {
+            object SelfUserNotFound : Error
+            sealed interface TextFieldError : Error {
+                object AlreadyInUse : TextFieldError
+                object InvalidEmail : TextFieldError
+                object Generic : TextFieldError
+            }
         }
     }
 }

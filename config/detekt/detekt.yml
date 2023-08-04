@@ -218,6 +218,7 @@ exceptions:
 formatting:
     active: true
     android: false
+    exclude: '**/build/**'
     autoCorrect: true
     AnnotationOnSeparateLine:
         active: false

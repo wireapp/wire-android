@@ -33,6 +33,8 @@ sealed class MigrationState {
         }
         data class Messages(val errorCode: String) : Failed()
     }
+    data class LoginRequired(val userHandle: String) : MigrationState()
+    data class Success(val currentSessionAvailable: Boolean) : MigrationState()
 }
 
 sealed interface MigrationType {

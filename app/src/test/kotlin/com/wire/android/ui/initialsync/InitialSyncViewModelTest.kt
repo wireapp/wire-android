@@ -25,7 +25,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -48,13 +47,13 @@ class InitialSyncViewModelTest {
     @Test
     fun `given sync is live, when observing initial sync state, then navigate home`() = runTest {
         // given
-        val (viewModel, _) = Arrangement()
+        val (viewModel, arrangement) = Arrangement()
             .withSyncState(SyncState.Live)
             .arrange()
         // when
-        viewModel.waitUntilSyncIsCompleted()
+        viewModel.waitUntilSyncIsCompleted(arrangement.onCompleted)
         // then
-        verify(exactly = 1) { viewModel.navigateToConvScreen() }
+        verify(exactly = 1) { arrangement.onCompleted() }
     }
 
     @Test
@@ -64,17 +63,17 @@ class InitialSyncViewModelTest {
             .withSyncState(SyncState.Waiting)
             .arrange()
         // when
-        viewModel.waitUntilSyncIsCompleted()
+        viewModel.waitUntilSyncIsCompleted(arrangement.onCompleted)
         arrangement.withSyncState(SyncState.GatheringPendingEvents)
         arrangement.withSyncState(SyncState.SlowSync)
         // then
-        verify(exactly = 0) { viewModel.navigateToConvScreen() }
+        verify(exactly = 0) { arrangement.onCompleted() }
     }
 
     private class Arrangement {
 
-        @MockK
-        lateinit var navigationManager: NavigationManager
+        @MockK(relaxed = true)
+        lateinit var onCompleted: () -> Unit
         @MockK
         lateinit var observeSyncState: ObserveSyncStateUseCase
         @MockK
@@ -84,7 +83,7 @@ class InitialSyncViewModelTest {
         val userId = UserId("id", "domain")
 
         val viewModel by lazy {
-            InitialSyncViewModel(navigationManager, observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider())
+            InitialSyncViewModel(observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider())
         }
 
         private val syncStateChannel = Channel<SyncState>(capacity = Channel.UNLIMITED)

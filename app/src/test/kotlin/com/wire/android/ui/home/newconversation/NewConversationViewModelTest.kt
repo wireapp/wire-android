@@ -27,9 +27,6 @@ import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -119,12 +116,12 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
             .withIsSelfTeamMember(true)
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.LackingConnection
@@ -132,12 +129,12 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given unknown failure, when creating group, then should update options state with unknown error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
             .withIsSelfTeamMember(true)
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.createGroupState.error shouldBeEqualTo CreateGroupState.Error.Unknown
@@ -145,36 +142,15 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
             .withIsSelfTeamMember(true)
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.createGroupState.error.shouldBeNull()
     }
-
-    @Test
-    fun `given create group conflicted backends error, when clicked discard group, then error should be cleaned`() =
-        runTest {
-            val (arrangement, viewModel) = NewConversationViewModelArrangement()
-                .withIsSelfTeamMember(true)
-                .withConflictingBackendsFailure()
-                .arrange()
-
-            viewModel.onDiscardGroupCreationClick()
-            advanceUntilIdle()
-            viewModel.createGroupState.error.shouldBeNull()
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.Home.getRouteWithArgs(),
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
-            }
-        }
 
     @Test
     fun `given create group conflicted backends error, when clicked on dismiss, then error should be cleaned`() =
@@ -195,7 +171,7 @@ class NewConversationViewModelTest {
             .withIsSelfTeamMember(false)
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroup(arrangement.onGroupCreated)
         advanceUntilIdle()
 
         viewModel.createGroupState.error.shouldBeNull()
@@ -224,7 +200,7 @@ class NewConversationViewModelTest {
                 .withGuestEnabled(true)
                 .arrange()
 
-            viewModel.createGroup()
+            viewModel.createGroup(arrangement.onGroupCreated)
             advanceUntilIdle()
 
             viewModel.createGroupState.error.shouldBeNull()

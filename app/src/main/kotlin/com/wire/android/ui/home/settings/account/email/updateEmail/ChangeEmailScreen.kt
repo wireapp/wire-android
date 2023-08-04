@@ -43,7 +43,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -54,19 +59,32 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.VerifyEmailScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@RootNavGraph
+@Destination
 @Composable
-fun ChangeEmailScreen(viewModel: ChangeEmailViewModel = hiltViewModel()) {
-    ChangeEmailContent(
-        state = viewModel.state,
-        onEmailChange = viewModel::onEmailChange,
-        onEmailErrorAnimated = viewModel::onEmailErrorAnimated,
-        onBackPressed = viewModel::onBackPressed,
-        onSaveClicked = viewModel::onSaveClicked
-    )
+fun ChangeEmailScreen(
+    navigator: Navigator,
+    viewModel: ChangeEmailViewModel = hiltViewModel()
+) {
+    when (val flowState = viewModel.state.flowState) {
+        is ChangeEmailState.FlowState.NoChange,
+        is ChangeEmailState.FlowState.Error.SelfUserNotFound -> navigator.navigateBack()
+        is ChangeEmailState.FlowState.Success ->
+            navigator.navigate(NavigationCommand(VerifyEmailScreenDestination(flowState.newEmail), BackStackMode.REMOVE_CURRENT))
+        else ->
+            ChangeEmailContent(
+                state = viewModel.state,
+                onEmailChange = viewModel::onEmailChange,
+                onEmailErrorAnimated = viewModel::onEmailErrorAnimated,
+                onBackPressed = navigator::navigateBack,
+                onSaveClicked = viewModel::onSaveClicked
+            )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -122,7 +140,7 @@ fun ChangeEmailContent(
                             value = state.email,
                             onValueChange = onEmailChange,
                             labelText = stringResource(R.string.email_label).uppercase(),
-                            state = computeEmailErrorState(state.error),
+                            state = computeEmailErrorState(state.flowState),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Done
@@ -148,6 +166,7 @@ fun ChangeEmailContent(
                         fillMaxWidth = true,
                         trailingIcon = Icons.Filled.ChevronRight.Icon(),
                         state = if (state.saveEnabled) Default else Disabled,
+                        loading = state.flowState is ChangeEmailState.FlowState.Loading,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -157,18 +176,18 @@ fun ChangeEmailContent(
 }
 
 @Composable
-private fun computeEmailErrorState(error: ChangeEmailState.EmailError): WireTextFieldState =
-    if (error is ChangeEmailState.EmailError.TextFieldError) {
-        when (error) {
-            ChangeEmailState.EmailError.TextFieldError.AlreadyInUse -> WireTextFieldState.Error(
+private fun computeEmailErrorState(state: ChangeEmailState.FlowState): WireTextFieldState =
+    if (state is ChangeEmailState.FlowState.Error.TextFieldError) {
+        when (state) {
+            ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_email_already_in_use_error)
             )
 
-            ChangeEmailState.EmailError.TextFieldError.InvalidEmail -> WireTextFieldState.Error(
+            ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_email_invalid_imail_error)
             )
 
-            ChangeEmailState.EmailError.TextFieldError.Generic -> WireTextFieldState.Error(
+            ChangeEmailState.FlowState.Error.TextFieldError.Generic -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_email_generic_error)
             )
         }

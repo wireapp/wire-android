@@ -25,23 +25,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.os.bundleOf
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
-import com.wire.android.model.ClickBlockParams
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ActionableState
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.EXTRA_USER_NAME
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.snackbar.collectAndShowSnackbar
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -49,20 +49,23 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConnectionActionButton(
     userId: UserId,
     userName: String,
-    connectionStatus: ConnectionState
+    connectionStatus: ConnectionState,
+    onConnectionRequestIgnored: (String) -> Unit = {},
+    onOpenConversation: (ConversationId) -> Unit = {},
+    viewModel: ConnectionActionButtonViewModel =
+        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonArgs>(ConnectionActionButtonArgs(userId, userName))
+            .also { LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage) }
 ) {
-    val viewModel: ConnectionActionButtonViewModel = if (LocalInspectionMode.current) {
-        ConnectionActionButtonPreviewModel(ActionableState())
-    } else {
-        hiltViewModelScoped<ConnectionActionButtonViewModelImpl>(
-            key = "${ConnectionActionButtonViewModelImpl.ARGS_KEY}$userId",
-            defaultArguments = bundleOf(
-                EXTRA_USER_ID to userId.toString(),
-                EXTRA_USER_NAME to userName
-            )
-        ).also {
-            LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage)
-        }
+    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
+
+    UnblockUserDialogContent(
+        dialogState = unblockUserDialogState,
+        onUnblock = { viewModel.onUnblockUser() },
+        isLoading = viewModel.actionableState().isPerformingAction,
+    )
+
+    if (!viewModel.actionableState().isPerformingAction) {
+        unblockUserDialogState.dismiss()
     }
 
     when (connectionStatus) {
@@ -72,11 +75,13 @@ fun ConnectionActionButton(
             onClick = viewModel::onCancelConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         )
+
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
             loading = viewModel.actionableState().isPerformingAction,
-            onClick = viewModel::onOpenConversation,
+            onClick = { viewModel.onOpenConversation(onOpenConversation) },
         )
+
         ConnectionState.IGNORED -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_accept),
             loading = viewModel.actionableState().isPerformingAction,
@@ -90,6 +95,7 @@ fun ConnectionActionButton(
                 )
             }
         )
+
         ConnectionState.PENDING -> Column {
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),
@@ -109,7 +115,11 @@ fun ConnectionActionButton(
                 text = stringResource(R.string.connection_label_ignore),
                 loading = viewModel.actionableState().isPerformingAction,
                 state = WireButtonState.Error,
-                onClick = viewModel::onIgnoreConnectionRequest,
+                onClick = {
+                    viewModel.onIgnoreConnectionRequest {
+                        onConnectionRequestIgnored(it)
+                    }
+                },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 leadingIcon = {
                     Icon(
@@ -120,14 +130,23 @@ fun ConnectionActionButton(
                 }
             )
         }
+
         ConnectionState.BLOCKED -> {
             WireSecondaryButton(
                 text = stringResource(R.string.user_profile_unblock_user),
                 loading = viewModel.actionableState().isPerformingAction,
-                onClick = viewModel::onUnblockUser,
+                onClick = {
+                    unblockUserDialogState.show(
+                        UnblockUserDialogState(
+                            userId = userId,
+                            userName = userName
+                        )
+                    )
+                },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             )
         }
+
         ConnectionState.NOT_CONNECTED,
         ConnectionState.CANCELLED,
         ConnectionState.MISSING_LEGALHOLD_CONSENT -> WirePrimaryButton(
@@ -152,7 +171,8 @@ fun PreviewOtherUserConnectionActionButtonPending() {
     ConnectionActionButton(
         userId = UserId("value", "domain"),
         userName = "Username",
-        connectionStatus = ConnectionState.PENDING
+        connectionStatus = ConnectionState.PENDING,
+        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
     )
 }
 
@@ -162,7 +182,8 @@ fun PreviewOtherUserConnectionActionButtonNotConnected() {
     ConnectionActionButton(
         userId = UserId("value", "domain"),
         userName = "Username",
-        connectionStatus = ConnectionState.NOT_CONNECTED
+        connectionStatus = ConnectionState.NOT_CONNECTED,
+        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
     )
 }
 
@@ -172,7 +193,8 @@ fun PreviewOtherUserConnectionActionButtonBlocked() {
     ConnectionActionButton(
         userId = UserId("value", "domain"),
         userName = "Username",
-        connectionStatus = ConnectionState.BLOCKED
+        connectionStatus = ConnectionState.BLOCKED,
+        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
     )
 }
 
@@ -182,7 +204,8 @@ fun PreviewOtherUserConnectionActionButtonCanceled() {
     ConnectionActionButton(
         userId = UserId("value", "domain"),
         userName = "Username",
-        connectionStatus = ConnectionState.CANCELLED
+        connectionStatus = ConnectionState.CANCELLED,
+        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
     )
 }
 
@@ -192,7 +215,8 @@ fun PreviewOtherUserConnectionActionButtonAccepted() {
     ConnectionActionButton(
         userId = UserId("value", "domain"),
         userName = "Username",
-        connectionStatus = ConnectionState.ACCEPTED
+        connectionStatus = ConnectionState.ACCEPTED,
+        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
     )
 }
 
@@ -202,6 +226,7 @@ fun PreviewOtherUserConnectionActionButtonSent() {
     ConnectionActionButton(
         userId = UserId("value", "domain"),
         userName = "Username",
-        connectionStatus = ConnectionState.SENT
+        connectionStatus = ConnectionState.SENT,
+        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
     )
 }

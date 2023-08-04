@@ -39,11 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.EXTRA_MESSAGE_ID
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -118,13 +116,8 @@ internal fun MessageBody(
 fun MessageButtonsContent(
     messageId: String,
     buttonList: List<MessageButton>,
+    viewModel: CompositeMessageViewModel = hiltViewModelScoped(CompositeMessageArgs(messageId))
 ) {
-    val viewModel = hiltViewModelScoped<CompositeMessageViewModel>(
-        key = "${CompositeMessageViewModel.ARGS_KEY}$messageId",
-        defaultArguments = bundleOf(
-            EXTRA_MESSAGE_ID to messageId,
-        )
-    )
     Column(
         modifier = Modifier
             .wrapContentSize()

@@ -248,8 +248,8 @@
         this one.
     </string>
     <string name="remove_device_label">SINU SEADMED</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s\nLisatud: %2$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nLisatud: %2$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Vale parool</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>

@@ -56,11 +56,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
@@ -82,6 +87,8 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -94,14 +101,24 @@ import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = OtherUserProfileNavArgs::class
+)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
+fun OtherUserProfileScreen(
+    navigator: Navigator,
+    navArgs: OtherUserProfileNavArgs,
+    viewModel: OtherUserProfileScreenViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<String>
+) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
@@ -120,7 +137,14 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         closeBottomSheet = closeBottomSheet,
         snackbarHostState = snackbarHostState,
         eventsHandler = viewModel,
-        bottomSheetEventsHandler = viewModel
+        bottomSheetEventsHandler = viewModel,
+        onIgnoreConnectionRequest = {
+            resultNavigator.setResult(it)
+            resultNavigator.navigateBack()
+        },
+        onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
+        onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
+        navigateBack = navigator::navigateBack
     )
 
     LaunchedEffect(Unit) {
@@ -135,11 +159,8 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
-@OptIn(
-    ExperimentalPagerApi::class,
-    ExperimentalMaterial3Api::class,
-)
 @Composable
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
@@ -151,6 +172,10 @@ fun OtherProfileScreenContent(
     eventsHandler: OtherUserProfileEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onIgnoreConnectionRequest: (String) -> Unit = { },
+    onOpenConversation: (ConversationId) -> Unit = {},
+    onOpenDeviceDetails: (Device) -> Unit = {},
+    navigateBack: () -> Unit = {}
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -195,7 +220,7 @@ fun OtherProfileScreenContent(
         }
     }
     val initialPage = 0
-    val pagerState = rememberPagerState(initialPage = initialPage)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { tabItems.size })
     val lazyListStates = OtherUserProfileTabItem.values().associateWith { rememberLazyListState() }
     val currentTabState by remember(state, pagerState) {
         derivedStateOf { if (state.isDataLoading) 0 else pagerState.calculateCurrentTab() }
@@ -223,7 +248,7 @@ fun OtherProfileScreenContent(
             TopBarHeader(
                 state = state,
                 elevation = elevation,
-                onNavigateBack = eventsHandler::navigateBack,
+                onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
             )
         },
@@ -239,13 +264,15 @@ fun OtherProfileScreenContent(
                 openChangeRoleBottomSheet = openChangeRoleBottomSheet,
                 openRemoveConversationMemberDialog = removeMemberDialogState::show,
                 getOtherUserClients = eventsHandler::observeClientList,
-                onDeviceClick = eventsHandler::onDeviceClick
+                onDeviceClick = onOpenDeviceDetails
             )
         },
         bottomBar = {
             ContentFooter(
                 state,
-                maxBarElevation
+                maxBarElevation,
+                onIgnoreConnectionRequest,
+                onOpenConversation
             )
         },
         isSwipeable = state.connectionState == ConnectionState.ACCEPTED
@@ -316,7 +343,7 @@ private fun TopBarHeader(
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
-    Crossfade(targetState = state.isDataLoading) {
+    Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
         UserProfileInfo(
             isLoading = state.isAvatarLoading,
             avatarAsset = state.userAvatarAsset,
@@ -332,7 +359,7 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarFooter(
     state: OtherUserProfileState,
@@ -363,7 +390,7 @@ private fun TopBarFooter(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     state: OtherUserProfileState,
@@ -377,7 +404,7 @@ private fun Content(
     onDeviceClick: (Device) -> Unit
 ) {
 
-    Crossfade(targetState = tabItems to state) { (tabItems, state) ->
+    Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
             OtherUserConnectionStatusInfo(state.connectionState, state.membership)
             x24()
@@ -388,7 +415,6 @@ private fun Content(
                         HorizontalPager(
                             modifier = Modifier.fillMaxSize(),
                             state = pagerState,
-                            count = tabItems.size
                         ) { pageIndex ->
                             when (val tabItem = tabItems[pageIndex]) {
                                 OtherUserProfileTabItem.DETAILS ->
@@ -433,7 +459,9 @@ private fun Content(
 @Composable
 private fun ContentFooter(
     state: OtherUserProfileState,
-    maxBarElevation: Dp
+    maxBarElevation: Dp,
+    onIgnoreConnectionRequest: (String) -> Unit = {},
+    onOpenConversation: (ConversationId) -> Unit = {}
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -450,7 +478,9 @@ private fun ContentFooter(
                     ConnectionActionButton(
                         state.userId,
                         state.userName,
-                        state.connectionState
+                        state.connectionState,
+                        onIgnoreConnectionRequest,
+                        onOpenConversation
                     )
                 }
             }
@@ -487,7 +517,7 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileBottomSheetEventsHandler.PREVIEW
+            OtherUserProfileBottomSheetEventsHandler.PREVIEW,
         )
     }
 }

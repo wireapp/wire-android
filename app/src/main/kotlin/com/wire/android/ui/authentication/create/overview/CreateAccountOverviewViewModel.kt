@@ -14,17 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
 package com.wire.android.ui.authentication.create.overview
 
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import androidx.lifecycle.ViewModel
+import com.wire.android.di.AuthServerConfigProvider
+import com.wire.kalium.logic.configuration.server.ServerConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-interface CreateAccountOverviewViewModel {
-    fun learnMoreUrl(): String
-    fun onOverviewContinue()
-    fun goBackToPreviousStep()
-    val type: CreateAccountFlowType
+@HiltViewModel
+class CreateAccountOverviewViewModel @Inject constructor(
+    private val authServerConfigProvider: AuthServerConfigProvider,
+) : ViewModel() {
+    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
+    fun learnMoreUrl(): String = authServerConfigProvider.authServer.value.pricing
 }

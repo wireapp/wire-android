@@ -39,4 +39,4 @@
 #-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 #-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
 
-
+-keepnames class * extends com.ramcosta.composedestinations.spec.Route

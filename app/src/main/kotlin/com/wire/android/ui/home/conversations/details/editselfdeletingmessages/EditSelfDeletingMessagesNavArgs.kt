@@ -14,23 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
-package com.wire.android.ui.home.settings
+import com.wire.kalium.logic.data.id.ConversationId
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
-class SettingsViewModel
-@Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
-    fun navigateTo(item: NavigationItem) = viewModelScope.launch { navigationManager.navigate(NavigationCommand(item.getRouteWithArgs())) }
-}
+data class EditSelfDeletingMessagesNavArgs(
+    val conversationId: ConversationId
+)

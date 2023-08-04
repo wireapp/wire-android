@@ -27,17 +27,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.BuildConfig
-import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_SETTINGS_DISPLAY_NAME_CHANGED
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -65,7 +57,6 @@ class MyAccountViewModel @Inject constructor(
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -133,56 +124,6 @@ class MyAccountViewModel @Inject constructor(
                     )
                 }
         }
-    }
-
-    fun navigateToChangeDisplayName() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    destination = NavigationItem.EditDisplayName.getRouteWithArgs(),
-                    backStackMode = BackStackMode.NONE
-                )
-            )
-        }
-    }
-
-    fun navigateToChangeEmail() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    destination = NavigationItem.EditEmailAddress.getRouteWithArgs(),
-                    backStackMode = BackStackMode.NONE
-                )
-            )
-        }
-    }
-
-    fun navigateToChangeHandle() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    destination = NavigationItem.EditHandle.getRouteWithArgs(),
-                    backStackMode = BackStackMode.NONE
-                )
-            )
-        }
-    }
-
-    fun checkForPendingMessages(): SettingsOperationResult {
-        return with(savedStateHandle) {
-            when (getBackNavArg<Boolean>(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED)) {
-                true -> SettingsOperationResult.Result(UIText.StringResource(R.string.settings_myaccount_display_name_updated))
-                false -> SettingsOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
-                null -> SettingsOperationResult.None
-            }
-        }
-    }
-
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
-    sealed interface SettingsOperationResult {
-        object None : SettingsOperationResult
-        class Result(val message: UIText) : SettingsOperationResult
     }
 
     companion object {

@@ -51,7 +51,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
@@ -77,12 +82,24 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import java.util.Locale
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = CallingNavArgs::class,
+    style = WakeUpScreenPopUpNavigationAnimation::class
+)
 @Composable
 fun OngoingCallScreen(
+    navigator: Navigator,
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
 ) {
-
+    LaunchedEffect(ongoingCallViewModel.state.flowState) {
+        when (ongoingCallViewModel.state.flowState) {
+            OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
+            OngoingCallState.FlowState.Default -> { /* do nothing */
+            }
+        }
+    }
     with(sharedCallingViewModel.callState) {
         OngoingCallContent(
             conversationName = conversationName,
@@ -96,16 +113,16 @@ fun OngoingCallScreen(
             shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = sharedCallingViewModel::hangUpCall,
+            hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
             setVideoPreview = sharedCallingViewModel::setVideoPreview,
             clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-            navigateBack = sharedCallingViewModel::navigateBack,
+            navigateBack = navigator::navigateBack,
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
         )
-        BackHandler(enabled = isCameraOn, sharedCallingViewModel::navigateBack)
+        BackHandler(enabled = isCameraOn, navigator::navigateBack)
     }
 }
 
@@ -305,12 +322,17 @@ private fun CallingControls(
     flipCamera: () -> Unit,
 ) {
     Column {
+        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
+            dimensions().spacing8x
+        } else {
+            dimensions().spacing16x
+        }
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = dimensions().spacing16x)
+                .padding(top = topPadding)
         ) {
             MicrophoneButton(isMuted = isMuted) { toggleMute() }
             CameraButton(
@@ -333,7 +355,7 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        SecurityClassificationBanner(classificationType)
+        SecurityClassificationBanner(classificationType, modifier = Modifier.padding(top = dimensions().spacing8x))
     }
 }
 

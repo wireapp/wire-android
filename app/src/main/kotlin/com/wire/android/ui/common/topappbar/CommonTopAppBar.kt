@@ -59,7 +59,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun CommonTopAppBar(
     connectivityUIState: ConnectivityUIState,
-    onReturnToCallClick: () -> Unit
+    onReturnToCallClick: (ConnectivityUIState.Info.EstablishedCall) -> Unit
 ) {
     ConnectivityStatusBar(
         connectivityInfo = connectivityUIState.info,
@@ -70,7 +70,7 @@ fun CommonTopAppBar(
 @Composable
 private fun ConnectivityStatusBar(
     connectivityInfo: ConnectivityUIState.Info,
-    onReturnToCallClick: () -> Unit
+    onReturnToCallClick: (ConnectivityUIState.Info.EstablishedCall) -> Unit
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.Info.None
 
@@ -107,7 +107,7 @@ private fun ConnectivityStatusBar(
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
         .background(backgroundColor).run {
             if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall) {
-                clickable(onClick = onReturnToCallClick)
+                clickable(onClick = { onReturnToCallClick(connectivityInfo) })
             } else this
         }
 

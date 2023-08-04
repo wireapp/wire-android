@@ -32,14 +32,8 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_SSO_LOGIN_RESULT
-import com.wire.android.navigation.EXTRA_USER_HANDLE
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
-import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -53,15 +47,12 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     protected val authServerConfigProvider: AuthServerConfigProvider,
     private val userDataStoreProvider: UserDataStoreProvider,
@@ -80,13 +71,9 @@ open class LoginViewModel @Inject constructor(
 
     protected suspend fun authScope(): AutoVersionAuthScopeUseCase.Result = coreLogic.versionedAuthenticationScope(serverConfig)()
 
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = savedStateHandle.get<String>(EXTRA_USER_HANDLE).let {
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
-    }
-
-    val ssoLoginResult = savedStateHandle.get<String>(EXTRA_SSO_LOGIN_RESULT).let {
-        if (it.isNullOrEmpty()) null
-        else Json.decodeFromString<DeepLinkResult.SSOLogin>(it)
     }
 
     var loginState by mutableStateOf(
@@ -127,7 +114,7 @@ open class LoginViewModel @Inject constructor(
         clearLoginErrors()
     }
 
-    private fun clearLoginErrors() {
+    fun clearLoginErrors() {
         clearSSOLoginError()
         clearEmailLoginError()
     }
@@ -138,11 +125,6 @@ open class LoginViewModel @Inject constructor(
 
     fun clearEmailLoginError() {
         updateEmailLoginError(LoginError.None)
-    }
-
-    fun onTooManyDevicesError() {
-        clearLoginErrors()
-        navigateToRemoveDevicesScreen()
     }
 
     suspend fun registerClient(
@@ -161,22 +143,8 @@ open class LoginViewModel @Inject constructor(
         )
     }
 
-    @VisibleForTesting
-    fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
-        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()) {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        } else {
-            navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        }
-    }
-
-    fun navigateBack() = viewModelScope.launch {
-        navigationManager.navigateBack()
-    }
-
-    private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-    }
+    internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean =
+        userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()
 
     fun updateTheApp() {
         // todo : update the app after releasing on the store

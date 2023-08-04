@@ -1235,4 +1235,9 @@ class UseCaseModule {
     @Provides
     fun provideGetConversationVerificationStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
+
+    @ViewModelScoped
+    @Provides
+    fun providesJoinConversationViaCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.joinConversationViaCode
 }

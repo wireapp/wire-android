@@ -40,7 +40,6 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -52,7 +51,6 @@ import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
-import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -333,6 +331,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given newIntent with Join Conversation Deep link, when user is not a member, then start join conversation flow`() = runTest {
         val (code, key, domain) = Triple("code", "key", "domain")
+        val isPasswordRequired = false
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), false)
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -341,7 +340,12 @@ class WireActivityViewModelTest {
                 code,
                 key,
                 domain,
-                CheckConversationInviteCodeUseCase.Result.Success(conversationName, conversationId, isSelfMember)
+                CheckConversationInviteCodeUseCase.Result.Success(
+                    conversationName,
+                    conversationId,
+                    isSelfMember,
+                    isPasswordProtected = isPasswordRequired
+                )
             )
             .arrange()
 
@@ -351,7 +355,8 @@ class WireActivityViewModelTest {
             conversationName,
             code,
             key,
-            domain
+            domain,
+            isPasswordRequired
         )
         coVerify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
     }
@@ -359,6 +364,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given newIntent with Join Conversation Deep link, when user is a member, then result JoinConversation deeplink`() = runTest {
         val (code, key, domain) = Triple("code", "key", "domain")
+        val isPasswordRequired = false
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), true)
         val result = DeepLinkResult.JoinConversation(code, key, domain)
         val (arrangement, viewModel) = Arrangement()
@@ -368,94 +374,19 @@ class WireActivityViewModelTest {
                 code,
                 key,
                 domain,
-                CheckConversationInviteCodeUseCase.Result.Success(conversationName, conversationId, isSelfMember)
-            )
-            .arrange()
+                CheckConversationInviteCodeUseCase.Result.Success(
+                    conversationName,
+                    conversationId,
+                    isSelfMember,
+                    isPasswordProtected = isPasswordRequired
+                )
+            ).arrange()
 
         viewModel.handleDeepLink(mockedIntent(), {}, arrangement.onSuccess, arrangement.onDeepLinkResult)
 
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
         verify(exactly = 1) { arrangement.onSuccess(conversationId) }
-    }
-
-    @Test
-    fun `given valid code, when joining conversion success, then call onSuccess`() = runTest {
-        val (code, key, domain) = Triple("code", "key", "domain")
-        val conversationId = ConversationId("id", "domain")
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
-            .withJoinConversationCode(
-                code,
-                key,
-                domain,
-                JoinConversationViaCodeUseCase.Result.Success.Changed(conversationId)
-            )
-            .arrange()
-
-        viewModel.joinConversationViaCode(code, key, domain, arrangement.onSuccess)
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 1) { arrangement.onSuccess(any()) }
-    }
-
-    @Test
-    fun `given valid code, when joining conversion and user us already a member, then call onSuccess`() = runTest {
-        val (code, key, domain) = Triple("code", "key", "domain")
-        val conversationId = ConversationId("id", "domain")
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
-            .withJoinConversationCode(
-                code,
-                key,
-                domain,
-                JoinConversationViaCodeUseCase.Result.Success.Unchanged(conversationId)
-            )
-            .arrange()
-
-        viewModel.joinConversationViaCode(code, key, domain, arrangement.onSuccess)
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 1) { arrangement.onSuccess(any()) }
-    }
-
-    @Test
-    fun `given invalid code, when try to join conversation, then get error and don't call onSuccess`() = runTest {
-        val (code, key, domain) = Triple("code", "key", "domain")
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
-            .withJoinConversationCodeError(
-                code,
-                key,
-                domain,
-                JoinConversationViaCodeUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("Error")))
-            )
-            .arrange()
-
-        viewModel.joinConversationViaCode(code, key, domain, arrangement.onSuccess)
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 0) { arrangement.onSuccess(any()) }
-    }
-
-    @Test
-    fun `given No session, when try to join conversation, then get error and don't call onSuccess`() = runTest {
-        val (code, key, domain) = Triple("code", "key", "domain")
-        val conversationId = ConversationId("id", "domain")
-        val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
-            .withJoinConversationCode(
-                code,
-                key,
-                domain,
-                JoinConversationViaCodeUseCase.Result.Success.Changed(conversationId)
-            )
-            .arrange()
-
-        viewModel.joinConversationViaCode(code, key, domain, arrangement.onSuccess)
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 0) { arrangement.onSuccess(any()) }
     }
 
     @Test
@@ -585,13 +516,13 @@ class WireActivityViewModelTest {
 
     @Test
     fun `given session and screenshot censoring disabled, when observing it, then set state to false`() = runTest {
-            val (_, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
-                .arrange()
-            advanceUntilIdle()
-            assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
-        }
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
 
     @Test
     fun `given session and screenshot censoring enabled by user, when observing it, then set state to true`() = runTest {
@@ -755,26 +686,6 @@ class WireActivityViewModelTest {
                     domain
                 )
             } returns result
-        }
-
-        fun withJoinConversationCode(
-            code: String,
-            key: String,
-            domain: String,
-            result: JoinConversationViaCodeUseCase.Result
-        ): Arrangement = apply {
-            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
-                    result
-        }
-
-        fun withJoinConversationCodeError(
-            code: String,
-            key: String,
-            domain: String,
-            result: JoinConversationViaCodeUseCase.Result.Failure
-        ): Arrangement = apply {
-            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
-                    result
         }
 
         fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {

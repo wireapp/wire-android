@@ -76,11 +76,11 @@ fun WirePasswordTextField(
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
-    autofillTypes: List<AutofillType>? = null
+    autofillTypes: List<AutofillType> = listOf(AutofillType.Password)
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
     AutoFillTextField(
-        autofillTypes = autofillTypes ?: listOf(AutofillType.Password),
+        autofillTypes = autofillTypes,
         value = value,
         onValueChange = onValueChange,
         readOnly = readOnly,

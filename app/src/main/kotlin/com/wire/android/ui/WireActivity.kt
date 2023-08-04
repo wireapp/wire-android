@@ -92,6 +92,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -277,22 +278,33 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?, navigate: (NavigationCommand) -> Unit) {
         joinedDialogState?.let {
+
+            val onComplete: (convId: ConversationId?) -> Unit = remember {
+                {
+                    it?.also {
+                        appLogger.d("Join conversation via code dialog completed, navigating to conversation screen")
+                        navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
+                        viewModel.onJoinConversationFlowCompleted()
+                    }
+                }
+            }
+
             when (it) {
                 is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
                     errorState = it,
-                    onCancel = viewModel::cancelJoinConversation
+                    onCancel = { onComplete(null) }
                 )
 
-                is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
-                    it,
-                    false,
-                    onCancel = viewModel::cancelJoinConversation,
-                    onJoinClick = { code, key, domain ->
-                        viewModel.joinConversationViaCode(code, key, domain) {
-                            navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED))
-                        }
-                    }
-                )
+                is JoinConversationViaCodeState.Show -> {
+                    JoinConversationViaDeepLinkDialog(
+                        name = it.conversationName,
+                        code = it.code,
+                        domain = it.domain,
+                        key = it.key,
+                        requirePassword = it.passwordProtected,
+                        onFlowCompleted = onComplete
+                    )
+                }
             }
         }
     }
@@ -466,7 +478,7 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(
                 intent = intent,
                 onResult = ::handleDeepLinkResult,
-                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
+                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START)) },
                 onIsSharingIntent = { navigate(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED)) }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
@@ -479,30 +491,38 @@ class WireActivity : AppCompatActivity() {
             is DeepLinkResult.SSOLogin -> {
                 navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED))
             }
+
             is DeepLinkResult.MigrationLogin -> {
                 navigate(NavigationCommand(LoginScreenDestination(result.userHandle), BackStackMode.UPDATE_EXISTED))
             }
+
             is DeepLinkResult.CustomServerConfig -> {
                 // do nothing, already handled in ViewModel
             }
+
             is DeepLinkResult.IncomingCall -> {
                 if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 navigate(NavigationCommand(IncomingCallScreenDestination(result.conversationsId)))
             }
+
             is DeepLinkResult.OngoingCall -> {
                 navigate(NavigationCommand(OngoingCallScreenDestination(result.conversationsId)))
             }
+
             is DeepLinkResult.OpenConversation -> {
                 if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 navigate(NavigationCommand(ConversationScreenDestination(result.conversationsId), BackStackMode.UPDATE_EXISTED))
             }
+
             is DeepLinkResult.OpenOtherUserProfile -> {
                 if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
             }
+
             is DeepLinkResult.JoinConversation -> {
                 // do nothing, already handled in ViewModel
             }
+
             is DeepLinkResult.Unknown -> {
                 appLogger.e("unknown deeplink result $result")
             }

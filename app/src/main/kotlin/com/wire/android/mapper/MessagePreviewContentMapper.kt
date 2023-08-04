@@ -276,11 +276,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             val otherUsersSize = membersRemovedContent.otherUserIdList.size
 
             val previewMessageContent = when {
-                isSelfMessage && otherUsersSize > 0 -> {
-                    UIText.PluralResource(R.plurals.last_message_self_removed_users, otherUsersSize, otherUsersSize)
-                }
-
-                !isSelfMessage && isSelfRemoved -> {
+                isSelfRemoved -> {
                     if (otherUsersSize == 0) {
                         UIText.StringResource(R.string.last_message_other_removed_only_self_user)
                     } else {

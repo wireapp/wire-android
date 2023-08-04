@@ -66,13 +66,12 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
@@ -215,7 +214,7 @@ private fun DisabledInteractionMessageComposer(
                     )
                 }
             }
-            MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
+            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
         }
     }
 }
@@ -237,15 +236,6 @@ private fun EnabledMessageComposer(
 ) {
     with(messageComposerStateHolder) {
         Column {
-            val securityClassificationType = messageComposerViewState.value.securityClassificationType
-
-            if (securityClassificationType != SecurityClassificationType.NONE) {
-                Box(Modifier.wrapContentSize()) {
-                    VerticalSpace.x8()
-                    SecurityClassificationBanner(securityClassificationType)
-                }
-            }
-
             when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
@@ -419,7 +409,6 @@ private fun ActiveMessageComposer(
                                     messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
                                 if (isClassifiedConversation) {
                                     Box(Modifier.wrapContentSize()) {
-                                        VerticalSpace.x8()
                                         SecurityClassificationBanner(
                                             securityClassificationType = messageComposerViewState.value.securityClassificationType
                                         )
@@ -537,7 +526,7 @@ private fun ActiveMessageComposer(
 
             BackHandler {
                 if (additionalOptionStateHolder
-                    .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
+                        .additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
                 ) {
                     onTransitionToInActive()
                 }

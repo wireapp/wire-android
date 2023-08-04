@@ -305,12 +305,17 @@ private fun CallingControls(
     flipCamera: () -> Unit,
 ) {
     Column {
+        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
+            dimensions().spacing8x
+        } else {
+            dimensions().spacing16x
+        }
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = dimensions().spacing16x)
+                .padding(top = topPadding)
         ) {
             MicrophoneButton(isMuted = isMuted) { toggleMute() }
             CameraButton(
@@ -333,7 +338,7 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        SecurityClassificationBanner(classificationType)
+        SecurityClassificationBanner(classificationType, modifier = Modifier.padding(top = dimensions().spacing8x))
     }
 }
 

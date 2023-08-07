@@ -152,8 +152,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private fun setE2EIRequiredState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeE2EIRequired().collect { result ->
             val state = when (result) {
-                is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIRequired.WithGracePeriod(result.gracePeriod)
-                E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIRequired.NoGracePeriod
+                is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIRequired.WithGracePeriod.Create(result.gracePeriod)
+                E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIRequired.NoGracePeriod.Create
             }
             featureFlagState = featureFlagState.copy(e2EIRequired = state)
         }

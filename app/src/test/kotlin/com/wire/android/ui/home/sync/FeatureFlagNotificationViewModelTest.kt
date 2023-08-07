@@ -119,7 +119,7 @@ class FeatureFlagNotificationViewModelTest {
         viewModel.initialSync()
         advanceUntilIdle()
 
-        assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod, viewModel.featureFlagState.e2EIRequired)
+        assertEquals(FeatureFlagState.E2EIRequired.CreateNoGracePeriod, viewModel.featureFlagState.e2EIRequired)
     }
 
     @Test
@@ -131,7 +131,7 @@ class FeatureFlagNotificationViewModelTest {
         viewModel.initialSync()
         advanceUntilIdle()
 
-        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(gracePeriod))
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.CreateWithGracePeriod(gracePeriod))
         advanceUntilIdle()
 
         assertEquals(null, viewModel.featureFlagState.e2EIRequired)
@@ -145,7 +145,7 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))
             .arrange()
-        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(gracePeriod))
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.CreateWithGracePeriod(gracePeriod))
         advanceUntilIdle()
 
         viewModel.dismissSnoozeE2EIdRequiredDialog()

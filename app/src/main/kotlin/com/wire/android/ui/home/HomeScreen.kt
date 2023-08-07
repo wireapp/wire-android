@@ -62,7 +62,6 @@ import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.dependency
-import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
@@ -160,8 +159,8 @@ fun HomeScreen(
         }
 
         e2EISnoozeInfo?.let {
-            E2EIdSnoozeDialog(
-                state = e2EISnoozeInfo,
+            E2EISnoozeDialog(
+                timeLeft = e2EISnoozeInfo.timeLeft,
                 dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
             )
         }

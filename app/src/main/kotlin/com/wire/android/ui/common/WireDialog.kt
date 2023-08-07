@@ -86,6 +86,7 @@ fun WireDialog(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     WireDialog(
@@ -109,6 +110,7 @@ fun WireDialog(
             )
             withStyle(style) { append(text) }
         },
+        centerContent = centerContent,
         content = content
     )
 }
@@ -127,6 +129,7 @@ fun WireDialog(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
@@ -143,6 +146,7 @@ fun WireDialog(
             contentPadding = contentPadding,
             title = title,
             text = text,
+            centerContent = centerContent,
             content = content
         )
     }
@@ -159,6 +163,7 @@ private fun WireDialogContent(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
+    centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     val uriHandler = LocalUriHandler.current
@@ -177,13 +182,15 @@ private fun WireDialogContent(
             Text(
                 text = title,
                 style = MaterialTheme.wireTypography.title02,
-                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+                modifier = Modifier.apply { if (centerContent) align(Alignment.CenterHorizontally) }
+                    .padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
             )
             text?.let {
                 ClickableText(
                     text = text,
                     style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
+                    modifier = Modifier.apply { if (centerContent) align(Alignment.CenterHorizontally) }
+                        .padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
                     onClick = { offset ->
                         text.getStringAnnotations(
                             tag = MarkdownConstants.TAG_URL,

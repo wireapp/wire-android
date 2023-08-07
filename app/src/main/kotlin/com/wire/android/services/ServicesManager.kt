@@ -61,9 +61,9 @@ class ServicesManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     // collects the info about ongoing calls for all currently valid accounts so that the app can decide if the service should be started
     // or stopped based on latest info from all valid accounts so that there is no race condition
-    private val ongoingCallServiceForUsers = MutableStateFlow<List<OngoingCallData>>(emptyList())
+    private val ongoingCallsData = MutableStateFlow<List<OngoingCallData>>(emptyList())
 
-    suspend fun currentlyOngoingCall(): Flow<OngoingCallData?> = ongoingCallServiceForUsers
+    suspend fun currentlyOngoingCall(): Flow<OngoingCallData?> = ongoingCallsData
         .combine(
             coreLogic.getGlobalScope().observeValidAccounts()
         ) { ongoingCalls: List<OngoingCallData>, validAccounts: List<Pair<SelfUser, Team?>> ->
@@ -116,10 +116,10 @@ class ServicesManager @Inject constructor(
             if (ongoingCallData != null) {
                 appLogger.i("ServicesManager: handle ongoing call:${ongoingCallData.conversationId.toLogString()}" +
                         " for user:${userId.toLogString()}")
-                ongoingCallServiceForUsers.update { it.filter { it.userId != userId } + ongoingCallData }
+                ongoingCallsData.update { it.filter { it.userId != userId } + ongoingCallData }
             } else {
                 appLogger.i("ServicesManager: handle no ongoing call for user:${userId.toLogString()}")
-                ongoingCallServiceForUsers.update { it.filter { it.userId != userId } }
+                ongoingCallsData.update { it.filter { it.userId != userId } }
             }
         }
     }
@@ -127,7 +127,7 @@ class ServicesManager @Inject constructor(
     fun stopOngoingCallService() {
         scope.launch {
             appLogger.i("ServicesManager: stopping OngoingCallService for all users")
-            ongoingCallServiceForUsers.emit(emptyList())
+            ongoingCallsData.emit(emptyList())
         }
     }
 

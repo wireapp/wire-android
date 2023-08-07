@@ -72,7 +72,7 @@ class ServicesManagerTest {
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             advanceUntilIdle()
             // then
             verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
@@ -87,12 +87,12 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
             // then
             verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
         }
@@ -105,13 +105,13 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, null)
             advanceUntilIdle()
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
@@ -126,8 +126,8 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
@@ -145,8 +145,8 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
@@ -165,9 +165,9 @@ class ServicesManagerTest {
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
             // when
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             advanceTimeBy((ServicesManager.DEBOUNCE_TIME - 50).milliseconds)
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
             verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -183,9 +183,9 @@ class ServicesManagerTest {
                 .arrange()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             advanceTimeBy((ServicesManager.DEBOUNCE_TIME + 50).milliseconds)
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
             // then
             verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
             verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -199,11 +199,11 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
             verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -217,11 +217,11 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
             // then
             verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
             verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -235,11 +235,11 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, null)
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
             verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -271,7 +271,7 @@ class ServicesManagerTest {
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             // then
             servicesManager.currentlyOngoingCall().test {
                 advanceUntilIdle()
@@ -287,8 +287,8 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             // then
             servicesManager.currentlyOngoingCall().test {
                 advanceUntilIdle()
@@ -304,11 +304,11 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             // when-then
             servicesManager.currentlyOngoingCall().test {
-                servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+                servicesManager.handleOngoingCall(TEST_USER_ID1, null)
                 advanceUntilIdle()
                 assertEquals(TEST_ONGOING_CALL_DATA2, awaitItem())
             }
@@ -322,12 +322,12 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             // when-then
             servicesManager.currentlyOngoingCall().test {
-                servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
-                servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID2)
+                servicesManager.handleOngoingCall(TEST_USER_ID1, null)
+                servicesManager.handleOngoingCall(TEST_USER_ID2, null)
                 advanceUntilIdle()
                 assertEquals(null, awaitItem())
             }
@@ -341,8 +341,8 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             // when-then
             servicesManager.currentlyOngoingCall().test {
                 arrangement.withValidAccountsUpdate(listOf(TEST_SELF_USER2))
@@ -359,8 +359,8 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1, TEST_SELF_USER2))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA2)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID2, TEST_ONGOING_CALL_DATA2)
             // when-then
             servicesManager.currentlyOngoingCall().test {
                 arrangement.withValidAccountsUpdate(listOf())
@@ -377,11 +377,11 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             // when-then
             servicesManager.currentlyOngoingCall().test {
                 advanceTimeBy((ServicesManager.DEBOUNCE_TIME - 50).milliseconds)
-                servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+                servicesManager.handleOngoingCall(TEST_USER_ID1, null)
                 advanceUntilIdle()
                 assertEquals(null, awaitItem())
             }
@@ -395,11 +395,11 @@ class ServicesManagerTest {
                 .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
                 .withValidAccountsUpdate(listOf(TEST_SELF_USER1))
                 .arrange()
-            servicesManager.startOngoingCallService(TEST_ONGOING_CALL_DATA1)
+            servicesManager.handleOngoingCall(TEST_USER_ID1, TEST_ONGOING_CALL_DATA1)
             // when-then
             servicesManager.currentlyOngoingCall().test {
                 advanceTimeBy((ServicesManager.DEBOUNCE_TIME + 50).milliseconds)
-                servicesManager.stopOngoingCallServiceForUser(TEST_USER_ID1)
+                servicesManager.handleOngoingCall(TEST_USER_ID1, null)
                 advanceUntilIdle()
                 assertEquals(TEST_ONGOING_CALL_DATA1, awaitItem())
                 assertEquals(null, awaitItem())

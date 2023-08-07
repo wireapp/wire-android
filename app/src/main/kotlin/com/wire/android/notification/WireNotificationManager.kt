@@ -244,7 +244,7 @@ class WireNotificationManager @Inject constructor(
             appLogger.i("$TAG no Users -> hide all the notifications")
             messagesNotificationManager.hideAllNotifications()
             callNotificationManager.hideAllNotifications()
-            servicesManager.stopOngoingCallServiceForAll()
+            servicesManager.stopOngoingCallService()
 
             return
         }
@@ -273,7 +273,7 @@ class WireNotificationManager @Inject constructor(
 
     private fun stopObservingForUser(userId: UserId, observingJobs: HashMap<UserId, ObservingJobs>) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)
-        servicesManager.stopOngoingCallServiceForUser(userId)
+        servicesManager.handleOngoingCall(userId, null)
         observingJobs[userId]?.cancelAll()
         observingJobs.remove(userId)
     }
@@ -414,14 +414,10 @@ class WireNotificationManager @Inject constructor(
             }
             .distinctUntilChanged()
             .onCompletion {
-                servicesManager.stopOngoingCallServiceForUser(userId)
+                servicesManager.handleOngoingCall(userId, null)
             }
             .collect { ongoingCallData ->
-                if (ongoingCallData == null) {
-                    servicesManager.stopOngoingCallServiceForUser(userId)
-                } else {
-                    servicesManager.startOngoingCallService(ongoingCallData)
-                }
+                servicesManager.handleOngoingCall(userId, ongoingCallData)
             }
     }
 

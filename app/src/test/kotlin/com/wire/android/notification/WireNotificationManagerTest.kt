@@ -24,7 +24,6 @@ import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.media.PingRinger
-import com.wire.android.services.OngoingCallData
 import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -409,6 +408,8 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation(dispatcherProvider.main()) {
+        val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+        val userId = provideUserId()
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf())
             .withMessageNotifications(listOf())
@@ -416,13 +417,15 @@ class WireNotificationManagerTest {
                 listOf(provideCall().copy(status = CallStatus.ESTABLISHED))
             )
             .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-            .withValidAccounts(listOf(provideUserId()))
+            .withValidAccounts(listOf(userId))
             .arrange()
 
-        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
         runCurrent()
 
-        verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any()) }
+        verify(exactly = 1) {
+            arrangement.servicesManager.handleOngoingCall(userId, match { it.conversationId == call.conversationId })
+        }
     }
 
     @Test
@@ -470,7 +473,7 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 1) {
-                arrangement.servicesManager.startOngoingCallService(OngoingCallData(userId, call.conversationId, "Test title"))
+                arrangement.servicesManager.handleOngoingCall(userId, match { it.conversationId == call.conversationId })
             }
         }
 
@@ -490,7 +493,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     @Test
@@ -510,7 +513,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     @Test
@@ -529,7 +532,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     @Test
@@ -549,7 +552,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     @Test
@@ -568,7 +571,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     @Test
@@ -588,7 +591,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     @Test
@@ -607,7 +610,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallServiceForUser(userId) }
+            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
         }
 
     private inner class Arrangement {
@@ -721,8 +724,7 @@ class WireNotificationManagerTest {
             coEvery { markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) } returns Result.Success
             coEvery { globalKaliumScope.session.currentSession } returns currentSessionUseCase
             coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
-            every { servicesManager.startOngoingCallService(any()) } returns Unit
-            every { servicesManager.stopOngoingCallServiceForAll() } returns Unit
+            every { servicesManager.handleOngoingCall(any(), any()) } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit
         }
 

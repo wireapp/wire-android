@@ -59,6 +59,8 @@ class ServicesManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    // collects the info about ongoing calls for all currently valid accounts so that the app can decide if the service should be started
+    // or stopped based on latest info from all valid accounts so that there is no race condition
     private val ongoingCallServiceForUsers = MutableStateFlow<List<OngoingCallData>>(emptyList())
 
     suspend fun currentlyOngoingCall(): Flow<OngoingCallData?> = ongoingCallServiceForUsers
@@ -109,21 +111,20 @@ class ServicesManager @Inject constructor(
     }
 
     // Ongoing call
-    fun startOngoingCallService(ongoingCallData: OngoingCallData) {
+    fun handleOngoingCall(userId: UserId, ongoingCallData: OngoingCallData?) {
         scope.launch {
-            appLogger.i("ServicesManager: starting OngoingCallService for user:${ongoingCallData.userId.toLogString()}")
-            ongoingCallServiceForUsers.update { it.filter { it.userId != ongoingCallData.userId } + ongoingCallData }
+            if (ongoingCallData != null) {
+                appLogger.i("ServicesManager: handle ongoing call:${ongoingCallData.conversationId.toLogString()}" +
+                        " for user:${userId.toLogString()}")
+                ongoingCallServiceForUsers.update { it.filter { it.userId != userId } + ongoingCallData }
+            } else {
+                appLogger.i("ServicesManager: handle no ongoing call for user:${userId.toLogString()}")
+                ongoingCallServiceForUsers.update { it.filter { it.userId != userId } }
+            }
         }
     }
 
-    fun stopOngoingCallServiceForUser(userId: UserId) {
-        scope.launch {
-            appLogger.i("ServicesManager: stopping OngoingCallService for user:${userId.toLogString()}")
-            ongoingCallServiceForUsers.update { it.filter { it.userId != userId } }
-        }
-    }
-
-    fun stopOngoingCallServiceForAll() {
+    fun stopOngoingCallService() {
         scope.launch {
             appLogger.i("ServicesManager: stopping OngoingCallService for all users")
             ongoingCallServiceForUsers.emit(emptyList())

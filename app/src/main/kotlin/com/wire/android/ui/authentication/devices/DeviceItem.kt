@@ -65,6 +65,7 @@ import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.UIText
@@ -199,7 +200,24 @@ private fun DeviceItemTexts(
     }
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
-    val details: String = if (!device.registrationTime.isNullOrBlank()) {
+
+    device.mlsPublicKeys?.values?.firstOrNull()?.let { mlsThumbprint ->
+        Text(
+            style = MaterialTheme.wireTypography.subline01,
+            color = MaterialTheme.wireColorScheme.labelText,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            text = stringResource(
+                R.string.remove_device_mls_thumbprint_label,
+                mlsThumbprint.formatAsFingerPrint()
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .shimmerPlaceholder(visible = placeholder)
+        )
+    }
+
+    val proteusDetails: String = if (!device.registrationTime.isNullOrBlank()) {
         if (device.lastActiveInWholeWeeks != null) {
             stringResource(
                 R.string.remove_device_id_and_time_label_active_label,
@@ -223,7 +241,7 @@ private fun DeviceItemTexts(
     Text(
         style = MaterialTheme.wireTypography.subline01,
         color = MaterialTheme.wireColorScheme.labelText,
-        text = details,
+        text = proteusDetails,
         modifier = Modifier
             .fillMaxWidth()
             .shimmerPlaceholder(visible = placeholder)

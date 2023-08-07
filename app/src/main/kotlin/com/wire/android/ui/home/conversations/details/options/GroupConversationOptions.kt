@@ -55,18 +55,21 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun GroupConversationOptions(
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
-    lazyListState: LazyListState
+    lazyListState: LazyListState,
+    onEditGuestAccess: () -> Unit,
+    onEditSelfDeletingMessages: () -> Unit,
+    onEditGroupName: () -> Unit,
 ) {
     val state by viewModel.groupOptionsState.collectAsStateLifecycleAware()
 
     GroupConversationSettings(
         state = state,
-        onGuestItemClicked = viewModel::navigateToEditGuestAccessScreen,
-        onSelfDeletingClicked = viewModel::navigateToEditSelfDeletingMessagesScreen,
+        onGuestItemClicked = onEditGuestAccess,
+        onSelfDeletingClicked = onEditSelfDeletingMessages,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
-        onEditGroupName = viewModel::navigateToEditGroupName
+        onEditGroupName = onEditGroupName
     )
 
     if (state.changeServiceOptionConfirmationRequired) {
@@ -107,7 +110,7 @@ fun GroupConversationSettings(
                     subtitle = stringResource(id = R.string.conversation_details_guest_description),
                     switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
                     arrowType = if (state.isUpdatingAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
-                    clickable = Clickable(enabled = true, onClick = onGuestItemClicked, onLongClick = {}),
+                    clickable = Clickable(enabled = state.isUpdatingAllowed, onClick = onGuestItemClicked, onLongClick = {}),
                 )
             }
 

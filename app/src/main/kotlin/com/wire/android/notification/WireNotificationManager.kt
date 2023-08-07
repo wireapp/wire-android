@@ -36,9 +36,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -93,9 +91,8 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun observeNotificationsAndCallsWhileRunning(
         userIds: List<UserId>,
-        scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
-    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingWhileRunningJobs)
+        scope: CoroutineScope
+    ) = observeNotificationsAndCalls(userIds, scope, observingWhileRunningJobs)
 
     /**
      * Observes all the Message and Call notifications persistently.
@@ -103,9 +100,8 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun observeNotificationsAndCallsPersistently(
         userIds: List<UserId>,
-        scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
-    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingPersistentlyJobs)
+        scope: CoroutineScope
+    ) = observeNotificationsAndCalls(userIds, scope, observingPersistentlyJobs)
 
     /**
      * Become online, process all the Pending events,
@@ -192,7 +188,7 @@ class WireNotificationManager @Inject constructor(
             appLogger.d("$TAG checking the calls once, but calls are already observed, no need to start a new job")
             null
         } else {
-            scope.launch { observeIncomingCalls(userId, MutableStateFlow(CurrentScreen.InBackground)) {} }
+            scope.launch { observeIncomingCalls(userId) }
         }
     }
 
@@ -220,12 +216,10 @@ class WireNotificationManager @Inject constructor(
      * Notify user and mark Conversations as notified when it's needed.
      * @param userIds List<QualifiedID> of Users that we need to observe notifications for
      * @param scope CoroutineScope used for observing CurrentScreen
-     * @param doIfCallCameAndAppVisible action that should be done when incoming call comes and app is in foreground
      */
     private suspend fun observeNotificationsAndCalls(
         userIds: List<UserId>,
         scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit,
         observingJobs: HashMap<UserId, ObservingJobs>
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
@@ -255,7 +249,7 @@ class WireNotificationManager @Inject constructor(
                         observeCurrentScreenAndHideNotifications(currentScreenState, userId)
                     },
                     incomingCallsJob = scope.launch(dispatcherProvider.default()) {
-                        observeIncomingCalls(userId, currentScreenState, doIfCallCameAndAppVisible)
+                        observeIncomingCalls(userId)
                     },
                     messagesJob = scope.launch(dispatcherProvider.default()) {
                         observeMessageNotifications(userId, currentScreenState)
@@ -296,13 +290,9 @@ class WireNotificationManager @Inject constructor(
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
      * Can be used for listening for the Notifications when the app is running.
      * @param userId QualifiedID of User that we want to observe for
-     * @param currentScreenState StateFlow that informs which screen is currently visible,
-     * so we can decide: should we show notification, or run a @param[doIfCallCameAndAppVisible]
      */
     private suspend fun observeIncomingCalls(
-        userId: UserId,
-        currentScreenState: StateFlow<CurrentScreen>,
-        doIfCallCameAndAppVisible: (Call) -> Unit
+        userId: UserId
     ) {
         appLogger.d("$TAG observe incoming calls")
 
@@ -310,18 +300,7 @@ class WireNotificationManager @Inject constructor(
             .calls
             .getIncomingCalls()
             .collect { calls ->
-                val isCurrentUserReceiver = coreLogic.getGlobalScope().session.currentSession().let {
-                    (it is CurrentSessionResult.Success && it.accountInfo.userId == userId)
-                }
-                if (currentScreenState.value != CurrentScreen.InBackground && isCurrentUserReceiver) {
-                    calls.firstOrNull()?.run {
-                        appLogger.d("$TAG got some call while app is visible")
-                        doIfCallCameAndAppVisible(this)
-                    }
-                    callNotificationManager.hideIncomingCallNotification()
-                } else {
-                    callNotificationManager.handleIncomingCallNotifications(calls, userId)
-                }
+                callNotificationManager.handleIncomingCallNotifications(calls, userId)
             }
     }
 

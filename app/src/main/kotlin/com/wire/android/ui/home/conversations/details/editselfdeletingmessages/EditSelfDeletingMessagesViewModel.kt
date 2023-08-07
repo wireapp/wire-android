@@ -27,14 +27,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,20 +46,15 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class EditSelfDeletingMessagesViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val updateMessageTimer: UpdateMessageTimerUseCase,
-    savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to EditSelfDeletingMessagesViewModel"
-        }
-    )
+    private val editSelfDeletingMessagesNavArgs: EditSelfDeletingMessagesNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = editSelfDeletingMessagesNavArgs.conversationId
 
     var state by mutableStateOf(
         EditSelfDeletingMessagesState()
@@ -105,7 +98,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
         state = state.copy(locallySelected = duration)
     }
 
-    fun applyNewDuration() {
+    fun applyNewDuration(onCompleted: () -> Unit) {
         viewModelScope.launch {
             val currentSelectedDuration = state.locallySelected
             state = when (updateMessageTimer(conversationId, currentSelectedDuration?.value?.inWholeMilliseconds)) {
@@ -124,11 +117,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                     )
                 }
             }
-            navigateBack()
+            onCompleted()
         }
-    }
-
-    fun navigateBack(args: Map<String, Boolean> = mapOf()) {
-        viewModelScope.launch { navigationManager.navigateBack(args) }
     }
 }

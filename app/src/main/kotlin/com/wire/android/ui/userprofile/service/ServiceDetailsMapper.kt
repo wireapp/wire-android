@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.service
 
 import com.wire.kalium.logic.data.id.VALUE_DOMAIN_SEPARATOR
 import com.wire.kalium.logic.data.service.ServiceId
+import com.wire.kalium.logic.data.user.BotService
 import javax.inject.Inject
 
 class ServiceDetailsMapper @Inject constructor() {
@@ -19,4 +20,6 @@ class ServiceDetailsMapper @Inject constructor() {
             else -> null
         }
     }
+
+    fun fromBotServiceToServiceId(botService: BotService): ServiceId = ServiceId(botService.id, botService.provider)
 }

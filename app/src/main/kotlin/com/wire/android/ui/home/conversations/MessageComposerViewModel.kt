@@ -30,19 +30,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
-import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
-import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
@@ -53,14 +42,14 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -87,15 +76,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
+import okio.Path
+import okio.Path.Companion.toPath
 import javax.inject.Inject
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class MessageComposerViewModel @Inject constructor(
-    qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
@@ -104,7 +92,6 @@ class MessageComposerViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDate: UpdateConversationReadDateUseCase,
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
@@ -138,15 +125,14 @@ class MessageComposerViewModel @Inject constructor(
     )
         private set
 
-    val conversationId: ConversationId = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     val deleteMessageHelper = DeleteMessageDialogHelper(
         viewModelScope,
         conversationId,
         ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone ->
+    ) { messageId, deleteForEveryone, _ ->
         deleteMessage(
             conversationId = conversationId,
             messageId = messageId,
@@ -203,25 +189,6 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    internal fun checkPendingActions() {
-        // Check if there are messages to delete
-        val messageToDeleteId = savedStateHandle.getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
-
-        val messageToDeleteIsSelf =
-            savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
-
-        val groupDeletedName = savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
-
-        val leftGroup = savedStateHandle.getBackNavArg(EXTRA_LEFT_GROUP) ?: false
-
-        if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
-            showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
-        }
-        if (leftGroup || groupDeletedName != null) {
-            navigateBack(savedStateHandle.getBackNavArgs())
-        }
-    }
-
     fun sendMessage(messageBundle: MessageBundle) {
         viewModelScope.launch {
             when (messageBundle) {
@@ -237,7 +204,16 @@ class MessageComposerViewModel @Inject constructor(
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
-                    handleAttachment(messageBundle)
+                    handleAssetMessageBundle(
+                        attachmentUri = messageBundle.attachmentUri
+                    )
+                }
+
+                is ComposableMessageBundle.AudioMessageBundle -> {
+                    handleAssetMessageBundle(
+                        attachmentUri = messageBundle.attachmentUri,
+                        audioPath = messageBundle.attachmentUri.uri.path?.toPath()
+                    )
                 }
 
                 is ComposableMessageBundle.SendTextMessageBundle -> {
@@ -259,21 +235,24 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleAttachment(
-        messageBundle: ComposableMessageBundle.AttachmentPickedBundle
+    private suspend fun handleAssetMessageBundle(
+        attachmentUri: UriAsset,
+        audioPath: Path? = null
     ) {
-        with(messageBundle) {
-            val tempCachePath = kaliumFileSystem.rootCachePath
-            val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
-            if (assetBundle != null) {
-                // The max limit for sending assets changes between user and asset types.
-                // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-                val maxSizeLimitInBytes =
-                    getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-                handleBundle(assetBundle, maxSizeLimitInBytes, messageBundle.attachmentUri)
-            } else {
-                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-            }
+        val tempCachePath = kaliumFileSystem.rootCachePath
+        val assetBundle = fileManager.getAssetBundleFromUri(
+            attachmentUri = attachmentUri.uri,
+            tempCachePath = tempCachePath,
+            audioPath = audioPath
+        )
+        if (assetBundle != null) {
+            // The max limit for sending assets changes between user and asset types.
+            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
+            val maxSizeLimitInBytes =
+                getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
+            handleBundle(assetBundle, maxSizeLimitInBytes, attachmentUri)
+        } else {
+            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
         }
     }
 
@@ -441,32 +420,6 @@ class MessageComposerViewModel @Inject constructor(
                 messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
             persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
         }
-
-    fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
-        viewModelScope.launch {
-            navigationManager.navigateBack(previousBackStackPassedArgs)
-        }
-    }
-
-    fun navigateToGallery(messageId: String, isSelfMessage: Boolean, isEphemeral: Boolean) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.Gallery.getRouteWithArgs(
-                        listOf(
-                            PrivateAsset(
-                                wireSessionImageLoader,
-                                conversationId,
-                                messageId,
-                                isSelfMessage,
-                                isEphemeral
-                            )
-                        )
-                    )
-                )
-            )
-        }
-    }
 
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden

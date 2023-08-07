@@ -25,7 +25,6 @@ import androidx.core.net.toUri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
@@ -419,7 +418,6 @@ class BackupAndRestoreViewModelTest {
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
         private val viewModel = BackupAndRestoreViewModel(
-            navigationManager = NavigationManager(),
             importBackup = importBackup,
             createBackupFile = createBackupFile,
             verifyBackup = verifyBackup,

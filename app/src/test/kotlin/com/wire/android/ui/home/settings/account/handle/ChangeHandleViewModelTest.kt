@@ -20,7 +20,6 @@ package com.wire.android.ui.home.settings.account.handle
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
@@ -52,11 +51,11 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Success)
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess)
 
         coVerify(exactly = 1) {
             arrangement.setHandle("handle")
-            arrangement.navigationManager.navigateBack()
+            arrangement.onSuccess()
         }
     }
 
@@ -67,7 +66,7 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Failure.HandleExists)
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess)
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameTakenError)
     }
@@ -79,7 +78,7 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Failure.InvalidHandle)
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess)
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
         coVerify {
@@ -95,7 +94,7 @@ class ChangeHandleViewModelTest {
             .withUpdateHandleResult(SetUserHandleResult.Failure.Generic(expectedError))
             .arrange()
 
-        viewModel.onSaveClicked()
+        viewModel.onSaveClicked(arrangement.onSuccess)
 
         assertEquals(
             viewModel.state.error,
@@ -141,8 +140,8 @@ class ChangeHandleViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        lateinit var navigationManager: NavigationManager
+        @MockK(relaxed = true)
+        lateinit var onSuccess: () -> Unit
 
         @MockK
         lateinit var setHandle: SetUserHandleUseCase
@@ -158,7 +157,7 @@ class ChangeHandleViewModelTest {
             coEvery { getSelf() } returns flowOf(TestUser.SELF_USER)
         }
 
-        private val viewModel = ChangeHandleViewModel(setHandle, validateHandle, getSelf, navigationManager)
+        private val viewModel = ChangeHandleViewModel(setHandle, validateHandle, getSelf)
 
         fun withHandle(handle: String) = apply {
             viewModel.state = viewModel.state.copy(handle = TextFieldValue(handle))

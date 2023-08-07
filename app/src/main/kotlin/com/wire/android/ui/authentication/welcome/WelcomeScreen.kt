@@ -62,12 +62,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -77,10 +80,14 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -89,23 +96,33 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
+@RootNavGraph(start = true)
+@Destination
 @Composable
-fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
-    WelcomeContent(viewModel)
+fun WelcomeScreen(
+    navigator: Navigator,
+    viewModel: WelcomeViewModel = hiltViewModel()
+) {
+    WelcomeContent(viewModel.isThereActiveSession, viewModel.state, navigator::navigateBack, navigator::navigate)
 }
 
 @Composable
-private fun WelcomeContent(viewModel: WelcomeViewModel) {
+private fun WelcomeContent(
+    isThereActiveSession: Boolean,
+    state: ServerConfig.Links,
+    navigateBack: () -> Unit,
+    navigate: (NavigationCommand) -> Unit
+) {
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
     Scaffold(topBar = {
-        if (viewModel.isThereActiveSession) {
+        if (isThereActiveSession) {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = "",
                 navigationIconType = NavigationIconType.Close,
-                onNavigationPressed = viewModel::navigateBack
+                onNavigationPressed = navigateBack
             )
         } else {
             Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
@@ -123,8 +140,8 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo)
             )
 
-            if (viewModel.state.isOnPremises) {
-                ServerTitle(serverLinks = viewModel.state, modifier = Modifier.padding(top = dimensions().spacing16x))
+            if (state.isOnPremises) {
+                ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
             }
 
             Column(
@@ -141,26 +158,26 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                     horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
                 )
             ) {
-                LoginButton(viewModel::goToLogin)
+                LoginButton() { navigate(NavigationCommand(LoginScreenDestination())) }
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
-                        CustomTabsHelper.launchUrl(context, viewModel.state.teams)
+                        CustomTabsHelper.launchUrl(context, state.teams)
                     }
                 )
                 FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
 
                 if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
                     CreateEnterpriseAccountButton {
-                        if (viewModel.isProxyEnabled()) {
+                        if (state.isProxyEnabled()) {
                             enterpriseDisabledWithProxyDialogState.show(
                                 enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                     R.string.create_team_not_supported_dialog_description,
-                                viewModel.state.teams
+                                    state.teams
                                 )
                             )
                         } else {
-                            viewModel.goToCreateEnterpriseAccount()
+                            navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
                         }
                     }
                 }
@@ -170,14 +187,14 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 WelcomeFooter(
                     modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                     onPrivateAccountClick = {
-                        if (viewModel.isProxyEnabled()) {
+                        if (state.isProxyEnabled()) {
                             createPersonalAccountDisabledWithProxyDialogState.show(
                                 createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                     R.string.create_personal_account_not_supported_dialog_description
                                 )
                             )
                         } else {
-                            viewModel.goToCreatePrivateAccount()
+                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
                         }
                     }
                 )
@@ -186,7 +203,7 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun WelcomeCarousel() {
     val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
@@ -198,7 +215,7 @@ private fun WelcomeCarousel() {
     // list when we reach the end while keeping swipe capability both ways and from the user side it looks like an infinite loop both ways
     val circularItemsList = listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
     val initialPage = 1
-    val pagerState = rememberPagerState(initialPage = initialPage)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { circularItemsList.size })
 
     LaunchedEffect(pagerState) {
         autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
@@ -207,7 +224,6 @@ private fun WelcomeCarousel() {
     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         HorizontalPager(
             state = pagerState,
-            count = circularItemsList.size,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
             val (pageIconResId, pageText) = circularItemsList[page]
@@ -216,7 +232,7 @@ private fun WelcomeCarousel() {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
 private suspend fun autoScrollCarousel(
     pageState: PagerState,
     initialPage: Int,
@@ -243,8 +259,8 @@ private suspend fun autoScrollCarousel(
 
             else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach {
                 delay(
-                delay
-            )
+                    delay
+                )
             }
         }
     }.collect { (scrollToPage, animate) ->
@@ -349,7 +365,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 fun PreviewWelcomeScreen() {
     WireTheme(isPreview = true) {
-        WelcomeContent(hiltViewModel())
+        WelcomeContent(false, ServerConfig.DEFAULT, {}, {})
     }
 }
 

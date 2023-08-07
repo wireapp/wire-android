@@ -17,7 +17,16 @@
  */
 package com.wire.android.ui.calling.incoming
 
+import com.wire.kalium.logic.data.id.ConversationId
+
 data class IncomingCallState(
     val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinCallAnywayDialog: Boolean = false
-)
+    val shouldShowJoinCallAnywayDialog: Boolean = false,
+    val flowState: FlowState = FlowState.Default
+) {
+    sealed interface FlowState {
+        object Default : FlowState
+        object CallClosed : FlowState
+        data class CallAccepted(val conversationId: ConversationId) : FlowState
+    }
+}

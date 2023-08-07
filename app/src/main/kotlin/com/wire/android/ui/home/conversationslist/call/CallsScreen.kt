@@ -27,15 +27,38 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
+import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversationslist.ConversationItemType
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
+@HomeNavGraph
+@Destination
 @Composable
-fun CallsScreen(
+fun CallsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationRouterHomeBridge(
+            navigator = navigator,
+            conversationItemType = ConversationItemType.CALLS,
+            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
+            onOpenBottomSheet = ::openBottomSheet,
+            onCloseBottomSheet = ::closeBottomSheet,
+            onSnackBarStateChanged = ::setSnackBarState,
+            searchBarState = searchBarState,
+            isBottomSheetVisible = ::isBottomSheetVisible
+        )
+    }
+}
+
+@Composable
+fun CallsScreenContent(
     missedCalls: List<ConversationItem> = emptyList(),
     callHistory: List<ConversationItem> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,

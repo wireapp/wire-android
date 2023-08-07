@@ -29,6 +29,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
@@ -39,17 +41,23 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
-import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
-import com.wire.android.ui.home.conversationslist.call.CallsScreen
-import com.wire.android.ui.home.conversationslist.mention.MentionScreen
+import com.wire.android.ui.home.conversationslist.all.AllConversationScreenContent
+import com.wire.android.ui.home.conversationslist.call.CallsScreenContent
+import com.wire.android.ui.home.conversationslist.mention.MentionScreenContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
@@ -57,6 +65,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
 @Composable
 fun ConversationRouterHomeBridge(
+    navigator: Navigator,
     conversationItemType: ConversationItemType,
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onOpenBottomSheet: () -> Unit,
@@ -158,48 +167,61 @@ fun ConversationRouterHomeBridge(
             }
         }
 
+        val onOpenConversation: (ConversationId) -> Unit = remember(navigator) {
+            { conversationId -> navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId))) }
+        }
+        val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
+            { userId -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }
+        }
+        val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
+            { conversationId -> navigator.navigate(NavigationCommand(OngoingCallScreenDestination(conversationId))) }
+        }
+
         with(viewModel.conversationListState) {
             when (conversationRouterHomeState.conversationItemType) {
                 ConversationItemType.ALL_CONVERSATIONS ->
-                    AllConversationScreen(
+                    AllConversationScreenContent(
                         conversations = foldersWithConversations,
                         hasNoConversations = hasNoConversations,
                         onEditConversation = onEditConversationItem,
                         onOpenConversationNotificationsSettings = onEditNotifications,
+                        onOpenConversation = onOpenConversation,
+                        onOpenUserProfile = onOpenUserProfile,
+                        onJoinedCall = onJoinedCall
                     )
 
                 ConversationItemType.CALLS ->
-                    CallsScreen(
+                    CallsScreenContent(
                         missedCalls = missedCalls,
                         callHistory = callHistory,
-                        onCallItemClick = viewModel::openConversation,
+                        onCallItemClick = onOpenConversation,
                         onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = viewModel::openUserProfile,
+                        onOpenUserProfile = onOpenUserProfile,
                         openConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
+                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) }
                     )
 
                 ConversationItemType.MENTIONS ->
-                    MentionScreen(
+                    MentionScreenContent(
                         unreadMentions = unreadMentions,
                         allMentions = allMentions,
-                        onMentionItemClick = viewModel::openConversation,
+                        onMentionItemClick = onOpenConversation,
                         onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = viewModel::openUserProfile,
+                        onOpenUserProfile = onOpenUserProfile,
                         openConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
+                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) }
                     )
 
                 ConversationItemType.SEARCH -> {
                     SearchConversationScreen(
                         searchQuery = searchQuery,
                         conversationSearchResult = conversationSearchResult,
-                        onOpenNewConversation = viewModel::openNewConversation,
-                        onOpenConversation = viewModel::openConversation,
+                        onOpenNewConversation = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
+                        onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
-                        onOpenUserProfile = viewModel::openUserProfile,
+                        onOpenUserProfile = onOpenUserProfile,
                         onOpenConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall,
+                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) }
                     )
                 }
             }

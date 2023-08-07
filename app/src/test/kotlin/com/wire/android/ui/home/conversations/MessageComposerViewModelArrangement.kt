@@ -29,7 +29,6 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
@@ -38,18 +37,16 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -99,17 +96,13 @@ internal class MessageComposerViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
         every { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
-        every {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
-
         every { pingRinger.ping(any(), any()) } returns Unit
         coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
@@ -118,12 +111,6 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
-    lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
@@ -142,9 +129,6 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     lateinit var observeOngoingCallsUseCase: ObserveOngoingCallsUseCase
-
-    @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
     private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
@@ -202,15 +186,12 @@ internal class MessageComposerViewModelArrangement {
     private val viewModel by lazy {
         MessageComposerViewModel(
             savedStateHandle = savedStateHandle,
-            navigationManager = navigationManager,
-            qualifiedIdMapper = qualifiedIdMapper,
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
-            wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDate = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
@@ -274,7 +255,7 @@ internal class MessageComposerViewModelArrangement {
     }
 
     fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
-        coEvery { fileManager.getAssetBundleFromUri(any(), any(), any()) } returns assetBundle
+        coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any()) } returns assetBundle
     }
 
     fun withSaveToExternalMediaStorage(resultFileName: String?) = apply {

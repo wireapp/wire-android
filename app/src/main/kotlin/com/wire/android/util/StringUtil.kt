@@ -45,3 +45,5 @@ fun String.toTitleCase(delimiter: String = " ", separator: String = " "): String
     this.split(delimiter).joinToString(separator = separator) {
         it.lowercase().replaceFirstChar(Char::titlecaseChar)
     }
+
+fun String.capitalizeFirstLetter(): String = lowercase().replaceFirstChar(Char::titlecaseChar)

@@ -18,17 +18,31 @@
 package com.wire.android.ui.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
+import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.toTimeLongLabelUiText
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlin.time.Duration
@@ -95,8 +109,7 @@ fun E2EISuccessDialog(
     dismissDialog: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(id = R.string.end_to_end_identity_renew_dialog_title),
-        text = stringResource(id = R.string.end_to_end_identity_renew_dialog_text),
+        title = stringResource(id = R.string.end_to_end_identity_renew_success_dialog_title),
         onDismiss = dismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = dismissDialog,
@@ -112,12 +125,28 @@ fun E2EISuccessDialog(
         centerContent = true,
         properties = DialogProperties(usePlatformDefaultWidth = false),
         content = {
-            Image(
-                painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
-                contentDescription = "",
-                contentScale = ContentScale.Inside,
-                modifier = Modifier
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    modifier = Modifier
+                        .width(MaterialTheme.wireDimensions.spacing64x)
+                        .height(MaterialTheme.wireDimensions.spacing64x),
+                    painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
+                    contentDescription = "",
+                )
+
+                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
+
+                Text(
+                    text = stringResource(id = R.string.end_to_end_identity_renew_success_dialog_text),
+                    style = MaterialTheme.wireTypography.body01,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
+                )
+            }
         }
     )
 }

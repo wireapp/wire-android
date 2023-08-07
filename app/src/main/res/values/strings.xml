@@ -1130,7 +1130,7 @@
     <string name="end_to_end_identity_renew_error_dialog_text_no_snooze">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
-    <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate updated</string>
+    <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
 
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>

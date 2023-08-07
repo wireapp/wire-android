@@ -231,7 +231,7 @@ fun HomeContent(
             when (item.direction) {
                 is ExternalUriDirection -> CustomTabsHelper.launchUri(context, item.direction.uri)
                 is IntentDirection -> context.startActivity(item.direction.intent(context))
-                else -> navController.navigate(item.direction) {
+                else -> navController.navigate(item.direction.route) {
                     navController.graph.startDestinationRoute?.let { route ->
                         popUpTo(route) {
                             saveState = true

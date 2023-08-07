@@ -177,20 +177,19 @@ private fun WireDialogContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(contentPadding)
+                .padding(contentPadding),
+            horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.wireTypography.title02,
-                modifier = Modifier.apply { if (centerContent) align(Alignment.CenterHorizontally) }
-                    .padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
             )
             text?.let {
                 ClickableText(
                     text = text,
                     style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.apply { if (centerContent) align(Alignment.CenterHorizontally) }
-                        .padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
+                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
                     onClick = { offset ->
                         text.getStringAnnotations(
                             tag = MarkdownConstants.TAG_URL,

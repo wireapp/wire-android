@@ -22,6 +22,7 @@ package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WireButtonState
@@ -42,7 +44,7 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 fun JoinButton(
     buttonClick: () -> Unit,
     modifier: Modifier = Modifier,
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
+    minHeight: Dp = 32.dp,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width
 ) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow { buttonClick() }
@@ -57,7 +59,6 @@ fun JoinButton(
         minHeight = minHeight,
         minWidth = minWidth,
         modifier = modifier.padding(
-            vertical = dimensions().spacing12x,
             horizontal = dimensions().spacing8x
         ),
         contentPadding = PaddingValues(

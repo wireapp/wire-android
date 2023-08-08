@@ -970,6 +970,9 @@
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
     <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer der Gruppe.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
     <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>

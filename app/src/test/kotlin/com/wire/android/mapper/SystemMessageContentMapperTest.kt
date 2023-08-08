@@ -134,6 +134,7 @@ class SystemMessageContentMapperTest {
         )
     }
 
+    @Suppress("LongMethod", "ComplexMethod")
     @Test
     fun givenServerContent_whenMappingMemberChangeMessagesToUIMessageContent_thenCorrectValuesShouldBeReturned() {
         val (arrangement, mapper) = Arrangement().arrange()
@@ -156,7 +157,6 @@ class SystemMessageContentMapperTest {
             userId1,
             listOf(member1.user, member2.user)
         )
-
 
         assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&

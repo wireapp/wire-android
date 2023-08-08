@@ -969,6 +969,9 @@
     <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">ආගන්තුක සබැඳිය</string>
     <string name="guest_link_description">මෙම සංවාදයට සබැඳියක් මගින් අන් අයට ආරාධනා කරන්න. සබැඳිය තිබෙන ඕනෑම අයෙකුට වයර් නැති වුවද, සංවාදයට එක් වීමට හැකිය.</string>

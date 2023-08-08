@@ -92,15 +92,24 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         viewModelScope.launch {
             state = state.performAction()
             when (sendConnectionRequest(userId)) {
-                is SendConnectionRequestResult.Failure -> {
-                    appLogger.e(("Couldn't send a connection request to user ${userId.toLogString()}"))
-                    state = state.finishAction()
-                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_error))
-                }
-
                 is SendConnectionRequestResult.Success -> {
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
+                }
+
+                is SendConnectionRequestResult.Failure.FederationDenied -> {
+                    state = state.finishAction()
+                    _infoMessage.emit(
+                        UIText.StringResource(
+                            R.string.connection_request_sent_federation_denied_error,
+                            userName
+                        )
+                    )
+                }
+
+                is SendConnectionRequestResult.Failure.GenericFailure -> {
+                    state = state.finishAction()
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_error))
                 }
             }
         }

@@ -747,6 +747,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="connection_request_ignored">Ignoraste la solicitud de %1$s</string>
     <string name="connection_request_accepted">Solicitud de conexi&#243;n aceptada</string>
     <string name="connection_request_sent_error">No se pudo enviar la solicitud de conexi&#243;n</string>
+    <string name="connection_request_sent_federation_denied_error">Your backend does not federate with the backend of %1$s. You can not connect with them.</string>
     <string name="connection_request_accept_error">No se pudo aceptar la solicitud de conexi&#243;n</string>
     <string name="connection_request_ignore_error">No se pudo ignorar la solicitud de conexi&#243;n</string>
     <string name="connection_request_cancel_error">No se pudo cancelar la solicitud de conexi&#243;n</string>

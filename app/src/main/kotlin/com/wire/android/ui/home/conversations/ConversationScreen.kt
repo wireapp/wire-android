@@ -272,8 +272,10 @@ fun ConversationScreen(
                 when (val data = conversationInfoViewState.conversationDetailsData) {
                     is ConversationDetailsData.OneOne ->
                         navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(data.otherUserId)))
+
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
+
                     ConversationDetailsData.None -> { /* do nothing */
                     }
                 }
@@ -294,10 +296,11 @@ fun ConversationScreen(
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { link ->
             with(messageComposerViewModel) {
-                if (isLinkValid(link))
+                if (isLinkValid(link)) {
                     uriHandler.openUri(link)
-                else
+                } else {
                     invalidLinkDialogState = InvalidLinkDialogState.Visible
+                }
             }
         },
     )
@@ -339,6 +342,7 @@ fun ConversationScreen(
             is Canceled -> {
                 appLogger.i("Error with receiving navigation back args from mediaGallery in ConversationScreen")
             }
+
             is Value -> {
                 when (result.value.mediaGalleryActionType) {
                     MediaGalleryActionType.REPLY -> {
@@ -350,6 +354,7 @@ fun ConversationScreen(
                             }
                         }
                     }
+
                     MediaGalleryActionType.REACT -> {
                         result.value.emoji?.let { conversationMessagesViewModel.toggleReaction(result.value.messageId, it) }
                     }
@@ -391,10 +396,12 @@ private fun startCallIfPossible(
                     startCallAudioPermissionCheck.launch()
                     ConversationScreenDialogType.NONE
                 }
+
                 ConferenceCallingResult.Disabled.Established -> {
                     onOpenOngoingCallScreen(conversationCallViewModel.conversationId)
                     ConversationScreenDialogType.NONE
                 }
+
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
                 ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
                 else -> ConversationScreenDialogType.NONE

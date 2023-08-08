@@ -969,6 +969,9 @@
     <string name="self_deleting_messages_option">Üzenet törlésének kényszerítése</string>
     <string name="self_deleting_messages_option_description">Ha ez aktív, ebben a csoportban minden üzenet el fog tűnni bizonyos idő után. Ez minden résztvevőre érvényes.</string>
     <string name="self_deleting_messages_folder_timer">Időzítő</string>
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Vendég link</string>
     <string name="guest_link_description">Hívjon meg másokat a beszélgetésbe egy hivatkozással. Ezzel bárki csatlakozhat a beszélgetéshez, még ha nincs is Wire-e.</string>

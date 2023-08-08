@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -50,7 +49,6 @@ fun MarkdownText(
     onLongClick: (() -> Unit)?,
     onOpenProfile: (String) -> Unit
 ) {
-    val uriHandler = LocalUriHandler.current
 
     if (clickable) {
         ClickableText(
@@ -69,7 +67,6 @@ fun MarkdownText(
                     start = offset,
                     end = offset,
                 ).firstOrNull()?.let { result ->
-                    uriHandler.openUri(result.item)
                     onClickLink?.invoke(annotatedString.substring(result.start, result.end))
                 }
 

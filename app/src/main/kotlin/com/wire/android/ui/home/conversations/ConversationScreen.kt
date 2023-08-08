@@ -42,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,6 +64,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -146,6 +148,7 @@ fun ConversationScreen(
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
@@ -288,7 +291,15 @@ fun ConversationScreen(
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         conversationScreenState = conversationScreenState,
-        messageComposerStateHolder = messageComposerStateHolder
+        messageComposerStateHolder = messageComposerStateHolder,
+        onLinkClick = { link ->
+            with(messageComposerViewModel) {
+                if (isLinkValid(link))
+                    uriHandler.openUri(link)
+                else
+                    invalidLinkDialogState = InvalidLinkDialogState.Visible
+            }
+        },
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -304,12 +315,17 @@ fun ConversationScreen(
         dialogState = messageComposerViewModel.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
+    InvalidLinkDialog(
+        dialogState = messageComposerViewModel.invalidLinkDialogState,
+        hideDialog = messageComposerViewModel::hideInvalidLinkError
+    )
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {
             is Canceled -> {
                 appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
             }
+
             is Value -> {
                 resultNavigator.setResult(result.value)
                 resultNavigator.navigateBack()
@@ -432,6 +448,7 @@ private fun ConversationScreen(
     onClearMentionSearchResult: () -> Unit,
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
+    onLinkClick: (String) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -526,6 +543,7 @@ private fun ConversationScreen(
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     snackBarHostState = conversationScreenState.snackBarHostState,
+                    onLinkClick = onLinkClick
                 )
             }
         }
@@ -566,7 +584,8 @@ private fun ConversationScreenContent(
     onClearMentionSearchResult: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    snackBarHostState: SnackbarHostState
+    snackBarHostState: SnackbarHostState,
+    onLinkClick: (String) -> Unit,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -596,6 +615,7 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                onLinkClick = onLinkClick
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -676,6 +696,7 @@ fun MessageList(
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -732,6 +753,7 @@ fun MessageList(
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                         onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                        onLinkClick = onLinkClick
                     )
                 }
 
@@ -812,5 +834,6 @@ fun PreviewConversationScreen() {
         onClearMentionSearchResult = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
+        onLinkClick = { _ -> }
     )
 }

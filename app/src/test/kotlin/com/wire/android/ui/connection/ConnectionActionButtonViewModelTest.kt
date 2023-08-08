@@ -88,7 +88,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given a failure, when sending a connection request, then emit failure message`() = runTest {
         // given
         val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
-            .withSendConnectionRequest(SendConnectionRequestResult.Failure(failure))
+            .withSendConnectionRequest(SendConnectionRequestResult.Failure.GenericFailure(failure))
             .arrange()
 
         viewModel.infoMessage.test {
@@ -98,6 +98,25 @@ class ConnectionActionButtonViewModelTest {
             // then
             val result = awaitItem()
             assertEquals(UIText.StringResource(R.string.connection_request_sent_error), result)
+            coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+        }
+    }
+
+    @Test
+    fun `given a federation denied failure, when sending a connection request, then emit proper failure message`() = runTest {
+        // given
+        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            .withSendConnectionRequest(SendConnectionRequestResult.Failure.FederationDenied)
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.onSendConnectionRequest()
+
+            // then
+            val result = awaitItem() as UIText.StringResource
+            assertEquals(UIText.StringResource(R.string.connection_request_sent_federation_denied_error, "").resId, result.resId)
             coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }

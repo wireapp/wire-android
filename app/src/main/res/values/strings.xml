@@ -768,6 +768,7 @@
     <string name="connection_request_ignored">You ignored %1$s\'s request</string>
     <string name="connection_request_accepted">Connection request accepted</string>
     <string name="connection_request_sent_error">Connection request could not be sent</string>
+    <string name="connection_request_sent_federation_denied_error">Your backend does not federate with the backend of %1$s. You can not connect with them.</string>
     <string name="connection_request_accept_error">Connection request could not be accepted</string>
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
     <string name="connection_request_cancel_error">Connection request could not be canceled</string>
@@ -990,6 +991,10 @@
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
+
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
 
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>

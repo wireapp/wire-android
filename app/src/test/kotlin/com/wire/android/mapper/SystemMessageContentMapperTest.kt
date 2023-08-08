@@ -38,6 +38,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -89,11 +91,11 @@ class SystemMessageContentMapperTest {
         assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
         assertTrue(
             selfResLower is UIText.StringResource &&
-                selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
+                    selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
         )
         assertTrue(
             selfResTitle is UIText.StringResource &&
-                selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                    selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
         assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
         assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
@@ -118,26 +120,28 @@ class SystemMessageContentMapperTest {
         // Then
         assertTrue(
             resultOtherMissedCall is SystemMessage.MissedCall &&
-                resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+                    resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
         )
         assertTrue(
             resultMyMissedCall is SystemMessage.MissedCall &&
-                (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                    (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
 
         assertTrue(
             resultConversationCreated is SystemMessage.ConversationMessageCreated &&
-                (resultConversationCreated.author as UIText.StringResource).resId == 10584735 &&
-                resultConversationCreated.date == "SOME-DATE"
+                    (resultConversationCreated.author as UIText.StringResource).resId == 10584735 &&
+                    resultConversationCreated.date == "SOME-DATE"
         )
     }
 
+    @Test
     fun givenServerContent_whenMappingMemberChangeMessagesToUIMessageContent_thenCorrectValuesShouldBeReturned() {
         val (arrangement, mapper) = Arrangement().arrange()
         val contentLeft = MessageContent.MemberChange.Removed(listOf(userId1))
         val contentRemoved = MessageContent.MemberChange.Removed(listOf(userId2))
         val contentAdded = MessageContent.MemberChange.Added(listOf(userId2, userId3))
         val contentAddedSelf = MessageContent.MemberChange.Added(listOf(userId1))
+        val contentFederationRemoved = MessageContent.MemberChange.FederationRemoved(listOf(userId1, userId2))
 
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
@@ -147,28 +151,40 @@ class SystemMessageContentMapperTest {
         val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
         val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
         val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
+        val resultContentFederationRemoved = mapper.mapMemberChangeMessage(
+            contentFederationRemoved,
+            userId1,
+            listOf(member1.user, member2.user)
+        )
+
 
         assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&
-                resultContentLeft.author.asString(arrangement.resources) == member1.name
+                    resultContentLeft.author.asString(arrangement.resources) == member1.name
         )
         assertTrue(
             resultContentRemoved is SystemMessage.MemberRemoved &&
-                resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
-                resultContentRemoved.memberNames.size == 1 &&
-                resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
+                    resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
+                    resultContentRemoved.memberNames.size == 1 &&
+                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
 
         )
         assertTrue(
             resultContentAdded is SystemMessage.MemberAdded &&
-                resultContentAdded.author.asString(arrangement.resources) == member1.name &&
-                resultContentAdded.memberNames.size == 2 &&
-                resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
-                resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
+                    resultContentAdded.author.asString(arrangement.resources) == member1.name &&
+                    resultContentAdded.memberNames.size == 2 &&
+                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
+                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
         assertTrue(
             resultContentAddedSelf is SystemMessage.MemberJoined &&
-                resultContentAddedSelf.author.asString(arrangement.resources) == member1.name
+                    resultContentAddedSelf.author.asString(arrangement.resources) == member1.name
+        )
+
+        assertTrue(
+            resultContentFederationRemoved is SystemMessage.FederationMemberRemoved &&
+                    resultContentFederationRemoved.memberNames.size == 2 &&
+                    resultContentFederationRemoved.memberNames[0].asString(arrangement.resources) == member1.name
         )
 
         val resultStartedWith =
@@ -187,12 +203,44 @@ class SystemMessageContentMapperTest {
 
         assertTrue(
             resultStartedWith is SystemMessage.ConversationStartedWithMembers &&
-                resultStartedWith.memberNames.size == 2 &&
-                resultStartedWith.memberNames[0].asString(arrangement.resources) == member2.name &&
-                resultStartedWith.memberNames[1].asString(arrangement.resources) == member3.name
+                    resultStartedWith.memberNames.size == 2 &&
+                    resultStartedWith.memberNames[0].asString(arrangement.resources) == member2.name &&
+                    resultStartedWith.memberNames[1].asString(arrangement.resources) == member3.name
+        )
+    }
+
+    @Test
+    fun givenFederationStoppedRemoved_whenMappingToSystemMessage_thenCorrectValuesShouldBeReturned() = runTest {
+        // Given
+        val defederatedDomain = "defdomain.com"
+        val (_, mapper) = Arrangement().arrange()
+        val content = MessageContent.FederationStopped.Removed(
+            defederatedDomain
         )
 
-        assertTrue(resultStartedWithFailed == null)
+        // When
+        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), listOf())
+
+        // Then
+        assertInstanceOf(SystemMessage.FederationStopped::class.java, uiContent)
+        assertEquals(defederatedDomain, content.domain)
+    }
+
+    @Test
+    fun givenFederationStoppedConnectionRemoved_whenMappingToSystemMessage_thenCorrectValuesShouldBeReturned() = runTest {
+        // Given
+        val defederatedDomainList = listOf("defdomain.com", "defdomaintwo.com")
+        val (_, mapper) = Arrangement().arrange()
+        val content = MessageContent.FederationStopped.ConnectionRemoved(
+            defederatedDomainList
+        )
+
+        // When
+        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), listOf())
+
+        // Then
+        assertInstanceOf(SystemMessage.FederationStopped::class.java, uiContent)
+        assertEquals(defederatedDomainList, content.domainList)
     }
 
     private class Arrangement {

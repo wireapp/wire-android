@@ -340,4 +340,38 @@ class MessagePreviewContentMapperTest {
             previewString.count shouldBeEqualTo otherUsersAdded.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_other_users
         }
+
+    @Test
+    fun givenFederatedUsersWereRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val otherRemovedUsers = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.FederatedMembersRemoved(
+                    isSelfUserRemoved = true,
+                    otherRemovedUsers
+                )
+            )
+
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherRemovedUsers.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user_and_others
+        }
+
+    @Test
+    fun givenSelfAndFederatedUsersWereRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldReturn() =
+        runTest {
+            val otherRemovedUsers = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.FederatedMembersRemoved(
+                    isSelfUserRemoved = false,
+                    otherRemovedUsers
+                )
+            )
+
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherRemovedUsers.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_other_users
+        }
 }

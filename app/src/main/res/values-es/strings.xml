@@ -972,6 +972,9 @@ URL del backend:
     <string name="self_deleting_messages_option">Forzar auto-borrado de mensajes</string>
     <string name="self_deleting_messages_option_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo. Esto se aplica a todos los participantes del grupo.</string>
     <string name="self_deleting_messages_folder_timer">Contador</string>
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Enlace de invitado</string>
     <string name="guest_link_description">Invita a otros con un enlace a esta conversaci&#243;n. Cualquier persona con el enlace puede unirse a la conversaci&#243;n, incluso si no tiene Wire.</string>

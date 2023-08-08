@@ -1001,6 +1001,9 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link dla go&#347;ci</string>
     <string name="guest_link_description">Zapro&#347; innych linkiem do tej rozmowy. Ka&#380;dy z linkiem mo&#380;e do&#322;&#261;czy&#263; do rozmowy, nawet je&#347;li nie ma Wire.</string>

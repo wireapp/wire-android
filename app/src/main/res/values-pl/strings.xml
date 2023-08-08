@@ -777,6 +777,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="connection_request_ignored">Zignorowa&#322;e&#347; pro&#347;b&#281; u&#380;ytkownika %1$s</string>
     <string name="connection_request_accepted">Pro&#347;ba o po&#322;&#261;czenie zaakceptowana</string>
     <string name="connection_request_sent_error">Nie uda&#322;o si&#281; wys&#322;a&#263; pro&#347;by o po&#322;&#261;czenie</string>
+    <string name="connection_request_sent_federation_denied_error">Your backend does not federate with the backend of %1$s. You can not connect with them.</string>
     <string name="connection_request_accept_error">Nie mo&#380;na zaakceptowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
     <string name="connection_request_ignore_error">Nie mo&#380;na zignorowa&#263; pro&#347;by o po&#322;&#261;czenie</string>
     <string name="connection_request_cancel_error">Nie mo&#380;na anulowa&#263; pro&#347;by o po&#322;&#261;czenie</string>

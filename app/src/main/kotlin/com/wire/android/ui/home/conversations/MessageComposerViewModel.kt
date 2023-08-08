@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.conversations
 
 import android.net.Uri
+import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -162,6 +163,10 @@ class MessageComposerViewModel @Inject constructor(
 
     var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(
         AssetTooLargeDialogState.Hidden
+    )
+
+    var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
+        InvalidLinkDialogState.Hidden
     )
 
     init {
@@ -394,6 +399,8 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun isLinkValid(link: String) = URLUtil.isValidUrl(link)
+
     fun clearMentionSearchResult() {
         messageComposerViewState.value =
             messageComposerViewState.value.copy(mentionSearchResult = emptyList())
@@ -484,6 +491,10 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+    }
+
+    fun hideInvalidLinkError() {
+        invalidLinkDialogState = InvalidLinkDialogState.Hidden
     }
 
     companion object {

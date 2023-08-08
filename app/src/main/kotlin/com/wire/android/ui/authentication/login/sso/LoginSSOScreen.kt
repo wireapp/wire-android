@@ -63,6 +63,8 @@ import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun LoginSSOScreen(
+    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -71,14 +73,17 @@ fun LoginSSOScreen(
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
 
     LaunchedEffect(ssoLoginResult) {
-        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+        loginSSOViewModel.handleSSOResult(ssoLoginResult, onSuccess)
     }
     LoginSSOContent(
         scrollState = scrollState,
         loginState = loginSSOViewModel.loginState,
         onCodeChange = loginSSOViewModel::onSSOCodeChange,
         onErrorDialogDismiss = loginSSOViewModel::onDialogDismiss,
-        onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
+        onRemoveDeviceOpen = {
+            loginSSOViewModel.clearLoginErrors()
+            onRemoveDeviceNeeded()
+        },
         // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = loginSSOViewModel::login,
         ssoLoginResult = ssoLoginResult,

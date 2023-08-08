@@ -248,8 +248,8 @@
         hier zu nutzen.
     </string>
     <string name="remove_device_label">IHRE GERÄTE</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s\nHinzugefügt: %2$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nHinzugefügt: %2$s</string>
+    <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
     <string name="remove_device_details_description">Entfernen Sie dieses Gerät, wenn Sie es nicht mehr nutzen. Sie werden sofort auf diesem Gerät abgemeldet.</string>

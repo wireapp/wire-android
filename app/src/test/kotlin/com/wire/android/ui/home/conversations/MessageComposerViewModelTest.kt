@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations
 import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
@@ -47,6 +48,7 @@ import kotlin.time.toDuration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class MessageComposerViewModelTest {
 
     @Test

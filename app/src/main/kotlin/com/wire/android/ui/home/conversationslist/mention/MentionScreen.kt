@@ -33,9 +33,32 @@ import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import androidx.compose.foundation.lazy.rememberLazyListState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversationslist.ConversationItemType
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
+
+@HomeNavGraph
+@Destination
+@Composable
+fun MentionScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationRouterHomeBridge(
+            navigator = navigator,
+            conversationItemType = ConversationItemType.MENTIONS,
+            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
+            onOpenBottomSheet = ::openBottomSheet,
+            onCloseBottomSheet = ::closeBottomSheet,
+            onSnackBarStateChanged = ::setSnackBarState,
+            searchBarState = searchBarState,
+            isBottomSheetVisible = ::isBottomSheetVisible
+        )
+    }
+}
 
 @Composable
-fun MentionScreen(
+fun MentionScreenContent(
     unreadMentions: List<ConversationItem> = emptyList(),
     allMentions: List<ConversationItem> = emptyList(),
     onMentionItemClick: (ConversationId) -> Unit,
@@ -105,5 +128,3 @@ private fun MentionContent(
         }
     }
 }
-
-

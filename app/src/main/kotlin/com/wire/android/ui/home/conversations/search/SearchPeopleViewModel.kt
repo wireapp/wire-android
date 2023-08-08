@@ -31,13 +31,9 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
@@ -72,11 +68,9 @@ open class SearchAllPeopleViewModel(
     private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
-    sendConnectionRequest: SendConnectionRequestUseCase,
-    navigationManager: NavigationManager,
+    sendConnectionRequest: SendConnectionRequestUseCase
 ) : PublicWithKnownPeopleSearchViewModel(
     sendConnectionRequest = sendConnectionRequest,
-    navigationManager = navigationManager
 ) {
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = true))
@@ -114,7 +108,7 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    override fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
+    override suspend fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
         .map { result ->
             when (result) {
                 is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
@@ -202,10 +196,7 @@ open class SearchAllPeopleViewModel(
 
 abstract class PublicWithKnownPeopleSearchViewModel(
     private val sendConnectionRequest: SendConnectionRequestUseCase,
-    navigationManager: NavigationManager
-) : KnownPeopleSearchViewModel(
-    navigationManager = navigationManager
-) {
+) : KnownPeopleSearchViewModel() {
 
     protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->
@@ -220,12 +211,12 @@ abstract class PublicWithKnownPeopleSearchViewModel(
             val userId = UserId(contact.id, contact.domain)
 
             when (sendConnectionRequest(userId)) {
-                is SendConnectionRequestResult.Failure -> {
-                    appLogger.d(("Couldn't send a connect request to user $userId"))
-                }
-
                 is SendConnectionRequestResult.Success -> {
                     mutableInfoMessage.emit(SearchPeopleMessageType.SuccessConnectionSentRequest.uiText)
+                }
+
+                is SendConnectionRequestResult.Failure.FederationDenied, is SendConnectionRequestResult.Failure.GenericFailure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
             }
         }
@@ -235,11 +226,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class KnownPeopleSearchViewModel(
-    navigationManager: NavigationManager
-) : SearchServicesViewModel(
-    navigationManager = navigationManager
-) {
+abstract class KnownPeopleSearchViewModel : SearchServicesViewModel() {
 
     protected val knownPeopleSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->
@@ -252,9 +239,7 @@ abstract class KnownPeopleSearchViewModel(
     abstract suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact>
 }
 
-abstract class SearchPeopleViewModel(
-    val navigationManager: NavigationManager
-) : ViewModel() {
+abstract class SearchPeopleViewModel : ViewModel() {
     companion object {
         const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L
     }
@@ -265,11 +250,12 @@ abstract class SearchPeopleViewModel(
         .asStateFlow()
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
-    fun initialContactResultFlow() = getInitialContacts().map { result ->
+    suspend fun initialContactResultFlow() = getInitialContacts().map { result ->
         when (result) {
             is SearchResult.Failure -> {
                 SearchResultState.Failure(result.failureString)
             }
+
             is SearchResult.Success -> {
                 SearchResultState.Success(
                     result
@@ -339,27 +325,7 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    fun openUserProfile(contact: Contact) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(
-                            QualifiedID(contact.id, contact.domain), contact.connectionState
-                        )
-                    )
-                )
-            )
-        }
-    }
-
-    fun close() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
-
-    abstract fun getInitialContacts(): Flow<SearchResult>
+    abstract suspend fun getInitialContacts(): Flow<SearchResult>
 
     abstract suspend fun getInitialServices(): Flow<SearchResult>
 }

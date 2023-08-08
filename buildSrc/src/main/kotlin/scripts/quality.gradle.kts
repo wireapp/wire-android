@@ -51,7 +51,7 @@ val detektAll by tasks.registering(Detekt::class) {
     config.setFrom("$rootDir/config/detekt/detekt.yml")
 
     include("**/*.kt")
-    exclude("**/*.kts", "*/build/*", "/buildSrc")
+    exclude("**/*.kts", "**/build/**", "/buildSrc")
 
     baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
@@ -77,7 +77,7 @@ tasks.withType(DetektCreateBaselineTask::class) {
     baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
     include("**/*.kt")
-    exclude("**/*.kts", "*/build/*", "/buildSrc")
+    exclude("**/*.kts", "**/build/**", "/buildSrc")
 }
 
 tasks.register("staticCodeAnalysis") {

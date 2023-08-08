@@ -23,34 +23,55 @@ package com.wire.android.navigation
 import android.annotation.SuppressLint
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavOptionsBuilder
+import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.ramcosta.composedestinations.utils.navGraph
+import com.ramcosta.composedestinations.utils.route
 import com.wire.android.appLogger
+import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.destinations.Destination
 import com.wire.kalium.logger.obfuscateId
 
 @SuppressLint("RestrictedApi")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
-    appLogger.d("[$TAG] -> command: ${command.destination.obfuscateId()}")
-    currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
+
+    fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
+    fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec<*> }
+    fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
+    fun firstDestinationWithRoute(route: String) = currentBackStack.value.firstOrNull { it.destination.route == route }
+    fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
+
+    appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")
     navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
                 val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                popBackStack(inclusive) {
-                    currentBackStack.value.firstOrNull { it.destination.route != null } }
+                popUpTo(inclusive) { firstDestination() }
             }
+
             BackStackMode.REMOVE_CURRENT -> {
-                popBackStack(true) { currentBackStack.value.lastOrNull { it.destination.route != null } }
+                popUpTo(true) { lastDestination() }
             }
+
+            BackStackMode.REMOVE_CURRENT_NESTED_GRAPH -> {
+                popUpTo(
+                    getInclusive = { it.route() is NavGraphSpec },
+                    getNavBackStackEntry = { lastNestedGraph()?.let { lastDestinationFromOtherGraph(it) } }
+                )
+            }
+
             BackStackMode.REMOVE_CURRENT_AND_REPLACE -> {
-                popBackStack(true) { currentBackStack.value.lastOrNull { it.destination.route != null } }
-                NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { currentBackStack.value.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
-                }
+                popUpTo(true) { lastDestination() }
+                popUpTo(true) { firstDestinationWithRoute(command.destination.route) }
             }
+
             BackStackMode.UPDATE_EXISTED -> {
-                NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { currentBackStack.value.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
-                }
+                popUpTo(true) { firstDestinationWithRoute(command.destination.route) }
             }
+
             BackStackMode.NONE -> {
             }
         }
@@ -59,35 +80,24 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     }
 }
 
-private fun NavController.popBackStack(
+private fun NavOptionsBuilder.popUpTo(
     inclusive: Boolean,
+    getNavBackStackEntry: () -> NavBackStackEntry?,
+) = popUpTo({ inclusive }, getNavBackStackEntry)
+
+private fun NavOptionsBuilder.popUpTo(
+    getInclusive: (NavBackStackEntry) -> Boolean,
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
-        val startId = entry.destination.id
-        popBackStack(startId, inclusive)
-    }
-}
-
-/**
- * @return true if the stack was popped at least once and the user has been navigated to another destination,
- * false otherwise
- */
-internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boolean {
-    previousBackStackEntry?.let {
-        it.savedStateHandle.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
-        arguments?.let { arguments ->
-            appLogger.d("Destination is ${it.destination}")
-            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments.toMap()
+        popUpTo(entry.destination.id) {
+            this.inclusive = getInclusive(entry)
         }
     }
-    return popBackStack()
 }
 
-internal fun NavController.getCurrentNavigationItem(): NavigationItem? =
-    this.currentDestination?.route?.let { currentRoute ->
-        NavigationItem.fromRoute(currentRoute)
-    }
+internal fun NavDestination.toDestination(): Destination? =
+    this.route?.let { currentRoute -> NavGraphs.root.destinationsByRoute[currentRoute] }
 
 fun String.getPrimaryRoute(): String {
     val splitByQuestion = this.split("?")

@@ -4,10 +4,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailState
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
 import com.wire.kalium.logic.NetworkFailure
@@ -21,7 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okio.IOException
-import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -40,13 +36,9 @@ class ChangeEmailViewModelTest {
 
             viewModel.onSaveClicked()
 
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.VerifyEmailAddress.getRouteWithArgs(listOf(newEmail)),
-                        BackStackMode.REMOVE_CURRENT
-                    )
-                )
+            assertTrue {
+                viewModel.state.flowState is ChangeEmailState.FlowState.Success
+                        && (viewModel.state.flowState as ChangeEmailState.FlowState.Success).newEmail == newEmail
             }
         }
 
@@ -59,9 +51,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack()
-        }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.NoChange }
     }
 
     @Test
@@ -73,9 +63,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertEquals(ChangeEmailState.EmailError.TextFieldError.AlreadyInUse, viewModel.state.error)
-
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -88,9 +76,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertEquals(ChangeEmailState.EmailError.TextFieldError.Generic, viewModel.state.error)
-
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.Generic }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -103,16 +89,11 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertEquals(ChangeEmailState.EmailError.TextFieldError.InvalidEmail, viewModel.state.error)
-
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
     private class Arrangement {
-
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var updateEmail: UpdateEmailUseCase
@@ -128,7 +109,6 @@ class ChangeEmailViewModelTest {
         }
 
         private val viewModel = ChangeEmailViewModel(
-            navigationManager,
             updateEmail,
             self
         )

@@ -110,7 +110,7 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
     }
 
-    override fun getInitialContacts(): Flow<SearchResult> =
+    override suspend fun getInitialContacts(): Flow<SearchResult> =
         getAllContactsNotInConversation(conversationId).map { result ->
             when (result) {
                 is Result.Failure -> SearchResult.Failure(R.string.label_general_error)

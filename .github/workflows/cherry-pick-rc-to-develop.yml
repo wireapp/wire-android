@@ -27,7 +27,7 @@ jobs:
                   PR_BRANCH="${{ github.event.pull_request.head.ref }}"
                   NEW_BRANCH_NAME="${PR_BRANCH}-cherry-pick"
                   echo "New branch name: $NEW_BRANCH_NAME"
-                  echo "::set-output name=newBranchName::$NEW_BRANCH_NAME"
+                  echo "newBranchName=$NEW_BRANCH_NAME" >> $GITHUB_ENV
 
             - name: Check if changes only in kalium submodule
               id: check_changes
@@ -43,21 +43,26 @@ jobs:
             - uses: fregante/setup-git-user@v2
 
             - name: Cherry-pick commits
+              id: cherry
               if: steps.check_changes.outputs.shouldCherryPick == 'true'
               run: |
                   git fetch origin develop:develop
-                  git checkout -b ${{ steps.extract.outputs.newBranchName }} develop
+                  git checkout -b ${{ env.newBranchName }} develop
                   # Cherry-picking the last commit on the base branch
-                  git cherry-pick ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true
-                  git add .
-                  git cherry-pick --continue || true
-                  git push origin ${{ steps.extract.outputs.newBranchName }}
+                  OUTPUT=$(git cherry-pick ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true)
+                  CONFLICTS=$(echo "$OUTPUT" | grep 'CONFLICT' || echo "")
+                  if [ -n "$CONFLICTS" ]; then
+                      git add .
+                      git cherry-pick --continue || true
+                  fi
+                  git push origin ${{ env.newBranchName }} || (echo "Failed to push to origin" && exit 1)
+                  echo "conflicts=$CONFLICTS" >> $GITHUB_ENV
 
             - name: Create PR
               if: steps.check_changes.outputs.shouldCherryPick == 'true'
               env:
                   PR_TITLE: ${{ github.event.pull_request.title }}
-                  PR_BRANCH: ${{ steps.extract.outputs.newBranchName }}
+                  PR_BRANCH: ${{ env.newBranchName }}
                   PR_ASSIGNEE: ${{ github.event.pull_request.user.login }}
-                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n ---- \n{1}', github.event.pull_request.number, github.event.pull_request.body) }}"
-              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base develop --head $PR_BRANCH --label "cherry-pick" --assignee "$PR_ASSIGNEE"
+                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n---- \n\n ⚠️ Conflicts during cherry-pick:\n{1}\n\n{2}', github.event.pull_request.number, env.conflicts, github.event.pull_request.body) }}"
+              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base develop --head "$PR_BRANCH" --label "cherry-pick" --assignee "$PR_ASSIGNEE"

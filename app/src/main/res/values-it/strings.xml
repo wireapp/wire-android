@@ -970,6 +970,9 @@ URL del backend:
     <string name="self_deleting_messages_option">Forza eliminazione dei messaggi</string>
     <string name="self_deleting_messages_option_description">Quando è attivo, tutti i messaggi in questo gruppo scompariranno dopo un certo periodo di tempo. Ciò si applica a tutti i partecipanti del gruppo.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
+    <!-- invalid link -->
+    <string name="label_invalid_link_title">Invalid Link</string>
+    <string name="invalid_link">The schema of the embedded link is not valid.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link ospite</string>
     <string name="guest_link_description">Invita altri con un link a questa conversazione. Chiunque abbia il link pu&#242; unirsi alla conversazione, anche se non ha Wire.</string>

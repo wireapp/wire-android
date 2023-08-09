@@ -103,7 +103,8 @@ fun MessageItem(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onFailedMessageRetryClicked: (String) -> Unit = {},
-    onFailedMessageCancelClicked: (String) -> Unit = {}
+    onFailedMessageCancelClicked: (String) -> Unit = {},
+    onLinkClick: (String) -> Unit = {}
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -229,7 +230,8 @@ fun MessageItem(
                                         onAssetClick = currentOnAssetClicked,
                                         onImageClick = currentOnImageClick,
                                         onLongClick = onLongClick,
-                                        onOpenProfile = onOpenProfile
+                                        onOpenProfile = onOpenProfile,
+                                        onLinkClick = onLinkClick
                                     )
                                 }
                                 if (isMyMessage) {
@@ -447,7 +449,8 @@ private fun MessageContent(
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onLongClick: (() -> Unit)? = null,
-    onOpenProfile: (String) -> Unit
+    onOpenProfile: (String) -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
@@ -475,7 +478,8 @@ private fun MessageContent(
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = onOpenProfile,
+                    onLinkClick = onLinkClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }

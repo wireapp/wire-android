@@ -42,7 +42,8 @@ fun MarkdownParagraph(paragraph: Paragraph, nodeData: NodeData, onMentionsUpdate
                 annotatedString,
                 style = nodeData.style,
                 onLongClick = nodeData.onLongClick,
-                onOpenProfile = nodeData.onOpenProfile
+                onOpenProfile = nodeData.onOpenProfile,
+                onClickLink = nodeData.onLinkClick
             )
         }
 }

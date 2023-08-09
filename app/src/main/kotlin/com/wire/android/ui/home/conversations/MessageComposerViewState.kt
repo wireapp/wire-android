@@ -20,8 +20,8 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -38,4 +38,9 @@ data class MessageComposerViewState(
 sealed class AssetTooLargeDialogState {
     object Hidden : AssetTooLargeDialogState()
     data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
+}
+
+sealed class InvalidLinkDialogState {
+    object Hidden : InvalidLinkDialogState()
+    object Visible : InvalidLinkDialogState()
 }

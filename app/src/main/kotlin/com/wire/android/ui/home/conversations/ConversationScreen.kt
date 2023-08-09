@@ -40,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,6 +55,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -121,6 +123,7 @@ fun ConversationScreen(
     messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
@@ -219,6 +222,15 @@ fun ConversationScreen(
         onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
+        onLinkClick = { link ->
+            with(messageComposerViewModel) {
+                if (isLinkValid(link)) {
+                    uriHandler.openUri(link)
+                } else {
+                    invalidLinkDialogState = InvalidLinkDialogState.Visible
+                }
+            }
+        },
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -233,6 +245,10 @@ fun ConversationScreen(
     AssetTooLargeDialog(
         dialogState = messageComposerViewModel.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
+    )
+    InvalidLinkDialog(
+        dialogState = messageComposerViewModel.invalidLinkDialogState,
+        hideDialog = messageComposerViewModel::hideInvalidLinkError
     )
 }
 
@@ -311,7 +327,8 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?,
     onFailedMessageRetryClicked: (String) -> Unit,
     requestMentions: (String) -> Unit,
-    onClearMentionSearchResult: () -> Unit
+    onClearMentionSearchResult: () -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     val conversationScreenState = rememberConversationScreenState()
@@ -421,7 +438,8 @@ private fun ConversationScreen(
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    snackBarHostState = conversationScreenState.snackBarHostState
+                    snackBarHostState = conversationScreenState.snackBarHostState,
+                    onLinkClick = onLinkClick
                 )
             }
             MenuModalSheetLayout(
@@ -462,7 +480,8 @@ private fun ConversationScreenContent(
     onClearMentionSearchResult: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    snackBarHostState: SnackbarHostState
+    snackBarHostState: SnackbarHostState,
+    onLinkClick: (String) -> Unit,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -491,7 +510,8 @@ private fun ConversationScreenContent(
                 onShowEditingOption = onShowEditingOptions,
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                onLinkClick = onLinkClick
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -571,7 +591,8 @@ fun MessageList(
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
-    onFailedMessageCancelClicked: (String) -> Unit
+    onFailedMessageCancelClicked: (String) -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -627,7 +648,8 @@ fun MessageList(
                         onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                        onLinkClick = onLinkClick
                     )
                 }
 
@@ -700,6 +722,7 @@ fun PreviewConversationScreen() {
         tempWritableVideoUri = null,
         onFailedMessageRetryClicked = {},
         requestMentions = {},
-        onClearMentionSearchResult = {}
+        onClearMentionSearchResult = {},
+        onLinkClick = { _ -> }
     )
 }

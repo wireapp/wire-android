@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.conversations
 
 import android.net.Uri
+import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -56,6 +57,7 @@ import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -162,6 +164,10 @@ class MessageComposerViewModel @Inject constructor(
 
     var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(
         AssetTooLargeDialogState.Hidden
+    )
+
+    var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
+        InvalidLinkDialogState.Hidden
     )
 
     init {
@@ -335,7 +341,8 @@ class MessageComposerViewModel @Inject constructor(
                                 assetWidth = imgWidth,
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
-                                assetMimeType = mimeType
+                                assetMimeType = mimeType,
+                                audioLengthInMs = 0L
                             )
                         }
 
@@ -350,7 +357,11 @@ class MessageComposerViewModel @Inject constructor(
                                     assetMimeType = mimeType,
                                     assetDataSize = dataSize,
                                     assetHeight = null,
-                                    assetWidth = null
+                                    assetWidth = null,
+                                    audioLengthInMs = getAudioLengthInMs(
+                                        dataPath = dataPath,
+                                        mimeType = mimeType
+                                    )
                                 )
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
@@ -393,6 +404,8 @@ class MessageComposerViewModel @Inject constructor(
                 messageComposerViewState.value.copy(mentionSearchResult = members)
         }
     }
+
+    fun isLinkValid(link: String) = URLUtil.isValidUrl(link)
 
     fun clearMentionSearchResult() {
         messageComposerViewState.value =
@@ -484,6 +497,10 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+    }
+
+    fun hideInvalidLinkError() {
+        invalidLinkDialogState = InvalidLinkDialogState.Hidden
     }
 
     companion object {

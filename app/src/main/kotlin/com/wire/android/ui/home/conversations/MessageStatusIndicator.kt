@@ -43,7 +43,11 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modifier) {
+fun MessageStatusIndicator(
+    status: MessageFlowStatus,
+    isGroupConversation: Boolean = false,
+    modifier: Modifier = Modifier
+) {
     when (status) {
         MessageFlowStatus.Sending -> Icon(
             modifier = modifier,
@@ -76,11 +80,13 @@ fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modif
                     tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
                     contentDescription = stringResource(R.string.content_description_message_read_status),
                 )
-                HorizontalSpace.x2()
-                Text(
-                    text = status.count.toString(),
-                    style = MaterialTheme.wireTypography.label03.copy(color = colorsScheme().secondaryText)
-                )
+                if (isGroupConversation) {
+                    HorizontalSpace.x2()
+                    Text(
+                        text = status.count.toString(),
+                        style = MaterialTheme.wireTypography.label03.copy(color = colorsScheme().onTertiaryButtonDisabled)
+                    )
+                }
             }
         }
 

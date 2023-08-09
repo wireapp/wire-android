@@ -35,6 +35,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.getMetadataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile
@@ -335,6 +336,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         assetMimeType = importedAsset.mimeType,
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
                         assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                        audioLengthInMs = getAudioLengthInMs(
+                            dataPath = importedAsset.dataPath,
+                            mimeType = importedAsset.mimeType
+                        )
                     ).also {
                         if (it is ScheduleNewAssetMessageResult.Failure) {
                             appLogger.e("Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} ")

@@ -30,6 +30,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.drawable.Drawable
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -54,6 +55,7 @@ import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.asset.isAudioMimeType
 import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.withContext
@@ -62,6 +64,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Gets the uri of any drawable or given resource
@@ -413,6 +416,18 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
     }
     return currentName
 }
+
+fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
+    if (isAudioMimeType(mimeType)) {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(dataPath.toFile().absolutePath)
+        val rawDuration = retriever
+            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            ?.toLong() ?: 0L
+        rawDuration.milliseconds.inWholeMilliseconds
+    } else {
+        0L
+    }
 
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val DATA_COPY_BUFFER_SIZE = 2048

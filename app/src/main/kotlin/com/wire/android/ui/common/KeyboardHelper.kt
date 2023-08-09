@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
@@ -18,12 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 object KeyboardHelper {
 
     @Composable
-    fun isKeyboardVisible(): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            WindowInsets.isImeVisible
-        } else {
-            ViewCompat.getRootWindowInsets(LocalView.current)?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
-        }
+    fun isKeyboardVisible(): Boolean = ViewCompat.getRootWindowInsets(LocalView.current)?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
 
     @Composable
     fun getCalculatedKeyboardHeight(): Dp =

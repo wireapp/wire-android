@@ -479,8 +479,6 @@ private fun MessageContent(
                     isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,
-                    buttonList = null,
-                    messageId = message.header.messageId,
                     onLinkClick = onLinkClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)

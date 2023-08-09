@@ -80,7 +80,6 @@ internal fun MessageBody(
     isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    buttonList: List<MessageButton>?,
     onLinkClick: (String) -> Unit
 ) {
     val (displayMentions, text) = messageBody?.message?.let {

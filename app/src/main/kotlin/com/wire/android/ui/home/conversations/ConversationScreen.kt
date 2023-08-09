@@ -292,8 +292,6 @@ fun ConversationScreen(
         onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
-        conversationScreenState = conversationScreenState,
-        messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { link ->
             with(messageComposerViewModel) {
                 if (isLinkValid(link)) {
@@ -322,60 +320,6 @@ fun ConversationScreen(
         dialogState = messageComposerViewModel.invalidLinkDialogState,
         hideDialog = messageComposerViewModel::hideInvalidLinkError
     )
-
-    groupDetailsScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is Canceled -> {
-                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
-            }
-
-            is Value -> {
-                resultNavigator.setResult(result.value)
-                resultNavigator.navigateBack()
-                alreadyDeletedByUser = true
-            }
-        }
-    }
-
-    mediaGalleryScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is Canceled -> {
-                appLogger.i("Error with receiving navigation back args from mediaGallery in ConversationScreen")
-            }
-
-            is Value -> {
-                when (result.value.mediaGalleryActionType) {
-                    MediaGalleryActionType.REPLY -> {
-                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
-                            coroutineScope.launch {
-                                withSmoothScreenLoad {
-                                    messageComposerStateHolder.toReply(it)
-                                }
-                            }
-                        }
-                    }
-
-                    MediaGalleryActionType.REACT -> {
-                        result.value.emoji?.let { conversationMessagesViewModel.toggleReaction(result.value.messageId, it) }
-                    }
-
-                    MediaGalleryActionType.DETAIL -> {
-                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
-                            navigator.navigate(
-                                NavigationCommand(
-                                    MessageDetailsScreenDestination(
-                                        conversationMessagesViewModel.conversationId,
-                                        result.value.messageId,
-                                        result.value.isSelfAsset
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Suppress("LongParameterList")
@@ -453,9 +397,7 @@ private fun ConversationScreen(
     onFailedMessageRetryClicked: (String) -> Unit,
     requestMentions: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
-    conversationScreenState: ConversationScreenState,
-    messageComposerStateHolder: MessageComposerStateHolder,
-    onLinkClick: (String) -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -839,8 +781,6 @@ fun PreviewConversationScreen() {
         onFailedMessageRetryClicked = {},
         requestMentions = {},
         onClearMentionSearchResult = {},
-        conversationScreenState = conversationScreenState,
-        messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> }
     )
 }

@@ -25,22 +25,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
@@ -56,32 +47,17 @@ import kotlin.reflect.KClass
 class ServicesManager @Inject constructor(
     private val context: Context,
     dispatcherProvider: DispatcherProvider,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    // collects the info about ongoing calls for all currently valid accounts so that the app can decide if the service should be started
-    // or stopped based on latest info from all valid accounts so that there is no race condition
-    private val ongoingCallsData = MutableStateFlow<List<OngoingCallData>>(emptyList())
-
-    suspend fun currentlyOngoingCall(): Flow<OngoingCallData?> = ongoingCallsData
-        .combine(
-            coreLogic.getGlobalScope().observeValidAccounts()
-        ) { ongoingCalls: List<OngoingCallData>, validAccounts: List<Pair<SelfUser, Team?>> ->
-            ongoingCalls.lastOrNull { ongoingCallData ->
-                // filter out calls that are for accounts that are not valid anymore
-                validAccounts.any { (selfUser, _) -> selfUser.id == ongoingCallData.userId }
-            }
-        }
-        .debounce { if (it == null) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
-        .distinctUntilChanged()
+    private val ongoingCallServiceEvents = MutableStateFlow(false)
 
     init {
         scope.launch {
-            currentlyOngoingCall()
-                // we only want to start the service for the first ongoing call and let it handle keeping itself alive
-                .distinctUntilChangedBy { it != null }
-                .collectLatest { ongoingCallData: OngoingCallData? ->
-                    if (ongoingCallData == null) {
+            ongoingCallServiceEvents
+                .debounce { if (!it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+                .distinctUntilChanged()
+                .collectLatest { shouldBeStarted ->
+                    if (!shouldBeStarted) {
                         appLogger.i("ServicesManager: stopping OngoingCallService because there are no ongoing calls")
                         when (OngoingCallService.serviceState.get()) {
                             OngoingCallService.ServiceState.STARTED -> {
@@ -93,11 +69,13 @@ class ServicesManager @Inject constructor(
                                 startService(OngoingCallService.newIntentToStop(context))
                                 appLogger.i("ServicesManager: OngoingCallService stopped by passing stop argument")
                             }
+
                             OngoingCallService.ServiceState.FOREGROUND -> {
                                 // we can just stop the service, because it's already in foreground
                                 context.stopService(OngoingCallService.newIntent(context))
                                 appLogger.i("ServicesManager: OngoingCallService stopped by calling stopService")
                             }
+
                             else -> {
                                 appLogger.i("ServicesManager: OngoingCallService not running, nothing to stop")
                             }
@@ -111,23 +89,17 @@ class ServicesManager @Inject constructor(
     }
 
     // Ongoing call
-    fun handleOngoingCall(userId: UserId, ongoingCallData: OngoingCallData?) {
+    fun startOngoingCallService() {
+        appLogger.i("ServicesManager: start OngoingCallService event")
         scope.launch {
-            if (ongoingCallData != null) {
-                appLogger.i("ServicesManager: handle ongoing call:${ongoingCallData.conversationId.toLogString()}" +
-                        " for user:${userId.toLogString()}")
-                ongoingCallsData.update { it.filter { it.userId != userId } + ongoingCallData }
-            } else {
-                appLogger.i("ServicesManager: handle no ongoing call for user:${userId.toLogString()}")
-                ongoingCallsData.update { it.filter { it.userId != userId } }
-            }
+            ongoingCallServiceEvents.emit(true)
         }
     }
 
     fun stopOngoingCallService() {
+        appLogger.i("ServicesManager: stop OngoingCallService event")
         scope.launch {
-            appLogger.i("ServicesManager: stopping OngoingCallService for all users")
-            ongoingCallsData.emit(emptyList())
+            ongoingCallServiceEvents.emit(false)
         }
     }
 

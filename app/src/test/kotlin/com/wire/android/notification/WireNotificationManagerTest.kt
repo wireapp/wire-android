@@ -34,6 +34,7 @@ import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
@@ -53,25 +54,28 @@ import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.Result
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
+import io.mockk.MockKMatcherScope
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -150,17 +154,21 @@ class WireNotificationManagerTest {
     @Test
     fun givenSomeIncomingCall_whenCurrentUserIsDifferentFromCallReceiver_thenCallNotificationIsShown() =
         runTestWithCancellation(dispatcherProvider.main()) {
+            val user1 = provideUserId("user1")
+            val user2 = provideUserId("user2")
+            val call = provideCall()
             val (arrangement, manager) = Arrangement()
-                .withIncomingCalls(listOf())
+                .withSpecificUserSession(userId = user1, incomingCalls = listOf())
+                .withSpecificUserSession(userId = user2, incomingCalls = listOf(call))
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.SomeOther)
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(user1.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(user1, user2), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
+            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), user2) }
         }
 
     @Test
@@ -170,7 +178,6 @@ class WireNotificationManagerTest {
             .withMessageNotifications(listOf())
             .withCurrentScreen(CurrentScreen.InBackground)
             .withEstablishedCall(listOf())
-            .withValidAccounts(listOf(provideUserId()))
             .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
@@ -309,7 +316,6 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .withSelfUser(selfUserFlow)
-                .withValidAccounts(listOf(provideUserId()))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
@@ -407,28 +413,6 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation(dispatcherProvider.main()) {
-        val call = provideCall().copy(status = CallStatus.ESTABLISHED)
-        val userId = provideUserId()
-        val (arrangement, manager) = Arrangement()
-            .withIncomingCalls(listOf())
-            .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.InBackground).withEstablishedCall(
-                listOf(provideCall().copy(status = CallStatus.ESTABLISHED))
-            )
-            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-            .withValidAccounts(listOf(userId))
-            .arrange()
-
-        manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
-        runCurrent()
-
-        verify(exactly = 1) {
-            arrangement.servicesManager.handleOngoingCall(userId, match { it.conversationId == call.conversationId })
-        }
-    }
-
-    @Test
     fun givenPingNotification_whenObserveCalled_thenPingSoundIsPlayed() = runTestWithCancellation(dispatcherProvider.main()) {
         val conversationId = ConversationId("conversation_value", "conversation_domain")
         val (arrangement, manager) = Arrangement()
@@ -456,7 +440,7 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenAppInBackground_withValidAccountAndOngoingCall_whenObserving_thenStartOngoingCallService() =
+    fun givenAppInBackground_withValidCurrentAccountAndOngoingCall_whenObserving_thenStartOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -466,19 +450,17 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .withEstablishedCall(listOf(call))
                 .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf(userId))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
-            runCurrent()
+            advanceUntilIdle()
 
-            verify(exactly = 1) {
-                arrangement.servicesManager.handleOngoingCall(userId, match { it.conversationId == call.conversationId })
-            }
+            verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 0) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInBackground_withValidAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInBackground_withValidCurrentAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -487,17 +469,17 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .withEstablishedCall(listOf())
                 .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf(userId))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInBackground_withInvalidAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInBackground_withInvalidCurrentAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -506,18 +488,18 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .withEstablishedCall(listOf(call))
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInBackground_withInvalidAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInBackground_withInvalidCurrentAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -525,18 +507,18 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .withEstablishedCall(listOf())
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInForeground_withValidAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInForeground_withValidCurrentAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -545,18 +527,18 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.Home)
                 .withEstablishedCall(listOf(call))
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf(userId))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInForeground_withValidAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInForeground_withValidCurrentAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -564,18 +546,18 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.Home)
                 .withEstablishedCall(listOf())
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf(userId))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInForeground_withInvalidAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInForeground_withInvalidCurrentAccountAndOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
@@ -584,18 +566,18 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.Home)
                 .withEstablishedCall(listOf(call))
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     @Test
-    fun givenAppInForeground_withInvalidAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
+    fun givenAppInForeground_withInvalidCurrentAccountAndNoOngoingCall_whenObserving_thenStopOngoingCallService() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val (arrangement, manager) = Arrangement()
@@ -603,14 +585,99 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.Home)
                 .withEstablishedCall(listOf())
-                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-                .withValidAccounts(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.servicesManager.handleOngoingCall(userId, null) }
+            verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
+        }
+
+    @Test
+    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForNotCurrentOne_whenObserving_thenStopOngoingCallService() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val userId1 = UserId("value1", "domain")
+            val userId2 = UserId("value2", "domain")
+            val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+            val (arrangement, manager) = Arrangement()
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withSpecificUserSession(userId = userId1, establishedCalls = listOf())
+                .withSpecificUserSession(userId = userId2, establishedCalls = listOf(call))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this) {}
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
+        }
+
+    @Test
+    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForNotCurrentOne_whenCurrentAccountChanges_thenStartOngoingCallService() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val userId1 = UserId("value1", "domain")
+            val userId2 = UserId("value2", "domain")
+            val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+            val (arrangement, manager) = Arrangement()
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withSpecificUserSession(userId = userId1, establishedCalls = listOf())
+                .withSpecificUserSession(userId = userId2, establishedCalls = listOf(call))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this) {}
+            advanceUntilIdle()
+
+            arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService() }
+        }
+
+    @Test
+    fun givenAppInBackground_withTwoValidAccountsAndOngoingCallForCurrentOne_whenCurrentAccountChanges_thenStopOngoingCallService() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val userId1 = UserId("value1", "domain")
+            val userId2 = UserId("value2", "domain")
+            val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+            val (arrangement, manager) = Arrangement()
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withSpecificUserSession(userId = userId1, establishedCalls = listOf(call))
+                .withSpecificUserSession(userId = userId2, establishedCalls = listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this) {}
+            advanceUntilIdle()
+
+            arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
+        }
+
+    @Test
+    fun givenAppInBackground_withValidCurrentAccountAndOngoingCall_whenAccountBecomesInvalid_thenStopOngoingCallService() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val userId = provideUserId()
+            val call = provideCall().copy(status = CallStatus.ESTABLISHED)
+            val (arrangement, manager) = Arrangement()
+                .withIncomingCalls(listOf())
+                .withMessageNotifications(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withEstablishedCall(listOf(call))
+                .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            advanceUntilIdle()
+
+            arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
     private inner class Arrangement {
@@ -678,10 +745,12 @@ class WireNotificationManagerTest {
         lateinit var getSelfUser: GetSelfUserUseCase
 
         @MockK
-        lateinit var pingRinger: PingRinger
+        lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
 
         @MockK
-        lateinit var doesValidSessionExist: DoesValidSessionExistUseCase
+        lateinit var pingRinger: PingRinger
+
+        private val currentSessionChannel = Channel<CurrentSessionResult>(capacity = Channel.UNLIMITED)
 
         val wireNotificationManager by lazy {
             WireNotificationManager(
@@ -709,8 +778,6 @@ class WireNotificationManagerTest {
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
-            coEvery { globalKaliumScope.doesValidSessionExist } returns doesValidSessionExist
-            coEvery { doesValidSessionExist(any()) } returns DoesValidSessionExistResult.Success(false)
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
@@ -723,9 +790,38 @@ class WireNotificationManagerTest {
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) } returns Result.Success
             coEvery { globalKaliumScope.session.currentSession } returns currentSessionUseCase
+            coEvery { globalKaliumScope.session.currentSessionFlow } returns currentSessionFlowUseCase
+            coEvery { currentSessionFlowUseCase() } returns currentSessionChannel.consumeAsFlow()
             coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
-            every { servicesManager.handleOngoingCall(any(), any()) } returns Unit
+            every { servicesManager.startOngoingCallService() } returns Unit
+            every { servicesManager.stopOngoingCallService() } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit
+        }
+
+        private fun mockSpecificUserSession(
+            incomingCalls: List<Call> = emptyList(),
+            establishedCalls: List<Call> = emptyList(),
+            notifications: List<LocalNotificationConversation> = emptyList(),
+            selfUser: SelfUser = TestUser.SELF_USER,
+            userId: MockKMatcherScope.() -> UserId,
+        ) {
+            coEvery { coreLogic.getSessionScope(userId()) } returns mockk {
+                coEvery { syncManager } returns this@Arrangement.syncManager
+                coEvery { conversations } returns mockk {
+                    coEvery { markConnectionRequestAsNotified } returns this@Arrangement.markConnectionRequestAsNotified
+                }
+                coEvery { calls } returns mockk {
+                    coEvery { establishedCall() } returns flowOf(establishedCalls)
+                    coEvery { getIncomingCalls() } returns flowOf(incomingCalls)
+                }
+                coEvery { messages } returns mockk {
+                    coEvery { getNotifications() } returns flowOf(notifications)
+                    coEvery { markMessagesAsNotified } returns this@Arrangement.markMessagesAsNotified
+                }
+                coEvery { users } returns mockk {
+                    coEvery { getSelfUser() } returns flowOf(selfUser)
+                }
+            }
         }
 
         fun withSession(session: GetAllSessionsResult): Arrangement {
@@ -733,15 +829,10 @@ class WireNotificationManagerTest {
             return this
         }
 
-        fun withCurrentUserSession(session: CurrentSessionResult): Arrangement {
+        suspend fun withCurrentUserSession(session: CurrentSessionResult): Arrangement {
             coEvery { currentSessionUseCase() } returns session
+            currentSessionChannel.send(session)
             return this
-        }
-
-        fun withValidAccounts(list: List<UserId>): Arrangement = apply {
-            list.forEach {
-                coEvery { doesValidSessionExist(it) } returns DoesValidSessionExistResult.Success(true)
-            }
         }
 
         fun withMessageNotifications(notifications: List<LocalNotificationConversation>): Arrangement {
@@ -757,6 +848,16 @@ class WireNotificationManagerTest {
         fun withEstablishedCall(calls: List<Call>): Arrangement {
             coEvery { establishedCall() } returns flowOf(calls)
             return this
+        }
+
+        fun withSpecificUserSession(
+            userId: UserId,
+            incomingCalls: List<Call> = emptyList(),
+            establishedCalls: List<Call> = emptyList(),
+            notifications: List<LocalNotificationConversation> = emptyList(),
+            selfUser: SelfUser = TestUser.SELF_USER,
+        ): Arrangement = apply {
+            mockSpecificUserSession(incomingCalls, establishedCalls, notifications, selfUser) { eq(userId) }
         }
 
         fun withCurrentScreen(screen: CurrentScreen): Arrangement {
@@ -775,11 +876,13 @@ class WireNotificationManagerTest {
         private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)
         private val TEST_AUTH_TOKEN = provideAccountInfo()
 
-        private fun provideAccountInfo(userId: String = "user_id"): AccountInfo {
-            return AccountInfo.Valid(
-                userId = UserId(userId, "domain.de")
-            )
-        }
+        private fun provideAccountInfo(userId: String = "user_id"): AccountInfo = AccountInfo.Valid(
+            userId = provideUserId(userId)
+        )
+        private fun provideInvalidAccountInfo(userId: String = "user_id"): AccountInfo = AccountInfo.Invalid(
+            userId = provideUserId(userId),
+            logoutReason = LogoutReason.SESSION_EXPIRED
+        )
 
         private fun provideCall(id: ConversationId = ConversationId("conversation_value", "conversation_domain")) = Call(
             conversationId = id,
@@ -812,10 +915,7 @@ class WireNotificationManagerTest {
             time = Instant.DISTANT_FUTURE
         )
 
-        private fun provideUserId() = UserId("value", "domain")
-
-        private fun appVisibleFlow() = MutableStateFlow(true)
-        private fun appInvisibleFlow() = MutableStateFlow(false)
+        private fun provideUserId(value: String = "user_id") = UserId(value, "domain")
 
         private fun provideCurrentValidUserSession(authSession: AccountInfo = TEST_AUTH_TOKEN) = CurrentSessionResult.Success(authSession)
 

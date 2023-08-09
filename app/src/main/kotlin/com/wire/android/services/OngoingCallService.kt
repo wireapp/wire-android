@@ -35,11 +35,17 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
@@ -60,9 +66,6 @@ class OngoingCallService : Service() {
     @Inject
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @Inject
-    lateinit var servicesManager: ServicesManager
 
     private val scope by lazy {
         // There's no UI, no need to run anything using the Main/UI Dispatcher
@@ -89,14 +92,34 @@ class OngoingCallService : Service() {
             stopSelf()
         } else {
             scope.launch {
-                servicesManager.currentlyOngoingCall()
-                    .collectLatest {
-                        if (it == null) {
-                            appLogger.i("$TAG: stopSelf. Reason: no ongoing calls")
-                            stopSelf()
+                coreLogic.getGlobalScope().session.currentSessionFlow()
+                    .flatMapLatest {
+                        if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
+                            val userId = it.accountInfo.userId
+                            coreLogic.getSessionScope(userId).calls.establishedCall().map {
+                                it.firstOrNull()?.let { call ->
+                                    Either.Right(
+                                        OngoingCallData(
+                                            userId = userId,
+                                            conversationId = call.conversationId,
+                                            notificationTitle = callNotificationManager.builder.getNotificationTitle(call)
+                                        )
+                                    )
+                                } ?: Either.Left("no ongoing calls")
+                            }
                         } else {
-                            generateForegroundNotification(it.notificationTitle, it.conversationId.toString(), it.userId)
+                            flowOf(Either.Left("no valid current session"))
                         }
+                    }
+                    .collectLatest {
+                        it.fold(
+                            { reason ->
+                                appLogger.i("$TAG: stopSelf. Reason: $reason")
+                                stopSelf()
+                            }, {
+                                generateForegroundNotification(it.notificationTitle, it.conversationId.toString(), it.userId)
+                            }
+                        )
                     }
             }
         }
@@ -136,7 +159,7 @@ class OngoingCallService : Service() {
             }
 
         var serviceState: AtomicReference<ServiceState> = AtomicReference(ServiceState.NOT_STARTED)
-            private set
+//            private set
     }
 
     enum class ServiceState {

@@ -47,6 +47,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -305,7 +306,8 @@ class MessageComposerViewModel @Inject constructor(
                                 assetWidth = imgWidth,
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
-                                assetMimeType = mimeType
+                                assetMimeType = mimeType,
+                                audioLengthInMs = 0L
                             )
                         }
 
@@ -320,7 +322,11 @@ class MessageComposerViewModel @Inject constructor(
                                     assetMimeType = mimeType,
                                     assetDataSize = dataSize,
                                     assetHeight = null,
-                                    assetWidth = null
+                                    assetWidth = null,
+                                    audioLengthInMs = getAudioLengthInMs(
+                                        dataPath = dataPath,
+                                        mimeType = mimeType
+                                    )
                                 )
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")

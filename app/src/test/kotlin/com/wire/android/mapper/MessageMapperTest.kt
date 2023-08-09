@@ -180,6 +180,7 @@ class MessageMapperTest {
 
     @Test
     fun givenMessageHasReadStatus_whenMappingToUiMessage_theCorrectValueShouldBeReturned() = runTest {
+
         // given
         val (arrangement, mapper) = Arrangement().arrange()
 

@@ -94,7 +94,7 @@ class MessageMapperTest {
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
         val message1 = arrangement.testMessage(senderUserId = userId1, date = now)
-        val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
+        val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.Failed, date = yesterday)
         val message3 = arrangement.testMessage(senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
         val message4 = arrangement.testMessage(senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
         val message5 = arrangement.testMessage(senderUserId = userId1, date = now).failureToDecrypt(false)
@@ -178,6 +178,30 @@ class MessageMapperTest {
         )
     }
 
+    @Test
+    fun givenMessageHasReadStatus_whenMappingToUiMessage_theCorrectValueShouldBeReturned() = runTest {
+        // given
+        val (arrangement, mapper) = Arrangement().arrange()
+
+        val userId1 = UserId("user-id1", "user-domain")
+        val userId2 = UserId("user-id2", "user-domain")
+        val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
+        val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
+        val members = listOf(member1.user, member2.user)
+
+        val message = arrangement.testMessage(
+            status = Message.Status.Read(10)
+        )
+
+        // when
+        val result = mapper.toUIMessage(members, message)?.header?.messageStatus?.flowStatus
+
+        // then
+        assert(result != null)
+        assert(result!! is MessageFlowStatus.Read)
+        assert((result as MessageFlowStatus.Read).count == 10L)
+    }
+
     private fun checkMessageData(
         uiMessage: UIMessage?,
         time: String?,
@@ -226,11 +250,11 @@ class MessageMapperTest {
         fun arrange() = this to messageMapper
 
         fun testMessage(
-            senderUserId: UserId,
-            status: Message.Status = Message.Status.SENT,
+            senderUserId: UserId = UserId("someValue", "someDomain"),
+            status: Message.Status = Message.Status.Sent,
             visibility: Message.Visibility = Message.Visibility.VISIBLE,
             editStatus: Message.EditStatus = Message.EditStatus.NotEdited,
-            date: String
+            date: String = "2016-09-18T17:34:02.666Z"
         ): Message.Regular = TestMessage.TEXT_MESSAGE.copy(
             senderUserId = senderUserId,
             status = status,

@@ -17,26 +17,19 @@
  */
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.spacers.HorizontalSpace
-import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
-import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -66,10 +59,12 @@ fun MessageStatusIndicator(
         }
 
         MessageFlowStatus.Delivered -> {
-            Box(
-                Modifier
-                    .background(Color.Blue)
-                    .size(32.dp))
+            Icon(
+                modifier = modifier,
+                painter = painterResource(id = R.drawable.ic_message_delivered),
+                tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
+                contentDescription = stringResource(R.string.content_description_message_delivered_status),
+            )
         }
 
         is MessageFlowStatus.Read -> {

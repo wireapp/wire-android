@@ -159,7 +159,7 @@ class OngoingCallService : Service() {
             }
 
         var serviceState: AtomicReference<ServiceState> = AtomicReference(ServiceState.NOT_STARTED)
-//            private set
+            private set
     }
 
     enum class ServiceState {

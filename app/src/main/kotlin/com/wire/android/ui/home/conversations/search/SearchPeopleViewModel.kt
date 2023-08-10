@@ -108,7 +108,7 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    override fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
+    override suspend fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
         .map { result ->
             when (result) {
                 is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
@@ -211,12 +211,12 @@ abstract class PublicWithKnownPeopleSearchViewModel(
             val userId = UserId(contact.id, contact.domain)
 
             when (sendConnectionRequest(userId)) {
-                is SendConnectionRequestResult.Failure -> {
-                    appLogger.d(("Couldn't send a connect request to user $userId"))
-                }
-
                 is SendConnectionRequestResult.Success -> {
                     mutableInfoMessage.emit(SearchPeopleMessageType.SuccessConnectionSentRequest.uiText)
+                }
+
+                is SendConnectionRequestResult.Failure.FederationDenied, is SendConnectionRequestResult.Failure.GenericFailure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
             }
         }
@@ -250,11 +250,12 @@ abstract class SearchPeopleViewModel : ViewModel() {
         .asStateFlow()
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
-    fun initialContactResultFlow() = getInitialContacts().map { result ->
+    suspend fun initialContactResultFlow() = getInitialContacts().map { result ->
         when (result) {
             is SearchResult.Failure -> {
                 SearchResultState.Failure(result.failureString)
             }
+
             is SearchResult.Success -> {
                 SearchResultState.Success(
                     result
@@ -324,7 +325,7 @@ abstract class SearchPeopleViewModel : ViewModel() {
         }
     }
 
-    abstract fun getInitialContacts(): Flow<SearchResult>
+    abstract suspend fun getInitialContacts(): Flow<SearchResult>
 
     abstract suspend fun getInitialServices(): Flow<SearchResult>
 }

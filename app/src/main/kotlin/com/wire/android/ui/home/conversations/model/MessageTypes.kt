@@ -80,7 +80,8 @@ internal fun MessageBody(
     isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    buttonList: List<MessageButton>?
+    buttonList: List<MessageButton>?,
+    onLinkClick: (String) -> Unit
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
@@ -94,7 +95,8 @@ internal fun MessageBody(
         typography = MaterialTheme.wireTypography,
         mentions = displayMentions,
         onLongClick = onLongClick,
-        onOpenProfile = onOpenProfile
+        onOpenProfile = onOpenProfile,
+        onLinkClick = onLinkClick
     )
 
     val extensions: List<Extension> = listOf(

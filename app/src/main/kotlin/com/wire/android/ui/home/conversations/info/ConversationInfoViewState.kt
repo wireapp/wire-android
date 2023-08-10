@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 
 data class ConversationInfoViewState(
+    val conversationId: QualifiedID,
     val conversationName: UIText = UIText.DynamicString(""),
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,

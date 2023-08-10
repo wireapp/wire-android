@@ -129,6 +129,7 @@ private fun ServiceDetailsProfileInfo(
 ) {
     state.serviceDetails?.let { serviceDetails ->
         UserProfileInfo(
+            userId = null,
             isLoading = state.isAvatarLoading,
             avatarAsset = state.serviceAvatarAsset,
             fullName = serviceDetails.name,

@@ -63,6 +63,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -344,7 +345,12 @@ private fun TopBarHeader(
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
     Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
+        appLogger.d("KBX profile ${state.conversationId}")
+        appLogger.d("KBX type ${state.securityClassificationType}")
+        appLogger.d("KBX user ${state.userId}")
+
         UserProfileInfo(
+            userId = state.userId,
             isLoading = state.isAvatarLoading,
             avatarAsset = state.userAvatarAsset,
             fullName = state.fullName,

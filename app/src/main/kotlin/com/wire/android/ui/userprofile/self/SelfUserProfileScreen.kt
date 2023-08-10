@@ -183,6 +183,7 @@ private fun SelfUserProfileContent(
                 ) {
                     stickyHeader {
                         UserProfileInfo(
+                            userId = state.userId,
                             isLoading = state.isAvatarLoading,
                             avatarAsset = state.avatarAsset,
                             fullName = fullName,
@@ -412,6 +413,7 @@ private fun LoggingOutDialog(isLoggingOut: Boolean) {
 fun PreviewSelfUserProfileScreen() {
     SelfUserProfileContent(
         SelfUserProfileState(
+            userId = UserId("value", "domain"),
             status = UserAvailabilityStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
             userName = "userName_long_long_long_long_long_long_long_long_long_long",

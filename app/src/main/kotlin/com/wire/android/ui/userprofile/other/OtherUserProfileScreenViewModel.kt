@@ -64,7 +64,6 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -101,7 +100,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
-    private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -128,7 +126,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     init {
         observeUserInfoAndUpdateViewState()
         persistClients()
-        setClassificationType()
     }
 
     override fun observeClientList() {
@@ -363,12 +360,5 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 )
             }
         )
-    }
-
-    private fun setClassificationType() {
-        viewModelScope.launch {
-            val result = getOtherUserSecurityClassificationLabel(userId)
-            state = state.copy(securityClassificationType = result)
-        }
     }
 }

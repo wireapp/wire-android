@@ -62,7 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.KeyboardHelper
-import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -85,6 +85,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -93,6 +94,7 @@ import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
+    conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
     snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
@@ -109,6 +111,7 @@ fun MessageComposer(
         when (messageComposerViewState.value.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> {
                 DisabledInteractionMessageComposer(
+                    conversationId = conversationId,
                     securityClassificationType = securityClassificationType,
                     warningText = LocalContext.current.resources.stringWithStyledArgs(
                         R.string.label_system_message_blocked_user,
@@ -123,6 +126,7 @@ fun MessageComposer(
             }
 
             InteractionAvailability.DELETED_USER -> DisabledInteractionMessageComposer(
+                conversationId = conversationId,
                 securityClassificationType = securityClassificationType,
                 warningText = LocalContext.current.resources.stringWithStyledArgs(
                     R.string.label_system_message_user_not_available,
@@ -135,6 +139,7 @@ fun MessageComposer(
             )
 
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> DisabledInteractionMessageComposer(
+                conversationId = conversationId,
                 securityClassificationType = securityClassificationType,
                 warningText = null,
                 messageListContent = messageListContent
@@ -142,6 +147,7 @@ fun MessageComposer(
 
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
+                    conversationId = conversationId,
                     messageComposerStateHolder = messageComposerStateHolder,
                     snackbarHostState = snackbarHostState,
                     messageListContent = messageListContent,
@@ -157,7 +163,8 @@ fun MessageComposer(
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    tempWritableImageUri = tempWritableImageUri
+                    tempWritableImageUri = tempWritableImageUri,
+                    securityClassificationType = securityClassificationType
                 )
             }
         }
@@ -166,6 +173,7 @@ fun MessageComposer(
 
 @Composable
 private fun DisabledInteractionMessageComposer(
+    conversationId: ConversationId,
     warningText: AnnotatedString?,
     messageListContent: @Composable () -> Unit,
     securityClassificationType: SecurityClassificationType,
@@ -214,13 +222,14 @@ private fun DisabledInteractionMessageComposer(
                     )
                 }
             }
-            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+            SecurityClassificationBanner(conversationId = conversationId)
         }
     }
 }
 
 @Composable
 private fun EnabledMessageComposer(
+    conversationId : ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
     snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
@@ -233,12 +242,15 @@ private fun EnabledMessageComposer(
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
+    securityClassificationType: SecurityClassificationType,
 ) {
     with(messageComposerStateHolder) {
         Column {
+            SecurityClassificationBanner(conversationId)
             when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
+                        conversationId = conversationId,
                         messageComposerStateHolder = messageComposerStateHolder,
                         snackbarHostState = snackbarHostState,
                         tempWritableVideoUri = tempWritableVideoUri,
@@ -318,6 +330,7 @@ private fun InactiveMessageComposer(
 @Suppress("ComplexMethod")
 @Composable
 private fun ActiveMessageComposer(
+    conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
     snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
@@ -410,7 +423,7 @@ private fun ActiveMessageComposer(
                                 if (isClassifiedConversation) {
                                     Box(Modifier.wrapContentSize()) {
                                         SecurityClassificationBanner(
-                                            securityClassificationType = messageComposerViewState.value.securityClassificationType
+                                            conversationId = conversationId
                                         )
                                     }
                                 }
@@ -543,6 +556,7 @@ fun MessageComposerPreview() {
     val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
     MessageComposer(
+        conversationId = ConversationId("value", "domain"),
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(

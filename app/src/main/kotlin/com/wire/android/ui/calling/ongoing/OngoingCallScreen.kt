@@ -69,7 +69,7 @@ import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
-import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -79,6 +79,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import java.util.Locale
 
@@ -102,6 +103,7 @@ fun OngoingCallScreen(
     }
     with(sharedCallingViewModel.callState) {
         OngoingCallContent(
+            conversationId = conversationId,
             conversationName = conversationName,
             participants = participants,
             isMuted = isMuted ?: true,
@@ -129,6 +131,7 @@ fun OngoingCallScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
+    conversationId: ConversationId,
     conversationName: ConversationName?,
     participants: List<UICallParticipant>,
     isMuted: Boolean,
@@ -186,6 +189,7 @@ private fun OngoingCallContent(
         scaffoldState = scaffoldState,
         sheetContent = {
             CallingControls(
+                conversationId = conversationId,
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 isOnFrontCamera = isOnFrontCamera,
@@ -310,6 +314,7 @@ private fun OngoingCallTopBar(
 
 @Composable
 private fun CallingControls(
+    conversationId: ConversationId,
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
@@ -321,7 +326,7 @@ private fun CallingControls(
     onToggleVideo: () -> Unit,
     flipCamera: () -> Unit,
 ) {
-    Column {
+    Column {// TODO KBX
         val topPadding = if (classificationType != SecurityClassificationType.NONE) {
             dimensions().spacing8x
         } else {
@@ -355,7 +360,7 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        SecurityClassificationBanner(classificationType, modifier = Modifier.padding(top = dimensions().spacing8x))
+        SecurityClassificationBanner(conversationId, modifier = Modifier.padding(top = dimensions().spacing8x))
     }
 }
 

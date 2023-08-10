@@ -58,6 +58,7 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
 @Destination(
@@ -76,7 +77,9 @@ fun InitiatingCallScreen(
             InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
             InitiatingCallState.FlowState.CallEstablished ->
                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
-            InitiatingCallState.FlowState.Default -> { /* do nothing */ }
+
+            InitiatingCallState.FlowState.Default -> { /* do nothing */
+            }
         }
     }
     with(sharedCallingViewModel) {
@@ -148,6 +151,7 @@ private fun InitiatingCallContent(
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
             CallerDetails(
+                callState.conversationId,
                 conversationName = callState.conversationName,
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
@@ -164,5 +168,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallContent(CallState(), {}, {}, {}, {}, {}, {})
+    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {})
 }

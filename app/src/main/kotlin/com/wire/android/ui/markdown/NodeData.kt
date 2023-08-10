@@ -32,7 +32,8 @@ data class NodeData(
     val typography: WireTypography,
     val mentions: List<DisplayMention>,
     val onLongClick: (() -> Unit)? = null,
-    val onOpenProfile: (String) -> Unit
+    val onOpenProfile: (String) -> Unit,
+    val onLinkClick: (String) -> Unit
 )
 
 data class DisplayMention(

@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home
 
 import androidx.compose.foundation.Image
@@ -334,7 +336,7 @@ fun previewE2EIRenewErrorDialogNoGracePeriod() {
 @Composable
 fun previewE2EIRenewErrorDialogWithGracePeriod() {
     WireTheme {
-        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(2.days),{ }) {}
+        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(2.days), { }) {}
     }
 }
 

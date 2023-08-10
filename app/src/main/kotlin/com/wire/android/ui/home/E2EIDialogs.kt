@@ -29,23 +29,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
-import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.toTimeLongLabelUiText
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -170,6 +168,7 @@ private fun E2EIErrorWithSnoozeDialog(
             text = stringResource(id = R.string.label_cancel),
             type = WireDialogButtonType.Secondary,
         ),
+        buttonsHorizontalAlignment = false,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
@@ -320,6 +319,22 @@ fun previewE2EIdRenewRequiredNoSnoozeDialog() {
 fun previewE2EIdSnoozeDialog() {
     WireTheme {
         E2EISnoozeDialog(2.seconds) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewE2EIRenewErrorDialogNoGracePeriod() {
+    WireTheme {
+        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, { }) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewE2EIRenewErrorDialogWithGracePeriod() {
+    WireTheme {
+        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(2.days),{ }) {}
     }
 }
 

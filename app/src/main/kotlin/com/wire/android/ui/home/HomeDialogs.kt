@@ -19,13 +19,13 @@
  */
 
 @file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -33,9 +33,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.toTimeLongLabelUiText
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun FileRestrictionDialog(

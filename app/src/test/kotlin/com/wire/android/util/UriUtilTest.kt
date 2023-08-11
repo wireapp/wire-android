@@ -18,7 +18,7 @@
 package com.wire.android.util
 
 import com.wire.android.string
-import org.junit.Ignore
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -28,7 +28,7 @@ class UriUtilTest {
         val input = "https://google.com"
         val expected = "https://google.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -36,24 +36,47 @@ class UriUtilTest {
         val input = "http://google.com"
         val expected = "http://google.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
-    @Ignore
+    fun givenLink_whenTheLinkStartsWithMailTo_thenReturnsTheSameLink() {
+        val input = "mailto:alice@wire.com"
+        val expected = "mailto:alice@wire.com"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun givenLink_whenTheLinkIsWireDeepLink_thenReturnsTheSameLink() {
+        val input = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
+        val expected = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun givenLink_whenTheLinkStartsWithRandomSchema_thenReturnsTheSameLink() {
-        val randomString = Random.string(Random.nextInt(5))
+        val randomString = Random.string(Random.nextInt(1, 5))
         val input = "$randomString://google.com"
         val expected = "$randomString://google.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
     fun givenLink_whenTheLinkWithoutSchema_thenReturnsTheLinkWithHttps() {
-        val input = Random.string(Random.nextInt(20))
+        val input = Random.string(Random.nextInt(1, 20))
         val expected = "https://$input"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun givenLink_whenTheLinkIsValidWithoutSchema_thenReturnsTheLinkWithHttps() {
+        val input = "google.com"
+        val expected = "https://$input"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
     }
 }

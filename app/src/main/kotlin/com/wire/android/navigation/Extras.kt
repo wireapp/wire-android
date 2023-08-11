@@ -20,6 +20,13 @@
 
 package com.wire.android.navigation
 
-const val EXTRA_USER_ID = "extra_user_id"
-const val EXTRA_USER_NAME = "extra_user_name"
-const val EXTRA_MESSAGE_ID = "extra_message_id"
+val charPoolWithNumbers: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
+
+fun Random.stringWithNumbers(length: Int) = (1..length)
+    .map { Random.nextInt(0, charPoolWithNumbers.size).let { charPoolWithNumbers[it] } }
+    .joinToString("")
+
+fun Random.string(length: Int) = (1..length)
+    .map { Random.nextInt(0, charPool.size).let { charPool[it] } }
+    .joinToString("")

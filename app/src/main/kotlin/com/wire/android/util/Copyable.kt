@@ -17,13 +17,23 @@
  */
 package com.wire.android.util
 
-import android.content.res.Resources
+import java.net.URI
+import java.net.URLDecoder
 
-/**
- * Interface for classes that can be copied to the clipboard.
- * @see [TextMessageEditMenuItems]
- * if a UIMessage implement this interface the copy option will be displayed in the edit menu.
- */
-interface Copyable {
-    fun textToCopy(resources: Resources): String?
+fun containsSchema(url: String): Boolean {
+    return try {
+        URI.create(url).scheme != null
+    } catch (iae: IllegalArgumentException) {
+        false // invalid URI
+    }
+}
+
+fun normalizeLink(url: String): String {
+    val normalizedUrl = URLDecoder.decode(url, "UTF-8") // Decode URL to human-readable format
+
+    return if (containsSchema(normalizedUrl)) {
+        normalizedUrl
+    } else {
+        "https://$normalizedUrl"
+    }
 }

@@ -56,7 +56,7 @@ class UriUtilTest {
 
     @Test
     fun givenLink_whenTheLinkStartsWithRandomSchema_thenReturnsTheSameLink() {
-        val randomString = Random.string(Random.nextInt(5))
+        val randomString = Random.string(Random.nextInt(1,5))
         val input = "$randomString://google.com"
         val expected = "$randomString://google.com"
         val actual = normalizeLink(input)
@@ -65,7 +65,7 @@ class UriUtilTest {
 
     @Test
     fun givenLink_whenTheLinkWithoutSchema_thenReturnsTheLinkWithHttps() {
-        val input = Random.string(Random.nextInt(20))
+        val input = Random.string(Random.nextInt(1,20))
         val expected = "https://$input"
         val actual = normalizeLink(input)
         assert(expected == actual)

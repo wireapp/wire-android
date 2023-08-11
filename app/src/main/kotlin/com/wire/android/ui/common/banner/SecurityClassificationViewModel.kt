@@ -34,9 +34,6 @@ import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassifica
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,12 +53,12 @@ class SecurityClassificationViewModelImpl @Inject constructor(
     private val conversationId: QualifiedID? = args.conversationId
     private val userId: QualifiedID? = args.userId
 
-    private var state: SecurityClassificationType by mutableStateOf(SecurityClassificationType.NONE)
+    private var state by mutableStateOf(SecurityClassificationType.NONE)
 
     override fun state(): SecurityClassificationType = state
 
     init {
-        when{
+        when {
             conversationId != null -> fetchConversationClassificationType(conversationId)
             userId != null -> fetchUserClassificationType(userId)
             else -> appLogger.w("Either conversationId or userId should be provided to SecurityClassificationViewModel")
@@ -72,10 +69,8 @@ class SecurityClassificationViewModelImpl @Inject constructor(
         println("fetchConversationClassificationType")
         observeSecurityClassificationLabel.invoke(conversationId)
             .collect { classificationType ->
-            println("collect")
-
-            state =  classificationType
-        }
+                state = classificationType
+            }
     }
 
     private fun fetchUserClassificationType(userId: UserId) = viewModelScope.launch(dispatchers.io()) {

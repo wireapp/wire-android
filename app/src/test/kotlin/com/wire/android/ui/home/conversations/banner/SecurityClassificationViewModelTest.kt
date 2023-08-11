@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.banner
 
 import androidx.lifecycle.SavedStateHandle
-import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
@@ -32,12 +31,14 @@ import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassifica
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.mockk.MockKAnnotations
+import io.mockk.called
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -49,25 +50,43 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SecurityClassificationViewModelTest {
 
     @Test
-    fun `given conversationId, when observing classification, then update state`() = runTest {
+    fun `given conversationId, when observing conversation classification, then should update state`() = runTest {
         // Given
-        val classificationChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
-
-        val (arrangement, viewModel) = Arrangement()
-            .withArgs(SecurityClassificationArgs(conversationId = CONVERSATION_ID, userId = null))
-            .withSecurityClassificationLabel(classificationChannel.consumeAsFlow())
-            .withOtherUserSecurityClassificationLabel(SecurityClassificationType.CLASSIFIED)
+        val (arrangement, viewModel) = Arrangement(
+            conversationId = CONVERSATION_ID,
+            userId = null
+        )
             .arrange()
 
         // When
-        classificationChannel.send(SecurityClassificationType.CLASSIFIED)
+        arrangement.classificationChannel.send(SecurityClassificationType.CLASSIFIED)
+        advanceUntilIdle()
 
         // Then
-        arrangement.observeSecurityClassificationLabel(CONVERSATION_ID).test {
-            classificationChannel.send(SecurityClassificationType.CLASSIFIED)
-            awaitItem()
-            println("assert equals")
-            assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
+        assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
+
+        coVerify {
+            arrangement.getOtherUserSecurityClassificationLabel(any()) wasNot called
+        }
+    }
+
+    @Test
+    fun `given userId, when fetching user classification, then should update state`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement(
+            conversationId = null,
+            userId = USER_ID
+        )
+            .arrange()
+
+        // When
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
+
+        coVerify {
+            arrangement.observeSecurityClassificationLabel(any()) wasNot called
         }
     }
 
@@ -76,7 +95,10 @@ class SecurityClassificationViewModelTest {
         val USER_ID = UserId("user_value", "user.domain")
     }
 
-    private class Arrangement {
+    private class Arrangement(
+        conversationId: ConversationId?,
+        userId: UserId?
+    ) {
 
         @MockK
         lateinit var observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase
@@ -87,35 +109,22 @@ class SecurityClassificationViewModelTest {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
+        val classificationChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
+
         init {
-            MockKAnnotations.init(this,  relaxUnitFun = true)
-            every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns SecurityClassificationArgs(CONVERSATION_ID, USER_ID)
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns SecurityClassificationArgs(conversationId, userId)
+            coEvery { observeSecurityClassificationLabel(any()) } returns classificationChannel.consumeAsFlow()
+            coEvery { getOtherUserSecurityClassificationLabel(any()) } returns SecurityClassificationType.CLASSIFIED
+
         }
 
-        private val viewModel = SecurityClassificationViewModelImpl(
+        val viewModel = SecurityClassificationViewModelImpl(
             TestDispatcherProvider(),
             observeSecurityClassificationLabel,
             getOtherUserSecurityClassificationLabel,
             savedStateHandle
         )
-
-        fun withArgs(
-            args: SecurityClassificationArgs
-        ) = apply {
-            every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns args
-        }
-
-        fun withSecurityClassificationLabel(
-            result: Flow<SecurityClassificationType>
-        ) = apply {
-            coEvery { observeSecurityClassificationLabel.invoke(any()) } returns result
-        }
-
-        fun withOtherUserSecurityClassificationLabel(
-            result: SecurityClassificationType
-        ) = apply {
-            coEvery { getOtherUserSecurityClassificationLabel(any()) } returns result
-        }
 
         fun arrange() = this to viewModel
     }

@@ -81,6 +81,7 @@ fun InactiveMessageComposerInput(
             focusColor = Color.Transparent,
             placeholderColor = colorsScheme().secondaryText
         ),
+        placeHolderText = stringResource(id = R.string.label_type_a_message),
         messageText = messageText,
         onMessageTextChanged = {
             // non functional
@@ -152,6 +153,7 @@ fun ActiveMessageComposerInput(
                     inputFocused = inputFocused,
                     colors = inputType.inputTextColor(),
                     messageText = messageComposition.messageTextFieldValue,
+                    placeHolderText = inputType.labelText(),
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = onInputFocusedChanged,
@@ -203,6 +205,7 @@ private fun MessageComposerTextInput(
     colors: WireTextFieldColors,
     singleLine: Boolean,
     messageText: TextFieldValue,
+    placeHolderText: String,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit = {},
     onSelectedLineIndexChanged: (Int) -> Unit = { },

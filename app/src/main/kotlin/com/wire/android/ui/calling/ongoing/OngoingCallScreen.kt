@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -80,7 +81,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import java.util.Locale
 
 @RootNavGraph
@@ -102,29 +102,32 @@ fun OngoingCallScreen(
         }
     }
     with(sharedCallingViewModel.callState) {
-        OngoingCallContent(
-            conversationId = conversationId,
-            conversationName = conversationName,
-            participants = participants,
-            isMuted = isMuted ?: true,
-            isCameraOn = isCameraOn,
-            isSpeakerOn = isSpeakerOn,
-            isCbrEnabled = isCbrEnabled,
-            isOnFrontCamera = isOnFrontCamera,
-            classificationType = securityClassificationType,
-            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
-            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
-            toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
-            toggleVideo = sharedCallingViewModel::toggleVideo,
-            flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = sharedCallingViewModel::setVideoPreview,
-            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-            navigateBack = navigator::navigateBack,
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
-        )
-        BackHandler(enabled = isCameraOn, navigator::navigateBack)
+//        Column {
+//            Box(modifier = Modifier.weight(1F)) {
+                OngoingCallContent(
+                    conversationId = conversationId,
+                    conversationName = conversationName,
+                    participants = participants,
+                    isMuted = isMuted ?: true,
+                    isCameraOn = isCameraOn,
+                    isSpeakerOn = isSpeakerOn,
+                    isCbrEnabled = isCbrEnabled,
+                    isOnFrontCamera = isOnFrontCamera,
+                    shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+                    toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+                    toggleMute = sharedCallingViewModel::toggleMute,
+                    hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
+                    toggleVideo = sharedCallingViewModel::toggleVideo,
+                    flipCamera = sharedCallingViewModel::flipCamera,
+                    setVideoPreview = sharedCallingViewModel::setVideoPreview,
+                    clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+                    navigateBack = navigator::navigateBack,
+                    requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+                    hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
+                )
+                BackHandler(enabled = isCameraOn, navigator::navigateBack)
+//            }
+//        }
     }
 }
 
@@ -140,7 +143,6 @@ private fun OngoingCallContent(
     isSpeakerOn: Boolean,
     isCbrEnabled: Boolean,
     shouldShowDoubleTapToast: Boolean,
-    classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -153,17 +155,10 @@ private fun OngoingCallContent(
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
 
-    val sheetInitialValue =
-        if (classificationType == SecurityClassificationType.NONE) SheetValue.PartiallyExpanded else SheetValue.Expanded
+    val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
-    ).also {
-        LaunchedEffect(Unit) {
-            // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
-            if (sheetInitialValue == SheetValue.PartiallyExpanded) it.partialExpand()
-            else it.expand()
-        }
-    }
+    )
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
@@ -171,6 +166,11 @@ private fun OngoingCallContent(
 
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
     var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
+
+    val defaultPickHeight = dimensions().defaultSheetPeekHeight
+    var peekHeight by remember {
+        mutableStateOf(defaultPickHeight)
+    }
 
     WireBottomSheetScaffold(
         sheetDragHandle = null,
@@ -185,7 +185,7 @@ private fun OngoingCallContent(
                 onCollapse = navigateBack
             )
         },
-        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
+        sheetPeekHeight = peekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
             CallingControls(
@@ -194,12 +194,12 @@ private fun OngoingCallContent(
                 isCameraOn = isCameraOn,
                 isOnFrontCamera = isOnFrontCamera,
                 isSpeakerOn = isSpeakerOn,
-                classificationType = classificationType,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
                 onToggleVideo = toggleVideo,
-                flipCamera = flipCamera
+                flipCamera = flipCamera,
+                onHeightChanged = { peekHeight = it }
             )
         },
     ) {
@@ -207,7 +207,7 @@ private fun OngoingCallContent(
             modifier = Modifier
                 .padding(
                     top = it.calculateTopPadding(),
-                    bottom = dimensions().defaultSheetPeekHeight
+                    bottom = peekHeight
                 )
         ) {
 
@@ -319,48 +319,51 @@ private fun CallingControls(
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
     isOnFrontCamera: Boolean,
-    classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit,
     flipCamera: () -> Unit,
+    onHeightChanged: (height: Dp) -> Unit
 ) {
-    Column {// TODO KBX
-        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
-            dimensions().spacing8x
-        } else {
-            dimensions().spacing16x
-        }
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = topPadding)
-        ) {
-            MicrophoneButton(isMuted = isMuted) { toggleMute() }
-            CameraButton(
-                isCameraOn = isCameraOn,
-                onCameraPermissionDenied = { },
-                onCameraButtonClicked = onToggleVideo
-            )
+    BoxWithConstraints {
+        onHeightChanged(constraints.maxHeight.dp)
+        Column {// TODO KBX
+//        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
+//            dimensions().spacing8x
+//        } else {
+//            dimensions().spacing16x
+//        }
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimensions().spacing16x)
+            ) {
+                MicrophoneButton(isMuted = isMuted) { toggleMute() }
+                CameraButton(
+                    isCameraOn = isCameraOn,
+                    onCameraPermissionDenied = { },
+                    onCameraButtonClicked = onToggleVideo
+                )
 
-            SpeakerButton(
-                isSpeakerOn = isSpeakerOn,
-                onSpeakerButtonClicked = toggleSpeaker
-            )
+                SpeakerButton(
+                    isSpeakerOn = isSpeakerOn,
+                    onSpeakerButtonClicked = toggleSpeaker
+                )
 
-            if (isCameraOn) {
-                CameraFlipButton(isOnFrontCamera, flipCamera)
+                if (isCameraOn) {
+                    CameraFlipButton(isOnFrontCamera, flipCamera)
+                }
+
+                HangUpButton(
+                    modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+                    onHangUpButtonClicked = onHangUpCall
+                )
             }
-
-            HangUpButton(
-                modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
-                onHangUpButtonClicked = onHangUpCall
-            )
+            SecurityClassificationBanner(conversationId, modifier = Modifier.padding(top = dimensions().spacing8x))
         }
-        SecurityClassificationBanner(conversationId, modifier = Modifier.padding(top = dimensions().spacing8x))
     }
 }
 

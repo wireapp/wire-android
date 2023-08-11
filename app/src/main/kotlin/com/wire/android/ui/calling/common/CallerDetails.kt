@@ -53,7 +53,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import java.util.Locale
 
 @Composable
@@ -65,8 +64,7 @@ fun CallerDetails(
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
-    callingLabel: String,
-    securityClassificationType: SecurityClassificationType
+    callingLabel: String
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -143,6 +141,5 @@ fun PreviewCallerDetails() {
         conversationType = ConversationType.OneOnOne,
         membership = Membership.Guest,
         callingLabel = String.EMPTY,
-        securityClassificationType = SecurityClassificationType.CLASSIFIED
     )
 }

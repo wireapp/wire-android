@@ -29,7 +29,6 @@ import kotlin.time.Duration.Companion.ZERO
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)

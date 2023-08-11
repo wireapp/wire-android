@@ -21,7 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.di.scopedArgs
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
@@ -120,7 +119,6 @@ class SecurityClassificationViewModelTest {
         }
 
         val viewModel = SecurityClassificationViewModelImpl(
-            TestDispatcherProvider(),
             observeSecurityClassificationLabel,
             getOtherUserSecurityClassificationLabel,
             savedStateHandle

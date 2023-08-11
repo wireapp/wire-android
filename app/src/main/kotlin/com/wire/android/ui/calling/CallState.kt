@@ -26,7 +26,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.CallStatus
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 data class CallState(
     val conversationId: ConversationId,
@@ -41,6 +40,5 @@ data class CallState(
     val isSpeakerOn: Boolean = false,
     val isCbrEnabled: Boolean = false,
     val conversationType: ConversationType = ConversationType.OneOnOne,
-    val membership: Membership = Membership.None,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
+    val membership: Membership = Membership.None
 )

@@ -87,7 +87,6 @@ import com.wire.android.util.ui.KeyboardHeight
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlin.time.Duration
@@ -106,13 +105,10 @@ fun MessageComposer(
     tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
-        val securityClassificationType = messageComposerViewState.value.securityClassificationType
-
         when (messageComposerViewState.value.interactionAvailability) {
             InteractionAvailability.BLOCKED_USER -> {
                 DisabledInteractionMessageComposer(
                     conversationId = conversationId,
-                    securityClassificationType = securityClassificationType,
                     warningText = LocalContext.current.resources.stringWithStyledArgs(
                         R.string.label_system_message_blocked_user,
                         MaterialTheme.wireTypography.body01,
@@ -127,7 +123,6 @@ fun MessageComposer(
 
             InteractionAvailability.DELETED_USER -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
-                securityClassificationType = securityClassificationType,
                 warningText = LocalContext.current.resources.stringWithStyledArgs(
                     R.string.label_system_message_user_not_available,
                     MaterialTheme.wireTypography.body01,
@@ -140,7 +135,6 @@ fun MessageComposer(
 
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
-                securityClassificationType = securityClassificationType,
                 warningText = null,
                 messageListContent = messageListContent
             )
@@ -163,8 +157,7 @@ fun MessageComposer(
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    tempWritableImageUri = tempWritableImageUri,
-                    securityClassificationType = securityClassificationType
+                    tempWritableImageUri = tempWritableImageUri
                 )
             }
         }
@@ -175,8 +168,7 @@ fun MessageComposer(
 private fun DisabledInteractionMessageComposer(
     conversationId: ConversationId,
     warningText: AnnotatedString?,
-    messageListContent: @Composable () -> Unit,
-    securityClassificationType: SecurityClassificationType,
+    messageListContent: @Composable () -> Unit
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         Column(
@@ -229,7 +221,7 @@ private fun DisabledInteractionMessageComposer(
 
 @Composable
 private fun EnabledMessageComposer(
-    conversationId : ConversationId,
+    conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
     snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
@@ -241,12 +233,10 @@ private fun EnabledMessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?,
-    securityClassificationType: SecurityClassificationType,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         Column {
-            SecurityClassificationBanner(conversationId)
             when (messageCompositionInputStateHolder.inputState) {
                 MessageCompositionInputState.ACTIVE -> {
                     ActiveMessageComposer(
@@ -269,6 +259,7 @@ private fun EnabledMessageComposer(
 
                 MessageCompositionInputState.INACTIVE -> {
                     InactiveMessageComposer(
+                        conversationId = conversationId,
                         messageComposition = messageComposerStateHolder.messageComposition.value,
                         isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                         messageListContent = messageListContent,
@@ -282,6 +273,7 @@ private fun EnabledMessageComposer(
 
 @Composable
 private fun InactiveMessageComposer(
+    conversationId: ConversationId,
     messageComposition: MessageComposition,
     isFileSharingEnabled: Boolean,
     messageListContent: @Composable () -> Unit,
@@ -304,6 +296,7 @@ private fun InactiveMessageComposer(
             ) {
                 messageListContent()
             }
+            SecurityClassificationBanner(conversationId)
             Divider(color = MaterialTheme.wireColorScheme.outline)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -418,14 +411,10 @@ private fun ActiveMessageComposer(
                             Modifier.wrapContentSize()
                         ) {
                             Column {
-                                val isClassifiedConversation =
-                                    messageComposerViewState.value.securityClassificationType != SecurityClassificationType.NONE
-                                if (isClassifiedConversation) {
-                                    Box(Modifier.wrapContentSize()) {
-                                        SecurityClassificationBanner(
-                                            conversationId = conversationId
-                                        )
-                                    }
+                                Box(Modifier.wrapContentSize()) {
+                                    SecurityClassificationBanner(
+                                        conversationId = conversationId
+                                    )
                                 }
 
                                 Box(fillRemainingSpaceOrWrapContent) {

@@ -158,8 +158,7 @@ private fun InitiatingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = stringResource(id = R.string.calling_label_ringing_call),
-                securityClassificationType = callState.securityClassificationType
+                callingLabel = stringResource(id = R.string.calling_label_ringing_call)
             )
         }
     }

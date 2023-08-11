@@ -191,8 +191,7 @@ private fun SelfUserProfileContent(
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
                             editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
-                            else EditableState.IsEditable(onEditClick),
-                            securityClassificationType = SecurityClassificationType.NONE
+                            else EditableState.IsEditable(onEditClick)
                         )
                     }
                     stickyHeader {

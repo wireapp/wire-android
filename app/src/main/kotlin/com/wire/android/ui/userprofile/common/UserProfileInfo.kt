@@ -78,8 +78,7 @@ fun UserProfileInfo(
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
     modifier: Modifier = Modifier,
-    connection: ConnectionState = ConnectionState.ACCEPTED,
-    securityClassificationType: SecurityClassificationType
+    connection: ConnectionState = ConnectionState.ACCEPTED
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -230,7 +229,6 @@ fun PreviewUserProfileInfo() {
         fullName = "fullName",
         onUserProfileClick = {},
         teamName = "Wire",
-        connection = ConnectionState.ACCEPTED,
-        securityClassificationType = SecurityClassificationType.CLASSIFIED
+        connection = ConnectionState.ACCEPTED
     )
 }

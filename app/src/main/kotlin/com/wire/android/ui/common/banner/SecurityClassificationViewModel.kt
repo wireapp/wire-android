@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.scopedArgs
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
@@ -43,7 +42,6 @@ interface SecurityClassificationViewModel {
 
 @HiltViewModel
 class SecurityClassificationViewModelImpl @Inject constructor(
-    private val dispatchers: DispatcherProvider,
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
     savedStateHandle: SavedStateHandle
@@ -72,7 +70,7 @@ class SecurityClassificationViewModelImpl @Inject constructor(
             }
     }
 
-    private fun fetchUserClassificationType(userId: UserId) = viewModelScope.launch(dispatchers.io()) {
+    private fun fetchUserClassificationType(userId: UserId) = viewModelScope.launch {
         state = getOtherUserSecurityClassificationLabel(userId)
     }
 }

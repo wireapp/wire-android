@@ -345,10 +345,6 @@ private fun TopBarHeader(
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
     Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
-        appLogger.d("KBX profile ${state.conversationId}")
-        appLogger.d("KBX type ${state.securityClassificationType}")
-        appLogger.d("KBX user ${state.userId}")
-
         UserProfileInfo(
             userId = state.userId,
             isLoading = state.isAvatarLoading,
@@ -359,8 +355,7 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
             membership = state.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = state.connectionState,
-            securityClassificationType = state.securityClassificationType
+            connection = state.connectionState
         )
     }
 }

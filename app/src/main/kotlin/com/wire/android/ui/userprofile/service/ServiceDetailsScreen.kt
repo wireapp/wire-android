@@ -137,8 +137,7 @@ private fun ServiceDetailsProfileInfo(
             teamName = null,
             membership = Membership.Service,
             editableState = EditableState.NotEditable,
-            modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            securityClassificationType = SecurityClassificationType.NONE
+            modifier = Modifier.padding(bottom = dimensions().spacing16x)
         )
     }
 }

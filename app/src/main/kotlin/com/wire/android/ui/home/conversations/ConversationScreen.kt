@@ -383,7 +383,7 @@ private fun ConversationScreen(
                         conversationScreenState.hideContextMenu()
                     }
                 },
-                onDownloadAssetClick = conversationMessagesViewModel::downloadAssetExternally,
+                onDownloadAssetClick = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
                 onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset
             )
         }

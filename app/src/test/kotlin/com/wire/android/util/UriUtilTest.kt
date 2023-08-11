@@ -39,6 +39,23 @@ class UriUtilTest {
     }
 
     @Test
+    fun givenLink_whenTheLinkStartsWithMailTo_thenReturnsTheSameLink() {
+        val input = "mailto:alice@wire.com"
+        val expected = "mailto:alice@wire.com"
+        val actual = normalizeLink(input)
+        assert(expected == actual)
+    }
+
+    @Test
+    fun givenLink_whenTheLinkIsWireDeepLink_thenReturnsTheSameLink() {
+        val input = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
+        val expected = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
+        val actual = normalizeLink(input)
+        assert(expected == actual)
+    }
+
+
+    @Test
     fun givenLink_whenTheLinkStartsWithRandomSchema_thenReturnsTheSameLink() {
         val randomString = Random.string(Random.nextInt(5))
         val input = "$randomString://google.com"

@@ -170,7 +170,6 @@ compose-destinations-ksp ={module = "io.github.raamcosta.compose-destinations:ks
 accompanist-systemUI = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-placeholder = { module = "com.google.accompanist:accompanist-placeholder", version.ref = "accompanist" }
 accompanist-navAnimation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist" }
-accompanist-flowLayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
 
 # Image Loading
 coil-core = { module = "io.coil-kt:coil", version.ref = "coil" }

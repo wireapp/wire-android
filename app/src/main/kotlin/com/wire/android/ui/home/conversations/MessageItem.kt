@@ -368,7 +368,10 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                 modifier = Modifier.weight(weight = 1f, fill = true),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
+                Username(
+                    username.asString(),
+                    modifier = Modifier.weight(weight = 1f, fill = false)
+                )
                 UserBadge(
                     membership = membership,
                     connectionState = connectionState,

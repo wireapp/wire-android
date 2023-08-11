@@ -25,6 +25,7 @@
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Open</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
@@ -979,9 +980,13 @@
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
 
+    <!-- visit link -->
+    <string name="label_visit_link_title">Visit Link</string>
+    <string name="visit_link_dialog_body">This will take you to %s</string>
+
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link">The schema of the embedded link is not valid.</string>
+    <string name="invalid_link_dialog_body">Link could not be opened</string>
 
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>

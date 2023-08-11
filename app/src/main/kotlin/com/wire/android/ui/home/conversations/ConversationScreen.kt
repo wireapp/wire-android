@@ -56,6 +56,7 @@ import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
+import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -82,6 +83,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.util.normalizeLink
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
@@ -224,10 +226,15 @@ fun ConversationScreen(
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onLinkClick = { link ->
             with(messageComposerViewModel) {
-                if (isLinkValid(link)) {
-                    uriHandler.openUri(link)
-                } else {
-                    invalidLinkDialogState = InvalidLinkDialogState.Visible
+                val normalizedLink = normalizeLink(link)
+                visitLinkDialogState = VisitLinkDialogState.Visible(normalizedLink) {
+                    try {
+                        uriHandler.openUri(normalizedLink)
+                        visitLinkDialogState = VisitLinkDialogState.Hidden
+                    } catch (_: Exception) {
+                        visitLinkDialogState = VisitLinkDialogState.Hidden
+                        invalidLinkDialogState = InvalidLinkDialogState.Visible
+                    }
                 }
             }
         },
@@ -246,6 +253,11 @@ fun ConversationScreen(
         dialogState = messageComposerViewModel.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
+    VisitLinkDialog(
+        dialogState = messageComposerViewModel.visitLinkDialogState,
+        hideDialog = messageComposerViewModel::hideVisitLinkDialog
+    )
+
     InvalidLinkDialog(
         dialogState = messageComposerViewModel.invalidLinkDialogState,
         hideDialog = messageComposerViewModel::hideInvalidLinkError

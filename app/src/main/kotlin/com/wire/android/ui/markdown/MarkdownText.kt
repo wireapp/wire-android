@@ -67,7 +67,7 @@ fun MarkdownText(
                     start = offset,
                     end = offset,
                 ).firstOrNull()?.let { result ->
-                    onClickLink?.invoke(annotatedString.substring(result.start, result.end))
+                    onClickLink?.invoke(result.item)
                 }
 
                 annotatedString.getStringAnnotations(

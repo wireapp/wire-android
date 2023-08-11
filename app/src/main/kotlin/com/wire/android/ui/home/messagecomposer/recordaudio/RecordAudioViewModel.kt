@@ -26,8 +26,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.util.AUDIO_MIME_TYPE
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +37,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import okio.Path.Companion.toPath
 import java.io.File
 import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
@@ -143,10 +146,21 @@ class RecordAudioViewModel @Inject constructor(
 
     fun stopRecording() {
         if (state.buttonState == RecordAudioButtonState.RECORDING) {
-            state = state.copy(
-                buttonState = RecordAudioButtonState.READY_TO_SEND
-            )
             audioMediaRecorder.stop()
+
+            state = state.copy(
+                buttonState = RecordAudioButtonState.READY_TO_SEND,
+                audioState = AudioState.DEFAULT.copy(
+                    totalTimeInMs = AudioState.TotalTimeInMs.Known(
+                        state.outputFile?.let {
+                            getAudioLengthInMs(
+                                dataPath = it.path.toPath(),
+                                mimeType = AUDIO_MIME_TYPE
+                            ).toInt()
+                        } ?: 0
+                    )
+                )
+            )
         }
         audioMediaRecorder.release()
     }

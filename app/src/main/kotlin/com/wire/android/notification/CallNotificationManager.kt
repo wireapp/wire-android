@@ -26,26 +26,59 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 @Suppress("TooManyFunctions")
-class CallNotificationManager @Inject constructor(private val context: Context) {
+class CallNotificationManager @Inject constructor(
+    context: Context,
+    dispatcherProvider: DispatcherProvider,
+    val builder: CallNotificationBuilder,
+) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    private val incomingCallsForUsers = MutableStateFlow<List<Pair<UserId, Call>>>(emptyList())
 
-    fun handleIncomingCallNotifications(calls: List<Call>, userId: QualifiedID?) {
-        if (calls.isEmpty() || userId == null) {
-            hideIncomingCallNotification()
+    init {
+        scope.launch {
+            incomingCallsForUsers
+                .debounce { if (it.isEmpty()) 0L else DEBOUNCE_TIME } // debounce to avoid showing and hiding notification too fast
+                .distinctUntilChanged()
+                .collectLatest {
+                    if (it.isEmpty()) {
+                        hideIncomingCallNotification()
+                    } else {
+                        it.first().let { (userId, call) ->
+                            appLogger.i("$TAG: showing incoming call")
+                            showIncomingCallNotification(call, userId)
+                        }
+                    }
+                }
+        }
+    }
+
+    fun handleIncomingCallNotifications(calls: List<Call>, userId: UserId) {
+        if (calls.isEmpty()) {
+            incomingCallsForUsers.update { it.filter { it.first != userId } }
         } else {
-            appLogger.i("$TAG: showing incoming call")
-            showIncomingCallNotification(calls.first(), userId)
+            incomingCallsForUsers.update { it.filter { it.first != userId } + (userId to calls.first()) }
         }
     }
 
@@ -64,13 +97,32 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 
-    private fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
-        val notification = getIncomingCallNotification(call, userId)
+    @VisibleForTesting
+    internal fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
+        appLogger.i("$TAG: showing incoming call for user ${userId.toLogString()}")
+        val notification = builder.getIncomingCallNotification(call, userId)
         notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, notification)
     }
 
     // Notifications
-    private fun getIncomingCallNotification(call: Call, userId: QualifiedID): Notification {
+
+    companion object {
+        private const val TAG = "CallNotificationManager"
+        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
+        @VisibleForTesting
+        internal const val DEBOUNCE_TIME = 200L
+
+        fun hideIncomingCallNotification(context: Context) {
+            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
+        }
+    }
+}
+
+@Singleton
+class CallNotificationBuilder @Inject constructor(
+    private val context: Context,
+) {
+    fun getIncomingCallNotification(call: Call, userId: QualifiedID): Notification {
         val conversationIdString = call.conversationId.toString()
         val userIdString = userId.toString()
         val title = getNotificationTitle(call)
@@ -106,7 +158,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle(callName)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.notification_icon_small)
@@ -128,7 +180,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         return NotificationCompat.Builder(context, channelId)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.notification_icon_small)
@@ -160,13 +212,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         }
 
     companion object {
-        private const val TAG = "CallNotificationManager"
         private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
         private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
-        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
-
-        fun hideIncomingCallNotification(context: Context) {
-            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
-        }
     }
 }

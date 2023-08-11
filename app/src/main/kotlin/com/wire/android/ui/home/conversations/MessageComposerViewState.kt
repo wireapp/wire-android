@@ -40,7 +40,13 @@ sealed class AssetTooLargeDialogState {
     data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
 }
 
+sealed class VisitLinkDialogState {
+    object Hidden : VisitLinkDialogState()
+    data class Visible(val link: String, val openLink: () -> Unit) : VisitLinkDialogState()
+}
+
 sealed class InvalidLinkDialogState {
     object Hidden : InvalidLinkDialogState()
     object Visible : InvalidLinkDialogState()
 }
+

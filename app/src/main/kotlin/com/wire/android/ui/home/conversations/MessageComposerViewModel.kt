@@ -55,17 +55,8 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
-import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
-import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
-import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
-import com.wire.kalium.logic.feature.message.SendKnockUseCase
-import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.conversation.*
+import com.wire.kalium.logic.feature.message.*
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -148,6 +139,10 @@ class MessageComposerViewModel @Inject constructor(
 
     var assetTooLargeDialogState: AssetTooLargeDialogState by mutableStateOf(
         AssetTooLargeDialogState.Hidden
+    )
+
+    var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
+        VisitLinkDialogState.Hidden
     )
 
     var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
@@ -438,10 +433,13 @@ class MessageComposerViewModel @Inject constructor(
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
     }
 
+    fun hideVisitLinkDialog() {
+        visitLinkDialogState = VisitLinkDialogState.Hidden
+    }
+
     fun hideInvalidLinkError() {
         invalidLinkDialogState = InvalidLinkDialogState.Hidden
     }
-
     companion object {
         private const val sizeOf1MB = 1024 * 1024
     }

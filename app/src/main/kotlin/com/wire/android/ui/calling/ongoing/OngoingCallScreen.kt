@@ -27,8 +27,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,7 +51,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -102,32 +103,28 @@ fun OngoingCallScreen(
         }
     }
     with(sharedCallingViewModel.callState) {
-//        Column {
-//            Box(modifier = Modifier.weight(1F)) {
-                OngoingCallContent(
-                    conversationId = conversationId,
-                    conversationName = conversationName,
-                    participants = participants,
-                    isMuted = isMuted ?: true,
-                    isCameraOn = isCameraOn,
-                    isSpeakerOn = isSpeakerOn,
-                    isCbrEnabled = isCbrEnabled,
-                    isOnFrontCamera = isOnFrontCamera,
-                    shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
-                    toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
-                    toggleMute = sharedCallingViewModel::toggleMute,
-                    hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
-                    toggleVideo = sharedCallingViewModel::toggleVideo,
-                    flipCamera = sharedCallingViewModel::flipCamera,
-                    setVideoPreview = sharedCallingViewModel::setVideoPreview,
-                    clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-                    navigateBack = navigator::navigateBack,
-                    requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-                    hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
-                )
-                BackHandler(enabled = isCameraOn, navigator::navigateBack)
-//            }
-//        }
+        OngoingCallContent(
+            conversationId = conversationId,
+            conversationName = conversationName,
+            participants = participants,
+            isMuted = isMuted ?: true,
+            isCameraOn = isCameraOn,
+            isSpeakerOn = isSpeakerOn,
+            isCbrEnabled = isCbrEnabled,
+            isOnFrontCamera = isOnFrontCamera,
+            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+            toggleMute = sharedCallingViewModel::toggleMute,
+            hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
+            toggleVideo = sharedCallingViewModel::toggleVideo,
+            flipCamera = sharedCallingViewModel::flipCamera,
+            setVideoPreview = sharedCallingViewModel::setVideoPreview,
+            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+            navigateBack = navigator::navigateBack,
+            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
+        )
+        BackHandler(enabled = isCameraOn, navigator::navigateBack)
     }
 }
 
@@ -167,11 +164,6 @@ private fun OngoingCallContent(
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
     var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
 
-    val defaultPickHeight = dimensions().defaultSheetPeekHeight
-    var peekHeight by remember {
-        mutableStateOf(defaultPickHeight)
-    }
-
     WireBottomSheetScaffold(
         sheetDragHandle = null,
         topBar = {
@@ -185,7 +177,7 @@ private fun OngoingCallContent(
                 onCollapse = navigateBack
             )
         },
-        sheetPeekHeight = peekHeight,
+        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
             CallingControls(
@@ -198,8 +190,7 @@ private fun OngoingCallContent(
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
                 onToggleVideo = toggleVideo,
-                flipCamera = flipCamera,
-                onHeightChanged = { peekHeight = it }
+                flipCamera = flipCamera
             )
         },
     ) {
@@ -207,7 +198,7 @@ private fun OngoingCallContent(
             modifier = Modifier
                 .padding(
                     top = it.calculateTopPadding(),
-                    bottom = peekHeight
+                    bottom = dimensions().defaultSheetPeekHeight
                 )
         ) {
 
@@ -323,47 +314,42 @@ private fun CallingControls(
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit,
-    flipCamera: () -> Unit,
-    onHeightChanged: (height: Dp) -> Unit
+    flipCamera: () -> Unit
 ) {
-    BoxWithConstraints {
-        onHeightChanged(constraints.maxHeight.dp)
-        Column {// TODO KBX
-//        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
-//            dimensions().spacing8x
-//        } else {
-//            dimensions().spacing16x
-//        }
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = dimensions().spacing16x)
-            ) {
-                MicrophoneButton(isMuted = isMuted) { toggleMute() }
-                CameraButton(
-                    isCameraOn = isCameraOn,
-                    onCameraPermissionDenied = { },
-                    onCameraButtonClicked = onToggleVideo
-                )
+    Column(
+        modifier = Modifier.height(96.dp)
+    ) {
+        Spacer(modifier = Modifier.weight(1F))
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            MicrophoneButton(isMuted = isMuted) { toggleMute() }
+            CameraButton(
+                isCameraOn = isCameraOn,
+                onCameraPermissionDenied = { },
+                onCameraButtonClicked = onToggleVideo
+            )
 
-                SpeakerButton(
-                    isSpeakerOn = isSpeakerOn,
-                    onSpeakerButtonClicked = toggleSpeaker
-                )
+            SpeakerButton(
+                isSpeakerOn = isSpeakerOn,
+                onSpeakerButtonClicked = toggleSpeaker
+            )
 
-                if (isCameraOn) {
-                    CameraFlipButton(isOnFrontCamera, flipCamera)
-                }
-
-                HangUpButton(
-                    modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
-                    onHangUpButtonClicked = onHangUpCall
-                )
+            if (isCameraOn) {
+                CameraFlipButton(isOnFrontCamera, flipCamera)
             }
-            SecurityClassificationBanner(conversationId, modifier = Modifier.padding(top = dimensions().spacing8x))
+
+            HangUpButton(
+                modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+                onHangUpButtonClicked = onHangUpCall
+            )
         }
+        Spacer(modifier = Modifier.weight(1F))
+        SecurityClassificationBanner(conversationId)
     }
 }
 

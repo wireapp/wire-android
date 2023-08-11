@@ -18,6 +18,7 @@
 package com.wire.android.util
 
 import com.wire.android.string
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -27,7 +28,7 @@ class UriUtilTest {
         val input = "https://google.com"
         val expected = "https://google.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -35,7 +36,7 @@ class UriUtilTest {
         val input = "http://google.com"
         val expected = "http://google.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -43,7 +44,7 @@ class UriUtilTest {
         val input = "mailto:alice@wire.com"
         val expected = "mailto:alice@wire.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -51,7 +52,7 @@ class UriUtilTest {
         val input = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
         val expected = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -60,7 +61,7 @@ class UriUtilTest {
         val input = "$randomString://google.com"
         val expected = "$randomString://google.com"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -68,7 +69,7 @@ class UriUtilTest {
         val input = Random.string(Random.nextInt(1,20))
         val expected = "https://$input"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -76,6 +77,6 @@ class UriUtilTest {
         val input = "google.com"
         val expected = "https://$input"
         val actual = normalizeLink(input)
-        assert(expected == actual)
+        assertEquals(expected, actual)
     }
 }

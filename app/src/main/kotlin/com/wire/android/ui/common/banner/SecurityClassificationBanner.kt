@@ -57,7 +57,7 @@ fun SecurityClassificationBanner(
             userId = userId,
             conversationId = conversationId,
         )),
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val securityClassificationType = viewModel.state()
 

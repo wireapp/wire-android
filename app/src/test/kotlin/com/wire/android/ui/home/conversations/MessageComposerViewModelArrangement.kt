@@ -233,6 +233,7 @@ internal class MessageComposerViewModelArrangement {
                 any(),
                 any(),
                 any(),
+                any(),
                 any()
             )
         } returns ScheduleNewAssetMessageResult.Success("some-message-id")

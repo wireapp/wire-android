@@ -53,10 +53,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -77,8 +80,8 @@ class WireNotificationManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
     private val fetchOnceJobs = hashMapOf<UserId, Job>()
-    private val observingWhileRunningJobs = hashMapOf<UserId, ObservingJobs>()
-    private val observingPersistentlyJobs = hashMapOf<UserId, ObservingJobs>()
+    private var observingWhileRunningJobs = ObservingJobs()
+    private var observingPersistentlyJobs = ObservingJobs()
 
     /**
      * Stops all the ObservingNotifications jobs that are currently running, for a specific User.
@@ -168,8 +171,8 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
         val isMessagesAlreadyObserving =
-            observingWhileRunningJobs[userId]?.run { messagesJob.isActive }
-                ?: observingPersistentlyJobs[userId]?.run { messagesJob.isActive }
+            observingWhileRunningJobs.userJobs[userId]?.run { messagesJob.isActive }
+                ?: observingPersistentlyJobs.userJobs[userId]?.run { messagesJob.isActive }
                 ?: false
 
         return if (isMessagesAlreadyObserving) {
@@ -183,8 +186,8 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun observeCallNotificationsOnceJob(userId: UserId): Job? {
         val isCallsAlreadyObserving =
-            observingWhileRunningJobs[userId]?.run { incomingCallsJob.isActive }
-                ?: observingPersistentlyJobs[userId]?.run { incomingCallsJob.isActive }
+            observingWhileRunningJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
+                ?: observingPersistentlyJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
                 ?: false
 
         return if (isCallsAlreadyObserving) {
@@ -226,12 +229,12 @@ class WireNotificationManager @Inject constructor(
         userIds: List<UserId>,
         scope: CoroutineScope,
         doIfCallCameAndAppVisible: (Call) -> Unit,
-        observingJobs: HashMap<UserId, ObservingJobs>
+        observingJobs: ObservingJobs
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
         // removing notifications and stop observing it for the users that are not logged in anymore
-        observingJobs.keys.filter { !userIds.contains(it) }
+        observingJobs.userJobs.keys.filter { !userIds.contains(it) }
             .forEach { userId -> stopObservingForUser(userId, observingJobs) }
 
         if (userIds.isEmpty()) {
@@ -248,9 +251,9 @@ class WireNotificationManager @Inject constructor(
 
         // start observing notifications only for new users
         userIds
-            .filter { observingJobs[it]?.isAllActive() != true }
+            .filter { observingJobs.userJobs[it]?.isAllActive() != true }
             .forEach { userId ->
-                val jobs = ObservingJobs(
+                val jobs = UserObservingJobs(
                     currentScreenJob = scope.launch(dispatcherProvider.default()) {
                         observeCurrentScreenAndHideNotifications(currentScreenState, userId)
                     },
@@ -260,18 +263,23 @@ class WireNotificationManager @Inject constructor(
                     messagesJob = scope.launch(dispatcherProvider.default()) {
                         observeMessageNotifications(userId, currentScreenState)
                     },
-                    ongoingCallJob = scope.launch(dispatcherProvider.default()) {
-                        observeOngoingCalls(currentScreenState, userId)
-                    }
                 )
-                observingJobs[userId] = jobs
+                observingJobs.userJobs[userId] = jobs
             }
+
+        // start observing ongoing calls for all users, but only if not yet started
+        if (observingJobs.ongoingCallJob.get().let { it == null || !it.isActive }) {
+            val job = scope.launch(dispatcherProvider.default()) {
+                observeOngoingCalls(currentScreenState)
+            }
+            observingJobs.ongoingCallJob.set(job)
+        }
     }
 
-    private fun stopObservingForUser(userId: UserId, observingJobs: HashMap<UserId, ObservingJobs>) {
+    private fun stopObservingForUser(userId: UserId, observingJobs: ObservingJobs) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)
-        observingJobs[userId]?.cancelAll()
-        observingJobs.remove(userId)
+        observingJobs.userJobs[userId]?.cancelAll()
+        observingJobs.userJobs.remove(userId)
     }
 
     /**
@@ -376,45 +384,37 @@ class WireNotificationManager @Inject constructor(
     }
 
     /**
-     * Infinitely listen for the established calls and run OngoingCall foreground Service
+     * Infinitely listen for the established calls of a current user and run OngoingCall foreground Service
      * to show corresponding notification and do not lose a call.
-     * @param userId QualifiedID of User that we want to observe for
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can listen established calls only when the app is in background.
      */
-    private suspend fun observeOngoingCalls(
-        currentScreenState: StateFlow<CurrentScreen>,
-        userId: UserId
-    ) {
+    private suspend fun observeOngoingCalls(currentScreenState: StateFlow<CurrentScreen>) {
         currentScreenState
             .flatMapLatest { currentScreen ->
                 if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
-                    try {
-                        coreLogic.getSessionScope(userId).calls
-                            .establishedCall()
-                            .map {
-                                it.firstOrNull()?.let { call ->
-                                    OngoingCallData(callNotificationManager.getNotificationTitle(call), call.conversationId, userId)
-                                }
+                    coreLogic.getGlobalScope().session.currentSessionFlow()
+                        .flatMapLatest {
+                            if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
+                                coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall()
+                                    .map {
+                                        it.firstOrNull()
+                                    }
+                            } else {
+                                flowOf(null)
                             }
-                    } catch (e: IllegalStateException) {
-                        flowOf(null)
-                    }
+                        }
                 }
             }
             .distinctUntilChanged()
-            .collect { ongoingCallData ->
-                if (ongoingCallData == null) {
-                    servicesManager.stopOngoingCallService()
-                } else {
-                    servicesManager.startOngoingCallService(
-                        ongoingCallData.notificationTitle,
-                        ongoingCallData.conversationId,
-                        ongoingCallData.userId
-                    )
-                }
+            .onCompletion {
+                servicesManager.stopOngoingCallService()
+            }
+            .collect { call ->
+                if (call != null) servicesManager.startOngoingCallService()
+                else servicesManager.stopOngoingCallService()
             }
     }
 
@@ -474,24 +474,25 @@ class WireNotificationManager @Inject constructor(
         val userName: String
     )
 
-    private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)
-
-    private data class ObservingJobs(
+    private data class UserObservingJobs(
         val currentScreenJob: Job,
         val incomingCallsJob: Job,
         val messagesJob: Job,
-        val ongoingCallJob: Job,
     ) {
         fun cancelAll() {
             currentScreenJob.cancel()
             incomingCallsJob.cancel()
             messagesJob.cancel()
-            ongoingCallJob.cancel()
         }
 
         fun isAllActive(): Boolean =
-            currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive && ongoingCallJob.isActive
+            currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive
     }
+
+    private data class ObservingJobs(
+        val ongoingCallJob: AtomicReference<Job?> = AtomicReference(),
+        val userJobs: ConcurrentHashMap<QualifiedID, UserObservingJobs> = ConcurrentHashMap()
+    )
 
     companion object {
         private const val TAG = "WireNotificationManager"

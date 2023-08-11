@@ -66,7 +66,6 @@ class SecurityClassificationViewModelImpl @Inject constructor(
     }
 
     private fun fetchConversationClassificationType(conversationId: ConversationId) = viewModelScope.launch {
-        println("fetchConversationClassificationType")
         observeSecurityClassificationLabel.invoke(conversationId)
             .collect { classificationType ->
                 state = classificationType

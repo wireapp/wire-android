@@ -24,18 +24,23 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.home.conversations.InvalidLinkDialogState
+import com.wire.android.ui.home.conversations.VisitLinkDialogState
 
 @Composable
-fun InvalidLinkDialog(dialogState: InvalidLinkDialogState, hideDialog: () -> Unit) {
-    if (dialogState is InvalidLinkDialogState.Visible) {
+fun VisitLinkDialog(dialogState: VisitLinkDialogState, hideDialog: () -> Unit) {
+    if (dialogState is VisitLinkDialogState.Visible) {
         WireDialog(
-            title = stringResource(R.string.label_invalid_link_title),
-            text = stringResource(R.string.invalid_link_dialog_body),
+            title = stringResource(R.string.label_visit_link_title),
+            text = stringResource(R.string.visit_link_dialog_body, dialogState.link),
             buttonsHorizontalAlignment = false,
             onDismiss = hideDialog,
             optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.label_ok),
+                text = stringResource(R.string.label_open),
+                type = WireDialogButtonType.Primary,
+                onClick = dialogState.openLink
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_cancel),
                 type = WireDialogButtonType.Primary,
                 onClick = hideDialog
             )

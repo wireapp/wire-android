@@ -1139,4 +1139,14 @@
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
+    <string name="create_guest_link">Create Guest Link</string>
+    <string name="create_guest_link_with_password_item_title">Create password secured link</string>
+    <string name="create_guest_link_with_password">Create password secured link</string>
+    <string name="create_guest_link_without_password_title">Create link without password</string>
+    <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">Confirm Password</string>
+
 </resources>

@@ -48,8 +48,8 @@ fun GuestLinkActionFooter(
         shadowElevation = dimensions().spacing8x
     ) {
         if (link.isNullOrEmpty()) {
-            CreateLinkButton(
-                shouldDisableGenerateGuestLinkButton = shouldDisableGenerateGuestLinkButton,
+            CreateGuestLinkButton(
+                enabled = !shouldDisableGenerateGuestLinkButton,
                 isLoading = isGeneratingLink,
                 onCreateLink = onCreateLink
             )
@@ -70,7 +70,7 @@ fun PreviewLinkSection() {
         shouldDisableGenerateGuestLinkButton = false,
         isGeneratingLink = false,
         isRevokingLink = false,
-        link = "",
+        link = "123",
         onCreateLink = {},
         onRevokeLink = {},
         onCopyLink = {},

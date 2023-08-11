@@ -27,13 +27,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -43,19 +48,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.CreatePasswordProtectedGuestLinkScreenDestination
+import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = EditGuestAccessNavArgs::class
@@ -67,6 +79,29 @@ fun EditGuestAccessScreen(
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = remember {
+        WireModalSheetState(SheetValue.Hidden)
+    }
+    val onSheetItemClick: (Boolean) -> Unit = remember {
+        { isPasswordProtectewd ->
+            coroutineScope.launch { sheetState.hide() }
+            if (isPasswordProtectewd) {
+                navigator.navigate(NavigationCommand(CreatePasswordProtectedGuestLinkScreenDestination(
+                    CreatePasswordGuestLinkNavArgs(
+                        conversationId = editGuestAccessViewModel.conversationId
+                    )
+                ), backStackMode = BackStackMode.NONE))
+            } else {
+                editGuestAccessViewModel.onRequestGuestRoomLink()
+            }
+        }
+    }
+    CreateGuestLinkBottomSheet(
+        sheetState = sheetState,
+        onSheetItemClick,
+        isPasswordInviteLinksAllowed = true,
+    )
 
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -146,7 +181,7 @@ fun EditGuestAccessScreen(
                     isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
                     isRevokingLink = editGuestAccessState.isRevokingLink,
                     link = editGuestAccessState.link,
-                    onCreateLink = ::onGenerateGuestRoomLink,
+                    onCreateLink = sheetState::show,
                     onRevokeLink = ::onRevokeGuestRoomLink,
                     onCopyLink = {
                         editGuestAccessState = editGuestAccessState.copy(isLinkCopied = true)

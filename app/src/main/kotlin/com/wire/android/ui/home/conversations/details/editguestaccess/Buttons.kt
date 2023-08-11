@@ -36,8 +36,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun CreateLinkButton(
-    shouldDisableGenerateGuestLinkButton: Boolean,
+fun CreateGuestLinkButton(
+    enabled: Boolean,
     isLoading: Boolean,
     onCreateLink: () -> Unit
 ) {
@@ -46,7 +46,7 @@ fun CreateLinkButton(
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
-        state = if (shouldDisableGenerateGuestLinkButton) WireButtonState.Disabled
+        state = if (!enabled) WireButtonState.Disabled
         else WireButtonState.Default,
         modifier = Modifier
             .fillMaxWidth()
@@ -136,5 +136,5 @@ fun PreviewShareLinkButton() {
 @Preview
 @Composable
 fun PreviewCreateLinkButton() {
-    CreateLinkButton(true, false) {}
+    CreateGuestLinkButton(true, false) {}
 }

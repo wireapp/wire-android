@@ -160,6 +160,7 @@ class EditGuestAccessViewModel @Inject constructor(
                             isGuestAccessAllowed = !shouldEnableGuestAccess
                         )
                     )
+
                     is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
                 updateState(editGuestAccessState.copy(isUpdatingGuestAccess = false))
@@ -167,14 +168,18 @@ class EditGuestAccessViewModel @Inject constructor(
         }
     }
 
-    fun onGenerateGuestRoomLink() {
+    fun onRequestGuestRoomLink() {
         viewModelScope.launch {
-            editGuestAccessState = editGuestAccessState.copy(isGeneratingGuestRoomLink = true)
-            generateGuestRoomLink(conversationId).also {
-                editGuestAccessState = editGuestAccessState.copy(isGeneratingGuestRoomLink = false)
-                if (it is GenerateGuestRoomLinkResult.Failure) {
-                    editGuestAccessState = editGuestAccessState.copy(isFailedToGenerateGuestRoomLink = true)
-                }
+            safeCreateGuestLink(null)
+        }
+    }
+
+    private suspend fun safeCreateGuestLink(password: String?) {
+        editGuestAccessState = editGuestAccessState.copy(isGeneratingGuestRoomLink = true)
+        generateGuestRoomLink(conversationId, password).also {
+            editGuestAccessState = editGuestAccessState.copy(isGeneratingGuestRoomLink = false)
+            if (it is GenerateGuestRoomLinkResult.Failure) {
+                editGuestAccessState = editGuestAccessState.copy(isFailedToGenerateGuestRoomLink = true)
             }
         }
     }

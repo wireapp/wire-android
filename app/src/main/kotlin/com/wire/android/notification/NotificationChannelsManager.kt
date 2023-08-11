@@ -118,10 +118,10 @@ class NotificationChannelsManager @Inject constructor(
     private fun createOngoingNotificationChannel() {
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val notificationChannel = NotificationChannelCompat
-            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
             .setVibrationEnabled(false)
-            .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
+            .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setSound(null, null)
             .build()
 

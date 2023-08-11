@@ -56,7 +56,6 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -149,10 +148,11 @@ class WireNotificationManagerTest {
             .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(provideUserId())))
             .arrange()
 
-        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
         runCurrent()
 
-        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
+        verify(exactly = 0) { arrangement.callNotificationManager.hideIncomingCallNotification() }
+        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
     }
 
     @Test
@@ -169,27 +169,11 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(user1.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(user1, user2), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(user1, user2), this)
             runCurrent()
 
             verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), user2) }
         }
-
-    @Test
-    fun givenSomeIncomingCalls_whenAppIsNotVisible_thenCallNotificationHidden() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf(provideCall()))
-            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-            .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.InBackground)
-            .withEstablishedCall(listOf())
-            .arrange()
-
-        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
-        runCurrent()
-
-        verify(exactly = 0) { arrangement.callNotificationManager.hideIncomingCallNotification() }
-        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
-    }
 
     @Test
     fun givenSomeNotifications_whenAppIsInForegroundAndNoUserLoggedIn_thenMessageNotificationNotShowed() =
@@ -455,7 +439,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             advanceUntilIdle()
 
             verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService() }
@@ -474,7 +458,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -494,7 +478,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -513,7 +497,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -533,7 +517,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -552,7 +536,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -572,7 +556,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -591,7 +575,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             runCurrent()
 
             verify(exactly = 0) { arrangement.servicesManager.startOngoingCallService() }
@@ -611,7 +595,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
 
             verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
@@ -630,7 +614,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
@@ -652,7 +636,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId1, userId2), this)
             advanceUntilIdle()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId2.value)))
@@ -674,7 +658,7 @@ class WireNotificationManagerTest {
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this) {}
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             advanceUntilIdle()
 
             arrangement.withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
@@ -789,7 +773,6 @@ class WireNotificationManagerTest {
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) } returns Result.Success
-            coEvery { globalKaliumScope.session.currentSession } returns currentSessionUseCase
             coEvery { globalKaliumScope.session.currentSessionFlow } returns currentSessionFlowUseCase
             coEvery { currentSessionFlowUseCase() } returns currentSessionChannel.consumeAsFlow()
             coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
@@ -830,7 +813,6 @@ class WireNotificationManagerTest {
         }
 
         suspend fun withCurrentUserSession(session: CurrentSessionResult): Arrangement {
-            coEvery { currentSessionUseCase() } returns session
             currentSessionChannel.send(session)
             return this
         }
@@ -916,9 +898,5 @@ class WireNotificationManagerTest {
         )
 
         private fun provideUserId(value: String = "user_id") = UserId(value, "domain")
-
-        private fun provideCurrentValidUserSession(authSession: AccountInfo = TEST_AUTH_TOKEN) = CurrentSessionResult.Success(authSession)
-
-        private fun provideCurrentInvalidUserSession() = CurrentSessionResult.Failure.SessionNotFound
     }
 }

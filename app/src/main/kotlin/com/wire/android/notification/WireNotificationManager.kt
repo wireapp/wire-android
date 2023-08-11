@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -223,7 +224,6 @@ class WireNotificationManager @Inject constructor(
     private suspend fun observeNotificationsAndCalls(
         userIds: List<UserId>,
         scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit,
         observingJobs: ObservingJobs
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)

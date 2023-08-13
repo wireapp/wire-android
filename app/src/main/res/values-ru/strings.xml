@@ -19,7 +19,7 @@
   ~
   -->
 <resources>
-    <string name="app_version">Версия приложения: %s</string>
+    <string name="app_version">Версия приложения</string>
     <string name="build_variant_name">Вариант сборки</string>
     <string name="label_new">Новое</string>
     <string name="label_login">Вход</string>
@@ -34,24 +34,24 @@
     <string name="label_proceed">Продолжить</string>
     <string name="label_leave">Покинуть</string>
     <string name="label_add_device">Добавить устройство</string>
-    <string name="label_learn_more">Узнать больше</string>
+    <string name="label_learn_more">Подробнее</string>
     <string name="label_removing">Удаление...</string>
-    <string name="label_logging_in">Вход в систему...</string>
+    <string name="label_logging_in">Авторизация…</string>
     <string name="label_membership_guest">Гость</string>
     <string name="label_membership_external">Внешний</string>
     <string name="label_membership_service">Сервис</string>
     <string name="label_user_deleted">Удалено</string>
-    <string name="label_message_sent_failure">Не удалось отправить сообщение.</string>
-    <string name="label_message_edit_sent_failure">Отредактированное сообщение не может быть отправлено из-за проблем с подключением.</string>
+    <string name="label_message_sent_failure">Не удалось отправить сообщение из-за проблем с подключением.</string>
+    <string name="label_message_edit_sent_failure">Не удалось изменить сообщение из-за проблем с подключением.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">Ошибка загрузки</string>
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
-    <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сеанс, чтобы сгенерировать новые ключи шифрования.</string>
-    <string name="label_message_knock">%s упомянул</string>
+    <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
+    <string name="label_message_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s получит ваше сообщение позже.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s получит ваше сообщение позднее.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 участник из %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
@@ -70,8 +70,8 @@
     <string name="label_show_all">Показать все</string>
     <string name="label_show_less">Показать меньше</string>
     <string name="label_show_details">Подробнее</string>
-    <string name="label_hide_details">Скрыть детали</string>
-    <string name="label_message_status_edited_with_date">Отредактировано %s</string>
+    <string name="label_hide_details">Скрыть сведения</string>
+    <string name="label_message_status_edited_with_date">Изменено %s</string>
     <string name="label_on">ВКЛ</string>
     <string name="label_off">ВЫКЛ</string>
     <string name="label_value_copied">«%s» был скопирован</string>

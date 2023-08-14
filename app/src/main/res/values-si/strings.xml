@@ -1086,7 +1086,8 @@
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
     <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
-    <string name="notification_obfuscated_message">යමෙක් පණිවිඩයක් එවා ඇත</string>
+    <string name="notification_obfuscated_message_title">Someone</string>
+    <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
     <string name="settings_myaccount_logout">ගිණුම මකන්න</string>
     <string name="app_not_found_for_action">ක්‍රියාමාර්ගය සඳහා සුදුසු යෙදුමක් හමු නොවිණි</string>

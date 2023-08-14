@@ -79,20 +79,20 @@
     <string name="folder_label_access">Доступ</string>
     <string name="folder_label_protocol_details">Сведения о протоколе (beta)</string>
     <string name="folder_label_messaging">Обмен сообщениями</string>
-    <string name="label_user_blocked">Заблокирован(а)</string>
+    <string name="label_user_blocked">Заблокирован(-а)</string>
     <string name="label_and">и</string>
     <string name="label_retry">Повторить</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Логотип приложения</string>
     <string name="content_description_reveal_password">Показать пароль</string>
     <string name="content_description_hide_password">Скрыть пароль</string>
-    <string name="content_description_search_back">Искать значок назад</string>
-    <string name="content_description_clear_content">Очистить от содержимого</string>
+    <string name="content_description_search_back">Значок возврата поиска</string>
+    <string name="content_description_clear_content">Очистить контент</string>
     <string name="content_description_user_avatar">Изображение профиля</string>
     <string name="content_description_muted_conversation">Беззвучные беседы</string>
-    <string name="content_description_check">Флажок</string>
-    <string name="content_description_download_icon">Иконка загрузки</string>
-    <string name="content_description_open_asset_icon">Открыть значок</string>
+    <string name="content_description_check">Отметка</string>
+    <string name="content_description_download_icon">Значок загрузки</string>
+    <string name="content_description_open_asset_icon">Значок открытия</string>
     <string name="content_description_add_to_favourite">Добавить в избранное</string>
     <string name="content_description_move_to_folder">Переместить в папку</string>
     <string name="content_description_move_to_archive">Переместить в архив</string>
@@ -100,7 +100,7 @@
     <string name="content_description_unblock_the_user">Разблокировать</string>
     <string name="content_description_leave_the_group">Покинуть группу</string>
     <string name="content_description_delete_the_group">Удалить группу</string>
-    <string name="content_description_conversation_phone_icon">Начать аудио вызов</string>
+    <string name="content_description_conversation_phone_icon">Начать звонок</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Значок поиска беседы</string>
     <string name="content_description_conversation_enable_rich_text_mode">Кнопка включения режима форматированного текста</string>
@@ -127,10 +127,10 @@
     <string name="content_description_mention_icon">Значок упоминания</string>
     <string name="content_description_attachment_item">Прикрепить новый элемент к беседе</string>
     <string name="content_description_open_message_details">Сведения о сообщении</string>
-    <string name="content_description_copy_the_message">Копировать сообщение</string>
+    <string name="content_description_copy_the_message">Скопировать сообщение</string>
     <string name="content_description_share_the_file">Поделиться выбранным файлом с другим приложением</string>
     <string name="content_description_delete_the_message">Удалить сообщение</string>
-    <string name="content_description_edit_the_message">Редактировать сообщение</string>
+    <string name="content_description_edit_the_message">Изменить сообщение</string>
     <string name="content_description_more_options">Больше вариантов</string>
     <string name="content_description_add_contact">Добавить контакт</string>
     <string name="content_description_image_message">Изображение</string>
@@ -153,8 +153,8 @@
     <string name="content_description_reply_to_messge">Ответить на сообщение</string>
     <string name="content_description_reply_cancel">Отменить ответ на сообщение</string>
     <string name="content_description_ping_message">Пинг</string>
-    <string name="content_description_copy">Копировать</string>
-    <string name="content_description_edit">Правка</string>
+    <string name="content_description_copy">Скопировать</string>
+    <string name="content_description_edit">Редактировать</string>
     <string name="content_description_calling_call_muted">Звук вызова выключен</string>
     <string name="content_description_calling_call_unmuted">Звук вызова включен</string>
     <string name="content_description_calling_call_paused_camera">Пауза камеры</string>
@@ -300,9 +300,9 @@
     <string name="create_personal_account_title">Создать личный аккаунт</string>
     <string name="create_personal_account_summary_title">Личный аккаунт создан</string>
     <string name="create_personal_account_text">Безопасное общение с друзьями и близкими с использованием публичного облачного сервера Wire.</string>
-    <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
-    <string name="create_personal_account_details_text">Enter your personal details:</string>
-    <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
+    <string name="create_personal_account_email_text">Введите ваш email, чтобы начать пользоваться самой надежной платформой для совместной работы.</string>
+    <string name="create_personal_account_details_text">Введите ваши персональные данные:</string>
+    <string name="create_personal_account_summary_text">Вы успешно создали свой личный аккаунт. Начните общаться защищенно - где бы вы ни находились!</string>
     <string name="create_team_title">Создать команду</string>
     <string name="create_team_summary_title">Команда создана</string>
     <string name="create_team_content_title">Wire Free</string>
@@ -336,7 +336,7 @@
     <string name="create_account_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <string name="create_account_code_error_title">Некорректная информация</string>
     <string name="create_account_code_error_team_members_limit_reached">Эта команда достигла лимита участников.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">Данная версия приложения не позволяет создавать личные аккаунты.</string>
     <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">Ваш псевдоним</string>
     <string name="create_account_username_placeholder">jane.doe</string>
@@ -478,7 +478,7 @@
     <string name="group_role_member">Участник</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Clear Data?</string>
-    <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
+    <string name="dialog_logout_wipe_data_checkbox">Удалить всю личную информацию и беседы на этом устройстве</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
@@ -728,8 +728,8 @@
     <string name="label_type_a_message">Введите сообщение</string>
     <string name="notification_action_open_call">Открыть вызов</string>
     <string name="notification_action_decline_call">Отклонить</string>
-    <string name="notification_action_hang_up_call">Повесить трубку</string>
-    <string name="notification_incoming_call_content">Вызывает…</string>
+    <string name="notification_action_hang_up_call">Завершить вызов</string>
+    <string name="notification_incoming_call_content">Вызов…</string>
     <string name="notification_ongoing_call_content">Исходящий вызов…</string>
     <string name="notification_group_call_content">%s вызывает...</string>
     <string name="notification_call_default_caller_name">Кто-то</string>
@@ -747,12 +747,12 @@
     <string name="calling_accept_call">Принять вызов</string>
     <string name="calling_decline_call">Отклонить вызов</string>
     <string name="calling_label_ringing_call">Звонит…</string>
-    <string name="calling_label_incoming_call">Вызывает…</string>
+    <string name="calling_label_incoming_call">Вызов…</string>
     <string name="calling_label_incoming_call_someone_calling">%s вызывает…</string>
-    <string name="calling_label_default_caller_name">Входящий звонок</string>
+    <string name="calling_label_default_caller_name">Входящий вызов</string>
     <string name="calling_label_constant_bit_rate">ПОСТОЯННЫЙ БИТРЕЙТ</string>
     <string name="calling_minimize_view">Свернуть</string>
-    <string name="calling_ongoing_call_title_alert">Завершить текущий звонок?</string>
+    <string name="calling_ongoing_call_title_alert">Завершить текущий вызов?</string>
     <string name="calling_ongoing_call_start_message_alert">Уже есть активный вызов в другой беседе.\nОн будет завершен, если вы начнете новый.</string>
     <string name="calling_ongoing_call_start_anyway">Все равно позвонить</string>
     <string name="calling_ongoing_call_join_message_alert">Уже есть активный вызов в другой беседе.\nОн будет завершен, если вы присоединитесь.</string>
@@ -817,7 +817,7 @@
     <string name="allow_services_description">Открыть эту беседу для сервисов. Вы всегда сможете изменить это позже.</string>
     <string name="service_details_label">Сервис</string>
     <string name="service_details_add_service_label">Add To Group</string>
-    <string name="service_details_remove_service_label">Удалить Из Группы</string>
+    <string name="service_details_remove_service_label">Удалить из группы</string>
     <string name="service_remove_success">Service removed from group</string>
     <string name="service_remove_error">Unable to remove service from group</string>
     <string name="service_add_success">Service added to group</string>
@@ -844,7 +844,7 @@
     <string name="settings_your_account_label">Информация об аккаунте</string>
     <string name="settings_app_settings_label">Настройки приложения</string>
     <string name="settings_privacy_settings_label">Настройки конфиденциальности</string>
-    <string name="settings_network_settings_label">Настройки Сети</string>
+    <string name="settings_network_settings_label">Настройки сети</string>
     <string name="settings_manage_devices_label">Управление устройствами</string>
     <string name="settings_keep_connection_to_websocket">Поддерживать соединение с веб-сокетом</string>
     <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
@@ -852,8 +852,8 @@
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Данные аккаунта</string>
     <string name="settings_myaccount_display_name">ИМЯ ПРОФИЛЯ</string>
-    <string name="settings_myaccount_username">ИМЯ ПОЛЬЗОВАТЕЛЯ</string>
-    <string name="settings_myaccount_email">ЭЛЕКТРОННАЯ ПОЧТА</string>
+    <string name="settings_myaccount_username">ПСЕВДОНИМ</string>
+    <string name="settings_myaccount_email">EMAIL</string>
     <string name="settings_myaccount_team">КОМАНДА</string>
     <string name="settings_myaccount_domain">ДОМЕН</string>
     <string name="settings_myaccount_reset_password">Сбросить пароль</string>
@@ -861,7 +861,7 @@
     <string name="settings_myaccount_display_name_title">Имя вашего профиля</string>
     <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
     <string name="settings_myaccount_display_name_error">Please enter your profile name</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">От 1 до 64 символов</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 64 символа</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
@@ -891,7 +891,7 @@
     <string name="label_share_logs">Share Logs</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
-    <string name="restart_slowsync_for_recovery_button">Перезапустить</string>
+    <string name="restart_slowsync_for_recovery_button">Перезапуск</string>
     <string name="label_mls_option_title">MLS Options</string>
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_proteus_option_title">Proteus Options</string>
@@ -964,7 +964,7 @@
     <string name="dialog_clear_content_text">\"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
     <string name="not_supported_dialog_title">Не поддерживается</string>
     <string name="sso_not_supported_dialog_description">Нельзя авторизоваться через SSO во внутреннем бэкэнде с поддержкой прокси.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Нельзя создать персональный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
     <string name="create_team_not_supported_dialog_description">You can\'t create a new team on an on-premises backend with proxy support in the app.\nPlease use team management (%1$s) instead on this backend.</string>
     <string name="to_team_management_action">Open Team Management</string>
     <!-- Update App dialog -->

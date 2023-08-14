@@ -334,15 +334,15 @@
     <string name="create_account_code_text">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
     <string name="create_account_code_resend">Отправить код еще раз</string>
     <string name="create_account_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
-    <string name="create_account_code_error_title">Некорректная информация</string>
+    <string name="create_account_code_error_title">Неверная информация</string>
     <string name="create_account_code_error_team_members_limit_reached">Эта команда достигла лимита участников.</string>
     <string name="create_account_code_error_personal_account_creation_restricted">Данная версия приложения не позволяет создавать личные аккаунты.</string>
     <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
     <string name="create_account_username_title">Ваш псевдоним</string>
-    <string name="create_account_username_placeholder">jane.doe</string>
-    <string name="create_account_username_label">ИМЯ ПОЛЬЗОВАТЕЛЯ</string>
+    <string name="create_account_username_placeholder">maria.ivanova</string>
+    <string name="create_account_username_label">ПСЕВДОНИМ</string>
     <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
-    <string name="create_account_username_taken_error">Это имя пользователя уже занято. Пожалуйста, выберите другое.</string>
+    <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
     <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9 и _</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">ПРОПУЩЕННЫЕ ВЫЗОВЫ</string>
@@ -353,14 +353,14 @@
     <string name="mention_label_unread_mentions">НЕПРОЧИТАННЫЕ УПОМИНАНИЯ</string>
     <string name="mention_label_all_mentions">ВСЕ УПОМИНАНИЯ</string>
     <string name="label_message_status_deleted">Удалено</string>
-    <string name="label_message_status_edited">Отредактировано</string>
-    <string name="conversations_screen_title">Разговоры</string>
+    <string name="label_message_status_edited">Изменено</string>
+    <string name="conversations_screen_title">Беседы</string>
     <string name="conversations_all_tab_title">Все</string>
     <string name="conversations_calls_tab_title">Звонки</string>
     <string name="conversations_mentions_tab_title">Упоминания</string>
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
-    <string name="new_group_title">Новая Группа</string>
+    <string name="new_group_title">Новая группа</string>
     <string name="new_group_description">К групповой беседе могут присоединиться до 500 участников.</string>
     <string name="group_name_title">Название группы</string>
     <string name="group_name_placeholder">Введите имя</string>
@@ -392,7 +392,7 @@
     <string name="member_name_deleted_label">Удаленный аккаунт</string>
     <string name="member_name_you_label_titlecase">Вы</string>
     <string name="member_name_you_label_lowercase">вы</string>
-    <string name="label_add_participants">Добавить Участников</string>
+    <string name="label_add_participants">Добавить участников</string>
     <string name="username_unavailable_label">Имя недоступно</string>
     <string name="conversation_details_title">Информация о беседе</string>
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
@@ -402,7 +402,7 @@
     <string name="conversation_details_group_members">УЧАСТНИКИ ГРУППЫ (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
-    <string name="conversation_details_group_participants_title">Участники Группы</string>
+    <string name="conversation_details_group_participants_title">Участники группы</string>
     <string name="conversation_details_group_participants_add">Добавить участников</string>
     <string name="conversation_participant_you_label">(Вы)</string>
     <string name="conversation_details_is_classified">УРОВЕНЬ БЕЗОПАСНОСТИ: VS-NfD</string>
@@ -427,8 +427,8 @@
     <string name="delete_group_conversation_dialog_title">Удалить “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
     <!-- Import/Export External Media -->
-    <string name="import_media_content_title">Share With Wire</string>
-    <string name="import_media_searchbar_title">Search for conversation</string>
+    <string name="import_media_content_title">Поделиться с Wire</string>
+    <string name="import_media_searchbar_title">Поиск беседы</string>
     <string name="import_media_send_button_title">Отправить</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
@@ -445,7 +445,7 @@
     <!-- Attachment options -->
     <string name="attachment_share_file">Прикрепить файл</string>
     <string name="attachment_share_image">Прикрепить изображение</string>
-    <string name="attachment_take_photo">Сделать Фото</string>
+    <string name="attachment_take_photo">Сделать фото</string>
     <string name="attachment_record_video">Записать видео</string>
     <string name="attachment_voice_message">Аудиосообщение</string>
     <string name="attachment_share_location">Поделиться местоположением</string>
@@ -474,10 +474,10 @@
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
-    <string name="group_role_admin">Admin</string>
+    <string name="group_role_admin">Администратор</string>
     <string name="group_role_member">Участник</string>
     <!-- Logout Wipe Data Dialog -->
-    <string name="dialog_logout_wipe_data_title">Clear Data?</string>
+    <string name="dialog_logout_wipe_data_title">Удалить данные?</string>
     <string name="dialog_logout_wipe_data_checkbox">Удалить всю личную информацию и беседы на этом устройстве</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
@@ -492,13 +492,13 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Уведомления</string>
     <string name="label_add_to_favourites">Добавить в избранное</string>
-    <string name="label_move_to_folder">Move to Folder</string>
+    <string name="label_move_to_folder">Переместить в папку</string>
     <string name="label_move_to_archive">Переместить в архив</string>
-    <string name="label_clear_content">Clear Content…</string>
+    <string name="label_clear_content">Очистить контент…</string>
     <string name="label_block">Заблокировать</string>
     <string name="label_unblock">Разблокировать</string>
-    <string name="label_leave_group">Leave Group</string>
-    <string name="label_delete_group">Delete Group</string>
+    <string name="label_leave_group">Покинуть группу</string>
+    <string name="label_delete_group">Удалить группу</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>

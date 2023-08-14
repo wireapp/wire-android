@@ -1132,7 +1132,8 @@
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Не найдено приложение для открытия папки загрузок"</string>
-    <string name="notification_obfuscated_message">Кто-то прислал сообщение</string>
+    <string name="notification_obfuscated_message_title">Someone</string>
+    <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">Информация о лицензии</string>
     <string name="settings_myaccount_logout">Удалить аккаунт</string>
     <string name="app_not_found_for_action">Не найдено приложений для выполнения действия</string>

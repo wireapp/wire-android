@@ -1087,7 +1087,8 @@ Kérjük, próbálja meg újra.</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Nem található alkalmazás a letöltési mappa megnyitásához"</string>
-    <string name="notification_obfuscated_message">Valaki egy üzenetet küldött</string>
+    <string name="notification_obfuscated_message_title">Someone</string>
+    <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">Licenc információ</string>
     <string name="settings_myaccount_logout">Fiók törlése</string>
     <string name="app_not_found_for_action">Nem található alkalmazás a művelet végrehajtásához</string>

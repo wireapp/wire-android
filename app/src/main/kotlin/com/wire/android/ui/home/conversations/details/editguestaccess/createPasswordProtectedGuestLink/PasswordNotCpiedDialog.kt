@@ -17,15 +17,23 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.CoreFailure
+import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 
-data class CreatePasswordGuestLinkState(
-    val password: TextFieldValue = TextFieldValue(""),
-    val passwordConfirm: TextFieldValue = TextFieldValue(""),
-    val isLoading : Boolean = false,
-    val error : CoreFailure? = null,
-    val isPasswordValid : Boolean = false,
-    val isLinkCreationSuccessful: Boolean = false,
-    val isPasswordCopied : Boolean = false
-)
+@Composable
+fun PasswordNotCopiedDialog(
+    onConfirm: () -> Unit
+) {
+    WireDialog(
+        title = "Copy Password",
+        onDismiss = onConfirm,
+        text = "You need to copy the password so that you can store and share it with people you want to invite.",
+        optionButton1Properties = WireDialogButtonProperties(
+            type = WireDialogButtonType.Primary,
+            text = "Copy Password",
+            onClick = onConfirm
+        )
+    )
+}

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.GenerateRandomPasswordUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -37,6 +38,7 @@ import javax.inject.Inject
 class CreatePasswordGuestLinkViewModel @Inject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,
+    private val generateRandomPasswordUseCase: GenerateRandomPasswordUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -63,13 +65,21 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     }
 
     fun onPasswordUpdated(password: TextFieldValue) {
-        state = state.copy(password = password)
-        checkIfPasswordIsValidAndConfirmed()
+        if (password.text != state.password.text) {
+            state = state.copy(password = password, isPasswordCopied = false)
+            checkIfPasswordIsValidAndConfirmed()
+        } else {
+            state = state.copy(password = password)
+        }
     }
 
     fun onPasswordConfirmUpdated(password: TextFieldValue) {
-        state = state.copy(passwordConfirm = password)
-        checkIfPasswordIsValidAndConfirmed()
+        if (password.text != state.passwordConfirm.text) {
+            state = state.copy(passwordConfirm = password, isPasswordCopied = false)
+            checkIfPasswordIsValidAndConfirmed()
+        } else {
+            state = state.copy(passwordConfirm = password)
+        }
     }
 
     private fun checkIfPasswordIsValidAndConfirmed() {
@@ -82,6 +92,16 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
 
     fun onErrorDialogDissmissed() {
         state = state.copy(error = null)
+    }
+
+    fun onGenerateRandomPassword() {
+        val password = generateRandomPasswordUseCase()
+        state = state.copy(password = TextFieldValue(password), passwordConfirm = TextFieldValue(password), isPasswordCopied = false)
+        checkIfPasswordIsValidAndConfirmed()
+    }
+
+    fun onPasswordCopied() {
+        state = state.copy(isPasswordCopied = true)
     }
 
 }

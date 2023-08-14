@@ -34,8 +34,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -79,8 +77,24 @@ fun CreatePasswordProtectedGuestLinkScreen(
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val clipboardManager = LocalClipboardManager.current
+    val onCopyClick = remember(viewModel.state.password.text) {
+        {
+            if (viewModel.state.isPasswordValid) {
+                clipboardManager.setText(viewModel.state.password.annotatedString)
+                viewModel.onPasswordCopied()
+            }
+        }
+    }
     if (viewModel.state.isLinkCreationSuccessful) {
-        navigator.navigateBack()
+        if (viewModel.state.isPasswordCopied) {
+            navigator.navigateBack()
+        } else {
+            PasswordNotCopiedDialog {
+                onCopyClick()
+                navigator.navigateBack()
+            }
+        }
     }
 
     Scaffold(topBar = {
@@ -102,12 +116,13 @@ fun CreatePasswordProtectedGuestLinkScreen(
                     .padding(
                         start = dimensions().spacing16x,
                         end = dimensions().spacing16x,
-                        bottom = dimensions().spacing8x,
-                        top = dimensions().spacing8x,
+                        bottom = dimensions().spacing16x,
+                        top = dimensions().spacing16x,
                     )
                     .weight(1F)
                     .fillMaxSize()
             ) {
+
                 item {
                     Text(
                         text = stringResource(
@@ -122,7 +137,14 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         ),
                         style = MaterialTheme.wireTypography.body02
                     )
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                item {
+                    GeneratePasswordButton(
+                        onClick = viewModel::onGenerateRandomPassword
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 item {
@@ -131,43 +153,35 @@ fun CreatePasswordProtectedGuestLinkScreen(
                             id = R.string.conversation_options_create_password_protected_guest_link_password_label
                         ),
                         value = viewModel.state.password,
+                        placeholderText = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text),
                         onValueChange = viewModel::onPasswordUpdated,
                         autofillTypes = emptyList()
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     WirePasswordTextField(
                         labelText = stringResource(
                             id = R.string.conversation_options_create_confirm_password_protected_guest_link_password_label
                         ),
+                        placeholderText = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text),
                         value = viewModel.state.passwordConfirm,
                         onValueChange = viewModel::onPasswordConfirmUpdated,
                         autofillTypes = emptyList()
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
+
                 item {
-                    val clipboardManager = LocalClipboardManager.current
-                    val onClick = remember(viewModel.state.password.text) {
-                        {
-                            if (viewModel.state.isPasswordValid) {
-                                clipboardManager.setText(viewModel.state.password.annotatedString)
-                            }
-                        }
+                    val copyButtonState = when {
+                        (viewModel.state.isPasswordValid && !viewModel.state.isPasswordCopied) -> WireButtonState.Error
+                        viewModel.state.isPasswordValid -> WireButtonState.Default
+                        else -> WireButtonState.Disabled
                     }
-                    val copyButtonState by remember {
-                        derivedStateOf {
-                            when {
-                                viewModel.state.password.text.isEmpty() -> WireButtonState.Disabled
-                                viewModel.state.password != viewModel.state.passwordConfirm -> WireButtonState.Error
-                                viewModel.state.isPasswordValid -> WireButtonState.Default
-                                else -> WireButtonState.Disabled
-                            }
-                        }
-                    }
+
                     CreatePasswordProtectedGuestLinkCopyPassword(
-                        onClick = onClick,
+                        onClick = onCopyClick,
                         state = copyButtonState
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             Surface(
@@ -210,9 +224,10 @@ fun CreatePasswordProtectedGuestLinkCopyPassword(
     WireSecondaryButton(
         state = state,
         onClick = onClick,
-        text = "Copy",
+        text = stringResource(id = R.string.label_copy),
         colors = wireSecondaryButtonColors(
-            onError = MaterialTheme.wireColorScheme.secondaryButtonEnabled
+            error = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+            onError = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
         ),
         leadingIcon = icon?.let {
             {

@@ -94,7 +94,7 @@ class MessageMapperTest {
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
         val message1 = arrangement.testMessage(senderUserId = userId1, date = now)
-        val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
+        val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.Failed, date = yesterday)
         val message3 = arrangement.testMessage(senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
         val message4 = arrangement.testMessage(senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
         val message5 = arrangement.testMessage(senderUserId = userId1, date = now).failureToDecrypt(false)
@@ -227,7 +227,7 @@ class MessageMapperTest {
 
         fun testMessage(
             senderUserId: UserId,
-            status: Message.Status = Message.Status.SENT,
+            status: Message.Status = Message.Status.Sent,
             visibility: Message.Visibility = Message.Visibility.VISIBLE,
             editStatus: Message.EditStatus = Message.EditStatus.NotEdited,
             date: String

@@ -294,8 +294,8 @@ private fun DevelopmentApiVersioningOptions(
         },
         actions = {
             WirePrimaryButton(
-                minHeight = MaterialTheme.wireDimensions.buttonMinSize.height,
-                minWidth = MaterialTheme.wireDimensions.buttonMinSize.width,
+                minHeight = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
+                minWidth = MaterialTheme.wireDimensions.buttonMediumMinSize.width,
                 onClick = onForceLatestDevelopmentApiChange,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
@@ -355,6 +355,8 @@ private fun MLSOptions(
             },
             actions = {
                 WirePrimaryButton(
+                    minHeight = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
+                    minWidth = MaterialTheme.wireDimensions.buttonMediumMinSize.width,
                     onClick = restartSlowSyncForRecovery,
                     text = stringResource(R.string.restart_slowsync_for_recovery_button),
                     fillMaxWidth = false

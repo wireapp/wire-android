@@ -22,6 +22,7 @@
 
 package com.wire.android.ui.common.topappbar
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandIn
@@ -121,22 +122,16 @@ private fun ConnectivityStatusBar(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall) {
-                OngoingCallContent(connectivityInfo.isMuted)
-            } else {
-                val isConnecting = connectivityInfo is ConnectivityUIState.Info.Connecting
-                ConnectivityIssueContent(isConnecting)
+            when (connectivityInfo) {
+                is ConnectivityUIState.Info.EstablishedCall -> OngoingCallContent(connectivityInfo.isMuted)
+                ConnectivityUIState.Info.Connecting -> StatusLabel(R.string.connectivity_status_bar_connecting)
+                ConnectivityUIState.Info.WaitingConnection ->
+                    StatusLabel(R.string.connectivity_status_bar_waiting_for_network)
+
+                ConnectivityUIState.Info.None -> {}
             }
         }
     }
-}
-
-@Composable
-private fun ConnectivityIssueContent(isConnecting: Boolean) {
-    val stringResource = if (isConnecting) R.string.connectivity_status_bar_connecting
-    else R.string.connectivity_status_bar_waiting_for_network
-
-    StatusLabel(stringResource)
 }
 
 @Composable

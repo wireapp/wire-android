@@ -45,13 +45,14 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
+import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -264,6 +265,8 @@ private fun ManualMigrationOptions(
         },
         actions = {
             WirePrimaryButton(
+                minHeight = MaterialTheme.wireDimensions.buttonMinSize.height,
+                minWidth = MaterialTheme.wireDimensions.buttonMinSize.width,
                 onClick = onManualMigrationClicked,
                 text = stringResource(R.string.start_manual_migration),
                 fillMaxWidth = false
@@ -291,6 +294,8 @@ private fun DevelopmentApiVersioningOptions(
         },
         actions = {
             WirePrimaryButton(
+                minHeight = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
+                minWidth = MaterialTheme.wireDimensions.buttonMediumMinSize.width,
                 onClick = onForceLatestDevelopmentApiChange,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
@@ -350,6 +355,8 @@ private fun MLSOptions(
             },
             actions = {
                 WirePrimaryButton(
+                    minHeight = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
+                    minWidth = MaterialTheme.wireDimensions.buttonMediumMinSize.width,
                     onClick = restartSlowSyncForRecovery,
                     text = stringResource(R.string.restart_slowsync_for_recovery_button),
                     fillMaxWidth = false

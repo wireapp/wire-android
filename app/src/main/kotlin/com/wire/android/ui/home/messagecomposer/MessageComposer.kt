@@ -232,7 +232,7 @@ private fun EnabledMessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?,
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         Column {
@@ -241,8 +241,6 @@ private fun EnabledMessageComposer(
                     ActiveMessageComposer(
                         messageComposerStateHolder = messageComposerStateHolder,
                         snackbarHostState = snackbarHostState,
-                        tempWritableVideoUri = tempWritableVideoUri,
-                        tempWritableImageUri = tempWritableImageUri,
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
@@ -251,7 +249,9 @@ private fun EnabledMessageComposer(
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                         onClearMentionSearchResult = onClearMentionSearchResult,
-                        onPingOptionClicked = onPingOptionClicked
+                        onPingOptionClicked = onPingOptionClicked,
+                        tempWritableVideoUri = tempWritableVideoUri,
+                        tempWritableImageUri = tempWritableImageUri
                     )
                 }
 

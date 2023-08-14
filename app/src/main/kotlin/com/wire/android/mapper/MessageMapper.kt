@@ -170,7 +170,7 @@ class MessageMapper @Inject constructor(
             when (val status = message.status) {
                 Message.Status.Pending -> MessageFlowStatus.Sending
                 Message.Status.Sent -> MessageFlowStatus.Sent
-                is Message.Status.Read -> MessageFlowStatus.Read(status.readCount.toInt())
+               is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
                 Message.Status.Failed -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FailedRemotely -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
                 Message.Status.Delivered -> MessageFlowStatus.Delivered

@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -34,6 +35,10 @@ fun PasswordNotCopiedDialog(
             type = WireDialogButtonType.Primary,
             text = "Copy Password",
             onClick = onConfirm
+        ),
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
         )
     )
 }

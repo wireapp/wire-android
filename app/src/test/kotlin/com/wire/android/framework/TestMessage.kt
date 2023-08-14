@@ -58,7 +58,7 @@ object TestMessage {
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
@@ -70,7 +70,7 @@ object TestMessage {
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
@@ -107,7 +107,7 @@ object TestMessage {
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
@@ -118,7 +118,7 @@ object TestMessage {
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
@@ -130,7 +130,7 @@ object TestMessage {
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         editStatus = Message.EditStatus.NotEdited,
         isSelfMessage = false
     )
@@ -141,7 +141,7 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         expirationData = null
     )
 
@@ -151,7 +151,7 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         expirationData = null
     )
     val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageContentMetadata(
@@ -193,7 +193,7 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         expirationData = null
     )
 
@@ -203,7 +203,7 @@ object TestMessage {
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
-        status = Message.Status.SENT,
+        status = Message.Status.Sent,
         expirationData = null
     )
 

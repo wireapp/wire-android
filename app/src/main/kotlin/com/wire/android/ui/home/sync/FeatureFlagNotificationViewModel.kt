@@ -152,8 +152,11 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private fun setE2EIRequiredState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeE2EIRequired().collect { result ->
             val state = when (result) {
-                is E2EIRequiredResult.WithGracePeriod -> FeatureFlagState.E2EIRequired.WithGracePeriod(result.gracePeriod)
-                E2EIRequiredResult.NoGracePeriod -> FeatureFlagState.E2EIRequired.NoGracePeriod
+                E2EIRequiredResult.NoGracePeriod.Create -> FeatureFlagState.E2EIRequired.NoGracePeriod.Create
+                E2EIRequiredResult.NoGracePeriod.Renew -> FeatureFlagState.E2EIRequired.NoGracePeriod.Renew
+                is E2EIRequiredResult.WithGracePeriod.Create -> FeatureFlagState.E2EIRequired.WithGracePeriod.Create(result.timeLeft)
+                is E2EIRequiredResult.WithGracePeriod.Renew -> FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(result.timeLeft)
+                E2EIRequiredResult.NotRequired -> null
             }
             featureFlagState = featureFlagState.copy(e2EIRequired = state)
         }
@@ -192,7 +195,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         )
         currentUserId?.let { userId ->
             viewModelScope.launch {
-                coreLogic.getSessionScope(userId).markE2EIRequiredAsNotified()
+                coreLogic.getSessionScope(userId).markE2EIRequiredAsNotified(result.timeLeft)
             }
         }
     }

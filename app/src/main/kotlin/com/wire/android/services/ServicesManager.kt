@@ -25,9 +25,17 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.util.dispatchers.DispatcherProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 /**
@@ -35,16 +43,64 @@ import kotlin.reflect.KClass
  * The idea is that we don't want to inject, or provide any context into ViewModel,
  * but to have an ability start Service from it.
  */
-class ServicesManager @Inject constructor(private val context: Context) {
+@Singleton
+class ServicesManager @Inject constructor(
+    private val context: Context,
+    dispatcherProvider: DispatcherProvider,
+) {
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    private val ongoingCallServiceEvents = MutableStateFlow(false)
+
+    init {
+        scope.launch {
+            ongoingCallServiceEvents
+                .debounce { if (!it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+                .distinctUntilChanged()
+                .collectLatest { shouldBeStarted ->
+                    if (!shouldBeStarted) {
+                        appLogger.i("ServicesManager: stopping OngoingCallService because there are no ongoing calls")
+                        when (OngoingCallService.serviceState.get()) {
+                            OngoingCallService.ServiceState.STARTED -> {
+                                // Instead of simply calling stopService(OngoingCallService::class), which can end up with a crash if it
+                                // happens before the service calls startForeground, we call the startService command with an empty data
+                                // or some specific argument that tells the service that it should stop itself right after startForeground.
+                                // This way, when this service is killed and recreated by the system, it will stop itself right after
+                                // recreating so it won't cause any problems.
+                                startService(OngoingCallService.newIntentToStop(context))
+                                appLogger.i("ServicesManager: OngoingCallService stopped by passing stop argument")
+                            }
+
+                            OngoingCallService.ServiceState.FOREGROUND -> {
+                                // we can just stop the service, because it's already in foreground
+                                context.stopService(OngoingCallService.newIntent(context))
+                                appLogger.i("ServicesManager: OngoingCallService stopped by calling stopService")
+                            }
+
+                            else -> {
+                                appLogger.i("ServicesManager: OngoingCallService not running, nothing to stop")
+                            }
+                        }
+                    } else {
+                        appLogger.i("ServicesManager: starting OngoingCallService")
+                        startService(OngoingCallService.newIntent(context))
+                    }
+                }
+        }
+    }
 
     // Ongoing call
-    fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId, userId: UserId) {
-        val onGoingCallService = OngoingCallService.newIntent(context, userId.toString(), conversationId.toString(), notificationTitle)
-        startService(onGoingCallService)
+    fun startOngoingCallService() {
+        appLogger.i("ServicesManager: start OngoingCallService event")
+        scope.launch {
+            ongoingCallServiceEvents.emit(true)
+        }
     }
 
     fun stopOngoingCallService() {
-        stopService(OngoingCallService::class)
+        appLogger.i("ServicesManager: stop OngoingCallService event")
+        scope.launch {
+            ongoingCallServiceEvents.emit(false)
+        }
     }
 
     // Persistent WebSocket
@@ -70,5 +126,10 @@ class ServicesManager @Inject constructor(private val context: Context) {
 
     private fun stopService(serviceClass: KClass<out Service>) {
         context.stopService(Intent(context, serviceClass.java))
+    }
+
+    companion object {
+        @VisibleForTesting
+        internal const val DEBOUNCE_TIME = 200L
     }
 }

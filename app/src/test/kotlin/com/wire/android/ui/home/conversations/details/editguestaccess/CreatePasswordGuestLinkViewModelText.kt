@@ -49,20 +49,20 @@ class CreatePasswordGuestLinkViewModelText {
 
     @Test
     fun `given onPasswordUpdated called, when the new password differ from the state, then isPasswordCopied is marked as false`() {
-            val (_, viewModel) = Arrangement()
-                .withPasswordValidation(true)
-                .arrange()
+        val (_, viewModel) = Arrangement()
+            .withPasswordValidation(true)
+            .arrange()
 
-            viewModel.state = viewModel.state.copy(
-                password = TextFieldValue("old_password"),
-                isPasswordCopied = true
-            )
+        viewModel.state = viewModel.state.copy(
+            password = TextFieldValue("old_password"),
+            isPasswordCopied = true
+        )
 
-            viewModel.onPasswordUpdated(TextFieldValue("new_password"))
+        viewModel.onPasswordUpdated(TextFieldValue("new_password"))
 
-            assertFalse(viewModel.state.isPasswordCopied)
-            assertEquals(TextFieldValue("new_password"), viewModel.state.password)
-        }
+        assertFalse(viewModel.state.isPasswordCopied)
+        assertEquals(TextFieldValue("new_password"), viewModel.state.password)
+    }
 
     @Test
     fun `given onPasswordUpdated called, when the new password does not differ from the state, then isPasswordCopied is not changed`() {
@@ -102,7 +102,7 @@ class CreatePasswordGuestLinkViewModelText {
     }
 
     @Test
-    fun `given onPasswordUpdated called, when password is valid and password does not match confirm, then isPasswordValid is marked as false`() {
+    fun `given onPasswordUpdated, when password is valid and doesn't match confirm, then isPasswordValid is marked as false`() {
         val (_, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
@@ -136,7 +136,7 @@ class CreatePasswordGuestLinkViewModelText {
     }
 
     @Test
-    fun `given onPasswordConfirmUpdated called, when the new password does not differ from the state, then isPasswordCopied is not changed`() {
+    fun `given onPasswordConfirmUpdated, when the new password doesn't differ from the state, then isPasswordCopied is not changed`() {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
@@ -156,7 +156,7 @@ class CreatePasswordGuestLinkViewModelText {
     }
 
     @Test
-    fun `given onPasswordConfirmUpdated called, when password is valid and password matches confirm, then isPasswordValid is marked as true`() {
+    fun `given onPasswordConfirmUpdated, when password is valid and matches confirm, then isPasswordValid is true`() {
         val (_, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
@@ -173,7 +173,7 @@ class CreatePasswordGuestLinkViewModelText {
     }
 
     @Test
-    fun `given onPasswordConfirmUpdated called, when password is valid and password does not match confirm, then isPasswordValid is marked as false`() {
+    fun `given onPasswordConfirmUpdated called, when password is valid and doesn't match confirm, then isPasswordValid is false`() {
         val (_, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
@@ -230,7 +230,7 @@ class CreatePasswordGuestLinkViewModelText {
     }
 
     @Test
-fun `given onGenerateLink called, when link is generated, then isLinkCreationSuccessful is marked as true`() {
+    fun `given onGenerateLink called, when link is generated, then isLinkCreationSuccessful is marked as true`() {
         val (_, viewModel) = Arrangement()
             .withGenerateGuestLink(
                 GenerateGuestRoomLinkResult.Success

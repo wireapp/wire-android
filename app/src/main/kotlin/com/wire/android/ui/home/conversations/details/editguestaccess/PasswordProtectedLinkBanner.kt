@@ -78,6 +78,5 @@ fun PasswordProtectedLinkBanner() {
                 color = MaterialTheme.wireColorScheme.secondaryText,
             )
         }
-
     }
 }

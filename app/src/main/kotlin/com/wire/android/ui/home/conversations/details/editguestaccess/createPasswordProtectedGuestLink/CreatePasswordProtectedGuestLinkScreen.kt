@@ -164,7 +164,9 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         labelText = stringResource(
                             id = R.string.conversation_options_create_confirm_password_protected_guest_link_password_label
                         ),
-                        placeholderText = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text),
+                        placeholderText = stringResource(
+                            id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
+                        ),
                         value = viewModel.state.passwordConfirm,
                         onValueChange = viewModel::onPasswordConfirmUpdated,
                         autofillTypes = emptyList()

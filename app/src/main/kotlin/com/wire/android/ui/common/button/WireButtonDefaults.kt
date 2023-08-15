@@ -131,11 +131,21 @@ private fun wireButtonColors(
 
 @Stable
 data class WireButtonColors(
-    val enabled: Color, val onEnabled: Color, val enabledOutline: Color,
-    val disabled: Color, val onDisabled: Color, val disabledOutline: Color,
-    val selected: Color, val onSelected: Color, val selectedOutline: Color,
-    val error: Color, val onError: Color, val errorOutline: Color,
-    val positive: Color, val onPositive: Color, val positiveOutline: Color,
+    val enabled: Color,
+    val onEnabled: Color,
+    val enabledOutline: Color,
+    val disabled: Color,
+    val onDisabled: Color,
+    val disabledOutline: Color,
+    val selected: Color,
+    val onSelected: Color,
+    val selectedOutline: Color,
+    val error: Color,
+    val onError: Color,
+    val errorOutline: Color,
+    val positive: Color,
+    val onPositive: Color,
+    val positiveOutline: Color,
     val ripple: Color
 ) {
 

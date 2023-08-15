@@ -103,5 +103,4 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     fun onPasswordCopied() {
         state = state.copy(isPasswordCopied = true)
     }
-
 }

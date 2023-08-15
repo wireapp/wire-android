@@ -68,6 +68,7 @@ import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 import kotlinx.coroutines.launch
 
+@Suppress("ComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @Destination(

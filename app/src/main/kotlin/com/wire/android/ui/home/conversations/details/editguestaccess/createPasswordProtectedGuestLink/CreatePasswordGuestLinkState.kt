@@ -23,9 +23,9 @@ import com.wire.kalium.logic.CoreFailure
 data class CreatePasswordGuestLinkState(
     val password: TextFieldValue = TextFieldValue(""),
     val passwordConfirm: TextFieldValue = TextFieldValue(""),
-    val isLoading : Boolean = false,
-    val error : CoreFailure? = null,
-    val isPasswordValid : Boolean = false,
+    val isLoading: Boolean = false,
+    val error: CoreFailure? = null,
+    val isPasswordValid: Boolean = false,
     val isLinkCreationSuccessful: Boolean = false,
-    val isPasswordCopied : Boolean = false
+    val isPasswordCopied: Boolean = false
 )

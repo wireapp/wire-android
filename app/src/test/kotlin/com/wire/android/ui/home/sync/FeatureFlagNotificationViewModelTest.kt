@@ -114,38 +114,80 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenE2EIRequired_thenShowDialog() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod)
+            .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
 
-        assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod, viewModel.featureFlagState.e2EIRequired)
+        assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Create, viewModel.featureFlagState.e2EIRequired)
     }
 
     @Test
     fun givenE2EIRequiredDialogShown_whenSnoozeCalled_thenItSnoozedAndDialogShown() = runTest {
         val gracePeriod = 1.days
         val (arrangement, viewModel) = Arrangement()
-            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))
+            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
 
-        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(gracePeriod))
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
         advanceUntilIdle()
 
         assertEquals(null, viewModel.featureFlagState.e2EIRequired)
         assertEquals(FeatureFlagState.E2EISnooze(gracePeriod), viewModel.featureFlagState.e2EISnoozeInfo)
-        coVerify(exactly = 1) { arrangement.markE2EIRequiredAsNotified() }
+        coVerify(exactly = 1) { arrangement.markE2EIRequiredAsNotified(gracePeriod) }
     }
 
     @Test
     fun givenSnoozeE2EIRequiredDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
         val gracePeriod = 1.days
         val (arrangement, viewModel) = Arrangement()
-            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod(gracePeriod))
+            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
-        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod(gracePeriod))
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
+        advanceUntilIdle()
+
+        viewModel.dismissSnoozeE2EIdRequiredDialog()
+
+        assertEquals(null, viewModel.featureFlagState.e2EISnoozeInfo)
+    }
+
+    @Test
+    fun givenE2EIRenewRequired_thenShowDialog() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Renew)
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, viewModel.featureFlagState.e2EIRequired)
+    }
+
+    @Test
+    fun givenE2EIRenewDialogShown_whenSnoozeCalled_thenItSnoozedAndDialogShown() = runTest {
+        val gracePeriod = 1.days
+        val (arrangement, viewModel) = Arrangement()
+            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.featureFlagState.e2EIRequired)
+        assertEquals(FeatureFlagState.E2EISnooze(gracePeriod), viewModel.featureFlagState.e2EISnoozeInfo)
+        coVerify(exactly = 1) { arrangement.markE2EIRequiredAsNotified(gracePeriod) }
+    }
+
+    @Test
+    fun givenSnoozeE2EIRenewDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
+        val gracePeriod = 1.days
+        val (arrangement, viewModel) = Arrangement()
+            .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
+            .arrange()
+        viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
         advanceUntilIdle()
 
         viewModel.dismissSnoozeE2EIdRequiredDialog()

@@ -127,7 +127,6 @@ private fun ConnectivityStatusBar(
                 ConnectivityUIState.Info.Connecting -> StatusLabel(R.string.connectivity_status_bar_connecting)
                 ConnectivityUIState.Info.WaitingConnection ->
                     StatusLabel(R.string.connectivity_status_bar_waiting_for_network)
-
                 ConnectivityUIState.Info.None -> {}
             }
         }

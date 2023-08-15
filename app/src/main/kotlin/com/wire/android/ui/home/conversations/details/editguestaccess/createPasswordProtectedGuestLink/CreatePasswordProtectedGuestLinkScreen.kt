@@ -153,7 +153,9 @@ fun CreatePasswordProtectedGuestLinkScreen(
                             id = R.string.conversation_options_create_password_protected_guest_link_password_label
                         ),
                         value = viewModel.state.password,
-                        placeholderText = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text),
+                        placeholderText = stringResource(
+                            id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
+                        ),
                         onValueChange = viewModel::onPasswordUpdated,
                         autofillTypes = emptyList()
                     )
@@ -234,7 +236,11 @@ fun CreatePasswordProtectedGuestLinkCopyPassword(
                 Icon(
                     modifier = Modifier.padding(end = 8.dp),
                     painter = painterResource(id = it),
-                    tint = if (state == WireButtonState.Error) MaterialTheme.wireColorScheme.error else MaterialTheme.wireColorScheme.positive,
+                    tint = if (state == WireButtonState.Error) {
+                        MaterialTheme.wireColorScheme.error
+                    } else {
+                        MaterialTheme.wireColorScheme.positive
+                    },
                     contentDescription = null
                 )
             }

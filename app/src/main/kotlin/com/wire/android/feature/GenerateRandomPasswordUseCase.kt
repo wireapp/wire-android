@@ -18,7 +18,6 @@
 package com.wire.android.feature
 
 import dagger.hilt.android.scopes.ViewModelScoped
-import okhttp3.internal.addHeaderLenient
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -35,7 +34,7 @@ class GenerateRandomPasswordUseCase @Inject constructor() {
             add(digits[Random.nextInt(digits.length)])
             add(specialChars[Random.nextInt(specialChars.length)])
 
-            repeat(passwordLength - 4) {
+            repeat(passwordLength - FIXED_CHAR_COUNT) {
                 add(allCharacters[Random.nextInt(allCharacters.length)])
             }
         }.shuffled().joinToString("")
@@ -50,5 +49,6 @@ class GenerateRandomPasswordUseCase @Inject constructor() {
 
         const val MIN_LENGTH = 15
         const val MAX_LENGTH = 20
+        const val FIXED_CHAR_COUNT = 4
     }
 }

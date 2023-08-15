@@ -24,6 +24,7 @@
     <string name="label_new">Új</string>
     <string name="label_login">Bejelentkezés</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Open</string>
     <string name="label_cancel">Mégsem</string>
     <string name="label_confirm">Megerősít</string>
     <string name="label_continue">Folytatás</string>
@@ -969,9 +970,12 @@
     <string name="self_deleting_messages_option">Üzenet törlésének kényszerítése</string>
     <string name="self_deleting_messages_option_description">Ha ez aktív, ebben a csoportban minden üzenet el fog tűnni bizonyos idő után. Ez minden résztvevőre érvényes.</string>
     <string name="self_deleting_messages_folder_timer">Időzítő</string>
+    <!-- visit link -->
+    <string name="label_visit_link_title">Visit Link</string>
+    <string name="visit_link_dialog_body">This will take you to %s</string>
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link">The schema of the embedded link is not valid.</string>
+    <string name="invalid_link_dialog_body">Link could not be opened</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Vendég link</string>
     <string name="guest_link_description">Hívjon meg másokat a beszélgetésbe egy hivatkozással. Ezzel bárki csatlakozhat a beszélgetéshez, még ha nincs is Wire-e.</string>

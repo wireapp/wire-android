@@ -144,7 +144,6 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
-
     private companion object {
         const val WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER = 600L
     }

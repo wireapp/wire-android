@@ -22,7 +22,6 @@
 
 package com.wire.android.ui.common.topappbar
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandIn
@@ -35,9 +34,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -106,7 +105,8 @@ private fun ConnectivityStatusBar(
         .animateContentSize()
         .fillMaxWidth()
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
-        .background(backgroundColor).run {
+        .background(backgroundColor)
+        .run {
             if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall) {
                 clickable(onClick = { onReturnToCallClick(connectivityInfo) })
             } else this

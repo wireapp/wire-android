@@ -501,9 +501,7 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
         failedToAddAnnotatedText.append(
             res.annotatedText(
                 stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
-                *arrayOf(
-                    memberNames.limitUserNamesList(res, usersCount).toUserNamesListString(res)
-                )
+                memberNames.limitUserNamesList(res, usersCount).toUserNamesListString(res)
             )
         )
     }

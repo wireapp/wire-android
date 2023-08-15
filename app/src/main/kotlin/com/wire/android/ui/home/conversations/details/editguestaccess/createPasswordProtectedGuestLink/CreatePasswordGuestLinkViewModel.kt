@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,11 +43,11 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val editGuestAccessNavArgs: CreatePasswordGuestLinkNavArgs = savedStateHandle.navArgs()
+    private val editGuestAccessNavArgs: CreatePasswordGuestLinkNavArgs = savedStateHandle.navArgs<CreatePasswordGuestLinkNavArgs>()
     private val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId
 
     var state by mutableStateOf(CreatePasswordGuestLinkState())
-        private set
+        @VisibleForTesting set
 
     fun onGenerateLink() {
         state = state.copy(isLoading = true)
@@ -90,7 +91,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
         }
     }
 
-    fun onErrorDialogDissmissed() {
+    fun onErrorDialogDismissed() {
         state = state.copy(error = null)
     }
 

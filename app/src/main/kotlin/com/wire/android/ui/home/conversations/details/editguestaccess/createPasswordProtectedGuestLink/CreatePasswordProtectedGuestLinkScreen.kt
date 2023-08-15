@@ -203,7 +203,7 @@ fun CreatePasswordProtectedGuestLinkScreen(
 
         if (viewModel.state.error != null) {
             GenerateGuestRoomLinkFailureDialog(
-                onDismiss = viewModel::onErrorDialogDissmissed
+                onDismiss = viewModel::onErrorDialogDismissed
             )
         }
     }

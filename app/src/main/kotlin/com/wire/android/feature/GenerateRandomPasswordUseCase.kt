@@ -17,30 +17,34 @@
  */
 package com.wire.android.feature
 
+import androidx.annotation.VisibleForTesting
 import dagger.hilt.android.scopes.ViewModelScoped
+import java.security.SecureRandom
 import javax.inject.Inject
-import kotlin.random.Random
 
 @ViewModelScoped
 class GenerateRandomPasswordUseCase @Inject constructor() {
 
     operator fun invoke(): String {
 
-        val passwordLength = Random.nextInt(MIN_LENGTH, MAX_LENGTH + 1)
+        val secureRandom = SecureRandom()
+
+        val passwordLength = secureRandom.nextInt(MAX_LENGTH - MIN_LENGTH + 1) + MIN_LENGTH
 
         return buildList<Char> {
-            add(lowercase[Random.nextInt(lowercase.length)])
-            add(uppercase[Random.nextInt(uppercase.length)])
-            add(digits[Random.nextInt(digits.length)])
-            add(specialChars[Random.nextInt(specialChars.length)])
+            add(lowercase[secureRandom.nextInt(lowercase.length)])
+            add(uppercase[secureRandom.nextInt(uppercase.length)])
+            add(digits[secureRandom.nextInt(digits.length)])
+            add(specialChars[secureRandom.nextInt(specialChars.length)])
 
             repeat(passwordLength - FIXED_CHAR_COUNT) {
-                add(allCharacters[Random.nextInt(allCharacters.length)])
+                add(allCharacters[secureRandom.nextInt(allCharacters.length)])
             }
-        }.shuffled().joinToString("")
+        }.shuffled(secureRandom).joinToString("")
     }
 
-    private companion object {
+    @VisibleForTesting
+    companion object {
         const val lowercase: String = "abcdefghijklmnopqrstuvwxyz"
         const val uppercase: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         const val digits: String = "0123456789"

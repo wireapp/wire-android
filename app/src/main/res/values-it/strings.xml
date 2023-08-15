@@ -737,7 +737,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_feature_unavailable_message_alert">La possibilità di effetturare chiamate in conferenza é disponibile solo nella version a pagamento di Wire.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Ritorna alla chiamata</string>
-    <string name="connectivity_status_bar_connecting">Connessione in corso</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Attesa rete</string>
     <!-- Connections -->
     <string name="connection_label_connect">Connettiti</string>

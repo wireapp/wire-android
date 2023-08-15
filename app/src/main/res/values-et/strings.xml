@@ -24,6 +24,7 @@
     <string name="label_new">Uus</string>
     <string name="label_login">Logi sisse</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Open</string>
     <string name="label_cancel">Tühista</string>
     <string name="label_confirm">Kinnita</string>
     <string name="label_continue">Jätka</string>
@@ -969,9 +970,12 @@
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Taimer</string>
+    <!-- visit link -->
+    <string name="label_visit_link_title">Visit Link</string>
+    <string name="visit_link_dialog_body">This will take you to %s</string>
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link">The schema of the embedded link is not valid.</string>
+    <string name="invalid_link_dialog_body">Link could not be opened</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Külalise link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>

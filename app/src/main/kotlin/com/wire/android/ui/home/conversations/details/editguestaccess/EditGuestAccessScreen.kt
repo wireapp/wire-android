@@ -95,7 +95,7 @@ fun EditGuestAccessScreen(
                             CreatePasswordGuestLinkNavArgs(
                                 conversationId = editGuestAccessViewModel.conversationId
                             )
-                        ), backStackMode = BackStackMode.NONE
+                        )
                     )
                 )
             } else {

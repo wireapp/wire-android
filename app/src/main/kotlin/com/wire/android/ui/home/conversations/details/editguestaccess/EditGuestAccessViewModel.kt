@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
+import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -226,7 +227,10 @@ class EditGuestAccessViewModel @Inject constructor(
     private fun startObservingGuestRoomLink() {
         viewModelScope.launch {
             observeGuestRoomLink(conversationId).collect {
-                editGuestAccessState = editGuestAccessState.copy(link = it)
+                it.onSuccess {
+                    editGuestAccessState =
+                        editGuestAccessState.copy(link = it?.link, isLinkPasswordProtected = it?.isPasswordProtected ?: false)
+                }
             }
         }
     }

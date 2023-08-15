@@ -342,7 +342,7 @@ fun PreviewSystemMessageFailedToAddSingle() {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = SystemMessage.MemberFailedToAdd(
-                    mapOf("wire.com" to listOf(UIText.DynamicString("Barbara Cotolina")))
+                    listOf(UIText.DynamicString("Barbara Cotolina"))
                 )
             )
         )
@@ -356,11 +356,9 @@ fun PreviewSystemMessageFailedToAddMultiple() {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = SystemMessage.MemberFailedToAdd(
-                    mapOf(
-                        "wire.com" to listOf(
-                            UIText.DynamicString("Barbara Cotolina"),
-                            UIText.DynamicString("Albert Lewis")
-                        )
+                    listOf(
+                        UIText.DynamicString("Barbara Cotolina"),
+                        UIText.DynamicString("Albert Lewis")
                     )
                 )
             )
@@ -500,18 +498,14 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
 
     if (expanded) {
         if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n")
-        memberNames.onEachIndexed { index, entry ->
-            failedToAddAnnotatedText.append(
-                res.annotatedText(
-                    stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
-                    *arrayOf(
-                        entry.value.limitUserNamesList(res, entry.value.size).toUserNamesListString(res),
-                        entry.key
-                    )
+        failedToAddAnnotatedText.append(
+            res.annotatedText(
+                stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
+                *arrayOf(
+                    memberNames.limitUserNamesList(res, usersCount).toUserNamesListString(res)
                 )
             )
-            if (index < memberNames.size - 1) failedToAddAnnotatedText.append("\n")
-        }
+        )
     }
     return failedToAddAnnotatedText.toAnnotatedString()
 }

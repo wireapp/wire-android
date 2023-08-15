@@ -219,8 +219,7 @@ class SystemMessageContentMapper @Inject constructor(
                 UIMessageContent.SystemMessage.ConversationStartedWithMembers(memberNames = memberNameList)
             }
 
-            is FailedToAdd ->
-                UIMessageContent.SystemMessage.MemberFailedToAdd(mapFailedToAddUsersByDomain(content.members, userList))
+            is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
         }
     }
 

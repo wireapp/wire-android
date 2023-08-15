@@ -766,7 +766,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="calling_feature_unavailable_message_alert">Opcja rozpocz&#281;cia po&#322;&#261;czenia konferencyjnego jest dost&#281;pna tylko w wersji p&#322;atnej aplikacji Wire.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Powr&#243;t do rozmowy</string>
-    <string name="connectivity_status_bar_connecting">&#321;&#261;czenie</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Oczekiwanie na po&#322;&#261;czenie</string>
     <!-- Connections -->
     <string name="connection_label_connect">Po&#322;&#261;cz</string>

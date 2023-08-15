@@ -27,10 +27,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -287,11 +287,15 @@ private fun UsernameTile(
 ) {
     val color = if (isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
 
-    Row(
-        modifier = modifier
-    ) {
+    ConstraintLayout(modifier = modifier) {
+        val (nameLabel, connectingLabel) = createRefs()
+
         Surface(
-            modifier = Modifier.widthIn(max = 270.dp),
+            modifier = Modifier.constrainAs(nameLabel) {
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(connectingLabel.start)
+            },
             shape = RoundedCornerShape(
                 topStart = dimensions().corner4x,
                 bottomStart = dimensions().corner4x,
@@ -311,6 +315,11 @@ private fun UsernameTile(
         }
         if (!hasEstablishedAudio) {
             Surface(
+                modifier = Modifier.constrainAs(connectingLabel) {
+                    start.linkTo(nameLabel.end)
+                    top.linkTo(nameLabel.top)
+                    bottom.linkTo(nameLabel.bottom)
+                },
                 shape = RoundedCornerShape(
                     topEnd = dimensions().corner4x,
                     bottomEnd = dimensions().corner4x
@@ -406,11 +415,13 @@ fun PreviewParticipantTalking() {
 @Composable
 fun PreviewParticipantConnecting() {
     ParticipantTile(
-        modifier = Modifier.height(300.dp),
+        modifier = Modifier
+            .height(350.dp)
+            .width(200.dp),
         participantTitleState = UICallParticipant(
             id = QualifiedID("", ""),
             clientId = "client-id",
-            name = "long user name to be displayed in participant tile during a call",
+            name = "Oussama2",
             isMuted = true,
             isSpeaking = false,
             isCameraOn = false,

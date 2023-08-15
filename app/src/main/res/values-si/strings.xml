@@ -738,7 +738,7 @@
     <string name="calling_feature_unavailable_message_alert">සම්මන්ත්‍රණ ඇමතුම් විකල්පය තිබෙන්නේ වයර් ගෙවන අනුවාදයෙහි පමණි.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
-    <string name="connectivity_status_bar_connecting">සම්බන්ධ වෙමින්</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">ජාලය සඳහා රැඳෙමින්</string>
     <!-- Connections -->
     <string name="connection_label_connect">සබඳින්න</string>

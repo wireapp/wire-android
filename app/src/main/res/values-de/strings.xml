@@ -739,7 +739,7 @@
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
-    <string name="connectivity_status_bar_connecting">Verbinden…</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Warten auf Netzwerk</string>
     <!-- Connections -->
     <string name="connection_label_connect">Hinzufügen</string>

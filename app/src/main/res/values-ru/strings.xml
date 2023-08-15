@@ -764,7 +764,7 @@
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
-    <string name="connectivity_status_bar_connecting">Подключение</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Ожидание сети</string>
     <!-- Connections -->
     <string name="connection_label_connect">Связаться</string>

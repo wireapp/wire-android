@@ -331,7 +331,6 @@ private fun UsernameTile(
             }
         }
     }
-
 }
 
 @Composable
@@ -425,4 +424,3 @@ fun PreviewParticipantConnecting() {
         isSelfUser = false
     )
 }
-

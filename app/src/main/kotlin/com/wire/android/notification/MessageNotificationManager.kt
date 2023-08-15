@@ -256,13 +256,16 @@ class MessageNotificationManager
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
             .apply {
-                if (this@intoStyledMessage !is NotificationMessage.ObfuscatedMessage) {
+                if (this@intoStyledMessage is NotificationMessage.ObfuscatedMessage) {
+                    setName(context.getString(R.string.notification_obfuscated_message_title))
+                } else {
                     author?.name.also {
                         setName(it)
                     }
-                }
-                author?.image?.toBitmap()?.let {
-                    setIcon(IconCompat.createWithAdaptiveBitmap(it))
+
+                    author?.image?.toBitmap()?.let {
+                        setIcon(IconCompat.createWithAdaptiveBitmap(it))
+                    }
                 }
             }
             .build()
@@ -273,7 +276,9 @@ class MessageNotificationManager
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
-            is NotificationMessage.ObfuscatedMessage -> italicTextFromResId(R.string.notification_obfuscated_message)
+            is NotificationMessage.ObfuscatedMessage -> italicTextFromResId(
+                R.string.notification_obfuscated_message_content
+            )
         }
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
     }

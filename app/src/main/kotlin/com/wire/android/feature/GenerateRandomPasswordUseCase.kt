@@ -32,24 +32,25 @@ class GenerateRandomPasswordUseCase @Inject constructor() {
         val passwordLength = secureRandom.nextInt(MAX_LENGTH - MIN_LENGTH + 1) + MIN_LENGTH
 
         return buildList<Char> {
-            add(lowercase[secureRandom.nextInt(lowercase.length)])
-            add(uppercase[secureRandom.nextInt(uppercase.length)])
-            add(digits[secureRandom.nextInt(digits.length)])
-            add(specialChars[secureRandom.nextInt(specialChars.length)])
+            add(lowercase[secureRandom.nextInt(lowercase.size)])
+            add(uppercase[secureRandom.nextInt(uppercase.size)])
+            add(digits[secureRandom.nextInt(digits.size)])
+            add(specialChars[secureRandom.nextInt(specialChars.size)])
 
             repeat(passwordLength - FIXED_CHAR_COUNT) {
-                add(allCharacters[secureRandom.nextInt(allCharacters.length)])
+                add(allCharacters[secureRandom.nextInt(allCharacters.size)])
             }
         }.shuffled(secureRandom).joinToString("")
     }
 
     @VisibleForTesting
     companion object {
-        const val lowercase: String = "abcdefghijklmnopqrstuvwxyz"
-        const val uppercase: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        const val digits: String = "0123456789"
-        const val specialChars: String = "!@#$%^&*()_+[]{}|;:,.<>?-"
-        const val allCharacters: String = lowercase + uppercase + digits + specialChars
+        val lowercase: List<Char> = ('a'..'z').shuffled()
+        val uppercase: List<Char> = ('A'..'Z').shuffled()
+        val digits: List<Char> = ('0'..'9').shuffled()
+        val specialChars: List<Char> = "!@#$%^&*()_+[]{}|;:,.<>?-".toList().shuffled()
+
+        val allCharacters: List<Char> = (lowercase + uppercase + digits + specialChars).shuffled()
 
         const val MIN_LENGTH = 15
         const val MAX_LENGTH = 20

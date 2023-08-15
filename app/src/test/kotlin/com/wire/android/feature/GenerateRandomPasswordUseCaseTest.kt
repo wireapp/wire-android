@@ -41,39 +41,23 @@ class GenerateRandomPasswordUseCaseTest {
     }
 
     @Test
-    fun testCharacterSets() {
-        assertEquals("abcdefghijklmnopqrstuvwxyz", GenerateRandomPasswordUseCase.lowercase)
-        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", GenerateRandomPasswordUseCase.uppercase)
-        assertEquals("0123456789", GenerateRandomPasswordUseCase.digits)
-        assertEquals("!@#$%^&*()_+[]{}|;:,.<>?-", GenerateRandomPasswordUseCase.specialChars)
-
-        val expectedAllCharacters =
-            GenerateRandomPasswordUseCase.lowercase +
-                    GenerateRandomPasswordUseCase.uppercase +
-                    GenerateRandomPasswordUseCase.digits +
-                    GenerateRandomPasswordUseCase.specialChars
-
-        assertEquals(expectedAllCharacters, GenerateRandomPasswordUseCase.allCharacters)
-    }
-
-    @Test
     fun `Given character sets, when accessing lowercase, then it should return the expected value`() {
-        assertEquals("abcdefghijklmnopqrstuvwxyz", GenerateRandomPasswordUseCase.lowercase)
+        assertEquals("abcdefghijklmnopqrstuvwxyz".toList(), GenerateRandomPasswordUseCase.lowercase.sorted())
     }
 
     @Test
     fun `Given character sets, when accessing uppercase, then it should return the expected value`() {
-        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", GenerateRandomPasswordUseCase.uppercase)
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ".toList(), GenerateRandomPasswordUseCase.uppercase.sorted())
     }
 
     @Test
     fun `Given character sets, when accessing digits, then it should return the expected value`() {
-        assertEquals("0123456789", GenerateRandomPasswordUseCase.digits)
+        assertEquals("0123456789".toList(), GenerateRandomPasswordUseCase.digits.sorted())
     }
 
     @Test
     fun `Given character sets, when accessing specialChars, then it should return the expected value`() {
-        assertEquals("!@#$%^&*()_+[]{}|;:,.<>?-", GenerateRandomPasswordUseCase.specialChars)
+        assertEquals("!@#$%^&*()_+[]{}|;:,.<>?-".toList().sorted(), GenerateRandomPasswordUseCase.specialChars.sorted())
     }
 
     @Test
@@ -84,6 +68,6 @@ class GenerateRandomPasswordUseCaseTest {
                     GenerateRandomPasswordUseCase.digits +
                     GenerateRandomPasswordUseCase.specialChars
 
-        assertEquals(expectedAllCharacters, GenerateRandomPasswordUseCase.allCharacters)
+        assertEquals(expectedAllCharacters.toList().sorted(), GenerateRandomPasswordUseCase.allCharacters.sorted())
     }
 }

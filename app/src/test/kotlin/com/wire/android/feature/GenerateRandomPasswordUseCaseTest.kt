@@ -17,13 +17,14 @@
  */
 package com.wire.android.feature
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class GenerateRandomPasswordUseCaseTest {
 
     @Test
-    fun testGeneratedPassword() {
+    fun `Given GenerateRandomPasswordUseCase, when generating a password, then it should meet the specified criteria`() {
         val generateRandomPasswordUseCase = GenerateRandomPasswordUseCase()
 
         repeat(100) { // Run the test 100 times
@@ -37,5 +38,52 @@ class GenerateRandomPasswordUseCaseTest {
             assertTrue(password.any { it in GenerateRandomPasswordUseCase.digits })
             assertTrue(password.any { it in GenerateRandomPasswordUseCase.specialChars })
         }
+    }
+
+    @Test
+    fun testCharacterSets() {
+        assertEquals("abcdefghijklmnopqrstuvwxyz", GenerateRandomPasswordUseCase.lowercase)
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", GenerateRandomPasswordUseCase.uppercase)
+        assertEquals("0123456789", GenerateRandomPasswordUseCase.digits)
+        assertEquals("!@#$%^&*()_+[]{}|;:,.<>?-", GenerateRandomPasswordUseCase.specialChars)
+
+        val expectedAllCharacters =
+            GenerateRandomPasswordUseCase.lowercase +
+                    GenerateRandomPasswordUseCase.uppercase +
+                    GenerateRandomPasswordUseCase.digits +
+                    GenerateRandomPasswordUseCase.specialChars
+
+        assertEquals(expectedAllCharacters, GenerateRandomPasswordUseCase.allCharacters)
+    }
+
+    @Test
+    fun `Given character sets, when accessing lowercase, then it should return the expected value`() {
+        assertEquals("abcdefghijklmnopqrstuvwxyz", GenerateRandomPasswordUseCase.lowercase)
+    }
+
+    @Test
+    fun `Given character sets, when accessing uppercase, then it should return the expected value`() {
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", GenerateRandomPasswordUseCase.uppercase)
+    }
+
+    @Test
+    fun `Given character sets, when accessing digits, then it should return the expected value`() {
+        assertEquals("0123456789", GenerateRandomPasswordUseCase.digits)
+    }
+
+    @Test
+    fun `Given character sets, when accessing specialChars, then it should return the expected value`() {
+        assertEquals("!@#$%^&*()_+[]{}|;:,.<>?-", GenerateRandomPasswordUseCase.specialChars)
+    }
+
+    @Test
+    fun `Given character sets, when accessing allCharacters, then it should return the expected value`() {
+        val expectedAllCharacters =
+            GenerateRandomPasswordUseCase.lowercase +
+                    GenerateRandomPasswordUseCase.uppercase +
+                    GenerateRandomPasswordUseCase.digits +
+                    GenerateRandomPasswordUseCase.specialChars
+
+        assertEquals(expectedAllCharacters, GenerateRandomPasswordUseCase.allCharacters)
     }
 }

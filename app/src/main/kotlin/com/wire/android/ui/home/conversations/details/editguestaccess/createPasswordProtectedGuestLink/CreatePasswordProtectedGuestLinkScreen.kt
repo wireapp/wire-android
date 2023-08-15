@@ -34,6 +34,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -86,14 +87,15 @@ fun CreatePasswordProtectedGuestLinkScreen(
             }
         }
     }
-    if (viewModel.state.isLinkCreationSuccessful) {
-        if (viewModel.state.isPasswordCopied) {
+    LaunchedEffect(viewModel.state.isLinkCreationSuccessful && viewModel.state.isPasswordCopied) {
+        if (viewModel.state.isLinkCreationSuccessful && viewModel.state.isPasswordCopied) {
             navigator.navigateBack()
-        } else {
-            PasswordNotCopiedDialog {
-                onCopyClick()
-                navigator.navigateBack()
-            }
+        }
+    }
+
+    if (viewModel.state.isLinkCreationSuccessful) {
+        if (!viewModel.state.isPasswordCopied) {
+            PasswordNotCopiedDialog(onConfirm = onCopyClick)
         }
     }
 

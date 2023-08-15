@@ -167,12 +167,13 @@ class MessageMapper @Inject constructor(
         val flowStatus = if (content is MessageContent.FailedDecryption) {
             MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved)
         } else {
-            when (message.status) {
-                Message.Status.PENDING -> MessageFlowStatus.Sending
-                Message.Status.SENT -> MessageFlowStatus.Sent
-                Message.Status.READ -> MessageFlowStatus.Read(1) // TODO add read count
-                Message.Status.FAILED -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
-                Message.Status.FAILED_REMOTELY -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
+            when (val status = message.status) {
+                Message.Status.Pending -> MessageFlowStatus.Sending
+                Message.Status.Sent -> MessageFlowStatus.Sent
+               is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
+                Message.Status.Failed -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
+                Message.Status.FailedRemotely -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
+                Message.Status.Delivered -> MessageFlowStatus.Delivered
             }
         }
 

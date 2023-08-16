@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
-import androidx.annotation.DrawableRes
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -40,7 +39,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,18 +49,16 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.button.wireSecondaryButtonColors
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversations.details.editguestaccess.CreateGuestLinkButton
 import com.wire.android.ui.home.conversations.details.editguestaccess.GenerateGuestRoomLinkFailureDialog
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -77,25 +73,24 @@ fun CreatePasswordProtectedGuestLinkScreen(
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
-
+    val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val onCopyClick = remember(viewModel.state.password.text) {
         {
             if (viewModel.state.isPasswordValid) {
                 clipboardManager.setText(viewModel.state.password.annotatedString)
-                viewModel.onPasswordCopied()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.conversation_options_create_password_protected_guest_link_password_copied),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
-    LaunchedEffect(viewModel.state.isLinkCreationSuccessful && viewModel.state.isPasswordCopied) {
-        if (viewModel.state.isLinkCreationSuccessful && viewModel.state.isPasswordCopied) {
+    LaunchedEffect(viewModel.state.isLinkCreationSuccessful) {
+        if (viewModel.state.isLinkCreationSuccessful) {
+            onCopyClick()
             navigator.navigateBack()
-        }
-    }
-
-    if (viewModel.state.isLinkCreationSuccessful) {
-        if (!viewModel.state.isPasswordCopied) {
-            PasswordNotCopiedDialog(onConfirm = onCopyClick)
         }
     }
 
@@ -175,27 +170,13 @@ fun CreatePasswordProtectedGuestLinkScreen(
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
-
-                item {
-                    val copyButtonState = when {
-                        (viewModel.state.isPasswordValid && !viewModel.state.isPasswordCopied) -> WireButtonState.Error
-                        viewModel.state.isPasswordValid -> WireButtonState.Default
-                        else -> WireButtonState.Disabled
-                    }
-
-                    CreatePasswordProtectedGuestLinkCopyPassword(
-                        onClick = onCopyClick,
-                        state = copyButtonState
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
             }
             Surface(
                 modifier = Modifier
                     .background(MaterialTheme.wireColorScheme.background),
                 shadowElevation = dimensions().spacing8x
             ) {
-                CreateGuestLinkButton(
+                CreateButton(
                     enabled = viewModel.state.isPasswordValid,
                     isLoading = viewModel.state.isLoading,
                     onCreateLink = viewModel::onGenerateLink
@@ -212,44 +193,23 @@ fun CreatePasswordProtectedGuestLinkScreen(
 }
 
 @Composable
-fun CreatePasswordProtectedGuestLinkCopyPassword(
-    onClick: () -> Unit,
-    state: WireButtonState
-
+private fun CreateButton(
+    enabled: Boolean,
+    isLoading: Boolean,
+    onCreateLink: () -> Unit
 ) {
-    @DrawableRes
-    val icon: Int? = remember(state) {
-        when (state) {
-            WireButtonState.Error -> R.drawable.ic_warning_circle
-            WireButtonState.Default -> R.drawable.ic_check_tick
-            WireButtonState.Positive,
-            WireButtonState.Disabled,
-            WireButtonState.Selected -> null
-        }
-    }
-    WireSecondaryButton(
-        state = state,
-        onClick = onClick,
-        text = stringResource(id = R.string.label_copy),
-        colors = wireSecondaryButtonColors(
-            error = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-            onError = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
-        ),
-        leadingIcon = icon?.let {
-            {
-                Icon(
-                    modifier = Modifier.padding(end = 8.dp),
-                    painter = painterResource(id = it),
-                    tint = if (state == WireButtonState.Error) {
-                        MaterialTheme.wireColorScheme.error
-                    } else {
-                        MaterialTheme.wireColorScheme.positive
-                    },
-                    contentDescription = null
-                )
-            }
-        },
-        leadingIconAlignment = IconAlignment.Center
+    WirePrimaryButton(
+        text = stringResource(id = R.string.guest_link_button_create_link),
+        fillMaxWidth = true,
+        onClick = onCreateLink,
+        loading = isLoading,
+        state = if (!enabled) WireButtonState.Disabled
+        else WireButtonState.Default,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.wireColorScheme.background)
+            .padding(MaterialTheme.wireDimensions.spacing16x)
+
     )
 }
 

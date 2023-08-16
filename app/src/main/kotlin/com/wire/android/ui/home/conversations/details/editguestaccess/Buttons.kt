@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -30,9 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -41,7 +39,7 @@ fun CreateGuestLinkButton(
     isLoading: Boolean,
     onCreateLink: () -> Unit
 ) {
-    WirePrimaryButton(
+    WireSecondaryButton(
         text = stringResource(id = R.string.guest_link_button_create_link),
         fillMaxWidth = true,
         onClick = onCreateLink,
@@ -50,7 +48,6 @@ fun CreateGuestLinkButton(
         else WireButtonState.Default,
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
             .padding(MaterialTheme.wireDimensions.spacing16x)
 
     )
@@ -60,10 +57,9 @@ fun CreateGuestLinkButton(
 fun CopyLinkButton(
     onCopy: () -> Unit
 ) {
-    WirePrimaryButton(
+    WireSecondaryButton(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
             .padding(
                 start = MaterialTheme.wireDimensions.spacing16x,
                 end = MaterialTheme.wireDimensions.spacing16x,
@@ -77,10 +73,9 @@ fun CopyLinkButton(
 fun ShareLinkButton(
     onShare: () -> Unit
 ) {
-    WirePrimaryButton(
+    WireSecondaryButton(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
             .padding(
                 start = MaterialTheme.wireDimensions.spacing16x,
                 end = MaterialTheme.wireDimensions.spacing16x,
@@ -96,21 +91,20 @@ fun RevokeLinkButton(
     isLoading: Boolean = false,
     onRevoke: () -> Unit
 ) {
-    WirePrimaryButton(
+    WireSecondaryButton(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
             .padding(
                 start = MaterialTheme.wireDimensions.spacing16x,
                 end = MaterialTheme.wireDimensions.spacing16x,
                 top = MaterialTheme.wireDimensions.spacing4x,
                 bottom = MaterialTheme.wireDimensions.spacing12x
             ),
-        colors = wirePrimaryButtonColors().copy(enabled = colorsScheme().error),
+        colors = wireSecondaryButtonColors(),
         text = stringResource(id = R.string.guest_link_button_revoke_link),
         fillMaxWidth = true,
         loading = isLoading,
-        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Error,
         onClick = onRevoke
     )
 }

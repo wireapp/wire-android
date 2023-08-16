@@ -20,18 +20,12 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun GuestLinkActionFooter(
+fun GuestLinkActionButtons(
     shouldDisableGenerateGuestLinkButton: Boolean,
     isGeneratingLink: Boolean,
     isRevokingLink: Boolean,
@@ -42,23 +36,17 @@ fun GuestLinkActionFooter(
     onShareLink: () -> Unit
 ) {
 
-    Surface(
-        modifier = Modifier
-            .background(MaterialTheme.wireColorScheme.background),
-        shadowElevation = dimensions().spacing8x
-    ) {
-        if (link.isNullOrEmpty()) {
-            CreateGuestLinkButton(
-                enabled = !shouldDisableGenerateGuestLinkButton,
-                isLoading = isGeneratingLink,
-                onCreateLink = onCreateLink
-            )
-        } else {
-            Column {
-                CopyLinkButton(onCopyLink)
-                ShareLinkButton(onShareLink)
-                RevokeLinkButton(isLoading = isRevokingLink, onRevoke = onRevokeLink)
-            }
+    if (link.isNullOrEmpty()) {
+        CreateGuestLinkButton(
+            enabled = !shouldDisableGenerateGuestLinkButton,
+            isLoading = isGeneratingLink,
+            onCreateLink = onCreateLink
+        )
+    } else {
+        Column {
+            CopyLinkButton(onCopyLink)
+            ShareLinkButton(onShareLink)
+            RevokeLinkButton(isLoading = isRevokingLink, onRevoke = onRevokeLink)
         }
     }
 }
@@ -66,7 +54,7 @@ fun GuestLinkActionFooter(
 @Preview
 @Composable
 fun PreviewLinkSection() {
-    GuestLinkActionFooter(
+    GuestLinkActionButtons(
         shouldDisableGenerateGuestLinkButton = false,
         isGeneratingLink = false,
         isRevokingLink = false,

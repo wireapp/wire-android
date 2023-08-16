@@ -67,7 +67,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
 
     fun onPasswordUpdated(password: TextFieldValue) {
         if (password.text != state.password.text) {
-            state = state.copy(password = password, isPasswordCopied = false)
+            state = state.copy(password = password)
             checkIfPasswordIsValidAndConfirmed()
         } else {
             state = state.copy(password = password)
@@ -76,7 +76,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
 
     fun onPasswordConfirmUpdated(password: TextFieldValue) {
         if (password.text != state.passwordConfirm.text) {
-            state = state.copy(passwordConfirm = password, isPasswordCopied = false)
+            state = state.copy(passwordConfirm = password)
             checkIfPasswordIsValidAndConfirmed()
         } else {
             state = state.copy(passwordConfirm = password)
@@ -97,11 +97,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
 
     fun onGenerateRandomPassword() {
         val password = generateRandomPasswordUseCase()
-        state = state.copy(password = TextFieldValue(password), passwordConfirm = TextFieldValue(password), isPasswordCopied = false)
+        state = state.copy(password = TextFieldValue(password), passwordConfirm = TextFieldValue(password))
         checkIfPasswordIsValidAndConfirmed()
-    }
-
-    fun onPasswordCopied() {
-        state = state.copy(isPasswordCopied = true)
     }
 }

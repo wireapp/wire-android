@@ -26,6 +26,5 @@ data class CreatePasswordGuestLinkState(
     val isLoading: Boolean = false,
     val error: CoreFailure? = null,
     val isPasswordValid: Boolean = false,
-    val isLinkCreationSuccessful: Boolean = false,
-    val isPasswordCopied: Boolean = false
+    val isLinkCreationSuccessful: Boolean = false
 )

@@ -49,7 +49,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
@@ -181,31 +180,32 @@ fun EditGuestAccessScreen(
                         }
                     }
                 }
-            }
+                item {
+                    val clipboardManager = LocalClipboardManager.current
+                    val context = LocalContext.current
 
-            val clipboardManager = LocalClipboardManager.current
-            val context = LocalContext.current
-
-            with(editGuestAccessViewModel) {
-                GuestLinkActionFooter(
-                    shouldDisableGenerateGuestLinkButton = shouldDisableGenerateGuestLinkButton(),
-                    isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
-                    isRevokingLink = editGuestAccessState.isRevokingLink,
-                    link = editGuestAccessState.link,
-                    onCreateLink = sheetState::show,
-                    onRevokeLink = ::onRevokeGuestRoomLink,
-                    onCopyLink = {
-                        editGuestAccessState = editGuestAccessState.copy(isLinkCopied = true)
-                        editGuestAccessState.link?.let {
-                            clipboardManager.copyLinkToClipboard(it)
-                        }
-                    },
-                    onShareLink = {
-                        editGuestAccessState.link?.let {
-                            context.shareViaIntent(it)
-                        }
+                    with(editGuestAccessViewModel) {
+                        GuestLinkActionButtons(
+                            shouldDisableGenerateGuestLinkButton = shouldDisableGenerateGuestLinkButton(),
+                            isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
+                            isRevokingLink = editGuestAccessState.isRevokingLink,
+                            link = editGuestAccessState.link,
+                            onCreateLink = sheetState::show,
+                            onRevokeLink = ::onRevokeGuestRoomLink,
+                            onCopyLink = {
+                                editGuestAccessState = editGuestAccessState.copy(isLinkCopied = true)
+                                editGuestAccessState.link?.let {
+                                    clipboardManager.copyLinkToClipboard(it)
+                                }
+                            },
+                            onShareLink = {
+                                editGuestAccessState.link?.let {
+                                    context.shareViaIntent(it)
+                                }
+                            }
+                        )
                     }
-                )
+                }
             }
         }
     }

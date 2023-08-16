@@ -1173,5 +1173,6 @@
     <string name="generate_password_button_text">Generate Password</string>
     <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
     <string name="password_protected_link_banner_title">Link is password secured</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
 
 </resources>

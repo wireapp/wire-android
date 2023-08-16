@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +57,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -69,11 +73,13 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessa
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
 
+@Suppress("ComplexMethod")
 @Composable
 fun SystemMessageItem(
     message: UIMessage.System,
@@ -189,6 +195,31 @@ fun SystemMessageItem(
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )
             }
+            if (message.messageContent.learnMoreResId != null) {
+                val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
+                val learnMoreText = stringResource(id = R.string.label_learn_more)
+                val annotatedString = buildAnnotatedString {
+                    append(learnMoreText)
+                    addStyle(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        start = 0,
+                        end = learnMoreText.length
+                    )
+                }
+                ClickableText(
+                    text = annotatedString,
+                    onClick = {
+                        CustomTabsHelper.launchUrl(
+                            context,
+                            learnMoreLink
+                        )
+                    },
+                    style = MaterialTheme.wireTypography.body01,
+                )
+            }
         }
     }
     if (message.messageContent is SystemMessage.ConversationMessageCreated) {
@@ -232,6 +263,8 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationMessageCreated,
         is SystemMessage.ConversationStartedWithMembers,
         is SystemMessage.ConversationMessageTimerDeactivated,
+        is SystemMessage.FederationMemberRemoved,
+        is SystemMessage.FederationStopped,
         is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -368,10 +401,81 @@ fun PreviewSystemMessageFailedToAddMultiple() {
     }
 }
 
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationMemberRemoved() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationMemberRemoved(
+                    listOf(
+                        "Barbara Cotolina".toUIText(),
+                        "Albert Lewis".toUIText()
+                    )
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationMemberRemoved7Users() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationMemberRemoved(
+                    listOf(
+                        "Albert Lewis".toUIText(),
+                        "Bert Strunk".toUIText(),
+                        "Claudia Schiffer".toUIText(),
+                        "Dorothee Friedrich".toUIText(),
+                        "Erich Weinert".toUIText(),
+                        "Frieda Kahlo".toUIText(),
+                        "Gudrun Gut".toUIText()
+                    )
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationStopped() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationStopped(
+                    listOf(
+                        "bella.wire.link",
+                        "foma.wire.link"
+                    )
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFederationStoppedSelf() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.FederationStopped(
+                    listOf("foma.wire.link")
+                )
+            )
+        )
+    }
+}
+
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is SystemMessage.FederationMemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberJoined -> false
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
@@ -389,6 +493,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberFailedToAdd -> this.usersCount > SINGLE_EXPANDABLE_THRESHOLD
         is SystemMessage.ConversationDegraded -> false
+        is SystemMessage.FederationStopped -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources): String = when {
@@ -435,6 +540,11 @@ fun SystemMessage.annotatedString(
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
 
+        is SystemMessage.FederationMemberRemoved ->
+            arrayOf(
+                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+            )
+
         is SystemMessage.MemberJoined -> arrayOf(author.asString(res))
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
@@ -465,6 +575,8 @@ fun SystemMessage.annotatedString(
                 res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
                 if (usersCount > SINGLE_EXPANDABLE_THRESHOLD) expanded else true
             )
+
+        is SystemMessage.FederationStopped -> domainList.toTypedArray()
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)

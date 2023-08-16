@@ -269,7 +269,8 @@ sealed class UIMessageContent {
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
         val isSmallIcon: Boolean = true,
-        val additionalContent: String = ""
+        val additionalContent: String = "",
+        @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {
 
         data class Knock(val author: UIText) : SystemMessage(
@@ -317,6 +318,29 @@ sealed class UIMessageContent {
             } else {
                 R.string.label_system_message_left_the_conversation_by_other
             }
+        )
+
+        data class FederationMemberRemoved(
+            val memberNames: List<UIText>
+        ) : SystemMessage(
+            R.drawable.ic_minus,
+            if (memberNames.size > 1) {
+                R.string.label_system_message_federation_many_member_removed
+            } else {
+                R.string.label_system_message_federation_one_member_removed
+            }
+        )
+
+        data class FederationStopped(
+            val domainList: List<String>
+        ) : SystemMessage(
+            R.drawable.ic_info,
+            if (domainList.size > 1) {
+                R.string.label_system_message_federation_conection_removed
+            } else {
+                R.string.label_system_message_federation_removed
+            },
+            learnMoreResId = R.string.url_federation_support
         )
 
         sealed class MissedCall(

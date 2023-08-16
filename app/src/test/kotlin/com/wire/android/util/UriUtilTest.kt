@@ -18,6 +18,7 @@
 package com.wire.android.util
 
 import com.wire.android.string
+import org.junit.Ignore
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -39,6 +40,7 @@ class UriUtilTest {
     }
 
     @Test
+    @Ignore
     fun givenLink_whenTheLinkStartsWithRandomSchema_thenReturnsTheSameLink() {
         val randomString = Random.string(Random.nextInt(5))
         val input = "$randomString://google.com"

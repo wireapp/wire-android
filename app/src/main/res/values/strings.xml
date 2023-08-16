@@ -180,6 +180,7 @@
     <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093-Backend</string>
     <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207693005-How-can-I-verify-my-own-devices-</string>
     <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-</string>
+    <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -554,6 +555,10 @@
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
     <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_federation_one_member_removed">%1$s was removed from the conversation</string>
+    <string name="label_system_message_federation_many_member_removed">%1$s were removed from the conversation</string>
+    <string name="label_system_message_federation_removed">**Your backend** stopped federating with %1$s.</string>
+    <string name="label_system_message_federation_conection_removed">The backends %1$s and %2$s stopped federating.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
     <string name="label_system_message_other_called">%1$s called</string>

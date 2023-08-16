@@ -227,7 +227,8 @@ class MigrationMapper @Inject constructor() {
                 userType = userType,
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
                 botService = botService,
-                deleted = scalaUserData.deleted
+                deleted = scalaUserData.deleted,
+                defederated = false
             )
         }
 }

@@ -19,7 +19,7 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
+    <string name="app_version">Версія програми</string>
     <string name="build_variant_name">Build variant</string>
     <string name="label_new">Новий</string>
     <string name="label_login">Логін</string>

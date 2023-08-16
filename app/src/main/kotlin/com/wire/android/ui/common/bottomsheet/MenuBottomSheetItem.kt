@@ -65,7 +65,13 @@ fun MenuBottomSheetItem(
     enabled: Boolean = true,
 ) {
     CompositionLocalProvider(LocalContentColor provides itemProvidedColor) {
-        val clickable = remember(onItemClick, clickBlockParams) { Clickable(clickBlockParams = clickBlockParams, onClick = onItemClick, enabled = enabled) }
+        val clickable = remember(onItemClick, clickBlockParams) {
+            Clickable(
+                clickBlockParams = clickBlockParams,
+                onClick = onItemClick,
+                enabled = enabled
+            )
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

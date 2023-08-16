@@ -17,18 +17,17 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.model.Clickable
+import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun CreateGuestLinkBottomSheet(
@@ -41,21 +40,21 @@ fun CreateGuestLinkBottomSheet(
         MenuModalSheetContent(
             header = MenuModalSheetHeader.Visible(title = stringResource(R.string.create_guest_link)),
             menuItems = buildList {
-                if (isPasswordInviteLinksAllowed) {
-                    add {
-                        CreateInviteLinkSheetItem(
-                            title = stringResource(R.string.create_guest_link_with_password),
-                            onClicked = { onItemClick(true) },
-                        )
-                    }
+                add {
+                    CreateInviteLinkSheetItem(
+                        title = stringResource(R.string.create_guest_link_with_password),
+                        onClicked = { onItemClick(true) },
+                        enabled = isPasswordInviteLinksAllowed
+                    )
                 }
                 add {
                     CreateInviteLinkSheetItem(
                         title = stringResource(R.string.create_guest_link_without_password_title),
                         onClicked = { onItemClick(false) },
+                        enabled = true
                     )
                 }
-            },
+            }
         )
     }
 }
@@ -63,12 +62,35 @@ fun CreateGuestLinkBottomSheet(
 @Composable
 private fun CreateInviteLinkSheetItem(
     title: String,
-    onClicked: () -> Unit
+    onClicked: () -> Unit,
+    enabled: Boolean = true,
 ) {
-    SelectableMenuBottomSheetItem(
+    MenuBottomSheetItem(
         title = title,
-        titleStyleUnselected = MaterialTheme.wireTypography.body01,
-        titleStyleSelected = MaterialTheme.wireTypography.body02,
-        onItemClick = Clickable(onClick = onClicked),
+        onItemClick = onClicked,
+        action = {
+            ArrowRightIcon()
+        },
+        enabled = enabled
+    )
+}
+
+@Preview
+@Composable
+fun PreviewCreateGuestLinkBottomSheet() {
+    CreateGuestLinkBottomSheet(
+        sheetState = WireModalSheetState(),
+        onItemClick = {},
+        isPasswordInviteLinksAllowed = true,
+    )
+}
+
+@Preview
+@Composable
+fun PreviewCreateGuestLinkBottomSheetDisabled() {
+    CreateGuestLinkBottomSheet(
+        sheetState = WireModalSheetState(),
+        onItemClick = {},
+        isPasswordInviteLinksAllowed = false,
     )
 }

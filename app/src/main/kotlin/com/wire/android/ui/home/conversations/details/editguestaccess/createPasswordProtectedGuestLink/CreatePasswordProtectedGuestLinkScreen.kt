@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.annotation.Destination
@@ -127,23 +126,31 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         ),
                         style = MaterialTheme.wireTypography.body02.copy(fontWeight = FontWeight.Normal)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensions().spacing16x))
                     Text(
                         text = stringResource(
                             id = R.string.conversation_options_create_password_protected_guest_link_discrption_2
                         ),
                         style = MaterialTheme.wireTypography.body02
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
-
                 item {
+                    val onClick = remember(viewModel.state.password.text) {
+                        {
+                            viewModel.onGenerateRandomPassword()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.conversation_options_create_password_protected_guest_link_password_generated),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                     GeneratePasswordButton(
-                        onClick = viewModel::onGenerateRandomPassword
+                        onClick = onClick
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
-
                 item {
                     WirePasswordTextField(
                         labelText = stringResource(
@@ -156,7 +163,19 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         onValueChange = viewModel::onPasswordUpdated,
                         autofillTypes = emptyList()
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensions().spacing8x))
+                }
+                item {
+
+                    Text(
+                        style = MaterialTheme.wireTypography.subline01,
+                        text = stringResource(
+                            id = R.string.conversation_options_create_password_protected_guest_link_password_description
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(dimensions().spacing16x))
+                }
+                item {
                     WirePasswordTextField(
                         labelText = stringResource(
                             id = R.string.conversation_options_create_confirm_password_protected_guest_link_password_label
@@ -168,7 +187,7 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         onValueChange = viewModel::onPasswordConfirmUpdated,
                         autofillTypes = emptyList()
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
             }
             Surface(

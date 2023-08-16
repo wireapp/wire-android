@@ -85,9 +85,9 @@ fun EditGuestAccessScreen(
         WireModalSheetState(SheetValue.Hidden)
     }
     val onSheetItemClick: (Boolean) -> Unit = remember {
-        { isPasswordProtectewd ->
+        { isPasswordProtected ->
             coroutineScope.launch { sheetState.hide() }
-            if (isPasswordProtectewd) {
+            if (isPasswordProtected) {
                 navigator.navigate(
                     NavigationCommand(
                         CreatePasswordProtectedGuestLinkScreenDestination(

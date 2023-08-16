@@ -25,9 +25,10 @@ import com.wire.android.R
 
 sealed class ConversationFolder {
     sealed class Predefined(@StringRes val folderNameResId: Int): ConversationFolder() {
-        object Conversations: Predefined(R.string.conversation_label_conversations)
-        object Favorites: Predefined(R.string.conversation_label_favorites)
-        object NewActivities: Predefined(R.string.conversation_label_new_activity)
+        data object Conversations: Predefined(R.string.conversation_label_conversations)
+        data object Favorites: Predefined(R.string.conversation_label_favorites)
+        data object NewActivities: Predefined(R.string.conversation_label_new_activity)
     }
     data class Custom(val folderName: String): ConversationFolder()
+    data object WithoutHeader: ConversationFolder()
 }

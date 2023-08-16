@@ -17,12 +17,15 @@
  */
 package com.wire.android.util
 
+import java.net.URI
 import java.net.URLDecoder
 
 fun containsSchema(url: String): Boolean {
-    val regexPattern = Regex(".+://.+")
-
-    return regexPattern.matches(url)
+    return try {
+        URI.create(url).scheme != null
+    } catch (iae: IllegalArgumentException) {
+        false // invalid URI
+    }
 }
 
 fun normalizeLink(url: String): String {

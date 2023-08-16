@@ -221,8 +221,7 @@ class SystemMessageContentMapper @Inject constructor(
                 UIMessageContent.SystemMessage.ConversationStartedWithMembers(memberNames = memberNameList)
             }
 
-            is FailedToAdd ->
-                UIMessageContent.SystemMessage.MemberFailedToAdd(mapFailedToAddUsersByDomain(content.members, userList))
+            is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
 
             is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
                 memberNames = memberNameList
@@ -233,18 +232,6 @@ class SystemMessageContentMapper @Inject constructor(
     private fun mapFederationMessage(content: MessageContent.FederationStopped) = when (content) {
         is MessageContent.FederationStopped.ConnectionRemoved -> UIMessageContent.SystemMessage.FederationStopped(content.domainList)
         is MessageContent.FederationStopped.Removed -> UIMessageContent.SystemMessage.FederationStopped(listOf(content.domain))
-    }
-
-    private fun mapFailedToAddUsersByDomain(members: List<UserId>, userList: List<User>): Map<String, List<UIText>> {
-        val memberNameList = members.groupBy { it.domain }.mapValues {
-            it.value.map { userId ->
-                mapMemberName(
-                    user = userList.findUser(userId = userId),
-                    type = SelfNameType.ResourceLowercase
-                )
-            }
-        }
-        return memberNameList
     }
 
     private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()

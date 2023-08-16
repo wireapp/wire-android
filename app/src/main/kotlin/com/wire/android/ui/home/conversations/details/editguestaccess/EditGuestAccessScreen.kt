@@ -165,7 +165,7 @@ fun EditGuestAccessScreen(
                                 color = MaterialTheme.wireColorScheme.secondaryText,
                                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing2x)
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(dimensions().spacing16x))
 
                             editGuestAccessState.link?.also {
                                 if (editGuestAccessState.isLinkPasswordProtected) {

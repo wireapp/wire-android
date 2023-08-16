@@ -47,10 +47,11 @@ class SystemMessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {
 
+    @Suppress("ComplexMethod")
     fun mapMessage(
         message: Message.System,
         members: List<User>
-    ) = when (val content = message.content) {
+    ): UIMessageContent = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
@@ -64,6 +65,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
         is MessageContent.ConversationDegradedMLS -> mapConversationDegraded(Conversation.Protocol.MLS)
         is MessageContent.ConversationDegradedProteus -> mapConversationDegraded(Conversation.Protocol.PROTEUS)
+        is MessageContent.FederationStopped -> mapFederationMessage(content)
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -181,7 +183,7 @@ class SystemMessageContentMapper @Inject constructor(
         content: MemberChange,
         senderUserId: UserId,
         userList: List<User>
-    ): UIMessageContent.SystemMessage? {
+    ): UIMessageContent.SystemMessage {
         val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
         val isSelfTriggered = sender is SelfUser
@@ -220,19 +222,16 @@ class SystemMessageContentMapper @Inject constructor(
             }
 
             is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
+
+            is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
+                memberNames = memberNameList
+            )
         }
     }
 
-    private fun mapFailedToAddUsersByDomain(members: List<UserId>, userList: List<User>): Map<String, List<UIText>> {
-        val memberNameList = members.groupBy { it.domain }.mapValues {
-            it.value.map { userId ->
-                mapMemberName(
-                    user = userList.findUser(userId = userId),
-                    type = SelfNameType.ResourceLowercase
-                )
-            }
-        }
-        return memberNameList
+    private fun mapFederationMessage(content: MessageContent.FederationStopped) = when (content) {
+        is MessageContent.FederationStopped.ConnectionRemoved -> UIMessageContent.SystemMessage.FederationStopped(content.domainList)
+        is MessageContent.FederationStopped.Removed -> UIMessageContent.SystemMessage.FederationStopped(listOf(content.domain))
     }
 
     private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()

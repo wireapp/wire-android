@@ -25,6 +25,7 @@
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Open</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
@@ -760,7 +761,7 @@
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
-    <string name="connectivity_status_bar_connecting">Connecting</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
@@ -995,9 +996,13 @@
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
 
+    <!-- visit link -->
+    <string name="label_visit_link_title">Visit Link</string>
+    <string name="visit_link_dialog_body">This will take you to %s</string>
+
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link">The schema of the embedded link is not valid.</string>
+    <string name="invalid_link_dialog_body">Link could not be opened</string>
 
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
@@ -1119,7 +1124,8 @@
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
 
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
-    <string name="notification_obfuscated_message">Someone sent a Message</string>
+    <string name="notification_obfuscated_message_title">Someone</string>
+    <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">License Information</string>
     <string name="settings_myaccount_logout">Delete Account</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
@@ -1131,6 +1137,16 @@
     <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
+    <string name="end_to_end_identity_renew_dialog_title">Update certificate</string>
+    <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
+    <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
+    <string name="end_to_end_identity_renew_dialog_positive_button">Update Certificate</string>
+    <string name="end_to_end_identity_renew_error_dialog_title">The certificate could not be updated.</string>
+    <string name="end_to_end_identity_renew_error_dialog_text">You can retry to update the certificate now, or you will get a reminder later.</string>
+    <string name="end_to_end_identity_renew_error_dialog_text_no_snooze">Please try again, or reach out to your team admin.</string>
+    <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
+    <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
+    <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
 
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>

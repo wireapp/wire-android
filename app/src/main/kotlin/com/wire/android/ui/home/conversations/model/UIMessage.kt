@@ -159,7 +159,7 @@ sealed class MessageFlowStatus {
 
     object Delivered : MessageFlowStatus()
 
-    data class Read(val count: Int) : MessageFlowStatus()
+    data class Read(val count: Long) : MessageFlowStatus()
 }
 
 @Stable

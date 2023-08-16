@@ -54,16 +54,17 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
         }
         itemsIndexed(
             items = list,
-            key = { _: Int, item: Map.Entry<K, T> -> "$header:${item.key}" })
-        { index: Int, item: Map.Entry<K, T> ->
+            key = { _: Int, item: Map.Entry<K, T> -> "$header:${item.key}" }
+        ) { index: Int, item: Map.Entry<K, T> ->
             Box(
                 modifier = Modifier
                     .wrapContentSize()
                     .animateItemPlacement()
             ) {
                 factory(item.value)
-                if (index <= list.lastIndex)
+                if (index <= list.lastIndex) {
                     divider()
+                }
             }
         }
     }

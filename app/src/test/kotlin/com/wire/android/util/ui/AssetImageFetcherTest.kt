@@ -28,6 +28,7 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.AssetImageFetcher.Companion.OPTION_PARAMETER_RETRY_KEY
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
@@ -43,6 +44,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.buffer
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -144,6 +146,141 @@ internal class AssetImageFetcherTest {
         coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
     }
 
+    @Test
+    fun givenAUserAvatarAssetData_WhenCallingFetchReturnsFailureWithRetryNotNeeded_ThenThrowExceptionWithDoNotRetryPolicy() =
+        runTest {
+            // Given
+            val someUserAssetId = AssetId("value", "domain")
+            val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+            val (arrangement, assetImageFetcher) = Arrangement()
+                .withErrorResponse(
+                    data = data,
+                    isRetryNeeded = false,
+                    coreFailure = CoreFailure.Unknown(null)
+                )
+                .arrange()
+
+            // When
+            val exception = assertThrows<AssetImageException> { assetImageFetcher.fetch() }
+
+            // Then
+            assertEquals(AssetImageRetryPolicy.DO_NOT_RETRY, exception.retryPolicy)
+            coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
+        }
+
+    @Test
+    fun givenAUserAvatarAssetData_WhenCallingFetchReturnsNoConnectionFailure_ThenThrowExceptionWithRetryPolicy() =
+        runTest {
+            // Given
+            val someUserAssetId = AssetId("value", "domain")
+            val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+            val (arrangement, assetImageFetcher) = Arrangement()
+                .withErrorResponse(
+                    data = data,
+                    isRetryNeeded = true,
+                    coreFailure = NetworkFailure.NoNetworkConnection(null)
+                )
+                .arrange()
+
+            // When
+            val exception = assertThrows<AssetImageException> { assetImageFetcher.fetch() }
+
+            // Then
+            assertEquals(AssetImageRetryPolicy.RETRY_WHEN_CONNECTED, exception.retryPolicy)
+            coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
+        }
+
+    @Test
+    fun givenAUserAvatarAssetData_WhenCallingFetchReturnsFailureWithRetryNeeded_ThenThrowExceptionWithExponentialRetryPolicy() =
+        runTest {
+            // Given
+            val someUserAssetId = AssetId("value", "domain")
+            val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+            val (arrangement, assetImageFetcher) = Arrangement()
+                .withErrorResponse(
+                    data = data,
+                    isRetryNeeded = true,
+                    coreFailure = CoreFailure.Unknown(null)
+                )
+                .arrange()
+
+            // When
+            val exception = assertThrows<AssetImageException> { assetImageFetcher.fetch() }
+
+            // Then
+            assertEquals(AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED, exception.retryPolicy)
+            coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
+        }
+
+    @Test
+    fun givenAPrivateAssetImageData_WhenCallingFetchReturnsFailureWithRetryNotNeeded_ThenThrowExceptionWithDoNotRetryPolicy() =
+        runTest {
+            // Given
+            val someConversationId = ConversationId("some-value", "some-domain")
+            val someMessageId = "some-message-id"
+            val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+            val (arrangement, assetImageFetcher) = Arrangement()
+                .withErrorResponse(
+                    data = data,
+                    isRetryNeeded = false,
+                    coreFailure = CoreFailure.Unknown(null)
+                )
+                .arrange()
+
+            // When
+            val exception = assertThrows<AssetImageException> { assetImageFetcher.fetch() }
+
+            // Then
+            assertEquals(AssetImageRetryPolicy.DO_NOT_RETRY, exception.retryPolicy)
+            coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
+        }
+
+    @Test
+    fun givenAPrivateAssetImageData_WhenCallingFetchReturnsNoConnectionFailure_ThenThrowExceptionWithRetryPolicy() =
+        runTest {
+            // Given
+            val someConversationId = ConversationId("some-value", "some-domain")
+            val someMessageId = "some-message-id"
+            val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+            val (arrangement, assetImageFetcher) = Arrangement()
+                .withErrorResponse(
+                    data = data,
+                    isRetryNeeded = true,
+                    coreFailure = NetworkFailure.NoNetworkConnection(null)
+                )
+                .arrange()
+
+            // When
+            val exception = assertThrows<AssetImageException> { assetImageFetcher.fetch() }
+
+            // Then
+            assertEquals(AssetImageRetryPolicy.RETRY_WHEN_CONNECTED, exception.retryPolicy)
+            coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
+        }
+
+    @Test
+    fun givenAPrivateAssetImageData_WhenCallingFetchReturnsFailureWithRetryNeeded_ThenThrowExceptionWithExponentialRetryPolicy() =
+        runTest {
+            // Given
+            val someConversationId = ConversationId("some-value", "some-domain")
+            val someMessageId = "some-message-id"
+            val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
+            val (arrangement, assetImageFetcher) = Arrangement()
+                .withErrorResponse(
+                    data = data,
+                    isRetryNeeded = true,
+                    coreFailure = CoreFailure.Unknown(null)
+                )
+                .arrange()
+
+            // When
+            val exception = assertThrows<AssetImageException> { assetImageFetcher.fetch() }
+
+            // Then
+            assertEquals(AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED, exception.retryPolicy)
+            coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
+        }
+
     private class Arrangement {
         val getPublicAsset = mockk<GetAvatarAssetUseCase>()
         val getPrivateAsset = mockk<GetMessageAssetUseCase>()
@@ -198,11 +335,15 @@ internal class AssetImageFetcherTest {
             return this
         }
 
-        fun withErrorResponse(data: ImageAsset, isRetryNeeded: Boolean = false): Arrangement {
+        fun withErrorResponse(
+            data: ImageAsset,
+            isRetryNeeded: Boolean = false,
+            coreFailure: CoreFailure = CoreFailure.Unknown(null)
+        ): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(
                 PublicAssetResult.Failure(
-                    CoreFailure.Unknown(null),
+                    coreFailure,
                     isRetryNeeded
                 )
             )
@@ -214,7 +355,7 @@ internal class AssetImageFetcherTest {
             }.returns(
                 CompletableDeferred(
                     MessageAssetResult.Failure(
-                        CoreFailure.Unknown(null),
+                        coreFailure,
                         isRetryNeeded
                     )
                 )

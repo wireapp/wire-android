@@ -243,8 +243,6 @@ private fun EnabledMessageComposer(
                         conversationId = conversationId,
                         messageComposerStateHolder = messageComposerStateHolder,
                         snackbarHostState = snackbarHostState,
-                        tempWritableVideoUri = tempWritableVideoUri,
-                        tempWritableImageUri = tempWritableImageUri,
                         messageListContent = messageListContent,
                         onTransitionToInActive = messageComposerStateHolder::toInActive,
                         onSendButtonClicked = onSendButtonClicked,
@@ -253,7 +251,9 @@ private fun EnabledMessageComposer(
                         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                         onClearMentionSearchResult = onClearMentionSearchResult,
-                        onPingOptionClicked = onPingOptionClicked
+                        onPingOptionClicked = onPingOptionClicked,
+                        tempWritableVideoUri = tempWritableVideoUri,
+                        tempWritableImageUri = tempWritableImageUri
                     )
                 }
 

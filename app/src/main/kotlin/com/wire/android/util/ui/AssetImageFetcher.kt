@@ -29,6 +29,8 @@ import coil.fetch.Fetcher
 import coil.request.Options
 import com.wire.android.model.ImageAsset
 import com.wire.android.util.toDrawable
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -55,13 +57,13 @@ internal class AssetImageFetcher(
             return when (data) {
                 is ImageAsset.UserAvatarAsset -> {
                     val retryHash = options.parameters.value(OPTION_PARAMETER_RETRY_KEY) ?: DEFAULT_RETRY_ATTEMPT
-
                     if (retryHash >= RETRY_ATTEMPT_TO_DELETE_ASSET) {
                         deleteAsset(data.userAssetId)
                     }
-
                     when (val result = getPublicAsset(data.userAssetId)) {
-                        is PublicAssetResult.Failure -> throw AssetImageException(result.isRetryNeeded)
+                        is PublicAssetResult.Failure ->
+                            throw AssetImageException(retryPolicy(result.isRetryNeeded, result.coreFailure))
+
                         is PublicAssetResult.Success -> {
                             drawableResultWrapper.toFetchResult(result.assetPath)
                         }
@@ -70,7 +72,9 @@ internal class AssetImageFetcher(
 
                 is ImageAsset.PrivateAsset -> {
                     when (val result = getPrivateAsset(data.conversationId, data.messageId).await()) {
-                        is MessageAssetResult.Failure -> throw AssetImageException(result.isRetryNeeded)
+                        is MessageAssetResult.Failure ->
+                            throw AssetImageException(retryPolicy(result.isRetryNeeded, result.coreFailure))
+
                         is MessageAssetResult.Success -> {
                             drawableResultWrapper.toFetchResult(result.decodedAssetPath)
                         }
@@ -88,6 +92,12 @@ internal class AssetImageFetcher(
                 }
             }
         }
+    }
+
+    private fun retryPolicy(isRetryNeeded: Boolean, coreFailure: CoreFailure): AssetImageRetryPolicy = when {
+        !isRetryNeeded -> AssetImageRetryPolicy.DO_NOT_RETRY
+        coreFailure is NetworkFailure.NoNetworkConnection -> AssetImageRetryPolicy.RETRY_WHEN_CONNECTED
+        else -> AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED
     }
 
     class Factory(
@@ -117,4 +127,10 @@ data class AssetFetcherParameters(
     val options: Options
 )
 
-data class AssetImageException(val isRetryNeeded: Boolean) : Exception("Load asset image exception")
+data class AssetImageException(val retryPolicy: AssetImageRetryPolicy) : Exception("Load asset image exception")
+
+enum class AssetImageRetryPolicy {
+    RETRY_WHEN_CONNECTED,
+    EXPONENTIAL_RETRY_WHEN_CONNECTED,
+    DO_NOT_RETRY
+}

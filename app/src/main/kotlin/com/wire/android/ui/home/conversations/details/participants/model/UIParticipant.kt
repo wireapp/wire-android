@@ -39,5 +39,6 @@ data class UIParticipant(
     val unavailable: Boolean = false,
     val isDeleted: Boolean = false,
     val readReceiptDate: Instant? = null,
-    val botService: BotService? = null
+    val botService: BotService? = null,
+    val isDefederated: Boolean = false
 )

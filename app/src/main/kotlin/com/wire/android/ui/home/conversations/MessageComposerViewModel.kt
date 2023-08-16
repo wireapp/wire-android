@@ -150,6 +150,10 @@ class MessageComposerViewModel @Inject constructor(
         AssetTooLargeDialogState.Hidden
     )
 
+    var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
+        VisitLinkDialogState.Hidden
+    )
+
     var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
         InvalidLinkDialogState.Hidden
     )
@@ -436,6 +440,10 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+    }
+
+    fun hideVisitLinkDialog() {
+        visitLinkDialogState = VisitLinkDialogState.Hidden
     }
 
     fun hideInvalidLinkError() {

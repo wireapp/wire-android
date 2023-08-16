@@ -535,6 +535,10 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_removed_by_self">%1$s ha rimosso %2$s dalla conversazione</string>
     <string name="label_system_message_added_by_other">%1$s ha aggiunto %2$s alla conversazione</string>
     <string name="label_system_message_removed_by_other">%1$s ha rimosso %2$s dalla conversazione</string>
+    <string name="label_system_message_federation_one_member_removed">%1$s was removed from the conversation</string>
+    <string name="label_system_message_federation_many_member_removed">%1$s were removed from the conversation</string>
+    <string name="label_system_message_federation_removed">**Your backend** stopped federating with %1$s.</string>
+    <string name="label_system_message_federation_conection_removed">The backends %1$s and %2$s stopped federating.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s ha lasciato la conversazione</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s ha lasciato la conversazione</string>
     <string name="label_system_message_other_called">%1$s ha effettuato una chiamata</string>

@@ -92,7 +92,7 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    val alpha = if (participantTitleState.hasEstablishedAudio) 1f else 0.5f
+    val alpha = if (participantTitleState.hasEstablishedAudio) 1f else 0.6f
     Surface(
         modifier = modifier.alpha(alpha),
         color = colorsScheme().callingParticipantTileBackgroundColor,

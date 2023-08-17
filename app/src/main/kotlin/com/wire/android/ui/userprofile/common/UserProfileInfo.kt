@@ -49,9 +49,9 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -61,10 +61,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun UserProfileInfo(
@@ -187,7 +185,6 @@ fun UserProfileInfo(
             userId = userId,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
-
     }
 }
 

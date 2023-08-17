@@ -92,7 +92,6 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @RootNavGraph
 @Destination

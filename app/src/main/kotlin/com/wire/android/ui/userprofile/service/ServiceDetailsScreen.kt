@@ -41,7 +41,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.service.ServiceDetails
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @RootNavGraph
 @Destination(

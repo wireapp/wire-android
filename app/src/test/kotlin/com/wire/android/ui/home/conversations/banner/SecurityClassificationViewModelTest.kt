@@ -112,13 +112,11 @@ class SecurityClassificationViewModelTest {
         val classificationChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
         val classificationUserChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
 
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns SecurityClassificationArgs(conversationId, userId)
             coEvery { observeSecurityClassificationLabel(any()) } returns classificationChannel.consumeAsFlow()
             coEvery { getOtherUserSecurityClassificationLabel(any()) } returns classificationUserChannel.consumeAsFlow()
-
         }
 
         val viewModel = SecurityClassificationViewModelImpl(

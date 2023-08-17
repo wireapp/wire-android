@@ -19,7 +19,12 @@ package com.wire.android
 
 import kotlin.random.Random
 
-val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+val charPoolWithNumbers: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
+
+fun Random.stringWithNumbers(length: Int) = (1..length)
+    .map { Random.nextInt(0, charPoolWithNumbers.size).let { charPoolWithNumbers[it] } }
+    .joinToString("")
 
 fun Random.string(length: Int) = (1..length)
     .map { Random.nextInt(0, charPool.size).let { charPool[it] } }

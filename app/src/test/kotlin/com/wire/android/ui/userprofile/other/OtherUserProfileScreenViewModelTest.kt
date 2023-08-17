@@ -209,19 +209,20 @@ class OtherUserProfileScreenViewModelTest {
         val CONVERSATION_ID = ConversationId("some_value", "some_domain")
         val OTHER_USER = OtherUser(
             USER_ID,
-            "some_name",
-            "some_handle",
-            "some_email",
-            "some_phone",
-            1,
-            TeamId("some_team"),
-            ConnectionState.NOT_CONNECTED,
-            null,
-            null,
-            UserType.INTERNAL,
-            UserAvailabilityStatus.AVAILABLE,
-            null,
-            false
+            name = "some_name",
+            handle = "some_handle",
+            email = "some_email",
+            phone = "some_phone",
+            accentId = 1,
+            teamId = TeamId("some_team"),
+            connectionStatus = ConnectionState.NOT_CONNECTED,
+            previewPicture = null,
+            completePicture = null,
+            userType = UserType.INTERNAL,
+            availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+            botService = null,
+            deleted = false,
+            defederated = false
         )
         val TEAM = Team("some_id", "name", "icon")
         val CONVERSATION = Conversation(

@@ -18,7 +18,9 @@
 package com.wire.android.ui.common.banner
 
 import com.wire.android.di.ScopedArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -27,7 +29,8 @@ data class SecurityClassificationArgs(
     @SerialName("conversation_id") val conversationId: QualifiedID?,
     @SerialName("user_id") val userId: QualifiedID?
 ) : ScopedArgs {
-    override val key = "$ARGS_KEY:${conversationId?.toString().orEmpty()}${userId?.toString().orEmpty()}"
+
+    override val key = "$ARGS_KEY:${conversationId?.toString().orEmpty()}_${userId?.toString().orEmpty()}"
 
     companion object {
         const val ARGS_KEY = "SecurityClassificationArgsKey"

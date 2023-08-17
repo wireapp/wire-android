@@ -24,12 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.di.scopedArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,7 +42,7 @@ interface SecurityClassificationViewModel {
 @HiltViewModel
 class SecurityClassificationViewModelImpl @Inject constructor(
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
-    private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
+    private val observeOtherUserSecurityClassificationLabel: ObserveOtherUserSecurityClassificationLabelUseCase,
     savedStateHandle: SavedStateHandle
 ) : SecurityClassificationViewModel, ViewModel() {
 
@@ -59,7 +58,7 @@ class SecurityClassificationViewModelImpl @Inject constructor(
         when {
             conversationId != null -> fetchConversationClassificationType(conversationId)
             userId != null -> fetchUserClassificationType(userId)
-            else -> appLogger.w("Either conversationId or userId should be provided to SecurityClassificationViewModel")
+            else -> error("Either conversationId or userId should be provided to SecurityClassificationViewModel")
         }
     }
 
@@ -71,7 +70,9 @@ class SecurityClassificationViewModelImpl @Inject constructor(
     }
 
     private fun fetchUserClassificationType(userId: UserId) = viewModelScope.launch {
-        state = getOtherUserSecurityClassificationLabel(userId)
+        observeOtherUserSecurityClassificationLabel(userId).collect { classificationType ->
+            state = classificationType
+        }
     }
 }
 

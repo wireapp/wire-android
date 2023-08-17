@@ -317,7 +317,7 @@ private fun CallingControls(
     flipCamera: () -> Unit
 ) {
     Column(
-        modifier = Modifier.height(96.dp)
+        modifier = Modifier.height(dimensions().defaultSheetPeekHeight)
     ) {
         Spacer(modifier = Modifier.weight(1F))
         Row(
@@ -325,7 +325,7 @@ private fun CallingControls(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(dimensions().spacing56x)
         ) {
             MicrophoneButton(isMuted = isMuted) { toggleMute() }
             CameraButton(

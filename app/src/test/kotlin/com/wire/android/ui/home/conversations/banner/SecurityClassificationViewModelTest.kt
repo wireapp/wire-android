@@ -26,7 +26,7 @@ import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.mockk.MockKAnnotations
@@ -79,6 +79,7 @@ class SecurityClassificationViewModelTest {
             .arrange()
 
         // When
+        arrangement.classificationUserChannel.send(SecurityClassificationType.CLASSIFIED)
         advanceUntilIdle()
 
         // Then
@@ -103,18 +104,20 @@ class SecurityClassificationViewModelTest {
         lateinit var observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase
 
         @MockK
-        lateinit var getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase
+        lateinit var getOtherUserSecurityClassificationLabel: ObserveOtherUserSecurityClassificationLabelUseCase
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
         val classificationChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
+        val classificationUserChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
+
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns SecurityClassificationArgs(conversationId, userId)
             coEvery { observeSecurityClassificationLabel(any()) } returns classificationChannel.consumeAsFlow()
-            coEvery { getOtherUserSecurityClassificationLabel(any()) } returns SecurityClassificationType.CLASSIFIED
+            coEvery { getOtherUserSecurityClassificationLabel(any()) } returns classificationUserChannel.consumeAsFlow()
 
         }
 

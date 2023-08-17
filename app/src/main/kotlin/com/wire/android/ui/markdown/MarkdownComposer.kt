@@ -233,7 +233,7 @@ fun appendLinksAndMentions(
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
-                if (it.end - it.start <= 0) {
+                if (it.start < 0 || it.end > length || it.start > it.end) {
                     return@forEach
                 }
                 addStyle(

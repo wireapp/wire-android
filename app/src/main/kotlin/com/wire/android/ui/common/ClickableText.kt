@@ -41,6 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.appLogger
 
 @Composable
 fun ClickableText(
@@ -137,7 +138,11 @@ class LinkSpannableString(source: CharSequence) : SpannableString(source) {
     }
 
     override fun setSpan(what: Any?, start: Int, end: Int, flags: Int) {
-        super.setSpan(what, start, end, flags)
-        spanList.add(Data(what, start, end))
+        if (start >= 0 && end <= this.length && start <= end) {
+            super.setSpan(what, start, end, flags)
+            spanList.add(Data(what, start, end))
+        } else {
+            appLogger.e("[LinkSpannableString] Invalid span indices: start=$start, end=$end, length=$length")
+        }
     }
 }

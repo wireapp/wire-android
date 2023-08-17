@@ -48,43 +48,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CreatePasswordGuestLinkViewModelText {
 
     @Test
-    fun `given onPasswordUpdated called, when the new password differ from the state, then isPasswordCopied is marked as false`() {
-        val (_, viewModel) = Arrangement()
-            .withPasswordValidation(true)
-            .arrange()
-
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("old_password"),
-            isPasswordCopied = true
-        )
-
-        viewModel.onPasswordUpdated(TextFieldValue("new_password"))
-
-        assertFalse(viewModel.state.isPasswordCopied)
-        assertEquals(TextFieldValue("new_password"), viewModel.state.password)
-    }
-
-    @Test
-    fun `given onPasswordUpdated called, when the new password does not differ from the state, then isPasswordCopied is not changed`() {
-        val (arrangement, viewModel) = Arrangement()
-            .arrange()
-
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            isPasswordCopied = true
-        )
-
-        viewModel.onPasswordUpdated(TextFieldValue("password"))
-
-        assertTrue(viewModel.state.isPasswordCopied)
-        assertEquals(TextFieldValue("password"), viewModel.state.password)
-
-        verify(exactly = 0) {
-            arrangement.validatePassword(any())
-        }
-    }
-
-    @Test
     fun `given onPasswordUpdated called, when password is valid and password matches confirm, then isPasswordValid is marked as true`() {
         val (_, viewModel) = Arrangement()
             .withPasswordValidation(true)
@@ -92,8 +55,7 @@ class CreatePasswordGuestLinkViewModelText {
 
         viewModel.state = viewModel.state.copy(
             password = TextFieldValue("123"),
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordCopied = true
+            passwordConfirm = TextFieldValue("password")
         )
 
         viewModel.onPasswordUpdated(TextFieldValue("password"))
@@ -125,13 +87,11 @@ class CreatePasswordGuestLinkViewModelText {
             .arrange()
 
         viewModel.state = viewModel.state.copy(
-            passwordConfirm = TextFieldValue("old_password"),
-            isPasswordCopied = true
+            passwordConfirm = TextFieldValue("old_password")
         )
 
         viewModel.onPasswordConfirmUpdated(TextFieldValue("new_password"))
 
-        assertFalse(viewModel.state.isPasswordCopied)
         assertEquals(TextFieldValue("new_password"), viewModel.state.passwordConfirm)
     }
 
@@ -141,13 +101,11 @@ class CreatePasswordGuestLinkViewModelText {
             .arrange()
 
         viewModel.state = viewModel.state.copy(
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordCopied = true
+            passwordConfirm = TextFieldValue("password")
         )
 
         viewModel.onPasswordConfirmUpdated(TextFieldValue("password"))
 
-        assertTrue(viewModel.state.isPasswordCopied)
         assertEquals(TextFieldValue("password"), viewModel.state.passwordConfirm)
 
         verify(exactly = 0) {
@@ -163,8 +121,7 @@ class CreatePasswordGuestLinkViewModelText {
 
         viewModel.state = viewModel.state.copy(
             password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("123"),
-            isPasswordCopied = true
+            passwordConfirm = TextFieldValue("123")
         )
 
         viewModel.onPasswordConfirmUpdated(TextFieldValue("password"))
@@ -199,8 +156,7 @@ class CreatePasswordGuestLinkViewModelText {
         viewModel.state = viewModel.state.copy(
             password = TextFieldValue("123"),
             passwordConfirm = TextFieldValue("123"),
-            isPasswordValid = false,
-            isPasswordCopied = true
+            isPasswordValid = false
         )
 
         viewModel.onGenerateRandomPassword()
@@ -208,25 +164,7 @@ class CreatePasswordGuestLinkViewModelText {
         assertTrue(viewModel.state.password.text.isNotEmpty())
         assertTrue(viewModel.state.passwordConfirm.text.isNotEmpty())
         assertEquals(viewModel.state.password, viewModel.state.passwordConfirm)
-        assertFalse(viewModel.state.isPasswordCopied)
         assertTrue(viewModel.state.isPasswordValid)
-    }
-
-    @Test
-    fun `given onPasswordCopied called, when password is copied, then isPasswordCopied is marked as true`() {
-        val (_, viewModel) = Arrangement()
-            .arrange()
-
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true,
-            isPasswordCopied = false
-        )
-
-        viewModel.onPasswordCopied()
-
-        assertTrue(viewModel.state.isPasswordCopied)
     }
 
     @Test
@@ -240,8 +178,7 @@ class CreatePasswordGuestLinkViewModelText {
         viewModel.state = viewModel.state.copy(
             password = TextFieldValue("password"),
             passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true,
-            isPasswordCopied = false
+            isPasswordValid = true
         )
 
         viewModel.onGenerateLink()
@@ -261,8 +198,7 @@ class CreatePasswordGuestLinkViewModelText {
         viewModel.state = viewModel.state.copy(
             password = TextFieldValue("password"),
             passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true,
-            isPasswordCopied = false
+            isPasswordValid = true
         )
 
         viewModel.onGenerateLink()

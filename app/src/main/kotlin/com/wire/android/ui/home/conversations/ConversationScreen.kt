@@ -537,6 +537,7 @@ private fun ConversationScreen(
         content = { internalPadding ->
             Box(modifier = Modifier.padding(internalPadding)) {
                 ConversationScreenContent(
+                    conversationId = conversationInfoViewState.conversationId,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
@@ -579,6 +580,7 @@ private fun ConversationScreen(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
+    conversationId: ConversationId,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
@@ -613,6 +615,7 @@ private fun ConversationScreenContent(
     }
 
     MessageComposer(
+        conversationId = conversationId,
         messageComposerStateHolder = messageComposerStateHolder,
         snackbarHostState = snackBarHostState,
         messageListContent = {
@@ -823,6 +826,7 @@ fun PreviewConversationScreen() {
         messageComposerViewState = messageComposerViewState,
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Some test conversation")
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),

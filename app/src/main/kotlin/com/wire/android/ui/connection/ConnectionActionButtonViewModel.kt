@@ -30,10 +30,19 @@ import com.wire.android.di.scopedArgs
 import com.wire.android.model.ActionableState
 import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
+import com.wire.android.navigation.EXTRA_USER_ID
+import com.wire.android.navigation.EXTRA_USER_NAME
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -77,9 +86,8 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ConnectionActionButtonViewModel, ViewModel() {
 
-    private val args: ConnectionActionButtonArgs = savedStateHandle.scopedArgs()
-    private val userId: QualifiedID = args.userId
-    val userName: String = args.userName
+    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
+    private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
 
     private var state: ActionableState by mutableStateOf(ActionableState())
 
@@ -92,24 +100,15 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         viewModelScope.launch {
             state = state.performAction()
             when (sendConnectionRequest(userId)) {
-                is SendConnectionRequestResult.Success -> {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.e(("Couldn't send a connection request to user ${userId.toLogString()}"))
                     state = state.finishAction()
                     _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
                 }
 
-                is SendConnectionRequestResult.Failure.FederationDenied -> {
+                is SendConnectionRequestResult.Success -> {
                     state = state.finishAction()
-                    _infoMessage.emit(
-                        UIText.StringResource(
-                            R.string.connection_request_sent_federation_denied_error,
-                            userName
-                        )
-                    )
-                }
-
-                is SendConnectionRequestResult.Failure.GenericFailure -> {
-                    state = state.finishAction()
-                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_error))
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
                 }
             }
         }
@@ -163,7 +162,11 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.finishAction()
-                    onSuccess(userName)
+                    navigationManager.navigateBack(
+                        mapOf(
+                            EXTRA_CONNECTION_IGNORED_USER_NAME to userName
+                        )
+                    )
                 }
             }
         }

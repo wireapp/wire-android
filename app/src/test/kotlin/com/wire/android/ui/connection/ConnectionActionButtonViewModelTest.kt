@@ -28,11 +28,14 @@ import com.wire.android.config.mockUri
 import com.wire.android.di.scopedArgs
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
+import com.wire.android.navigation.EXTRA_USER_ID
+import com.wire.android.navigation.EXTRA_USER_NAME
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -88,7 +91,7 @@ class ConnectionActionButtonViewModelTest {
     fun `given a failure, when sending a connection request, then emit failure message`() = runTest {
         // given
         val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
-            .withSendConnectionRequest(SendConnectionRequestResult.Failure.GenericFailure(failure))
+            .withSendConnectionRequest(SendConnectionRequestResult.Failure(failure))
             .arrange()
 
         viewModel.infoMessage.test {
@@ -104,26 +107,7 @@ class ConnectionActionButtonViewModelTest {
     }
 
     @Test
-    fun `given a federation denied failure, when sending a connection request, then emit proper failure message`() = runTest {
-        // given
-        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
-            .withSendConnectionRequest(SendConnectionRequestResult.Failure.FederationDenied)
-            .arrange()
-
-        viewModel.infoMessage.test {
-            // when
-            viewModel.onSendConnectionRequest()
-
-            // then
-            val result = awaitItem() as UIText.StringResource
-            assertEquals(UIText.StringResource(R.string.connection_request_sent_federation_denied_error, "").resId, result.resId)
-            coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            assertEquals(false, viewModel.actionableState().isPerformingAction)
-        }
-    }
-
-    @Test
-    fun `given success, when ignoring a connection request, then calls onIgnoreSuccess`() =
+    fun `given success, when ignoring a connection request, then navigate back`() =
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
@@ -135,7 +119,7 @@ class ConnectionActionButtonViewModelTest {
 
             // then
             coVerify(exactly = 1) { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            verify { arrangement.onIgnoreSuccess(any()) }
+            coVerify(exactly = 1) { arrangement.navigationManager.navigateBack(any()) }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
@@ -149,7 +133,7 @@ class ConnectionActionButtonViewModelTest {
 
             viewModel.infoMessage.test {
                 // when
-                viewModel.onIgnoreConnectionRequest(arrangement.onIgnoreSuccess)
+                viewModel.onIgnoreConnectionRequest()
 
                 // then
                 val result = awaitItem()
@@ -332,9 +316,8 @@ internal class ConnectionActionButtonHiltArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(UnconfinedTestDispatcher())
         mockUri()
-        every { savedStateHandle.scopedArgs<ConnectionActionButtonArgs>() } returns ConnectionActionButtonArgs(
-            TestUser.USER_ID, TestUser.SELF_USER.name ?: ""
-        )
+        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns "some_value@some_domain"
+        every { savedStateHandle.get<String>(EXTRA_USER_NAME) } returns TestUser.OTHER_USER.name
 
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { getOrCreateOneToOneConversation(TestConversation.ID) } returns CreateConversationResult.Success(

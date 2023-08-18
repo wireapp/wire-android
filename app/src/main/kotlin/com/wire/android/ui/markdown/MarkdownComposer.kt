@@ -235,9 +235,9 @@ fun appendLinksAndMentions(
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
-                val start = max(it.start, 0)
-                val end = min(it.end, length - 1)
-                if (start > end) {
+                val safeStart = max(it.start, 0)
+                val safeEnd = min(it.end, length - 1)
+                if (safeStart > safeEnd) {
                     return@forEach
                 }
                 addStyle(
@@ -245,14 +245,14 @@ fun appendLinksAndMentions(
                         color = primary,
                         textDecoration = TextDecoration.Underline
                     ),
-                    start = start,
-                    end = end
+                    start = safeStart,
+                    end = safeEnd
                 )
                 addStringAnnotation(
                     tag = TAG_URL,
                     annotation = it.url,
-                    start = start,
-                    end = end
+                    start = safeStart,
+                    end = safeEnd
                 )
             }
 

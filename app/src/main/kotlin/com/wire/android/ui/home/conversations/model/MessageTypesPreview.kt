@@ -33,6 +33,9 @@ import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockFooter
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownListAndImages
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTablesAndBlocks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.theme.WireTheme
@@ -522,3 +525,68 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
         }
     }
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithMarkdownTextAndLinks() {
+    WireTheme {
+        MessageItem(
+            message = mockMessageWithMarkdownTextAndLinks,
+            audioMessagesState = emptyMap(),
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
+            onImageMessageClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> },
+            onSelfDeletingMessageRead = {},
+            conversationDetailsData = ConversationDetailsData.None
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithMarkdownListAndImages() {
+    WireTheme {
+        MessageItem(
+            message = mockMessageWithMarkdownListAndImages,
+            audioMessagesState = emptyMap(),
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
+            onImageMessageClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> },
+            onSelfDeletingMessageRead = {},
+            conversationDetailsData = ConversationDetailsData.None
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithMarkdownTablesAndBlocks() {
+    WireTheme {
+        MessageItem(
+            message = mockMessageWithMarkdownTablesAndBlocks,
+            audioMessagesState = emptyMap(),
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
+            onImageMessageClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> },
+            onSelfDeletingMessageRead = {},
+            conversationDetailsData = ConversationDetailsData.None
+        )
+    }
+}
+
+

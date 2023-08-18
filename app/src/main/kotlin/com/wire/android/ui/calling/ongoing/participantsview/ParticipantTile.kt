@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -92,9 +93,9 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    val alpha = if (participantTitleState.hasEstablishedAudio) 1f else 0.6f
+    val alpha = if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
-        modifier = modifier.alpha(alpha),
+        modifier = modifier,
         color = colorsScheme().callingParticipantTileBackgroundColor,
         shape = RoundedCornerShape(dimensions().corner6x),
     ) {
@@ -109,6 +110,7 @@ fun ParticipantTile(
             AvatarTile(
                 modifier = Modifier
                     .fillMaxSize()
+                    .alpha(alpha)
                     .constrainAs(avatar) { },
                 avatar = UserAvatarData(participantTitleState.avatar),
                 avatarSize = avatarSize
@@ -286,6 +288,7 @@ private fun UsernameTile(
     hasEstablishedAudio: Boolean
 ) {
     val color = if (isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+    val nameLabelColor = if (hasEstablishedAudio) Color.White else colorsScheme().secondaryText
 
     ConstraintLayout(modifier = modifier) {
         val (nameLabel, connectingLabel) = createRefs()
@@ -305,7 +308,7 @@ private fun UsernameTile(
             color = color
         ) {
             Text(
-                color = Color.White,
+                color = nameLabelColor,
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(dimensions().spacing4x),
                 text = name,

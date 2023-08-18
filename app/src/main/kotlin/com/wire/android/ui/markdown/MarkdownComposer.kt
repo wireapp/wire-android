@@ -52,6 +52,8 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import kotlin.math.max
+import kotlin.math.min
 import org.commonmark.node.Text as nodeText
 
 @Composable
@@ -192,7 +194,7 @@ fun inlineChildren(
     return updatedMentions
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "ComplexMethod")
 fun appendLinksAndMentions(
     annotatedString: AnnotatedString.Builder,
     string: String,
@@ -233,7 +235,9 @@ fun appendLinksAndMentions(
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
-                if (it.start < 0 || it.end > length || it.start > it.end) {
+                val start = max(it.start, 0)
+                val end = min(it.end, length - 1)
+                if (start > end) {
                     return@forEach
                 }
                 addStyle(
@@ -241,14 +245,14 @@ fun appendLinksAndMentions(
                         color = primary,
                         textDecoration = TextDecoration.Underline
                     ),
-                    start = it.start,
-                    end = it.end
+                    start = start,
+                    end = end
                 )
                 addStringAnnotation(
                     tag = TAG_URL,
                     annotation = it.url,
-                    start = it.start,
-                    end = it.end
+                    start = start,
+                    end = end
                 )
             }
 

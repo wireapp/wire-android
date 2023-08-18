@@ -34,7 +34,6 @@ import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
 import com.wire.android.model.ActionableState
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.ui.common.button.WireButtonState
@@ -56,14 +55,13 @@ fun ConnectionActionButton(
     connectionStatus: ConnectionState
 ) {
     val viewModel: ConnectionActionButtonViewModel = if (LocalInspectionMode.current) {
-        ConnectionActionButtonPreviewModel(ActionableState(connectionStatus))
+        ConnectionActionButtonPreviewModel(ActionableState())
     } else {
         hiltViewModelScoped<ConnectionActionButtonViewModelImpl>(
             key = "${ConnectionActionButtonViewModelImpl.ARGS_KEY}$userId",
             defaultArguments = bundleOf(
                 EXTRA_USER_ID to userId.toString(),
-                EXTRA_USER_NAME to userName,
-                EXTRA_CONNECTION_STATE to connectionStatus.toString()
+                EXTRA_USER_NAME to userName
             )
         ).also {
             LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage)
@@ -81,7 +79,7 @@ fun ConnectionActionButton(
         unblockUserDialogState.dismiss()
     }
 
-    when (viewModel.actionableState().state) {
+    when (connectionStatus) {
         ConnectionState.SENT -> WireSecondaryButton(
             text = stringResource(R.string.connection_label_cancel_request),
             loading = viewModel.actionableState().isPerformingAction,

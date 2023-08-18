@@ -26,7 +26,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.navigation.NavigationManager
@@ -35,7 +34,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -65,14 +63,12 @@ import org.junit.jupiter.api.Test
 
 class ConnectionActionButtonViewModelTest {
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `given a userId, when sending a connection request, then returns a Success result and update view state`() = runTest {
+    fun `given success, when sending a connection request, then emit success message`() = runTest {
         // given
         val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Success)
             .arrange()
-        assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
 
         viewModel.infoMessage.test {
             // when
@@ -81,58 +77,74 @@ class ConnectionActionButtonViewModelTest {
             // then
             val result = awaitItem()
             assertEquals(UIText.StringResource(R.string.connection_request_sent), result)
-            coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            assertEquals(ConnectionState.SENT, viewModel.actionableState().state)
+            coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
     }
 
     @Test
-    fun `given a userId, when sending a connection request a fails, then returns a Failure result and show error message`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
-                .withSendConnectionRequest(SendConnectionRequestResult.Failure(CoreFailure.Unknown(RuntimeException("some error"))))
-                .arrange()
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
+    fun `given a failure, when sending a connection request, then emit failure message`() = runTest {
+        // given
+        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            .withSendConnectionRequest(SendConnectionRequestResult.Failure(failure))
+            .arrange()
 
-            viewModel.infoMessage.test {
-                // when
-                viewModel.onSendConnectionRequest()
+        viewModel.infoMessage.test {
+            // when
+            viewModel.onSendConnectionRequest()
 
-                // then
-                val result = awaitItem()
-                assertEquals(UIText.StringResource(R.string.connection_request_sent_error), result)
-                coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
-            }
+            // then
+            val result = awaitItem()
+            assertEquals(UIText.StringResource(R.string.connection_request_sent_error), result)
+            coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
+    }
 
     @Test
-    fun `given a userId, when ignoring a connection request, then returns a Success result and update view state`() =
+    fun `given success, when ignoring a connection request, then navigate back`() =
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.PENDING, viewModel.actionableState().state)
 
             // when
             viewModel.onIgnoreConnectionRequest()
 
             // then
-            coVerify { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            assertEquals(ConnectionState.IGNORED, viewModel.actionableState().state)
-            coVerify { arrangement.navigationManager.navigateBack(any()) }
+            coVerify(exactly = 1) { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            coVerify(exactly = 1) { arrangement.navigationManager.navigateBack(any()) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
-    fun `given a userId, when canceling a connection request, then returns a Success result and update view state`() =
+    fun `given failure, when ignoring a connection request, then emit error message`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+                .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Failure(failure))
+                .arrange()
+
+            viewModel.infoMessage.test {
+                // when
+                viewModel.onIgnoreConnectionRequest()
+
+                // then
+                val result = awaitItem()
+                coVerify(exactly = 1) { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(UIText.StringResource(R.string.connection_request_ignore_error), result)
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
+            }
+        }
+
+    @Test
+    fun `given success, when canceling a connection request, then emit success message`() =
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.SENT, viewModel.actionableState().state)
 
             viewModel.infoMessage.test {
                 // when
@@ -141,28 +153,68 @@ class ConnectionActionButtonViewModelTest {
                 // then
                 val result = awaitItem()
                 assertEquals(UIText.StringResource(R.string.connection_request_canceled), result)
-                coVerify { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
+                coVerify(exactly = 1) { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
             }
         }
 
     @Test
-    fun `given a userId, when accepting a connection request, then returns a Success result and update view state`() =
+    fun `given failure, when canceling a connection request, then emit failure message`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+                .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Failure(failure))
+                .arrange()
+
+            viewModel.infoMessage.test {
+                // when
+                viewModel.onCancelConnectionRequest()
+
+                // then
+                val result = awaitItem()
+                assertEquals(UIText.StringResource(R.string.connection_request_cancel_error), result)
+                coVerify(exactly = 1) { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
+            }
+        }
+
+    @Test
+    fun `given success, when accepting a connection request, then emit success message`() =
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.PENDING, viewModel.actionableState().state)
 
             viewModel.infoMessage.test {
                 // when
                 viewModel.onAcceptConnectionRequest()
 
                 // then
-                awaitItem()
-                coVerify { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-                assertEquals(ConnectionState.ACCEPTED, viewModel.actionableState().state)
+                val result = awaitItem()
+                assertEquals(UIText.StringResource(R.string.connection_request_accepted), result)
+                coVerify(exactly = 1) { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
+            }
+        }
+
+    @Test
+    fun `given failure, when accepting a connection request, then emit failure message`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+                .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Failure(failure))
+                .arrange()
+
+            viewModel.infoMessage.test {
+                // when
+                viewModel.onAcceptConnectionRequest()
+
+                // then
+                val result = awaitItem()
+                assertEquals(UIText.StringResource(R.string.connection_request_accept_error), result)
+                coVerify(exactly = 1) { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(false, viewModel.actionableState().isPerformingAction)
             }
         }
 
@@ -189,7 +241,7 @@ class ConnectionActionButtonViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
-                .withGetOneToOneConversation(CreateConversationResult.Failure(CoreFailure.Unknown(RuntimeException("some error"))))
+                .withGetOneToOneConversation(CreateConversationResult.Failure(failure))
                 .arrange()
 
             // when
@@ -201,6 +253,10 @@ class ConnectionActionButtonViewModelTest {
                 arrangement.navigationManager wasNot Called
             }
         }
+
+    companion object {
+        val failure = CoreFailure.Unknown(RuntimeException("some error"))
+    }
 }
 
 internal class ConnectionActionButtonHiltArrangement {
@@ -259,8 +315,6 @@ internal class ConnectionActionButtonHiltArrangement {
         mockUri()
         every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns "some_value@some_domain"
         every { savedStateHandle.get<String>(EXTRA_USER_NAME) } returns TestUser.OTHER_USER.name
-        every { savedStateHandle.get<String>(EXTRA_CONNECTION_STATE) } returns
-                ConnectionState.NOT_CONNECTED.toString()
 
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { getOrCreateOneToOneConversation(TestConversation.ID) } returns CreateConversationResult.Success(
@@ -279,20 +333,15 @@ internal class ConnectionActionButtonHiltArrangement {
     }
 
     fun withAcceptConnectionRequest(result: AcceptConnectionRequestUseCaseResult) = apply {
-        every { savedStateHandle.get<String>(EXTRA_CONNECTION_STATE) } returns
-                ConnectionState.PENDING.toString()
         coEvery { acceptConnectionRequest(any()) } returns result
     }
 
     fun withCancelConnectionRequest(result: CancelConnectionRequestUseCaseResult) = apply {
-        every { savedStateHandle.get<String>(EXTRA_CONNECTION_STATE) } returns
-                ConnectionState.SENT.toString()
+
         coEvery { cancelConnectionRequest(any()) } returns result
     }
 
     fun withIgnoreConnectionRequest(result: IgnoreConnectionRequestUseCaseResult) = apply {
-        every { savedStateHandle.get<String>(EXTRA_CONNECTION_STATE) } returns
-                ConnectionState.PENDING.toString()
         coEvery { ignoreConnectionRequest(any()) } returns result
     }
 

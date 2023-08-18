@@ -57,14 +57,21 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun MenuBottomSheetItem(
     title: String,
-    icon: @Composable () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
     itemProvidedColor: Color = MaterialTheme.colorScheme.secondary,
-    onItemClick: () -> Unit = {}
+    onItemClick: () -> Unit = {},
+    enabled: Boolean = true,
 ) {
     CompositionLocalProvider(LocalContentColor provides itemProvidedColor) {
-        val clickable = remember(onItemClick, clickBlockParams) { Clickable(clickBlockParams = clickBlockParams, onClick = onItemClick) }
+        val clickable = remember(onItemClick, clickBlockParams) {
+            Clickable(
+                clickBlockParams = clickBlockParams,
+                onClick = onItemClick,
+                enabled = enabled
+            )
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -73,8 +80,10 @@ fun MenuBottomSheetItem(
                 .clickable(clickable)
                 .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
         ) {
-            icon()
-            Spacer(modifier = Modifier.width(12.dp))
+            if (icon != null) {
+                icon()
+                Spacer(modifier = Modifier.width(12.dp))
+            }
             MenuItemTitle(title = title)
             if (action != null) {
                 Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing12x))

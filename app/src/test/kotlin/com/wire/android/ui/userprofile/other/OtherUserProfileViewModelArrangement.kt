@@ -39,9 +39,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -101,9 +99,6 @@ internal class OtherUserProfileViewModelArrangement {
     @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
 
-    @MockK
-    lateinit var getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase
-
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             TestDispatcherProvider(),
@@ -120,7 +115,6 @@ internal class OtherUserProfileViewModelArrangement {
             observeClientList,
             persistOtherUserClientsUseCase,
             clearConversationContent,
-            getOtherUserSecurityClassificationLabel,
             savedStateHandle
         )
     }
@@ -148,7 +142,6 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)
         )
-        coEvery { getOtherUserSecurityClassificationLabel(any()) } returns SecurityClassificationType.NONE
     }
 
     suspend fun withBlockUserResult(result: BlockUserResult) = apply {

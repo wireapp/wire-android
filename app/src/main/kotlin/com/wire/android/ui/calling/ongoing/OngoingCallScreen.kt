@@ -27,8 +27,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -69,7 +71,7 @@ import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
-import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -79,7 +81,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
 @RootNavGraph
@@ -102,6 +104,7 @@ fun OngoingCallScreen(
     }
     with(sharedCallingViewModel.callState) {
         OngoingCallContent(
+            conversationId = conversationId,
             conversationName = conversationName,
             participants = participants,
             isMuted = isMuted ?: true,
@@ -109,7 +112,6 @@ fun OngoingCallScreen(
             isSpeakerOn = isSpeakerOn,
             isCbrEnabled = isCbrEnabled,
             isOnFrontCamera = isOnFrontCamera,
-            classificationType = securityClassificationType,
             shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
@@ -129,6 +131,7 @@ fun OngoingCallScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
+    conversationId: ConversationId,
     conversationName: ConversationName?,
     participants: List<UICallParticipant>,
     isMuted: Boolean,
@@ -137,7 +140,6 @@ private fun OngoingCallContent(
     isSpeakerOn: Boolean,
     isCbrEnabled: Boolean,
     shouldShowDoubleTapToast: Boolean,
-    classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -150,17 +152,10 @@ private fun OngoingCallContent(
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
 
-    val sheetInitialValue =
-        if (classificationType == SecurityClassificationType.NONE) SheetValue.PartiallyExpanded else SheetValue.Expanded
+    val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
-    ).also {
-        LaunchedEffect(Unit) {
-            // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
-            if (sheetInitialValue == SheetValue.PartiallyExpanded) it.partialExpand()
-            else it.expand()
-        }
-    }
+    )
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
@@ -186,11 +181,11 @@ private fun OngoingCallContent(
         scaffoldState = scaffoldState,
         sheetContent = {
             CallingControls(
+                conversationId = conversationId,
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 isOnFrontCamera = isOnFrontCamera,
                 isSpeakerOn = isSpeakerOn,
-                classificationType = classificationType,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
@@ -310,29 +305,27 @@ private fun OngoingCallTopBar(
 
 @Composable
 private fun CallingControls(
+    conversationId: ConversationId,
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
     isOnFrontCamera: Boolean,
-    classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit,
-    flipCamera: () -> Unit,
+    flipCamera: () -> Unit
 ) {
-    Column {
-        val topPadding = if (classificationType != SecurityClassificationType.NONE) {
-            dimensions().spacing8x
-        } else {
-            dimensions().spacing16x
-        }
+    Column(
+        modifier = Modifier.height(dimensions().defaultSheetPeekHeight)
+    ) {
+        Spacer(modifier = Modifier.weight(1F))
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = topPadding)
+                .height(dimensions().spacing56x)
         ) {
             MicrophoneButton(isMuted = isMuted) { toggleMute() }
             CameraButton(
@@ -355,7 +348,8 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        SecurityClassificationBanner(classificationType, modifier = Modifier.padding(top = dimensions().spacing8x))
+        Spacer(modifier = Modifier.weight(1F))
+        SecurityClassificationBanner(conversationId)
     }
 }
 

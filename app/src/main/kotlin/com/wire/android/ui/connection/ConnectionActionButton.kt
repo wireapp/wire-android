@@ -29,9 +29,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ActionableState
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.navigation.EXTRA_USER_ID
+import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -56,6 +57,17 @@ fun ConnectionActionButton(
         hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonArgs>(ConnectionActionButtonArgs(userId, userName))
             .also { LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage) }
 ) {
+    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
+
+    UnblockUserDialogContent(
+        dialogState = unblockUserDialogState,
+        onUnblock = { viewModel.onUnblockUser() },
+        isLoading = viewModel.actionableState().isPerformingAction,
+    )
+
+    if (!viewModel.actionableState().isPerformingAction) {
+        unblockUserDialogState.dismiss()
+    }
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
 
     UnblockUserDialogContent(

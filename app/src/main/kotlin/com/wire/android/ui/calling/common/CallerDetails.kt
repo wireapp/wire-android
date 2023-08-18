@@ -42,8 +42,8 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.MembershipQualifierLabel
-import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -52,19 +52,19 @@ import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
 @Composable
 fun CallerDetails(
+    conversationId: ConversationId,
     conversationName: ConversationName?,
     isCameraOn: Boolean,
     isCbrEnabled: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
-    callingLabel: String,
-    securityClassificationType: SecurityClassificationType
+    callingLabel: String
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -115,7 +115,7 @@ fun CallerDetails(
         }
 
         SecurityClassificationBanner(
-            securityClassificationType = securityClassificationType,
+            conversationId = conversationId,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
 
@@ -133,6 +133,7 @@ fun CallerDetails(
 @Composable
 fun PreviewCallerDetails() {
     CallerDetails(
+        conversationId = ConversationId("value", "domain"),
         conversationName = ConversationName.Known("User"),
         isCameraOn = false,
         isCbrEnabled = false,
@@ -140,6 +141,5 @@ fun PreviewCallerDetails() {
         conversationType = ConversationType.OneOnOne,
         membership = Membership.Guest,
         callingLabel = String.EMPTY,
-        securityClassificationType = SecurityClassificationType.CLASSIFIED
     )
 }

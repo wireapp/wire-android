@@ -62,6 +62,7 @@ import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
 @Destination(
@@ -97,7 +98,8 @@ fun IncomingCallScreen(
                 )
             )
 
-            is IncomingCallState.FlowState.Default -> { /* do nothing */ }
+            is IncomingCallState.FlowState.Default -> { /* do nothing */
+            }
         }
     }
     with(sharedCallingViewModel) {
@@ -204,14 +206,14 @@ private fun IncomingCallContent(
             } else stringResource(R.string.calling_label_incoming_call)
 
             CallerDetails(
+                conversationId = callState.conversationId,
                 conversationName = callState.conversationName,
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = isCallingString,
-                securityClassificationType = callState.securityClassificationType
+                callingLabel = isCallingString
             )
         }
     }
@@ -232,5 +234,5 @@ private fun AudioBluetoothPermissionCheckFlow(
 @Preview
 @Composable
 fun PreviewIncomingCallScreen() {
-    IncomingCallContent(CallState(), {}, {}, {}, {}, {}, {}, {})
+    IncomingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {})
 }

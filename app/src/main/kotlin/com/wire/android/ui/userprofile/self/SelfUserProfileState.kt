@@ -25,8 +25,10 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
 
 data class SelfUserProfileState constructor(
+    val userId: UserId,
     val avatarAsset: UserAvatarAsset? = null,
     val errorMessageCode: ErrorCodes? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,

@@ -41,7 +41,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.service.ServiceDetails
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @RootNavGraph
 @Destination(
@@ -129,6 +128,7 @@ private fun ServiceDetailsProfileInfo(
 ) {
     state.serviceDetails?.let { serviceDetails ->
         UserProfileInfo(
+            userId = null,
             isLoading = state.isAvatarLoading,
             avatarAsset = state.serviceAvatarAsset,
             fullName = serviceDetails.name,
@@ -136,8 +136,7 @@ private fun ServiceDetailsProfileInfo(
             teamName = null,
             membership = Membership.Service,
             editableState = EditableState.NotEditable,
-            modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            securityClassificationType = SecurityClassificationType.NONE
+            modifier = Modifier.padding(bottom = dimensions().spacing16x)
         )
     }
 }

@@ -59,7 +59,6 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -96,7 +95,6 @@ class MessageComposerViewModel @Inject constructor(
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDate: UpdateConversationReadDateUseCase,
-    private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
@@ -150,6 +148,10 @@ class MessageComposerViewModel @Inject constructor(
         AssetTooLargeDialogState.Hidden
     )
 
+    var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
+        VisitLinkDialogState.Hidden
+    )
+
     var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
         InvalidLinkDialogState.Hidden
     )
@@ -157,7 +159,6 @@ class MessageComposerViewModel @Inject constructor(
     init {
         initTempWritableVideoUri()
         initTempWritableImageUri()
-        fetchConversationClassificationType()
         observeIsTypingAvailable()
         observeSelfDeletingMessagesStatus()
         setFileSharingStatus()
@@ -185,13 +186,6 @@ class MessageComposerViewModel @Inject constructor(
         ).collect { selfDeletingStatus ->
             messageComposerViewState.value =
                 messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
-        }
-    }
-
-    private fun fetchConversationClassificationType() = viewModelScope.launch {
-        observeSecurityClassificationLabel(conversationId).collect { classificationType ->
-            messageComposerViewState.value =
-                messageComposerViewState.value.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -436,6 +430,10 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
+    }
+
+    fun hideVisitLinkDialog() {
+        visitLinkDialogState = VisitLinkDialogState.Hidden
     }
 
     fun hideInvalidLinkError() {

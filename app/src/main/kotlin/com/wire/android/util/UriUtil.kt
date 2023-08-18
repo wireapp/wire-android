@@ -14,21 +14,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util
 
-package com.wire.android.ui.home.conversationslist.model
+import java.net.URI
+import java.net.URLDecoder
 
-import androidx.annotation.StringRes
-import com.wire.android.R
-
-sealed class ConversationFolder {
-    sealed class Predefined(@StringRes val folderNameResId: Int) : ConversationFolder() {
-        data object Conversations : Predefined(R.string.conversation_label_conversations)
-        data object Favorites : Predefined(R.string.conversation_label_favorites)
-        data object NewActivities : Predefined(R.string.conversation_label_new_activity)
+fun containsSchema(url: String): Boolean {
+    return try {
+        URI.create(url).scheme != null
+    } catch (iae: IllegalArgumentException) {
+        false // invalid URI
     }
-    data class Custom(val folderName: String) : ConversationFolder()
-    data object WithoutHeader : ConversationFolder()
+}
+
+fun normalizeLink(url: String): String {
+    val normalizedUrl = URLDecoder.decode(url, "UTF-8") // Decode URL to human-readable format
+
+    return if (containsSchema(normalizedUrl)) {
+        normalizedUrl
+    } else {
+        "https://$normalizedUrl"
+    }
 }

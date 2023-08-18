@@ -65,6 +65,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.conversation.ConversationProtocol
@@ -221,6 +222,7 @@ private fun callControlButton(
 fun PreviewConversationScreenTopAppBarLongTitle() {
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
@@ -244,6 +246,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
     val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
@@ -265,6 +268,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
     val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)

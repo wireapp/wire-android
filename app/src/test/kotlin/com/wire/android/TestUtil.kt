@@ -14,21 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android
 
-package com.wire.android.ui.home.conversationslist.model
+import kotlin.random.Random
 
-import androidx.annotation.StringRes
-import com.wire.android.R
+val charPoolWithNumbers: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
 
-sealed class ConversationFolder {
-    sealed class Predefined(@StringRes val folderNameResId: Int) : ConversationFolder() {
-        data object Conversations : Predefined(R.string.conversation_label_conversations)
-        data object Favorites : Predefined(R.string.conversation_label_favorites)
-        data object NewActivities : Predefined(R.string.conversation_label_new_activity)
-    }
-    data class Custom(val folderName: String) : ConversationFolder()
-    data object WithoutHeader : ConversationFolder()
-}
+fun Random.stringWithNumbers(length: Int) = (1..length)
+    .map { Random.nextInt(0, charPoolWithNumbers.size).let { charPoolWithNumbers[it] } }
+    .joinToString("")
+
+fun Random.string(length: Int) = (1..length)
+    .map { Random.nextInt(0, charPool.size).let { charPool[it] } }
+    .joinToString("")

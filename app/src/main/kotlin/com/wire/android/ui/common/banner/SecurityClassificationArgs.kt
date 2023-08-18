@@ -14,21 +14,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.common.banner
 
-package com.wire.android.ui.home.conversationslist.model
+import com.wire.android.di.ScopedArgs
+import com.wire.kalium.logic.data.id.QualifiedID
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import androidx.annotation.StringRes
-import com.wire.android.R
+@Serializable
+data class SecurityClassificationArgs(
+    @SerialName("conversation_id") val conversationId: QualifiedID?,
+    @SerialName("user_id") val userId: QualifiedID?
+) : ScopedArgs {
 
-sealed class ConversationFolder {
-    sealed class Predefined(@StringRes val folderNameResId: Int) : ConversationFolder() {
-        data object Conversations : Predefined(R.string.conversation_label_conversations)
-        data object Favorites : Predefined(R.string.conversation_label_favorites)
-        data object NewActivities : Predefined(R.string.conversation_label_new_activity)
+    override val key = "$ARGS_KEY:${conversationId?.toString().orEmpty()}_${userId?.toString().orEmpty()}"
+
+    companion object {
+        const val ARGS_KEY = "SecurityClassificationArgsKey"
     }
-    data class Custom(val folderName: String) : ConversationFolder()
-    data object WithoutHeader : ConversationFolder()
 }

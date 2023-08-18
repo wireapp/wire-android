@@ -62,7 +62,8 @@ object TestUser {
         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
         userType = UserType.INTERNAL,
         botService = null,
-        deleted = false
+        deleted = false,
+        defederated = false
     )
     val MEMBER_SELF = MemberDetails(SELF_USER, Member.Role.Admin)
     val MEMBER_OTHER = MemberDetails(OTHER_USER, Member.Role.Member)

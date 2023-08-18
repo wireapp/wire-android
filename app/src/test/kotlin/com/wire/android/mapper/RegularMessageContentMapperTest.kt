@@ -283,7 +283,8 @@ class RegularMessageContentMapperTest {
             availabilityStatus = UserAvailabilityStatus.NONE,
             userType = UserType.FEDERATED,
             botService = null,
-            deleted = false
+            deleted = false,
+            defederated = false
         )
 
         val userMembers = listOf(TestUser.MEMBER_SELF.user, TestUser.MEMBER_OTHER.user)

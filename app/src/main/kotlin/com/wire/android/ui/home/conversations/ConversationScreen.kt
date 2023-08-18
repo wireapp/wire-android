@@ -65,6 +65,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
+import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
@@ -100,6 +101,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.util.normalizeLink
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
@@ -296,10 +298,15 @@ fun ConversationScreen(
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { link ->
             with(messageComposerViewModel) {
-                if (isLinkValid(link)) {
-                    uriHandler.openUri(link)
-                } else {
-                    invalidLinkDialogState = InvalidLinkDialogState.Visible
+                val normalizedLink = normalizeLink(link)
+                visitLinkDialogState = VisitLinkDialogState.Visible(normalizedLink) {
+                    try {
+                        uriHandler.openUri(normalizedLink)
+                        visitLinkDialogState = VisitLinkDialogState.Hidden
+                    } catch (_: Exception) {
+                        visitLinkDialogState = VisitLinkDialogState.Hidden
+                        invalidLinkDialogState = InvalidLinkDialogState.Visible
+                    }
                 }
             }
         },
@@ -318,6 +325,11 @@ fun ConversationScreen(
         dialogState = messageComposerViewModel.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
+    VisitLinkDialog(
+        dialogState = messageComposerViewModel.visitLinkDialogState,
+        hideDialog = messageComposerViewModel::hideVisitLinkDialog
+    )
+
     InvalidLinkDialog(
         dialogState = messageComposerViewModel.invalidLinkDialogState,
         hideDialog = messageComposerViewModel::hideInvalidLinkError
@@ -482,7 +494,7 @@ private fun ConversationScreen(
                         conversationScreenState.hideContextMenu()
                     }
                 },
-                onDownloadAssetClick = conversationMessagesViewModel::downloadAssetExternally,
+                onDownloadAssetClick = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
                 onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset
             )
         }
@@ -525,6 +537,7 @@ private fun ConversationScreen(
         content = { internalPadding ->
             Box(modifier = Modifier.padding(internalPadding)) {
                 ConversationScreenContent(
+                    conversationId = conversationInfoViewState.conversationId,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
@@ -567,6 +580,7 @@ private fun ConversationScreen(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
+    conversationId: ConversationId,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
@@ -601,6 +615,7 @@ private fun ConversationScreenContent(
     }
 
     MessageComposer(
+        conversationId = conversationId,
         messageComposerStateHolder = messageComposerStateHolder,
         snackbarHostState = snackBarHostState,
         messageListContent = {
@@ -811,6 +826,7 @@ fun PreviewConversationScreen() {
         messageComposerViewState = messageComposerViewState,
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Some test conversation")
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),

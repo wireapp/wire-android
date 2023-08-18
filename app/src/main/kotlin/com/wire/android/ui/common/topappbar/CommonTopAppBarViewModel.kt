@@ -58,6 +58,23 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     var connectivityState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
 
+    private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
+
+    private fun connectivityFlow(userId: UserId): Flow<Connectivity> = coreLogic.sessionScope(userId) {
+        observeSyncState().map {
+            when (it) {
+                is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
+                SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING
+                SyncState.Live -> Connectivity.CONNECTED
+            }
+        }
+    }
+    private suspend fun activeCallFlow(userId: UserId): Flow<Call?> = coreLogic.sessionScope(userId) {
+        calls.establishedCall().distinctUntilChanged().map { calls ->
+            calls.firstOrNull()
+        }
+    }
+
     init {
         viewModelScope.launch {
             coreLogic.globalScope {
@@ -117,24 +134,6 @@ class CommonTopAppBarViewModel @Inject constructor(
             ConnectivityUIState.Info.None
         }
     }
-
-    private fun connectivityFlow(userId: UserId): Flow<Connectivity> = coreLogic.sessionScope(userId) {
-        observeSyncState().map {
-            when (it) {
-                is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
-                SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING
-                SyncState.Live -> Connectivity.CONNECTED
-            }
-        }
-    }
-
-    private suspend fun activeCallFlow(userId: UserId): Flow<Call?> = coreLogic.sessionScope(userId) {
-        calls.establishedCall().distinctUntilChanged().map { calls ->
-            calls.firstOrNull()
-        }
-    }
-
-    private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
 
     private companion object {
         const val WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER = 600L

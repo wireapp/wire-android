@@ -588,5 +588,3 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
         )
     }
 }
-
-

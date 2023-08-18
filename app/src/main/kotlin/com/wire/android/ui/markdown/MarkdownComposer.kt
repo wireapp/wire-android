@@ -233,7 +233,9 @@ fun appendLinksAndMentions(
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
-                if (it.end - it.start <= 0) {
+                val safeStart = max(it.start, 0)
+                val safeEnd = min(it.end, length)
+                if (safeStart > safeEnd) {
                     return@forEach
                 }
                 addStyle(

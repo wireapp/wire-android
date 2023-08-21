@@ -22,6 +22,7 @@ package scripts
 
 import findVersion
 import scripts.Variants_gradle.Default
+import java.util.Locale
 import java.util.Properties
 
 tasks.register("clean", Delete::class) {
@@ -40,7 +41,13 @@ tasks.register("runUnitTests") {
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
+    dependsOn(
+        ":app:connected${
+            Default.BUILD_FLAVOR.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
+        }DebugAndroidTest"
+    )
 }
 
 tasks.register("assembleApp") {
@@ -55,7 +62,7 @@ tasks.register("compileApp") {
 
 tasks.register("bundleApp") {
     description = "bundles the Wire Android Client to an Android App Bundle."
-    dependsOn( ":app:bundle${Default.BUILD_VARIANT}")
+    dependsOn(":app:bundle${Default.BUILD_VARIANT}")
 }
 
 tasks.register("runApp", Exec::class) {

@@ -52,6 +52,8 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import kotlin.math.max
+import kotlin.math.min
 import org.commonmark.node.Text as nodeText
 
 @Composable
@@ -192,7 +194,7 @@ fun inlineChildren(
     return updatedMentions
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "ComplexMethod")
 fun appendLinksAndMentions(
     annotatedString: AnnotatedString.Builder,
     string: String,
@@ -243,14 +245,14 @@ fun appendLinksAndMentions(
                         color = primary,
                         textDecoration = TextDecoration.Underline
                     ),
-                    start = it.start,
-                    end = it.end
+                    start = safeStart,
+                    end = safeEnd
                 )
                 addStringAnnotation(
                     tag = TAG_URL,
                     annotation = it.url,
-                    start = it.start,
-                    end = it.end
+                    start = safeStart,
+                    end = safeEnd
                 )
             }
 

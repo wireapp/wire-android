@@ -23,7 +23,6 @@ package scripts
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
-import customization.Customization
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
@@ -175,7 +174,8 @@ android {
         }
 
         FeatureConfigs.values().forEach { configs ->
-            when (configs.configType) {
+            val imports = mutableListOf<String>()
+            val generatedConfig = when (configs.configType) {
                 ConfigType.STRING -> {
                     buildStringConfig(
                         flavor,
@@ -185,12 +185,28 @@ android {
                     )
                 }
 
-                ConfigType.INT, ConfigType.BOOLEAN -> {
+                ConfigType.INT,
+                ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         flavor,
                         configs.configType.type,
                         configs.name,
                         flavorMap[flavor.name]?.get(configs.value).toString()
+                    )
+                }
+
+                ConfigType.MapOfStringToListOfStrings -> {
+                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+                    val mapString = map?.map { (key, value) ->
+                        "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                            "put($it);"
+                        }
+                    }?.joinToString(",\n") ?: ""
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
                     )
                 }
             }

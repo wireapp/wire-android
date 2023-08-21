@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
@@ -85,7 +86,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val selfServerLinks: SelfServerConfigUseCase,
-    private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -228,7 +228,7 @@ class SelfUserProfileViewModel @Inject constructor(
     fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
         viewModelScope.launch {
             // the total number of accounts is otherAccounts + 1 for the current account
-            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < kaliumConfigs.maxAccount
+            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < BuildConfig.MAX_ACCOUNTS
 
             if (!canAddNewAccounts) {
                 userProfileState = userProfileState.copy(maxAccountsReached = true)

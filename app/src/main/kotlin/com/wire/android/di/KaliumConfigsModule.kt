@@ -33,6 +33,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.util.HashMap
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -48,28 +49,26 @@ class KaliumConfigsModule {
             BuildFileRestrictionState.NoRestriction
         }
 
-        return KaliumConfigs(
-            isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
-            isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
-            blacklistHost = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
-            fileRestrictionState = fileRestriction,
-            forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
-            developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
-            enableBlacklist = BuildConfig.ENABLE_BLACKLIST,
-            maxAccount = BuildConfig.MAX_ACCOUNTS,
+        return object : KaliumConfigs() {
+
+            override val fileRestrictionState = fileRestriction
+
+            override val forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS
+
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
-            shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
-            lowerKeyPackageLimits = BuildConfig.PRIVATE_BUILD,
-            lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
-            isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
-            developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
-            encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
-            guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK,
-            selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES,
-            wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
-            wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
-            wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
-            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context)
-        )
+            override val shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+            override val lowerKeyPackageLimits = BuildConfig.PRIVATE_BUILD
+            override val lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD
+            override var isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED
+            override val developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED
+            override val encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() }
+            override val guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK
+            override val selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES
+            override val wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID
+            override val wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL
+            override val wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE
+            override val isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context)
+            override fun certPinningConfig(): Map<String, List<String>> = BuildConfig.CERTIFICATE_PINNING_CONFIG
+        }
     }
 }

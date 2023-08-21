@@ -98,7 +98,11 @@ sealed class NotificationMessage(open val messageId: String, open val author: No
     ) :
         NotificationMessage(messageId, author, time)
 
-    data class ConversationDeleted(override val messageId: String, override val author: NotificationMessageAuthor, override val time: Long) :
+    data class ConversationDeleted(
+        override val messageId: String,
+        override val author: NotificationMessageAuthor,
+        override val time: Long
+    ) :
         NotificationMessage(messageId, author, time)
 }
 

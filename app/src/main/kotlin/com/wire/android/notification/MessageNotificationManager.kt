@@ -253,9 +253,8 @@ class MessageNotificationManager
         val currentNotification = activeNotifications
             .find { it.id == notificationId }
             ?.notification
-            ?: return null
 
-        val updatedMessageStyle = currentNotification.updateMessages(updateMessages)
+        val updatedMessageStyle = currentNotification?.updateMessages(updateMessages)
 
         if (updatedMessageStyle == null || updatedMessageStyle.messages.isEmpty()) return null
 

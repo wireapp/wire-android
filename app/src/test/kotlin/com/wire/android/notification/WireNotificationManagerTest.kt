@@ -35,7 +35,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.logout.LogoutReason
-import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
 import com.wire.kalium.logic.data.user.SelfUser
@@ -82,7 +82,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -784,7 +784,7 @@ class WireNotificationManagerTest {
         private fun mockSpecificUserSession(
             incomingCalls: List<Call> = emptyList(),
             establishedCalls: List<Call> = emptyList(),
-            notifications: List<LocalNotificationConversation> = emptyList(),
+            notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
             userId: MockKMatcherScope.() -> UserId,
         ) {
@@ -817,7 +817,7 @@ class WireNotificationManagerTest {
             return this
         }
 
-        fun withMessageNotifications(notifications: List<LocalNotificationConversation>): Arrangement {
+        fun withMessageNotifications(notifications: List<LocalNotification>): Arrangement {
             coEvery { getNotificationsUseCase() } returns flowOf(notifications)
             return this
         }
@@ -836,7 +836,7 @@ class WireNotificationManagerTest {
             userId: UserId,
             incomingCalls: List<Call> = emptyList(),
             establishedCalls: List<Call> = emptyList(),
-            notifications: List<LocalNotificationConversation> = emptyList(),
+            notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
         ): Arrangement = apply {
             mockSpecificUserSession(incomingCalls, establishedCalls, notifications, selfUser) { eq(userId) }
@@ -884,15 +884,16 @@ class WireNotificationManagerTest {
         private fun provideLocalNotificationConversation(
             id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
             messages: List<LocalNotificationMessage> = listOf()
-        ) = LocalNotificationConversation(
+        ) = LocalNotification.Conversation(
             id, "name_${id.value}", messages, true
         )
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(
-            LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text"
+            "message_id", LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text"
         )
 
         private fun provideLocalNotificationMessagePing(): LocalNotificationMessage = LocalNotificationMessage.Knock(
+            messageId = "message_id",
             author = LocalNotificationMessageAuthor("author", null),
             time = Instant.DISTANT_FUTURE
         )

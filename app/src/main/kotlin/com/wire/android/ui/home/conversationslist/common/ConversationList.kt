@@ -77,6 +77,7 @@ fun ConversationList(
                 header = when (conversationFolder) {
                     is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
                     is ConversationFolder.Custom -> conversationFolder.folderName
+                    is ConversationFolder.WithoutHeader -> null
                 },
                 items = conversationList.associateBy {
                     it.conversationId.toString()

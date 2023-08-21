@@ -25,6 +25,7 @@
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
+    <string name="label_open">Open</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
@@ -179,6 +180,7 @@
     <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093-Backend</string>
     <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207693005-How-can-I-verify-my-own-devices-</string>
     <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-</string>
+    <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -553,6 +555,10 @@
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
     <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_federation_one_member_removed">%1$s was removed from the conversation</string>
+    <string name="label_system_message_federation_many_member_removed">%1$s were removed from the conversation</string>
+    <string name="label_system_message_federation_removed">**Your backend** stopped federating with %1$s.</string>
+    <string name="label_system_message_federation_conection_removed">The backends %1$s and %2$s stopped federating.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
     <string name="label_system_message_other_called">%1$s called</string>
@@ -582,7 +588,7 @@
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group as the backend of %2$s could not be reached.</string>
+    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -755,7 +761,7 @@
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
-    <string name="connectivity_status_bar_connecting">Connecting</string>
+    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
@@ -990,9 +996,13 @@
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
 
+    <!-- visit link -->
+    <string name="label_visit_link_title">Visit Link</string>
+    <string name="visit_link_dialog_body">This will take you to %s</string>
+
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link">The schema of the embedded link is not valid.</string>
+    <string name="invalid_link_dialog_body">Link could not be opened</string>
 
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
@@ -1114,7 +1124,8 @@
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
 
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
-    <string name="notification_obfuscated_message">Someone sent a Message</string>
+    <string name="notification_obfuscated_message_title">Someone</string>
+    <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">License Information</string>
     <string name="settings_myaccount_logout">Delete Account</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
@@ -1154,4 +1165,20 @@
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
+    <string name="create_guest_link">Create Guest Link</string>
+    <string name="create_guest_link_with_password">Create password secured link</string>
+    <string name="create_guest_link_without_password_title">Create link without password</string>
+    <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
+    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
+    <string name="generate_password_button_text">Generate Password</string>
+    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
+    <string name="password_protected_link_banner_title">Link is password secured</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+
 </resources>

@@ -31,7 +31,7 @@ fun InvalidLinkDialog(dialogState: InvalidLinkDialogState, hideDialog: () -> Uni
     if (dialogState is InvalidLinkDialogState.Visible) {
         WireDialog(
             title = stringResource(R.string.label_invalid_link_title),
-            text = stringResource(R.string.invalid_link),
+            text = stringResource(R.string.invalid_link_dialog_body),
             buttonsHorizontalAlignment = false,
             onDismiss = hideDialog,
             optionButton1Properties = WireDialogButtonProperties(

@@ -23,13 +23,11 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration.Companion.ZERO
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
     val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
@@ -38,6 +36,11 @@ data class MessageComposerViewState(
 sealed class AssetTooLargeDialogState {
     object Hidden : AssetTooLargeDialogState()
     data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
+}
+
+sealed class VisitLinkDialogState {
+    object Hidden : VisitLinkDialogState()
+    data class Visible(val link: String, val openLink: () -> Unit) : VisitLinkDialogState()
 }
 
 sealed class InvalidLinkDialogState {

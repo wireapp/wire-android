@@ -22,14 +22,14 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
-import com.wire.android.util.CurrentScreen
 import com.wire.android.ui.navArgs
+import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
@@ -46,7 +46,6 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -120,9 +119,6 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
 
-    @MockK
-    private lateinit var observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase
-
     @MockK(relaxed = true)
     private lateinit var onCompleted: () -> Unit
 
@@ -137,7 +133,6 @@ class SharedCallingViewModelTest {
         every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
-        coEvery { observeSecurityClassificationLabel.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
         coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
 
@@ -160,7 +155,6 @@ class SharedCallingViewModelTest {
             wireSessionImageLoader = wireSessionImageLoader,
             userTypeMapper = userTypeMapper,
             currentScreenManager = currentScreenManager,
-            observeSecurityClassificationLabel = observeSecurityClassificationLabel,
             dispatchers = TestDispatcherProvider()
         )
     }

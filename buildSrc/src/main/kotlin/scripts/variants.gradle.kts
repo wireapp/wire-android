@@ -23,7 +23,6 @@ package scripts
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
-import customization.Customization
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
@@ -170,7 +169,7 @@ android {
      */
     productFlavors.forEach { flavor ->
         Features.values().forEach { feature ->
-            val activated = FeatureFlags.activated[flavor.name].orEmpty().contains(feature)
+            val activated = FeatureFlags.activated.mapKeys { it.key.buildName }[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
 

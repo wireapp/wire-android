@@ -93,7 +93,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
-    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
+    refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
 ), GroupConversationDetailsBottomSheetEventsHandler {

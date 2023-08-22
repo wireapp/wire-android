@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +43,7 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LogOptions(
@@ -98,7 +100,7 @@ private fun EnableLoggingSwitch(
                     Text(
                         style = MaterialTheme.wireTypography.body01,
                         color = MaterialTheme.wireColorScheme.onBackground,
-                        text = stringResource(R.string.label_enable_logging),
+                        text = stringResource(R.string.label_enable_logging)
                     )
                 }
                 Box(
@@ -107,7 +109,7 @@ private fun EnableLoggingSwitch(
                     WireSwitch(
                         checked = isEnabled,
                         onCheckedChange = onCheckedChange,
-                        modifier = Modifier.padding(end = dimensions().spacing16x)
+                        modifier = Modifier.size(dimensions().buttonSmallMinSize)
                     )
                 }
             }
@@ -118,4 +120,15 @@ private fun EnableLoggingSwitch(
             )
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewLoggingOptions() {
+    LogOptions(
+        isLoggingEnabled = true,
+        onLoggingEnabledChange = {},
+        onDeleteLogs = {},
+        onShareLogs = {}
+    )
 }

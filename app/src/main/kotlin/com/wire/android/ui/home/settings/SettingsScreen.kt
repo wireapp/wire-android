@@ -122,7 +122,9 @@ private fun LazyListScope.folderWithElements(
     ) { settingsItem ->
         SettingsItem(
             text = settingsItem.title.asString(),
-            onRowPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } }
+            onRowPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } },
+            onIconPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } },
+            trailingIcon = R.drawable.ic_arrow_right,
         )
     }
 }

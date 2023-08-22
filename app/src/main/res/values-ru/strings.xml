@@ -780,7 +780,7 @@
     <string name="connection_request_ignored">Вы проигнорировали запрос %1$s</string>
     <string name="connection_request_accepted">Запрос на добавление принят</string>
     <string name="connection_request_sent_error">Не удалось отправить запрос на добавление</string>
-    <string name="connection_request_sent_federation_denied_error">Ваш бэкэнд не взаимодействует с бэкэндом %1$s. Вы не можете соединиться с ними.</string>
+    <string name="connection_request_sent_federation_denied_error">Ваш бэкэнд не взаимодействует с бэкэндом %1$s. Вы не можете соединиться с ним.</string>
     <string name="connection_request_accept_error">Запрос на добавление не может быть принят</string>
     <string name="connection_request_ignore_error">Запрос на добавление не может быть проигнорирован</string>
     <string name="connection_request_cancel_error">Запрос на добавление не может быть отменен</string>

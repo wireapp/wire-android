@@ -276,8 +276,8 @@ fun DebugDataOptionsContent(
             DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceUpdateApiVersions)
         }
 
-        FolderHeader("Other Debug Options")
         if (state.isManualMigrationAllowed) {
+            FolderHeader("Other Debug Options")
             ManualMigrationOptions(onManualMigrationClicked = onStartManualMigration)
         }
     }

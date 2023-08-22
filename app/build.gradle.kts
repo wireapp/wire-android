@@ -122,6 +122,8 @@ dependencies {
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
 
+    implementation(libs.androidx.profile.installer)
+
     // Compose iterative code, layout inspector, etc.
     debugImplementation(libs.compose.tooling)
 

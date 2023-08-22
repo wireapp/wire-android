@@ -39,6 +39,7 @@ object BuildTypes {
     const val RELEASE = "release"
     const val COMPAT = "compat"
     const val COMPAT_RELEASE = "compatrelease"
+    const val BENCHMARK = "benchmark"
 }
 
 object Default {
@@ -102,6 +103,12 @@ android {
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT_RELEASE")
                 keyPassword = System.getenv("KEYPWD_COMPAT_RELEASE")
             }
+            maybeCreate(BuildTypes.BENCHMARK).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
+                storePassword = System.getenv("KEYSTOREPWD_DEBUG")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
+                keyPassword = System.getenv("KEYPWD_DEBUG")
+            }
         }
     }
 
@@ -136,9 +143,16 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
-            matchingFallbacks.add("release")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("compatrelease")
+        }
+        create(BuildTypes.BENCHMARK) {
+            initWith(getByName(BuildTypes.RELEASE))
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "dontobfuscate.pro")
+            isDebuggable = false
+            matchingFallbacks.add("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

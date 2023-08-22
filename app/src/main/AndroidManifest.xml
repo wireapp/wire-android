@@ -68,8 +68,10 @@
             android:requestLegacyExternalStorage="true"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="false"
-            android:theme="@style/AppTheme.SplashScreen"
+            android:theme="@style/AppTheme"
             tools:replace="android:allowBackup,android:supportsRtl">
+
+        <profileable android:shell="true" />
 
         <activity
                 android:name=".ui.WireActivity"
@@ -77,7 +79,7 @@
                 android:hardwareAccelerated="true"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
-                android:theme="@style/AppTheme.SplashScreen"
+                android:theme="@style/AppTheme"
                 android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

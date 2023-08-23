@@ -878,7 +878,7 @@
     <string name="label_debug_title">නිදොස්කරණ සැකසුම්</string>
     <string name="label_client_option_title">අනුග්‍රාහකයේ හැඳු.</string>
     <string name="label_device_id">උපාංගයේ හැඳු.: %1$s</string>
-    <string name="label_code_commit_id">Commit Hash: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">අනුග්‍රාහකයේ හැඳු.: %1$s</string>
     <string name="label_client_added_time">එක් කෙරිණි</string>
     <string name="label_client_last_active_label">අන්තිමට දුටුවේ</string>

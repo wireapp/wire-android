@@ -897,7 +897,7 @@
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
-    <string name="label_code_commit_id">Commit Hash: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
     <string name="label_client_last_active_label">LAST ACTIVE</string>
@@ -1166,4 +1166,20 @@
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
     <string name="participant_tile_call_connecting_label">Connecting…</string>
+    <string name="create_guest_link">Create Guest Link</string>
+    <string name="create_guest_link_with_password">Create password secured link</string>
+    <string name="create_guest_link_without_password_title">Create link without password</string>
+    <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
+    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
+    <string name="generate_password_button_text">Generate Password</string>
+    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
+    <string name="password_protected_link_banner_title">Link is password secured</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+
 </resources>

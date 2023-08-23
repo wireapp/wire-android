@@ -29,6 +29,7 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -161,13 +162,12 @@ class EditGuestAccessViewModelTest {
     @Test
     fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
         coEvery {
-            generateGuestRoomLink(any())
+            generateGuestRoomLink.invoke(any(), any())
         } returns GenerateGuestRoomLinkResult.Success
 
-        editGuestAccessViewModel.onGenerateGuestRoomLink()
-
+        editGuestAccessViewModel.onRequestGuestRoomLink()
         coVerify(exactly = 1) {
-            generateGuestRoomLink(any())
+            generateGuestRoomLink.invoke(any(), null)
         }
         assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isGeneratingGuestRoomLink)
     }
@@ -175,13 +175,13 @@ class EditGuestAccessViewModelTest {
     @Test
     fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest {
         coEvery {
-            generateGuestRoomLink(any())
-        } returns GenerateGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
+            generateGuestRoomLink(any(), any())
+        } returns GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(null))
 
-        editGuestAccessViewModel.onGenerateGuestRoomLink()
+        editGuestAccessViewModel.onRequestGuestRoomLink()
 
         coVerify(exactly = 1) {
-            generateGuestRoomLink(any())
+            generateGuestRoomLink(any(), null)
         }
         assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isFailedToGenerateGuestRoomLink)
     }

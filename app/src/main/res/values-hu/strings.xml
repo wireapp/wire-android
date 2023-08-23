@@ -878,7 +878,7 @@
     <string name="label_debug_title">Hibakeresési beállítások</string>
     <string name="label_client_option_title">Kliens ID</string>
     <string name="label_device_id">Eszköz ID: %1$s</string>
-    <string name="label_code_commit_id">Beküldés ellenőrzőértéke: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">Kliens ID: %1$s</string>
     <string name="label_client_added_time">HOZZÁADVA</string>
     <string name="label_client_last_active_label">LAST ACTIVE</string>

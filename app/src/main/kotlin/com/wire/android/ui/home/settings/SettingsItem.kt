@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationItem
@@ -76,7 +75,8 @@ fun SettingsItem(
                     contentDescription = "",
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                     modifier = Modifier
-                        .defaultMinSize(80.dp)
+                        .defaultMinSize(dimensions().wireIconButtonSize)
+                        .padding(end = dimensions().spacing8x)
                         .clickable(onIconPressed)
                 )
             } ?: Icons.Filled.ChevronRight
@@ -130,7 +130,7 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
         navigationItem = NavigationItem.Debug
-    );
+    )
 }
 
 @PreviewMultipleThemes
@@ -140,7 +140,7 @@ fun previewFileRestrictionDialog() {
         SettingsItem(
             title = "Some Setting",
             text = "This is the value of the setting",
-            trailingIcon = R.drawable.ic_copy
+            trailingIcon = R.drawable.ic_arrow_right
         )
     }
 }

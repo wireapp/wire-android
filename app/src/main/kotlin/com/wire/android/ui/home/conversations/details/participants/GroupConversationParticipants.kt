@@ -24,33 +24,43 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
+import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.kalium.logic.data.user.SupportedProtocol
 
 @Composable
 fun GroupConversationParticipants(
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
-    onAddParticipantsPressed : () -> Unit,
+    onAddParticipantsPressed: () -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -81,11 +91,22 @@ fun GroupConversationParticipants(
                         WirePrimaryButton(
                             text = stringResource(R.string.conversation_details_group_participants_add),
                             fillMaxWidth = true,
-                            onClick = onAddParticipantsPressed ,
+                            onClick = onAddParticipantsPressed,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = MaterialTheme.wireDimensions.spacing16x),
                         )
+                    if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                        val groupParticipants = groupParticipantsState.data.allParticipants
+                        MLSProgressIndicator(
+                            progress = (groupParticipants)
+                                .filter { it.supportedProtocolList.contains(SupportedProtocol.MLS) }
+                                .size / (groupParticipantsState.data.allCount).toFloat(),
+                            modifier = Modifier
+                                .padding(top = dimensions().spacing16x)
+                                .background(MaterialTheme.wireColorScheme.surface)
+                        )
+                    }
                 }
             }
             participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
@@ -105,8 +126,48 @@ fun GroupConversationParticipants(
     }
 }
 
-@Preview
+@Composable
+fun MLSProgressIndicator(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.wireColorScheme.primary,
+    trackColor: Color = MaterialTheme.wireColorScheme.uncheckedColor
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimensions().spacing24x)) // Add rounded corners here
+            .height(dimensions().spacing24x)
+    ) {
+        LinearProgressIndicator(
+            progress = progress,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(dimensions().spacing24x))
+                .height(dimensions().spacing24x)
+                .clip(RectangleShape),
+            color = color,
+            trackColor = trackColor
+        )
+        Text(
+            style = MaterialTheme.typography.labelLarge,
+            text = "${SupportedProtocol.MLS.name} (${String.format("%.2f", progress * 100)}%)",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.wireColorScheme.onPrimary,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipants() {
     GroupConversationParticipants({}, {}, {}, GroupConversationParticipantsState.PREVIEW)
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMLSProgressIndicator() {
+    MLSProgressIndicator(0.25F)
+}
+

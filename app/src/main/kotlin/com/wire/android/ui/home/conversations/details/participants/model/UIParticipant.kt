@@ -24,6 +24,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Instant
 
@@ -40,5 +41,6 @@ data class UIParticipant(
     val isDeleted: Boolean = false,
     val readReceiptDate: Instant? = null,
     val botService: BotService? = null,
-    val isDefederated: Boolean = false
+    val isDefederated: Boolean = false,
+    val supportedProtocolList: List<SupportedProtocol> = listOf()
 )

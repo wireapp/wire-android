@@ -105,7 +105,6 @@ fun ConversationParticipantItem(
                     }
                 }
             }
-
         },
         subtitle = {
             HighlightSubtitle(

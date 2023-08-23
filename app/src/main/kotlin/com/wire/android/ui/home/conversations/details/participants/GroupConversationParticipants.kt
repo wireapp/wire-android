@@ -87,7 +87,7 @@ fun GroupConversationParticipants(
                             groupParticipantsState.data.allCount.toString()
                         )
                     )
-                    if (groupParticipantsState.data.isSelfAnAdmin)
+                    if (groupParticipantsState.data.isSelfAnAdmin) {
                         WirePrimaryButton(
                             text = stringResource(R.string.conversation_details_group_participants_add),
                             fillMaxWidth = true,
@@ -96,6 +96,7 @@ fun GroupConversationParticipants(
                                 .fillMaxWidth()
                                 .padding(top = MaterialTheme.wireDimensions.spacing16x),
                         )
+                    }
                     if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                         val groupParticipants = groupParticipantsState.data.allParticipants
                         MLSProgressIndicator(
@@ -111,7 +112,7 @@ fun GroupConversationParticipants(
             }
             participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
         }
-        if (groupParticipantsState.showAllVisible)
+        if (groupParticipantsState.showAllVisible) {
             Surface(
                 shadowElevation = lazyListState.rememberBottomBarElevationState().value,
                 color = MaterialTheme.wireColorScheme.background
@@ -123,6 +124,7 @@ fun GroupConversationParticipants(
                     )
                 }
             }
+        }
     }
 }
 
@@ -170,4 +172,3 @@ fun PreviewGroupConversationParticipants() {
 fun PreviewMLSProgressIndicator() {
     MLSProgressIndicator(0.25F)
 }
-

@@ -85,7 +85,8 @@ fun SettingsItem(
                     contentDescription = "",
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                     modifier = Modifier
-                        .defaultMinSize(80.dp)
+                        .defaultMinSize(dimensions().wireIconButtonSize)
+                        .padding(end = dimensions().spacing8x)
                         .clickable(onIconPressed)
                 )
             } ?: Icons.Filled.ChevronRight
@@ -157,7 +158,7 @@ fun previewFileRestrictionDialog() {
         SettingsItem(
             title = "Some Setting",
             text = "This is the value of the setting",
-            trailingIcon = R.drawable.ic_copy
+            trailingIcon = R.drawable.ic_arrow_right
         )
     }
 }

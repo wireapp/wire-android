@@ -263,12 +263,12 @@ fun DebugDataOptionsContent(
             DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceUpdateApiVersions)
         }
 
-//        if (state.isManualMigrationAllowed) {
-        FolderHeader("Other Debug Options")
-        ManualMigrationOptions(
-            onManualMigrationClicked = onManualMigrationPressed
-        )
-//        }
+        if (state.isManualMigrationAllowed) {
+            FolderHeader("Other Debug Options")
+            ManualMigrationOptions(
+                onManualMigrationClicked = onManualMigrationPressed
+            )
+        }
     }
 }
 

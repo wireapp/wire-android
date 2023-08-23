@@ -904,7 +904,7 @@
     <string name="label_debug_title">Параметры отладки</string>
     <string name="label_client_option_title">ID клиента</string>
     <string name="label_device_id">ID устройства: %1$s</string>
-    <string name="label_code_commit_id">Хэш коммита: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">ID клиента: %1$s</string>
     <string name="label_client_added_time">ДОБАВЛЕН</string>
     <string name="label_client_last_active_label">ПОСЛЕДНЯЯ АКТИВНОСТЬ</string>

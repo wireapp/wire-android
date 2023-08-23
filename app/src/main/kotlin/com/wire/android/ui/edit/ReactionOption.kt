@@ -1,5 +1,6 @@
 package com.wire.android.ui.edit
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,8 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +53,7 @@ fun ReactionOption(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 listOf("❤️", "👍", "😁", "🙂", "☹️", "👎").forEach { emoji ->
                     CompositionLocalProvider(
@@ -91,4 +95,10 @@ fun ReactionOption(
             }
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun BasePreview() = WireTheme(isPreview = true) {
+    ReactionOption(onReactionClick = {})
 }

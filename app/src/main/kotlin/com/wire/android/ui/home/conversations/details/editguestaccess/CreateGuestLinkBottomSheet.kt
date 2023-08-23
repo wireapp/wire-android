@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -40,12 +41,14 @@ fun CreateGuestLinkBottomSheet(
         MenuModalSheetContent(
             header = MenuModalSheetHeader.Visible(title = stringResource(R.string.create_guest_link)),
             menuItems = buildList {
-                add {
-                    CreateInviteLinkSheetItem(
-                        title = stringResource(R.string.create_guest_link_with_password),
-                        onClicked = { onItemClick(true) },
-                        enabled = isPasswordInviteLinksAllowed
-                    )
+                if (isPasswordInviteLinksAllowed) {
+                    add {
+                        CreateInviteLinkSheetItem(
+                            title = stringResource(R.string.create_guest_link_with_password),
+                            onClicked = { onItemClick(true) },
+                            enabled = isPasswordInviteLinksAllowed
+                        )
+                    }
                 }
                 add {
                     CreateInviteLinkSheetItem(

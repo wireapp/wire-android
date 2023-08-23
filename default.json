@@ -100,5 +100,7 @@
     "default_backend_url_teams": "https://teams.wire.com",
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
-    "default_backend_title": "wire-production"
+    "default_backend_title": "wire-production",
+
+    "is_password_protected_guest_link_enabled": true
 }

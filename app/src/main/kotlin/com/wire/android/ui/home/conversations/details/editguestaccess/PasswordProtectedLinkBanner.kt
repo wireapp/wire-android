@@ -69,7 +69,8 @@ fun PasswordProtectedLinkBanner() {
                     modifier = Modifier
                         .width(16.dp)
                         .height(16.dp),
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = colorsScheme().labelText
                 )
             }
             Text(

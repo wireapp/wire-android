@@ -94,7 +94,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -111,7 +110,6 @@ import kotlin.time.Duration.Companion.milliseconds
  * Once the user scrolls further into older messages, we stop autoscroll.
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
-private const val AGGREGATION_TIME_WINDOW: Int = 30000
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Composable
@@ -648,7 +646,7 @@ fun MessageList(
                     MessageItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
-                        showAuthor = shouldShowHeader(index, lazyPagingMessages.itemSnapshotList.items, message),
+                        showAuthor = AuthorHeaderHelper.shouldShowHeader(index, lazyPagingMessages.itemSnapshotList.items, message),
                         audioMessagesState = audioMessagesState,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
@@ -674,22 +672,6 @@ fun MessageList(
             }
         }
     }
-}
-
-private fun shouldShowHeader(index: Int, messages: List<UIMessage>, currentMessage: UIMessage): Boolean {
-    var showHeader = true
-    val nextIndex = index + 1
-    if (nextIndex < messages.size) {
-        val nextUiMessage = messages[nextIndex]
-        if (currentMessage.header.userId == nextUiMessage.header.userId) {
-            val difference = DateTimeUtil.calculateMillisDifference(
-                nextUiMessage.header.messageTime.utcISO,
-                currentMessage.header.messageTime.utcISO,
-            )
-            showHeader = difference > AGGREGATION_TIME_WINDOW
-        }
-    }
-    return showHeader
 }
 
 private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {

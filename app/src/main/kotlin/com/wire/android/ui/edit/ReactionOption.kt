@@ -57,9 +57,14 @@ fun ReactionOption(
                     ) {
                         Button(
                             onClick = {
-                                onReactionClick(emoji)
+                                if (emoji == "❤️") {
+                                    onReactionClick(emoji)
+                                }
                             },
-                            modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                            modifier = Modifier
+                                // TODO remove when all emojis will be available
+                                .alpha(if (emoji == "❤️") 1F else 0.3F)
+                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
                             contentPadding = PaddingValues(dimensions().spacing8x),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.wireColorScheme.surface,

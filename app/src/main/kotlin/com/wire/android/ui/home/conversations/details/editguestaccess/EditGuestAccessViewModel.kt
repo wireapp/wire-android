@@ -91,7 +91,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private fun checkIfUserCanCreatePasswordProtectedLinks() {
         viewModelScope.launch {
             val canCreatePasswordProtectedLinks = when {
-                BuildConfig.IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED -> true
+                !BuildConfig.IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED -> false
                 else -> canCreatePasswordProtectedLinks()
             }
             editGuestAccessState = editGuestAccessState.copy(isPasswordProtectedLinksAllowed = canCreatePasswordProtectedLinks)

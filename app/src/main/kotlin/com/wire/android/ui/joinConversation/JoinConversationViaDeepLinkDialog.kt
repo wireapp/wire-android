@@ -30,6 +30,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.capitalizeFirstLetter
@@ -153,7 +154,11 @@ fun JoinConversationViaDeepLinkDialog(
                     focusRequester.requestFocus()
                 }
             }
-        }
+        },
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
 

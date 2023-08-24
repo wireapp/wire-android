@@ -174,8 +174,7 @@ android {
         }
 
         FeatureConfigs.values().forEach { configs ->
-            val imports = mutableListOf<String>()
-            val generatedConfig = when (configs.configType) {
+            when (configs.configType) {
                 ConfigType.STRING -> {
                     buildStringConfig(
                         flavor,

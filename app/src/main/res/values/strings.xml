@@ -897,7 +897,7 @@
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
-    <string name="label_code_commit_id">Commit Hash: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
     <string name="label_client_last_active_label">LAST ACTIVE</string>

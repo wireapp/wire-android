@@ -282,8 +282,9 @@ class WireActivity : AppCompatActivity() {
             val onComplete: (convId: ConversationId?) -> Unit = remember {
                 {
                     it?.also {
-                        appLogger.d("Join conversation via code dialog completed, navigating to conversation screen")
                         navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
+                        viewModel.onJoinConversationFlowCompleted()
+                    } ?: run {
                         viewModel.onJoinConversationFlowCompleted()
                     }
                 }

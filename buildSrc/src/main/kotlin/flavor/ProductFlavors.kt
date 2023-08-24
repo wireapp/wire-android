@@ -17,6 +17,7 @@ sealed class ProductFlavors(
 
     object Beta : ProductFlavors("beta", "Wire Beta")
     object Internal : ProductFlavors("internal", "Wire Internal")
+    object Fdroid : ProductFlavors("fdroid", "Wire FDroid")
     object Production : ProductFlavors("prod", "Wire", shareduserId = "com.waz.userid")
 
     companion object {
@@ -25,6 +26,7 @@ sealed class ProductFlavors(
             Staging,
             Beta,
             Internal,
+            Fdroid,
             Production,
         )
     }

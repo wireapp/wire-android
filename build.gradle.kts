@@ -19,6 +19,7 @@
  */
 
 buildscript {
+
     repositories {
         google()
         mavenCentral()
@@ -27,7 +28,14 @@ buildscript {
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
-        classpath(libs.googleGms.gradlePlugin)
+
+        if (gradle.startParameter.taskRequests.toString().toLowerCase().contains("fdroid")) {
+            println("Excluding GMS")
+            configurations.forEach { it.exclude(group = "libs.googleGms", module = "gradlePlugin") }
+        } else {
+            println("Including GMS")
+            classpath(libs.googleGms.gradlePlugin)
+        }
         classpath(libs.aboutLibraries.gradlePlugin)
     }
 }

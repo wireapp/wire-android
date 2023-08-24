@@ -51,7 +51,7 @@
     <string name="label_message_decryption_failure_informative_message">Pokušajte resetirati sesiju zbog generiranja novih ključeva za enkripciju.</string>
     <string name="label_message_knock">%s pingao/la</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s neće dobiti tvoju poruku.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 participant from %2$s</item>
@@ -102,12 +102,12 @@
     <string name="content_description_delete_the_group">Izbriši grupu</string>
     <string name="content_description_conversation_phone_icon">Pokreni audio poziv</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <string name="content_description_conversation_search_icon">Ikona za pretragu ragovora</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
-    <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
+    <string name="content_description_conversation_send_emoticon">Pošalji emoji</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
@@ -217,14 +217,14 @@
     <string name="migration_accounts_message">Migrating your accounts...</string>
     <string name="migration_messages_message">Migrating your messages...</string>
     <string name="migration_title_step">Korak %1$d/%2$d</string>
-    <string name="migration_title_almost_done">Almost done!</string>
-    <string name="migration_title_updated">Setting up Wire</string>
-    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
-    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
+    <string name="migration_title_almost_done">Još samo malo!</string>
+    <string name="migration_title_updated">Podešavanje Wire-a</string>
+    <string name="migration_login_required">Kako biste premjestili svoje poruke sa stare verzije Wire-a, morate se prijaviti na svoj račun.</string>
+    <string name="migration_login_required_specific_account">Kako biste premjestili svoje poruke sa stare verzije Wire-a, morate se prijaviti na svoj račun %s.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
     <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Otkaži migraciju</string>
-    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
+    <string name="migration_cancel_message">Jeste li sigurni da želite zatvoriti aplikaciju i otkazati migraciju koja je u tijeku?</string>
     <!-- Login -->
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
@@ -753,11 +753,11 @@
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
-    <string name="connection_label_cancel_request">Cancel Request</string>
+    <string name="connection_label_cancel_request">Poništi zahtjev</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
     <string name="connection_request_sent">Connection request sent</string>
-    <string name="connection_request_canceled">Connection request canceled</string>
+    <string name="connection_request_canceled">Zahtjev za povezivanje je poništen</string>
     <string name="connection_request_ignored">You ignored %1$s\'s request</string>
     <string name="connection_request_accepted">Connection request accepted</string>
     <string name="connection_request_sent_error">Connection request could not be sent</string>
@@ -957,8 +957,8 @@
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="update_app_dialog_button">Update</string>
-    <string name="cancel_login_button_label">Cancel</string>
-    <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
+    <string name="cancel_login_button_label">Odustani</string>
+    <string name="cancel_login_dialog_description">Ako sada odustanete, bit ćete odjavljeni.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>

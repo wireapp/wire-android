@@ -151,7 +151,7 @@
     <string name="content_description_calling_turn_speaker_off">Isključi zvučnik</string>
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
-    <string name="content_description_reply_cancel">Cancel message reply</string>
+    <string name="content_description_reply_cancel">Otkaži odgovor na poruku</string>
     <string name="content_description_ping_message">Ping poruka</string>
     <string name="content_description_copy">Kopiraj</string>
     <string name="content_description_edit">Uredi</string>
@@ -222,7 +222,7 @@
     <string name="migration_login_required">Kako biste premjestili svoje poruke sa stare verzije Wire-a, morate se prijaviti na svoj račun.</string>
     <string name="migration_login_required_specific_account">Kako biste premjestili svoje poruke sa stare verzije Wire-a, morate se prijaviti na svoj račun %s.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
-    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
+    <string name="migration_messages_failure">Nažalost, poruke i razgovori nisu mogli biti migrirani zbog nekompatibilnosti sa starijom verzijom Wire-a (error code: %s)</string>
     <string name="migration_cancel_title">Otkaži migraciju</string>
     <string name="migration_cancel_message">Jeste li sigurni da želite zatvoriti aplikaciju i otkazati migraciju koja je u tijeku?</string>
     <!-- Login -->
@@ -245,7 +245,7 @@
     <string name="login_password_placeholder">Lozinka</string>
     <string name="login_password_label">LOZINKA</string>
     <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">SSO LOGIN</string>
+    <string name="login_tab_sso">SSO PRIJAVA</string>
     <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
@@ -764,7 +764,7 @@
     <string name="connection_request_sent_federation_denied_error">Your backend does not federate with the backend of %1$s. You can not connect with them.</string>
     <string name="connection_request_accept_error">Connection request could not be accepted</string>
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
-    <string name="connection_request_cancel_error">Connection request could not be canceled</string>
+    <string name="connection_request_cancel_error">Zahtjev za povezivanje nije mogao biti poništen</string>
     <string name="connection_pending_message">Wants to connect</string>
     <string name="connection_pending_label">pending</string>
     <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
@@ -959,7 +959,7 @@
     <string name="update_app_dialog_button">Update</string>
     <string name="cancel_login_button_label">Odustani</string>
     <string name="cancel_login_dialog_description">Ako sada odustanete, bit ćete odjavljeni.</string>
-    <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
+    <string name="cancel_login_dialog_title">Jeste li sigurni da želite odustati?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>

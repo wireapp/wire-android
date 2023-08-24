@@ -89,13 +89,13 @@
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Izbriši sadržaj</string>
     <string name="content_description_user_avatar">Slika profila</string>
-    <string name="content_description_muted_conversation">Muted conversation</string>
+    <string name="content_description_muted_conversation">Utišan razgovor</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Ikona za preuzimanje</string>
     <string name="content_description_open_asset_icon">Otvori ikonu</string>
     <string name="content_description_add_to_favourite">Dodaj u Favorite</string>
     <string name="content_description_move_to_folder">Premjesti u mapu</string>
-    <string name="content_description_move_to_archive">Move to archive</string>
+    <string name="content_description_move_to_archive">Premjesti u arhivu</string>
     <string name="content_description_block_the_user">Blokiraj</string>
     <string name="content_description_unblock_the_user">Odblokiraj</string>
     <string name="content_description_leave_the_group">Napusti grupu</string>
@@ -118,7 +118,7 @@
     <string name="content_description_menu_button">Glavna navigacija</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
-    <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
+    <string name="content_description_remove_devices_screen_remove_icon">Ukloni uređaj</string>
     <string name="content_description_avatar_preview">Preview of profile picture</string>
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
@@ -251,10 +251,8 @@
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
     <string name="deleted_user_error_title">Obrisan kontakt</string>
     <string name="deleted_user_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
-    <string name="removed_client_error_title">Removed Device</string>
-    <string name="removed_client_error_message">You were logged out because your device was
-        removed.
-    </string>
+    <string name="removed_client_error_title">Uklonjen uređaj</string>
+    <string name="removed_client_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
     <string name="session_expired_error_title">Session expired</string>
     <string name="session_expired_error_message">The application did not communicate with the server
         for a long period of time, or your session has been remotely invalidated.
@@ -266,11 +264,9 @@
     <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
     <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Remove a Device</string>
-    <string name="remove_device_message">Remove one of your other devices to start using Wire on
-        this one.
-    </string>
-    <string name="remove_device_label">YOUR DEVICES</string>
+    <string name="remove_device_title">Ukloni uređaj</string>
+    <string name="remove_device_message">Uklonite jedan od Vaših ostalih uređaja kako bi ste počeli koristiti Wire na ovom.    </string>
+    <string name="remove_device_label">POVEZANI UREĐAJI</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
@@ -466,7 +462,7 @@
     <string name="user_profile_role_in_group">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
-    <string name="user_profile_group_remove_button">Remove from group</string>
+    <string name="user_profile_group_remove_button">Ukloni iz grupe</string>
     <string name="user_profile_logging_out_progress">Odjava...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Ukloni iz grupe?</string>
@@ -490,8 +486,8 @@
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Dodaj u Favorite</string>
-    <string name="label_move_to_folder">Move to Folder</string>
-    <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_move_to_folder">Premjesti u mapu</string>
+    <string name="label_move_to_archive">Premjesti u Arhivu</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Blokiraj</string>
     <string name="label_unblock">Odblokiraj</string>

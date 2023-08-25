@@ -1121,7 +1121,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
-    <string name="record_audio_recording_label">Audio-Aufnahme…</string>
+    <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Audionachricht senden</string>
     <string name="record_audio_discard_dialog_title">Audionachricht verwerfen?</string>
     <string name="record_audio_discard_dialog_text">Die Audionachricht wird gelöscht und Sie können sie nicht versenden.</string>
@@ -1135,6 +1135,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
+    <string name="participant_tile_call_connecting_label">Connecting…</string>
     <string name="create_guest_link">Create Guest Link</string>
     <string name="create_guest_link_with_password">Create password secured link</string>
     <string name="create_guest_link_without_password_title">Create link without password</string>

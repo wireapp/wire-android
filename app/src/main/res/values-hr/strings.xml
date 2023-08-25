@@ -108,9 +108,9 @@
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
     <string name="content_description_conversation_send_emoticon">Pošalji emoji</string>
-    <string name="content_description_conversation_send_gif">Send GIF button</string>
-    <string name="content_description_conversation_mention_someone">Mention someone</string>
-    <string name="content_description_new_conversation">Start a new conversation</string>
+    <string name="content_description_conversation_send_gif">Gumb za slanje GIF-a</string>
+    <string name="content_description_conversation_mention_someone">Obavijesti nekoga</string>
+    <string name="content_description_new_conversation">Započni novi razgovor</string>
     <string name="content_description_back_button">Tipka natrag</string>
     <string name="content_description_send_button">Pošalji</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -124,7 +124,7 @@
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Desna strelica</string>
     <string name="content_description_left_arrow">Go back</string>
-    <string name="content_description_mention_icon">Mention icon</string>
+    <string name="content_description_mention_icon">Obavijesti ikona</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Open Message Details</string>
     <string name="content_description_copy_the_message">Kopiraj poruku</string>
@@ -477,7 +477,7 @@
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
     <string name="user_profile_change_status_dialog_busy_title">Set yourself to Busy</string>
-    <string name="user_profile_change_status_dialog_busy_text">You will appear as Busy to other people. You will only receive notifications for mentions, replies, and calls in conversations that are not muted.</string>
+    <string name="user_profile_change_status_dialog_busy_text">Drugim ljudima ćete izgledati zauzeto. Primat ćete samo obavijesti za spominjanja, odgovore i pozivnice u razgovorima koji nisu isključeni.</string>
     <string name="user_profile_change_status_dialog_away_title">Set yourself to Away</string>
     <string name="user_profile_change_status_dialog_away_text">You will appear as Away to other people. You will not receive notifications about any incoming calls or messages.</string>
     <string name="user_profile_change_status_dialog_none_title">No Status Set</string>

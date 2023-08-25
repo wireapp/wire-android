@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
+import com.wire.kalium.logic.data.notification.LocalNotificationUpdateMessageAction
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -82,7 +83,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -160,10 +161,10 @@ class WireNotificationManagerTest {
         runTestWithCancellation(dispatcherProvider.main()) {
             val user1 = provideUserId("user1")
             val user2 = provideUserId("user2")
-            val call = provideCall()
+            val incomingCalls = listOf(provideCall())
             val (arrangement, manager) = Arrangement()
                 .withSpecificUserSession(userId = user1, incomingCalls = listOf())
-                .withSpecificUserSession(userId = user2, incomingCalls = listOf(call))
+                .withSpecificUserSession(userId = user2, incomingCalls = incomingCalls)
                 .withMessageNotifications(listOf())
                 .withCurrentScreen(CurrentScreen.SomeOther)
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(user1.value)))
@@ -172,7 +173,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(user1, user2), this)
             runCurrent()
 
-            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), user2) }
+            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(incomingCalls, user2) }
         }
 
     @Test
@@ -195,7 +196,7 @@ class WireNotificationManagerTest {
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
             verify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
-                    newNotifications = listOf(), userId = any(), userName = TestUser.SELF_USER.handle!!
+                    newNotifications = any(), userId = any(), userName = TestUser.SELF_USER.handle!!
                 )
             }
             verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
@@ -222,7 +223,7 @@ class WireNotificationManagerTest {
             verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
             verify(exactly = 0) {
                 arrangement.messageNotificationManager.handleNotification(
-                    listOf(), any(), TestUser.SELF_USER.handle!!
+                    any(), any(), TestUser.SELF_USER.handle!!
                 )
             }
             verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
@@ -230,24 +231,22 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeNotifications_whenObserveCalled_thenCallNotificationShowed() = runTestWithCancellation(dispatcherProvider.main()) {
+        val messageNotifications = listOf<LocalNotification>(
+            provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage())),
+            provideLocalNotificationUpdateMessage()
+        )
         val (arrangement, manager) = Arrangement()
-            .withMessageNotifications(
-                listOf(
-                    provideLocalNotificationConversation(
-                        messages = listOf(provideLocalNotificationMessage())
-                    )
-                )
-            )
+            .withMessageNotifications(messageNotifications)
             .withIncomingCalls(listOf())
             .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
+        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
         runCurrent()
 
         verify(exactly = 1) {
             arrangement.messageNotificationManager.handleNotification(
-                any(), any(), TestUser.SELF_USER.handle!!
+                messageNotifications, TestUser.SELF_USER.id, TestUser.SELF_USER.handle!!
             )
         }
     }
@@ -268,12 +267,12 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.Conversation(conversationId))
                 .arrange()
 
-            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
+            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
             runCurrent()
 
             verify(exactly = 1) {
                 arrangement.messageNotificationManager.handleNotification(
-                    listOf(), any(), TestUser.SELF_USER.handle!!
+                    listOf(), TestUser.SELF_USER.id, TestUser.SELF_USER.handle!!
                 )
             }
             coVerify(atLeast = 1) {
@@ -861,6 +860,7 @@ class WireNotificationManagerTest {
         private fun provideAccountInfo(userId: String = "user_id"): AccountInfo = AccountInfo.Valid(
             userId = provideUserId(userId)
         )
+
         private fun provideInvalidAccountInfo(userId: String = "user_id"): AccountInfo = AccountInfo.Invalid(
             userId = provideUserId(userId),
             logoutReason = LogoutReason.SESSION_EXPIRED
@@ -887,6 +887,13 @@ class WireNotificationManagerTest {
         ) = LocalNotification.Conversation(
             id, "name_${id.value}", messages, true
         )
+
+        private fun provideLocalNotificationUpdateMessage(
+            id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
+            action: LocalNotificationUpdateMessageAction = LocalNotificationUpdateMessageAction.Edit("new text", "new_name_${id.value}")
+        ): LocalNotification.UpdateMessage {
+            return LocalNotification.UpdateMessage(id, "name_${id.value}", action)
+        }
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(
             "message_id", LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text"

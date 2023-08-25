@@ -123,7 +123,7 @@
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Desna strelica</string>
-    <string name="content_description_left_arrow">Go back</string>
+    <string name="content_description_left_arrow">Povratak</string>
     <string name="content_description_mention_icon">Obavijesti ikona</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Open Message Details</string>
@@ -288,7 +288,7 @@
     <string name="deleted_message_text">Izbrisana poruka</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">You can not see this message</string>
-    <string name="label_quote_original_message_is_a_picture">Picture</string>
+    <string name="label_quote_original_message_is_a_picture">Slika</string>
     <string name="label_quote_original_message_date">Original message from %s</string>
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>

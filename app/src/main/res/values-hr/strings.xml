@@ -155,8 +155,8 @@
     <string name="content_description_ping_message">Ping poruka</string>
     <string name="content_description_copy">Kopiraj</string>
     <string name="content_description_edit">Uredi</string>
-    <string name="content_description_calling_call_muted">Call Muted</string>
-    <string name="content_description_calling_call_unmuted">Call Unmuted</string>
+    <string name="content_description_calling_call_muted">Isključen zvuk poziva</string>
+    <string name="content_description_calling_call_unmuted">Uključen zvuk poziva</string>
     <string name="content_description_calling_call_paused_camera">Pauzirana Kamera</string>
     <string name="content_description_more_emojis">More emojis</string>
     <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
@@ -172,11 +172,11 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
-    <string name="vault_screen_title">Vault</string>
-    <string name="archive_screen_title">Archive</string>
+    <string name="vault_screen_title">Trezor</string>
+    <string name="archive_screen_title">Arhiva</string>
     <string name="user_profile_screen_title">Korisnički profil</string>
     <string name="settings_screen_title">Postavke</string>
-    <string name="app_settings_screen_title">App Settings</string>
+    <string name="app_settings_screen_title">Postavke Aplikacije</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Prijavi grešku</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
@@ -208,10 +208,10 @@
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Potrebno ažuriranje</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
+    <string name="api_versioning_server_version_not_supported_title">Nepodržana verzija server-a</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
     <!-- Migration -->
-    <string name="migration_title">Setting up Wire</string>
+    <string name="migration_title">Podešavanje Wire-a</string>
     <string name="migration_message">Please wait while we set up the app for you</string>
     <string name="migration_message_unknown">Please wait while we migrate data for you</string>
     <string name="migration_accounts_message">Migrating your accounts...</string>
@@ -1136,7 +1136,7 @@
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
-    <string name="record_audio_recording_label">Recording Audio...</string>
+    <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
@@ -1150,6 +1150,7 @@
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
+    <string name="participant_tile_call_connecting_label">Connecting…</string>
     <string name="create_guest_link">Create Guest Link</string>
     <string name="create_guest_link_with_password">Create password secured link</string>
     <string name="create_guest_link_without_password_title">Create link without password</string>

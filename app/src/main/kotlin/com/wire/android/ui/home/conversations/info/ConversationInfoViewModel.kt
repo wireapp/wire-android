@@ -60,10 +60,10 @@ class ConversationInfoViewModel @Inject constructor(
     private val getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
-
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
+
+    var conversationInfoViewState by mutableStateOf(ConversationInfoViewState(conversationId))
 
     private lateinit var selfUserId: UserId
 

@@ -50,8 +50,8 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import com.wire.kalium.logic.network.NetworkState
-import com.wire.kalium.logic.network.NetworkStateObserver
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -83,6 +83,152 @@ val mockMessageWithText = UIMessage.Regular(
                         "very very very very" +
                         " very very very" +
                         "very very very very very long"
+            )
+        )
+    ),
+    source = MessageSource.Self,
+    messageFooter = mockEmptyFooter
+)
+
+val mockMessageWithMarkdownTextAndLinks = UIMessage.Regular(
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = mockHeader,
+    messageContent = UIMessageContent.TextMessage(
+        messageBody = MessageBody(
+            UIText.DynamicString(
+                """ 
+**bold text**
+
+_italic text_
+
+**_bold and italic_**
+
+~~Strikethrough~~
+
+# header
+
+# Code
+
+Inline `code`
+
+Indented code
+
+// Some comments
+line 1 of code
+line 2 of code
+line 3 of code
+
+
+Block code "fences"
+
+```
+Sample text here...
+```
+
+# Links
+[AR PR](https://github.com/wireapp/wire-android-reloaded/pulls)
+
+Autoconverted link https://github.com/wireapp/kalium/pulls
+"""
+            )
+        )
+    ),
+    source = MessageSource.Self,
+    messageFooter = mockEmptyFooter
+)
+
+val mockMessageWithMarkdownListAndImages = UIMessage.Regular(
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = mockHeader,
+    messageContent = UIMessageContent.TextMessage(
+        messageBody = MessageBody(
+            UIText.DynamicString(
+                """
+## Lists
+
+Bullet List
+
++ Create a list by starting a line with `+`, `-`, or `*`
++ Sub-lists are made by indenting 2 spaces:
+- Marker character change forces new list start:
+* Ac tristique libero volutpat at
++ Facilisis in pretium nisl aliquet
+- Nulla volutpat aliquam velit
++ Very easy!
+
+Ordered
+
+1. Lorem ipsum dolor sit amet
+2. Consectetur adipiscing elit
+3. Integer molestie lorem at massa
+
+
+1. You can use sequential numbers...
+1. ...or keep all the numbers as `1.`
+
+Start numbering with offset:
+
+57. foo
+1. bar
+
+# Images
+
+Webp
+
+![Wire](https://wire.com/wp-content/uploads/2022/02/Independently-Audited-_-Open-Source-2.webp)
+
+Svg
+
+![Wire](https://wire.com/wp-content/uploads/2021/08/wire-logo.svg)
+
+Png
+
+![Wire](https://avatars.githubusercontent.com/u/16047324?s=280&v=4)
+"""
+            )
+        )
+    ),
+    source = MessageSource.Self,
+    messageFooter = mockEmptyFooter
+)
+
+val mockMessageWithMarkdownTablesAndBlocks = UIMessage.Regular(
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = mockHeader,
+    messageContent = UIMessageContent.TextMessage(
+        messageBody = MessageBody(
+            UIText.DynamicString(
+                """
+# Tables
+| Task | Person |
+| ------ | ----------- |
+| MLS   | John |
+| Federation | Will |
+| Navigation | Ashley |
+
+
+## Thematic Break
+
+___
+
+---
+
+***
+
+
+# Blockquotes
+
+
+> Blockquotes can also be nested...
+>> ...by using additional greater-than signs right next to each other...
+> > > ...or with spaces between arrows.
+
+
+# Typographic replacements
+
+Enable typographer option to see result.
+
+(c) (C) (r) (R) (tm) (TM) (p) (P) +-"""
             )
         )
     ),

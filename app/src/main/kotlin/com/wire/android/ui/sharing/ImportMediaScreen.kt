@@ -400,7 +400,7 @@ private fun ImportMediaContent(
             modifier = Modifier.weight(1f),
             lazyListState = lazyListState,
             conversationListItems = persistentMapOf(
-                ConversationFolder.Predefined.Conversations to state.shareableConversationListState.searchResult
+                ConversationFolder.WithoutHeader to state.shareableConversationListState.searchResult
             ),
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,

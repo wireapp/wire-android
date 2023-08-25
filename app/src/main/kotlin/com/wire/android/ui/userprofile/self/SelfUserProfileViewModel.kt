@@ -95,7 +95,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager
 ) : ViewModel() {
 
-    var userProfileState by mutableStateOf(SelfUserProfileState())
+    var userProfileState by mutableStateOf(SelfUserProfileState(selfUserId))
         private set
 
     private lateinit var establishedCallsList: StateFlow<List<Call>>

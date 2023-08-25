@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.common
+package com.wire.android.ui.common.banner
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,16 +38,29 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun SecurityClassificationBanner(
-    securityClassificationType: SecurityClassificationType,
+    conversationId: ConversationId? = null,
+    userId: UserId? = null,
+    viewModel: SecurityClassificationViewModel =
+        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationArgs>(SecurityClassificationArgs(
+            userId = userId,
+            conversationId = conversationId,
+        )),
     modifier: Modifier = Modifier
 ) {
+    val securityClassificationType = viewModel.state()
+
     if (securityClassificationType != SecurityClassificationType.NONE) {
         Column(modifier = modifier) {
             Divider(color = getDividerColorFor(securityClassificationType))
@@ -129,9 +140,17 @@ fun PreviewClassifiedIndicator() {
     WireTheme {
         Surface {
             Column(modifier = Modifier.fillMaxWidth()) {
-                SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.CLASSIFIED)
+                SecurityClassificationBanner(
+                    viewModel = SecurityClassificationPreviewModel(SecurityClassificationType.NONE)
+                )
                 Divider()
-                SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.NOT_CLASSIFIED)
+                SecurityClassificationBanner(
+                    viewModel = SecurityClassificationPreviewModel(SecurityClassificationType.NOT_CLASSIFIED)
+                )
+                Divider()
+                SecurityClassificationBanner(
+                    viewModel = SecurityClassificationPreviewModel(SecurityClassificationType.CLASSIFIED)
+                )
             }
         }
     }

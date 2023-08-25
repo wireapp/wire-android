@@ -42,7 +42,15 @@ data class FeatureFlagState(
     data class E2EISnooze(val timeLeft: Duration)
 
     sealed class E2EIRequired {
-        data class WithGracePeriod(val timeLeft: Duration) : E2EIRequired()
-        object NoGracePeriod : E2EIRequired()
+
+        sealed class WithGracePeriod(open val timeLeft: Duration) : E2EIRequired() {
+            data class Create(override val timeLeft: Duration) : WithGracePeriod(timeLeft)
+            data class Renew(override val timeLeft: Duration) : WithGracePeriod(timeLeft)
+        }
+
+        sealed class NoGracePeriod : E2EIRequired() {
+            data object Create : NoGracePeriod()
+            data object Renew : NoGracePeriod()
+        }
     }
 }

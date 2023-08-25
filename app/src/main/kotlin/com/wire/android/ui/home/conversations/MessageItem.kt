@@ -238,8 +238,9 @@ fun MessageItem(
                                 }
                                 if (isMyMessage) {
                                     MessageStatusIndicator(
-                                        message.header.messageStatus.flowStatus,
-                                        Modifier.padding(
+                                        status = message.header.messageStatus.flowStatus,
+                                        isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                                        modifier = Modifier.padding(
                                             top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
                                             start = dimensions().spacing8x
                                         )

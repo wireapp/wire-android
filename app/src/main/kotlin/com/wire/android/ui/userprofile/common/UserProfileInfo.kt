@@ -49,9 +49,9 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -62,10 +62,11 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun UserProfileInfo(
+    userId: UserId?,
     isLoading: Boolean,
     avatarAsset: UserAvatarAsset?,
     fullName: String,
@@ -75,8 +76,7 @@ fun UserProfileInfo(
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
     modifier: Modifier = Modifier,
-    connection: ConnectionState = ConnectionState.ACCEPTED,
-    securityClassificationType: SecurityClassificationType
+    connection: ConnectionState = ConnectionState.ACCEPTED
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -182,7 +182,7 @@ fun UserProfileInfo(
             }
         }
         SecurityClassificationBanner(
-            securityClassificationType = securityClassificationType,
+            userId = userId,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
     }
@@ -218,6 +218,7 @@ sealed class EditableState {
 @Composable
 fun PreviewUserProfileInfo() {
     UserProfileInfo(
+        userId = UserId("value", "domain"),
         isLoading = true,
         editableState = EditableState.IsEditable {},
         userName = "userName",
@@ -225,7 +226,6 @@ fun PreviewUserProfileInfo() {
         fullName = "fullName",
         onUserProfileClick = {},
         teamName = "Wire",
-        connection = ConnectionState.ACCEPTED,
-        securityClassificationType = SecurityClassificationType.CLASSIFIED
+        connection = ConnectionState.ACCEPTED
     )
 }

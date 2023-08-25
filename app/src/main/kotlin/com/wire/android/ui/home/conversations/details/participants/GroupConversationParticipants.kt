@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations.details.participants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -147,9 +148,7 @@ fun MLSProgressIndicator(
             progress = progress,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(dimensions().spacing28x))
-                .height(dimensions().spacing32x)
-                .clip(RectangleShape),
+                .fillMaxHeight(),
             color = color,
             trackColor = trackColor
         )

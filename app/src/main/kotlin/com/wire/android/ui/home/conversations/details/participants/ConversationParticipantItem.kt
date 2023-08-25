@@ -31,10 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
@@ -48,6 +50,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.uiReadReceiptDateTime
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -92,8 +96,15 @@ fun ConversationParticipantItem(
                     startPadding = dimensions().spacing6x,
                     isDeleted = uiParticipant.isDeleted
                 )
+                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                    uiParticipant.supportedProtocolList.map {
+                        ProtocolLabel(
+                            protocolName = it.name,
+                            Modifier.padding(start = dimensions().spacing4x)
+                        )
+                    }
+                }
             }
-
         },
         subtitle = {
             HighlightSubtitle(
@@ -125,7 +136,11 @@ fun ConversationParticipantItem(
 @Composable
 fun PreviewGroupConversationParticipantItem() {
     ConversationParticipantItem(
-        UIParticipant(UserId("0", ""), "name", "handle", false, false, UserAvatarData(), Membership.Guest),
+        UIParticipant(
+            UserId("0", ""), "name", "handle", false, false, UserAvatarData(),
+            Membership.Guest, ConnectionState.ACCEPTED, false, false, null, null, false,
+            listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
+        ),
         clickable = Clickable(enabled = true) {}
     )
 }

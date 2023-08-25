@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -138,15 +139,16 @@ fun MLSProgressIndicator(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(dimensions().spacing24x)) // Add rounded corners here
-            .height(dimensions().spacing24x)
+            .clip(RoundedCornerShape(dimensions().spacing28x))
+            .height(dimensions().spacing32x),
+        contentAlignment = Alignment.Center
     ) {
         LinearProgressIndicator(
             progress = progress,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(dimensions().spacing24x))
-                .height(dimensions().spacing24x)
+                .clip(RoundedCornerShape(dimensions().spacing28x))
+                .height(dimensions().spacing32x)
                 .clip(RectangleShape),
             color = color,
             trackColor = trackColor

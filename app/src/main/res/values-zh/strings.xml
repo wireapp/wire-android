@@ -42,7 +42,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
@@ -562,7 +562,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -1096,7 +1096,7 @@
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
-    <string name="record_audio_recording_label">Recording Audio...</string>
+    <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
@@ -1110,6 +1110,7 @@
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
+    <string name="participant_tile_call_connecting_label">Connecting…</string>
     <string name="create_guest_link">Create Guest Link</string>
     <string name="create_guest_link_with_password">Create password secured link</string>
     <string name="create_guest_link_without_password_title">Create link without password</string>

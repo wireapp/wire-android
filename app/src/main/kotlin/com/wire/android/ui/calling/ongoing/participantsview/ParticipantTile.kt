@@ -30,12 +30,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -90,10 +93,11 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
+    val alpha = if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
         modifier = modifier,
         color = colorsScheme().callingParticipantTileBackgroundColor,
-        shape = RoundedCornerShape(dimensions().corner6x)
+        shape = RoundedCornerShape(dimensions().corner6x),
     ) {
         var size by remember { mutableStateOf(IntSize.Zero) }
         var zoom by remember { mutableStateOf(1f) }
@@ -106,6 +110,7 @@ fun ParticipantTile(
             AvatarTile(
                 modifier = Modifier
                     .fillMaxSize()
+                    .alpha(alpha)
                     .constrainAs(avatar) { },
                 avatar = UserAvatarData(participantTitleState.avatar),
                 avatarSize = avatarSize
@@ -178,7 +183,8 @@ fun ParticipantTile(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                     },
-                isMuted = participantTitleState.isMuted
+                isMuted = participantTitleState.isMuted,
+                hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )
 
             UsernameTile(
@@ -191,7 +197,8 @@ fun ParticipantTile(
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
                 name = participantTitleState.name,
-                isSpeaking = participantTitleState.isSpeaking
+                isSpeaking = participantTitleState.isSpeaking,
+                hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )
         }
         TileBorder(participantTitleState.isSpeaking)
@@ -277,23 +284,64 @@ private fun AvatarTile(
 private fun UsernameTile(
     modifier: Modifier,
     name: String,
-    isSpeaking: Boolean
+    isSpeaking: Boolean,
+    hasEstablishedAudio: Boolean
 ) {
     val color = if (isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+    val nameLabelColor = if (hasEstablishedAudio) Color.White else colorsScheme().secondaryText
 
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(dimensions().corner4x),
-        color = color
-    ) {
-        Text(
-            color = Color.White,
-            style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier.padding(dimensions().spacing4x),
-            text = name,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+    ConstraintLayout(modifier = modifier) {
+        val (nameLabel, connectingLabel) = createRefs()
+
+        Surface(
+            modifier = Modifier.constrainAs(nameLabel) {
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(connectingLabel.start)
+            },
+            shape = RoundedCornerShape(
+                topStart = dimensions().corner4x,
+                bottomStart = dimensions().corner4x,
+                topEnd = if (hasEstablishedAudio) dimensions().corner4x else 0.dp,
+                bottomEnd = if (hasEstablishedAudio) dimensions().corner4x else 0.dp,
+            ),
+            color = color
+        ) {
+            Text(
+                color = nameLabelColor,
+                style = MaterialTheme.wireTypography.label01,
+                modifier = Modifier.padding(dimensions().spacing4x),
+                text = name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        if (!hasEstablishedAudio) {
+            Surface(
+                modifier = Modifier.constrainAs(connectingLabel) {
+                    start.linkTo(nameLabel.end)
+                    top.linkTo(nameLabel.top)
+                    bottom.linkTo(nameLabel.bottom)
+                },
+                shape = RoundedCornerShape(
+                    topEnd = dimensions().corner4x,
+                    bottomEnd = dimensions().corner4x
+                ),
+                color = color
+            ) {
+                Text(
+                    color = colorsScheme().error,
+                    style = MaterialTheme.wireTypography.label01,
+                    modifier = Modifier.padding(
+                        top = dimensions().spacing4x,
+                        bottom = dimensions().spacing4x,
+                        end = dimensions().spacing4x
+                    ),
+                    text = stringResource(id = R.string.participant_tile_call_connecting_label),
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }
 
@@ -301,8 +349,9 @@ private fun UsernameTile(
 private fun MicrophoneTile(
     modifier: Modifier,
     isMuted: Boolean,
+    hasEstablishedAudio: Boolean
 ) {
-    if (isMuted) {
+    if (isMuted && hasEstablishedAudio) {
         Surface(
             modifier = modifier,
             color = Color.Black,
@@ -319,7 +368,7 @@ private fun MicrophoneTile(
     }
 }
 
-@Preview
+@Preview("Default view")
 @Composable
 fun PreviewParticipantTile() {
     ParticipantTile(
@@ -327,13 +376,62 @@ fun PreviewParticipantTile() {
         participantTitleState = UICallParticipant(
             id = QualifiedID("", ""),
             clientId = "client-id",
-            name = "name",
+            name = "user name",
             isMuted = true,
-            isSpeaking = true,
-            isCameraOn = true,
+            isSpeaking = false,
+            isCameraOn = false,
             isSharingScreen = false,
             avatar = null,
-            membership = Membership.Admin
+            membership = Membership.Admin,
+            hasEstablishedAudio = true
+        ),
+        onClearSelfUserVideoPreview = {},
+        onSelfUserVideoPreviewCreated = {},
+        isSelfUser = false
+    )
+}
+
+@Preview
+@Composable
+fun PreviewParticipantTalking() {
+    ParticipantTile(
+        modifier = Modifier.height(300.dp),
+        participantTitleState = UICallParticipant(
+            id = QualifiedID("", ""),
+            clientId = "client-id",
+            name = "long user name to be displayed in participant tile during a call",
+            isMuted = false,
+            isSpeaking = true,
+            isCameraOn = false,
+            isSharingScreen = false,
+            avatar = null,
+            membership = Membership.Admin,
+            hasEstablishedAudio = true
+        ),
+        onClearSelfUserVideoPreview = {},
+        onSelfUserVideoPreviewCreated = {},
+        isSelfUser = false
+    )
+}
+
+@Preview
+@Composable
+fun PreviewParticipantConnecting() {
+    ParticipantTile(
+        modifier = Modifier
+            .height(350.dp)
+            .width(200.dp),
+        participantTitleState = UICallParticipant(
+            id = QualifiedID("", ""),
+            clientId = "client-id",
+            name = "Oussama2",
+            isMuted = true,
+            isSpeaking = false,
+            isCameraOn = false,
+            isSharingScreen = false,
+            avatar = null,
+            membership = Membership.Admin,
+            hasEstablishedAudio = false
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},

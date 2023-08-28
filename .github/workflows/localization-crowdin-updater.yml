@@ -57,8 +57,8 @@ jobs:
                     commit_message: "chore: update localization strings via Crowdin"
                     pull_request_title: "chore: update localization strings via Crowdin"
                     pull_request_body: "This PR pulls in the latest localization translations from Crowdin."
-                    github_user_name: "zebot"
-                    github_user_email: "zebot@users.noreply.github.com"
+                    github_user_name: "AndroidBob"
+                    github_user_email: "AndroidBob@users.noreply.github.com"
 
                     pull_request_labels: "l10n, crowdin"
                     pull_request_assignees: "crowdin-bot"

@@ -49,7 +49,7 @@ fun MutedConversationBadge(onClick: () -> Unit) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_mute),
                     contentDescription = stringResource(R.string.content_description_muted_conversation),
-                    modifier = Modifier.size(dimensions().spacing18x),
+                    modifier = Modifier.size(dimensions().spacing12x),
                     tint = colorsScheme().onSecondaryButtonEnabled
                 )
             },

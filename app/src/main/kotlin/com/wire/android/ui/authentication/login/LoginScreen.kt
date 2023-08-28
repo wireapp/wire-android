@@ -23,6 +23,7 @@ package com.wire.android.ui.authentication.login
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -59,8 +60,10 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.smoothSlideInFromRight
-import com.wire.android.navigation.smoothSlideOutFromLeft
+import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.navigation.style.SlideNavigationAnimation
+import com.wire.android.navigation.style.smoothSlideInFromRight
+import com.wire.android.navigation.style.smoothSlideOutFromLeft
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
@@ -134,7 +137,7 @@ private fun LoginContent(
          */
         AnimatedContent(
             targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
-            transitionSpec = { smoothSlideInFromRight() with smoothSlideOutFromLeft() }
+            transitionSpec = { TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition) }
         ) { isCodeInputNecessary ->
             if (isCodeInputNecessary) LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel)
             else MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)

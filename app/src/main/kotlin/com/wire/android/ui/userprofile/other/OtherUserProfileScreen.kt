@@ -66,6 +66,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
@@ -84,6 +85,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.spacers.VerticalSpace.x24
 import com.wire.android.ui.common.topBarElevation
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
@@ -109,7 +111,8 @@ import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = OtherUserProfileNavArgs::class
+    navArgsDelegate = OtherUserProfileNavArgs::class,
+    style = PopUpNavigationAnimation::class,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +147,8 @@ fun OtherUserProfileScreen(
         },
         onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
         onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
-        navigateBack = navigator::navigateBack
+        navigateBack = navigator::navigateBack,
+        navigationIconType = NavigationIconType.Close,
     )
 
     LaunchedEffect(Unit) {
@@ -165,6 +169,7 @@ fun OtherUserProfileScreen(
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
+    navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
     sheetState: WireModalSheetState,
     openBottomSheet: () -> Unit,
@@ -247,6 +252,7 @@ fun OtherProfileScreenContent(
         topBarHeader = { elevation ->
             TopBarHeader(
                 state = state,
+                navigationIconType = navigationIconType,
                 elevation = elevation,
                 onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
@@ -321,12 +327,14 @@ fun OtherProfileScreenContent(
 @Composable
 private fun TopBarHeader(
     state: OtherUserProfileState,
+    navigationIconType: NavigationIconType,
     elevation: Dp,
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
+        navigationIconType = navigationIconType,
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
@@ -500,7 +508,9 @@ fun PreviewOtherProfileScreenContent() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
+            NavigationIconType.Back,
+            false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileBottomSheetEventsHandler.PREVIEW
@@ -514,7 +524,9 @@ fun PreviewOtherProfileScreenContentNotConnected() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
+            NavigationIconType.Back,
+            false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileBottomSheetEventsHandler.PREVIEW,

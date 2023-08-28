@@ -71,6 +71,7 @@ import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -97,7 +98,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
 @RootNavGraph(start = true)
-@Destination
+@Destination(
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
 fun WelcomeScreen(
     navigator: Navigator,

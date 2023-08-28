@@ -265,7 +265,6 @@ abstract class SearchPeopleViewModel : ViewModel() {
                         if (it.isEmpty()) SearchResultState.EmptyResult
                         else SearchResultState.Success(it)
                     }
-
             }
         }
     }

@@ -502,6 +502,7 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DEVICES(R.string.user_profile_devices_tab);
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Connected")
 fun PreviewOtherProfileScreenContent() {
@@ -518,6 +519,7 @@ fun PreviewOtherProfileScreenContent() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Not Connected")
 fun PreviewOtherProfileScreenContentNotConnected() {

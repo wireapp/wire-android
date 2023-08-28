@@ -42,14 +42,14 @@ import com.wire.android.ui.common.dimensions
 fun MutedConversationBadge(onClick: () -> Unit) {
     Box(modifier = Modifier
         .width(dimensions().spacing24x)
-        .height(dimensions().spacing18x)) {
+        .height(dimensions().spacing20x)) {
         WireSecondaryButton(
             onClick = onClick,
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_mute),
                     contentDescription = stringResource(R.string.content_description_muted_conversation),
-                    modifier = Modifier.size(dimensions().spacing12x),
+                    modifier = Modifier.size(dimensions().spacing18x),
                     tint = colorsScheme().onSecondaryButtonEnabled
                 )
             },

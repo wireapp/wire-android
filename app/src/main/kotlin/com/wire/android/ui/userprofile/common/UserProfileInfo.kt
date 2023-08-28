@@ -94,12 +94,10 @@ fun UserProfileInfo(
                     connectionState = connection,
                     membership = membership
                 ),
-                clickable = remember(editableState) {
-                    Clickable(
-                        enabled = editableState is EditableState.IsEditable,
-                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                    ) { onUserProfileClick?.invoke() }
-                }
+                clickable = Clickable(
+                    enabled = true,
+                    clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                ) { onUserProfileClick?.invoke() }
             )
             if (isLoading) {
                 Box(

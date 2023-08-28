@@ -61,7 +61,7 @@ jobs:
                     github_user_email: "AndroidBob@users.noreply.github.com"
 
                     pull_request_labels: "l10n, crowdin"
-                    pull_request_assignees: "crowdin-bot"
+                    pull_request_assignees: "AndroidBob"
                     pull_request_team_reviewers: "android"
                     pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 

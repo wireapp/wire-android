@@ -1,6 +1,6 @@
 name: "Crowdin Action"
 
-# **What it does**: Upload strings to crowdin project for translations and creates a PR when new updates.
+# **What it does**: Upload strings to crowdin project for translations and creates a PR with updates.
 # **Why we have it**: We want to externalize and automate the translations process.
 # **Who does it impact**: Everyone collaborating on the project.
 # For more info: https://github.com/crowdin/github-action/blob/master/action.yml
@@ -10,6 +10,15 @@ on:
         branches: [ develop ]
 
     workflow_dispatch:
+        inputs:
+            baseBranch:
+                description: "Base branch to create the PR and update the localization strings"
+                required: true
+                default: "develop"
+                type: choice
+                options:
+                    - "develop"
+                    - "release/candidate"
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,8 +32,18 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v3
 
+            -   name: "Set base branch from input"
+                env:
+                    INPUT_BASE_BRANCH: ${{github.event.inputs.baseBranch}}
+                if: "${{ github.event.inputs.baseBranch != '' }}"
+                run: echo "BASE_BRANCH=$INPUT_BASE_BRANCH" >> "$GITHUB_ENV"
+
+            -   name: "Set base branch to default branch"
+                if: "${{ github.event.inputs.baseBranch == '' }}"
+                run: echo "BASE_BRANCH=$develop" >> "$GITHUB_ENV"
+
             -   name: Crowdin action
-                uses: crowdin/github-action@1.12.0
+                uses: crowdin/github-action@v1
                 with:
                     project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
                     token: ${{ secrets.CROWDIN_API_TOKEN }}
@@ -44,9 +63,9 @@ jobs:
                     pull_request_labels: "l10n, crowdin"
                     pull_request_assignees: "crowdin-bot"
                     pull_request_team_reviewers: "android"
+                    pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
-                    source: "/app/src/main/res/values/strings.xml"
-                    translation: "/app/src/main/res/values-%two_letters_code%/%original_file_name%"
+                    config: "crowdin.yml"
 
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

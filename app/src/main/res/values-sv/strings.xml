@@ -663,7 +663,7 @@
     <string name="error_server_miscommunication_message">Please try again</string>
     <string name="error_socket_title">Invalid information</string>
     <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
-    <string name="error_no_network_title">Waiting for network</string>
+    <string name="error_no_network_title">Väntar på nätverk</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_self_user_profile_picture">There was an error downloading your profile picture. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
@@ -717,7 +717,7 @@
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
-    <string name="calling_button_label_speaker">Speaker</string>
+    <string name="calling_button_label_speaker">Högtalare</string>
     <string name="calling_button_label_flip">Flip</string>
     <string name="calling_button_label_decline">Decline</string>
     <string name="calling_button_label_accept">Accept</string>
@@ -743,7 +743,7 @@
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
-    <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
+    <string name="connectivity_status_bar_waiting_for_network">Väntar på nätverk</string>
     <!-- Connections -->
     <string name="connection_label_connect">Anslut</string>
     <string name="connection_label_cancel_request">Cancel Request</string>
@@ -1044,8 +1044,8 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
     <plurals name="weeks_left">
-        <item quantity="one">1 week left</item>
-        <item quantity="other">%1$d weeks left</item>
+        <item quantity="one">1 vecka kvar</item>
+        <item quantity="other">%1$d veckor kvar</item>
     </plurals>
     <plurals name="days_left">
         <item quantity="one">1 dag kvar</item>

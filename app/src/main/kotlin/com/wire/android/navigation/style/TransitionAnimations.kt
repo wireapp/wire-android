@@ -33,6 +33,7 @@ import io.github.esentsov.PackagePrivate
 /**
  * Animation that allows a smooth transition from rtl, adding a fade in effect
  */
+@Suppress("MagicNumber")
 @PackagePrivate
 internal fun smoothSlideInFromRight(): EnterTransition {
     return slideInHorizontally(
@@ -46,6 +47,7 @@ internal fun smoothSlideInFromRight(): EnterTransition {
 /**
  * Animation that allows a smooth transition from ltr, adding a fade out effect
  */
+@Suppress("MagicNumber")
 @PackagePrivate
 internal fun smoothSlideOutFromLeft(): ExitTransition {
     return slideOutHorizontally(
@@ -59,6 +61,7 @@ internal fun smoothSlideOutFromLeft(): ExitTransition {
 /**
  * Animation that allows a transition from expand in from bottom, adding a fade in effect
  */
+@Suppress("MagicNumber")
 @PackagePrivate
 internal fun expandInToView(): EnterTransition {
     return slideInVertically(
@@ -72,6 +75,7 @@ internal fun expandInToView(): EnterTransition {
 /**
  * Animation that allows a transition from full content to shrink to zero, adding a fade out effect
  */
+@Suppress("MagicNumber")
 @PackagePrivate
 internal fun shrinkOutFromView(): ExitTransition {
     return slideOutVertically(

@@ -40,7 +40,7 @@ jobs:
 
             -   name: "Set base branch to default branch"
                 if: "${{ github.event.inputs.baseBranch == '' }}"
-                run: echo "BASE_BRANCH=$develop" >> "$GITHUB_ENV"
+                run: echo "BASE_BRANCH=develop" >> "$GITHUB_ENV"
 
             -   name: Crowdin action
                 uses: crowdin/github-action@v1

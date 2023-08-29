@@ -19,10 +19,14 @@ package com.wire.benchmark
 
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.FrameTimingMetric
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,20 +39,50 @@ class StartupBenchmark {
 
     @Test
     fun startUpWithBaselineProfiler() {
-        startup(CompilationMode.Partial(BaselineProfileMode.Require))
+        startup(
+            CompilationMode.Partial(BaselineProfileMode.Require)
+        ) {
+            startActivityAndWait()
+            login()
+        }
     }
 
     @Test
     fun startUpWithoutBaselineProfiler() {
-        startup(CompilationMode.None())
+        startup(
+            CompilationMode.None()
+        ) {
+            startActivityAndWait()
+            login()
+        }
     }
 
-    private fun startup(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
+    private fun MacrobenchmarkScope.login() {
+        device.findObject(By.res("loginButton"))?.let {
+            it.click()
+        }
+        device.findObject(By.res("userIdentifierInput"))?.let {
+            it.text = "oussama.hassine+7@wire.com"
+        }
+        device.findObject(By.res("PasswordInput"))?.let {
+            it.text = "Wire+2021"
+        }
+        device.findObject(By.res("loginButton"))?.let {
+            it.click()
+        }
+        device.wait(Until.hasObject(By.text("Conversations")), 30_000)
+    }
+
+    private fun startup(
+        compilationMode: CompilationMode,
+        setupBlock: MacrobenchmarkScope.() -> Unit = {},
+    ) = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
-        metrics = listOf(StartupTimingMetric()),
+        metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
         iterations = ITERATIONS,
         startupMode = StartupMode.COLD,
-        compilationMode = compilationMode
+        compilationMode = compilationMode,
+        setupBlock = setupBlock
     ) {
         pressHome()
         startActivityAndWait()
@@ -56,6 +90,6 @@ class StartupBenchmark {
 
     companion object {
         private const val PACKAGE_NAME = "com.wire.android.internal"
-        private const val ITERATIONS = 10
+        private const val ITERATIONS = 5
     }
 }

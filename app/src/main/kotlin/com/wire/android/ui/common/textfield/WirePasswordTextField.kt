@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.util.EMPTY
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -76,7 +77,8 @@ fun WirePasswordTextField(
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
-    autofillTypes: List<AutofillType> = listOf(AutofillType.Password)
+    autofillTypes: List<AutofillType> = listOf(AutofillType.Password),
+    testTag: String = String.EMPTY,
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
     AutoFillTextField(
@@ -116,6 +118,7 @@ fun WirePasswordTextField(
                 )
             }
         },
+        testTag = testTag
     )
 }
 

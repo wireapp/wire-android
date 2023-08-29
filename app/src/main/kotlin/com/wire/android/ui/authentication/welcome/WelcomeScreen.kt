@@ -65,6 +65,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -106,6 +110,7 @@ fun WelcomeScreen(
     WelcomeContent(viewModel.isThereActiveSession, viewModel.state, navigator::navigateBack, navigator::navigate)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
@@ -156,9 +161,11 @@ private fun WelcomeContent(
                 modifier = Modifier.padding(
                     vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
                     horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                )
+                ).semantics {
+                    testTagsAsResourceId = true
+                }
             ) {
-                LoginButton() { navigate(NavigationCommand(LoginScreenDestination())) }
+                LoginButton { navigate(NavigationCommand(LoginScreenDestination())) }
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -303,6 +310,7 @@ private fun LoginButton(onClick: () -> Unit) {
         onClick = onClick,
         text = stringResource(R.string.label_login),
         modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
+            .testTag("loginButton")
     )
 }
 

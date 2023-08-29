@@ -21,9 +21,14 @@
 package com.wire.android.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -119,20 +124,68 @@ class WireActivity : AppCompatActivity() {
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
+    private fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): PackageInfo =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags.toLong()))
+        } else {
+            @Suppress("DEPRECATION") getPackageInfo(packageName, flags)
+        }
+
+    fun Context.isFirstInstall(): Boolean = try {
+        val firstInstallTime: Long = packageManager.getPackageInfoCompat(packageName, 0).firstInstallTime
+        val lastUpdateTime: Long = packageManager.getPackageInfoCompat(packageName, 0).lastUpdateTime
+        firstInstallTime == lastUpdateTime
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        true
+    }
+
+    fun Context.isInstallFromUpdate(): Boolean = try {
+        val firstInstallTime: Long = packageManager.getPackageInfoCompat(packageName, 0).firstInstallTime
+        val lastUpdateTime: Long = packageManager.getPackageInfoCompat(packageName, 0).lastUpdateTime
+        firstInstallTime != lastUpdateTime
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        false
+    }
+
+    fun shouldLogIn(): Boolean {
+        return viewModel.isLoggedIn()?.let {
+            Log.d("shouldLogIn", "shouldLogIn: $it")
+            !it
+        } ?: run {
+            if (isFirstInstall()) {
+                Log.d("shouldLogIn", "shouldLogIn: first install")
+                true
+            } else {
+                Log.d("shouldLogIn", "shouldLogIn: check session")
+                viewModel.hasValidCurrentSession()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-
         viewModel.observePersistentConnectionStatus()
-        val startDestination = when (viewModel.initialAppState) {
-            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
-            InitialAppState.LOGGED_IN -> HomeScreenDestination
+
+//        val startDestination = when (viewModel.initialAppState) {
+//            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
+//            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+//            InitialAppState.LOGGED_IN -> HomeScreenDestination
+//        }
+        val destination = if (viewModel.initialAppState == InitialAppState.NOT_MIGRATED) {
+            MigrationScreenDestination
+        } else {
+            if (shouldLogIn()) {
+                WelcomeScreenDestination
+            } else {
+                HomeScreenDestination
+            }
         }
-        setComposableContent(startDestination) {
+        setComposableContent(destination) {
             handleDeepLink(intent, savedInstanceState)
         }
     }

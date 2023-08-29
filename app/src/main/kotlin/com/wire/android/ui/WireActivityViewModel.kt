@@ -364,9 +364,13 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    fun shouldLogIn(): Boolean = !hasValidCurrentSession()
+    fun shouldLogIn(): Boolean = false
 
-    private fun hasValidCurrentSession(): Boolean = runBlocking {
+    fun isLoggedIn(): Boolean? = runBlocking {
+        migrationManager.isLoggedIn().first()
+    }
+
+    fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
         currentSessionFlow().first().let {
             when (it) {

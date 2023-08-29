@@ -62,7 +62,7 @@ jobs:
 
                     pull_request_labels: "l10n, crowdin"
                     pull_request_assignees: "AndroidBob"
-                    pull_request_team_reviewers: "android"
+                    pull_request_team_reviewers: "wireapp/android"
                     pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
                     config: "crowdin.yml"

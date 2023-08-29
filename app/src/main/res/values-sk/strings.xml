@@ -42,7 +42,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
@@ -56,6 +56,7 @@
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 participant from %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
+        <item quantity="many">%1$d participants from %2$s</item>
         <item quantity="other">%1$d participants from %2$s</item>
     </plurals>
     <string name="label_try_again">Try again</string>
@@ -551,6 +552,7 @@
     <plurals name="label_system_message_x_more">
         <item quantity="one">%1$d more</item>
         <item quantity="few">%1$d more</item>
+        <item quantity="many">%1$d more</item>
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
@@ -566,7 +568,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -580,33 +582,39 @@
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
         <item quantity="few">You added %1$d people to the conversation</item>
+        <item quantity="many">You added %1$d people to the conversation</item>
         <item quantity="other">You added %1$d people to the conversation</item>
     </plurals>
     <string name="last_message_other_added_only_self_user">You were added to the conversation</string>
     <plurals name="last_message_other_added_self_user">
         <item quantity="one">You and 1 other person were added to the conversation</item>
         <item quantity="few">You and %1$d people were added to the conversation</item>
+        <item quantity="many">You and %1$d people were added to the conversation</item>
         <item quantity="other">You and %1$d people were added to the conversation</item>
     </plurals>
     <plurals name="last_message_other_added_other_users">
         <item quantity="one">1 person was added to the conversation</item>
         <item quantity="few">%1$d people were added to the conversation</item>
+        <item quantity="many">%1$d people were added to the conversation</item>
         <item quantity="other">%1$d people were added to the conversation</item>
     </plurals>
     <plurals name="last_message_self_removed_users">
         <item quantity="one">You removed 1 person from the conversation</item>
         <item quantity="few">You removed %1$d people from the conversation</item>
+        <item quantity="many">You removed %1$d people from the conversation</item>
         <item quantity="other">You removed %1$d people from the conversation</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">You and 1 other person were removed from the conversation</item>
         <item quantity="few">You and %1$d people were removed from the conversation</item>
+        <item quantity="many">You and %1$d people were removed from the conversation</item>
         <item quantity="other">You and %1$d people were removed from the conversation</item>
     </plurals>
     <plurals name="last_message_other_removed_other_users">
         <item quantity="one">1 person was removed from the conversation</item>
         <item quantity="few">%1$d people were removed from the conversation</item>
+        <item quantity="many">%1$d people were removed from the conversation</item>
         <item quantity="other">%1$d people were removed from the conversation</item>
     </plurals>
     <string name="last_message_self_user_shared_asset">shared a file.</string>
@@ -633,26 +641,31 @@
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
         <item quantity="few">%1$d pings</item>
+        <item quantity="many">%1$d pings</item>
         <item quantity="other">%1$d pings</item>
     </plurals>
     <plurals name="unread_event_call">
         <item quantity="one">%1$d missed call</item>
         <item quantity="few">%1$d missed calls</item>
+        <item quantity="many">%1$d missed calls</item>
         <item quantity="other">%1$d missed calls</item>
     </plurals>
     <plurals name="unread_event_mention">
         <item quantity="one">%1$d mention</item>
         <item quantity="few">%1$d mentions</item>
+        <item quantity="many">%1$d mentions</item>
         <item quantity="other">%1$d mentions</item>
     </plurals>
     <plurals name="unread_event_reply">
         <item quantity="one">%1$d reply</item>
         <item quantity="few">%1$d replies</item>
+        <item quantity="many">%1$d replies</item>
         <item quantity="other">%1$d replies</item>
     </plurals>
     <plurals name="unread_event_message">
         <item quantity="one">%1$d message</item>
         <item quantity="few">%1$d messages</item>
+        <item quantity="many">%1$d messages</item>
         <item quantity="other">%1$d messages</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
@@ -1059,51 +1072,61 @@
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="few">%1$d weeks left</item>
+        <item quantity="many">%1$d weeks left</item>
         <item quantity="other">%1$d weeks left</item>
     </plurals>
     <plurals name="days_left">
         <item quantity="one">1 day left</item>
         <item quantity="few">%1$d days left</item>
+        <item quantity="many">%1$d days left</item>
         <item quantity="other">%1$d days left</item>
     </plurals>
     <plurals name="hours_left">
         <item quantity="one">1 hour left</item>
         <item quantity="few">%1$d hours left</item>
+        <item quantity="many">%1$d hours left</item>
         <item quantity="other">%1$d hours left</item>
     </plurals>
     <plurals name="minutes_left">
         <item quantity="one">1 minute left</item>
         <item quantity="few">%1$d minutes left</item>
+        <item quantity="many">%1$d minutes left</item>
         <item quantity="other">%1$d minutes left</item>
     </plurals>
     <plurals name="seconds_left">
         <item quantity="one">1 second left</item>
         <item quantity="few">%1$d seconds left</item>
+        <item quantity="many">%1$d seconds left</item>
         <item quantity="other">%1$d seconds left</item>
     </plurals>
     <plurals name="weeks_long_label">
         <item quantity="one">1 week</item>
         <item quantity="few">%1$d weeks</item>
+        <item quantity="many">%1$d weeks</item>
         <item quantity="other">%1$d weeks</item>
     </plurals>
     <plurals name="days_long_label">
         <item quantity="one">1 day</item>
         <item quantity="few">%1$d days</item>
+        <item quantity="many">%1$d days</item>
         <item quantity="other">%1$d days</item>
     </plurals>
     <plurals name="hours_long_label">
         <item quantity="one">1 hour</item>
         <item quantity="few">%1$d hours</item>
+        <item quantity="many">%1$d hours</item>
         <item quantity="other">%1$d hours</item>
     </plurals>
     <plurals name="minutes_long_label">
         <item quantity="one">1 minute</item>
         <item quantity="few">%1$d minutes</item>
+        <item quantity="many">%1$d minutes</item>
         <item quantity="other">%1$d minutes</item>
     </plurals>
     <plurals name="seconds_long_label">
         <item quantity="one">1 second</item>
         <item quantity="few">%1$d seconds</item>
+        <item quantity="many">%1$d seconds</item>
         <item quantity="other">%1$d seconds</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>

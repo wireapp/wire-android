@@ -26,20 +26,26 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.migration.failure.UserMigrationStatus
+import com.wire.kalium.logic.configuration.dataStoreFileName
+import com.wire.kalium.logic.configuration.getDataStore
+import com.wire.kalium.logic.feature.auth.USER_LOGGED_IN
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import okio.Path.Companion.toPath
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 @Suppress("TooManyFunctions")
 @Singleton
 class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
+
+    private val dataStore: DataStore<Preferences> = getDataStore(producePath = { context.filesDir.resolve(dataStoreFileName).absolutePath })
 
     companion object {
         private const val PREFERENCES_NAME = "global_data"
@@ -50,7 +56,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
@@ -60,46 +65,50 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     }
 
     suspend fun clear() {
-        context.dataStore.edit { it.clear() }
+        dataStore.edit { it.clear() }
     }
 
     private fun getBooleanPreference(key: Preferences.Key<Boolean>, defaultValue: Boolean): Flow<Boolean> =
-        context.dataStore.data.map { it[key] ?: defaultValue }
+        dataStore.data.map { it[key] ?: defaultValue }
+
+    private fun getNullableBooleanPreference(key: Preferences.Key<Boolean>): Flow<Boolean?> =
+        dataStore.data.map { it[key] }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
+    fun isLoggedIn(): Flow<Boolean?> = getNullableBooleanPreference(USER_LOGGED_IN)
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
     fun isLoggingEnabled(): Flow<Boolean> = getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
 
     suspend fun setLoggingEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
+        dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
     }
 
     fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =
         getBooleanPreference(IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED, BuildConfig.ENCRYPT_PROTEUS_STORAGE)
 
     suspend fun setEncryptedProteusStorageEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
+        dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
     }
 
     suspend fun setMigrationCompleted() {
-        context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
+        dataStore.edit { it[MIGRATION_COMPLETED] = true }
     }
 
     suspend fun isWelcomeScreenPresented(): Boolean =
         getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
 
     suspend fun setWelcomeScreenPresented() {
-        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }
+        dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }
     }
 
     suspend fun setWelcomeScreenNotPresented() {
-        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
+        dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
 
     suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
-        context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
+        dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
         when (status) {
             UserMigrationStatus.Completed,
             UserMigrationStatus.CompletedWithErrors,
@@ -118,17 +127,17 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      * meaning that the user does not need to be migrated.
      */
     fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
-        context.dataStore.data.map { it[userMigrationStatusKey(userId)]?.let { status -> UserMigrationStatus.fromInt(status) } }
+        dataStore.data.map { it[userMigrationStatusKey(userId)]?.let { status -> UserMigrationStatus.fromInt(status) } }
 
     suspend fun setUserMigrationAppVersion(userId: String, version: Int) {
-        context.dataStore.edit { it[userLastMigrationAppVersion(userId)] = version }
+        dataStore.edit { it[userLastMigrationAppVersion(userId)] = version }
     }
 
     suspend fun getUserMigrationAppVersion(userId: String): Int? =
-        context.dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
+        dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
 
     suspend fun setShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) {
-        context.dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }
+        dataStore.edit { it[userDoubleTapToastStatusKey(userId)] = shouldShow }
     }
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =

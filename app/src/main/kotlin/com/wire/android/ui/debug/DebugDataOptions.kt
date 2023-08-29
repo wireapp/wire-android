@@ -20,6 +20,7 @@ package com.wire.android.ui.debug
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,11 +50,12 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
+import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -169,14 +171,36 @@ class DebugDataOptionsViewModel
 
 @Composable
 fun DebugDataOptions(
+    viewModel: DebugDataOptionsViewModel = hiltViewModel(),
     appVersion: String,
     buildVariant: String,
     onCopyText: (String) -> Unit,
     onManualMigrationPressed: (currentAccount: UserId) -> Unit
 ) {
+    DebugDataOptionsContent(
+        state = viewModel.state,
+        appVersion = appVersion,
+        buildVariant = buildVariant,
+        onCopyText = onCopyText,
+        onEnableEncryptedProteusStorageChange = viewModel::enableEncryptedProteusStorage,
+        onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
+        onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
+        onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) }
+    )
+}
 
-    val viewModel: DebugDataOptionsViewModel = hiltViewModel()
-
+@Suppress("LongParameterList")
+@Composable
+fun DebugDataOptionsContent(
+    state: DebugDataOptionsState,
+    appVersion: String,
+    buildVariant: String,
+    onCopyText: (String) -> Unit,
+    onEnableEncryptedProteusStorageChange: (Boolean) -> Unit,
+    onRestartSlowSyncForRecovery: () -> Unit,
+    onForceUpdateApiVersions: () -> Unit,
+    onManualMigrationPressed: () -> Unit
+) {
     Column {
 
         FolderHeader(stringResource(R.string.label_debug_data))
@@ -203,11 +227,11 @@ fun DebugDataOptions(
 
         SettingsItem(
             title = stringResource(R.string.label_code_commit_id),
-            text = viewModel.state.commitish,
+            text = state.commitish,
             trailingIcon = R.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
-                onClick = { onCopyText(viewModel.state.commitish) }
+                onClick = { onCopyText(state.commitish) }
             )
         )
 
@@ -215,34 +239,34 @@ fun DebugDataOptions(
 
             SettingsItem(
                 title = stringResource(R.string.debug_id),
-                text = viewModel.state.debugId,
+                text = state.debugId,
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
-                    onClick = { onCopyText(viewModel.state.debugId) }
+                    onClick = { onCopyText(state.debugId) }
                 )
             )
 
             ProteusOptions(
-                isEncryptedStorageEnabled = viewModel.state.isEncryptedProteusStorageEnabled,
-                onEncryptedStorageEnabledChange = viewModel::enableEncryptedProteusStorage
+                isEncryptedStorageEnabled = state.isEncryptedProteusStorageEnabled,
+                onEncryptedStorageEnabledChange = onEnableEncryptedProteusStorageChange
             )
 
             MLSOptions(
-                keyPackagesCount = viewModel.state.keyPackagesCount,
-                mlsClientId = viewModel.state.mslClientId,
-                mlsErrorMessage = viewModel.state.mlsErrorMessage,
-                restartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
+                keyPackagesCount = state.keyPackagesCount,
+                mlsClientId = state.mslClientId,
+                mlsErrorMessage = state.mlsErrorMessage,
+                restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onCopyText = onCopyText
             )
 
-            DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = viewModel::forceUpdateApiVersions)
+            DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceUpdateApiVersions)
         }
 
-        FolderHeader("Other Debug Options")
-        if (viewModel.state.isManualMigrationAllowed) {
+        if (state.isManualMigrationAllowed) {
+            FolderHeader("Other Debug Options")
             ManualMigrationOptions(
-                onManualMigrationClicked = { onManualMigrationPressed(viewModel.currentAccount) }
+                onManualMigrationClicked = onManualMigrationPressed
             )
         }
     }
@@ -399,9 +423,34 @@ private fun EnableEncryptedProteusStorageSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
                 enabled = !isEnabled,
-                modifier = Modifier.padding(end = dimensions().spacing16x)
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .size(dimensions().buttonSmallMinSize)
             )
         }
     )
 }
 //endregion
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOtherDebugOptions() {
+    DebugDataOptionsContent(
+        appVersion = "1.0.0",
+        buildVariant = "debug",
+        onCopyText = {},
+        state = DebugDataOptionsState(
+            isEncryptedProteusStorageEnabled = true,
+            keyPackagesCount = 10,
+            mslClientId = "clientId",
+            mlsErrorMessage = "error",
+            isManualMigrationAllowed = true,
+            debugId = "debugId",
+            commitish = "commitish"
+        ),
+        onEnableEncryptedProteusStorageChange = {},
+        onForceUpdateApiVersions = {},
+        onRestartSlowSyncForRecovery = {},
+        onManualMigrationPressed = {}
+    )
+}

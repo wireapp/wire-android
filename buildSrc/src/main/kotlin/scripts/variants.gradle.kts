@@ -196,12 +196,28 @@ android {
                     )
                 }
 
-                ConfigType.INT, ConfigType.BOOLEAN -> {
+                ConfigType.INT,
+                ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         flavor,
                         configs.configType.type,
                         configs.name,
                         flavorMap[flavor.name]?.get(configs.value).toString()
+                    )
+                }
+
+                ConfigType.MapOfStringToListOfStrings -> {
+                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+                    val mapString = map?.map { (key, value) ->
+                        "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                            "put($it);"
+                        }
+                    }?.joinToString(",\n") ?: ""
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
                     )
                 }
             }

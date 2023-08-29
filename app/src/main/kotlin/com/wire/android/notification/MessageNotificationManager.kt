@@ -40,7 +40,8 @@ import com.wire.android.notification.NotificationConstants.getConversationNotifi
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotification
+import com.wire.kalium.logic.data.notification.LocalNotificationUpdateMessageAction
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -53,24 +54,49 @@ class MessageNotificationManager
     private val notificationManager: NotificationManager
 ) {
 
-    fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID, userName: String) {
+    fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
+
+        addNotifications(newNotifications, userId, userName)
+        updateNotifications(newNotifications, userId)
+
+        appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
+    }
+
+    private fun addNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
+        val notificationsToAdd: List<LocalNotification.Conversation> = newNotifications
+            .filterIsInstance(LocalNotification.Conversation::class.java)
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
 
-        newNotifications.forEach {
-            showConversationNotification(it.intoNotificationConversation(), userId, activeNotifications)
+        notificationsToAdd.forEach {
+            showConversationNotification(it, userId, activeNotifications)
         }
 
         showSummaryIfNeeded(userId, activeNotifications, userName)
 
-        appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
+        appLogger.i("$TAG: added notifications: newNotifications size ${notificationsToAdd.size}; ")
+    }
+
+    private fun updateNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID) {
+        val notificationsToUpdate: List<LocalNotification.UpdateMessage> = newNotifications
+            .filterIsInstance(LocalNotification.UpdateMessage::class.java)
+
+        val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: return
+
+        notificationsToUpdate.groupBy { it.conversationId }.forEach { (conversationId, updateMessages) ->
+            updateConversationNotification(conversationId, updateMessages, userId, activeNotifications)
+        }
+
+        removeSummaryIfNeeded(userId)
+
+        appLogger.i("$TAG: added notifications: newNotifications size ${notificationsToUpdate.size}; ")
     }
 
     fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {
         val notificationId = getConversationNotificationId(conversationsId.toString(), userId.toString())
 
-        if (isThereAnyOtherWireNotification(notificationId, userId)) {
+        if (isThereAnyOtherWireNotification(userId, notificationId)) {
             notificationManagerCompat.cancel(notificationId)
         } else {
             hideAllNotificationsForUser(userId)
@@ -93,16 +119,36 @@ class MessageNotificationManager
         notificationManager.notify(NotificationConstants.getMessagesSummaryId(userId), getSummaryNotification(userId, userName))
     }
 
+    private fun removeSummaryIfNeeded(userId: QualifiedID) {
+        if (!isThereAnyOtherWireNotification(userId)) {
+            hideAllNotificationsForUser(userId)
+        }
+    }
+
     private fun showConversationNotification(
-        conversation: NotificationConversation,
+        localConversation: LocalNotification.Conversation,
         userId: QualifiedID,
         activeNotifications: Array<StatusBarNotification>
     ) {
+        val conversation = localConversation.intoNotificationConversation()
         val notificationId = getConversationNotificationId(conversation.id, userId.toString())
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")
             notificationManagerCompat.notify(notificationId, notification)
         }
+    }
+
+    private fun updateConversationNotification(
+        conversationId: ConversationId,
+        updateMessages: List<LocalNotification.UpdateMessage>,
+        userId: QualifiedID,
+        activeNotifications: Array<StatusBarNotification>
+    ) {
+        val notificationId = getConversationNotificationId(conversationId.toString(), userId.toString())
+        getUpdatedConversationNotification(notificationId, userId, updateMessages, activeNotifications)?.let { notification ->
+            appLogger.i("$TAG updating ConversationNotification")
+            notificationManagerCompat.notify(notificationId, notification)
+        } ?: notificationManagerCompat.cancel(notificationId)
     }
 
     private fun getSummaryNotification(userId: QualifiedID, userName: String): Notification {
@@ -134,7 +180,12 @@ class MessageNotificationManager
     ): Notification? {
 
         val userIdString = userId.toString()
-        val updatedMessageStyle = getUpdatedMessageStyle(conversation, userIdString, activeNotifications) ?: return null
+        val updatedMessageStyle = activeNotifications
+            .find { it.id == getConversationNotificationId(conversation.id, userIdString) }
+            ?.notification
+            ?.let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
+            .addMessages(conversation)
+            ?: return null
 
         return setUpNotificationBuilder(context, userId)
             .apply {
@@ -185,26 +236,50 @@ class MessageNotificationManager
     }
 
     /**
+     * Updates existing [Notification] by applying changes to it's messages
+     * @param [notificationId] ID of the notification that should be updated
+     * @param [userId] the id of the user receiving the notifications
+     * @param [updateMessages] list of changes that should be applied to the messages in that notification
+     * @param [activeNotifications] a list with the notifications that are already be displayed to the user
+     * @return [Notification] for the conversation with updated messages in it
+     * OR null if all the messages in notification were removed and Notification should be removed too.
+     */
+    private fun getUpdatedConversationNotification(
+        notificationId: Int,
+        userId: QualifiedID,
+        updateMessages: List<LocalNotification.UpdateMessage>,
+        activeNotifications: Array<StatusBarNotification>
+    ): Notification? {
+        val currentNotification = activeNotifications
+            .find { it.id == notificationId }
+            ?.notification
+
+        val updatedMessageStyle = currentNotification?.updateMessages(updateMessages)
+
+        if (updatedMessageStyle == null || updatedMessageStyle.messages.isEmpty()) return null
+
+        return setUpNotificationBuilder(context, userId).apply {
+            setContentIntent(currentNotification.contentIntent)
+            currentNotification.actions?.forEach { addAction(getActionFromOldOne(it)) }
+
+            setWhen(System.currentTimeMillis())
+
+            setLargeIcon((currentNotification.getLargeIcon()?.loadDrawable(context) as BitmapDrawable?)?.bitmap)
+
+            setStyle(updatedMessageStyle)
+        }.build()
+    }
+
+    /**
      * @return [NotificationCompat.Style] that should be set to Notification with all the messages in it,
      * OR null if there is no new messages in conversation and no need to update the existed notification
      */
-    private fun getUpdatedMessageStyle(
-        conversation: NotificationConversation,
-        userId: String?,
-        activeNotifications: Array<StatusBarNotification>
-    ): NotificationCompat.Style? {
-
-        val activeMessages = activeNotifications
-            .find { it.id == getConversationNotificationId(conversation.id, userId.orEmpty()) }
-            ?.notification
-            ?.let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
-            ?.messages
-
+    private fun NotificationCompat.MessagingStyle?.addMessages(conversation: NotificationConversation): NotificationCompat.Style? {
         val messagesToAdd = conversation.messages
             .map { it.intoStyledMessage() }
             .filter { notificationMessage ->
                 // to not notify about messages that are already there
-                activeMessages
+                this?.messages
                     ?.find {
                         it.text.toString() == notificationMessage.text.toString()
                                 && it.timestamp == notificationMessage.timestamp
@@ -216,20 +291,69 @@ class MessageNotificationManager
             return null
         }
 
-        val receiver = Person.Builder()
-            .setName(context.getString(R.string.notification_receiver_name))
-            .build()
+        val receiver = youPerson(context)
 
         val notificationStyle = NotificationCompat.MessagingStyle(receiver)
 
         notificationStyle.conversationTitle = getConversationTitle(conversation)
         notificationStyle.isGroupConversation = !conversation.isOneToOneConversation
 
-        activeMessages?.forEach { notificationMessage ->
+        this?.messages?.forEach { notificationMessage ->
             notificationStyle.addMessage(notificationMessage)
         }
 
         messagesToAdd.forEach { notificationMessage ->
+            notificationStyle.addMessage(notificationMessage)
+        }
+
+        return notificationStyle
+    }
+
+    /**
+     * @return [NotificationCompat.MessagingStyle] that should be set to Notification with all the messages in it,
+     * OR null if there is no new messages in conversation and no need to update the existed notification
+     */
+    private fun Notification.updateMessages(updateMessages: List<LocalNotification.UpdateMessage>): NotificationCompat.MessagingStyle? {
+        val activeStyledNotification = this
+            .let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
+            ?: return null
+
+        val messagesToShow = mutableListOf<NotificationCompat.MessagingStyle.Message>()
+
+        activeStyledNotification.messages
+            .forEach { message ->
+                val updateMessageAction = updateMessages
+                    .firstOrNull { it.messageId == message.extras.getString(MESSAGE_ID_EXTRA) }
+                    ?.action
+
+                when (updateMessageAction) {
+                    null -> messagesToShow.add(message)
+                    is LocalNotificationUpdateMessageAction.Edit -> {
+                        messagesToShow.add(
+                            NotificationCompat.MessagingStyle.Message(
+                                updateMessageAction.updateText,
+                                message.timestamp,
+                                message.person
+                            ).apply {
+                                extras.putString(MESSAGE_ID_EXTRA, updateMessageAction.newMessageId)
+                            }
+                        )
+                    }
+
+                    is LocalNotificationUpdateMessageAction.Delete -> {
+                        // message was removed, do nothing
+                    }
+                }
+            }
+
+        val receiver = youPerson(context)
+
+        val notificationStyle = NotificationCompat.MessagingStyle(receiver)
+
+        notificationStyle.conversationTitle = activeStyledNotification.conversationTitle
+        notificationStyle.isGroupConversation = activeStyledNotification.isGroupConversation
+
+        messagesToShow.forEach { notificationMessage ->
             notificationStyle.addMessage(notificationMessage)
         }
 
@@ -280,18 +404,20 @@ class MessageNotificationManager
                 R.string.notification_obfuscated_message_content
             )
         }
-        return NotificationCompat.MessagingStyle.Message(message, time, sender)
+        return NotificationCompat.MessagingStyle.Message(message, time, sender).apply {
+            extras.putString(MESSAGE_ID_EXTRA, this@intoStyledMessage.messageId)
+        }
     }
 
     /**
      * @return true if there is at least one Wire message notification except the Summary notification
-     * and notification with id [exceptNotificationId]
+     * and notifications with id [exceptNotificationIds]
      */
-    private fun isThereAnyOtherWireNotification(exceptNotificationId: Int, userId: QualifiedID): Boolean {
+    private fun isThereAnyOtherWireNotification(userId: QualifiedID, vararg exceptNotificationIds: Int): Boolean {
         return notificationManager.activeNotifications
             ?.any {
                 it.groupKey.endsWith(NotificationConstants.getMessagesGroupKey(userId))
-                        && it.id != exceptNotificationId
+                        && !exceptNotificationIds.contains(it.id)
                         && it.id != NotificationConstants.getMessagesSummaryId(userId)
             }
             ?: false
@@ -299,6 +425,7 @@ class MessageNotificationManager
 
     companion object {
         private const val TAG = "MessageNotificationManager"
+        private const val MESSAGE_ID_EXTRA = "message_id"
 
         /**
          * Update notification by adding [replyText] to the end of messages list with "You" as sender.
@@ -328,9 +455,7 @@ class MessageNotificationManager
             val messagesStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(currentNotification)
                 ?: return // if notification is not in MessagingStyle, then we can't update it
 
-            val sender = Person.Builder()
-                .setName(context.getString(R.string.notification_receiver_name))
-                .build()
+            val sender = youPerson(context)
 
             replyText?.let {
                 val replyMessage = NotificationCompat.MessagingStyle.Message(replyText, System.currentTimeMillis(), sender)
@@ -350,6 +475,10 @@ class MessageNotificationManager
 
             NotificationManagerCompat.from(context).notify(conversationNotificationId, notification)
         }
+
+        private fun youPerson(context: Context) = Person.Builder()
+            .setName(context.getString(R.string.notification_receiver_name))
+            .build()
 
         /**
          * Create NotificationBuilder and set all the parameters that are common for any MessageNotification

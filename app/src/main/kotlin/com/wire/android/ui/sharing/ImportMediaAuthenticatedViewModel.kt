@@ -362,8 +362,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     fun onNewSelfDeletionTimerPicked(selfDeletionDuration: SelfDeletionDuration) =
         viewModelScope.launch {
             val conversationId = importMediaState.selectedConversationItem.first().conversationId
+            val newDuration = selfDeletionDuration.value.let { if (it == ZERO) SelfDeletionTimer.Enabled(null) else SelfDeletionTimer.Enabled(it) }
             importMediaState = importMediaState.copy(
-                selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
+                selfDeletingTimer = newDuration
             )
             val logMap = importMediaState.selfDeletingTimer.toLogString(
                 "user timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
@@ -458,5 +459,5 @@ data class ImportMediaAuthenticatedState(
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 )

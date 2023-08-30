@@ -21,7 +21,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes

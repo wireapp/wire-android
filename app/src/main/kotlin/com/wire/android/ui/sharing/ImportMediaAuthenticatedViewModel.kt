@@ -67,7 +67,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.ZERO
 
 @HiltViewModel
 @OptIn(FlowPreview::class)

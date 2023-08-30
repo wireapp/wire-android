@@ -426,9 +426,9 @@ class WireActivityViewModel @Inject constructor(
 }
 
 sealed class CurrentSessionErrorState {
-    object RemovedClient : CurrentSessionErrorState()
-    object DeletedAccount : CurrentSessionErrorState()
-    object SessionExpired : CurrentSessionErrorState()
+    data object RemovedClient : CurrentSessionErrorState()
+    data object DeletedAccount : CurrentSessionErrorState()
+    data object SessionExpired : CurrentSessionErrorState()
 }
 
 sealed class NewClientsData(open val clientsInfo: List<NewClientInfo>, open val userId: UserId) {

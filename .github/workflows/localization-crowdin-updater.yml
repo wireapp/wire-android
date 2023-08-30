@@ -28,6 +28,9 @@ jobs:
     synchronize-with-crowdin:
         runs-on: ubuntu-latest
 
+        env:
+            GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+
         steps:
             -   name: Checkout
                 uses: actions/checkout@v3
@@ -53,7 +56,7 @@ jobs:
                     upload_translations: false
 
                     create_pull_request: true
-                    localization_branch_name: chore/sync-and-update-localization
+                    localization_branch_name: chore/sync-and-update-localization-${{env.BASE_BRANCH}}
                     commit_message: "chore: update localization strings via Crowdin"
                     pull_request_title: "chore: update localization strings via Crowdin"
                     pull_request_body: "This PR pulls in the latest localization translations from Crowdin."
@@ -62,10 +65,7 @@ jobs:
 
                     pull_request_labels: "l10n, crowdin"
                     pull_request_assignees: "AndroidBob"
-                    pull_request_team_reviewers: "wireapp/android"
+                    pull_request_team_reviewers: "android"
                     pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
                     config: "crowdin.yml"
-
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -46,7 +46,7 @@ fun ReactionOption(
             Row {
                 Spacer(modifier = Modifier.width(dimensions().spacing8x))
                 Text(
-                    ("${stringResource(R.string.label_reactions)} ${stringResource(id = R.string.label_more_comming_soon)}").uppercase(),
+                    stringResource(R.string.label_reactions).uppercase(),
                     style = MaterialTheme.wireTypography.label01
                 )
             }

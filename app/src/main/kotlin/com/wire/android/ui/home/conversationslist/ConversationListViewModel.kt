@@ -178,6 +178,14 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
+    fun showCallingPermissionDialog() {
+        conversationListState = conversationListState.copy(shouldShowCallingPermissionDialog = true)
+    }
+
+    fun dismissCallingPermissionDialog() {
+        conversationListState = conversationListState.copy(shouldShowCallingPermissionDialog = false)
+    }
+
     // Mateusz : First iteration, just filter stuff
     // next iteration : SQL- query ?
     private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {

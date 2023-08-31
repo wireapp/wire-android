@@ -14,80 +14,75 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
 package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun JoinButton(
-    buttonClick: () -> Unit,
+fun StartCallButton(
+    onPhoneButtonClick: () -> Unit,
     onPermanentPermissionDecline: () -> Unit,
-    modifier: Modifier = Modifier,
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMediumMinSize.width
+    isCallingEnabled: Boolean
 ) {
     val audioBTPermissionCheck = AudioBluetoothPermissionCheckFlow(
-        onJoinCall = buttonClick,
+        startCall = onPhoneButtonClick,
         onPermanentPermissionDecline = onPermanentPermissionDecline
     )
 
-    WirePrimaryButton(
+    WireSecondaryButton(
         onClick = audioBTPermissionCheck::launch,
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_phone),
+                contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
+            )
+        },
+        state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
         fillMaxWidth = false,
+        minHeight = MaterialTheme.wireDimensions.spacing32x,
+        minWidth = MaterialTheme.wireDimensions.spacing40x,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
-        text = stringResource(R.string.calling_button_label_join_call),
-        textStyle = MaterialTheme.wireTypography.button03,
-        state = WireButtonState.Positive,
-        minHeight = minHeight,
-        minWidth = minWidth,
-        modifier = modifier.padding(
-            horizontal = dimensions().spacing8x
-        ),
-        contentPadding = PaddingValues(
-            horizontal = dimensions().spacing8x,
-            vertical = dimensions().spacing4x
-        )
+        contentPadding = PaddingValues(0.dp)
     )
 }
 
 @Composable
 private fun AudioBluetoothPermissionCheckFlow(
-    onJoinCall: () -> Unit,
+    startCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit
 ) = rememberCallingRecordAudioBluetoothRequestFlow(
     onAudioBluetoothPermissionGranted = {
-        appLogger.d("IncomingCall - Permissions granted")
-        onJoinCall()
+        appLogger.d("startCall - Permissions granted")
+        startCall()
     },
     onAudioBluetoothPermissionDenied = { },
     onAudioBluetoothPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewJoinButton() {
-    JoinButton(
-        buttonClick = {},
-        onPermanentPermissionDecline = {}
+fun PreviewStartCallButton() {
+    StartCallButton(
+        onPhoneButtonClick = {},
+        onPermanentPermissionDecline = {},
+        isCallingEnabled = true
     )
 }

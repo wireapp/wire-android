@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -145,7 +146,10 @@ fun RecordAudioComponent(
         dialogState = viewModel.getPermissionsDeniedDialogState(),
         onDismiss = viewModel::onDismissPermissionsDeniedDialog,
         onOpenSettings = {
-            context.startActivity(Intent(Settings.ACTION_SETTINGS))
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", context.packageName, null)
+            intent.setData(uri)
+            context.startActivity(intent)
         }
     )
 

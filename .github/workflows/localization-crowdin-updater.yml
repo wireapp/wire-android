@@ -29,6 +29,7 @@ jobs:
         runs-on: ubuntu-latest
 
         env:
+            GITHUB_USER: ${{ github.actor }}
             GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
         steps:

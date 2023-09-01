@@ -90,9 +90,10 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
     val buildVariant = "devDebug" // It's not necessary to run unit tests on every variant so we default to "devDebug"
-    dependsOn("test${buildVariant}UnitTest")
+    dependsOn("test${buildVariant.capitalize()}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
+    val classPathBuildVariant = buildVariant
 
     reports {
         xml.required.set(true)
@@ -104,7 +105,7 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
         fileTree(project.buildDir) {
             include(
                 "**/classes/**/main/**", // This probably can be removed
-                "**/tmp/kotlin-classes/$buildVariant/**"
+                "**/tmp/kotlin-classes/$classPathBuildVariant/**"
             )
             exclude(
                 "**/R.class",

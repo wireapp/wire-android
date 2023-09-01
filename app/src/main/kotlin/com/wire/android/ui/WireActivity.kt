@@ -44,6 +44,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -125,6 +126,8 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         viewModel.observePersistentConnectionStatus()
         val startDestination = when (viewModel.initialAppState) {

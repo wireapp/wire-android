@@ -55,6 +55,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
@@ -244,7 +245,7 @@ private fun MessageComposerTextInput(
 }
 
 @Composable
-private fun CollapseButton(
+fun CollapseButton(
     onCollapseClick: () -> Unit
 ) {
     var isCollapsed by remember { mutableStateOf(false) }

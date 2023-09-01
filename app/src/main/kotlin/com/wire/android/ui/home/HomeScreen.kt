@@ -88,7 +88,6 @@ import com.wire.android.ui.home.conversations.details.GroupConversationActionTyp
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
-import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.coroutines.launch
@@ -99,13 +98,11 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     navigator: Navigator,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
 ) {
     homeViewModel.checkRequirements() { it.navigate(navigator::navigate) }
-    featureFlagNotificationViewModel.loadInitialSync()
     val homeScreenState = rememberHomeScreenState(navigator)
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
@@ -125,45 +122,6 @@ fun HomeScreen(
         WelcomeNewUserDialog(
             dismissDialog = homeViewModel::dismissWelcomeMessage
         )
-    }
-
-    with(featureFlagNotificationViewModel.featureFlagState) {
-        if (showFileSharingDialog) {
-            FileRestrictionDialog(
-                isFileSharingEnabled = showFileSharingDialog,
-                hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
-            )
-        }
-
-        if (shouldShowGuestRoomLinkDialog) {
-            GuestRoomLinkFeatureFlagDialog(
-                isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
-                onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
-            )
-        }
-
-        if (shouldShowSelfDeletingMessagesDialog) {
-            SelfDeletingMessagesDialog(
-                areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
-                enforcedTimeout = enforcedTimeoutDuration,
-                hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
-            )
-        }
-
-        e2EIRequired?.let {
-            E2EIRequiredDialog(
-                result = e2EIRequired,
-                getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
-                snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
-            )
-        }
-
-        e2EISnoozeInfo?.let {
-            E2EISnoozeDialog(
-                timeLeft = e2EISnoozeInfo.timeLeft,
-                dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
-            )
-        }
     }
 
     HomeContent(
@@ -209,6 +167,7 @@ fun HomeScreen(
             is NavResult.Canceled -> {
                 appLogger.i("Error with receiving navigation back args from OtherUserProfile in ConversationScreen")
             }
+
             is NavResult.Value -> {
                 homeScreenState.setSnackBarState(HomeSnackbarState.SuccessConnectionIgnoreRequest(result.value))
             }

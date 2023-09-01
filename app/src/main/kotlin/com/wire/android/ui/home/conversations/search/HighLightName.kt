@@ -80,7 +80,7 @@ fun HighlightName(
 
                 highlightIndexes
                     .forEach { highLightIndex ->
-                        if (highLightIndex.endIndex < this.length) {
+                        if (highLightIndex.endIndex <= this.length) {
                             addStyle(
                                 style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
                                 start = highLightIndex.startIndex,

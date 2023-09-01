@@ -40,7 +40,6 @@ import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun HighlightSubtitle(
     subTitle: String,

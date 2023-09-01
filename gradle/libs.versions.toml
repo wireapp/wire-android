@@ -1,6 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-gradle = "8.1"
+gradle = "8.3"
 
 # Kotlin
 kotlin = "1.9.0"
@@ -13,7 +13,7 @@ ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
 google-gms = "4.3.15"
-android-gradlePlugin = "8.1.0"
+android-gradlePlugin = "8.3.0"
 desugaring = "1.1.5"
 firebaseBOM = "31.4.0"
 fragment = "1.5.6"

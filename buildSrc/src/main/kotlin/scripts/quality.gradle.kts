@@ -90,7 +90,7 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
     val buildVariant = "devDebug" // It's not necessary to run unit tests on every variant so we default to "devDebug"
-    dependsOn("test${buildVariant.replaceFirstChar(Char::titlecaseChar)}}UnitTest")
+    dependsOn("test${buildVariant.replaceFirstChar(Char::titlecaseChar)}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
 

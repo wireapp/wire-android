@@ -48,6 +48,7 @@ data class UiMention(
 @Composable
 fun MembersMentionList(
     membersToMention: List<Contact>,
+    searchQuery: String,
     onMentionPicked: (Contact) -> Unit
 ) {
     Column(
@@ -68,6 +69,7 @@ fun MembersMentionList(
                             label = it.label,
                             membership = it.membership,
                             clickable = Clickable { onMentionPicked(it) },
+                            searchQuery = searchQuery,
                             modifier = Modifier
                         )
                         Divider(

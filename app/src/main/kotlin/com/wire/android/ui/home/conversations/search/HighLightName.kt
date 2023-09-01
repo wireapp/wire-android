@@ -79,12 +79,14 @@ fun HighlightName(
                 }
 
                 highlightIndexes
-                    .forEach { highLightIndexes ->
-                        addStyle(
-                            style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
-                            start = highLightIndexes.startIndex,
-                            end = highLightIndexes.endIndex
-                        )
+                    .forEach { highLightIndex ->
+                        if (highLightIndex.endIndex < this.length) {
+                            addStyle(
+                                style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
+                                start = highLightIndex.startIndex,
+                                end = highLightIndex.endIndex
+                            )
+                        }
                     }
             },
             maxLines = 1,

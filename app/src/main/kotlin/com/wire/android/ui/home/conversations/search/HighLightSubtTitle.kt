@@ -80,13 +80,15 @@ fun HighlightSubtitle(
 
                 highlightIndexes
                     .forEach { highLightIndex ->
-                        addStyle(
-                            style = SpanStyle(
-                                background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
-                            ),
-                            start = highLightIndex.startIndex + suffix.length,
-                            end = highLightIndex.endIndex + suffix.length
-                        )
+                        if (highLightIndex.endIndex < this.length) {
+                            addStyle(
+                                style = SpanStyle(
+                                    background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
+                                ),
+                                start = highLightIndex.startIndex + suffix.length,
+                                end = highLightIndex.endIndex + suffix.length
+                            )
+                        }
                     }
             },
             maxLines = 1,

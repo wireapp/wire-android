@@ -43,9 +43,7 @@ tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
     dependsOn(
         ":app:connected${
-            Default.BUILD_FLAVOR.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-            }
+            Default.BUILD_FLAVOR.replaceFirstChar(Char::titlecaseChar)
         }DebugAndroidTest"
     )
 }

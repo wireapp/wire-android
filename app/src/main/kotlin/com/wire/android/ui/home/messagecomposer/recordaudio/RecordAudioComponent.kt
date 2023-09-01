@@ -17,9 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +41,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.ui.KeyboardHeight
 
@@ -146,10 +144,7 @@ fun RecordAudioComponent(
         dialogState = viewModel.getPermissionsDeniedDialogState(),
         onDismiss = viewModel::onDismissPermissionsDeniedDialog,
         onOpenSettings = {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            val uri = Uri.fromParts("package", context.packageName, null)
-            intent.setData(uri)
-            context.startActivity(intent)
+            context.openAppInfoScreen()
         }
     )
 

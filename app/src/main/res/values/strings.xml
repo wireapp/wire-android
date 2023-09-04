@@ -673,6 +673,7 @@
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
     <string name="label_add_member_services">Services</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again</string>

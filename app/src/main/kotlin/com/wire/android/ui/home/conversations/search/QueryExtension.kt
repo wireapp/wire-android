@@ -14,15 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.conversations.search
 
-package com.wire.android.ui.home.conversations.call
-
-data class ConversationCallViewState(
-    val hasOngoingCall: Boolean = false,
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false,
-    val shouldShowCallingPermissionDialog: Boolean = false
-)
+fun String.removeQueryPrefix(): String {
+    return if (startsWith("@")) {
+        removePrefix("@")
+    } else {
+        this
+    }
+}

@@ -401,7 +401,7 @@
     <string name="conversation_details_group_members">GRUPPMEDLEMMAR (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
-    <string name="conversation_details_group_participants_title">Group Participants</string>
+    <string name="conversation_details_group_participants_title">Gruppdeltagare</string>
     <string name="conversation_details_group_participants_add">Lägg till deltagare</string>
     <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>

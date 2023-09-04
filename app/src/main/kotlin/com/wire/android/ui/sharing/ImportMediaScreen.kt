@@ -410,7 +410,8 @@ private fun ImportMediaContent(
             onEditConversation = {},
             onOpenUserProfile = {},
             onOpenConversationNotificationsSettings = {},
-            onJoinCall = {}
+            onJoinCall = {},
+            onPermanentPermissionDecline = {}
         )
     }
     BackHandler(enabled = searchBarState.isSearchActive) {

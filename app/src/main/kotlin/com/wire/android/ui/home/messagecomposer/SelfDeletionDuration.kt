@@ -21,15 +21,14 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("MagicNumber")
-enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val shortLabel: UIText) {
-    None(ZERO, UIText.StringResource(R.string.label_off), UIText.StringResource(R.string.label_off)),
+enum class SelfDeletionDuration(val value: Duration?, val longLabel: UIText, val shortLabel: UIText) {
+    None(null, UIText.StringResource(R.string.label_off), UIText.StringResource(R.string.label_off)),
     TenSeconds(
         10.seconds,
         UIText.PluralResource(R.plurals.seconds_long_label, 10, 10),

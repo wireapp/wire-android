@@ -24,8 +24,8 @@ import android.app.Activity
 import android.os.Build
 import android.view.WindowManager
 import androidx.navigation.NavDestination
-import com.wire.android.navigation.ScreenMode
-import com.wire.android.navigation.ScreenModeStyle
+import com.wire.android.navigation.style.ScreenMode
+import com.wire.android.navigation.style.ScreenModeStyle
 import com.wire.android.navigation.toDestination
 
 fun Activity.updateScreenSettings(navDestination: NavDestination) {

@@ -1166,7 +1166,7 @@
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
-    <string name="record_audio_recording_label">Recording Audio…</string>
+    <string name="record_audio_recording_label">Запись аудио…</string>
     <string name="record_audio_send_label">Отправить аудиосообщение</string>
     <string name="record_audio_discard_dialog_title">Отменить аудиосообщение?</string>
     <string name="record_audio_discard_dialog_text">Аудиосообщение будет удалено и не будет отправлено.</string>
@@ -1180,7 +1180,7 @@
     <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>
     <string name="join_conversation_dialog_password_label">Пароль беседы</string>
     <string name="join_conversation_dialog_password_placeholder">Введите пароль</string>
-    <string name="participant_tile_call_connecting_label">Connecting…</string>
+    <string name="participant_tile_call_connecting_label">Подключение…</string>
     <string name="create_guest_link">Создать гостевую ссылку</string>
     <string name="create_guest_link_with_password">Создание ссылки, защищенной паролем</string>
     <string name="create_guest_link_without_password_title">Создание ссылки без пароля</string>

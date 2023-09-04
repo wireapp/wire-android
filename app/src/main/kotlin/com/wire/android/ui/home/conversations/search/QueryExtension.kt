@@ -1,7 +1,3 @@
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.kotlin.dsl.dependencies
-
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -19,21 +15,12 @@ import org.gradle.kotlin.dsl.dependencies
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-class HiltConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project): Unit = with(target) {
-        with(pluginManager) {
-            apply("dagger.hilt.android.plugin")
-            apply("com.google.devtools.ksp")
-        }
+package com.wire.android.ui.home.conversations.search
 
-        dependencies {
-            add("implementation", findLibrary("hilt.android"))
-            add("androidTestImplementation", findLibrary("hilt.android"))
-
-            add("ksp", findLibrary("hilt.compiler"))
-            add("kspAndroidTest", findLibrary("hilt.compiler"))
-
-            add("androidTestImplementation", findLibrary("hilt.test"))
-        }
+fun String.removeQueryPrefix(): String {
+    return if (startsWith("@")) {
+        removePrefix("@")
+    } else {
+        this
     }
 }

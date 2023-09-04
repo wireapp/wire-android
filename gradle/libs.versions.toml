@@ -45,7 +45,7 @@ compose-navigation = "2.6.0"
 compose-destinations = "1.9.40-beta"
 
 # Hilt
-hilt = "2.47"
+hilt = "2.48"
 hilt-composeNavigation = "1.0.0"
 hilt-work = "1.0.0"
 

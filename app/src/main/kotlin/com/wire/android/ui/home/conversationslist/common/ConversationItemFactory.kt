@@ -61,7 +61,8 @@ fun ConversationItemFactory(
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     openNotificationsOptions: (ConversationItem) -> Unit,
-    joinCall: (ConversationId) -> Unit
+    joinCall: (ConversationId) -> Unit,
+    onPermanentPermissionDecline: () -> Unit
 ) {
     val onConversationItemClick = remember(conversation) {
         Clickable(
@@ -108,7 +109,8 @@ fun ConversationItemFactory(
         },
         onJoinCallClick = {
             joinCall(conversation.conversationId)
-        }
+        },
+        onPermanentPermissionDecline = onPermanentPermissionDecline
     )
 }
 
@@ -122,7 +124,8 @@ private fun GeneralConversationItem(
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
     onMutedIconClick: () -> Unit,
-    onJoinCallClick: () -> Unit
+    onJoinCallClick: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit
 ) {
     when (conversation) {
         is ConversationItem.GroupConversation -> {
@@ -150,7 +153,10 @@ private fun GeneralConversationItem(
                     trailingIcon = {
                         if (!isSelectable) {
                             if (hasOnGoingCall) {
-                                JoinButton(buttonClick = onJoinCallClick)
+                                JoinButton(
+                                    buttonClick = onJoinCallClick,
+                                    onPermanentPermissionDecline = onPermanentPermissionDecline
+                                )
                             } else {
                                 Row(
                                     modifier = Modifier.padding(horizontal = dimensions().spacing8x),
@@ -248,7 +254,7 @@ fun PreviewGroupConversationItemWithUnreadCount() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -270,7 +276,7 @@ fun PreviewGroupConversationItemWithNoBadges() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -292,7 +298,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -315,7 +321,7 @@ fun PreviewGroupConversationItemWithOngoingCall() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -334,7 +340,7 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -353,7 +359,7 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -375,6 +381,6 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}
     )
 }

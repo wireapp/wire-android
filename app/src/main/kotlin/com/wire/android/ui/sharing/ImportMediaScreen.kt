@@ -318,9 +318,11 @@ private fun ImportMediaBottomBar(
     } else {
         stringResource(id = R.string.import_media_send_button_title)
     }
+    val buttonCount = if (state.importedAssets.isNotEmpty() || state.importedText != null)
+        state.selectedConversationItem.size else 0
     SendContentButton(
         mainButtonText = mainButtonText,
-        count = if (state.importedAssets.isNotEmpty()) state.selectedConversationItem.size else 0,
+        count = buttonCount,
         onMainButtonClick = checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
         onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,

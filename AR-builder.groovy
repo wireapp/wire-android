@@ -312,7 +312,6 @@ pipeline {
             }
         }
 
-
         stage('Assemble APK') {
             steps {
                 script {

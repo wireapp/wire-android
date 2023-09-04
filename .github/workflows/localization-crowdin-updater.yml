@@ -29,7 +29,7 @@ jobs:
         runs-on: ubuntu-latest
 
         env:
-            GITHUB_USER: ${{ github.actor }}
+            GITHUB_USER: "AndroidBob"
             GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
         steps:
@@ -66,7 +66,7 @@ jobs:
 
                     pull_request_labels: "l10n, crowdin"
                     pull_request_assignees: "AndroidBob"
-                    pull_request_team_reviewers: "android"
+                    pull_request_team_reviewers: "wireapp/android"
                     pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
                     config: "crowdin.yml"

@@ -341,10 +341,13 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                                 mimeType = importedAsset.mimeType
                             )
                         ).also {
+                            val logConversationId = conversation.conversationId.toLogString()
                             if (it is ScheduleNewAssetMessageResult.Failure) {
-                                appLogger.e("Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} ")
+                                appLogger.e("Failed to import asset message to " +
+                                        "conversationId=$logConversationId")
                             } else {
-                                appLogger.d("Success importing asset message to conversationId=${conversation.conversationId.toLogString()}")
+                                appLogger.d("Success importing asset message to " +
+                                        "conversationId=$logConversationId")
                             }
                         }
                     }

@@ -189,6 +189,26 @@ class IncomingCallViewModelTest {
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
     }
 
+    @Test
+    fun `given permission dialog default state is false, when calling showPermissionDialog, then update the state to true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .arrange()
+
+        viewModel.showPermissionDialog()
+
+        assertEquals(true, viewModel.incomingCallState.shouldShowPermissionDialog)
+    }
+
+    @Test
+    fun `given default permission dialog state, when calling dismissPermissionDialog, then update the state to false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .arrange()
+
+        viewModel.dismissPermissionDialog()
+
+        assertEquals(false, viewModel.incomingCallState.shouldShowPermissionDialog)
+    }
+
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 

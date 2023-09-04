@@ -51,7 +51,8 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
+    onJoinCall: (ConversationId) -> Unit,
+    onPermanentPermissionDecline: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -93,7 +94,8 @@ fun ConversationList(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     openNotificationsOptions = onOpenConversationNotificationsSettings,
-                    joinCall = onJoinCall
+                    joinCall = onJoinCall,
+                    onPermanentPermissionDecline = onPermanentPermissionDecline
                 )
             }
         }

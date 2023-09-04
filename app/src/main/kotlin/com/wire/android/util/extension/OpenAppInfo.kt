@@ -14,15 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util.extension
 
-package com.wire.android.ui.home.conversations.call
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 
-data class ConversationCallViewState(
-    val hasOngoingCall: Boolean = false,
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false,
-    val shouldShowCallingPermissionDialog: Boolean = false
-)
+fun Context.openAppInfoScreen() {
+    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val uri = Uri.fromParts("package", packageName, null)
+        data = uri
+    }.let {
+        startActivity(it)
+    }
+}

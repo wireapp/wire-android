@@ -58,7 +58,6 @@
         <item quantity="one">1 participant from %2$s</item>
         <item quantity="other">%1$d participants from %2$s</item>
     </plurals>
-    <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
     <string name="label_federated_membership">Federated</string>
@@ -588,7 +587,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s couldn\'t be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">

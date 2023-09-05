@@ -53,10 +53,11 @@ android {
         exclude(module = "protobuf-java")
      }
 
-    packagingOptions {
+    packaging {
         resources.pickFirsts.add("google/protobuf/*.proto")
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
+    android.buildFeatures.buildConfig = true
 }
 
 dependencies {

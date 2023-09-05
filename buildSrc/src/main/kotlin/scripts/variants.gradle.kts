@@ -169,7 +169,7 @@ android {
      */
     productFlavors.forEach { flavor ->
         Features.values().forEach { feature ->
-            val activated = FeatureFlags.activated[flavor.name].orEmpty().contains(feature)
+            val activated = FeatureFlags.activated.mapKeys { it.key.buildName }[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
 

@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import versionCatalog
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ): Unit = with(commonExtension) {
     compileSdk = AndroidSdk.compile
 
@@ -85,7 +85,7 @@ private fun Project.configureKotlin() {
     }
 }
 
-internal fun CommonExtension<*, *, *, *>.configureAndroidKotlinTests() {
+internal fun CommonExtension<*, *, *, *, *>.configureAndroidKotlinTests() {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments.putAll(

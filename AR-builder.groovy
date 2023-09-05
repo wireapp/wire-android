@@ -306,15 +306,9 @@ pipeline {
                 withGradle() {
                     sh './gradlew runAcceptanceTests'
                 }
-                script {
-                    Logger logger = Logger.getLogger("")
-                    logger.info ("Show me folder content: ")
-                    sh ls -l /app/build/reports/androidTests/connected
-                    sh ls -l /app/build/reports/androidTests/connected/flavors
-                }
 
-                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/${params.BUILD_TYPE.toLowerCase()}/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-                zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/${params.BUILD_TYPE.toLowerCase()}/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
+                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+                zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
             }
         }
 

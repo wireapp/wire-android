@@ -36,7 +36,7 @@
     <string name="label_leave">Verlassen</string>
     <string name="label_add_device">Gerät hinzufügen</string>
     <string name="label_learn_more">Mehr erfahren</string>
-    <string name="label_removing">Entferne…</string>
+    <string name="label_removing">Entfernen…</string>
     <string name="label_logging_in">Anmelden…</string>
     <string name="label_membership_guest">Gast</string>
     <string name="label_membership_external">Extern</string>
@@ -47,17 +47,17 @@
     <string name="label_message_sent_remotely_failure">Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
     <string name="label_message_edit_sent_remotely_failure">Bearbeitete Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
-    <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
+    <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
-    <string name="label_message_knock">%s haben gepingt</string>
+    <string name="label_message_knock">%s hat gepingt</string>
     <string name="label_message_partial_delivery_participants_count">%1$d Teilnehmer haben Ihre Nachricht nicht erhalten.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s wird Ihre Nachricht nicht erhalten.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s werden Ihre Nachricht nicht erhalten.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 Teilnehmer von %2$s</item>
         <item quantity="other">%1$d Teilnehmer von %2$s</item>
     </plurals>
-    <string name="label_try_again">Erneut versuchen</string>
     <string name="label_reset_session">Session zurücksetzen</string>
     <string name="label_reset_session_success">Sitzung erfolgreich zurückgesetzt</string>
     <string name="label_federated_membership">Föderiert</string>
@@ -256,7 +256,7 @@
     <string name="removed_client_error_message">Sie wurden abgemeldet, weil Ihr Gerät
         entfernt wurde.
     </string>
-    <string name="session_expired_error_title">Sitzung ist abgelaufen</string>
+    <string name="session_expired_error_title">Sitzung abgelaufen</string>
     <string name="session_expired_error_message">Die App hat über einen längeren Zeitraum nicht mit dem Server 
         kommuniziert oder die Session wurde per Fernzugriff für ungültig erklärt.
     </string>
@@ -272,10 +272,10 @@
         hier zu nutzen.
     </string>
     <string name="remove_device_label">IHRE GERÄTE</string>
-    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
-    <string name="remove_device_id_label">Proteus ID: %1$s</string>
-    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
+    <string name="remove_device_id_and_time_label">Proteus-ID: %1$s\nHinzugefügt: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus-ID: %1$s\nHinzugefügt: %2$s\nAktiv: %3$s</string>
+    <string name="remove_device_id_label">Proteus-ID: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS-Daumenabdruck: %1$s</string>
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
     <string name="remove_device_details_description">Entfernen Sie dieses Gerät, wenn Sie es nicht mehr nutzen. Sie werden sofort auf diesem Gerät abgemeldet.</string>
@@ -325,7 +325,7 @@
     <string name="create_account_details_last_name_placeholder">Müller</string>
     <string name="create_account_details_last_name_label">NACHNAME</string>
     <string name="create_account_details_team_name_placeholder">Name des Teams</string>
-    <string name="create_account_details_team_name_label">TEAM NAME</string>
+    <string name="create_account_details_team_name_label">TEAM-NAME</string>
     <string name="create_account_details_password_description">Bitte mindestens 8 Zeichen verwenden: mit einem Kleinbuchstaben, einem Großbuchstaben, einer Zahl und einem Sonderzeichen.</string>
     <string name="create_account_details_password_error">Ungültiges Passwort</string>
     <string name="create_account_details_password_not_matching_error">Passwörter stimmen nicht überein</string>
@@ -573,7 +573,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -657,6 +658,7 @@
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
     <string name="label_add_member_people">Personen</string>
     <string name="label_add_member_services">Dienste</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
     <string name="error_unknown_message">Bitte erneut versuchen</string>
@@ -743,7 +745,7 @@
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
-    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
+    <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
     <string name="connectivity_status_bar_waiting_for_network">Warten auf Netzwerk</string>
     <!-- Connections -->
     <string name="connection_label_connect">Hinzufügen</string>
@@ -885,7 +887,7 @@
     <string name="label_client_last_active_label">LAST ACTIVE</string>
     <string name="label_client_last_active_time_zero_weeks">Less than a week ago</string>
     <string name="label_client_last_active_time">%1$s ago</string>
-    <string name="label_client_device_id">Proteus ID</string>
+    <string name="label_client_device_id">Proteus-ID</string>
     <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
@@ -899,7 +901,7 @@
     <string name="label_textfield_optional_password">Passwort (optional)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
-    <string name="label_mls_thumbprint">MLS Thumbprint</string>
+    <string name="label_mls_thumbprint">MLS-Daumenabdruck</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
     <string name="backup_dialog_create_backup_set_password_message">Das Backup wird komprimiert und Sie können es mit einem Passwort verschlüsseln.</string>
@@ -979,8 +981,8 @@
     <string name="label_visit_link_title">Link öffnen</string>
     <string name="visit_link_dialog_body">Dieser Link öffnet %s</string>
     <!-- invalid link -->
-    <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link_dialog_body">Link could not be opened</string>
+    <string name="label_invalid_link_title">Ungültiger Link</string>
+    <string name="invalid_link_dialog_body">Link konnte nicht geöffnet werden</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
     <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>
@@ -1109,10 +1111,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Zertifikat erhalten</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Später erinnern</string>
     <string name="end_to_end_identity_snooze_dialog_text">Sie können das Zertifikat während der nächsten %1$s in Ihren Wire-Einstellungen abrufen. Öffnen Sie Geräte und wählen Sie Zertifikat erhalten für Ihr aktuelles Gerät.\nUm Wire weiterhin ohne Unterbrechung nutzen zu können, rufen Sie es rechtzeitig ab – es dauert nicht lange.</string>
-    <string name="end_to_end_identity_renew_dialog_title">Update certificate</string>
+    <string name="end_to_end_identity_renew_dialog_title">Zertifikat aktualisieren</string>
     <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
-    <string name="end_to_end_identity_renew_dialog_positive_button">Update Certificate</string>
+    <string name="end_to_end_identity_renew_dialog_positive_button">Zertifikat aktualisieren</string>
     <string name="end_to_end_identity_renew_error_dialog_title">The certificate could not be updated.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">You can retry to update the certificate now, or you will get a reminder later.</string>
     <string name="end_to_end_identity_renew_error_dialog_text_no_snooze">Please try again, or reach out to your team admin.</string>
@@ -1132,23 +1134,26 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
+    <string name="call_permission_dialog_title">Call on Wire</string>
+    <string name="call_permission_dialog_description">Allow Wire access to your microphone and bluetooth to make this call.</string>
+    <string name="label_decline">Decline</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
-    <string name="join_conversation_dialog_password_placeholder">Enter password</string>
-    <string name="participant_tile_call_connecting_label">Connecting…</string>
+    <string name="join_conversation_dialog_password_placeholder">Passwort eingeben</string>
+    <string name="participant_tile_call_connecting_label">Verbinden…</string>
     <string name="create_guest_link">Create Guest Link</string>
     <string name="create_guest_link_with_password">Create password secured link</string>
     <string name="create_guest_link_without_password_title">Create link without password</string>
     <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
-    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
-    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
-    <string name="generate_password_button_text">Generate Password</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">Sie können das Passwort später nicht ändern. Denken Sie daran, es zu kopieren und zu speichern.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_label">PASSWORT FESTLEGEN</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">PASSWORT BESTÄTIGEN</string>
+    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Passwort eingeben</string>
+    <string name="generate_password_button_text">Passwort generieren</string>
     <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
     <string name="password_protected_link_banner_title">Link is password secured</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">Passwort in Zwischenablage kopiert</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
 </resources>

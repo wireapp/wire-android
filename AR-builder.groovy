@@ -305,6 +305,7 @@ pipeline {
                 withGradle() {
                     sh './gradlew runAcceptanceTests'
                 }
+
                 publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
                 zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
             }

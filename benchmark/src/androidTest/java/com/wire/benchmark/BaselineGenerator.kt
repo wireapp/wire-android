@@ -24,13 +24,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class BaselineBenchmark {
+class BaselineGenerator {
 
     @get:Rule
-    val baselineBenchmark = BaselineProfileRule()
+    val baselineProfileRule = BaselineProfileRule()
 
     @Test
-    fun startup() = baselineBenchmark.collect(
+    fun startup() = baselineProfileRule.collect(
         packageName = PACKAGE_NAME
     ) {
         pressHome()

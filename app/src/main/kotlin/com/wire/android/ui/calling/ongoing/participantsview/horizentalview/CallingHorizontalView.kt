@@ -94,7 +94,8 @@ fun CallingHorizontalView(
                 isCameraOn = isCameraOn,
                 isSharingScreen = participant.isSharingScreen,
                 avatar = participant.avatar,
-                membership = participant.membership
+                membership = participant.membership,
+                hasEstablishedAudio = participant.hasEstablishedAudio
             )
 
             val tileHeight = (contentHeight - dimensions().spacing4x) / participants.size
@@ -103,12 +104,9 @@ fun CallingHorizontalView(
                 modifier = Modifier
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onPress = { /* Called when the gesture starts */ },
                             onDoubleTap = {
                                 onDoubleTap(participantState.id, participantState.clientId, isSelfUser)
-                            },
-                            onLongPress = { /* Called on Long Press */ },
-                            onTap = { /* Called on Tap */ }
+                            }
                         )
                     }
                     .fillMaxWidth()

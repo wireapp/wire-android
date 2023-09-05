@@ -41,7 +41,8 @@ data class ConversationListState(
     val missedCallsCount: Long = 0,
     val unreadMentionsCount: Long = 0,
     val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false
+    val shouldShowJoinAnywayDialog: Boolean = false,
+    val shouldShowCallingPermissionDialog: Boolean = false
 ) {
     fun findConversationById(conversationId: ConversationId): ConversationItem? =
         foldersWithConversations.values.flatten().firstOrNull { it.conversationId == conversationId }

@@ -110,7 +110,8 @@ fun GroupCallGrid(
                 isCameraOn = isCameraOn,
                 isSharingScreen = participant.isSharingScreen,
                 avatar = participant.avatar,
-                membership = participant.membership
+                membership = participant.membership,
+                hasEstablishedAudio = participant.hasEstablishedAudio
             )
             val tileHeight = (contentHeight - dimensions().spacing4x) / numberOfTilesRows
 
@@ -118,12 +119,9 @@ fun GroupCallGrid(
                 modifier = Modifier
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onPress = { /* Called when the gesture starts */ },
                             onDoubleTap = {
                                 onDoubleTap(participantState.id, participantState.clientId, isSelfUser)
-                            },
-                            onLongPress = { /* Called on Long Press */ },
-                            onTap = { /* Called on Tap */ }
+                            }
                         )
                     }
                     .height(tileHeight)
@@ -177,6 +175,7 @@ fun PreviewGroupCallGrid() {
                 isSharingScreen = false,
                 avatar = null,
                 membership = Membership.Admin,
+                hasEstablishedAudio = true
             ),
             UICallParticipant(
                 id = QualifiedID("", ""),
@@ -188,6 +187,7 @@ fun PreviewGroupCallGrid() {
                 isSharingScreen = false,
                 avatar = null,
                 membership = Membership.Admin,
+                hasEstablishedAudio = true
             )
         ),
         contentHeight = 800.dp,

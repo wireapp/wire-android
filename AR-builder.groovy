@@ -305,6 +305,8 @@ pipeline {
 
                 withGradle() {
                     sh './gradlew runAcceptanceTests'
+                }
+                script {
                     Logger logger = Logger.getLogger("")
                     logger.info ("Show me folder content: ")
                     sh ls -l /app/build/reports/androidTests/connected

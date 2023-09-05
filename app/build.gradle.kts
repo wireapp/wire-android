@@ -60,10 +60,6 @@ android {
     android.buildFeatures.buildConfig = true
 }
 
-kapt {
-    correctErrorTypes = true
-}
-
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")

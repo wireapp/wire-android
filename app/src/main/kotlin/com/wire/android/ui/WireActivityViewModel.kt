@@ -55,6 +55,7 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.auth.IsUserLoggedInUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -93,6 +94,7 @@ class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
+    private val isUserLoggedIn: IsUserLoggedInUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -244,8 +246,10 @@ class WireActivityViewModel @Inject constructor(
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, already handled by initialAppState
                 }
+
                 result is DeepLinkResult.JoinConversation ->
                     onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+
                 result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
@@ -364,7 +368,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    fun shouldLogIn(): Boolean = false
+    private fun shouldLogIn(): Boolean = isUserLoggedIn() != IsUserLoggedInUseCase.Result.Success
 
     fun isLoggedIn(): Boolean? = runBlocking {
         migrationManager.isLoggedIn().first()

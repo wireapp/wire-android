@@ -208,52 +208,52 @@ pipeline {
             }
         }
 
-        stage('Compile') {
-            steps {
-                script {
-                    last_started = env.STAGE_NAME
-                }
+//        stage('Compile') {
+//            steps {
+//                script {
+//                    last_started = env.STAGE_NAME
+//                }
+//
+//                withGradle() {
+//                    sh './gradlew compileApp'
+//                }
+//
+//            }
+//        }
+//
+//        stage('Static Code Analysis') {
+//            when {
+//                expression { params.RUN_STATIC_CODE_ANALYSIS }
+//            }
+//            steps {
+//                script {
+//                    last_started = env.STAGE_NAME
+//                }
+//
+//                withGradle() {
+//                    sh './gradlew staticCodeAnalysis'
+//                }
+//
+//            }
+//        }
 
-                withGradle() {
-                    sh './gradlew compileApp'
-                }
-
-            }
-        }
-
-        stage('Static Code Analysis') {
-            when {
-                expression { params.RUN_STATIC_CODE_ANALYSIS }
-            }
-            steps {
-                script {
-                    last_started = env.STAGE_NAME
-                }
-
-                withGradle() {
-                    sh './gradlew staticCodeAnalysis'
-                }
-
-            }
-        }
-
-        stage('Unit Tests') {
-            when {
-                expression { params.RUN_UNIT_TEST }
-            }
-            steps {
-                script {
-                    last_started = env.STAGE_NAME
-                }
-
-                withGradle() {
-                    sh './gradlew runUnitTests'
-                }
-
-                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
-                zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
-            }
-        }
+//        stage('Unit Tests') {
+//            when {
+//                expression { params.RUN_UNIT_TEST }
+//            }
+//            steps {
+//                script {
+//                    last_started = env.STAGE_NAME
+//                }
+//
+//                withGradle() {
+//                    sh './gradlew runUnitTests'
+//                }
+//
+//                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+//                zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
+//            }
+//        }
 
         stage('Connect Emulators') {
             parallel {

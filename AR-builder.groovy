@@ -304,8 +304,6 @@ pipeline {
 
                 withGradle() {
                     sh './gradlew runAcceptanceTests'
-                }
-                withGradle() {
                     sh echo "Show me folder content: "
                     sh ls -l /app/build/reports/androidTests/connected
                     sh ls -l /app/build/reports/androidTests/connected/flavors

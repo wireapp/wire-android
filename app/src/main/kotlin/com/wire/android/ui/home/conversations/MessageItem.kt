@@ -462,14 +462,16 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
-            MessageImage(
-                asset = messageContent.asset,
-                imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                uploadStatus = messageContent.uploadStatus,
-                downloadStatus = messageContent.downloadStatus,
-                onImageClick = onImageClick
-            )
-            PartialDeliveryInformation(messageContent.deliveryStatus)
+            Column {
+                MessageImage(
+                    asset = messageContent.asset,
+                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                    uploadStatus = messageContent.uploadStatus,
+                    downloadStatus = messageContent.downloadStatus,
+                    onImageClick = onImageClick
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
         }
 
         is UIMessageContent.TextMessage -> {
@@ -518,42 +520,46 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
-            MessageGenericAsset(
-                assetName = messageContent.assetName,
-                assetExtension = messageContent.assetExtension,
-                assetSizeInBytes = messageContent.assetSizeInBytes,
-                assetUploadStatus = messageContent.uploadStatus,
-                assetDownloadStatus = messageContent.downloadStatus,
-                onAssetClick = onAssetClick
-            )
-            PartialDeliveryInformation(messageContent.deliveryStatus)
+            Column {
+                MessageGenericAsset(
+                    assetName = messageContent.assetName,
+                    assetExtension = messageContent.assetExtension,
+                    assetSizeInBytes = messageContent.assetSizeInBytes,
+                    assetUploadStatus = messageContent.uploadStatus,
+                    assetDownloadStatus = messageContent.downloadStatus,
+                    onAssetClick = onAssetClick
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
         }
 
         is UIMessageContent.RestrictedAsset -> {
-            when {
-                messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(
-                        R.drawable.ic_gallery,
-                        stringResource(id = R.string.prohibited_images_message)
-                    )
-                }
+            Column {
+                when {
+                    messageContent.mimeType.contains("image/") -> {
+                        RestrictedAssetMessage(
+                            R.drawable.ic_gallery,
+                            stringResource(id = R.string.prohibited_images_message)
+                        )
+                    }
 
-                messageContent.mimeType.contains("video/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
-                }
+                    messageContent.mimeType.contains("video/") -> {
+                        RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+                    }
 
-                messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(
-                        R.drawable.ic_speaker_on,
-                        stringResource(id = R.string.prohibited_audio_message)
-                    )
-                }
+                    messageContent.mimeType.contains("audio/") -> {
+                        RestrictedAssetMessage(
+                            R.drawable.ic_speaker_on,
+                            stringResource(id = R.string.prohibited_audio_message)
+                        )
+                    }
 
-                else -> {
-                    RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                    else -> {
+                        RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                    }
                 }
+                PartialDeliveryInformation(messageContent.deliveryStatus)
             }
-            PartialDeliveryInformation(messageContent.deliveryStatus)
         }
 
         is UIMessageContent.AudioAssetMessage -> {

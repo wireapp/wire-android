@@ -22,7 +22,6 @@ package com.wire.android.mapper
 
 import com.wire.kalium.logic.data.call.Participant
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.UserAssetId
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -32,18 +31,17 @@ class UICallParticipantMapperTest {
 
     @Test
     fun givenParticipant_whenMappingToUICallParticipant_thenCorrectValuesShouldBeReturned() = runTest {
-        val (arrangement, mapper) = Arrangement().arrange()
+        val (_, mapper) = Arrangement().arrange()
         // Given
         val item = Participant(
-            QualifiedID("idvalue", "iddomain"),
-            "clientId",
-            "name",
-            false,
-            false,
-            false,
-            false,
-            true,
-            UserAssetId("assetvalue", "assetdomain")
+            id = QualifiedID("value", "domain"),
+            clientId = "clientId",
+            name = "name",
+            isMuted = false,
+            isCameraOn = false,
+            isSpeaking = false,
+            isSharingScreen = false,
+            hasEstablishedAudio = true,
         )
         // When
         val result = mapper.toUICallParticipant(item)

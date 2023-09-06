@@ -25,8 +25,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,7 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.flowlayout.FlowRow
+import androidx.compose.foundation.layout.FlowRow
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -367,7 +369,10 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                 modifier = Modifier.weight(weight = 1f, fill = true),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
+                Username(
+                    username.asString(),
+                    modifier = Modifier.weight(weight = 1f, fill = false)
+                )
                 UserBadge(
                     membership = membership,
                     connectionState = connectionState,
@@ -386,15 +391,17 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MessageFooter(
     messageFooter: MessageFooter,
     onReactionClicked: (String, String) -> Unit
 ) {
-    if (messageFooter.reactions.entries.isNotEmpty()) { // to eliminate adding unnecessary paddings when the list is empty
+    // to eliminate adding unnecessary paddings when the list is empty
+    if (messageFooter.reactions.entries.isNotEmpty()) {
         FlowRow(
-            mainAxisSpacing = dimensions().spacing4x,
-            crossAxisSpacing = dimensions().spacing6x,
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
+            verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
             modifier = Modifier.padding(top = dimensions().spacing4x)
         ) {
             messageFooter.reactions.entries
@@ -455,14 +462,16 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
-            MessageImage(
-                asset = messageContent.asset,
-                imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                uploadStatus = messageContent.uploadStatus,
-                downloadStatus = messageContent.downloadStatus,
-                onImageClick = onImageClick
-            )
-            PartialDeliveryInformation(messageContent.deliveryStatus)
+            Column {
+                MessageImage(
+                    asset = messageContent.asset,
+                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                    uploadStatus = messageContent.uploadStatus,
+                    downloadStatus = messageContent.downloadStatus,
+                    onImageClick = onImageClick
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
         }
 
         is UIMessageContent.TextMessage -> {
@@ -511,42 +520,46 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AssetMessage -> {
-            MessageGenericAsset(
-                assetName = messageContent.assetName,
-                assetExtension = messageContent.assetExtension,
-                assetSizeInBytes = messageContent.assetSizeInBytes,
-                assetUploadStatus = messageContent.uploadStatus,
-                assetDownloadStatus = messageContent.downloadStatus,
-                onAssetClick = onAssetClick
-            )
-            PartialDeliveryInformation(messageContent.deliveryStatus)
+            Column {
+                MessageGenericAsset(
+                    assetName = messageContent.assetName,
+                    assetExtension = messageContent.assetExtension,
+                    assetSizeInBytes = messageContent.assetSizeInBytes,
+                    assetUploadStatus = messageContent.uploadStatus,
+                    assetDownloadStatus = messageContent.downloadStatus,
+                    onAssetClick = onAssetClick
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
         }
 
         is UIMessageContent.RestrictedAsset -> {
-            when {
-                messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(
-                        R.drawable.ic_gallery,
-                        stringResource(id = R.string.prohibited_images_message)
-                    )
-                }
+            Column {
+                when {
+                    messageContent.mimeType.contains("image/") -> {
+                        RestrictedAssetMessage(
+                            R.drawable.ic_gallery,
+                            stringResource(id = R.string.prohibited_images_message)
+                        )
+                    }
 
-                messageContent.mimeType.contains("video/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
-                }
+                    messageContent.mimeType.contains("video/") -> {
+                        RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+                    }
 
-                messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(
-                        R.drawable.ic_speaker_on,
-                        stringResource(id = R.string.prohibited_audio_message)
-                    )
-                }
+                    messageContent.mimeType.contains("audio/") -> {
+                        RestrictedAssetMessage(
+                            R.drawable.ic_speaker_on,
+                            stringResource(id = R.string.prohibited_audio_message)
+                        )
+                    }
 
-                else -> {
-                    RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                    else -> {
+                        RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                    }
                 }
+                PartialDeliveryInformation(messageContent.deliveryStatus)
             }
-            PartialDeliveryInformation(messageContent.deliveryStatus)
         }
 
         is UIMessageContent.AudioAssetMessage -> {

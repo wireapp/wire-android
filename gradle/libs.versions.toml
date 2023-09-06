@@ -1,6 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-gradle = "7.6.1"
+gradle = "8.1"
 
 # Kotlin
 kotlin = "1.9.0"
@@ -13,7 +13,7 @@ ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
 google-gms = "4.3.15"
-android-gradlePlugin = "7.4.1"
+android-gradlePlugin = "8.1.0"
 desugaring = "1.1.5"
 firebaseBOM = "31.4.0"
 fragment = "1.5.6"
@@ -37,7 +37,7 @@ androidx-browser = "1.5.0"
 # Compose
 compose = "1.5.0-beta03"
 compose-material = "1.5.0"
-compose-activity = "1.6.1"
+compose-activity = "1.7.2"
 compose-compiler = "1.5.0"
 compose-constraint = "1.0.1"
 compose-material3 = "1.1.0"
@@ -45,7 +45,7 @@ compose-navigation = "2.6.0"
 compose-destinations = "1.9.40-beta"
 
 # Hilt
-hilt = "2.47"
+hilt = "2.48"
 hilt-composeNavigation = "1.0.0"
 hilt-work = "1.0.0"
 
@@ -170,7 +170,6 @@ compose-destinations-ksp ={module = "io.github.raamcosta.compose-destinations:ks
 accompanist-systemUI = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-placeholder = { module = "com.google.accompanist:accompanist-placeholder", version.ref = "accompanist" }
 accompanist-navAnimation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist" }
-accompanist-flowLayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
 
 # Image Loading
 coil-core = { module = "io.coil-kt:coil", version.ref = "coil" }

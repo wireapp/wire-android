@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -99,7 +98,6 @@ private fun DetailsContent(
     serverConfig: ServerConfig.Links
 ) {
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -122,7 +120,6 @@ private fun DetailsContent(
                 .padding(internalPadding)
                 .fillMaxHeight()
         ) {
-//            val listState = rememberLazyListState()
             val keyboardOptions = KeyboardOptions(KeyboardCapitalization.Words, true, KeyboardType.Text, ImeAction.Next)
             val keyboardController = LocalSoftwareKeyboardController.current
             val focusRequesterFirstName = remember { FocusRequester() }

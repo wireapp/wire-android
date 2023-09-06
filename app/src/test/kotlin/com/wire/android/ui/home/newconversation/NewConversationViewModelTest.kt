@@ -247,4 +247,46 @@ class NewConversationViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `given user has no contacts and getting contacts succeeded, then initialContacts has value of EmptyResult`() {
+        runTest {
+            // Given
+            val (_, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .withEmptySuccessGetAllKnownUsersResponse()
+                .arrange()
+            advanceUntilIdle()
+            // Then
+            assert(viewModel.state.initialContacts is SearchResultState.EmptyResult)
+        }
+    }
+
+    @Test
+    fun `given user has some contacts and getting contacts succeeded, then initialContacts has value of Success`() {
+        runTest {
+            // Given
+            val (_, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .withSuccessGetAllKnownUsersResponse()
+                .arrange()
+            advanceUntilIdle()
+            // Then
+            assert(viewModel.state.initialContacts is SearchResultState.Success)
+        }
+    }
+
+    @Test
+    fun `given user has some contacts and getting contacts failed, then initialContacts has value of Failure`() {
+        runTest {
+            // Given
+            val (_, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .withFailureGetAllKnownUsersResponse()
+                .arrange()
+            advanceUntilIdle()
+            // Then
+            assert(viewModel.state.initialContacts is SearchResultState.Failure)
+        }
+    }
 }

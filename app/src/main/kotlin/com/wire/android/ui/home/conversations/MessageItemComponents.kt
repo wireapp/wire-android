@@ -111,7 +111,7 @@ private fun MultiUserDeliveryFailure(
             if (partialDeliveryFailureContent.filteredRecipientsFailure.isNotEmpty()) {
                 Text(
                     text = stringResource(
-                        id = R.string.label_message_partial_delivery_participants_deliver_later,
+                        id = R.string.label_message_partial_delivery_participants_many_deliver_later,
                         partialDeliveryFailureContent.filteredRecipientsFailure
                             .filter {
                                 !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
@@ -166,7 +166,7 @@ private fun SingleUserDeliveryFailure(
         if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
             Text(
                 text = stringResource(
-                    id = R.string.label_message_partial_delivery_participants_deliver_later,
+                    id = R.string.label_message_partial_delivery_participants_one_deliver_later,
                     partialDeliveryFailureContent.failedRecipients.joinToString(", ") {
                         it.asString(resources).ifEmpty { resources.getString(R.string.username_unavailable_label) }
                     }

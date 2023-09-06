@@ -37,6 +37,9 @@ object QueryMatchExtractor {
         text: String
     ): List<MatchQueryResult> =
         withContext(Dispatchers.Default) {
+            if (matchText.isEmpty()) {
+                return@withContext listOf()
+            }
             val index = text.indexOf(matchText, startIndex = startIndex, ignoreCase = true)
 
             if (isIndexFound(index)) {

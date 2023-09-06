@@ -612,8 +612,14 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
         if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n")
         failedToAddAnnotatedText.append(
             res.annotatedText(
-                stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
-                memberNames.limitUserNamesList(res, usersCount).toUserNamesListString(res)
+                stringResId,
+                normalStyle,
+                boldStyle,
+                normalColor,
+                boldColor,
+                errorColor,
+                isErrorString,
+                memberNames.limitUserNamesList(res, EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
         )
     }

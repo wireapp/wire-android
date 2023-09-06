@@ -36,4 +36,12 @@ class StringUtilTest {
         val actual = input.toTitleCase()
         assert(expected == actual)
     }
+
+    @Test
+    fun givenString_whenNormalizingAsFileName_thenAllSlashesAreRemoved() {
+        val input = "this/is/a/test"
+        val expected = "thisisatest"
+        val actual = input.normalizeFileName()
+        assert(expected == actual)
+    }
 }

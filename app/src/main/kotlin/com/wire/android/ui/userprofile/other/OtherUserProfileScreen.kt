@@ -340,21 +340,20 @@ private fun TopBarHeader(
     )
 }
 
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
-    Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
+    Crossfade(targetState = state, label = "OtherUserProfileScreenTopBarCollapsing") { targetState ->
         UserProfileInfo(
-            userId = state.userId,
-            isLoading = state.isAvatarLoading,
-            avatarAsset = state.userAvatarAsset,
-            fullName = state.fullName,
-            userName = state.userName,
-            teamName = state.teamName,
-            membership = state.membership,
+            userId = targetState.userId,
+            isLoading = targetState.isAvatarLoading,
+            avatarAsset = targetState.userAvatarAsset,
+            fullName = targetState.fullName,
+            userName = targetState.userName,
+            teamName = targetState.teamName,
+            membership = targetState.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = state.connectionState
+            connection = targetState.connectionState
         )
     }
 }
@@ -406,8 +405,9 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            OtherUserConnectionStatusInfo(state.connectionState, state.membership)
-            x24()
+            if (!state.isDataLoading) {
+                OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+            }
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
                 state.connectionState == ConnectionState.ACCEPTED -> {

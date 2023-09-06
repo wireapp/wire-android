@@ -92,7 +92,6 @@ class WireSessionImageLoader(
                 )
                 .build(),
             error = (fallbackData as? Int)?.let { painterResource(id = it) },
-            placeholder = (fallbackData as? Int)?.let { painterResource(id = it) },
             imageLoader = coilImageLoader
         )
 

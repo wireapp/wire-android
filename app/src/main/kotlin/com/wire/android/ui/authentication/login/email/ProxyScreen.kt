@@ -152,7 +152,7 @@ private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue
         labelText = stringResource(R.string.label_proxy_password),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier.testTag("passwordField"),
-        autofillTypes = listOf()
+        autofill = false
     )
 }
 

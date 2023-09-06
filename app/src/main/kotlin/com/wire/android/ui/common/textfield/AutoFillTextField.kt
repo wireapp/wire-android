@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.onFocusChanged
@@ -103,18 +104,25 @@ internal fun AutoFillTextField(
         shape = shape,
         colors = colors,
         modifier = modifier
-            .onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() }
-            .onFocusChanged { focusState ->
-                autofill?.run {
-                    if (focusState.isFocused) {
-                        requestAutofillForNode(autofillNode)
-                    } else {
-                        cancelAutofillForNode(autofillNode)
-                    }
-                }
-            }
+            .fillBounds(autofillNode)
+            .defaultOnFocusAutoFill(autofill, autofillNode)
     )
 }
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.fillBounds(autofillNode: AutofillNode) = this.then(
+    Modifier.onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() }
+)
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.defaultOnFocusAutoFill(autofill: Autofill?, autofillNode: AutofillNode): Modifier =
+    then(Modifier.onFocusChanged { focusState ->
+        if (focusState.isFocused) {
+            autofill?.requestAutofillForNode(autofillNode)
+        } else {
+            autofill?.cancelAutofillForNode(autofillNode)
+        }
+    })
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

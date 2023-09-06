@@ -62,7 +62,6 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -72,7 +71,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
-    clearAutofillTree()
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -236,7 +234,6 @@ private fun DetailsContent(
                         labelMandatoryIcon = true,
                         descriptionText = stringResource(R.string.create_account_details_password_description),
                         imeAction = ImeAction.Next,
-                        autofillTypes = listOf(),
                         modifier = Modifier
                             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                             .testTag("password"),
@@ -244,7 +241,8 @@ private fun DetailsContent(
                             WireTextFieldState.Error()
                         } else {
                             WireTextFieldState.Default
-                        }
+                        },
+                        autofill = false
                     )
                 }
 
@@ -256,7 +254,7 @@ private fun DetailsContent(
                         labelMandatoryIcon = true,
                         imeAction = ImeAction.Done,
                         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                        autofillTypes = listOf(),
+                        autofill = false,
                         modifier = Modifier
                             .padding(
                                 horizontal = MaterialTheme.wireDimensions.spacing16x,

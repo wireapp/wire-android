@@ -34,12 +34,12 @@ fun MicrophoneBTPermissionsDeniedDialog(
 ) {
     if (shouldShow) {
         WireDialog(
-            title = stringResource(id = R.string.call_permission_dialog_title),
+            title = stringResource(id = R.string.permission_dialog_title),
             text = stringResource(id = R.string.call_permission_dialog_description),
             onDismiss = onDismiss,
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = onDismiss,
-                text = stringResource(id = R.string.label_decline),
+                text = stringResource(id = R.string.label_not_now),
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(

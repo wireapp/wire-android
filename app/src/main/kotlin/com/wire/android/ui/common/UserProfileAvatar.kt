@@ -58,6 +58,7 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
+    withCrossfadeAnimation: Boolean = false,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -67,7 +68,7 @@ fun UserProfileAvatar(
             .clickable(clickable)
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
-        val painter = painter(avatarData, showPlaceholderIfNoAsset)
+        val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
@@ -93,7 +94,8 @@ fun UserProfileAvatar(
 @Composable
 private fun painter(
     data: UserAvatarData,
-    showPlaceholderIfNoAsset: Boolean = true
+    showPlaceholderIfNoAsset: Boolean = true,
+    withCrossfadeAnimation: Boolean = false,
 ): Painter = when {
     LocalInspectionMode.current -> {
         getDefaultAvatar(membership = data.membership)
@@ -109,7 +111,7 @@ private fun painter(
     }
 
     else -> {
-        data.asset.paint(getDefaultAvatarResourceId(membership = data.membership))
+        data.asset.paint(getDefaultAvatarResourceId(membership = data.membership), withCrossfadeAnimation)
     }
 }
 

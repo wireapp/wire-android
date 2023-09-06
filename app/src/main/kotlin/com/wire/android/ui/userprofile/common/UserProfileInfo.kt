@@ -123,7 +123,8 @@ fun UserProfileInfo(
                             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                         ) { onUserProfileClick?.invoke() }
                     },
-                    showPlaceholderIfNoAsset = showPlaceholderIfNoAsset
+                    showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
+                    withCrossfadeAnimation = true,
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {

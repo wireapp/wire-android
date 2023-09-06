@@ -77,7 +77,8 @@ class WireSessionImageLoader(
     @Composable
     fun paint(
         asset: ImageAsset?,
-        fallbackData: Any? = null
+        fallbackData: Any? = null,
+        withCrossfadeAnimation: Boolean = false,
     ): Painter {
         var retryHash by remember { mutableStateOf(0) }
         val exponentialDurationHelper = remember { ExponentialDurationHelperImpl(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
@@ -90,6 +91,7 @@ class WireSessionImageLoader(
                     value = retryHash,
                     memoryCacheKey = null
                 )
+                .crossfade(withCrossfadeAnimation)
                 .build(),
             error = (fallbackData as? Int)?.let { painterResource(id = it) },
             imageLoader = coilImageLoader

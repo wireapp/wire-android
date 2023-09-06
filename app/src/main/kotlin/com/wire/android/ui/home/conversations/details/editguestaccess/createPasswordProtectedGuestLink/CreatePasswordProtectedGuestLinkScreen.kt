@@ -60,7 +60,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = CreatePasswordGuestLinkNavArgs::class
@@ -161,7 +160,7 @@ fun CreatePasswordProtectedGuestLinkScreen(
                             id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
                         ),
                         onValueChange = viewModel::onPasswordUpdated,
-                        autofillTypes = emptyList()
+                        autofill = false
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }
@@ -185,7 +184,7 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         ),
                         value = viewModel.state.passwordConfirm,
                         onValueChange = viewModel::onPasswordConfirmUpdated,
-                        autofillTypes = emptyList()
+                        autofill = false
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }

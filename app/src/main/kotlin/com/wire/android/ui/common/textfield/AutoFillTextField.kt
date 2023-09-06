@@ -74,7 +74,7 @@ internal fun AutoFillTextField(
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
     onTap: (Offset) -> Unit = { },
-    ) {
+) {
     val autofillNode = AutofillNode(
         autofillTypes = autofillTypes,
         onFill = { onValueChange(TextFieldValue(it, TextRange(it.length))) }

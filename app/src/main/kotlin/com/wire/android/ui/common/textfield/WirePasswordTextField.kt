@@ -79,7 +79,7 @@ fun WirePasswordTextField(
     modifier: Modifier = Modifier,
     autofill: Boolean,
     onTap: (Offset) -> Unit = { },
-    ) {
+) {
     var passwordVisibility by remember { mutableStateOf(false) }
 
     val keyBoardOption = remember {

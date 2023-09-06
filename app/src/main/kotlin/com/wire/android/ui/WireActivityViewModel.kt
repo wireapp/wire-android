@@ -364,7 +364,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    fun shouldLogIn(): Boolean = false
+    fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
     fun isLoggedIn(): Boolean? = runBlocking {
         migrationManager.isLoggedIn().first()

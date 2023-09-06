@@ -242,7 +242,14 @@ private fun DetailsContent(
                         } else {
                             WireTextFieldState.Default
                         },
-                        autofill = false
+                        autofill = false,
+                        onTap = {
+                            coroutineScope.launch {
+                                keyboardController?.show()
+                                focusRequesterTeamName.requestFocus()
+                                listState.animateScrollToItem(2)
+                            }
+                        }
                     )
                 }
 
@@ -267,7 +274,14 @@ private fun DetailsContent(
 
                             CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
                                 WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-                        } else WireTextFieldState.Default
+                        } else WireTextFieldState.Default,
+                        onTap = {
+                            coroutineScope.launch {
+                                keyboardController?.show()
+                                focusRequesterTeamName.requestFocus()
+                                listState.animateScrollToItem(2)
+                            }
+                        }
                     )
                 }
             }

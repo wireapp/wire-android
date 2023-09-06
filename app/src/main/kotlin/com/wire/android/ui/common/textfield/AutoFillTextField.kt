@@ -33,6 +33,7 @@ import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -71,8 +72,9 @@ internal fun AutoFillTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier,
+    onTap: (Offset) -> Unit = { },
+    ) {
     val autofillNode = AutofillNode(
         autofillTypes = autofillTypes,
         onFill = { onValueChange(TextFieldValue(it, TextRange(it.length))) }
@@ -105,7 +107,8 @@ internal fun AutoFillTextField(
         colors = colors,
         modifier = modifier
             .fillBounds(autofillNode)
-            .defaultOnFocusAutoFill(autofill, autofillNode)
+            .defaultOnFocusAutoFill(autofill, autofillNode),
+        onTap = onTap
     )
 }
 

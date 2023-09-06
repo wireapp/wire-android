@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -76,8 +77,9 @@ fun WirePasswordTextField(
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
-    autofill: Boolean
-) {
+    autofill: Boolean,
+    onTap: (Offset) -> Unit = { },
+    ) {
     var passwordVisibility by remember { mutableStateOf(false) }
 
     val keyBoardOption = remember {
@@ -130,7 +132,8 @@ fun WirePasswordTextField(
             modifier = modifier,
             visualTransformation = visualTransformation,
             trailingIcon = iconButton,
-            autofillTypes = listOf(AutofillType.Password)
+            autofillTypes = listOf(AutofillType.Password),
+            onTap = onTap
         )
     } else {
         WireTextField(
@@ -155,6 +158,7 @@ fun WirePasswordTextField(
             modifier = modifier,
             visualTransformation = visualTransformation,
             trailingIcon = iconButton,
+            onTap = onTap
         )
     }
 }

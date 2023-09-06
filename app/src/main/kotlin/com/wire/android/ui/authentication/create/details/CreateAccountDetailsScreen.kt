@@ -25,11 +25,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -43,6 +42,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -67,7 +67,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
@@ -123,168 +122,142 @@ private fun DetailsContent(
                 .padding(internalPadding)
                 .fillMaxHeight()
         ) {
-            val listState = rememberLazyListState()
+//            val listState = rememberLazyListState()
             val keyboardOptions = KeyboardOptions(KeyboardCapitalization.Words, true, KeyboardType.Text, ImeAction.Next)
             val keyboardController = LocalSoftwareKeyboardController.current
             val focusRequesterFirstName = remember { FocusRequester() }
             val focusRequesterLastName = remember { FocusRequester() }
             val focusRequesterTeamName = remember { FocusRequester() }
 
-            LazyColumn(
-                state = listState,
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
             ) {
-                item {
-                    Text(
-                        text = stringResource(R.string.create_personal_account_details_text),
-                        style = MaterialTheme.wireTypography.body01,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing24x
-                            )
-                    )
-                }
 
-                item {
-                    WireTextField(
-                        value = state.firstName,
-                        onValueChange = onFirstNameChange,
-                        placeholderText = stringResource(R.string.create_account_details_first_name_placeholder),
-                        labelText = stringResource(R.string.create_account_details_first_name_label),
-                        labelMandatoryIcon = true,
-                        state = WireTextFieldState.Default,
-                        keyboardOptions = keyboardOptions,
-                        modifier = Modifier
-                            .padding(
-                                start = MaterialTheme.wireDimensions.spacing16x,
-                                end = MaterialTheme.wireDimensions.spacing16x,
-                                bottom = MaterialTheme.wireDimensions.spacing16x
-                            )
-                            .focusRequester(focusRequesterFirstName)
-                            .testTag("firstName"),
-                    )
-                }
-
-                item {
-                    WireTextField(
-                        value = state.lastName,
-                        onValueChange = onLastNameChange,
-                        placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
-                        labelText = stringResource(R.string.create_account_details_last_name_label),
-                        labelMandatoryIcon = true,
-                        state = WireTextFieldState.Default,
-                        keyboardOptions = keyboardOptions,
-                        modifier = Modifier
-                            .padding(
-                                start = MaterialTheme.wireDimensions.spacing16x,
-                                end = MaterialTheme.wireDimensions.spacing16x,
-                                bottom = MaterialTheme.wireDimensions.spacing16x
-                            )
-                            .focusRequester(focusRequesterLastName)
-                            .testTag("lastName"),
-                        shouldDetectTaps = true,
-                        onTap = {
-                            coroutineScope.launch {
-                                keyboardController?.show()
-                                focusRequesterLastName.requestFocus()
-                                listState.animateScrollToItem(1)
-                            }
-                        }
-                    )
-                }
-
-                item {
-                    if (state.type == CreateAccountFlowType.CreateTeam) {
-                        WireTextField(
-                            value = state.teamName,
-                            onValueChange = onTeamNameChange,
-                            placeholderText = stringResource(R.string.create_account_details_team_name_placeholder),
-                            labelText = stringResource(R.string.create_account_details_team_name_label),
-                            labelMandatoryIcon = true,
-                            state = WireTextFieldState.Default,
-                            keyboardOptions = keyboardOptions,
-                            modifier = Modifier
-                                .padding(
-                                    start = MaterialTheme.wireDimensions.spacing16x,
-                                    end = MaterialTheme.wireDimensions.spacing16x,
-                                    bottom = MaterialTheme.wireDimensions.spacing16x
-                                )
-                                .testTag("teamName")
-                                .focusRequester(focusRequesterTeamName),
-                            shouldDetectTaps = true,
-                            onTap = {
-                                coroutineScope.launch {
-                                    keyboardController?.show()
-                                    focusRequesterTeamName.requestFocus()
-                                    listState.animateScrollToItem(2)
-                                }
-                            }
-                        )
+                val requestFocus = remember<(Offset) -> Unit> {
+                    { _ ->
+                        keyboardController?.show()
+                        focusRequesterTeamName.requestFocus()
                     }
                 }
 
-                item {
-                    WirePasswordTextField(
-                        value = state.password,
-                        onValueChange = onPasswordChange,
-                        labelMandatoryIcon = true,
-                        descriptionText = stringResource(R.string.create_account_details_password_description),
-                        imeAction = ImeAction.Next,
-                        modifier = Modifier
-                            .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-                            .testTag("password"),
-                        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError) {
-                            WireTextFieldState.Error()
-                        } else {
-                            WireTextFieldState.Default
-                        },
-                        autofill = false,
-                        onTap = {
-                            coroutineScope.launch {
-                                keyboardController?.show()
-                                focusRequesterTeamName.requestFocus()
-                                listState.animateScrollToItem(2)
-                            }
-                        }
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.create_personal_account_details_text),
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing24x
+                        )
+                )
 
-                item {
-                    WirePasswordTextField(
-                        value = state.confirmPassword,
-                        onValueChange = onConfirmPasswordChange,
-                        labelText = stringResource(R.string.create_account_details_confirm_password_label),
+                WireTextField(
+                    value = state.firstName,
+                    onValueChange = onFirstNameChange,
+                    placeholderText = stringResource(R.string.create_account_details_first_name_placeholder),
+                    labelText = stringResource(R.string.create_account_details_first_name_label),
+                    labelMandatoryIcon = true,
+                    state = WireTextFieldState.Default,
+                    keyboardOptions = keyboardOptions,
+                    modifier = Modifier
+                        .padding(
+                            start = MaterialTheme.wireDimensions.spacing16x,
+                            end = MaterialTheme.wireDimensions.spacing16x,
+                            bottom = MaterialTheme.wireDimensions.spacing16x
+                        )
+                        .focusRequester(focusRequesterFirstName)
+                        .testTag("firstName"),
+                )
+
+                WireTextField(
+                    value = state.lastName,
+                    onValueChange = onLastNameChange,
+                    placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
+                    labelText = stringResource(R.string.create_account_details_last_name_label),
+                    labelMandatoryIcon = true,
+                    state = WireTextFieldState.Default,
+                    keyboardOptions = keyboardOptions,
+                    modifier = Modifier
+                        .padding(
+                            start = MaterialTheme.wireDimensions.spacing16x,
+                            end = MaterialTheme.wireDimensions.spacing16x,
+                            bottom = MaterialTheme.wireDimensions.spacing16x
+                        )
+                        .focusRequester(focusRequesterLastName)
+                        .testTag("lastName"),
+                    shouldDetectTaps = true,
+                    onTap = requestFocus
+                )
+
+                if (state.type == CreateAccountFlowType.CreateTeam) {
+                    WireTextField(
+                        value = state.teamName,
+                        onValueChange = onTeamNameChange,
+                        placeholderText = stringResource(R.string.create_account_details_team_name_placeholder),
+                        labelText = stringResource(R.string.create_account_details_team_name_label),
                         labelMandatoryIcon = true,
-                        imeAction = ImeAction.Done,
-                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                        autofill = false,
+                        state = WireTextFieldState.Default,
+                        keyboardOptions = keyboardOptions,
                         modifier = Modifier
                             .padding(
-                                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing16x
+                                start = MaterialTheme.wireDimensions.spacing16x,
+                                end = MaterialTheme.wireDimensions.spacing16x,
+                                bottom = MaterialTheme.wireDimensions.spacing16x
                             )
-                            .testTag("confirmPassword"),
-                        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when (state.error) {
-                            CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
-
-                            CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-                        } else WireTextFieldState.Default,
-                        onTap = {
-                            coroutineScope.launch {
-                                keyboardController?.show()
-                                focusRequesterTeamName.requestFocus()
-                                listState.animateScrollToItem(2)
-                            }
-                        }
+                            .testTag("teamName")
+                            .focusRequester(focusRequesterTeamName),
+                        shouldDetectTaps = true,
+                        onTap = requestFocus
                     )
                 }
+
+                WirePasswordTextField(
+                    value = state.password,
+                    onValueChange = onPasswordChange,
+                    labelMandatoryIcon = true,
+                    descriptionText = stringResource(R.string.create_account_details_password_description),
+                    imeAction = ImeAction.Next,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                        .testTag("password"),
+                    state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError) {
+                        WireTextFieldState.Error()
+                    } else {
+                        WireTextFieldState.Default
+                    },
+                    autofill = false,
+                    onTap = requestFocus
+                )
+
+                WirePasswordTextField(
+                    value = state.confirmPassword,
+                    onValueChange = onConfirmPasswordChange,
+                    labelText = stringResource(R.string.create_account_details_confirm_password_label),
+                    labelMandatoryIcon = true,
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    modifier = Modifier
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing16x
+                        )
+                        .testTag("confirmPassword"),
+                    state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when (state.error) {
+                        CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
+                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
+
+                        CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
+                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
+                    } else WireTextFieldState.Default,
+                    autofill = false,
+                    onTap = requestFocus
+                )
             }
+
             LaunchedEffect(Unit) {
                 focusRequesterFirstName.requestFocus()
                 keyboardController?.show()

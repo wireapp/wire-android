@@ -297,7 +297,7 @@
     <string name="label_quote_original_message_date">Ursprüngliche Nachricht vom %s</string>
     <!-- Create Account -->
     <string name="create_personal_account_title">Privates Benutzerkonto erstellen</string>
-    <string name="create_personal_account_summary_title">Persönliches Benutzerkonto erstellt</string>
+    <string name="create_personal_account_summary_title">Privates Benutzerkonto erstellt</string>
     <string name="create_personal_account_text">Chatten Sie sicher mit Freunden und Ihrer Familie.</string>
     <string name="create_personal_account_email_text">Geben Sie Ihre E-Mail-Adresse ein, um die sicherste Kommunikationsplattform zu nutzen.</string>
     <string name="create_personal_account_details_text">Geben Sie Ihre persönlichen Daten ein:</string>
@@ -552,7 +552,7 @@
         <item quantity="one">%1$d weitere Person</item>
         <item quantity="other">%1$d weitere Personen</item>
     </plurals>
-    <string name="label_system_message_blocked_user">%1$s haben diesen Benutzer blockiert</string>
+    <string name="label_system_message_blocked_user">%1$s hat diesen Benutzer blockiert</string>
     <string name="label_system_message_renamed_the_conversation">%1$s hat die Unterhaltung umbenannt\n%2$s</string>
     <string name="label_system_message_team_member_left">%1$s wurde aus dem Team entfernt</string>
     <string name="label_system_message_user_not_available">Dieser Benutzer ist nicht mehr verfügbar</string>

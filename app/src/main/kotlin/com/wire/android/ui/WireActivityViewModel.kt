@@ -377,9 +377,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun shouldMigrate(): Boolean = runBlocking {
-        migrationManager.shouldMigrate()
-    }
+    fun shouldMigrate(): Boolean = migrationManager.shouldMigrate()
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)

@@ -72,8 +72,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun shouldDisplayWelcomeToARScreen() =
-        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
+    private fun shouldDisplayWelcomeToARScreen() = globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
 
     private fun loadUserAvatar() {
         viewModelScope.launch {
@@ -87,9 +86,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun dismissWelcomeMessage() {
-        viewModelScope.launch {
-            globalDataStore.setWelcomeScreenPresented()
-            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
-        }
+        globalDataStore.setWelcomeScreenPresented()
+        homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
     }
 }

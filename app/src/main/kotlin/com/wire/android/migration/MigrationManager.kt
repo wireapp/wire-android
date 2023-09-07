@@ -94,7 +94,7 @@ class MigrationManager @Inject constructor(
     private fun isScalaDBPresent(): Boolean =
         applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
 
-    suspend fun shouldMigrate(): Boolean = when {
+    fun shouldMigrate(): Boolean = when {
         // already migrated
         globalDataStore.isMigrationCompleted() -> false
         // not yet migrated and old DB is present and mark that we should present the welcome to new android dialog

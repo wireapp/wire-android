@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -68,7 +69,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
 
-    suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
+    fun isMigrationCompleted(): Boolean = runBlocking { isMigrationCompletedFlow().firstOrNull() ?: false }
 
     fun isLoggingEnabled(): Flow<Boolean> = getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
 
@@ -83,18 +84,19 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
     }
 
-    suspend fun setMigrationCompleted() {
+    fun setMigrationCompleted() = runBlocking {
         context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
     }
 
-    suspend fun isWelcomeScreenPresented(): Boolean =
+    fun isWelcomeScreenPresented(): Boolean = runBlocking {
         getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
+    }
 
-    suspend fun setWelcomeScreenPresented() {
+    fun setWelcomeScreenPresented() = runBlocking {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }
     }
 
-    suspend fun setWelcomeScreenNotPresented() {
+    fun setWelcomeScreenNotPresented() = runBlocking {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
 
@@ -112,6 +114,11 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }
     }
 
+    /**
+     * Returns the migration status of the user with the given [userId].
+     * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]
+     * meaning that the user does not need to be migrated.
+     */
     /**
      * Returns the migration status of the user with the given [userId].
      * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]

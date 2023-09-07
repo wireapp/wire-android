@@ -66,6 +66,8 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
@@ -126,6 +128,10 @@ class LoginEmailViewModelTest {
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
 
+    private val dispatcherProvider = TestDispatcherProvider(StandardTestDispatcher())
+
+    private fun runTest(test: suspend TestScope.() -> Unit) = runTest(dispatcherProvider.main(), testBody = test)
+
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
@@ -152,7 +158,7 @@ class LoginEmailViewModelTest {
             authServerConfigProvider,
             userDataStoreProvider,
             coreLogic,
-            TestDispatcherProvider()
+            dispatcherProvider
         )
     }
 
@@ -331,6 +337,21 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+    }
+
+    @Test
+    fun `given missing 2fa, when logging in, then email should be enabled and not loading`() = runTest {
+        val email = "some.email@example.org"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.onPasswordChange(TextFieldValue("somePassword"))
+        loginViewModel.login(onSuccess)
+        advanceUntilIdle()
+
+        loginViewModel.loginState.emailLoginLoading shouldBe false
+        loginViewModel.loginState.emailLoginEnabled shouldBe true
     }
 
     @Test

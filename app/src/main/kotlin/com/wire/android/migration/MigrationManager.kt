@@ -110,7 +110,6 @@ class MigrationManager @Inject constructor(
     }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()
-    fun isLoggedIn(): Flow<Boolean?> = globalDataStore.isLoggedIn()
 
     suspend fun migrateSingleUser(
         userId: UserId,

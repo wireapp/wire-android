@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.IsUserLoggedInUseCase
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
@@ -193,6 +194,9 @@ class CoreLogicModule {
     @Provides
     fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
         coreLogic.getGlobalScope().session.updateCurrentSession
+    @Provides
+    fun provideIsUserLoggedInUseCase(@KaliumCoreLogic coreLogic: CoreLogic): IsUserLoggedInUseCase =
+        coreLogic.getGlobalScope().session.isUserLoggedInUseCase
 
     @Provides
     fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =

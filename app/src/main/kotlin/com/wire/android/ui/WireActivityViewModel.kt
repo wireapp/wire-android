@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.IsUserLoggedInUseCase
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
@@ -105,6 +106,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeNewClients: ObserveNewClientsUseCase,
     private val clearNewClientsForUser: ClearNewClientsForUserUseCase,
     private val currentScreenManager: CurrentScreenManager,
+    private val isUserLoggedIn: IsUserLoggedInUseCase,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
 ) : ViewModel() {
 
@@ -366,9 +368,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
-    fun isLoggedIn(): Boolean? = runBlocking {
-        migrationManager.isLoggedIn().first()
-    }
+    fun isLoggedIn(): Boolean? = runBlocking { isUserLoggedIn() }
 
     fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution

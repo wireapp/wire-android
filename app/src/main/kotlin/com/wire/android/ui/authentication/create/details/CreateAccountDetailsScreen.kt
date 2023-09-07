@@ -169,9 +169,7 @@ private fun DetailsContent(
             val listState = rememberLazyListState()
             val keyboardOptions = KeyboardOptions(KeyboardCapitalization.Words, true, KeyboardType.Text, ImeAction.Next)
             val keyboardController = LocalSoftwareKeyboardController.current
-            val focusRequesterFirstName = remember { FocusRequester() }
-            val focusRequesterLastName = remember { FocusRequester() }
-            val focusRequesterTeamName = remember { FocusRequester() }
+            val firstNameFocusRequester = remember { FocusRequester() }
 
             LazyColumn(
                 state = listState,
@@ -179,20 +177,54 @@ private fun DetailsContent(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier.weight(1f)
             ) {
-                item {
-                    Text(
-                        text = stringResource(R.string.create_personal_account_details_text),
-                        style = MaterialTheme.wireTypography.body01,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing24x
-                            )
-                    )
-                }
 
-                item {
+                Text(
+                    text = stringResource(R.string.create_personal_account_details_text),
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing24x
+                        )
+                )
+
+                WireTextField(
+                    value = state.firstName,
+                    onValueChange = onFirstNameChange,
+                    placeholderText = stringResource(R.string.create_account_details_first_name_placeholder),
+                    labelText = stringResource(R.string.create_account_details_first_name_label),
+                    labelMandatoryIcon = true,
+                    state = WireTextFieldState.Default,
+                    keyboardOptions = keyboardOptions,
+                    modifier = Modifier
+                        .padding(
+                            start = MaterialTheme.wireDimensions.spacing16x,
+                            end = MaterialTheme.wireDimensions.spacing16x,
+                            bottom = MaterialTheme.wireDimensions.spacing16x
+                        )
+                        .focusRequester(firstNameFocusRequester)
+                        .testTag("firstName"),
+                )
+
+                WireTextField(
+                    value = state.lastName,
+                    onValueChange = onLastNameChange,
+                    placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
+                    labelText = stringResource(R.string.create_account_details_last_name_label),
+                    labelMandatoryIcon = true,
+                    state = WireTextFieldState.Default,
+                    keyboardOptions = keyboardOptions,
+                    modifier = Modifier
+                        .padding(
+                            start = MaterialTheme.wireDimensions.spacing16x,
+                            end = MaterialTheme.wireDimensions.spacing16x,
+                            bottom = MaterialTheme.wireDimensions.spacing16x
+                        )
+                        .testTag("lastName"),
+                )
+
+                if (state.type == CreateAccountFlowType.CreateTeam) {
                     WireTextField(
                         value = state.firstName,
                         onValueChange = onFirstNameChange,
@@ -207,38 +239,26 @@ private fun DetailsContent(
                                 end = MaterialTheme.wireDimensions.spacing16x,
                                 bottom = MaterialTheme.wireDimensions.spacing16x
                             )
-                            .focusRequester(focusRequesterFirstName)
-                            .testTag("firstName"),
+                            .testTag("teamName"),
                     )
                 }
 
-                item {
-                    WireTextField(
-                        value = state.lastName,
-                        onValueChange = onLastNameChange,
-                        placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
-                        labelText = stringResource(R.string.create_account_details_last_name_label),
-                        labelMandatoryIcon = true,
-                        state = WireTextFieldState.Default,
-                        keyboardOptions = keyboardOptions,
-                        modifier = Modifier
-                            .padding(
-                                start = MaterialTheme.wireDimensions.spacing16x,
-                                end = MaterialTheme.wireDimensions.spacing16x,
-                                bottom = MaterialTheme.wireDimensions.spacing16x
-                            )
-                            .focusRequester(focusRequesterLastName)
-                            .testTag("lastName"),
-                        shouldDetectTaps = true,
-                        onTap = {
-                            coroutineScope.launch {
-                                keyboardController?.show()
-                                focusRequesterLastName.requestFocus()
-                                listState.animateScrollToItem(1)
-                            }
-                        }
-                    )
-                }
+                WirePasswordTextField(
+                    value = state.password,
+                    onValueChange = onPasswordChange,
+                    labelMandatoryIcon = true,
+                    descriptionText = stringResource(R.string.create_account_details_password_description),
+                    imeAction = ImeAction.Next,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                        .testTag("password"),
+                    state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError) {
+                        WireTextFieldState.Error()
+                    } else {
+                        WireTextFieldState.Default
+                    },
+                    autofill = false,
+                )
 
                 item {
                     if (state.type == CreateAccountFlowType.CreateTeam) {
@@ -270,52 +290,14 @@ private fun DetailsContent(
                     }
                 }
 
-                item {
-                    WirePasswordTextField(
-                        value = state.password,
-                        onValueChange = onPasswordChange,
-                        labelMandatoryIcon = true,
-                        descriptionText = stringResource(R.string.create_account_details_password_description),
-                        imeAction = ImeAction.Next,
-                        autofillTypes = listOf(),
-                        modifier = Modifier
-                            .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-                            .testTag("password"),
-                        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError) {
-                            WireTextFieldState.Error()
-                        } else {
-                            WireTextFieldState.Default
-                        }
-                    )
-                }
-
-                item {
-                    WirePasswordTextField(
-                        value = state.confirmPassword,
-                        onValueChange = onConfirmPasswordChange,
-                        labelText = stringResource(R.string.create_account_details_confirm_password_label),
-                        labelMandatoryIcon = true,
-                        imeAction = ImeAction.Done,
-                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                        autofillTypes = listOf(),
-                        modifier = Modifier
-                            .padding(
-                                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing16x
-                            )
-                            .testTag("confirmPassword"),
-                        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when (state.error) {
-                            CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
-
-                            CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-                        } else WireTextFieldState.Default
-                    )
-                }
+                        CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
+                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
+                    } else WireTextFieldState.Default,
+                    autofill = false,
+                )
             }
             LaunchedEffect(Unit) {
-                focusRequesterFirstName.requestFocus()
+                firstNameFocusRequester.requestFocus()
                 keyboardController?.show()
             }
 

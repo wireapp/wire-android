@@ -159,6 +159,7 @@ fun JoinConversationDialog(
 
         val onComplete: (convId: ConversationId?) -> Unit = remember {
             {
+                onJoinConversationFlowCompleted()
                 it?.also {
                     navigate(
                         NavigationCommand(
@@ -166,9 +167,6 @@ fun JoinConversationDialog(
                             BackStackMode.CLEAR_TILL_START
                         )
                     )
-                    onJoinConversationFlowCompleted()
-                } ?: run {
-                    onJoinConversationFlowCompleted()
                 }
             }
         }

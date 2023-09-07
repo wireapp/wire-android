@@ -155,7 +155,7 @@ fun JoinConversationDialog(
     navigate: (NavigationCommand) -> Unit,
     onJoinConversationFlowCompleted: () -> Unit
 )  {
-    joinedDialogState?.let {
+    joinedDialogState?.let { state ->
 
         val onComplete: (convId: ConversationId?) -> Unit = remember {
             {
@@ -173,19 +173,19 @@ fun JoinConversationDialog(
             }
         }
 
-        when (it) {
+        when (state) {
             is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
-                errorState = it,
+                errorState = state,
                 onCancel = { onComplete(null) }
             )
 
             is JoinConversationViaCodeState.Show -> {
                 JoinConversationViaDeepLinkDialog(
-                    name = it.conversationName,
-                    code = it.code,
-                    domain = it.domain,
-                    key = it.key,
-                    requirePassword = it.passwordProtected,
+                    name = state.conversationName,
+                    code = state.code,
+                    domain = state.domain,
+                    key = state.key,
+                    requirePassword = state.passwordProtected,
                     onFlowCompleted = onComplete
                 )
             }

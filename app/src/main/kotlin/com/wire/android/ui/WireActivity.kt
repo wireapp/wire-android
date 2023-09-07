@@ -27,7 +27,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.SnackbarHostState
@@ -42,14 +41,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -60,13 +57,8 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
@@ -78,22 +70,18 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
-import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
-import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
-import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
+import com.wire.android.ui.home.E2EIRequiredDialog
+import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -115,6 +103,8 @@ class WireActivity : AppCompatActivity() {
     lateinit var proximitySensorManager: ProximitySensorManager
 
     private val viewModel: WireActivityViewModel by viewModels()
+
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
 
@@ -229,19 +219,67 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
-        updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog, navigate)
-        customBackendDialog(navigate)
-        maxAccountDialog(
+        featureFlagNotificationViewModel.loadInitialSync()
+        with(featureFlagNotificationViewModel.featureFlagState) {
+            if (showFileSharingDialog) {
+                FileRestrictionDialog(
+                    isFileSharingEnabled = isFileSharingEnabledState,
+                    hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
+                )
+            }
+
+            if (shouldShowGuestRoomLinkDialog) {
+                GuestRoomLinkFeatureFlagDialog(
+                    isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
+                    onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+                )
+            }
+
+            if (shouldShowSelfDeletingMessagesDialog) {
+                SelfDeletingMessagesDialog(
+                    areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
+                    enforcedTimeout = enforcedTimeoutDuration,
+                    hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
+                )
+            }
+
+            e2EIRequired?.let {
+                E2EIRequiredDialog(
+                    result = e2EIRequired,
+                    getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
+                    snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+                )
+            }
+
+            e2EISnoozeInfo?.let {
+                E2EISnoozeDialog(
+                    timeLeft = e2EISnoozeInfo.timeLeft,
+                    dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+                )
+            }
+        }
+        UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+        JoinConversationDialog(
+            viewModel.globalAppState.conversationJoinedDialog,
+            navigate,
+            viewModel::onJoinConversationFlowCompleted
+        )
+        CustomBackendDialog(
+            viewModel.globalAppState,
+            viewModel::dismissCustomBackendDialog
+        ) { viewModel.customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
+        MaxAccountDialog(
+            shouldShow = viewModel.globalAppState.maxAccountDialog,
             onConfirm = {
                 viewModel.dismissMaxAccountDialog()
                 navigate(NavigationCommand(SelfUserProfileScreenDestination))
             },
-            onDismiss = viewModel::dismissMaxAccountDialog,
-            shouldShow = viewModel.globalAppState.maxAccountDialog
+            onDismiss = viewModel::dismissMaxAccountDialog
         )
-        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI, navigate)
-        newClientDialog(
+        AccountLoggedOutDialog(
+            viewModel.globalAppState.blockUserUI
+        ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
+        NewClientDialog(
             viewModel.globalAppState.newClientDialog,
             { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
             {

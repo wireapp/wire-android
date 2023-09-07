@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,8 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -69,8 +69,8 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
-import com.wire.kalium.logic.util.isPositiveNotNull
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -84,7 +84,8 @@ fun ImportMediaScreen(
 ) {
     featureFlagNotificationViewModel.loadInitialSync()
 
-    when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
+    when (val fileSharingRestrictedState =
+        featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
         FeatureFlagState.SharingRestrictedState.NO_USER -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
@@ -109,7 +110,12 @@ fun ImportMediaScreen(
                 onConversationClicked = importMediaViewModel::onConversationClicked,
                 checkRestrictionsAndSendImportedMedia = {
                     importMediaViewModel.checkRestrictionsAndSendImportedMedia {
-                        navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
+                        navigator.navigate(
+                            NavigationCommand(
+                                ConversationScreenDestination(it),
+                                BackStackMode.CLEAR_TILL_START
+                            )
+                        )
                     }
                 },
                 onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
@@ -119,7 +125,8 @@ fun ImportMediaScreen(
             val context = LocalContext.current
             LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
                 if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
-                    context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+                    context.getActivity()
+                        ?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
                 }
             }
         }
@@ -271,11 +278,12 @@ fun FileSharingRestrictedContent(
             .padding(internalPadding)
             .padding(horizontal = dimensions().spacing48x)
     ) {
-        val textRes = if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
-            R.string.file_sharing_restricted_description_no_users
-        } else {
-            R.string.file_sharing_restricted_description_by_team
-        }
+        val textRes =
+            if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
+                R.string.file_sharing_restricted_description_no_users
+            } else {
+                R.string.file_sharing_restricted_description_by_team
+            }
         Text(
             text = stringResource(textRes),
             textAlign = TextAlign.Center,
@@ -318,9 +326,11 @@ private fun ImportMediaBottomBar(
     } else {
         stringResource(id = R.string.import_media_send_button_title)
     }
+    val buttonCount =
+        if (state.importedAssets.isNotEmpty() || state.importedText != null) state.selectedConversationItem.size else 0
     SendContentButton(
         mainButtonText = mainButtonText,
-        count = if (state.importedAssets.isNotEmpty()) state.selectedConversationItem.size else 0,
+        count = buttonCount,
         onMainButtonClick = checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
         onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
@@ -348,9 +358,13 @@ private fun ImportMediaContent(
     ) {
         val horizontalPadding = dimensions().spacing8x
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-        val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(2)
-        else screenWidth - (horizontalPadding * 2)
-        val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
+        val itemWidth =
+            if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(2)
+            else screenWidth - (horizontalPadding * 2)
+        val contentPadding = PaddingValues(
+            start = horizontalPadding,
+            end = (screenWidth - itemWidth + horizontalPadding)
+        )
         val lazyListState = rememberLazyListState()
         if (state.isImporting) {
             Box(
@@ -379,7 +393,11 @@ private fun ImportMediaContent(
                 }
             }
         }
-        Divider(color = colorsScheme().outline, thickness = 1.dp, modifier = Modifier.padding(top = dimensions().spacing12x))
+        Divider(
+            color = colorsScheme().outline,
+            thickness = 1.dp,
+            modifier = Modifier.padding(top = dimensions().spacing12x)
+        )
         Box(Modifier.padding(dimensions().spacing6x)) {
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
@@ -410,7 +428,8 @@ private fun ImportMediaContent(
             onEditConversation = {},
             onOpenUserProfile = {},
             onOpenConversationNotificationsSettings = {},
-            onJoinCall = {}
+            onJoinCall = {},
+            onPermanentPermissionDecline = {}
         )
     }
     BackHandler(enabled = searchBarState.isSearchActive) {
@@ -419,7 +438,10 @@ private fun ImportMediaContent(
 }
 
 @Composable
-private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>, snackbarHostState: SnackbarHostState) {
+private fun SnackBarMessage(
+    infoMessages: SharedFlow<SnackBarMessage>,
+    snackbarHostState: SnackbarHostState
+) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         infoMessages.collect { message ->
@@ -437,13 +459,23 @@ fun PreviewImportMediaScreenLoggedOut() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenRestricted() {
-    ImportMediaRestrictedContent(FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM, ImportMediaAuthenticatedState()) {}
+    ImportMediaRestrictedContent(
+        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+        ImportMediaAuthenticatedState()
+    ) {}
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenRegular() {
-    ImportMediaRegularContent(ImportMediaAuthenticatedState(), {}, {}, {}, {}, MutableSharedFlow()) {}
+    ImportMediaRegularContent(
+        ImportMediaAuthenticatedState(),
+        {},
+        {},
+        {},
+        {},
+        MutableSharedFlow()
+    ) {}
 }
 
 @Preview(showBackground = true)

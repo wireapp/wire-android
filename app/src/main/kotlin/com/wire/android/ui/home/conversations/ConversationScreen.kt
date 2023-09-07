@@ -62,6 +62,7 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
@@ -101,9 +102,8 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
-import com.wire.android.util.permission.CallingAudioRequestFlow
-import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
@@ -157,11 +157,6 @@ fun ConversationScreen(
         modalBottomSheetState = conversationScreenState.modalBottomSheetState
     )
 
-    val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
-        conversationCallViewModel.endEstablishedCallIfAny {
-            navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(conversationCallViewModel.conversationId)))
-        }
-    }
     // this is to prevent from double navigating back after user deletes a group on group details screen
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
@@ -171,6 +166,7 @@ fun ConversationScreen(
             conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
         }
     }
+    val context = LocalContext.current
 
     with(conversationCallViewModel) {
         if (conversationCallViewState.shouldShowJoinAnywayDialog) {
@@ -180,6 +176,14 @@ fun ConversationScreen(
                 onConfirm = { joinAnyway { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) } }
             )
         }
+
+        MicrophoneBTPermissionsDeniedDialog(
+            shouldShow = conversationCallViewState.shouldShowCallingPermissionDialog,
+            onDismiss = ::dismissCallingPermissionDialog,
+            onOpenSettings = {
+                context.openAppInfoScreen()
+            }
+        )
     }
 
     when (showDialog.value) {
@@ -252,14 +256,17 @@ fun ConversationScreen(
             startCallIfPossible(
                 conversationCallViewModel,
                 showDialog,
-                startCallAudioPermissionCheck,
                 coroutineScope,
-                conversationInfoViewModel.conversationInfoViewState.conversationType
+                conversationInfoViewModel.conversationInfoViewState.conversationType,
+                onOpenInitiatingCallScreen = {
+                    navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
+                }
             ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
         },
         onJoinCall = {
             conversationCallViewModel.joinOngoingCall { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
         },
+        onPermanentPermissionDecline = conversationCallViewModel::showCallingPermissionDialog,
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
@@ -392,9 +399,9 @@ fun ConversationScreen(
 private fun startCallIfPossible(
     conversationCallViewModel: ConversationCallViewModel,
     showDialog: MutableState<ConversationScreenDialogType>,
-    startCallAudioPermissionCheck: CallingAudioRequestFlow,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
+    onOpenInitiatingCallScreen: (ConversationId) -> Unit,
     onOpenOngoingCallScreen: (ConversationId) -> Unit
 ) {
     coroutineScope.launch {
@@ -403,7 +410,9 @@ private fun startCallIfPossible(
         } else {
             val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
                 ConferenceCallingResult.Enabled -> {
-                    startCallAudioPermissionCheck.launch()
+                    conversationCallViewModel.endEstablishedCallIfAny {
+                        onOpenInitiatingCallScreen(conversationCallViewModel.conversationId)
+                    }
                     ConversationScreenDialogType.NONE
                 }
 
@@ -419,15 +428,6 @@ private fun startCallIfPossible(
             showDialog.value = dialogValue
         }
     }
-}
-
-@Composable
-private fun StartCallAudioBluetoothPermissionCheckFlow(
-    onStartCall: () -> Unit
-) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-    onStartCall()
-}) {
-    // TODO display an error dialog
 }
 
 @Suppress("LongParameterList")
@@ -448,6 +448,7 @@ private fun ConversationScreen(
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
@@ -521,6 +522,7 @@ private fun ConversationScreen(
                     onPhoneButtonClick = onStartCall,
                     hasOngoingCall = conversationCallViewState.hasOngoingCall,
                     onJoinCallButtonClick = onJoinCall,
+                    onPermanentPermissionDecline = onPermanentPermissionDecline,
                     isInteractionEnabled = messageComposerViewState.value.interactionAvailability == InteractionAvailability.ENABLED
                 )
                 ConversationBanner(bannerMessage)
@@ -820,6 +822,7 @@ fun PreviewConversationScreen() {
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },
         onJoinCall = { },
+        onPermanentPermissionDecline = { },
         onReactionClick = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = { },

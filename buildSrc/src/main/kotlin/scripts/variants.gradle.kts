@@ -23,7 +23,6 @@ package scripts
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
-import customization.Customization
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
@@ -39,6 +38,7 @@ object BuildTypes {
     const val RELEASE = "release"
     const val COMPAT = "compat"
     const val COMPAT_RELEASE = "compatrelease"
+    const val BENCHMARK = "benchmark"
 }
 
 object Default {
@@ -91,6 +91,12 @@ android {
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT_RELEASE")
                 keyPassword = System.getenv("KEYPWD_COMPAT_RELEASE")
             }
+            maybeCreate(BuildTypes.BENCHMARK).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
+                storePassword = System.getenv("KEYSTOREPWD_DEBUG")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
+                keyPassword = System.getenv("KEYPWD_DEBUG")
+            }
         }
     }
 
@@ -128,6 +134,14 @@ android {
             matchingFallbacks.add("release")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("compatrelease")
+        }
+        create(BuildTypes.BENCHMARK) {
+            initWith(getByName(BuildTypes.RELEASE))
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isDebuggable = false
+            matchingFallbacks.add("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -170,7 +184,7 @@ android {
      */
     productFlavors.forEach { flavor ->
         Features.values().forEach { feature ->
-            val activated = FeatureFlags.activated[flavor.name].orEmpty().contains(feature)
+            val activated = FeatureFlags.activated.mapKeys { it.key.buildName }[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
 
@@ -185,12 +199,28 @@ android {
                     )
                 }
 
-                ConfigType.INT, ConfigType.BOOLEAN -> {
+                ConfigType.INT,
+                ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         flavor,
                         configs.configType.type,
                         configs.name,
                         flavorMap[flavor.name]?.get(configs.value).toString()
+                    )
+                }
+
+                ConfigType.MapOfStringToListOfStrings -> {
+                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+                    val mapString = map?.map { (key, value) ->
+                        "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                            "put($it);"
+                        }
+                    }?.joinToString(",\n") ?: ""
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
                     )
                 }
             }

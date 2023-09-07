@@ -31,6 +31,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.getMetadataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -66,7 +68,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.ZERO
 
 @HiltViewModel
 @OptIn(FlowPreview::class)
@@ -77,6 +78,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val fileManager: FileManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
+    private val sendTextMessage: SendTextMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
@@ -259,8 +261,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
         importMediaState = importMediaState.copy(isImporting = true)
         if (incomingIntent.streamCount == 0) {
-            // if stream count is 0 the type will be text, we check the type to double check if it is text
-            // todo : handle the text , we can get the text from incomingIntent.text
+            handleSharedText(incomingIntent.text.toString())
         } else {
             if (incomingIntent.isSingleShare) {
                 // ACTION_SEND
@@ -271,6 +272,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             }
         }
         importMediaState = importMediaState.copy(isImporting = false)
+    }
+
+    private fun handleSharedText(text: String) {
+        importMediaState = importMediaState.copy(importedText = text)
     }
 
     private suspend fun handleSingleIntent(
@@ -302,41 +307,58 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
     }
 
-    fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) = viewModelScope.launch(dispatchers.default()) {
-        val conversation = importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
-        val assetsToSend = importMediaState.importedAssets
+    fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) =
+        viewModelScope.launch(dispatchers.default()) {
+            val conversation =
+                importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
+            val assetsToSend = importMediaState.importedAssets
+            val textToSend = importMediaState.importedText
 
-        if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
-            onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
-        } else {
-            val jobs: MutableCollection<Job> = mutableListOf()
-            assetsToSend.forEach { importedAsset ->
-                val isImage = importedAsset is ImportedMediaAsset.Image
-                val job = viewModelScope.launch {
-                    sendAssetMessage(
+            if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
+                onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
+            } else {
+                val jobs: MutableCollection<Job> = mutableListOf()
+
+                textToSend?.let {
+                    sendTextMessage(
                         conversationId = conversation.conversationId,
-                        assetDataPath = importedAsset.dataPath,
-                        assetName = importedAsset.name,
-                        assetDataSize = importedAsset.size,
-                        assetMimeType = importedAsset.mimeType,
-                        assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                    ).also {
-                        if (it is ScheduleNewAssetMessageResult.Failure) {
-                            appLogger.e("Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} ")
-                        } else {
-                            appLogger.d("Success importing asset message to conversationId=${conversation.conversationId.toLogString()}")
+                        text = it
+                    )
+                } ?: assetsToSend.forEach { importedAsset ->
+                    val isImage = importedAsset is ImportedMediaAsset.Image
+                    val job = viewModelScope.launch {
+                        sendAssetMessage(
+                            conversationId = conversation.conversationId,
+                            assetDataPath = importedAsset.dataPath,
+                            assetName = importedAsset.name,
+                            assetDataSize = importedAsset.size,
+                            assetMimeType = importedAsset.mimeType,
+                            assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
+                            assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                            audioLengthInMs = getAudioLengthInMs(
+                                dataPath = importedAsset.dataPath,
+                                mimeType = importedAsset.mimeType
+                            )
+                        ).also {
+                            val logConversationId = conversation.conversationId.toLogString()
+                            if (it is ScheduleNewAssetMessageResult.Failure) {
+                                appLogger.e("Failed to import asset message to " +
+                                        "conversationId=$logConversationId")
+                            } else {
+                                appLogger.d("Success importing asset message to " +
+                                        "conversationId=$logConversationId")
+                            }
                         }
                     }
+                    jobs.add(job)
                 }
-                jobs.add(job)
-            }
-            jobs.joinAll()
-            withContext(dispatchers.main()) {
-                onSent(conversation.conversationId)
+
+                jobs.joinAll()
+                withContext(dispatchers.main()) {
+                    onSent(conversation.conversationId)
+                }
             }
         }
-    }
 
     fun onNewConversationPicked(conversationId: ConversationId) = viewModelScope.launch {
         importMediaState = importMediaState.copy(
@@ -450,8 +472,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 data class ImportMediaAuthenticatedState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val importedAssets: List<ImportedMediaAsset> = emptyList(),
+    val importedText: String? = null,
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 )

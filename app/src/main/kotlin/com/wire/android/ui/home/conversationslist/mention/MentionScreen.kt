@@ -23,21 +23,21 @@ package com.wire.android.ui.home.conversationslist.mention
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
+import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversationslist.ConversationItemType
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import androidx.compose.foundation.lazy.rememberLazyListState
-import com.ramcosta.composedestinations.annotation.Destination
-import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.ui.home.HomeStateHolder
-import com.wire.android.ui.home.conversationslist.ConversationItemType
-import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 
 @HomeNavGraph
 @Destination
@@ -64,8 +64,7 @@ fun MentionScreenContent(
     onMentionItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
+    openConversationNotificationsSettings: (ConversationItem) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -77,7 +76,6 @@ fun MentionScreenContent(
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
         openConversationNotificationsSettings = openConversationNotificationsSettings,
-        onJoinCall = onJoinCall
     )
 }
 
@@ -90,7 +88,6 @@ private fun MentionContent(
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -107,7 +104,8 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall,
+                joinCall = {},
+                onPermanentPermissionDecline = {},
                 searchQuery = ""
             )
         }
@@ -122,7 +120,8 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall,
+                joinCall = {},
+                onPermanentPermissionDecline = {},
                 searchQuery = ""
             )
         }

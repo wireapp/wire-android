@@ -61,6 +61,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
@@ -92,10 +93,11 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @RootNavGraph
-@Destination
+@Destination(
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
 fun SelfUserProfileScreen(
     navigator: Navigator,
@@ -183,6 +185,7 @@ private fun SelfUserProfileContent(
                 ) {
                     stickyHeader {
                         UserProfileInfo(
+                            userId = state.userId,
                             isLoading = state.isAvatarLoading,
                             avatarAsset = state.avatarAsset,
                             fullName = fullName,
@@ -190,8 +193,7 @@ private fun SelfUserProfileContent(
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
                             editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
-                            else EditableState.IsEditable(onEditClick),
-                            securityClassificationType = SecurityClassificationType.NONE
+                            else EditableState.IsEditable(onEditClick)
                         )
                     }
                     stickyHeader {
@@ -412,6 +414,7 @@ private fun LoggingOutDialog(isLoggingOut: Boolean) {
 fun PreviewSelfUserProfileScreen() {
     SelfUserProfileContent(
         SelfUserProfileState(
+            userId = UserId("value", "domain"),
             status = UserAvailabilityStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
             userName = "userName_long_long_long_long_long_long_long_long_long_long",

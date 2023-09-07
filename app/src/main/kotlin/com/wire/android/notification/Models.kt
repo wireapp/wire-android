@@ -23,7 +23,7 @@ package com.wire.android.notification
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
-import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 
 data class NotificationConversation(
@@ -64,30 +64,46 @@ data class NotificationConversation(
     }
 }
 
-sealed class NotificationMessage(open val author: NotificationMessageAuthor?, open val time: Long) {
+sealed class NotificationMessage(open val messageId: String, open val author: NotificationMessageAuthor?, open val time: Long) {
     data class ObfuscatedMessage(
+        override val messageId: String,
         override val time: Long
-    ) : NotificationMessage(null, time)
+    ) : NotificationMessage(messageId, null, time)
 
     data class Text(
+        override val messageId: String,
         override val author: NotificationMessageAuthor,
         override val time: Long,
         val text: String,
         val isQuotingSelfUser: Boolean
-    ) : NotificationMessage(author, time)
+    ) : NotificationMessage(messageId, author, time)
 
     // shared file, picture, reaction
-    data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
-        NotificationMessage(author, time)
+    data class Comment(
+        override val messageId: String,
+        override val author: NotificationMessageAuthor,
+        override val time: Long,
+        val textResId: CommentResId
+    ) :
+        NotificationMessage(messageId, author, time)
 
-    data class Knock(override val author: NotificationMessageAuthor, override val time: Long) :
-        NotificationMessage(author, time)
+    data class Knock(override val messageId: String, override val author: NotificationMessageAuthor, override val time: Long) :
+        NotificationMessage(messageId, author, time)
 
-    data class ConnectionRequest(override val author: NotificationMessageAuthor, override val time: Long, val authorId: String) :
-        NotificationMessage(author, time)
+    data class ConnectionRequest(
+        override val messageId: String,
+        override val author: NotificationMessageAuthor,
+        override val time: Long,
+        val authorId: String
+    ) :
+        NotificationMessage(messageId, author, time)
 
-    data class ConversationDeleted(override val author: NotificationMessageAuthor, override val time: Long) :
-        NotificationMessage(author, time)
+    data class ConversationDeleted(
+        override val messageId: String,
+        override val author: NotificationMessageAuthor,
+        override val time: Long
+    ) :
+        NotificationMessage(messageId, author, time)
 }
 
 data class NotificationMessageAuthor(val name: String, val image: ByteArray?) {
@@ -122,7 +138,7 @@ enum class CommentResId(@StringRes val value: Int) {
     KNOCK(R.string.notification_knock),
 }
 
-fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {
+fun LocalNotification.Conversation.intoNotificationConversation(): NotificationConversation {
 
     val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
     val lastMessageTime = this.messages.maxOfOrNull { it.time.toEpochMilliseconds() } ?: 0
@@ -145,6 +161,7 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         is LocalNotificationMessage.Text -> {
             val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.Text(
+                messageId = messageId,
                 author = notificationMessageAuthor,
                 time = notificationMessageTime,
                 text = text,
@@ -155,6 +172,7 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         is LocalNotificationMessage.Comment -> {
             val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.Comment(
+                messageId,
                 notificationMessageAuthor,
                 notificationMessageTime,
                 type.intoCommentResId()
@@ -164,6 +182,7 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         is LocalNotificationMessage.ConnectionRequest -> {
             val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.ConnectionRequest(
+                messageId,
                 notificationMessageAuthor,
                 notificationMessageTime,
                 this.authorId.toString()
@@ -173,6 +192,7 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         is LocalNotificationMessage.ConversationDeleted -> {
             val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.ConversationDeleted(
+                messageId,
                 notificationMessageAuthor,
                 notificationMessageTime
             )
@@ -181,12 +201,14 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         is LocalNotificationMessage.Knock -> {
             val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
             NotificationMessage.Knock(
+                messageId,
                 notificationMessageAuthor,
                 notificationMessageTime
             )
         }
 
         is LocalNotificationMessage.SelfDeleteMessage -> NotificationMessage.ObfuscatedMessage(
+            messageId,
             notificationMessageTime
         )
     }

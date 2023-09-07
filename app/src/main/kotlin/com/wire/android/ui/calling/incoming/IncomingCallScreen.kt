@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,12 +46,13 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
+import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
+import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
@@ -60,8 +62,10 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
 @Destination(
@@ -74,9 +78,19 @@ fun IncomingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
         incomingCallViewModel::acceptCall,
-        incomingCallViewModel::declineCall
+        incomingCallViewModel::showPermissionDialog
+    )
+
+    MicrophoneBTPermissionsDeniedDialog(
+        shouldShow = incomingCallViewModel.incomingCallState.shouldShowPermissionDialog,
+        onDismiss = incomingCallViewModel::dismissPermissionDialog,
+        onOpenSettings = {
+            context.openAppInfoScreen()
+        }
     )
 
     with(incomingCallViewModel) {
@@ -97,7 +111,8 @@ fun IncomingCallScreen(
                 )
             )
 
-            is IncomingCallState.FlowState.Default -> { /* do nothing */ }
+            is IncomingCallState.FlowState.Default -> { /* do nothing */
+            }
         }
     }
     with(sharedCallingViewModel) {
@@ -204,33 +219,34 @@ private fun IncomingCallContent(
             } else stringResource(R.string.calling_label_incoming_call)
 
             CallerDetails(
+                conversationId = callState.conversationId,
                 conversationName = callState.conversationName,
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = isCallingString,
-                securityClassificationType = callState.securityClassificationType
+                callingLabel = isCallingString
             )
         }
     }
 }
 
 @Composable
-private fun AudioBluetoothPermissionCheckFlow(
+fun AudioBluetoothPermissionCheckFlow(
     onAcceptCall: () -> Unit,
-    onDeclineCall: () -> Unit
-) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-    appLogger.d("IncomingCall - Permissions granted")
-    onAcceptCall()
-}) {
-    appLogger.d("IncomingCall - Permissions denied")
-    onDeclineCall()
-}
+    onPermanentPermissionDecline: () -> Unit,
+) = rememberCallingRecordAudioBluetoothRequestFlow(
+    onAudioBluetoothPermissionGranted = {
+        appLogger.d("IncomingCall - Permissions granted")
+        onAcceptCall()
+    },
+    onAudioBluetoothPermissionDenied = { },
+    onAudioBluetoothPermissionPermanentlyDenied = onPermanentPermissionDecline
+)
 
 @Preview
 @Composable
 fun PreviewIncomingCallScreen() {
-    IncomingCallContent(CallState(), {}, {}, {}, {}, {}, {}, {})
+    IncomingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {})
 }

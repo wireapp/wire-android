@@ -51,7 +51,8 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
+    onJoinCall: (ConversationId) -> Unit,
+    onPermanentPermissionDecline: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -77,6 +78,7 @@ fun ConversationList(
                 header = when (conversationFolder) {
                     is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
                     is ConversationFolder.Custom -> conversationFolder.folderName
+                    is ConversationFolder.WithoutHeader -> null
                 },
                 items = conversationList.associateBy {
                     it.conversationId.toString()
@@ -92,7 +94,8 @@ fun ConversationList(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     openNotificationsOptions = onOpenConversationNotificationsSettings,
-                    joinCall = onJoinCall
+                    joinCall = onJoinCall,
+                    onPermanentPermissionDecline = onPermanentPermissionDecline
                 )
             }
         }

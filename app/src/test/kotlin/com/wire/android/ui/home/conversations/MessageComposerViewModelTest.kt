@@ -192,6 +192,7 @@ class MessageComposerViewModelTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             }
@@ -228,6 +229,7 @@ class MessageComposerViewModelTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             }
@@ -248,6 +250,7 @@ class MessageComposerViewModelTest {
 
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
+                    any(),
                     any(),
                     any(),
                     any(),
@@ -287,6 +290,7 @@ class MessageComposerViewModelTest {
             // Then
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
+                    any(),
                     any(),
                     any(),
                     any(),
@@ -333,6 +337,7 @@ class MessageComposerViewModelTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             }
@@ -368,6 +373,7 @@ class MessageComposerViewModelTest {
             // Then
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
+                    any(),
                     any(),
                     any(),
                     any(),
@@ -418,6 +424,7 @@ class MessageComposerViewModelTest {
                         any(),
                         any(),
                         any(),
+                        any(),
                         any()
                     )
                 }
@@ -449,6 +456,7 @@ class MessageComposerViewModelTest {
             // Then
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(
+                    any(),
                     any(),
                     any(),
                     any(),
@@ -553,6 +561,7 @@ class MessageComposerViewModelTest {
             // Then
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(
+                    any(),
                     any(),
                     any(),
                     any(),

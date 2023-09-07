@@ -184,7 +184,7 @@ fun SelfDeletionTimerButton(
                     colorFilter = ColorFilter.tint(
                         when {
                             isDisabled -> colorsScheme().onPrimaryButtonDisabled
-                            isSelected -> colorsScheme().onPrimaryButtonSelected
+                            isSelected -> colorsScheme().onSecondaryButtonSelected
                             else -> colorsScheme().onSecondaryButtonEnabled
                         }
                     )
@@ -197,7 +197,7 @@ fun SelfDeletionTimerButton(
             },
             colors = wireSecondaryButtonColors().copy(
                 disabled = colorsScheme().primaryButtonDisabled,
-                selected = colorsScheme().primaryButtonEnabled,
+                selected = colorsScheme().secondaryButtonSelected,
                 selectedOutline = colorsScheme().primaryButtonEnabled,
             ),
             onClick = onSelfDeletionTimerClicked,

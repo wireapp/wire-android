@@ -64,7 +64,6 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -149,9 +148,6 @@ internal class MessageComposerViewModelArrangement {
     lateinit var fileManager: FileManager
 
     @MockK
-    private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
-
-    @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
 
     @MockK
@@ -195,7 +191,6 @@ internal class MessageComposerViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDate = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
-            observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
             membersToMention = membersToMention,
             getAssetSizeLimit = getAssetSizeLimitUseCase,
@@ -214,7 +209,6 @@ internal class MessageComposerViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
-        coEvery { observeSecurityClassificationType(any()) } returns emptyFlow()
         coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (1 to 1)
         coEvery { observeConversationSelfDeletionStatus(any(), any()) } returns emptyFlow()
         coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
@@ -233,6 +227,7 @@ internal class MessageComposerViewModelArrangement {
     fun withSuccessfulSendAttachmentMessage() = apply {
         coEvery {
             sendAssetMessage(
+                any(),
                 any(),
                 any(),
                 any(),

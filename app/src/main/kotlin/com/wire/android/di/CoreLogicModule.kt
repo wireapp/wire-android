@@ -65,7 +65,7 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
@@ -126,7 +126,7 @@ import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import com.wire.kalium.logic.network.NetworkStateObserver
+import com.wire.kalium.network.NetworkStateObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -1124,7 +1124,7 @@ class UseCaseModule {
     fun provideGetOtherUserSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetOtherUserSecurityClassificationLabelUseCase =
+    ): ObserveOtherUserSecurityClassificationLabelUseCase =
         coreLogic.getSessionScope(currentAccount).getOtherUserSecurityClassificationLabel
 
     @ViewModelScoped

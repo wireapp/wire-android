@@ -90,6 +90,7 @@ fun WireDialog(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     WireDialog(
@@ -113,6 +114,7 @@ fun WireDialog(
             )
             withStyle(style) { append(text) }
         },
+        centerContent = centerContent,
         content = content
     )
 }
@@ -131,6 +133,7 @@ fun WireDialog(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
@@ -147,6 +150,7 @@ fun WireDialog(
             contentPadding = contentPadding,
             title = title,
             text = text,
+            centerContent = centerContent,
             content = content
         )
     }
@@ -163,6 +167,7 @@ private fun WireDialogContent(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
+    centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     val uriHandler = LocalUriHandler.current
@@ -176,8 +181,8 @@ private fun WireDialogContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(contentPadding)
-                .verticalScroll(rememberScrollState())
+                .padding(contentPadding),
+            horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
             Text(
                 text = title,

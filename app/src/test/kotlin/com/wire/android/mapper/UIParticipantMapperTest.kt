@@ -124,7 +124,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     availabilityStatus = UserAvailabilityStatus.NONE,
     userType = UserType.INTERNAL,
     botService = null,
-    deleted = false
+    deleted = false,
+    defederated = false
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

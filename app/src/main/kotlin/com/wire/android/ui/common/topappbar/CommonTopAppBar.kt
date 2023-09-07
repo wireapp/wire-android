@@ -34,9 +34,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -105,7 +105,8 @@ private fun ConnectivityStatusBar(
         .animateContentSize()
         .fillMaxWidth()
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
-        .background(backgroundColor).run {
+        .background(backgroundColor)
+        .run {
             if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall) {
                 clickable(onClick = { onReturnToCallClick(connectivityInfo) })
             } else this
@@ -121,22 +122,15 @@ private fun ConnectivityStatusBar(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall) {
-                OngoingCallContent(connectivityInfo.isMuted)
-            } else {
-                val isConnecting = connectivityInfo is ConnectivityUIState.Info.Connecting
-                ConnectivityIssueContent(isConnecting)
+            when (connectivityInfo) {
+                is ConnectivityUIState.Info.EstablishedCall -> OngoingCallContent(connectivityInfo.isMuted)
+                ConnectivityUIState.Info.Connecting -> StatusLabel(R.string.connectivity_status_bar_connecting)
+                ConnectivityUIState.Info.WaitingConnection ->
+                    StatusLabel(R.string.connectivity_status_bar_waiting_for_network)
+                ConnectivityUIState.Info.None -> {}
             }
         }
     }
-}
-
-@Composable
-private fun ConnectivityIssueContent(isConnecting: Boolean) {
-    val stringResource = if (isConnecting) R.string.connectivity_status_bar_connecting
-    else R.string.connectivity_status_bar_waiting_for_network
-
-    StatusLabel(stringResource)
 }
 
 @Composable

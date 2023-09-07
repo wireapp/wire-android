@@ -44,7 +44,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.KeepOnScreenPopUpNavigationAnimation
+import com.wire.android.navigation.style.KeepOnScreenPopUpNavigationAnimation
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallState
@@ -58,6 +58,7 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
 @Destination(
@@ -76,7 +77,9 @@ fun InitiatingCallScreen(
             InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
             InitiatingCallState.FlowState.CallEstablished ->
                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
-            InitiatingCallState.FlowState.Default -> { /* do nothing */ }
+
+            InitiatingCallState.FlowState.Default -> { /* do nothing */
+            }
         }
     }
     with(sharedCallingViewModel) {
@@ -148,14 +151,14 @@ private fun InitiatingCallContent(
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
             CallerDetails(
+                callState.conversationId,
                 conversationName = callState.conversationName,
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = stringResource(id = R.string.calling_label_ringing_call),
-                securityClassificationType = callState.securityClassificationType
+                callingLabel = stringResource(id = R.string.calling_label_ringing_call)
             )
         }
     }
@@ -164,5 +167,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallContent(CallState(), {}, {}, {}, {}, {}, {})
+    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {})
 }

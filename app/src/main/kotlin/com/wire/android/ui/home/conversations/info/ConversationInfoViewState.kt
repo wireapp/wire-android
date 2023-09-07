@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 
 data class ConversationInfoViewState(
+    val conversationId: QualifiedID,
     val conversationName: UIText = UIText.DynamicString(""),
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
@@ -39,21 +40,20 @@ data class ConversationInfoViewState(
 )
 
 sealed class ConversationDetailsData {
-    object None : ConversationDetailsData()
+    data object None : ConversationDetailsData()
     data class OneOne(
         val otherUserId: UserId,
         val otherUserName: String?,
         val connectionState: ConnectionState,
         val isBlocked: Boolean,
         val isDeleted: Boolean
-    ) :
-        ConversationDetailsData()
+    ) : ConversationDetailsData()
 
     data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
 }
 
 sealed class ConversationAvatar {
-    object None : ConversationAvatar()
+    data object None : ConversationAvatar()
     data class OneOne(val avatarAsset: ImageAsset.UserAvatarAsset?, val status: UserAvailabilityStatus) : ConversationAvatar()
     data class Group(val conversationId: QualifiedID) : ConversationAvatar()
 }

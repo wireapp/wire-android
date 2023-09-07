@@ -46,11 +46,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
+import com.wire.android.ui.calling.controlbuttons.StartCallButton
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -65,6 +64,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.conversation.ConversationProtocol
@@ -80,6 +80,7 @@ fun ConversationScreenTopAppBar(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit,
     isInteractionEnabled: Boolean,
 ) {
     SmallTopAppBar(
@@ -145,9 +146,10 @@ fun ConversationScreenTopAppBar(
                 )
             }
 
-            callControlButton(
+            CallControlButton(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
+                onPermanentPermissionDecline = onPermanentPermissionDecline,
                 onPhoneButtonClick = onPhoneButtonClick,
                 isCallingEnabled = isInteractionEnabled
             )
@@ -185,33 +187,24 @@ private fun Avatar(
 }
 
 @Composable
-private fun callControlButton(
+private fun CallControlButton(
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
+            onPermanentPermissionDecline = onPermanentPermissionDecline,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
     } else {
-        WireSecondaryButton(
-            onClick = onPhoneButtonClick,
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_phone),
-                    contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
-                )
-            },
-            state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
-            fillMaxWidth = false,
-            minHeight = MaterialTheme.wireDimensions.spacing32x,
-            minWidth = MaterialTheme.wireDimensions.spacing40x,
-            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-            shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
-            contentPadding = PaddingValues(0.dp)
+        StartCallButton(
+            onPhoneButtonClick = onPhoneButtonClick,
+            onPermanentPermissionDecline = onPermanentPermissionDecline,
+            isCallingEnabled = isCallingEnabled
         )
     }
 }
@@ -221,6 +214,7 @@ private fun callControlButton(
 fun PreviewConversationScreenTopAppBarLongTitle() {
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
@@ -234,6 +228,7 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true
     )
 }
@@ -244,6 +239,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
     val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
@@ -255,6 +251,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true
     )
 }
@@ -265,6 +262,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
     val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
             conversationDetailsData = ConversationDetailsData.Group(conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
@@ -276,6 +274,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true
     )
 }

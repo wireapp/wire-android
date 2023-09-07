@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.BlockedLabel
 import com.wire.android.ui.common.DeletedLabel
@@ -66,12 +65,15 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
 @Composable
 private fun MissedCallBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
-        modifier = modifier.width(24.dp).height(18.dp),
+        modifier = modifier
+            .width(dimensions().spacing24x)
+            .height(dimensions().spacing20x),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_missed_call),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = Modifier.height(dimensions().spacing18x)
             )
         }
     )
@@ -80,12 +82,15 @@ private fun MissedCallBadge(modifier: Modifier = Modifier) {
 @Composable
 private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
-        modifier = modifier.width(24.dp).height(18.dp),
+        modifier = modifier
+            .width(dimensions().spacing24x)
+            .height(dimensions().spacing20x),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_mention),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge)
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = Modifier.height(dimensions().spacing18x)
             )
         }
     )
@@ -94,12 +99,15 @@ private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
 @Composable
 private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
-        modifier = modifier.width(24.dp).height(18.dp),
+        modifier = modifier
+            .width(dimensions().spacing24x)
+            .height(dimensions().spacing20x),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge)
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = Modifier.height(dimensions().spacing18x)
             )
         }
     )
@@ -108,12 +116,15 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
 @Composable
 fun UnreadKnockBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
-        modifier = modifier.width(24.dp).height(18.dp),
+        modifier = modifier
+            .width(dimensions().spacing24x)
+            .height(dimensions().spacing20x),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_knock),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge)
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = Modifier.height(dimensions().spacing18x)
             )
         }
     )
@@ -122,12 +133,15 @@ fun UnreadKnockBadge(modifier: Modifier = Modifier) {
 @Composable
 fun ConnectRequestBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
-        modifier = modifier.width(24.dp).height(18.dp),
+        modifier = modifier
+            .width(dimensions().spacing24x)
+            .height(dimensions().spacing20x),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_connect_request),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge)
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = Modifier.height(dimensions().spacing18x)
             )
         }
     )

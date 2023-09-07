@@ -43,9 +43,13 @@ import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.network.NetworkState
-import com.wire.kalium.logic.network.NetworkStateObserver
+import com.wire.kalium.logic.util.ExponentialDurationHelperImpl
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * An ImageLoader that is able to load AssetIds supplied by Kalium.
@@ -59,6 +63,8 @@ class WireSessionImageLoader(
 ) {
     private companion object {
         const val RETRY_INCREMENT_ATTEMPT_PER_STEP = 1
+        val MIN_RETRY_DELAY = 1.seconds
+        val MAX_RETRY_DELAY = 10.minutes
     }
 
     /**
@@ -74,6 +80,7 @@ class WireSessionImageLoader(
         fallbackData: Any? = null
     ): Painter {
         var retryHash by remember { mutableStateOf(0) }
+        val exponentialDurationHelper = remember { ExponentialDurationHelperImpl(MIN_RETRY_DELAY, MAX_RETRY_DELAY) }
         val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .memoryCacheKey(asset?.uniqueKey)
@@ -85,18 +92,26 @@ class WireSessionImageLoader(
                 )
                 .build(),
             error = (fallbackData as? Int)?.let { painterResource(id = it) },
+            placeholder = (fallbackData as? Int)?.let { painterResource(id = it) },
             imageLoader = coilImageLoader
         )
 
         LaunchedEffect(painter.state) {
             if (painter.state is AsyncImagePainter.State.Error) {
-                val isRetryNeeded =
-                    ((painter.state as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)?.isRetryNeeded ?: false
-                if (isRetryNeeded) {
+                val retryPolicy = ((painter.state as AsyncImagePainter.State.Error).result.throwable as? AssetImageException)?.retryPolicy
+                    ?: AssetImageRetryPolicy.DO_NOT_RETRY
+
+                if (retryPolicy == AssetImageRetryPolicy.EXPONENTIAL_RETRY_WHEN_CONNECTED) {
+                    delay(exponentialDurationHelper.next())
+                }
+
+                if (retryPolicy != AssetImageRetryPolicy.DO_NOT_RETRY) {
                     networkStateObserver.observeNetworkState().firstOrNull { it == NetworkState.ConnectedWithInternet }.let {
                         retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
                     }
                 }
+            } else {
+                exponentialDurationHelper.reset()
             }
         }
         return painter

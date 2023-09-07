@@ -37,6 +37,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -56,9 +59,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -66,6 +66,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
@@ -84,6 +85,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.spacers.VerticalSpace.x24
 import com.wire.android.ui.common.topBarElevation
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
@@ -109,7 +111,8 @@ import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = OtherUserProfileNavArgs::class
+    navArgsDelegate = OtherUserProfileNavArgs::class,
+    style = PopUpNavigationAnimation::class,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +147,8 @@ fun OtherUserProfileScreen(
         },
         onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
         onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
-        navigateBack = navigator::navigateBack
+        navigateBack = navigator::navigateBack,
+        navigationIconType = NavigationIconType.Close,
     )
 
     LaunchedEffect(Unit) {
@@ -165,6 +169,7 @@ fun OtherUserProfileScreen(
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
+    navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
     sheetState: WireModalSheetState,
     openBottomSheet: () -> Unit,
@@ -247,6 +252,7 @@ fun OtherProfileScreenContent(
         topBarHeader = { elevation ->
             TopBarHeader(
                 state = state,
+                navigationIconType = navigationIconType,
                 elevation = elevation,
                 onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
@@ -321,12 +327,14 @@ fun OtherProfileScreenContent(
 @Composable
 private fun TopBarHeader(
     state: OtherUserProfileState,
+    navigationIconType: NavigationIconType,
     elevation: Dp,
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
+        navigationIconType = navigationIconType,
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
@@ -345,6 +353,7 @@ private fun TopBarHeader(
 private fun TopBarCollapsing(state: OtherUserProfileState) {
     Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
         UserProfileInfo(
+            userId = state.userId,
             isLoading = state.isAvatarLoading,
             avatarAsset = state.userAvatarAsset,
             fullName = state.fullName,
@@ -353,8 +362,7 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
             membership = state.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = state.connectionState,
-            securityClassificationType = state.securityClassificationType
+            connection = state.connectionState
         )
     }
 }
@@ -494,13 +502,16 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DEVICES(R.string.user_profile_devices_tab);
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Connected")
 fun PreviewOtherProfileScreenContent() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
+            NavigationIconType.Back,
+            false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileBottomSheetEventsHandler.PREVIEW
@@ -508,13 +519,16 @@ fun PreviewOtherProfileScreenContent() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Not Connected")
 fun PreviewOtherProfileScreenContentNotConnected() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
+            NavigationIconType.Back,
+            false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileBottomSheetEventsHandler.PREVIEW,

@@ -91,6 +91,7 @@ data class WireDimensions(
     // Buttons
     val buttonMinSize: DpSize,
     val buttonSmallMinSize: DpSize,
+    val buttonMediumMinSize: DpSize,
     val buttonHorizontalContentPadding: Dp,
     val buttonVerticalContentPadding: Dp,
     val buttonCornerSize: Dp,
@@ -239,6 +240,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     codeFieldItemHeight = 60.dp,
     buttonMinSize = DpSize(60.dp, 48.dp),
     buttonSmallMinSize = DpSize(40.dp, 32.dp),
+    buttonMediumMinSize = DpSize(51.dp, 32.dp),
     buttonHorizontalContentPadding = 16.dp,
     buttonVerticalContentPadding = 8.dp,
     buttonCornerSize = 12.dp,

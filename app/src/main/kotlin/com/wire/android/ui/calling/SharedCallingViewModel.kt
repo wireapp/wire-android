@@ -56,7 +56,6 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -92,14 +91,13 @@ class SharedCallingViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val currentScreenManager: CurrentScreenManager,
-    private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
-    var callState by mutableStateOf(CallState())
-
     private val callingNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = callingNavArgs.conversationId
+
+    var callState by mutableStateOf(CallState(conversationId))
 
     init {
         viewModelScope.launch {
@@ -124,17 +122,8 @@ class SharedCallingViewModel @Inject constructor(
                 observeOnSpeaker(this)
             }
             launch {
-                setClassificationType()
-            }
-            launch {
                 observeScreenState()
             }
-        }
-    }
-
-    private suspend fun setClassificationType() {
-        observeSecurityClassificationLabel(conversationId).collect { classificationType ->
-            callState = callState.copy(securityClassificationType = classificationType)
         }
     }
 

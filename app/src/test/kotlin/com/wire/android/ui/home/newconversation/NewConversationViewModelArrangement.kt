@@ -31,6 +31,7 @@ import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -69,7 +70,7 @@ internal class NewConversationViewModelArrangement {
             SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         )
         coEvery { searchKnownUsers(any()) } returns flowOf(
-            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
+            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(FEDERATED_KNOWN_USER)))
         )
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         every { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
@@ -85,7 +86,7 @@ internal class NewConversationViewModelArrangement {
             membership = Membership.Federated
         )
 
-        every { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
+        every { contactMapper.fromOtherUser(FEDERATED_KNOWN_USER) } returns Contact(
             id = "knownValue",
             domain = "domain",
             name = "knownUsername",
@@ -98,7 +99,7 @@ internal class NewConversationViewModelArrangement {
             membership = Membership.Federated
         )
 
-        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(KNOWN_USER)))
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(FEDERATED_KNOWN_USER)))
 
         coEvery { getAllServices() } returns flowOf(listOf<ServiceDetails>())
     }
@@ -171,10 +172,11 @@ internal class NewConversationViewModelArrangement {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
             botService = null,
-            deleted = false
+            deleted = false,
+            defederated = false
         )
 
-        val KNOWN_USER = OtherUser(
+        val FEDERATED_KNOWN_USER = OtherUser(
             TestUser.USER_ID.copy(value = "knownValue"),
             name = "knownUsername",
             handle = "knownHandle",
@@ -188,7 +190,8 @@ internal class NewConversationViewModelArrangement {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
             botService = null,
-            deleted = false
+            deleted = false,
+            defederated = false
         )
     }
 
@@ -209,6 +212,18 @@ internal class NewConversationViewModelArrangement {
 
     fun withFailureKnownSearchResponse() = apply {
         coEvery { searchKnownUsers(any()) } returns flowOf(SearchUsersResult.Failure.InvalidRequest)
+    }
+
+    fun withFailureGetAllKnownUsersResponse() = apply {
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Failure(StorageFailure.DataNotFound))
+    }
+
+    fun withEmptySuccessGetAllKnownUsersResponse() = apply {
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(emptyList()))
+    }
+
+    fun withSuccessGetAllKnownUsersResponse() = apply {
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(FEDERATED_KNOWN_USER)))
     }
 
     fun withFailurePublicSearchResponse() = apply {

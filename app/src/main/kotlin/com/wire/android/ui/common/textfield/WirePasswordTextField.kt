@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -76,57 +77,99 @@ fun WirePasswordTextField(
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
-    autofillTypes: List<AutofillType> = listOf(AutofillType.Password)
+    autofill: Boolean,
+    onTap: (Offset) -> Unit = { },
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
-    AutoFillTextField(
-        autofillTypes = autofillTypes,
-        value = value,
-        onValueChange = onValueChange,
-        readOnly = readOnly,
-        singleLine = true,
-        maxLines = 1,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = imeAction),
-        keyboardActions = keyboardActions,
-        placeholderText = placeholderText,
-        labelText = labelText,
-        labelMandatoryIcon = labelMandatoryIcon,
-        descriptionText = descriptionText,
-        state = state,
-        interactionSource = interactionSource,
-        textStyle = textStyle,
-        placeholderTextStyle = placeHolderTextStyle,
-        inputMinHeight = inputMinHeight,
-        shape = shape,
-        colors = colors,
-        modifier = modifier,
-        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            val image = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-            IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                Icon(
-                    imageVector = image,
-                    contentDescription = stringResource(
-                        if (!passwordVisibility) R.string.content_description_reveal_password
-                        else R.string.content_description_hide_password
-                    ),
-                    modifier = Modifier
-                        .size(20.dp)
-                        .testTag("hidePassword")
-                )
-            }
-        },
-    )
+
+    val keyBoardOption = remember {
+        KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrect = false, imeAction = imeAction)
+    }
+
+    val visualTransformation = remember(passwordVisibility) {
+        if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation()
+    }
+
+    val icon = remember(passwordVisibility) {
+        if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+    }
+
+    val iconButton = @Composable {
+        IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
+            Icon(
+                imageVector = icon,
+                contentDescription = stringResource(
+                    if (!passwordVisibility) R.string.content_description_reveal_password
+                    else R.string.content_description_hide_password
+                ),
+                modifier = Modifier
+                    .size(20.dp)
+                    .testTag("hidePassword")
+            )
+        }
+    }
+
+    if (autofill) {
+        AutoFillTextField(
+            value = value,
+            onValueChange = onValueChange,
+            readOnly = readOnly,
+            singleLine = true,
+            maxLines = 1,
+            keyboardOptions = keyBoardOption,
+            keyboardActions = keyboardActions,
+            placeholderText = placeholderText,
+            labelText = labelText,
+            labelMandatoryIcon = labelMandatoryIcon,
+            descriptionText = descriptionText,
+            state = state,
+            interactionSource = interactionSource,
+            textStyle = textStyle,
+            placeholderTextStyle = placeHolderTextStyle,
+            inputMinHeight = inputMinHeight,
+            shape = shape,
+            colors = colors,
+            modifier = modifier,
+            visualTransformation = visualTransformation,
+            trailingIcon = iconButton,
+            autofillTypes = listOf(AutofillType.Password),
+            onTap = onTap
+        )
+    } else {
+        WireTextField(
+            value = value,
+            onValueChange = onValueChange,
+            readOnly = readOnly,
+            singleLine = true,
+            maxLines = 1,
+            keyboardOptions = keyBoardOption,
+            keyboardActions = keyboardActions,
+            placeholderText = placeholderText,
+            labelText = labelText,
+            labelMandatoryIcon = labelMandatoryIcon,
+            descriptionText = descriptionText,
+            state = state,
+            interactionSource = interactionSource,
+            textStyle = textStyle,
+            placeholderTextStyle = placeHolderTextStyle,
+            inputMinHeight = inputMinHeight,
+            shape = shape,
+            colors = colors,
+            modifier = modifier,
+            visualTransformation = visualTransformation,
+            trailingIcon = iconButton,
+            onTap = onTap
+        )
+    }
 }
 
-
-@OptIn(ExperimentalComposeUiApi::class)
 @Preview(name = "Default WirePasswordTextField")
 @Composable
 fun PreviewWirePasswordTextField() {
     WirePasswordTextField(
         value = TextFieldValue(""),
         onValueChange = {},
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
+        autofill = false
     )
 }

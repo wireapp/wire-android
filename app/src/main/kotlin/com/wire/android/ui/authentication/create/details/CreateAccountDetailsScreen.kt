@@ -41,7 +41,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -122,9 +121,7 @@ private fun DetailsContent(
         ) {
             val keyboardOptions = KeyboardOptions(KeyboardCapitalization.Words, true, KeyboardType.Text, ImeAction.Next)
             val keyboardController = LocalSoftwareKeyboardController.current
-            val focusRequesterFirstName = remember { FocusRequester() }
-            val focusRequesterLastName = remember { FocusRequester() }
-            val focusRequesterTeamName = remember { FocusRequester() }
+            val firstNameFocusRequester = remember { FocusRequester() }
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -133,13 +130,6 @@ private fun DetailsContent(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-
-                val requestFocus = remember<(Offset) -> Unit> {
-                    { _ ->
-                        keyboardController?.show()
-                        focusRequesterTeamName.requestFocus()
-                    }
-                }
 
                 Text(
                     text = stringResource(R.string.create_personal_account_details_text),
@@ -166,7 +156,7 @@ private fun DetailsContent(
                             end = MaterialTheme.wireDimensions.spacing16x,
                             bottom = MaterialTheme.wireDimensions.spacing16x
                         )
-                        .focusRequester(focusRequesterFirstName)
+                        .focusRequester(firstNameFocusRequester)
                         .testTag("firstName"),
                 )
 
@@ -184,10 +174,7 @@ private fun DetailsContent(
                             end = MaterialTheme.wireDimensions.spacing16x,
                             bottom = MaterialTheme.wireDimensions.spacing16x
                         )
-                        .focusRequester(focusRequesterLastName)
                         .testTag("lastName"),
-                    shouldDetectTaps = true,
-                    onTap = requestFocus
                 )
 
                 if (state.type == CreateAccountFlowType.CreateTeam) {
@@ -205,10 +192,7 @@ private fun DetailsContent(
                                 end = MaterialTheme.wireDimensions.spacing16x,
                                 bottom = MaterialTheme.wireDimensions.spacing16x
                             )
-                            .testTag("teamName")
-                            .focusRequester(focusRequesterTeamName),
-                        shouldDetectTaps = true,
-                        onTap = requestFocus
+                            .testTag("teamName"),
                     )
                 }
 
@@ -227,7 +211,6 @@ private fun DetailsContent(
                         WireTextFieldState.Default
                     },
                     autofill = false,
-                    onTap = requestFocus
                 )
 
                 WirePasswordTextField(
@@ -251,12 +234,11 @@ private fun DetailsContent(
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
                     } else WireTextFieldState.Default,
                     autofill = false,
-                    onTap = requestFocus
                 )
             }
 
             LaunchedEffect(Unit) {
-                focusRequesterFirstName.requestFocus()
+                firstNameFocusRequester.requestFocus()
                 keyboardController?.show()
             }
 

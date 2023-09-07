@@ -1132,9 +1132,9 @@
     <string name="record_audio_max_file_size_reached_title">පටිගතය නතර විය</string>
     <string name="record_audio_max_file_size_reached_text">හඬ පණිවිඩ ගොනුවක ප්‍රමාණය මෙ.බ. %1$d කට සීමා වේ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර හඬ පණිවිඩ පටිගත කිරීමට නොහැකිය.</string>
-    <string name="call_permission_dialog_title">Call on Wire</string>
-    <string name="call_permission_dialog_description">Allow Wire access to your microphone and bluetooth to make this call.</string>
-    <string name="label_decline">Decline</string>
+    <string name="permission_dialog_title">App permissions</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
+    <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">සංවාදයේ මුරපදය</string>
     <string name="join_conversation_dialog_password_placeholder">මුරපදය යොදන්න</string>

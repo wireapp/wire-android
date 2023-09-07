@@ -289,7 +289,9 @@ fun PreviewWireDialog() {
             ) {
                 WirePasswordTextField(
                     value = password,
-                    onValueChange = { password = it })
+                    onValueChange = { password = it },
+                    autofill = false
+                )
             }
         }
     }
@@ -337,7 +339,9 @@ fun PreviewWireDialogWith2OptionButtons() {
             ) {
                 WirePasswordTextField(
                     value = password,
-                    onValueChange = { password = it })
+                    onValueChange = { password = it },
+                    autofill = true
+                )
             }
         }
     }

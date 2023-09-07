@@ -88,7 +88,7 @@ fun UserProfileInfo(
     ) {
         Box(contentAlignment = Alignment.Center) {
             UserProfileAvatar(
-                size = dimensions().userAvatarDefaultBigSize,
+                size = dimensions().avatarDefaultBigSize,
                 avatarData = UserAvatarData(
                     asset = avatarAsset,
                     connectionState = connection,
@@ -104,7 +104,7 @@ fun UserProfileInfo(
             if (isLoading) {
                 Box(
                     Modifier
-                        .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+                        .padding(MaterialTheme.wireDimensions.avatarClickablePadding)
                         .clip(CircleShape)
                         .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
                 ) {

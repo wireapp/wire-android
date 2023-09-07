@@ -38,7 +38,6 @@ import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
@@ -154,7 +153,7 @@ fun JoinConversationDialog(
     joinedDialogState: JoinConversationViaCodeState?,
     navigate: (NavigationCommand) -> Unit,
     onJoinConversationFlowCompleted: () -> Unit
-)  {
+) {
     joinedDialogState?.let { state ->
 
         val onComplete: (convId: ConversationId?) -> Unit = remember {

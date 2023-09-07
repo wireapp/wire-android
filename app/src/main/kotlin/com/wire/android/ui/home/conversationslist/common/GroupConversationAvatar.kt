@@ -49,7 +49,6 @@ fun GroupConversationAvatar(
     )
 }
 
-
 @Preview
 @Composable
 fun PreviewGroupConversationAvatar() {

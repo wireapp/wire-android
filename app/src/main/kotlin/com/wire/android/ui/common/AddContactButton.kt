@@ -48,7 +48,6 @@ fun AddContactButton(
             )
         },
         leadingIconAlignment = IconAlignment.Center,
-        //TODO: remove this after the merge into the develop as they are not needed anymore
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,

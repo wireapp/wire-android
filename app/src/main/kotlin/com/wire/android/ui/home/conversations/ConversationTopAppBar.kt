@@ -181,7 +181,6 @@ private fun ConversationScreenTopAppBarContent(
                     isCallingEnabled = isInteractionEnabled
                 )
             }
-
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.onBackground,

@@ -53,7 +53,6 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
@@ -159,10 +158,10 @@ class WireActivity : AppCompatActivity() {
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
                             }
                         )
-                        NavigationGraph(
-                            navigator = navigator,
-                            startDestination = startDestination
-                        )
+//                        NavigationGraph(
+//                            navigator = navigator,
+//                            startDestination = startDestination
+//                        )
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete, scope)
@@ -290,194 +289,6 @@ class WireActivity : AppCompatActivity() {
             },
             viewModel::dismissNewClientsDialog
         )
-    }
-
-    @Composable
-    private fun updateAppDialog(onUpdateClick: () -> Unit, shouldShow: Boolean) {
-        if (shouldShow) {
-            WireDialog(
-                title = stringResource(id = R.string.update_app_dialog_title),
-                text = stringResource(id = R.string.update_app_dialog_body),
-                onDismiss = { },
-                optionButton1Properties = WireDialogButtonProperties(
-                    text = stringResource(id = R.string.update_app_dialog_button),
-                    onClick = onUpdateClick,
-                    type = WireDialogButtonType.Primary
-                ),
-                properties = wireDialogPropertiesBuilder(
-                    dismissOnBackPress = false,
-                    dismissOnClickOutside = false,
-                    usePlatformDefaultWidth = true
-                )
-            )
-        }
-    }
-
-    @Composable
-    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?, navigate: (NavigationCommand) -> Unit) {
-        joinedDialogState?.let {
-
-            val onComplete: (convId: ConversationId?) -> Unit = remember {
-                {
-                    it?.also {
-                        navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
-                        viewModel.onJoinConversationFlowCompleted()
-                    } ?: run {
-                        viewModel.onJoinConversationFlowCompleted()
-                    }
-                }
-            }
-
-            when (it) {
-                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
-                    errorState = it,
-                    onCancel = { onComplete(null) }
-                )
-
-                is JoinConversationViaCodeState.Show -> {
-                    JoinConversationViaDeepLinkDialog(
-                        name = it.conversationName,
-                        code = it.code,
-                        domain = it.domain,
-                        key = it.key,
-                        requirePassword = it.passwordProtected,
-                        onFlowCompleted = onComplete
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun customBackendDialog(navigate: (NavigationCommand) -> Unit) {
-        with(viewModel) {
-            if (globalAppState.customBackendDialog != null) {
-                CustomServerDialog(
-                    serverLinksTitle = globalAppState.customBackendDialog!!.serverLinks.title,
-                    serverLinksApi = globalAppState.customBackendDialog!!.serverLinks.api,
-                    onDismiss = this::dismissCustomBackendDialog,
-                    onConfirm = { customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
-                )
-            }
-        }
-    }
-
-    @Composable
-    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
-        if (shouldShow) {
-            MaxAccountReachedDialog(
-                onConfirm = onConfirm,
-                onDismiss = onDismiss,
-                buttonText = R.string.max_account_reached_dialog_button_open_profile
-            )
-        }
-    }
-
-    @Composable
-    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?, navigate: (NavigationCommand) -> Unit) {
-        blockUserUI?.let {
-            accountLoggedOutDialog(reason = it) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
-        }
-    }
-
-    @Composable
-    fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
-        appLogger.e("AccountLongedOutDialog: $reason")
-        val (@StringRes title: Int, text: String) = when (reason) {
-            CurrentSessionErrorState.SessionExpired -> {
-                if (BuildConfig.WIPE_ON_COOKIE_INVALID) {
-                    R.string.session_expired_error_title to (
-                            stringResource(id = R.string.session_expired_error_message)
-                                    + "\n\n"
-                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
-                            )
-                } else {
-                    R.string.session_expired_error_title to stringResource(id = R.string.session_expired_error_message)
-                }
-            }
-
-            CurrentSessionErrorState.RemovedClient -> {
-                if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
-                    R.string.removed_client_error_title to (
-                            stringResource(id = R.string.removed_client_error_message)
-                                    + "\n\n"
-                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
-                            )
-                } else {
-                    R.string.removed_client_error_title to stringResource(R.string.removed_client_error_message)
-                }
-            }
-
-            CurrentSessionErrorState.DeletedAccount -> {
-                R.string.deleted_user_error_title to stringResource(R.string.deleted_user_error_message)
-            }
-        }
-        WireDialog(
-            title = stringResource(id = title),
-            text = text,
-            onDismiss = remember { { } },
-            optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.label_ok),
-                onClick = navigateAway,
-                type = WireDialogButtonType.Primary
-            )
-        )
-    }
-
-    @Composable
-    private fun newClientDialog(
-        data: NewClientsData?,
-        openDeviceManager: () -> Unit,
-        switchAccountAndOpenDeviceManager: (UserId) -> Unit,
-        dismiss: (UserId) -> Unit
-    ) {
-        data?.let {
-            val title: String
-            val text: String
-            val btnText: String
-            val btnAction: () -> Unit
-            val dismissAction: () -> Unit = { dismiss(data.userId) }
-            val devicesList = data.clientsInfo.map {
-                stringResource(
-                    R.string.new_device_dialog_message_defice_info,
-                    it.date.formatMediumDateTime() ?: "",
-                    it.deviceInfo.asString()
-                )
-            }.joinToString("")
-            when (data) {
-                is NewClientsData.OtherUser -> {
-                    title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
-                    text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
-                    btnText = stringResource(R.string.new_device_dialog_other_user_btn)
-                    btnAction = { switchAccountAndOpenDeviceManager(data.userId) }
-                }
-
-                is NewClientsData.CurrentUser -> {
-                    title = stringResource(R.string.new_device_dialog_current_user_title)
-                    text = stringResource(R.string.new_device_dialog_current_user_message, devicesList)
-                    btnText = stringResource(R.string.new_device_dialog_current_user_btn)
-                    btnAction = openDeviceManager
-                }
-            }
-            WireDialog(
-                title = title,
-                text = text,
-                onDismiss = dismissAction,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = {
-                        dismissAction()
-                        btnAction()
-                    },
-                    text = btnText,
-                    type = WireDialogButtonType.Secondary
-                ),
-                optionButton2Properties = WireDialogButtonProperties(
-                    text = stringResource(id = R.string.label_ok),
-                    onClick = dismissAction,
-                    type = WireDialogButtonType.Primary
-                )
-            )
-        }
     }
 
     private fun updateTheApp() {

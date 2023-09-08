@@ -53,6 +53,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -132,7 +133,7 @@ class ConversationMessagesViewModel @Inject constructor(
         observeConversationDetails(conversationId)
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
-                if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
+                if (conversationDetailsResult is ObserveConversationDetailsResult.Success) {
                     val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate.let {
                         Instant.parse(it)
                     }

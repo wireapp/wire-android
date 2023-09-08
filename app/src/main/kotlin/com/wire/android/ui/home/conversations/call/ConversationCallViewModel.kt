@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -80,12 +81,12 @@ class ConversationCallViewModel @Inject constructor(
             val hasOngoingCall = calls.any { call -> call.conversationId == conversationId }
             // valid conversation is a conversation where the user is a member and it's not deleted
             val validConversation = when (conversationDetailsResult) {
-                is ObserveConversationDetailsUseCase.Result.Success -> {
+                is ObserveConversationDetailsResult.Success -> {
                     !(conversationDetailsResult.conversationDetails is ConversationDetails.Group &&
                             !(conversationDetailsResult.conversationDetails as ConversationDetails.Group).isSelfUserMember)
                 }
 
-                is ObserveConversationDetailsUseCase.Result.Failure -> false
+                is ObserveConversationDetailsResult.Failure -> false
             }
             hasOngoingCall && validConversation
         }.collectLatest {

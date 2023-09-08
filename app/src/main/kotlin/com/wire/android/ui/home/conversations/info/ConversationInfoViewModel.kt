@@ -40,8 +40,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
-import com.wire.kalium.logic.feature.conversation.GetConversationVerificationStatusUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,7 +56,6 @@ class ConversationInfoViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val getConversationVerificationStatus: GetConversationVerificationStatusUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -75,12 +73,6 @@ class ConversationInfoViewModel @Inject constructor(
         viewModelScope.launch {
             selfUserId = observerSelfUser().first().id
         }
-        viewModelScope.launch {
-            val result = getConversationVerificationStatus(conversationId)
-            if (result is ConversationVerificationStatusResult.Success) {
-                conversationInfoViewState = conversationInfoViewState.copy(verificationStatus = result)
-            }
-        }
     }
 
     /*
@@ -94,9 +86,9 @@ class ConversationInfoViewModel @Inject constructor(
             .collect { it.handleConversationDetailsResult(onNotFound) }
     }
 
-    private fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
+    private fun ObserveConversationDetailsResult.handleConversationDetailsResult(onNotFound: () -> Unit) {
         when (this) {
-            is ObserveConversationDetailsUseCase.Result.Failure -> {
+            is ObserveConversationDetailsResult.Failure -> {
                 when (val failure = this.storageFailure) {
                     is StorageFailure.DataNotFound -> onNotFound()
 
@@ -105,7 +97,7 @@ class ConversationInfoViewModel @Inject constructor(
                 }
             }
 
-            is ObserveConversationDetailsUseCase.Result.Success -> handleConversationDetails(
+            is ObserveConversationDetailsResult.Success -> handleConversationDetails(
                 this.conversationDetails
             )
         }
@@ -125,7 +117,8 @@ class ConversationInfoViewModel @Inject constructor(
             conversationAvatar = getConversationAvatar(conversationDetails),
             conversationDetailsData = detailsData,
             hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None,
-            conversationType = conversationDetails.conversation.type
+            conversationType = conversationDetails.conversation.type,
+            protocolInfo = conversationDetails.conversation.protocol
         )
     }
 

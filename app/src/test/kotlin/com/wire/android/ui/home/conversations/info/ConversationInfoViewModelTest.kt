@@ -28,10 +28,7 @@ import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOn
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.conversation.ConversationProtocol
-import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -234,7 +231,7 @@ class ConversationInfoViewModelTest {
         // then
         assertEquals(
             result,
-            viewModel.conversationInfoViewState.verificationStatus
+            viewModel.conversationInfoViewState.protocolInfo
         )
     }
 
@@ -253,7 +250,7 @@ class ConversationInfoViewModelTest {
         // then
         assertEquals(
             result,
-            viewModel.conversationInfoViewState.verificationStatus
+            viewModel.conversationInfoViewState.protocolInfo
         )
     }
 
@@ -272,7 +269,7 @@ class ConversationInfoViewModelTest {
         // then
         assertEquals(
             result,
-            viewModel.conversationInfoViewState.verificationStatus
+            viewModel.conversationInfoViewState.protocolInfo
         )
     }
 
@@ -287,7 +284,7 @@ class ConversationInfoViewModelTest {
         // then
         assertEquals(
             null,
-            viewModel.conversationInfoViewState.verificationStatus
+            viewModel.conversationInfoViewState.protocolInfo
         )
     }
 
@@ -308,7 +305,7 @@ class ConversationInfoViewModelTest {
         // then
         assertEquals(
             result,
-            viewModel.conversationInfoViewState.verificationStatus
+            viewModel.conversationInfoViewState.protocolInfo
         )
     }
 

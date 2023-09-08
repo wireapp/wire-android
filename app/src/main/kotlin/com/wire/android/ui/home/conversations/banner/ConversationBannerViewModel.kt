@@ -34,6 +34,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,8 +62,8 @@ class ConversationBannerViewModel @Inject constructor(
             observeConversationDetails(conversationId)
                 .filter {
                     when (it) {
-                        is ObserveConversationDetailsUseCase.Result.Failure -> false
-                        is ObserveConversationDetailsUseCase.Result.Success -> it.conversationDetails is ConversationDetails.Group
+                        is ObserveConversationDetailsResult.Failure -> false
+                        is ObserveConversationDetailsResult.Success -> it.conversationDetails is ConversationDetails.Group
                     }
                 }
                 .flatMapLatest { observeConversationMembersByTypes(conversationId) }

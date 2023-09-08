@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversation
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -134,12 +135,12 @@ private class Arrangement {
 
     suspend fun withGroupConversation() = apply {
         coEvery { observeConversationDetailsUseCase(any()) }
-            .returns(flowOf(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP)))
+            .returns(flowOf(ObserveConversationDetailsResult.Success(TestConversationDetails.GROUP)))
     }
 
     suspend fun withOneOnOneConversation() = apply {
         coEvery { observeConversationDetailsUseCase(any()) }
-            .returns(flowOf(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.CONVERSATION_ONE_ONE)))
+            .returns(flowOf(ObserveConversationDetailsResult.Success(TestConversationDetails.CONVERSATION_ONE_ONE)))
     }
 
     fun arrange() = this to viewModel

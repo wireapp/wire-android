@@ -48,6 +48,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -120,7 +121,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val groupDetailsFlow =
                 observeConversationDetails(conversationId)
-                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                    .filterIsInstance<ObserveConversationDetailsResult.Success>()
                     .map { it.conversationDetails }
                     .filterIsInstance<ConversationDetails.Group>()
                     .distinctUntilChanged()

@@ -32,6 +32,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -54,10 +56,10 @@ fun UserProfileAvatar(
     avatarData: UserAvatarData = UserAvatarData(),
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
-    clickable: Clickable? = null
+    clickable: Clickable? = null,
+    showPlaceholderIfNoAsset: Boolean = true,
+    withCrossfadeAnimation: Boolean = false,
 ) {
-    val painter = painter(avatarData)
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -66,6 +68,7 @@ fun UserProfileAvatar(
             .clickable(clickable)
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
+        val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
@@ -89,20 +92,39 @@ fun UserProfileAvatar(
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
  */
 @Composable
-private fun painter(data: UserAvatarData): Painter = if (data.connectionState == ConnectionState.BLOCKED) {
-    painterResource(id = R.drawable.ic_blocked_user_avatar)
-} else if (LocalInspectionMode.current || data.asset == null) {
-    getDefaultAvatar(membership = data.membership)
-} else {
-    data.asset.paint(R.drawable.ic_default_user_avatar)
+private fun painter(
+    data: UserAvatarData,
+    showPlaceholderIfNoAsset: Boolean = true,
+    withCrossfadeAnimation: Boolean = false,
+): Painter = when {
+    LocalInspectionMode.current -> {
+        getDefaultAvatar(membership = data.membership)
+    }
+
+    data.connectionState == ConnectionState.BLOCKED -> {
+        painterResource(id = R.drawable.ic_blocked_user_avatar)
+    }
+
+    data.asset == null -> {
+        if (showPlaceholderIfNoAsset) getDefaultAvatar(membership = data.membership)
+        else ColorPainter(Color.Transparent)
+    }
+
+    else -> {
+        data.asset.paint(getDefaultAvatarResourceId(membership = data.membership), withCrossfadeAnimation)
+    }
 }
 
 @Composable
 private fun getDefaultAvatar(membership: Membership): Painter =
+    painterResource(id = getDefaultAvatarResourceId(membership))
+
+@Composable
+private fun getDefaultAvatarResourceId(membership: Membership): Int =
     if (membership == Membership.Service) {
-        painterResource(id = R.drawable.ic_default_service_avatar)
+        R.drawable.ic_default_service_avatar
     } else {
-        painterResource(id = R.drawable.ic_default_user_avatar)
+        R.drawable.ic_default_user_avatar
     }
 
 @Preview

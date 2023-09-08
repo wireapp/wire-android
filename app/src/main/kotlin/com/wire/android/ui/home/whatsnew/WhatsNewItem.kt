@@ -122,7 +122,7 @@ sealed class WhatsNewItem(
         title = title,
         boldTitle = boldTitle,
         text = text,
-        direction = object: ExternalUriDirection {
+        direction = object : ExternalUriDirection {
             override val uri: Uri
                 get() = Uri.parse(url)
         }

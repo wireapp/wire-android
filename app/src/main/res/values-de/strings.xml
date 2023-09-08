@@ -592,7 +592,7 @@
     </plurals>
     <plurals name="last_message_self_removed_users">
         <item quantity="one">Sie haben 1 Person aus der Unterhaltung entfernt</item>
-        <item quantity="other">Sie haben %1$d Personen zur Unterhaltung entfernt</item>
+        <item quantity="other">Sie haben %1$d Personen aus der Unterhaltung entfernt</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Sie wurden aus der Unterhaltung entfernt</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -844,7 +844,7 @@
     <string name="settings_myaccount_display_name_description">Ihr Profilname wird in Unterhaltungen, Anrufen und bei der Benutzersuche angezeigt. Er ist in Wire nicht eindeutig.</string>
     <string name="settings_myaccount_display_name_error">Bitte geben Sie Ihren Profilnamen ein</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
-    <string name="settings_myaccount_display_name_updated">Dein Profilname wurde geändert</string>
+    <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
@@ -858,7 +858,7 @@
     <string name="other_devices_label">Andere Geräte</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Benutzer freigeben?</string>
-    <string name="unblock_user_dialog_body">%1$s Wird Sie kontaktieren oder Sie zu Gruppenunterhaltungen hinzufügen können. Sie können auf ein entsprechendes Einzelgespräch zugreifen.</string>
+    <string name="unblock_user_dialog_body">%1$s wird Sie kontaktieren oder Sie zu Gruppenunterhaltungen hinzufügen können. Sie können auf ein entsprechendes Einzelgespräch zugreifen.</string>
     <string name="unblock_user_dialog_confirm_button">Freigeben</string>
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_title">Drei Benutzerkonten sind aktiv</string>
@@ -993,7 +993,7 @@
     <string name="audio_not_available">Audio nicht verfügbar</string>
     <string name="audio_not_available_explanation">Beim Herunterladen dieser Audiodatei ist ein Fehler aufgetreten. Bitten Sie den Absender, die Datei erneut hochzuladen</string>
     <string name="guest_link_generate_error_message">Link konnte nicht erstellt werden. Bitte versuchen Sie es erneut</string>
-    <string name="guest_link_revoke_error_message">Link konnte nicht erstellt werden. Bitte versuchen Sie es erneut</string>
+    <string name="guest_link_revoke_error_message">Der Link konnte nicht widerrufen werden. Bitte versuchen Sie es erneut</string>
     <string name="revoke_guest__room_link_dialog_text">Neue Gäste werden sich nicht mehr mit diesem Link anmelden können. Aktuelle Gäste haben weiterhin Zugang zum Gästebereich.</string>
     <string name="revoke_guest__room_link_dialog_title">Gäste-Link widerrufen?</string>
     <string name="title_device_key_fingerprint">SCHLÜSSEL-FINGERABDRUCK</string>
@@ -1132,11 +1132,11 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_permission_denied_dialog_text">Wire benötigt die Berechtigung, Ihr Mikrofon zum Aufnehmen von Audionachrichten zu verwenden. Erlauben Sie den Zugriff in Ihren Geräteeinstellungen.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Einstellungen</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
-    <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d begrenzt.</string>
+    <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
     <string name="permission_dialog_title">App-Berechtigungen</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
-    <string name="label_not_now">Not Now</string>
+    <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon und die Suche nach Geräten in der Nähe in Ihren Geräteeinstellungen.</string>
+    <string name="label_not_now">Nicht jetzt</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Passwort eingeben</string>

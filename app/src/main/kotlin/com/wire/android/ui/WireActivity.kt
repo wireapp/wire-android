@@ -168,6 +168,7 @@ class WireActivity : AppCompatActivity() {
                             navigator = navigator,
                             startDestination = startDestination
                         )
+
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete, scope)

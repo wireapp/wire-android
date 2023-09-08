@@ -36,6 +36,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -47,30 +50,32 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -97,7 +102,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
 @RootNavGraph(start = true)
-@Destination
+@Destination(
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
 fun WelcomeScreen(
     navigator: Navigator,
@@ -106,6 +113,7 @@ fun WelcomeScreen(
     WelcomeContent(viewModel.isThereActiveSession, viewModel.state, navigator::navigateBack, navigator::navigate)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
@@ -153,12 +161,16 @@ private fun WelcomeContent(
             }
 
             Column(
-                modifier = Modifier.padding(
-                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                    horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                )
+                modifier = Modifier
+                    .padding(
+                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                        horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+                    )
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
             ) {
-                LoginButton() { navigate(NavigationCommand(LoginScreenDestination())) }
+                LoginButton { navigate(NavigationCommand(LoginScreenDestination())) }
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -302,7 +314,9 @@ private fun LoginButton(onClick: () -> Unit) {
     WirePrimaryButton(
         onClick = onClick,
         text = stringResource(R.string.label_login),
-        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
+        modifier = Modifier
+            .padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
+            .testTag("loginButton")
     )
 }
 

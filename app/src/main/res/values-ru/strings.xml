@@ -52,14 +52,14 @@
     <string name="label_message_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s получит ваше сообщение позднее.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s получит ваше сообщение позднее.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s получит ваше сообщение позднее.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 участник из %2$s</item>
         <item quantity="few">%1$d участника из %2$s</item>
         <item quantity="many">%1$d участников из %2$s</item>
         <item quantity="other">%1$d участника из %2$s</item>
     </plurals>
-    <string name="label_try_again">Повторить</string>
     <string name="label_reset_session">Сбросить сессию</string>
     <string name="label_reset_session_success">Сессия успешно сброшена</string>
     <string name="label_federated_membership">Федеративный</string>
@@ -576,7 +576,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s начал(-а) беседу</string>
     <string name="label_system_message_conversation_started_with_members">С %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">Не удалось добавить %1$s в группу.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_degraded">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -682,6 +683,7 @@
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
     <string name="label_add_member_services">Сервисы</string>
+    <string name="label_empty_contacts_list">Ищите контакты по имени или псевдониму для начала беседы 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Что-то пошло не так</string>
     <string name="error_unknown_message">Повторите попытку</string>
@@ -1166,7 +1168,7 @@
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
-    <string name="record_audio_recording_label">Recording Audio…</string>
+    <string name="record_audio_recording_label">Запись аудио…</string>
     <string name="record_audio_send_label">Отправить аудиосообщение</string>
     <string name="record_audio_discard_dialog_title">Отменить аудиосообщение?</string>
     <string name="record_audio_discard_dialog_text">Аудиосообщение будет удалено и не будет отправлено.</string>
@@ -1177,10 +1179,13 @@
     <string name="record_audio_max_file_size_reached_title">Запись остановлена</string>
     <string name="record_audio_max_file_size_reached_text">Размер файла аудиосообщения ограничен %1$d МБ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Записать аудиосообщение во время звонка невозможно.</string>
+    <string name="permission_dialog_title">Разрешения приложения</string>
+    <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону и поиск соседних устройств в настройках устройства.</string>
+    <string name="label_not_now">Не сейчас</string>
     <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>
     <string name="join_conversation_dialog_password_label">Пароль беседы</string>
     <string name="join_conversation_dialog_password_placeholder">Введите пароль</string>
-    <string name="participant_tile_call_connecting_label">Connecting…</string>
+    <string name="participant_tile_call_connecting_label">Подключение…</string>
     <string name="create_guest_link">Создать гостевую ссылку</string>
     <string name="create_guest_link_with_password">Создание ссылки, защищенной паролем</string>
     <string name="create_guest_link_without_password_title">Создание ссылки без пароля</string>

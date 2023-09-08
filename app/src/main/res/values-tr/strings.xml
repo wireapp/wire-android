@@ -52,12 +52,12 @@
     <string name="label_message_knock">%s ping attı</string>
     <string name="label_message_partial_delivery_participants_count">%1$d katılımcı mesajınızı alamadı.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s mesajınızı alamayacak.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s mesajınızı daha sonra alacak.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s mesajınızı daha sonra alacak.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s mesajınızı daha sonra alacak.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">%2$s\'dan 1 katılımcı</item>
         <item quantity="other">%2$s grubundan %1$d katılımcı</item>
     </plurals>
-    <string name="label_try_again">Tekrar deneyin</string>
     <string name="label_reset_session">Oturumu Sıfırla</string>
     <string name="label_reset_session_success">Oturum başarıyla sıfırlandı</string>
     <string name="label_federated_membership">Federe</string>
@@ -124,19 +124,19 @@
     <string name="content_description_right_arrow">Sağ ok</string>
     <string name="content_description_left_arrow">Geri dön</string>
     <string name="content_description_mention_icon">Bahsetme simgesi</string>
-    <string name="content_description_attachment_item">Attach new item to conversation</string>
-    <string name="content_description_open_message_details">Open Message Details</string>
-    <string name="content_description_copy_the_message">Copy the message</string>
-    <string name="content_description_share_the_file">Share the selected file with other app</string>
-    <string name="content_description_delete_the_message">Delete the message</string>
-    <string name="content_description_edit_the_message">Edit the message</string>
-    <string name="content_description_more_options">More options</string>
-    <string name="content_description_add_contact">Add contact</string>
-    <string name="content_description_image_message">Image message</string>
-    <string name="content_description_file_message">File message</string>
-    <string name="content_description_ping_everyone">Ping</string>
-    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
-    <string name="content_description_calling_hang_up_call">Hang up call</string>
+    <string name="content_description_attachment_item">Konuşmaya yeni öğe ekleme</string>
+    <string name="content_description_open_message_details">Mesaj Ayrıntılarını Aç</string>
+    <string name="content_description_copy_the_message">Mesajı kopyala</string>
+    <string name="content_description_share_the_file">Seçilen dosyayı diğer uygulamalarla paylaş</string>
+    <string name="content_description_delete_the_message">Mesajı sil</string>
+    <string name="content_description_edit_the_message">Mesajı düzenle</string>
+    <string name="content_description_more_options">Daha fazla seçenekler</string>
+    <string name="content_description_add_contact">Kişi ekleme</string>
+    <string name="content_description_image_message">Resimli mesaj</string>
+    <string name="content_description_file_message">Dosya mesajı</string>
+    <string name="content_description_ping_everyone">Seslenme</string>
+    <string name="content_description_self_deleting_message_timer">Kendi kendini silen mesajlar için zamanlayıcı ayarlama</string>
+    <string name="content_description_calling_hang_up_call">Çağrıyı kapat</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>
     <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
@@ -572,7 +572,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -656,6 +657,7 @@
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
     <string name="label_add_member_services">Services</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again</string>
@@ -1130,6 +1132,9 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
+    <string name="permission_dialog_title">App permissions</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
+    <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>

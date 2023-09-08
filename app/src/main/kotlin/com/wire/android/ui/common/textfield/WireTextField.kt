@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -106,6 +107,7 @@ internal fun WireTextField(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     shouldDetectTaps: Boolean = false,
+    testTag: String = String.EMPTY,
     onTap: (Offset) -> Unit = { },
 ) {
     val enabled = state !is WireTextFieldState.Disabled
@@ -149,7 +151,8 @@ internal fun WireTextField(
                     (labelText ?: placeholderText ?: descriptionText)?.let {
                         contentDescription = it
                     }
-                },
+                }
+                .testTag(testTag),
             decorationBox = { innerTextField ->
                 InnerText(
                     innerTextField,

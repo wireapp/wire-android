@@ -55,7 +55,7 @@ tasks.register("compileApp") {
 
 tasks.register("bundleApp") {
     description = "bundles the Wire Android Client to an Android App Bundle."
-    dependsOn( ":app:bundle${Default.BUILD_VARIANT}")
+    dependsOn(":app:bundle${Default.BUILD_VARIANT}")
 }
 
 tasks.register("runApp", Exec::class) {

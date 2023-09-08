@@ -74,7 +74,10 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     }
 
     @Composable
-    fun paint(fallbackData: Any? = null) = imageLoader.paint(asset = this, fallbackData)
+    fun paint(
+        fallbackData: Any? = null,
+        withCrossfadeAnimation: Boolean = false
+    ) = imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
 }
 
 fun String.parseIntoPrivateImageAsset(

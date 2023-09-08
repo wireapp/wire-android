@@ -20,12 +20,16 @@
 
 package com.wire.android.ui.userprofile.common
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
@@ -35,7 +39,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -56,13 +63,15 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.delay
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun UserProfileInfo(
@@ -76,7 +85,8 @@ fun UserProfileInfo(
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
     modifier: Modifier = Modifier,
-    connection: ConnectionState = ConnectionState.ACCEPTED
+    connection: ConnectionState = ConnectionState.ACCEPTED,
+    delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -87,29 +97,48 @@ fun UserProfileInfo(
             .padding(top = dimensions().spacing16x)
     ) {
         Box(contentAlignment = Alignment.Center) {
-            UserProfileAvatar(
-                size = dimensions().userAvatarDefaultBigSize,
-                avatarData = UserAvatarData(
-                    asset = avatarAsset,
-                    connectionState = connection,
-                    membership = membership
-                ),
-                clickable = remember(editableState) {
-                    Clickable(
-                        enabled = editableState is EditableState.IsEditable,
-                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                    ) { onUserProfileClick?.invoke() }
-                }
+            val userAvatarData = UserAvatarData(
+                asset = avatarAsset,
+                connectionState = connection,
+                membership = membership
             )
-            if (isLoading) {
+            val showPlaceholderIfNoAsset = remember { mutableStateOf(!delayToShowPlaceholderIfNoAsset.isPositive()) }
+            val currentAssetIsNull = rememberUpdatedState(avatarAsset == null)
+            if (delayToShowPlaceholderIfNoAsset.isPositive()) {
+                LaunchedEffect(Unit) {
+                    delay(delayToShowPlaceholderIfNoAsset)
+                    showPlaceholderIfNoAsset.value = currentAssetIsNull.value // show placeholder if there is still no proper avatar data
+                }
+            }
+            Crossfade(
+                targetState = userAvatarData to showPlaceholderIfNoAsset.value,
+                label = "UserProfileInfoAvatar"
+            ) { (userAvatarData, showPlaceholderIfNoAsset) ->
+                UserProfileAvatar(
+                    size = dimensions().userAvatarDefaultBigSize,
+                    avatarData = userAvatarData,
+                    clickable = remember(editableState) {
+                        Clickable(
+                            enabled = editableState is EditableState.IsEditable,
+                            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                        ) { onUserProfileClick?.invoke() }
+                    },
+                    showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
+                    withCrossfadeAnimation = true,
+                )
+            }
+            this@Column.AnimatedVisibility(visible = isLoading) {
                 Box(
                     Modifier
-                        .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+                        .padding(dimensions().userAvatarClickablePadding)
+                        .size(dimensions().userAvatarDefaultBigSize)
                         .clip(CircleShape)
-                        .background(MaterialTheme.wireColorScheme.onBackground.copy(alpha = 0.7f))
+                        .background(MaterialTheme.wireColorScheme.background.copy(alpha = 0.6f))
                 ) {
                     WireCircularProgressIndicator(
-                        progressColor = MaterialTheme.wireColorScheme.surface,
+                        size = dimensions().spacing32x,
+                        strokeWidth = dimensions().spacing4x,
+                        progressColor = MaterialTheme.wireColorScheme.onBackground,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -119,6 +148,7 @@ fun UserProfileInfo(
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .animateContentSize()
         ) {
             val (userDescription, editButton, teamDescription) = createRefs()
 
@@ -135,7 +165,10 @@ fun UserProfileInfo(
                     }
             ) {
                 Text(
-                    text = fullName.ifBlank { UIText.StringResource(R.string.username_unavailable_label).asString() },
+                    text = fullName.ifBlank {
+                        if (isLoading) ""
+                        else UIText.StringResource(R.string.username_unavailable_label).asString()
+                    },
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.title02,

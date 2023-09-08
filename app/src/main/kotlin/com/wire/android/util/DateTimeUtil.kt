@@ -36,6 +36,8 @@ private val serverDateTimeFormat = SimpleDateFormat(
 ).apply { timeZone = TimeZone.getTimeZone("UTC") }
 private val mediumDateTimeFormat = DateFormat
     .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
+private val mediumOnlyDateTimeFormat = DateFormat
+    .getDateInstance(DateFormat.MEDIUM)
 private val messageTimeFormatter = DateFormat
     .getTimeInstance(DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
@@ -82,6 +84,8 @@ fun String.uiMessageDateTime(): String? = this
             false -> messageDateTimeFormatter.format(serverDate)
         }
     }
+
+fun Date.toMediumOnlyDateTime(): String = mediumOnlyDateTimeFormat.format(this)
 
 fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 

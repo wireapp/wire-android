@@ -34,6 +34,8 @@ import androidx.compose.ui.res.painterResource
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.GiveFeedbackDestination
+import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
@@ -147,6 +149,18 @@ sealed class SettingsItem(val direction: Direction, val id: String, val title: U
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
         direction = DebugScreenDestination
+    )
+
+    data object GiveFeedback : SettingsItem(
+        id = "give_feedback",
+        title = UIText.StringResource(R.string.give_feedback_screen_title),
+        direction = GiveFeedbackDestination
+    )
+
+    data object ReportBug : SettingsItem(
+        id = "report_bug",
+        title = UIText.StringResource(R.string.report_bug_screen_title),
+        direction = ReportBugDestination
     )
 }
 

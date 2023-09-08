@@ -63,7 +63,6 @@ import com.wire.kalium.logic.feature.e2ei.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.functional.onSuccess
-import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -129,6 +128,12 @@ class DebugDataOptionsViewModel
     fun enrollE2EICertificate(context: Context) {
         val oAuth = OAuthUseCase(context)
         oAuth.launch(context.getActivity()!!.activityResultRegistry, ::oAuthResultHandler)
+    }
+
+    fun dismissCertificateDialog() {
+        state = state.copy(
+            showCertificate = false,
+        )
     }
 
     private fun oAuthResultHandler(oAuthResult: OAuthUseCase.OAuthResult) {
@@ -225,7 +230,9 @@ fun DebugDataOptions(
         onEnableEncryptedProteusStorageChange = viewModel::enableEncryptedProteusStorage,
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
-        onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) }
+        onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) },
+        enrollE2EICertificate = viewModel::enrollE2EICertificate,
+        dismissCertificateDialog = viewModel::dismissCertificateDialog
     )
 }
 
@@ -239,7 +246,9 @@ fun DebugDataOptionsContent(
     onEnableEncryptedProteusStorageChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    onManualMigrationPressed: () -> Unit
+    onManualMigrationPressed: () -> Unit,
+    enrollE2EICertificate: (Context) -> Unit,
+    dismissCertificateDialog: () -> Unit
 ) {
     Column {
 
@@ -286,22 +295,18 @@ fun DebugDataOptionsContent(
                 )
             )
             GetE2EICertificateSwitch(
-                enrollE2EI = viewModel::enrollE2EICertificate
+                enrollE2EI = enrollE2EICertificate
             )
-            if (viewModel.state.showCertificate == true) {
+            if (state.showCertificate) {
                 WireDialog(
                     title = "E2EI Certificate in PEM format",
-                    text = viewModel.state.certificate,
+                    text = state.certificate,
                     onDismiss = {
-                        viewModel.state = viewModel.state.copy(
-                            showCertificate = false,
-                        )
+                        dismissCertificateDialog()
                     },
                     optionButton1Properties = WireDialogButtonProperties(
                         onClick = {
-                            viewModel.state = viewModel.state.copy(
-                                showCertificate = false,
-                            )
+                            dismissCertificateDialog()
                         },
                         text = "OK",
                         type = WireDialogButtonType.Primary,
@@ -541,6 +546,8 @@ fun PreviewOtherDebugOptions() {
         onEnableEncryptedProteusStorageChange = {},
         onForceUpdateApiVersions = {},
         onRestartSlowSyncForRecovery = {},
-        onManualMigrationPressed = {}
+        onManualMigrationPressed = {},
+        enrollE2EICertificate = {},
+        dismissCertificateDialog = {},
     )
 }

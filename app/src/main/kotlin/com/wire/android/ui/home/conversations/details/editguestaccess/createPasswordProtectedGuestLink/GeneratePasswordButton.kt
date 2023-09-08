@@ -30,6 +30,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -50,7 +51,8 @@ fun GeneratePasswordButton(
             Icon(
                 modifier = Modifier.padding(end = dimensions().corner4x),
                 painter = painterResource(id = R.drawable.ic_shield_holo),
-                contentDescription = null
+                contentDescription = null,
+                tint = colorsScheme().labelText
             )
         },
         leadingIconAlignment = IconAlignment.Center,

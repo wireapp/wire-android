@@ -34,13 +34,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.IntentDirection
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.home.HomeStateHolder
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
 

@@ -215,7 +215,6 @@ class WireActivityViewModel @Inject constructor(
     val initialAppState: InitialAppState
         get() = when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
-            shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
             else -> InitialAppState.LOGGED_IN
         }
 

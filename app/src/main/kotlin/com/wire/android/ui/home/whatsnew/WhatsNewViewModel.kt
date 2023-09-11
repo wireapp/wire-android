@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.whatsnew
 
-import android.content.Context
 import android.icu.text.SimpleDateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,15 +28,12 @@ import com.wire.android.BuildConfig
 import com.wire.android.util.sha256
 import com.wire.android.util.toMediumOnlyDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class WhatsNewViewModel @Inject constructor(
-    @ApplicationContext context: Context
-) : ViewModel() {
+class WhatsNewViewModel @Inject constructor() : ViewModel() {
     private val rssParser = RssParser()
     private val publishDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.ENGLISH)
 
@@ -46,7 +42,7 @@ class WhatsNewViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if(BuildConfig.URL_RSS_RELEASE_NOTES.isNotBlank()) {
+            if (BuildConfig.URL_RSS_RELEASE_NOTES.isNotBlank()) {
                 rssParser.getRssChannel(BuildConfig.URL_RSS_RELEASE_NOTES).let {
                     state = state.copy(
                         releaseNotesItems = it.items

@@ -48,53 +48,24 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
-import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
+import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-
-@Composable
-fun InactiveMessageComposerInput(
-    messageText: TextFieldValue,
-    onMessageComposerFocused: () -> Unit
-) {
-    MessageComposerTextInput(
-        inputFocused = false,
-        colors = wireTextFieldColors(
-            backgroundColor = Color.Transparent,
-            borderColor = Color.Transparent,
-            focusColor = Color.Transparent,
-            placeholderColor = colorsScheme().secondaryText
-        ),
-        placeHolderText = stringResource(id = R.string.label_type_a_message),
-        messageText = messageText,
-        onMessageTextChanged = {
-            // non functional
-        },
-        singleLine = false,
-        onFocusChanged = { isFocused ->
-            if (isFocused) {
-                onMessageComposerFocused()
-            }
-        }
-    )
-}
 
 @Composable
 fun ActiveMessageComposerInput(
@@ -113,6 +84,8 @@ fun ActiveMessageComposerInput(
     onInputFocusedChanged: (Boolean) -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
+    showOptions: Boolean,
+    onPlusClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (inputVisibility) {
@@ -122,13 +95,16 @@ fun ActiveMessageComposerInput(
                 .background(inputType.backgroundColor())
         ) {
             Divider(color = MaterialTheme.wireColorScheme.outline)
-            CollapseButton(
-                onCollapseClick = onToggleInputSize
-            )
+            if (showOptions) {
+                CollapseButton(
+                    isCollapsed = inputSize == MessageCompositionInputSize.COLLAPSED,
+                    onCollapseClick = onToggleInputSize
+                )
+            }
 
             val quotedMessage = messageComposition.quotedMessage
             if (quotedMessage != null) {
-                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                     QuotedMessagePreview(
                         quotedMessageData = quotedMessage,
                         onCancelReply = onCancelReply
@@ -150,6 +126,17 @@ fun ActiveMessageComposerInput(
                     MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
                 }.weight(1f)
 
+                if (!showOptions) {
+                    AdditionalOptionButton(
+                        isSelected = false,
+                        onClick = {
+                            onPlusClick()
+                        },
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+
+                }
+
                 MessageComposerTextInput(
                     inputFocused = inputFocused,
                     colors = inputType.inputTextColor(),
@@ -163,23 +150,25 @@ fun ActiveMessageComposerInput(
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
 
-                Row(Modifier.wrapContentSize()) {
-                    if (inputType is MessageCompositionType.Composing) {
-                        when (val messageType = inputType.messageType.value) {
-                            is MessageType.Normal -> {
-                                MessageSendActions(
-                                    onSendButtonClicked = onSendButtonClicked,
-                                    sendButtonEnabled = inputType.isSendButtonEnabled
-                                )
-                            }
+                if (showOptions) {
+                    Row(Modifier.wrapContentSize()) {
+                        if (inputType is MessageCompositionType.Composing) {
+                            when (val messageType = inputType.messageType.value) {
+                                is MessageType.Normal -> {
+                                    MessageSendActions(
+                                        onSendButtonClicked = onSendButtonClicked,
+                                        sendButtonEnabled = inputType.isSendButtonEnabled
+                                    )
+                                }
 
-                            is MessageType.SelfDeleting -> {
-                                SelfDeletingActions(
-                                    onSendButtonClicked = onSendButtonClicked,
-                                    sendButtonEnabled = inputType.isSendButtonEnabled,
-                                    selfDeletionTimer = messageType.selfDeletionTimer,
-                                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
-                                )
+                                is MessageType.SelfDeleting -> {
+                                    SelfDeletingActions(
+                                        onSendButtonClicked = onSendButtonClicked,
+                                        sendButtonEnabled = inputType.isSendButtonEnabled,
+                                        selfDeletionTimer = messageType.selfDeletionTimer,
+                                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
+                                    )
+                                }
                             }
                         }
                     }
@@ -246,21 +235,19 @@ private fun MessageComposerTextInput(
 
 @Composable
 fun CollapseButton(
+    isCollapsed: Boolean,
     onCollapseClick: () -> Unit
 ) {
-    var isCollapsed by remember { mutableStateOf(false) }
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        val collapseButtonRotationDegree by animateFloatAsState(targetValue = if (isCollapsed) 180f else 0f)
+        val collapseButtonRotationDegree by animateFloatAsState(targetValue = if (isCollapsed) 0F else 180f)
 
         IconButton(
             onClick = {
-                isCollapsed = !isCollapsed
                 onCollapseClick()
             },
             modifier = Modifier.size(20.dp)

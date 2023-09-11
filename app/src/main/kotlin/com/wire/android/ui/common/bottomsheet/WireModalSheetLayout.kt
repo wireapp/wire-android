@@ -54,7 +54,7 @@ fun WireModalSheetLayout(
     tonalElevation: Dp = WireBottomSheetDefaults.WireSheetTonalElevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
-    sheetContent: @Composable ColumnScope.() -> Unit,
+    sheetContent: @Composable ColumnScope.() -> Unit
 ) {
     if (sheetState.currentValue != SheetValue.Hidden) {
         ModalBottomSheet(

@@ -61,7 +61,7 @@ fun AttachmentOptionsComponent(
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean
 ) {
-    Box(modifier = Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
+//    Box(modifier = Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
         val attachmentOptions = buildAttachmentOptionItems(
             isFileSharingEnabled,
             tempWritableImageUri,
@@ -96,7 +96,7 @@ fun AttachmentOptionsComponent(
                 }
             }
         }
-    }
+//    }
 }
 
 private fun calculateGridParams(minPadding: Dp, minColumnWidth: Dp, fullWidth: Dp, itemsCount: Int): Pair<GridCells, PaddingValues> {

@@ -34,6 +34,7 @@ import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.util.isPositiveNotNull
 
+// TODO KBX remove unused fields
 class MessageCompositionInputStateHolder(
     private val messageComposition: MutableState<MessageComposition>,
     selfDeletionTimer: State<SelfDeletionTimer>

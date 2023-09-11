@@ -26,7 +26,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.ui.common.KeyboardHelper
+import androidx.compose.ui.platform.LocalDensity
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -40,6 +40,7 @@ fun rememberMessageComposerStateHolder(
     modalBottomSheetState: WireModalSheetState
 ): MessageComposerStateHolder {
     val context = LocalContext.current
+    val density = LocalDensity.current
 
     val messageCompositionHolder = remember {
         MessageCompositionHolder(
@@ -73,13 +74,20 @@ fun rememberMessageComposerStateHolder(
         AdditionalOptionStateHolder()
     }
 
+    val enabledMessageComposerStateHolder = rememberSaveable(
+        saver = EnabledMessageComposerStateHolder.saver(density)
+    ) {
+        EnabledMessageComposerStateHolder()
+    }
+
     return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
-            additionalOptionStateHolder = additionalOptionStateHolder
+            additionalOptionStateHolder = additionalOptionStateHolder,
+            enabledMessageComposerStateHolder = enabledMessageComposerStateHolder
         )
     }
 }
@@ -93,18 +101,10 @@ class MessageComposerStateHolder(
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState
+    val modalBottomSheetState: WireModalSheetState,
+    val enabledMessageComposerStateHolder: EnabledMessageComposerStateHolder
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
-    val isTransitionToKeyboardOnGoing
-        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden &&
-                !KeyboardHelper.isKeyboardVisible() &&
-                messageCompositionInputStateHolder.inputFocused
-    val additionalOptionSubMenuVisible
-        @Composable get() = additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden &&
-                !KeyboardHelper.isKeyboardVisible()
-
-    private var isKeyboardVisible = false
 
     val isSelfDeletingSettingEnabled = messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Disabled &&
             messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Enforced
@@ -114,7 +114,7 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.clearFocus()
     }
 
-    fun toActive(showAttachmentOption: Boolean) {
+    fun toActive(showAttachmentOption: Boolean) { // TODO KBX only tests
         messageCompositionInputStateHolder.toActive(!showAttachmentOption)
         if (showAttachmentOption) {
             additionalOptionStateHolder.showAdditionalOptionsMenu()
@@ -143,29 +143,12 @@ class MessageComposerStateHolder(
     }
 
     fun toAudioRecording() {
-        messageCompositionInputStateHolder.hide()
         additionalOptionStateHolder.toAudioRecording()
     }
 
     fun toCloseAudioRecording() {
-        messageCompositionInputStateHolder.show()
+//        messageCompositionInputStateHolder.show()
         additionalOptionStateHolder.hideAudioRecording()
-    }
-
-    fun onKeyboardVisibilityChanged(isVisible: Boolean) {
-        val isKeyboardClosed = isKeyboardVisible && !isVisible
-
-        if (isKeyboardClosed) {
-            if (!modalBottomSheetState.isVisible &&
-                additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
-            ) {
-                messageCompositionInputStateHolder.toInActive()
-            } else {
-                messageCompositionInputStateHolder.clearFocus()
-            }
-        }
-
-        isKeyboardVisible = isVisible
     }
 
     fun cancelEdit() {

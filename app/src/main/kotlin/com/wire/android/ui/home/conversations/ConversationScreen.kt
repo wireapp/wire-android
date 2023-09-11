@@ -42,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -150,6 +151,7 @@ fun ConversationScreen(
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
+    val focusManager = LocalFocusManager.current
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -281,7 +283,10 @@ fun ConversationScreen(
                 }
             }
         },
-        onBackButtonClick = navigator::navigateBack,
+        onBackButtonClick = {
+            focusManager.clearFocus(true)
+            navigator.navigateBack()
+        },
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,

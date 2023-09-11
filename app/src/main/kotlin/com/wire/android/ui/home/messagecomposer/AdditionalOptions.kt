@@ -29,10 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
@@ -42,25 +38,9 @@ import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun AdditionalOptionButton(
-    isSelected: Boolean,
-    isEnabled: Boolean,
-    onClick: () -> Unit
-) {
-    WireSecondaryIconButton(
-        onButtonClicked = onClick,
-        iconResource = R.drawable.ic_add,
-        contentDescription = R.string.content_description_attachment_item,
-        state = if (!isEnabled) WireButtonState.Disabled
-        else if (isSelected) WireButtonState.Selected else WireButtonState.Default,
-    )
-}
-
-@Composable
 fun AdditionalOptionsMenu(
     additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
-    isFileSharingEnabled: Boolean,
     isSelfDeletingSettingEnabled: Boolean,
     isSelfDeletingActive: Boolean,
     isEditing: Boolean,
@@ -80,7 +60,6 @@ fun AdditionalOptionsMenu(
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
                     selectedOption = selectedOption,
-                    isFileSharingEnabled = isFileSharingEnabled,
                     isEditing = isEditing,
                     isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
                     isSelfDeletingActive = isSelfDeletingActive,
@@ -121,29 +100,30 @@ fun AdditionalOptionSubMenu(
     tempWritableVideoUri: Uri?,
     modifier: Modifier
 ) {
-    when (additionalOptionsState) {
-        AdditionalOptionSubMenuState.AttachFile -> {
-            AttachmentOptionsComponent(
-                onAttachmentPicked = onAttachmentPicked,
-                tempWritableImageUri = tempWritableImageUri,
-                tempWritableVideoUri = tempWritableVideoUri,
-                isFileSharingEnabled = isFileSharingEnabled,
-                onRecordAudioMessageClicked = onRecordAudioMessageClicked
-            )
-        }
+    Box(modifier = modifier) {
+        when (additionalOptionsState) {
+            AdditionalOptionSubMenuState.AttachFile -> {
+                AttachmentOptionsComponent(
+                    onAttachmentPicked = onAttachmentPicked,
+                    tempWritableImageUri = tempWritableImageUri,
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    onRecordAudioMessageClicked = onRecordAudioMessageClicked
+                )
+            }
 
-        AdditionalOptionSubMenuState.RecordAudio -> {
-            RecordAudioComponent(
-                snackbarHostState = snackbarHostState,
-                onAudioRecorded = onAudioRecorded,
-                onCloseRecordAudio = onCloseRecordAudio
-            )
+            AdditionalOptionSubMenuState.RecordAudio -> {
+                RecordAudioComponent(
+                    snackbarHostState = snackbarHostState,
+                    onAudioRecorded = onAudioRecorded,
+                    onCloseRecordAudio = onCloseRecordAudio
+                )
+            }
+            // non functional for now
+            AdditionalOptionSubMenuState.AttachImage -> {}
+            AdditionalOptionSubMenuState.Emoji -> {}
+            AdditionalOptionSubMenuState.Gif -> {}
         }
-        // non functional for now
-        AdditionalOptionSubMenuState.AttachImage -> {}
-        AdditionalOptionSubMenuState.Emoji -> {}
-        AdditionalOptionSubMenuState.Gif -> {}
-        AdditionalOptionSubMenuState.Hidden -> {}
     }
 }
 
@@ -152,7 +132,6 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
     isMentionActive: Boolean,
-    isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionsMenuClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
@@ -168,7 +147,6 @@ fun AttachmentAndAdditionalOptionsMenuItems(
         MessageComposeActions(
             isEditing = isEditing,
             selectedOption = selectedOption,
-            isFileSharingEnabled = isFileSharingEnabled,
             isMentionActive = isMentionActive,
             onMentionButtonClicked = onMentionButtonClicked,
             onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
@@ -180,10 +158,4 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onRichEditingButtonClicked = onRichEditingButtonClicked
         )
     }
-}
-
-@Preview
-@Composable
-fun PreviewAdditionalOptionButton() {
-    AdditionalOptionButton(isSelected = false, isEnabled = false, onClick = {})
 }

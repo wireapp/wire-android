@@ -21,8 +21,8 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -92,7 +92,7 @@ fun RecordAudioComponent(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(containerHeight)
+            .fillMaxHeight()
             .background(colorsScheme().background)
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
@@ -167,14 +167,3 @@ private fun RecordAudioFlow(
         showPermissionsDeniedDialog()
     }
 )
-
-/**
- * This height was based on the size of Input Text + Additional Options (Text Format, Ping, etc)
- */
-private val composeTextHeight = 128.dp
-
-/**
- * To keep the height of the container true to the previous shown content, we acquire the height of
- * the keyboard + text input and additional options.
- */
-private val containerHeight = KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET + composeTextHeight

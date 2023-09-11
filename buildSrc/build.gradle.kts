@@ -19,7 +19,7 @@
  */
 
 private object Dependencies {
-    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.0"
     const val junit = "junit:junit:4.13.2"
     const val kluent = "org.amshove.kluent:kluent:1.73"

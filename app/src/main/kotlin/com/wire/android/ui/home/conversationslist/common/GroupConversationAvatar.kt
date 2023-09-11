@@ -30,19 +30,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun GroupConversationAvatar(color: Color) {
+fun GroupConversationAvatar(
+    color: Color,
+    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
+    cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
+    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding
+) {
     Box(
         modifier = Modifier
-            .padding(8.dp)
-            .size(MaterialTheme.wireDimensions.groupAvatarSize)
-            .background(color = color, shape = RoundedCornerShape(MaterialTheme.wireDimensions.groupAvatarCornerRadius))
+            .padding(padding)
+            .padding(MaterialTheme.wireDimensions.avatarStatusBorderSize) // to keep sizes consistent with UserProfileAvatar
+            .size(size)
+            .background(color = color, shape = RoundedCornerShape(cornerRadius))
     )
 }
-
 
 @Preview
 @Composable

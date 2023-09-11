@@ -54,6 +54,7 @@ import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.RecordedAudioMessage
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.delay
 import java.io.File
@@ -68,8 +69,8 @@ fun RecordAudioButtonClose(
         iconResource = R.drawable.ic_close,
         contentDescription = R.string.content_description_close_button,
         shape = CircleShape,
-        minHeight = dimensions().spacing40x,
-        minWidth = dimensions().spacing40x,
+        minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinClickableSize,
         modifier = modifier
     )
 }

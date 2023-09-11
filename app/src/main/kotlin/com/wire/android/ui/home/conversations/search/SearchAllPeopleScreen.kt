@@ -357,7 +357,8 @@ private fun ShowButton(
             WireSecondaryButton(
                 text = if (!showAll) stringResource(R.string.label_show_more) else stringResource(R.string.label_show_less),
                 onClick = onShowButtonClicked,
-                minHeight = dimensions().showAllCollapseButtonMinHeight,
+                minSize = dimensions().buttonSmallMinSize,
+                minClickableSize = dimensions().buttonSmallMinClickableSize,
                 fillMaxWidth = false,
             )
         }

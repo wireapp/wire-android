@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Icon
@@ -55,8 +56,8 @@ fun WireTertiaryButton(
     textStyle: TextStyle = MaterialTheme.wireTypography.button04,
     state: WireButtonState = WireButtonState.Default,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
+    minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wireTertiaryButtonColors(),
     elevation: ButtonElevation? = null,
@@ -78,8 +79,8 @@ fun WireTertiaryButton(
     textStyle = textStyle,
     state = state,
     clickBlockParams = clickBlockParams,
-    minHeight = minHeight,
-    minWidth = minWidth,
+    minSize = minSize,
+    minClickableSize = minClickableSize,
     fillMaxWidth = fillMaxWidth,
     shape = shape,
     colors = colors,

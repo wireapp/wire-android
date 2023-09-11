@@ -45,6 +45,7 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.allowsRoleEdition
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.ui.UIText
@@ -116,7 +117,8 @@ private fun UserGroupDetailsInformation(
             if (isSelfAdmin) {
                 WireButton(
                     text = stringResource(id = R.string.user_profile_group_remove_button),
-                    minHeight = dimensions().spacing32x,
+                    minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,
                     fillMaxWidth = false,
                     onClick = onRemoveFromConversation
                 )

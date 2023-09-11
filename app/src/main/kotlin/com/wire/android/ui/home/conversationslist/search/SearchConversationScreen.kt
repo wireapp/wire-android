@@ -108,7 +108,8 @@ private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
         WirePrimaryButton(
             text = stringResource(R.string.label_new_conversation),
             fillMaxWidth = false,
-            minHeight = dimensions().spacing32x,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonSmallMinClickableSize,
             onClick = onNewConversationCLick
         )
     }

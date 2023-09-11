@@ -132,7 +132,8 @@ private fun SuccessfulAudioMessage(
         verticalAlignment = Alignment.CenterVertically
     ) {
         WireSecondaryIconButton(
-            minWidth = 32.dp,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonSmallMinClickableSize,
             iconSize = dimensions().spacing12x,
             iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
             shape = CircleShape,

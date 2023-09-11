@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prof18.rssparser.RssParser
-import com.wire.android.R
+import com.wire.android.BuildConfig
 import com.wire.android.util.sha256
 import com.wire.android.util.toMediumOnlyDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,21 +46,23 @@ class WhatsNewViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            rssParser.getRssChannel(context.getString(R.string.url_rss_android_release_notes)).let {
-                state = state.copy(
-                    releaseNotesItems = it.items
-                        .map { item ->
-                            ReleaseNotesItem(
-                                id = item.guid.orEmpty().sha256(),
-                                title = item.title.orEmpty(),
-                                link = item.link.orEmpty(),
-                                publishDate = item.pubDate?.let { publishDateFormat.parse(it).toMediumOnlyDateTime() }.orEmpty(),
-                            )
-                        }
-                        .filter {
-                            it.title.isNotBlank() && it.link.isNotBlank() && it.publishDate.isNotBlank()
-                        }
-                )
+            if(BuildConfig.URL_RSS_RELEASE_NOTES.isNotBlank()) {
+                rssParser.getRssChannel(BuildConfig.URL_RSS_RELEASE_NOTES).let {
+                    state = state.copy(
+                        releaseNotesItems = it.items
+                            .map { item ->
+                                ReleaseNotesItem(
+                                    id = item.guid.orEmpty().sha256(),
+                                    title = item.title.orEmpty(),
+                                    link = item.link.orEmpty(),
+                                    publishDate = item.pubDate?.let { publishDateFormat.parse(it).toMediumOnlyDateTime() }.orEmpty(),
+                                )
+                            }
+                            .filter {
+                                it.title.isNotBlank() && it.link.isNotBlank() && it.publishDate.isNotBlank()
+                            }
+                    )
+                }
             }
         }
     }

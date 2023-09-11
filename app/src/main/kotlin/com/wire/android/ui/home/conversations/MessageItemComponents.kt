@@ -63,14 +63,16 @@ internal fun MessageSendFailureWarning(
                 WireSecondaryButton(
                     text = stringResource(R.string.label_retry),
                     onClick = onRetryClick,
-                    minHeight = dimensions().spacing32x,
+                    minSize = dimensions().buttonSmallMinSize,
+                    minClickableSize = dimensions().buttonSmallMinClickableSize,
                     fillMaxWidth = false
                 )
                 HorizontalSpace.x8()
                 WireSecondaryButton(
                     text = stringResource(R.string.label_cancel),
                     onClick = onCancelClick,
-                    minHeight = dimensions().spacing32x,
+                    minSize = dimensions().buttonSmallMinSize,
+                    minClickableSize = dimensions().buttonSmallMinClickableSize,
                     fillMaxWidth = false
                 )
             }
@@ -145,8 +147,8 @@ private fun MultiUserDeliveryFailure(
                 onClick = { expanded = !expanded },
                 text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
                 fillMaxWidth = false,
-                minHeight = dimensions().spacing32x,
-                minWidth = dimensions().spacing40x,
+                minSize = dimensions().buttonSmallMinSize,
+                minClickableSize = dimensions().buttonSmallMinClickableSize,
                 shape = RoundedCornerShape(size = dimensions().corner12x),
                 contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
                 modifier = Modifier
@@ -238,7 +240,8 @@ internal fun MessageDecryptionFailure(
                                 )
                             }
                         },
-                        minHeight = dimensions().spacing32x,
+                        minSize = dimensions().buttonSmallMinSize,
+                        minClickableSize = dimensions().buttonSmallMinClickableSize,
                         fillMaxWidth = false
                     )
                 }

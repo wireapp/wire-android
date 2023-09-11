@@ -53,8 +53,8 @@ fun MutedConversationBadge(onClick: () -> Unit) {
                 )
             },
             fillMaxWidth = false,
-            minHeight = dimensions().badgeSmallMinSize.height,
-            minWidth = dimensions().badgeSmallMinSize.width,
+            minSize = dimensions().badgeSmallMinSize,
+            minClickableSize = dimensions().badgeSmallMinClickableSize,
             shape = RoundedCornerShape(size = dimensions().spacing6x),
             contentPadding = PaddingValues(dimensions().spacing0x),
         )

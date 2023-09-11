@@ -110,6 +110,7 @@ internal fun WireTextField(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     shouldDetectTaps: Boolean = false,
+    testTag: String = String.EMPTY,
     onTap: (Offset) -> Unit = { },
     testTag: String = String.EMPTY,
 ) {

@@ -72,7 +72,7 @@ internal fun AutoFillTextField(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
-    testTag: String = String.EMPTY,
+    testTag: String = String.EMPTY
 ) {
     val autofillNode = AutofillNode(
         autofillTypes = autofillTypes,

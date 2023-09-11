@@ -17,38 +17,21 @@
  */
 package com.wire.benchmark
 
-import androidx.benchmark.macro.BaselineProfileMode
-import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingMetric
-import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class StartupBenchmark {
+class BaselineGenerator {
 
     @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    val baselineProfileRule = BaselineProfileRule()
 
     @Test
-    fun startUpWithBaselineProfiler() {
-        startup(CompilationMode.Partial(BaselineProfileMode.Require))
-    }
-
-    @Test
-    fun startUpWithoutBaselineProfiler() {
-        startup(CompilationMode.None())
-    }
-
-    private fun startup(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
-        metrics = listOf(StartupTimingMetric()),
-        iterations = ITERATIONS,
-        startupMode = StartupMode.COLD,
-        compilationMode = compilationMode
+    fun startup() = baselineProfileRule.collect(
+        packageName = PACKAGE_NAME
     ) {
         pressHome()
         startActivityAndWait()
@@ -56,6 +39,5 @@ class StartupBenchmark {
 
     companion object {
         private const val PACKAGE_NAME = "com.wire.android.internal"
-        private const val ITERATIONS = 10
     }
 }

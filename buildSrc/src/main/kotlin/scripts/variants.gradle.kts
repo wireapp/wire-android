@@ -149,7 +149,7 @@ android {
         create(BuildTypes.BENCHMARK) {
             initWith(getByName(BuildTypes.RELEASE))
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "dontobfuscate.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             matchingFallbacks.add("release")
             signingConfig = signingConfigs.getByName("debug")

@@ -35,5 +35,6 @@ data class EditGuestAccessState(
     val isFailedToRevokeGuestRoomLink: Boolean = false,
     val link: String? = null,
     val isLinkPasswordProtected: Boolean = false,
-    val shouldShowPasswordDialog: Boolean = false
+    val shouldShowPasswordDialog: Boolean = false,
+    val isPasswordProtectedLinksAllowed: Boolean = false
 )

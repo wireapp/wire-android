@@ -42,6 +42,7 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 @Composable
 fun JoinButton(
     buttonClick: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinClickableSize,
     horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,

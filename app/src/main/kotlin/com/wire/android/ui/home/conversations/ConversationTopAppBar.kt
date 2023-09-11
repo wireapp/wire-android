@@ -49,7 +49,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -93,6 +92,7 @@ fun ConversationScreenTopAppBar(
         onPhoneButtonClick,
         hasOngoingCall,
         onJoinCallButtonClick,
+        onPermanentPermissionDecline,
         isInteractionEnabled,
         featureVisibilityFlags.ConversationSearchIcon
     )
@@ -109,6 +109,7 @@ private fun ConversationScreenTopAppBarContent(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit,
     isInteractionEnabled: Boolean,
     isSearchEnabled: Boolean,
 ) {
@@ -176,11 +177,12 @@ private fun ConversationScreenTopAppBarContent(
                     )
                 }
 
-                callControlButton(
+                CallControlButton(
                     hasOngoingCall = hasOngoingCall,
                     onJoinCallButtonClick = onJoinCallButtonClick,
                     onPhoneButtonClick = onPhoneButtonClick,
-                    isCallingEnabled = isInteractionEnabled
+                    isCallingEnabled = isInteractionEnabled,
+                    onPermanentPermissionDecline = onPermanentPermissionDecline,
                 )
             }
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -231,16 +233,14 @@ private fun CallControlButton(
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
+            onPermanentPermissionDecline = onPermanentPermissionDecline,
             horizontalPadding = dimensions().spacing0x,
         )
     } else {
-        WireSecondaryIconButton(
-            onButtonClicked = onPhoneButtonClick,
-            iconResource = R.drawable.ic_phone,
-            contentDescription = R.string.content_description_conversation_phone_icon,
-            state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
-            minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonSmallMinClickableSize.height),
+        StartCallButton(
+            onPhoneButtonClick = onPhoneButtonClick,
+            onPermanentPermissionDecline = onPermanentPermissionDecline,
+            isCallingEnabled = isCallingEnabled
         )
     }
 }
@@ -264,6 +264,7 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -288,6 +289,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -312,6 +314,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -335,6 +338,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -358,6 +362,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )

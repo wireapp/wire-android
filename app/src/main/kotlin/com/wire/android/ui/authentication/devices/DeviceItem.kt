@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -62,6 +61,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.shimmerPlaceholder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -272,10 +272,10 @@ fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewDeviceItem() {
-    Box(modifier = Modifier.fillMaxWidth()) {
+    WireTheme {
         DeviceItem(
             device = Device(name = UIText.DynamicString("name")),
             placeholder = false,
@@ -284,19 +284,4 @@ fun PreviewDeviceItem() {
             { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
         ) {}
     }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewDeviceItemContent() {
-    DeviceItemContent(
-        device = Device(name = UIText.DynamicString("name")),
-        placeholder = false,
-        shouldShowVerifyLabel = true,
-        background = null,
-        isWholeItemClickable = false,
-        onRemoveDeviceClick = null,
-        leadingIcon = { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") },
-        leadingIconBorder = 1.dp,
-    )
 }

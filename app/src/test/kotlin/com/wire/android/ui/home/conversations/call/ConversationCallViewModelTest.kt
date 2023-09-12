@@ -76,7 +76,7 @@ class ConversationCallViewModelTest {
     private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
-    private lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
+    private lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
 
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
@@ -88,6 +88,7 @@ class ConversationCallViewModelTest {
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
         coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails(any()) } returns flowOf()
+        coEvery { observeParticipantsForConversation(any()) } returns flowOf()
 
         conversationCallViewModel = ConversationCallViewModel(
             savedStateHandle = savedStateHandle,
@@ -98,7 +99,7 @@ class ConversationCallViewModelTest {
             observeSyncState = observeSyncState,
             isConferenceCallingEnabled = isConferenceCallingEnabled,
             observeConversationDetails = observeConversationDetails,
-            observeParticipantsForConversation = observeParticipantsForConversationUseCase
+            observeParticipantsForConversation = observeParticipantsForConversation
         )
     }
 

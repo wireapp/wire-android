@@ -133,7 +133,7 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 /**
  * The maximum number of participants to start a call without showing a confirmation dialog.
  */
-private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 4
+private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")

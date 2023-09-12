@@ -120,7 +120,7 @@ private fun UserGroupDetailsInformation(
                 WireButton(
                     text = stringResource(id = R.string.user_profile_group_remove_button),
                     minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                     fillMaxWidth = false,
                     onClick = onRemoveFromConversation
                 )

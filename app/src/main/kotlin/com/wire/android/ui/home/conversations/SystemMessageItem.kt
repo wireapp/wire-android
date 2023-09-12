@@ -180,7 +180,7 @@ fun SystemMessageItem(
                     text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
                     fillMaxWidth = false,
                     minSize = dimensions().buttonSmallMinSize,
-                    minClickableSize = dimensions().buttonSmallMinClickableSize,
+                    minClickableSize = dimensions().buttonMinClickableSize,
                     shape = RoundedCornerShape(size = dimensions().corner12x),
                     contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
                 )

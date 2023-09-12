@@ -135,7 +135,7 @@ private fun SuccessfulAudioMessage(
     ) {
         WireSecondaryIconButton(
             minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = dimensions().buttonSmallMinClickableSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
             iconSize = dimensions().spacing12x,
             iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
             shape = CircleShape,

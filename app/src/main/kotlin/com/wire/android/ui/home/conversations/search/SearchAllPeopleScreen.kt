@@ -360,7 +360,7 @@ private fun ShowButton(
                 text = if (!showAll) stringResource(R.string.label_show_more) else stringResource(R.string.label_show_less),
                 onClick = onShowButtonClicked,
                 minSize = dimensions().buttonSmallMinSize,
-                minClickableSize = dimensions().buttonSmallMinClickableSize,
+                minClickableSize = dimensions().buttonMinClickableSize,
                 fillMaxWidth = false,
             )
         }

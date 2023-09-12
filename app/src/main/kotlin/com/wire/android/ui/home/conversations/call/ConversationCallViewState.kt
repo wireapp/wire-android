@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.conversations.call
 
 data class ConversationCallViewState(
+    val participantsCount: Int = 0,
     val hasOngoingCall: Boolean = false,
     val hasEstablishedCall: Boolean = false,
     val shouldShowJoinAnywayDialog: Boolean = false,

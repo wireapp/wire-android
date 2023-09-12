@@ -475,7 +475,7 @@ class GroupConversationDetailsViewModelTest {
                 name = "Conv Name",
                 type = Conversation.Type.ONE_ON_ONE,
                 teamId = TeamId("team_id"),
-                protocol = Conversation.ProtocolInfo.Proteus,
+                protocol = Conversation.ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
                 mutedStatus = MutedConversationStatus.AllAllowed,
                 removedBy = null,
                 lastNotificationDate = null,

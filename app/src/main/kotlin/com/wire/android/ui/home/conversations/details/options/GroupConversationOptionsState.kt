@@ -28,7 +28,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 data class GroupConversationOptionsState(
     val conversationId: ConversationId,
     val groupName: String = "",
-    val protocolInfo: Conversation.ProtocolInfo = Conversation.ProtocolInfo.Proteus,
+    val protocolInfo: Conversation.ProtocolInfo = Conversation.ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
     val areAccessOptionsAvailable: Boolean = false,
     val isGuestAllowed: Boolean = false,
     val isServicesAllowed: Boolean = false,

@@ -91,7 +91,7 @@ class MigrationMapper @Inject constructor() {
                 name = name,
                 type = it,
                 teamId = scalaConversation.teamId?.let { teamId -> TeamId(teamId) },
-                protocol = ProtocolInfo.Proteus,
+                protocol = ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
                 mutedStatus = mapMutedStatus(mutedStatus),
                 access = mapAccess(access),
                 accessRole = emptyList(),

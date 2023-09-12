@@ -48,7 +48,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -362,5 +364,13 @@ private fun ShowButton(
                 fillMaxWidth = false,
             )
         }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewShowButton() {
+    WireTheme {
+        ShowButton(isShownAll = false, onShowButtonClicked = {})
     }
 }

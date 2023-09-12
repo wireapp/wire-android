@@ -42,10 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -54,8 +56,10 @@ import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.RecordedAudioMessage
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
 import java.io.File
 
@@ -105,12 +109,14 @@ fun RecordAudioButtonRecording(
             seconds += 1
         }
     }
-    val activity = LocalContext.current as Activity
+    if (!LocalInspectionMode.current) {
+        val activity = LocalContext.current as Activity
 
-    DisposableEffect(Unit) {
-        activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        onDispose {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        DisposableEffect(Unit) {
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            onDispose {
+                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
         }
     }
 
@@ -120,9 +126,8 @@ fun RecordAudioButtonRecording(
         topContent = {
             Text(
                 text = DateUtils.formatElapsedTime(seconds.toLong()),
-                style = MaterialTheme.wireTypography.body01.copy(
-                    fontSize = 32.sp
-                ),
+                style = MaterialTheme.wireTypography.body01,
+                fontSize = 32.sp,
                 color = colorsScheme().secondaryText
             )
         },
@@ -167,7 +172,7 @@ fun RecordAudioButtonSend(
 }
 
 @Composable
-fun RecordAudioButton(
+private fun RecordAudioButton(
     onClick: () -> Unit,
     modifier: Modifier,
     topContent: @Composable () -> Unit,
@@ -207,6 +212,65 @@ fun RecordAudioButton(
         Text(
             text = stringResource(id = bottomText),
             style = MaterialTheme.wireTypography.body02
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewRecordAudioButtonClose() {
+    WireTheme {
+        RecordAudioButtonClose(onClick = {}, modifier = Modifier)
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewRecordAudioButtonEnabled() {
+    WireTheme {
+        RecordAudioButtonEnabled(onClick = {}, modifier = Modifier)
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewRecordAudioButtonRecording() {
+    WireTheme {
+        RecordAudioButtonRecording(onClick = {}, modifier = Modifier)
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewRecordAudioButtonSend() {
+    WireTheme {
+        RecordAudioButtonSend(
+            audioState = AudioState(
+                audioMediaPlayingState = AudioMediaPlayingState.Paused,
+                totalTimeInMs = AudioState.TotalTimeInMs.Known(1000),
+                currentPositionInMs = 0
+            ),
+            onClick = {},
+            modifier = Modifier,
+            outputFile = null,
+            onPlayAudio = {},
+            onSliderPositionChange = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewRecordAudioButton() {
+    WireTheme {
+        RecordAudioButton(
+            onClick = {},
+            modifier = Modifier,
+            topContent = {},
+            iconResId = R.drawable.ic_microphone_on,
+            contentDescription = R.string.content_description_record_audio_button_start,
+            buttonColor = colorsScheme().recordAudioStartColor,
+            bottomText = R.string.record_audio_start_label
         )
     }
 }

@@ -57,7 +57,6 @@ class EnabledMessageComposerStateHolder {
             if (!showSubOptions) {
                 optionsHeight = actualOffset
             }
-
         } else if (previousOffset > actualOffset) {
             if (isFocused) {
                 focusManager.clearFocus()

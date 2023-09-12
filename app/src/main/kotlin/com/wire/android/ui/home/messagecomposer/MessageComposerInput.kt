@@ -132,7 +132,6 @@ fun ActiveMessageComposerInput(
                     },
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
-
             }
 
             MessageComposerTextInput(

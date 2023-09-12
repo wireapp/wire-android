@@ -41,11 +41,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import com.wire.android.appLogger
 import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -151,7 +149,11 @@ fun EnabledMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageComposition = messageComposition.value,
-                                inputSize = if (stateHolder.isTextExpanded) MessageCompositionInputSize.EXPANDED else MessageCompositionInputSize.COLLAPSED,
+                                inputSize = if (stateHolder.isTextExpanded) {
+                                    MessageCompositionInputSize.EXPANDED
+                                } else {
+                                    MessageCompositionInputSize.COLLAPSED
+                                },
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 onInputFocusedChanged = ::onInputFocusedChanged,

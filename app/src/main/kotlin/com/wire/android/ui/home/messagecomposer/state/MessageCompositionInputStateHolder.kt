@@ -115,7 +115,7 @@ class MessageCompositionInputStateHolder(
                     selfDeletionTimer = selfDeletionTimer
                 ).apply {
                     inputFocused = it[0] as Boolean
-                    inputState = it[2] as MessageCompositionInputState
+                    inputState = it[1] as MessageCompositionInputState
                 }
             }
         )

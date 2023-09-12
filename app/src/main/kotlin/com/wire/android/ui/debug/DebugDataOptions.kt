@@ -291,7 +291,7 @@ private fun ManualMigrationOptions(
         actions = {
             WirePrimaryButton(
                 minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMediumMinClickableSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 onClick = onManualMigrationClicked,
                 text = stringResource(R.string.start_manual_migration),
                 fillMaxWidth = false
@@ -320,7 +320,7 @@ private fun DevelopmentApiVersioningOptions(
         actions = {
             WirePrimaryButton(
                 minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMediumMinClickableSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 onClick = onForceLatestDevelopmentApiChange,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
@@ -381,7 +381,7 @@ private fun MLSOptions(
             actions = {
                 WirePrimaryButton(
                     minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMediumMinClickableSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                     onClick = restartSlowSyncForRecovery,
                     text = stringResource(R.string.restart_slowsync_for_recovery_button),
                     fillMaxWidth = false

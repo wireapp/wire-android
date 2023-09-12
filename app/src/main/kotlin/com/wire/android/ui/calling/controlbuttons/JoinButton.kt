@@ -44,7 +44,7 @@ fun JoinButton(
     buttonClick: () -> Unit,
     onPermanentPermissionDecline: () -> Unit,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinClickableSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
 ) {
     val audioBTPermissionCheck = AudioBluetoothPermissionCheckFlow(

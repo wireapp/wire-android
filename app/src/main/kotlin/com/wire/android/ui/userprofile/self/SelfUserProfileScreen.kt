@@ -282,7 +282,7 @@ private fun SelfUserProfileTopBar(
                 text = stringResource(R.string.user_profile_logout),
                 fillMaxWidth = false,
                 minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 state = WireButtonState.Error,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
             )

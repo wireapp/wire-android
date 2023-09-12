@@ -110,7 +110,7 @@ private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
             text = stringResource(R.string.label_new_conversation),
             fillMaxWidth = false,
             minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = dimensions().buttonSmallMinClickableSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
             onClick = onNewConversationCLick
         )
     }

@@ -74,7 +74,7 @@ fun RecordAudioButtonClose(
         contentDescription = R.string.content_description_close_button,
         shape = CircleShape,
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-        minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinClickableSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         modifier = modifier
     )
 }

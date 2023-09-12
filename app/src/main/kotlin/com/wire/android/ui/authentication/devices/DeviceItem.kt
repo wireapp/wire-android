@@ -147,7 +147,7 @@ private fun DeviceItemContent(
                 leadingIcon = leadingIcon,
                 fillMaxWidth = false,
                 minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
                 contentPadding = PaddingValues(0.dp),
                 borderWidth = leadingIconBorder,

@@ -66,7 +66,7 @@ internal fun MessageSendFailureWarning(
                     text = stringResource(R.string.label_retry),
                     onClick = onRetryClick,
                     minSize = dimensions().buttonSmallMinSize,
-                    minClickableSize = dimensions().buttonSmallMinClickableSize,
+                    minClickableSize = dimensions().buttonMinClickableSize,
                     fillMaxWidth = false
                 )
                 HorizontalSpace.x8()
@@ -74,7 +74,7 @@ internal fun MessageSendFailureWarning(
                     text = stringResource(R.string.label_cancel),
                     onClick = onCancelClick,
                     minSize = dimensions().buttonSmallMinSize,
-                    minClickableSize = dimensions().buttonSmallMinClickableSize,
+                    minClickableSize = dimensions().buttonMinClickableSize,
                     fillMaxWidth = false
                 )
             }
@@ -150,7 +150,7 @@ private fun MultiUserDeliveryFailure(
                 text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
                 fillMaxWidth = false,
                 minSize = dimensions().buttonSmallMinSize,
-                minClickableSize = dimensions().buttonSmallMinClickableSize,
+                minClickableSize = dimensions().buttonMinClickableSize,
                 shape = RoundedCornerShape(size = dimensions().corner12x),
                 contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
             )
@@ -241,7 +241,7 @@ internal fun MessageDecryptionFailure(
                             }
                         },
                         minSize = dimensions().buttonSmallMinSize,
-                        minClickableSize = dimensions().buttonSmallMinClickableSize,
+                        minClickableSize = dimensions().buttonMinClickableSize,
                         fillMaxWidth = false
                     )
                 }

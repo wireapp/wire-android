@@ -58,7 +58,7 @@ fun StartCallButton(
         state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
         fillMaxWidth = false,
         minSize = dimensions().buttonSmallMinSize,
-        minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonSmallMinClickableSize.height),
+        minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height),
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
         contentPadding = PaddingValues(0.dp)

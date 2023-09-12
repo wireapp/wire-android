@@ -172,7 +172,7 @@ private fun ConversationScreenTopAppBarContent(
                         minSize = dimensions().buttonSmallMinSize,
                         minClickableSize = DpSize(
                             dimensions().buttonSmallMinSize.width,
-                            dimensions().buttonSmallMinClickableSize.height
+                            dimensions().buttonMinClickableSize.height
                         ),
                     )
                 }

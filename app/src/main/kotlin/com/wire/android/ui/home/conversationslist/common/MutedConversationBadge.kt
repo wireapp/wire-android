@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -53,8 +55,8 @@ fun MutedConversationBadge(onClick: () -> Unit) {
                 )
             },
             fillMaxWidth = false,
-            minHeight = dimensions().badgeSmallMinSize.height,
-            minWidth = dimensions().badgeSmallMinSize.width,
+            minSize = DpSize(width = dimensions().spacing24x, height = dimensions().spacing18x),
+            minClickableSize = DpSize(width = dimensions().spacing24x, height = dimensions().spacing18x),
             shape = RoundedCornerShape(size = dimensions().spacing6x),
             contentPadding = PaddingValues(dimensions().spacing0x),
         )

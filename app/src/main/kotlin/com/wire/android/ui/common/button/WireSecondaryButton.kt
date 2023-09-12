@@ -131,8 +131,8 @@ fun PreviewWireSecondaryButtonSmallOnlyIcons() {
         leadingIcon = Icons.Filled.Search.Icon(),
         leadingIconAlignment = IconAlignment.Center,
         fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+        minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
     )

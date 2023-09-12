@@ -126,7 +126,22 @@ fun ConversationScreenTopAppBar(
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },
         actions = {
-            val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+                modifier = Modifier.padding(end = dimensions().spacing4x)
+            ) {
+                if (isSearchEnabled) {
+                    WireSecondaryIconButton(
+                        onButtonClicked = onSearchButtonClick,
+                        iconResource = R.drawable.ic_search,
+                        contentDescription = R.string.content_description_conversation_search_icon,
+                        minSize = dimensions().buttonSmallMinSize,
+                        minClickableSize = DpSize(
+                            dimensions().buttonSmallMinSize.width,
+                            dimensions().buttonMinClickableSize.height
+                        ),
+                    )
+                }
 
             if (featureVisibilityFlags.ConversationSearchIcon) {
                 WireSecondaryButton(
@@ -201,10 +216,13 @@ private fun CallControlButton(
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
     } else {
-        StartCallButton(
-            onPhoneButtonClick = onPhoneButtonClick,
-            onPermanentPermissionDecline = onPermanentPermissionDecline,
-            isCallingEnabled = isCallingEnabled
+        WireSecondaryIconButton(
+            onButtonClicked = onPhoneButtonClick,
+            iconResource = R.drawable.ic_phone,
+            contentDescription = R.string.content_description_conversation_phone_icon,
+            state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height),
         )
     }
 }

@@ -82,6 +82,7 @@ import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -91,6 +92,7 @@ import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
@@ -279,7 +281,8 @@ private fun SelfUserProfileTopBar(
                 onClick = onLogoutClick,
                 text = stringResource(R.string.user_profile_logout),
                 fillMaxWidth = false,
-                minHeight = dimensions().userProfileLogoutBtnHeight,
+                minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 state = WireButtonState.Error,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
             )
@@ -434,4 +437,12 @@ fun PreviewSelfUserProfileScreen() {
 @Composable
 fun PreviewCurrentSelfUserStatus() {
     CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewSelfUserProfileTopBar() {
+    WireTheme {
+        SelfUserProfileTopBar(onCloseClick = {}, onLogoutClick = {})
+    }
 }

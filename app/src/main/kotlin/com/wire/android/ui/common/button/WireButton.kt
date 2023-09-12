@@ -38,6 +38,7 @@ import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -59,6 +61,7 @@ import com.wire.android.ui.common.rememberClickBlockAction
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
+import kotlin.math.roundToInt
 
 @Composable
 fun WireButton(
@@ -99,32 +102,47 @@ fun WireButton(
         disabledContentColor = colors.rippleColor(),
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
-    Button(
-        onClick = onClickWithSyncObserver,
-        modifier = modifier
-            .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
-            .sizeIn(minHeight = minHeight, minWidth = minWidth),
-        enabled = state != WireButtonState.Disabled,
-        interactionSource = interactionSource,
-        elevation = elevation,
-        shape = shape,
-        border = border,
-        colors = baseColors,
-        contentPadding = contentPadding
-    ) {
-        InnerButtonBox(
-            fillMaxWidth = fillMaxWidth,
-            loading = loading,
-            leadingIcon = leadingIcon,
-            leadingIconAlignment = leadingIconAlignment,
-            trailingIcon = trailingIcon,
-            trailingIconAlignment = trailingIconAlignment,
-            text = text,
-            textStyle = textStyle,
-            state = state,
-            colors = colors,
-            interactionSource = interactionSource
-        )
+    CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+        Button(
+            onClick = onClickWithSyncObserver,
+            modifier = modifier
+                .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
+                .sizeIn(minHeight = minSize.height, minWidth = minSize.width)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
+                    // Be at least as big as the minimum dimension in both dimensions
+                    val width = maxOf(placeable.width, minClickableSize.width.roundToPx())
+                    val height = maxOf(placeable.height, minClickableSize.height.roundToPx())
+
+                    layout(width, height) {
+                        val centerX = ((width - placeable.width) / 2f).roundToInt()
+                        val centerY = ((height - placeable.height) / 2f).roundToInt()
+                        placeable.place(centerX, centerY)
+                    }
+                },
+            enabled = state != WireButtonState.Disabled,
+            interactionSource = interactionSource,
+            elevation = elevation,
+            shape = shape,
+            border = border,
+            colors = baseColors,
+            contentPadding = contentPadding
+        ) {
+            InnerButtonBox(
+                fillMaxWidth = fillMaxWidth,
+                loading = loading,
+                leadingIcon = leadingIcon,
+                leadingIconAlignment = leadingIconAlignment,
+                trailingIcon = trailingIcon,
+                trailingIconAlignment = trailingIconAlignment,
+                text = text,
+                textStyle = textStyle,
+                state = state,
+                colors = colors,
+                interactionSource = interactionSource
+            )
+        }
     }
 }
 

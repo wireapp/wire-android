@@ -41,10 +41,9 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 @Composable
 fun JoinButton(
     buttonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
-    modifier: Modifier = Modifier,
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMediumMinSize.width
+    minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
 ) {
     val audioBTPermissionCheck = AudioBluetoothPermissionCheckFlow(
         onJoinCall = buttonClick,

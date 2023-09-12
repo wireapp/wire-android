@@ -32,7 +32,7 @@ fun ConfirmStartCallDialog(
     onDialogDismiss: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(id = R.string.calling_confirm__start_call_title_dialog),
+        title = stringResource(id = R.string.calling_confirm_start_call_title_dialog),
         text = stringResource(id = R.string.calling_confirm_start_call_description_dialog, participantsCount),
         onDismiss = onDialogDismiss,
         optionButton1Properties = WireDialogButtonProperties(

@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.scopedArgs
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
@@ -53,7 +52,7 @@ class SecurityClassificationViewModelImpl @Inject constructor(
     override fun state(): SecurityClassificationType = state
 
     init {
-        when(args) {
+        when (args) {
             is SecurityClassificationArgs.Conversation -> fetchConversationClassificationType(args.id)
             is SecurityClassificationArgs.User -> fetchUserClassificationType(args.id)
         }

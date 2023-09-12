@@ -18,7 +18,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -146,7 +146,7 @@ fun ImportMediaRestrictedContent(
     navigateBack: () -> Unit,
 ) {
     with(importMediaAuthenticatedState) {
-        Scaffold(
+        WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
@@ -186,7 +186,7 @@ fun ImportMediaRegularContent(
     val importMediaScreenState = rememberImportMediaScreenState()
 
     with(importMediaAuthenticatedState) {
-        Scaffold(
+        WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
@@ -242,7 +242,7 @@ fun ImportMediaLoggedOutContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
     navigateBack: () -> Unit,
 ) {
-    Scaffold(
+    WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,

@@ -35,7 +35,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -166,7 +166,7 @@ private fun MainLoginContent(
     val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
 
-    Scaffold(
+    WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,

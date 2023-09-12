@@ -515,6 +515,7 @@ private fun ConversationScreen(
 
         ConversationScreenState.BottomSheetMenuType.None -> emptyList()
     }
+    // only here we will use normal Scaffold because of specific behaviour of message composer
     Scaffold(
         topBar = {
             Column {

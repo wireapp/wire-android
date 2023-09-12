@@ -28,7 +28,7 @@ import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -123,7 +123,7 @@ fun CollapsingTopBarScaffold(
         private fun Float.toOffset() = Offset(0f, this)
     }
 
-    Scaffold(
+    WireScaffold(
         topBar = { topBarHeader(with(LocalDensity.current) { topBarElevationState.toDp() }) },
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,

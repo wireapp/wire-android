@@ -30,7 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -82,7 +82,7 @@ fun SelfDevicesScreenContent(
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
 
-    Scaffold(
+    WireScaffold(
         snackbarHost = {
             SwipeDismissSnackbarHost(
                 hostState = snackbarHostState,

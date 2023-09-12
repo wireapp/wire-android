@@ -29,7 +29,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -185,7 +185,7 @@ fun MyAccountContent(
 ) {
     val context = LocalContext.current
 
-    Scaffold(
+    WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onNavigateBack,

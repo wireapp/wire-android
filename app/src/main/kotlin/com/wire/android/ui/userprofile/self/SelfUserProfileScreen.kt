@@ -37,7 +37,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -151,7 +151,7 @@ private fun SelfUserProfileContent(
     val scrollState = rememberScrollState()
     val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
 
-    Scaffold(
+    WireScaffold(
         topBar = {
             SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,

@@ -31,7 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -144,7 +144,7 @@ private fun DetailsContent(
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    Scaffold(
+    WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,

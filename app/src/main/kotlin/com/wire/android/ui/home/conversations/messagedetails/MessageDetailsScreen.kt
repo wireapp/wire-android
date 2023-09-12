@@ -31,7 +31,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -130,7 +130,7 @@ private fun MessageDetailsScreenContent(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(
+    WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,

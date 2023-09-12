@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -77,7 +77,7 @@ private fun ServiceDetailsContent(
     serviceDetailsState: ServiceDetailsState,
     snackbarHostState: SnackbarHostState
 ) {
-    Scaffold(
+    WireScaffold(
         snackbarHost = {
             SwipeDismissSnackbarHost(
                 hostState = snackbarHostState,

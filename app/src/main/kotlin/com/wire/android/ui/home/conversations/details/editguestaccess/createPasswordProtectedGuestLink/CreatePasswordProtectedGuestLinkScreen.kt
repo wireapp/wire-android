@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -93,7 +93,7 @@ fun CreatePasswordProtectedGuestLinkScreen(
         }
     }
 
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = scrollState.rememberTopBarElevationState().value,
             onNavigationPressed = navigator::navigateBack,

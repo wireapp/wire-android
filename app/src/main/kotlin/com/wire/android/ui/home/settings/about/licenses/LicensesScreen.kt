@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +44,7 @@ fun LicensesScreen(
     navigator: Navigator,
     viewModel: LicensesViewModel = hiltViewModel()
 ) {
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = navigator::navigateBack,
             elevation = 0.dp,

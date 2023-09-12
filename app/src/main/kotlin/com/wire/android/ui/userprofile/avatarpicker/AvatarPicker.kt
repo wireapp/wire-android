@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -127,7 +127,7 @@ private fun AvatarPickerContent(
         }
     }
 
-    Scaffold(
+    WireScaffold(
         topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) },
         snackbarHost = {
             SwipeDismissSnackbarHost(

@@ -93,7 +93,7 @@ fun SelfDeletingActions(
             colors = wireSendPrimaryButtonColors(),
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
             minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-            minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinClickableSize,
+            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         )
     }
 }
@@ -121,7 +121,7 @@ fun MessageEditActions(
                 contentDescription = R.string.content_description_close_button,
                 shape = CircleShape,
                 minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinClickableSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -138,7 +138,7 @@ fun MessageEditActions(
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
                 shape = CircleShape,
                 minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinClickableSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
             )
         }
     }
@@ -158,7 +158,7 @@ private fun SendButton(
         colors = wireSendPrimaryButtonColors(),
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
         minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-        minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinClickableSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     )
 }
 

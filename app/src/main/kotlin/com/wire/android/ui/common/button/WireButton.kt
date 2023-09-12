@@ -41,7 +41,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -56,7 +56,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -64,6 +63,7 @@ import com.wire.android.ui.common.rememberClickBlockAction
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,24 +105,25 @@ fun WireButton(
         disabledContentColor = colors.rippleColor(),
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
-    var currentSize by remember { mutableStateOf(minSize) }
-    val currentPadding by remember {
-        derivedStateOf {
-            PaddingValues(
-                horizontal = max(0.dp, (minClickableSize.width - currentSize.width) / 2),
-                vertical = max(0.dp, (minClickableSize.height - currentSize.height) / 2),
-            )
-        }
-    }
-    val density = LocalDensity.current
     CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
         Button(
             onClick = onClickWithSyncObserver,
             modifier = modifier
                 .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
-                .padding(currentPadding)
                 .sizeIn(minHeight = minSize.height, minWidth = minSize.width)
-                .onGloballyPositioned { with(density) { currentSize = DpSize(it.size.width.toDp(), it.size.height.toDp()) } },
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
+                    // Be at least as big as the minimum dimension in both dimensions
+                    val width = maxOf(placeable.width, minClickableSize.width.roundToPx())
+                    val height = maxOf(placeable.height, minClickableSize.height.roundToPx())
+
+                    layout(width, height) {
+                        val centerX = ((width - placeable.width) / 2f).roundToInt()
+                        val centerY = ((height - placeable.height) / 2f).roundToInt()
+                        placeable.place(centerX, centerY)
+                    }
+                },
             enabled = state != WireButtonState.Disabled,
             interactionSource = interactionSource,
             elevation = elevation,

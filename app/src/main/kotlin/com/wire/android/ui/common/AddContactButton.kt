@@ -32,7 +32,9 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun AddContactButton(
@@ -50,9 +52,17 @@ fun AddContactButton(
         leadingIconAlignment = IconAlignment.Center,
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-        minClickableSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
         modifier = modifier
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAddContactButton() {
+    WireTheme {
+        AddContactButton(onIconClicked = {})
+    }
 }

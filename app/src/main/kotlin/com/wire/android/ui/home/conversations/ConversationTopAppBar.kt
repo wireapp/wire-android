@@ -169,7 +169,7 @@ private fun ConversationScreenTopAppBarContent(
                         minSize = dimensions().buttonSmallMinSize,
                         minClickableSize = DpSize(
                             dimensions().buttonSmallMinSize.width,
-                            dimensions().buttonSmallMinClickableSize.height
+                            dimensions().buttonMinClickableSize.height
                         ),
                     )
                 }
@@ -237,7 +237,7 @@ private fun callControlButton(
             contentDescription = R.string.content_description_conversation_phone_icon,
             state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
             minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonSmallMinClickableSize.height),
+            minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height),
         )
     }
 }

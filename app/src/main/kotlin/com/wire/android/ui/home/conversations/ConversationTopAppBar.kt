@@ -80,6 +80,7 @@ fun ConversationScreenTopAppBar(
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
     isInteractionEnabled: Boolean,
+    onPermanentPermissionDecline: () -> Unit,
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
     ConversationScreenTopAppBarContent(
@@ -91,6 +92,7 @@ fun ConversationScreenTopAppBar(
         onPhoneButtonClick,
         hasOngoingCall,
         onJoinCallButtonClick,
+        onPermanentPermissionDecline,
         isInteractionEnabled,
         featureVisibilityFlags.ConversationSearchIcon
     )
@@ -175,7 +177,7 @@ private fun ConversationScreenTopAppBarContent(
                     )
                 }
 
-                callControlButton(
+                CallControlButton(
                     hasOngoingCall = hasOngoingCall,
                     onJoinCallButtonClick = onJoinCallButtonClick,
                     onPermanentPermissionDecline = onPermanentPermissionDecline,
@@ -233,7 +235,7 @@ private fun CallControlButton(
             buttonClick = onJoinCallButtonClick,
             horizontalPadding = dimensions().spacing0x,
             onPermanentPermissionDecline = onPermanentPermissionDecline,
-            )
+        )
     } else {
         WireSecondaryIconButton(
             onButtonClicked = onPhoneButtonClick,
@@ -242,8 +244,7 @@ private fun CallControlButton(
             state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
             minSize = dimensions().buttonSmallMinSize,
             minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonSmallMinClickableSize.height),
-            onPermanentPermissionDecline = onPermanentPermissionDecline,
-            )
+        )
     }
 }
 
@@ -291,6 +292,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -315,6 +317,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -341,7 +344,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         isInteractionEnabled = true,
         isSearchEnabled = false,
         onPermanentPermissionDecline = {},
-   )
+    )
 }
 
 @Preview("Topbar with a short  conversation title and join group call")

@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.calling.controlbuttons.StartCallButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton

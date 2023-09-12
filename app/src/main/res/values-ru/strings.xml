@@ -52,14 +52,14 @@
     <string name="label_message_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s получит ваше сообщение позднее.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s получит ваше сообщение позднее.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s получит ваше сообщение позднее.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 участник из %2$s</item>
         <item quantity="few">%1$d участника из %2$s</item>
         <item quantity="many">%1$d участников из %2$s</item>
         <item quantity="other">%1$d участника из %2$s</item>
     </plurals>
-    <string name="label_try_again">Повторить</string>
     <string name="label_reset_session">Сбросить сессию</string>
     <string name="label_reset_session_success">Сессия успешно сброшена</string>
     <string name="label_federated_membership">Федеративный</string>
@@ -576,7 +576,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s начал(-а) беседу</string>
     <string name="label_system_message_conversation_started_with_members">С %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">Не удалось добавить %1$s в группу.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_degraded">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -682,6 +683,7 @@
     <string name="label_general_error">Что-то пошло не так</string>
     <string name="label_add_member_people">Контакты</string>
     <string name="label_add_member_services">Сервисы</string>
+    <string name="label_empty_contacts_list">Ищите контакты по имени или псевдониму для начала беседы 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Что-то пошло не так</string>
     <string name="error_unknown_message">Повторите попытку</string>

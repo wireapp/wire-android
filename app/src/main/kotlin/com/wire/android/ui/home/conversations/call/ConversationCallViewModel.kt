@@ -127,6 +127,14 @@ class ConversationCallViewModel @Inject constructor(
         }
     }
 
+    fun showCallingPermissionDialog() {
+        conversationCallViewState = conversationCallViewState.copy(shouldShowCallingPermissionDialog = true)
+    }
+
+    fun dismissCallingPermissionDialog() {
+        conversationCallViewState = conversationCallViewState.copy(shouldShowCallingPermissionDialog = false)
+    }
+
     private fun showJoinCallAnywayDialog() {
         conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = true)
     }

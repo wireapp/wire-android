@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -70,7 +71,8 @@ internal fun AutoFillTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    testTag: String = String.EMPTY
 ) {
     val autofillNode = AutofillNode(
         autofillTypes = autofillTypes,
@@ -112,7 +114,8 @@ internal fun AutoFillTextField(
                         cancelAutofillForNode(autofillNode)
                     }
                 }
-            }
+            },
+        testTag = testTag
     )
 }
 

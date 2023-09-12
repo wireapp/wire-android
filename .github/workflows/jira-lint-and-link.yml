@@ -7,7 +7,7 @@ jobs:
   add-jira-description:
     runs-on: ubuntu-latest
     # Run only if the PR is not from a Fork / external contributor
-    if: (!startsWith(GITHUB_REF, 'refs/heads/dependabot/') && github.repository_owner == 'wireapp')
+    if: (!startsWith(github.ref, 'refs/heads/dependabot/') && github.repository_owner == 'wireapp')
     steps:
       - uses: cakeinpanic/jira-description-action@v0.4.0
         name: jira-description-action

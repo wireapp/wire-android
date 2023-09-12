@@ -61,6 +61,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -101,7 +102,8 @@ import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = GroupConversationDetailsNavArgs::class
+    navArgsDelegate = GroupConversationDetailsNavArgs::class,
+    style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun GroupConversationDetailsScreen(

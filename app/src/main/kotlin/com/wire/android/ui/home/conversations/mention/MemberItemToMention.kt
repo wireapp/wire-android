@@ -41,7 +41,7 @@ fun MemberItemToMention(
     name: String,
     label: String,
     membership: Membership,
-    searchQuery: String = "",
+    searchQuery: String,
     clickable: Clickable,
     modifier: Modifier = Modifier
 ) {

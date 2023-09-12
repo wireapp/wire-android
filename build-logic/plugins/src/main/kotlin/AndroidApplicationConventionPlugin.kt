@@ -2,7 +2,6 @@ import com.android.build.api.dsl.ApplicationExtension
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
-import com.wire.android.gradle.version.Versionizer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -45,7 +44,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             configureCompose(this)
 
-            packagingOptions {
+            packaging {
                 resources {
                     pickFirsts.add("META-INF/AL2.0")
                     pickFirsts.add("META-INF/LGPL2.1")

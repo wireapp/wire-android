@@ -22,6 +22,7 @@ enum class ConfigType(val type: String) {
     STRING("String"),
     BOOLEAN("Boolean"),
     INT("int"),
+    MapOfStringToListOfStrings("java.util.HashMap<String, java.util.List<String>>")
 }
 
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
@@ -88,6 +89,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEFAULT_BACKEND_URL_BLACKLIST("default_backend_url_blacklist", ConfigType.STRING),
     DEFAULT_BACKEND_URL_WEBSITE("default_backend_url_website", ConfigType.STRING),
     DEFAULT_BACKEND_TITLE("default_backend_title", ConfigType.STRING),
+
+    CERTIFICATE_PINNING_CONFIG("cert_pinning_config", ConfigType.MapOfStringToListOfStrings),
     // TODO: Add support for default proxy configs
 
+    IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED("is_password_protected_guest_link_enabled", ConfigType.BOOLEAN)
 }

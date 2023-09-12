@@ -120,6 +120,7 @@ fun EnabledMessageComposer(
                     if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                         MembersMentionList(
                             membersToMention = messageComposerViewState.value.mentionSearchResult,
+                            searchQuery = messageComposition.value.messageText,
                             onMentionPicked = { pickedMention ->
                                 messageCompositionHolder.addMention(pickedMention)
                                 onClearMentionSearchResult()
@@ -194,6 +195,7 @@ fun EnabledMessageComposer(
                                     currentSelectedLineIndex = currentSelectedLineIndex,
                                     cursorCoordinateY = cursorCoordinateY,
                                     membersToMention = mentionSearchResult,
+                                    searchQuery = messageComposition.value.messageText,
                                     onMentionPicked = {
                                         messageCompositionHolder.addMention(it)
                                         onClearMentionSearchResult()

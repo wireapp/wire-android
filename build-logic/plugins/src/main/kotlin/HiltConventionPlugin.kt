@@ -23,16 +23,15 @@ class HiltConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
             apply("dagger.hilt.android.plugin")
-            // TODO: Replace with KSP as soon as Hilt supports it
-            apply("org.jetbrains.kotlin.kapt")
+            apply("com.google.devtools.ksp")
         }
 
         dependencies {
             add("implementation", findLibrary("hilt.android"))
             add("androidTestImplementation", findLibrary("hilt.android"))
 
-            add("kapt", findLibrary("hilt.compiler"))
-            add("kaptAndroidTest", findLibrary("hilt.compiler"))
+            add("ksp", findLibrary("hilt.compiler"))
+            add("kspAndroidTest", findLibrary("hilt.compiler"))
 
             add("androidTestImplementation", findLibrary("hilt.test"))
         }

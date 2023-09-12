@@ -47,3 +47,5 @@ fun String.toTitleCase(delimiter: String = " ", separator: String = " "): String
     }
 
 fun String.capitalizeFirstLetter(): String = lowercase().replaceFirstChar(Char::titlecaseChar)
+
+fun String.normalizeFileName(): String = this.replace("/", "")

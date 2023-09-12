@@ -160,6 +160,8 @@ fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
 }
 
 private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataPath: Path, fileSize: Long, mimeType: String): Uri? {
+    val normalizedFileName = assetName.normalizeFileName()
+
     val resolver = contentResolver
     val directory = Environment.getExternalStoragePublicDirectory(
         when {
@@ -171,7 +173,7 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
     )
     directory.mkdirs()
     val contentValues = ContentValues().apply {
-        val availableAssetName = findFirstUniqueName(directory, assetName.ifEmpty { ATTACHMENT_FILENAME })
+        val availableAssetName = findFirstUniqueName(directory, normalizedFileName.ifEmpty { ATTACHMENT_FILENAME })
         put(DISPLAY_NAME, availableAssetName)
         put(MIME_TYPE, mimeType)
         put(SIZE, fileSize)
@@ -189,7 +191,7 @@ private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataP
     val insertedUri = resolver.insert(externalContentUri, contentValues) ?: run {
         val authority = getProviderAuthority()
         // we need to find the next available name with copy counter by ourselves before copying
-        val availableAssetName = findFirstUniqueName(directory, assetName.ifEmpty { ATTACHMENT_FILENAME })
+        val availableAssetName = findFirstUniqueName(directory, normalizedFileName.ifEmpty { ATTACHMENT_FILENAME })
         val destinationFile = File(directory, availableAssetName)
         FileProvider.getUriForFile(this, authority, destinationFile)
     }

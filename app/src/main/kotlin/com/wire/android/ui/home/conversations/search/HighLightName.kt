@@ -23,10 +23,11 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,19 +49,22 @@ fun HighlightName(
     searchQuery: String,
     modifier: Modifier = Modifier
 ) {
+    val scope = rememberCoroutineScope()
     var highlightIndexes by remember {
         mutableStateOf(emptyList<MatchQueryResult>())
     }
 
-    LaunchedEffect(searchQuery) {
-        launch {
+    val queryWithoutSuffix = searchQuery.removeQueryPrefix()
+
+    SideEffect {
+        scope.launch {
             highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-                matchText = searchQuery,
+                matchText = queryWithoutSuffix,
                 text = name
             )
         }
     }
-    if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
+    if (queryWithoutSuffix != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -75,12 +79,14 @@ fun HighlightName(
                 }
 
                 highlightIndexes
-                    .forEach { highLightIndexes ->
-                        addStyle(
-                            style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
-                            start = highLightIndexes.startIndex,
-                            end = highLightIndexes.endIndex
-                        )
+                    .forEach { highLightIndex ->
+                        if (highLightIndex.endIndex <= this.length) {
+                            addStyle(
+                                style = SpanStyle(background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f)),
+                                start = highLightIndex.startIndex,
+                                end = highLightIndex.endIndex
+                            )
+                        }
                     }
             },
             maxLines = 1,

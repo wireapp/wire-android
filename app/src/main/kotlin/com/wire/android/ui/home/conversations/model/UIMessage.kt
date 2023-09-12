@@ -434,7 +434,11 @@ sealed class UIMessageContent {
             val memberNames: List<UIText>
         ) : SystemMessage(
             R.drawable.ic_info,
-            R.string.label_system_message_conversation_failed_add_members_details
+            if (memberNames.size > 1) {
+                R.string.label_system_message_conversation_failed_add_many_members_details
+            } else {
+                R.string.label_system_message_conversation_failed_add_one_member_details
+            }
         ) {
             val usersCount = memberNames.size
         }

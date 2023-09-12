@@ -53,12 +53,12 @@
     <string name="label_message_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 participant from %2$s</item>
         <item quantity="other">%1$d participants from %2$s</item>
     </plurals>
-    <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
     <string name="label_federated_membership">Federated</string>
@@ -173,13 +173,13 @@
 
     <!-- Non translatable strings-->
     <string name="url_support" translatable="false">https://support.wire.com</string>
-    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
-    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
-    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/212053645-Like-a-message</string>
-    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/360000665277-Activate-or-deactivate-read-receipts</string>
+    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
+    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581-What-s-new-on-Android-</string>
+    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/articles/212053645-Like-a-message</string>
+    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/articles/360000665277-Activate-or-deactivate-read-receipts</string>
     <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093-Backend</string>
-    <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207693005-How-can-I-verify-my-own-devices-</string>
-    <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-</string>
+    <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/articles/207693005-How-can-I-verify-my-own-devices-</string>
+    <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/articles/207692235-How-can-I-compare-key-fingerprints-</string>
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -588,7 +588,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -673,6 +674,7 @@
     <string name="label_general_error">Something went wrong</string>
     <string name="label_add_member_people">People</string>
     <string name="label_add_member_services">Services</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again</string>
@@ -1161,6 +1163,10 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
+
+    <string name="permission_dialog_title">App permissions</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
+    <string name="label_not_now">Not Now</string>
 
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>

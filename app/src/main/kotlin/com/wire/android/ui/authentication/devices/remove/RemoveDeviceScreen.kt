@@ -45,6 +45,7 @@ import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
@@ -64,7 +65,9 @@ import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.dialogErrorStrings
 
 @RootNavGraph
-@Destination
+@Destination(
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
 fun RemoveDeviceScreen(navigator: Navigator) {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()

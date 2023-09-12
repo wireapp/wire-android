@@ -53,14 +53,11 @@ android {
         exclude(module = "protobuf-java")
      }
 
-    packagingOptions {
+    packaging {
         resources.pickFirsts.add("google/protobuf/*.proto")
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
-}
-
-kapt {
-    correctErrorTypes = true
+    android.buildFeatures.buildConfig = true
 }
 
 dependencies {
@@ -119,6 +116,8 @@ dependencies {
 
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
+
+    implementation(libs.androidx.profile.installer)
 
     // Compose iterative code, layout inspector, etc.
     debugImplementation(libs.compose.tooling)

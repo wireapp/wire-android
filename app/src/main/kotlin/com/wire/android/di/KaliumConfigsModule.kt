@@ -49,14 +49,8 @@ class KaliumConfigsModule {
         }
 
         return KaliumConfigs(
-            isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
-            isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
-            blacklistHost = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
             fileRestrictionState = fileRestriction,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
-            developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
-            enableBlacklist = BuildConfig.ENABLE_BLACKLIST,
-            maxAccount = BuildConfig.MAX_ACCOUNTS,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
             shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
             lowerKeyPackageLimits = BuildConfig.PRIVATE_BUILD,
@@ -69,7 +63,8 @@ class KaliumConfigsModule {
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
-            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context)
+            isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
+            certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG
         )
     }
 }

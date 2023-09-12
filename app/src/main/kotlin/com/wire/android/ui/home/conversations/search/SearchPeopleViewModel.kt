@@ -257,12 +257,14 @@ abstract class SearchPeopleViewModel : ViewModel() {
             }
 
             is SearchResult.Success -> {
-                SearchResultState.Success(
-                    result
-                        .contacts
-                        .sortedBy { it.name.lowercase() }
-                        .toImmutableList()
-                )
+                result
+                    .contacts
+                    .sortedBy { it.name.lowercase() }
+                    .toImmutableList()
+                    .let {
+                        if (it.isEmpty()) SearchResultState.EmptyResult
+                        else SearchResultState.Success(it)
+                    }
             }
         }
     }

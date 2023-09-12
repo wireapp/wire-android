@@ -20,11 +20,15 @@
 
 package com.wire.android.notification
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import com.wire.android.R
+
+fun getActionFromOldOne(oldAction: Notification.Action) =
+    NotificationCompat.Action.Builder(null, oldAction.title, oldAction.actionIntent).build()
 
 fun getActionReply(context: Context, conversationId: String, userId: String?): NotificationCompat.Action {
     val resultPendingIntent = replyMessagePendingIntent(context, conversationId, userId)

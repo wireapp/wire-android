@@ -66,6 +66,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
@@ -82,8 +83,8 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.spacers.VerticalSpace.x24
 import com.wire.android.ui.common.topBarElevation
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
@@ -109,7 +110,8 @@ import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = OtherUserProfileNavArgs::class
+    navArgsDelegate = OtherUserProfileNavArgs::class,
+    style = PopUpNavigationAnimation::class,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +146,8 @@ fun OtherUserProfileScreen(
         },
         onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
         onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
-        navigateBack = navigator::navigateBack
+        navigateBack = navigator::navigateBack,
+        navigationIconType = NavigationIconType.Close,
     )
 
     LaunchedEffect(Unit) {
@@ -165,6 +168,7 @@ fun OtherUserProfileScreen(
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
+    navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
     sheetState: WireModalSheetState,
     openBottomSheet: () -> Unit,
@@ -247,6 +251,7 @@ fun OtherProfileScreenContent(
         topBarHeader = { elevation ->
             TopBarHeader(
                 state = state,
+                navigationIconType = navigationIconType,
                 elevation = elevation,
                 onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
@@ -321,12 +326,14 @@ fun OtherProfileScreenContent(
 @Composable
 private fun TopBarHeader(
     state: OtherUserProfileState,
+    navigationIconType: NavigationIconType,
     elevation: Dp,
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
+        navigationIconType = navigationIconType,
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
@@ -340,21 +347,20 @@ private fun TopBarHeader(
     )
 }
 
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
-    Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
+    Crossfade(targetState = state, label = "OtherUserProfileScreenTopBarCollapsing") { targetState ->
         UserProfileInfo(
-            userId = state.userId,
-            isLoading = state.isAvatarLoading,
-            avatarAsset = state.userAvatarAsset,
-            fullName = state.fullName,
-            userName = state.userName,
-            teamName = state.teamName,
-            membership = state.membership,
+            userId = targetState.userId,
+            isLoading = targetState.isAvatarLoading,
+            avatarAsset = targetState.userAvatarAsset,
+            fullName = targetState.fullName,
+            userName = targetState.userName,
+            teamName = targetState.teamName,
+            membership = targetState.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = state.connectionState
+            connection = targetState.connectionState
         )
     }
 }
@@ -406,8 +412,9 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            OtherUserConnectionStatusInfo(state.connectionState, state.membership)
-            x24()
+            if (!state.isDataLoading) {
+                OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+            }
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
                 state.connectionState == ConnectionState.ACCEPTED -> {
@@ -494,13 +501,16 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DEVICES(R.string.user_profile_devices_tab);
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Connected")
 fun PreviewOtherProfileScreenContent() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
+            NavigationIconType.Back,
+            false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileBottomSheetEventsHandler.PREVIEW
@@ -508,13 +518,16 @@ fun PreviewOtherProfileScreenContent() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Not Connected")
 fun PreviewOtherProfileScreenContentNotConnected() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
+            NavigationIconType.Back,
+            false,
             rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileBottomSheetEventsHandler.PREVIEW,

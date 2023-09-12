@@ -40,6 +40,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -51,7 +52,8 @@ import com.wire.android.util.ui.openDownloadFolder
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = MediaGalleryNavArgs::class
+    navArgsDelegate = MediaGalleryNavArgs::class,
+    style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun MediaGalleryScreen(

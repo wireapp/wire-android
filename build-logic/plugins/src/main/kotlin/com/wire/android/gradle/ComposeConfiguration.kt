@@ -22,7 +22,7 @@ import findVersion
 import org.gradle.api.Project
 
 internal fun Project.configureCompose(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ): Unit = with(commonExtension) {
     buildFeatures {
         compose = true

@@ -29,6 +29,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -40,7 +41,9 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
-@Destination
+@Destination(
+    style = PopUpNavigationAnimation::class
+)
 @Composable
 fun NewConversationSearchPeopleScreen(
     navigator: Navigator,

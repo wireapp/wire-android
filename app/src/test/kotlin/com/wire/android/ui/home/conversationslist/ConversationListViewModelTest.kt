@@ -228,6 +228,26 @@ class ConversationListViewModelTest {
         coVerify(exactly = 1) { endCall(any()) }
     }
 
+    @Test
+    fun `given permission dialog default state is false, when calling showPermissionDialog, then update the state to true`() = runTest {
+        conversationListViewModel.conversationListState =
+            conversationListViewModel.conversationListState.copy(shouldShowCallingPermissionDialog = false)
+
+        conversationListViewModel.showCallingPermissionDialog()
+
+        assertEquals(true, conversationListViewModel.conversationListState.shouldShowCallingPermissionDialog)
+    }
+
+    @Test
+    fun `given default permission dialog state, when calling dismissPermissionDialog, then update the state to false`() = runTest {
+        conversationListViewModel.conversationListState =
+            conversationListViewModel.conversationListState.copy(shouldShowCallingPermissionDialog = true)
+
+        conversationListViewModel.dismissCallingPermissionDialog()
+
+        assertEquals(false, conversationListViewModel.conversationListState.shouldShowCallingPermissionDialog)
+    }
+
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
         private val userId: UserId = UserId("someUser", "some_domain")

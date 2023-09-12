@@ -85,7 +85,8 @@ fun AllConversationScreenContent(
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
     onOpenConversation: (ConversationId) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    onJoinedCall: (ConversationId) -> Unit
+    onJoinedCall: (ConversationId) -> Unit,
+    onPermanentPermissionDecline: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
@@ -111,7 +112,8 @@ fun AllConversationScreenContent(
             onJoinCall = {
                 callConversationIdToJoin.value = it
                 viewModel.joinOngoingCall(it, onJoinedCall)
-            }
+            },
+            onPermanentPermissionDecline = onPermanentPermissionDecline
         )
     }
 }
@@ -162,7 +164,8 @@ fun PreviewAllConversationScreen() {
         onOpenConversationNotificationsSettings = {},
         onOpenConversation = {},
         onOpenUserProfile = {},
-        onJoinedCall = {}
+        onJoinedCall = {},
+        onPermanentPermissionDecline = {}
     )
 }
 
@@ -176,7 +179,8 @@ fun ConversationListEmptyStateScreenPreview() {
         onOpenConversationNotificationsSettings = {},
         onOpenConversation = {},
         onOpenUserProfile = {},
-        onJoinedCall = {}
+        onJoinedCall = {},
+        onPermanentPermissionDecline = {}
     )
 }
 

@@ -29,6 +29,8 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.spec.Route
+import com.wire.android.navigation.style.DefaultNestedNavGraphAnimations
+import com.wire.android.navigation.style.DefaultRootNavGraphAnimations
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 

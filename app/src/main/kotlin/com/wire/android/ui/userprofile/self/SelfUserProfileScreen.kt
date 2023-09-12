@@ -61,6 +61,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
@@ -94,7 +95,9 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 @RootNavGraph
-@Destination
+@Destination(
+    style = PopUpNavigationAnimation::class,
+)
 @Composable
 fun SelfUserProfileScreen(
     navigator: Navigator,

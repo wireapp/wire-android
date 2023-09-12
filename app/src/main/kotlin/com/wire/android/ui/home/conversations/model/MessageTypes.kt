@@ -239,7 +239,7 @@ private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<Lis
         val mentions = uiText.mentions.sortedBy { it.start }.reversed()
         val mentionList = mentions.mapNotNull {
             // secured crash for mentions caused by web when text without mentions contains mention data
-            if (it.start + it.length < uiText.value.length && uiText.value.elementAt(it.start) == '@') {
+            if (it.start + it.length <= uiText.value.length && uiText.value.elementAt(it.start) == '@') {
                 val mentionName = uiText.value.substring(it.start, it.start + it.length)
                 stringBuilder.insert(it.start + it.length, MENTION_MARK)
                 stringBuilder.insert(it.start, MENTION_MARK)

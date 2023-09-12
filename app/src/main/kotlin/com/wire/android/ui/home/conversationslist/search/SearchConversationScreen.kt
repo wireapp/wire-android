@@ -56,7 +56,8 @@ fun SearchConversationScreen(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
+    onJoinCall: (ConversationId) -> Unit,
+    onPermanentPermissionDecline: () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
         if (conversationSearchResult.values.isEmpty()) {
@@ -69,7 +70,8 @@ fun SearchConversationScreen(
                 onEditConversation = onEditConversation,
                 onOpenUserProfile = onOpenUserProfile,
                 onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
-                onJoinCall = onJoinCall
+                onJoinCall = onJoinCall,
+                onPermanentPermissionDecline = onPermanentPermissionDecline
             )
         }
     }

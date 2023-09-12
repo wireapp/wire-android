@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.conversations.search
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,9 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -49,10 +52,13 @@ import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun SearchContactsScreen(
@@ -105,9 +111,26 @@ fun SearchContactsScreen(
             SearchFailureBox(failureMessage = allKnownContactResult.failureString)
         }
 
-        // TODO: what to do when user has no contacts ?
         SearchResultState.EmptyResult -> {
-            /*NO OP*/
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(dimensions().spacing40x),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_empty_contacts_arrow),
+                    contentDescription = ""
+                )
+                Text(
+                    modifier = Modifier.padding(top = dimensions().spacing16x),
+                    text = stringResource(R.string.label_empty_contacts_list),
+                    style = MaterialTheme.wireTypography.body01,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.wireColorScheme.onSurface,
+                )
+            }
         }
     }
 }
@@ -173,17 +196,58 @@ private fun ContactItem(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewContactItem() {
-    ContactItem(
-        name = "Name",
-        avatarData = UserAvatarData(),
-        membership = Membership.Admin,
-        belongsToGroup = true,
-        connectionState = ConnectionState.ACCEPTED,
-        addToGroup = { },
-        removeFromGroup = { },
-        openUserProfile = { }
-    )
+    WireTheme {
+        ContactItem(
+            name = "Name",
+            avatarData = UserAvatarData(),
+            membership = Membership.Admin,
+            belongsToGroup = true,
+            connectionState = ConnectionState.ACCEPTED,
+            addToGroup = { },
+            removeFromGroup = { },
+            openUserProfile = { }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchContactsScreen() {
+    WireTheme {
+        SearchContactsScreen(
+            allKnownContactResult = SearchResultState.Success(
+                persistentListOf(
+                    Contact(
+                        id = "1",
+                        domain = "domain",
+                        name = "Name",
+                        avatarData = UserAvatarData(),
+                        membership = Membership.Admin,
+                        connectionState = ConnectionState.ACCEPTED
+                    )
+                )
+            ),
+            contactsAddedToGroup = listOf(),
+            onOpenUserProfile = { },
+            onAddToGroup = { },
+            onRemoveFromGroup = { }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchContactsScreenEmpty() {
+    WireTheme {
+        SearchContactsScreen(
+            allKnownContactResult = SearchResultState.EmptyResult,
+            contactsAddedToGroup = listOf(),
+            onOpenUserProfile = { },
+            onAddToGroup = { },
+            onRemoveFromGroup = { }
+        )
+    }
 }

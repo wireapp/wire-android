@@ -6,7 +6,15 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false
+            "mls_support_enabled": false,
+            "cert_pinning_config": {
+                "sha256/fnBeCwh0imI9t46Onid49IwvsB5vcf7RCvafRRdCyRE=": [
+                    "**.prod-nginz-https.wire.com",
+                    "**.prod-nginz-ssl.wire.com",
+                    "**.prod-assets.wire.com",
+                    "clientblacklist.wire.com"
+                ]
+            }
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -25,7 +33,9 @@
             "default_backend_url_teams": "https://wire-teams-staging.zinfra.io",
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
-            "default_backend_title": "wire-staging"
+            "default_backend_title": "wire-staging",
+
+            "is_password_protected_guest_link_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -65,9 +75,8 @@
     },
     "application_name": "Wire",
     "allow_sso_authentication_option": true,
-
     "url_support": "https://support.wire.com",
-    "allow_account_creation" : true,
+    "allow_account_creation": true,
     "max_accounts": 3,
     "enable_blacklist": true,
     "allow_email_change": true,
@@ -75,7 +84,6 @@
     "file_restriction_enabled": false,
     "file_restriction_list": "3gpp, aac, amr, avi, bmp, css, csv, dib, doc, docx, eml, flac, gif, html, ico, jfif, jpeg, jpg, jpg-large, key, m4a, m4v, md, midi, mkv, mov, mp3, mp4, mpeg, mpeg3, mpg, msg, ods, odt, ogg, pdf, pjp, pjpeg, png, pps, ppt, pptx, psd, pst, rtf, sql, svg, tex, tiff, txt, vcf, vid, wav, webm, webp, wmv, xls, xlsx, xml",
     "force_constant_bitrate_calls": false,
-
     "mls_support_enabled": true,
     "encrypt_proteus_storage": false,
     "self_deleting_messages": true,
@@ -83,22 +91,20 @@
     "wipe_on_device_removal": false,
     "wipe_on_rooted_device": false,
     "websocket_enabled_by_default": false,
-
     "firebase_push_sender_id": "782078216207",
     "firebase_app_id": "1:782078216207:android:d3db2443512d2055",
     "google_api_key": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
     "fcm_project_id": "w966768976",
-
     "report_bug_menu_item_enabled": true,
     "debug_screen_enabled": true,
-
     "update_app_url": "https://wire.com/en/download/",
-
     "default_backend_url_base_api": "https://prod-nginz-https.wire.com",
     "default_backend_url_accounts": "https://account.wire.com",
     "default_backend_url_base_websocket": "https://prod-nginz-ssl.wire.com",
     "default_backend_url_teams": "https://teams.wire.com",
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
-    "default_backend_title": "wire-production"
+    "default_backend_title": "wire-production",
+    "cert_pinning_config": {},
+    "is_password_protected_guest_link_enabled": false
 }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
@@ -56,7 +57,6 @@ import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
-import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -85,7 +85,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val selfServerLinks: SelfServerConfigUseCase,
-    private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
@@ -95,7 +94,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager
 ) : ViewModel() {
 
-    var userProfileState by mutableStateOf(SelfUserProfileState(selfUserId))
+    var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
         private set
 
     private lateinit var establishedCallsList: StateFlow<List<Call>>
@@ -155,7 +154,8 @@ class SelfUserProfileViewModel @Inject constructor(
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
                             otherAccounts = otherAccounts,
-                            avatarAsset = userProfileState.avatarAsset
+                            avatarAsset = userProfileState.avatarAsset,
+                            isAvatarLoading = false,
                         )
                     }
                 }
@@ -228,7 +228,7 @@ class SelfUserProfileViewModel @Inject constructor(
     fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
         viewModelScope.launch {
             // the total number of accounts is otherAccounts + 1 for the current account
-            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < kaliumConfigs.maxAccount
+            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < BuildConfig.MAX_ACCOUNTS
 
             if (!canAddNewAccounts) {
                 userProfileState = userProfileState.copy(maxAccountsReached = true)

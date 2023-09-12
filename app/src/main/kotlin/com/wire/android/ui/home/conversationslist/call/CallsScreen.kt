@@ -65,7 +65,6 @@ fun CallsScreenContent(
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -77,7 +76,6 @@ fun CallsScreenContent(
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
         openConversationNotificationsSettings = openConversationNotificationsSettings,
-        onJoinCall = onJoinCall
     )
 }
 
@@ -89,8 +87,7 @@ fun CallContent(
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
+    openConversationNotificationsSettings: (ConversationItem) -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -107,7 +104,8 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall,
+                joinCall = { },
+                onPermanentPermissionDecline = {},
                 searchQuery = ""
             )
         }
@@ -122,7 +120,8 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall,
+                joinCall = { },
+                onPermanentPermissionDecline = {},
                 searchQuery = " "
             )
         }

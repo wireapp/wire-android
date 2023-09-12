@@ -44,7 +44,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.KeepOnScreenPopUpNavigationAnimation
+import com.wire.android.navigation.style.KeepOnScreenPopUpNavigationAnimation
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.CallState

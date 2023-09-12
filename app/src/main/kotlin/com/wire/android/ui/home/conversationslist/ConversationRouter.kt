@@ -28,9 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
@@ -56,6 +58,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
+import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -75,6 +78,15 @@ fun ConversationRouterHomeBridge(
     isBottomSheetVisible: () -> Boolean
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
+    val context = LocalContext.current
+
+    MicrophoneBTPermissionsDeniedDialog(
+        shouldShow = viewModel.conversationListState.shouldShowCallingPermissionDialog,
+        onDismiss = viewModel::dismissCallingPermissionDialog,
+        onOpenSettings = {
+            context.openAppInfoScreen()
+        }
+    )
 
     val conversationRouterHomeState = rememberConversationRouterState(
         initialConversationItemType = conversationItemType,
@@ -187,7 +199,8 @@ fun ConversationRouterHomeBridge(
                         onOpenConversationNotificationsSettings = onEditNotifications,
                         onOpenConversation = onOpenConversation,
                         onOpenUserProfile = onOpenUserProfile,
-                        onJoinedCall = onJoinedCall
+                        onJoinedCall = onJoinedCall,
+                        onPermanentPermissionDecline = viewModel::showCallingPermissionDialog
                     )
 
                 ConversationItemType.CALLS ->
@@ -197,8 +210,7 @@ fun ConversationRouterHomeBridge(
                         onCallItemClick = onOpenConversation,
                         onEditConversationItem = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) }
+                        openConversationNotificationsSettings = onEditNotifications
                     )
 
                 ConversationItemType.MENTIONS ->
@@ -208,8 +220,7 @@ fun ConversationRouterHomeBridge(
                         onMentionItemClick = onOpenConversation,
                         onEditConversationItem = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) }
+                        openConversationNotificationsSettings = onEditNotifications
                     )
 
                 ConversationItemType.SEARCH -> {
@@ -221,7 +232,8 @@ fun ConversationRouterHomeBridge(
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
                         onOpenConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) }
+                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) },
+                        onPermanentPermissionDecline = viewModel::showCallingPermissionDialog
                     )
                 }
             }

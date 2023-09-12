@@ -53,6 +53,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -66,7 +67,8 @@ import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = MessageDetailsNavArgs::class
+    navArgsDelegate = MessageDetailsNavArgs::class,
+    style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun MessageDetailsScreen(

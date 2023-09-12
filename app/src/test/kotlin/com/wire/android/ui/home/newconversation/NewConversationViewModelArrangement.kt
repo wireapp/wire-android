@@ -31,6 +31,7 @@ import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -211,6 +212,18 @@ internal class NewConversationViewModelArrangement {
 
     fun withFailureKnownSearchResponse() = apply {
         coEvery { searchKnownUsers(any()) } returns flowOf(SearchUsersResult.Failure.InvalidRequest)
+    }
+
+    fun withFailureGetAllKnownUsersResponse() = apply {
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Failure(StorageFailure.DataNotFound))
+    }
+
+    fun withEmptySuccessGetAllKnownUsersResponse() = apply {
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(emptyList()))
+    }
+
+    fun withSuccessGetAllKnownUsersResponse() = apply {
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(FEDERATED_KNOWN_USER)))
     }
 
     fun withFailurePublicSearchResponse() = apply {

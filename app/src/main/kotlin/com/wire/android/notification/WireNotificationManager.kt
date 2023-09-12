@@ -33,7 +33,7 @@ import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -351,7 +351,7 @@ class WireNotificationManager @Inject constructor(
 
                 // combining all the data that is necessary for Notifications into small data class,
                 // just to make it more readable than
-                // Triple<List<LocalNotificationConversation>, QualifiedID, String>
+                // Triple<List<LocalNotification>, QualifiedID, String>
                 MessagesNotificationsData(notificationsList, userId, userName)
             }
             .cancellable()
@@ -401,11 +401,11 @@ class WireNotificationManager @Inject constructor(
     private suspend fun filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
         userId: UserId,
-        newNotifications: List<LocalNotificationConversation>
+        newNotifications: List<LocalNotification>
     ) =
         if (currentScreen is CurrentScreen.Conversation) {
             markMessagesAsNotified(userId, currentScreen.id)
-            newNotifications.filter { it.id != currentScreen.id }
+            newNotifications.filter { it.conversationId != currentScreen.id }
         } else {
             newNotifications
         }
@@ -430,13 +430,15 @@ class WireNotificationManager @Inject constructor(
 
     private fun playPingSoundIfNeeded(
         currentScreen: CurrentScreen,
-        notifications: List<LocalNotificationConversation>
+        notifications: List<LocalNotification>
     ) {
         if (currentScreen is CurrentScreen.Conversation) {
             val conversationId = currentScreen.id
             val containsPingMessage = notifications
                 .any {
-                    it.id == conversationId && it.messages.any { message -> message is LocalNotificationMessage.Knock }
+                    it.conversationId == conversationId &&
+                            it is LocalNotification.Conversation &&
+                            it.messages.any { message -> message is LocalNotificationMessage.Knock }
                 }
 
             if (containsPingMessage) {
@@ -449,7 +451,7 @@ class WireNotificationManager @Inject constructor(
     }
 
     data class MessagesNotificationsData(
-        val newNotifications: List<LocalNotificationConversation>,
+        val newNotifications: List<LocalNotification>,
         val userId: QualifiedID,
         val userName: String
     )

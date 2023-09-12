@@ -25,9 +25,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.SnackbarHostState
@@ -36,13 +36,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -50,7 +51,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -61,13 +61,8 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
@@ -79,22 +74,18 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
-import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
-import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
-import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
+import com.wire.android.ui.home.E2EIRequiredDialog
+import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -116,6 +107,8 @@ class WireActivity : AppCompatActivity() {
     lateinit var proximitySensorManager: ProximitySensorManager
 
     private val viewModel: WireActivityViewModel by viewModels()
+
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
 
@@ -154,6 +147,7 @@ class WireActivity : AppCompatActivity() {
     ) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            var isLoaded by remember { mutableStateOf(false) }
 
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -164,6 +158,7 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     Column {
+                        ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         val scope = rememberCoroutineScope()
                         CommonTopAppBar(
@@ -176,9 +171,11 @@ class WireActivity : AppCompatActivity() {
                             navigator = navigator,
                             startDestination = startDestination
                         )
+
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete, scope)
+                        isLoaded = true
                         handleScreenshotCensoring()
                         handleDialogs(navigator::navigate)
                     }
@@ -232,19 +229,67 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
-        updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog, navigate)
-        customBackendDialog(navigate)
-        maxAccountDialog(
+        featureFlagNotificationViewModel.loadInitialSync()
+        with(featureFlagNotificationViewModel.featureFlagState) {
+            if (showFileSharingDialog) {
+                FileRestrictionDialog(
+                    isFileSharingEnabled = isFileSharingEnabledState,
+                    hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
+                )
+            }
+
+            if (shouldShowGuestRoomLinkDialog) {
+                GuestRoomLinkFeatureFlagDialog(
+                    isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
+                    onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+                )
+            }
+
+            if (shouldShowSelfDeletingMessagesDialog) {
+                SelfDeletingMessagesDialog(
+                    areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
+                    enforcedTimeout = enforcedTimeoutDuration,
+                    hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
+                )
+            }
+
+            e2EIRequired?.let {
+                E2EIRequiredDialog(
+                    result = e2EIRequired,
+                    getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
+                    snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+                )
+            }
+
+            e2EISnoozeInfo?.let {
+                E2EISnoozeDialog(
+                    timeLeft = e2EISnoozeInfo.timeLeft,
+                    dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+                )
+            }
+        }
+        UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+        JoinConversationDialog(
+            viewModel.globalAppState.conversationJoinedDialog,
+            navigate,
+            viewModel::onJoinConversationFlowCompleted
+        )
+        CustomBackendDialog(
+            viewModel.globalAppState,
+            viewModel::dismissCustomBackendDialog
+        ) { viewModel.customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
+        MaxAccountDialog(
+            shouldShow = viewModel.globalAppState.maxAccountDialog,
             onConfirm = {
                 viewModel.dismissMaxAccountDialog()
                 navigate(NavigationCommand(SelfUserProfileScreenDestination))
             },
-            onDismiss = viewModel::dismissMaxAccountDialog,
-            shouldShow = viewModel.globalAppState.maxAccountDialog
+            onDismiss = viewModel::dismissMaxAccountDialog
         )
-        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI, navigate)
-        newClientDialog(
+        AccountLoggedOutDialog(
+            viewModel.globalAppState.blockUserUI
+        ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
+        NewClientDialog(
             viewModel.globalAppState.newClientDialog,
             { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
             {
@@ -255,193 +300,6 @@ class WireActivity : AppCompatActivity() {
             },
             viewModel::dismissNewClientsDialog
         )
-    }
-
-    @Composable
-    private fun updateAppDialog(onUpdateClick: () -> Unit, shouldShow: Boolean) {
-        if (shouldShow) {
-            WireDialog(
-                title = stringResource(id = R.string.update_app_dialog_title),
-                text = stringResource(id = R.string.update_app_dialog_body),
-                onDismiss = { },
-                optionButton1Properties = WireDialogButtonProperties(
-                    text = stringResource(id = R.string.update_app_dialog_button),
-                    onClick = onUpdateClick,
-                    type = WireDialogButtonType.Primary
-                ),
-                properties = wireDialogPropertiesBuilder(
-                    dismissOnBackPress = false,
-                    dismissOnClickOutside = false,
-                    usePlatformDefaultWidth = true
-                )
-            )
-        }
-    }
-
-    @Composable
-    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?, navigate: (NavigationCommand) -> Unit) {
-        joinedDialogState?.let {
-
-            val onComplete: (convId: ConversationId?) -> Unit = remember {
-                {
-                    it?.also {
-                        appLogger.d("Join conversation via code dialog completed, navigating to conversation screen")
-                        navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
-                        viewModel.onJoinConversationFlowCompleted()
-                    }
-                }
-            }
-
-            when (it) {
-                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
-                    errorState = it,
-                    onCancel = { onComplete(null) }
-                )
-
-                is JoinConversationViaCodeState.Show -> {
-                    JoinConversationViaDeepLinkDialog(
-                        name = it.conversationName,
-                        code = it.code,
-                        domain = it.domain,
-                        key = it.key,
-                        requirePassword = it.passwordProtected,
-                        onFlowCompleted = onComplete
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun customBackendDialog(navigate: (NavigationCommand) -> Unit) {
-        with(viewModel) {
-            if (globalAppState.customBackendDialog != null) {
-                CustomServerDialog(
-                    serverLinksTitle = globalAppState.customBackendDialog!!.serverLinks.title,
-                    serverLinksApi = globalAppState.customBackendDialog!!.serverLinks.api,
-                    onDismiss = this::dismissCustomBackendDialog,
-                    onConfirm = { customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
-                )
-            }
-        }
-    }
-
-    @Composable
-    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
-        if (shouldShow) {
-            MaxAccountReachedDialog(
-                onConfirm = onConfirm,
-                onDismiss = onDismiss,
-                buttonText = R.string.max_account_reached_dialog_button_open_profile
-            )
-        }
-    }
-
-    @Composable
-    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?, navigate: (NavigationCommand) -> Unit) {
-        blockUserUI?.let {
-            accountLoggedOutDialog(reason = it) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
-        }
-    }
-
-    @Composable
-    fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
-        appLogger.e("AccountLongedOutDialog: $reason")
-        val (@StringRes title: Int, text: String) = when (reason) {
-            CurrentSessionErrorState.SessionExpired -> {
-                if (BuildConfig.WIPE_ON_COOKIE_INVALID) {
-                    R.string.session_expired_error_title to (
-                            stringResource(id = R.string.session_expired_error_message)
-                                    + "\n\n"
-                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
-                            )
-                } else {
-                    R.string.session_expired_error_title to stringResource(id = R.string.session_expired_error_message)
-                }
-            }
-
-            CurrentSessionErrorState.RemovedClient -> {
-                if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
-                    R.string.removed_client_error_title to (
-                            stringResource(id = R.string.removed_client_error_message)
-                                    + "\n\n"
-                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
-                            )
-                } else {
-                    R.string.removed_client_error_title to stringResource(R.string.removed_client_error_message)
-                }
-            }
-
-            CurrentSessionErrorState.DeletedAccount -> {
-                R.string.deleted_user_error_title to stringResource(R.string.deleted_user_error_message)
-            }
-        }
-        WireDialog(
-            title = stringResource(id = title),
-            text = text,
-            onDismiss = remember { { } },
-            optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.label_ok),
-                onClick = navigateAway,
-                type = WireDialogButtonType.Primary
-            )
-        )
-    }
-
-    @Composable
-    private fun newClientDialog(
-        data: NewClientsData?,
-        openDeviceManager: () -> Unit,
-        switchAccountAndOpenDeviceManager: (UserId) -> Unit,
-        dismiss: (UserId) -> Unit
-    ) {
-        data?.let {
-            val title: String
-            val text: String
-            val btnText: String
-            val btnAction: () -> Unit
-            val dismissAction: () -> Unit = { dismiss(data.userId) }
-            val devicesList = data.clientsInfo.map {
-                stringResource(
-                    R.string.new_device_dialog_message_defice_info,
-                    it.date.formatMediumDateTime() ?: "",
-                    it.deviceInfo.asString()
-                )
-            }.joinToString("")
-            when (data) {
-                is NewClientsData.OtherUser -> {
-                    title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
-                    text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
-                    btnText = stringResource(R.string.new_device_dialog_other_user_btn)
-                    btnAction = { switchAccountAndOpenDeviceManager(data.userId) }
-                }
-
-                is NewClientsData.CurrentUser -> {
-                    title = stringResource(R.string.new_device_dialog_current_user_title)
-                    text = stringResource(R.string.new_device_dialog_current_user_message, devicesList)
-                    btnText = stringResource(R.string.new_device_dialog_current_user_btn)
-                    btnAction = openDeviceManager
-                }
-            }
-            WireDialog(
-                title = title,
-                text = text,
-                onDismiss = dismissAction,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = {
-                        dismissAction()
-                        btnAction()
-                    },
-                    text = btnText,
-                    type = WireDialogButtonType.Secondary
-                ),
-                optionButton2Properties = WireDialogButtonProperties(
-                    text = stringResource(id = R.string.label_ok),
-                    onClick = dismissAction,
-                    type = WireDialogButtonType.Primary
-                )
-            )
-        }
     }
 
     private fun updateTheApp() {

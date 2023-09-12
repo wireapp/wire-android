@@ -28,13 +28,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.appLogger
 import com.wire.android.util.extension.checkPermission
+import com.wire.android.util.extension.getActivity
 
 @Composable
 fun rememberCallingRecordAudioBluetoothRequestFlow(
     onAudioBluetoothPermissionGranted: () -> Unit,
     onAudioBluetoothPermissionDenied: () -> Unit,
+    onAudioBluetoothPermissionPermanentlyDenied: () -> Unit,
 ): CallingAudioRequestFlow {
     val context = LocalContext.current
 
@@ -46,7 +47,15 @@ fun rememberCallingRecordAudioBluetoothRequestFlow(
             if (permissionsGranted) {
                 onAudioBluetoothPermissionGranted()
             } else {
-                onAudioBluetoothPermissionDenied()
+                context.getActivity()?.let {
+                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO) ||
+                        it.shouldShowRequestPermissionRationale(android.Manifest.permission.BLUETOOTH_CONNECT)
+                    ) {
+                        onAudioBluetoothPermissionDenied()
+                    } else {
+                        onAudioBluetoothPermissionPermanentlyDenied()
+                    }
+                }
             }
         }
 

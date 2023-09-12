@@ -34,7 +34,7 @@ object TestConversationDetails {
         UserType.EXTERNAL,
         "2022-03-30T15:36:00.000Z",
         TestConnection.CONNECTION,
-        protocolInfo = ProtocolInfo.Proteus,
+        protocolInfo = ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST)
     )

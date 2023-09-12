@@ -38,7 +38,7 @@ object TestConversation {
         "ONE_ON_ONE Name",
         Conversation.Type.ONE_ON_ONE,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus,
+        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -56,7 +56,7 @@ object TestConversation {
         "SELF Name",
         Conversation.Type.SELF,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus,
+        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -70,7 +70,7 @@ object TestConversation {
         userMessageTimer = null
     )
 
-    fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
+    fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED)) = Conversation(
         ID,
         "GROUP Name",
         Conversation.Type.GROUP,
@@ -94,7 +94,7 @@ object TestConversation {
         "ONE_ON_ONE Name",
         Conversation.Type.ONE_ON_ONE,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus,
+        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -120,7 +120,7 @@ object TestConversation {
         "ONE_ON_ONE Name",
         Conversation.Type.ONE_ON_ONE,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus,
+        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
         MutedConversationStatus.AllAllowed,
         null,
         null,

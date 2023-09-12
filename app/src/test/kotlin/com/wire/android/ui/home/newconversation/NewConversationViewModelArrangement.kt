@@ -144,7 +144,7 @@ internal class NewConversationViewModelArrangement {
             name = null,
             type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
-            protocol = Conversation.ProtocolInfo.Proteus,
+            protocol = Conversation.ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
             mutedStatus = MutedConversationStatus.AllAllowed,
             removedBy = null,
             lastNotificationDate = null,

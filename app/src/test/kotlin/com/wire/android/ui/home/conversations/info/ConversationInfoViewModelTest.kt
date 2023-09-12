@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOn
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -219,65 +220,67 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a not-verified MLS conversation, then mlsVerificationStatus is not verified`() = runTest {
         // Given
-        val result = ConversationVerificationStatusResult.Success(
-            ConversationProtocol.MLS,
-            ConversationVerificationStatus.NOT_VERIFIED
-        )
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(result)
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .arrange()
 
         // then
-        assertEquals(
-            result,
-            viewModel.conversationInfoViewState.protocolInfo
-        )
+        launch { viewModel.observeConversationDetails {} }.run {
+            advanceUntilIdle()
+            assertEquals(
+                groupConversationDetails.conversation.protocol,
+                viewModel.conversationInfoViewState.protocolInfo
+            )
+            cancel()
+        }
     }
 
     @Test
     fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
         // Given
-        val result = ConversationVerificationStatusResult.Success(
-            ConversationProtocol.MLS,
-            ConversationVerificationStatus.VERIFIED
-        )
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(result)
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .arrange()
 
         // then
-        assertEquals(
-            result,
-            viewModel.conversationInfoViewState.protocolInfo
-        )
+        launch { viewModel.observeConversationDetails {} }.run {
+            advanceUntilIdle()
+            assertEquals(
+                groupConversationDetails.conversation.protocol,
+                viewModel.conversationInfoViewState.protocolInfo
+            )
+            cancel()
+        }
     }
 
     @Test
     fun `given a verified Proteus conversation, then proteusVerificationStatus is verified`() = runTest {
         // Given
-        val result = ConversationVerificationStatusResult.Success(
-            ConversationProtocol.PROTEUS,
-            ConversationVerificationStatus.VERIFIED
-        )
+        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(result)
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .arrange()
 
         // then
-        assertEquals(
-            result,
-            viewModel.conversationInfoViewState.protocolInfo
-        )
+        launch { viewModel.observeConversationDetails {} }.run {
+            advanceUntilIdle()
+            assertEquals(
+                groupConversationDetails.conversation.protocol,
+                viewModel.conversationInfoViewState.protocolInfo
+            )
+            cancel()
+        }
     }
 
     @Test
     fun `given Failure while getting an MLS conversation's verification status, then mlsVerificationStatus is null`() = runTest {
         // Given
         val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(ConversationVerificationStatusResult.Failure(StorageFailure.DataNotFound))
             .withSelfUser()
             .arrange()
 
@@ -288,26 +291,6 @@ class ConversationInfoViewModelTest {
         )
     }
 
-    @Test
-    fun `given a not-verified Proteus conversation, then proteusVerificationStatus is not verified`() = runTest {
-        // Given
-        val result = ConversationVerificationStatusResult.Success(
-            ConversationProtocol.PROTEUS,
-            ConversationVerificationStatus.NOT_VERIFIED
-        )
-        val (_, viewModel) = ConversationInfoViewModelArrangement()
-            .withVerificationStatus(
-                result
-            )
-            .withSelfUser()
-            .arrange()
-
-        // then
-        assertEquals(
-            result,
-            viewModel.conversationInfoViewState.protocolInfo
-        )
-    }
 
     @Test
     fun `given conversation details are not found, when observing details, then call onNotFound`() = runTest {

@@ -96,7 +96,7 @@ fun EnabledMessageComposer(
         if (!messageComposerStateHolder.modalBottomSheetState.isVisible
             && messageComposerStateHolder.additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting
         ) {
-            focusManager.moveFocus(FocusDirection.Previous)
+            messageComposerStateHolder.messageCompositionInputStateHolder.requestFocus()
             messageComposerStateHolder.additionalOptionStateHolder.hideAdditionalOptionsMenu()
         }
     }
@@ -152,7 +152,6 @@ fun EnabledMessageComposer(
                                 messageComposition = messageComposition.value,
                                 inputSize = if (stateHolder.isTextExpanded) MessageCompositionInputSize.EXPANDED else MessageCompositionInputSize.COLLAPSED,
                                 inputType = messageCompositionInputStateHolder.inputType,
-                                inputVisibility = messageCompositionInputStateHolder.inputVisibility,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 onInputFocusedChanged = ::onInputFocusedChanged,
                                 onToggleInputSize = { stateHolder.isTextExpanded = !stateHolder.isTextExpanded },

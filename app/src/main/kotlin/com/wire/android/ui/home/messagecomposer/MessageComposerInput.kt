@@ -72,7 +72,6 @@ fun ActiveMessageComposerInput(
     messageComposition: MessageComposition,
     inputSize: MessageCompositionInputSize,
     inputType: MessageCompositionType,
-    inputVisibility: Boolean,
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
@@ -88,103 +87,101 @@ fun ActiveMessageComposerInput(
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (inputVisibility) {
-        Column(
-            modifier = modifier
-                .wrapContentSize()
-                .background(inputType.backgroundColor())
+    Column(
+        modifier = modifier
+            .wrapContentSize()
+            .background(inputType.backgroundColor())
+    ) {
+        Divider(color = MaterialTheme.wireColorScheme.outline)
+        if (showOptions) {
+            CollapseButton(
+                isCollapsed = inputSize == MessageCompositionInputSize.COLLAPSED,
+                onCollapseClick = onToggleInputSize
+            )
+        }
+
+        val quotedMessage = messageComposition.quotedMessage
+        if (quotedMessage != null) {
+            Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                QuotedMessagePreview(
+                    quotedMessageData = quotedMessage,
+                    onCancelReply = onCancelReply
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.Bottom
         ) {
-            Divider(color = MaterialTheme.wireColorScheme.outline)
+            val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
+                MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
+                    max = dimensions().messageComposerActiveInputMaxHeight
+                )
+
+                MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+            }.weight(1f)
+
+            if (!showOptions) {
+                AdditionalOptionButton(
+                    isSelected = false,
+                    onClick = {
+                        onPlusClick()
+                    },
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+
+            }
+
+            MessageComposerTextInput(
+                inputFocused = inputFocused,
+                colors = inputType.inputTextColor(),
+                messageText = messageComposition.messageTextFieldValue,
+                placeHolderText = inputType.labelText(),
+                onMessageTextChanged = onMessageTextChanged,
+                singleLine = false,
+                onFocusChanged = onInputFocusedChanged,
+                onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+                onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+                modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
+            )
+
             if (showOptions) {
-                CollapseButton(
-                    isCollapsed = inputSize == MessageCompositionInputSize.COLLAPSED,
-                    onCollapseClick = onToggleInputSize
-                )
-            }
+                Row(Modifier.wrapContentSize()) {
+                    if (inputType is MessageCompositionType.Composing) {
+                        when (val messageType = inputType.messageType.value) {
+                            is MessageType.Normal -> {
+                                MessageSendActions(
+                                    onSendButtonClicked = onSendButtonClicked,
+                                    sendButtonEnabled = inputType.isSendButtonEnabled
+                                )
+                            }
 
-            val quotedMessage = messageComposition.quotedMessage
-            if (quotedMessage != null) {
-                Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                    QuotedMessagePreview(
-                        quotedMessageData = quotedMessage,
-                        onCancelReply = onCancelReply
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
-                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
-                        max = dimensions().messageComposerActiveInputMaxHeight
-                    )
-
-                    MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                }.weight(1f)
-
-                if (!showOptions) {
-                    AdditionalOptionButton(
-                        isSelected = false,
-                        onClick = {
-                            onPlusClick()
-                        },
-                        modifier = Modifier.padding(start = dimensions().spacing8x)
-                    )
-
-                }
-
-                MessageComposerTextInput(
-                    inputFocused = inputFocused,
-                    colors = inputType.inputTextColor(),
-                    messageText = messageComposition.messageTextFieldValue,
-                    placeHolderText = inputType.labelText(),
-                    onMessageTextChanged = onMessageTextChanged,
-                    singleLine = false,
-                    onFocusChanged = onInputFocusedChanged,
-                    onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-                    onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
-                )
-
-                if (showOptions) {
-                    Row(Modifier.wrapContentSize()) {
-                        if (inputType is MessageCompositionType.Composing) {
-                            when (val messageType = inputType.messageType.value) {
-                                is MessageType.Normal -> {
-                                    MessageSendActions(
-                                        onSendButtonClicked = onSendButtonClicked,
-                                        sendButtonEnabled = inputType.isSendButtonEnabled
-                                    )
-                                }
-
-                                is MessageType.SelfDeleting -> {
-                                    SelfDeletingActions(
-                                        onSendButtonClicked = onSendButtonClicked,
-                                        sendButtonEnabled = inputType.isSendButtonEnabled,
-                                        selfDeletionTimer = messageType.selfDeletionTimer,
-                                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
-                                    )
-                                }
+                            is MessageType.SelfDeleting -> {
+                                SelfDeletingActions(
+                                    onSendButtonClicked = onSendButtonClicked,
+                                    sendButtonEnabled = inputType.isSendButtonEnabled,
+                                    selfDeletionTimer = messageType.selfDeletionTimer,
+                                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
+                                )
                             }
                         }
                     }
                 }
             }
-            when (inputType) {
-                is MessageCompositionType.Editing -> {
-                    MessageEditActions(
-                        onEditSaveButtonClicked = onEditButtonClicked,
-                        onEditCancelButtonClicked = onCancelEdit,
-                        editButtonEnabled = inputType.isEditButtonEnabled
-                    )
-                }
-
-                else -> {}
+        }
+        when (inputType) {
+            is MessageCompositionType.Editing -> {
+                MessageEditActions(
+                    onEditSaveButtonClicked = onEditButtonClicked,
+                    onEditCancelButtonClicked = onCancelEdit,
+                    editButtonEnabled = inputType.isEditButtonEnabled
+                )
             }
+
+            else -> {}
         }
     }
 }

@@ -32,6 +32,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.EnabledMessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
@@ -68,6 +69,8 @@ class MessageComposerStateHolderTest {
 
     private lateinit var modalBottomSheetState: WireModalSheetState
 
+    private lateinit var enabledMessageComposerStateHolder: EnabledMessageComposerStateHolder
+
     private lateinit var state: MessageComposerStateHolder
 
     @BeforeEach
@@ -84,13 +87,15 @@ class MessageComposerStateHolderTest {
         )
         additionalOptionStateHolder = AdditionalOptionStateHolder()
         modalBottomSheetState = WireModalSheetState()
+        enabledMessageComposerStateHolder = EnabledMessageComposerStateHolder()
 
         state = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = additionalOptionStateHolder,
-            modalBottomSheetState = modalBottomSheetState
+            modalBottomSheetState = modalBottomSheetState,
+            enabledMessageComposerStateHolder = enabledMessageComposerStateHolder
         )
     }
 

@@ -57,9 +57,6 @@ class MessageCompositionInputStateHolder(
         )
     )
 
-    var inputVisibility by mutableStateOf(true)
-        private set
-
     var inputState: MessageCompositionInputState by mutableStateOf(
         MessageCompositionInputState.INACTIVE
     )
@@ -67,28 +64,13 @@ class MessageCompositionInputStateHolder(
     var inputSize by mutableStateOf(
         MessageCompositionInputSize.COLLAPSED
     )
-        private set
-
-    fun toInActive() {
-        inputVisibility = true
-        inputSize = MessageCompositionInputSize.COLLAPSED
-        inputState = MessageCompositionInputState.INACTIVE
-        clearFocus()
-    }
-
-    fun toActive(isFocused: Boolean) {
-        inputVisibility = true
-        inputSize = MessageCompositionInputSize.COLLAPSED
-        inputState = MessageCompositionInputState.ACTIVE
-        if (isFocused) requestFocus() else clearFocus()
-    }
 
     fun toEdit() {
         inputType = MessageCompositionType.Editing(
             messageCompositionState = messageComposition,
             messageCompositionSnapShot = messageComposition.value
         )
-        toActive(true)
+        requestFocus()
     }
 
     fun toComposing() {
@@ -96,7 +78,7 @@ class MessageCompositionInputStateHolder(
             messageCompositionState = messageComposition,
             messageType = messageType
         )
-        toActive(true)
+        requestFocus()
     }
 
     fun toggleInputSize() {
@@ -115,14 +97,6 @@ class MessageCompositionInputStateHolder(
         inputFocused = true
     }
 
-    fun show() {
-        inputVisibility = true
-    }
-
-    fun hide() {
-        inputVisibility = false
-    }
-
     companion object {
         @Suppress("MagicNumber")
         fun saver(
@@ -132,7 +106,6 @@ class MessageCompositionInputStateHolder(
             save = {
                 listOf(
                     it.inputFocused,
-                    it.inputVisibility,
                     it.inputState,
                 )
             },
@@ -142,7 +115,6 @@ class MessageCompositionInputStateHolder(
                     selfDeletionTimer = selfDeletionTimer
                 ).apply {
                     inputFocused = it[0] as Boolean
-                    inputVisibility = it[1] as Boolean
                     inputState = it[2] as MessageCompositionInputState
                 }
             }

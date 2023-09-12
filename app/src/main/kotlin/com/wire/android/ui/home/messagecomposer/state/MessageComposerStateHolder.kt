@@ -109,20 +109,6 @@ class MessageComposerStateHolder(
     val isSelfDeletingSettingEnabled = messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Disabled &&
             messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Enforced
 
-    fun toInActive() {
-        messageCompositionInputStateHolder.toInActive()
-        messageCompositionInputStateHolder.clearFocus()
-    }
-
-    fun toActive(showAttachmentOption: Boolean) { // TODO KBX only tests
-        messageCompositionInputStateHolder.toActive(!showAttachmentOption)
-        if (showAttachmentOption) {
-            additionalOptionStateHolder.showAdditionalOptionsMenu()
-        } else {
-            additionalOptionStateHolder.hideAdditionalOptionsMenu()
-        }
-    }
-
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
         messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit()

@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOn
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -290,7 +289,6 @@ class ConversationInfoViewModelTest {
             viewModel.conversationInfoViewState.protocolInfo
         )
     }
-
 
     @Test
     fun `given conversation details are not found, when observing details, then call onNotFound`() = runTest {

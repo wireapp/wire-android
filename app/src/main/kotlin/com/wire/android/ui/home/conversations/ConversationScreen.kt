@@ -279,7 +279,6 @@ fun ConversationScreen(
             }
         },
         onStartCall = {
-
             startCallIfPossible(
                 conversationCallViewModel,
                 showDialog,
@@ -289,7 +288,6 @@ fun ConversationScreen(
                     navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
                 }
             ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
-
         },
         onJoinCall = {
             conversationCallViewModel.joinOngoingCall { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }

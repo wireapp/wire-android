@@ -40,12 +40,13 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
-
 
 @Composable
 fun SearchConversationScreen(
@@ -107,8 +108,16 @@ private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
             text = stringResource(R.string.label_new_conversation),
             fillMaxWidth = false,
             minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = dimensions().buttonSmallMinClickableSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
             onClick = onNewConversationCLick
         )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewEmptySearchResult() {
+    WireTheme {
+        EmptySearchResult(onNewConversationCLick = {})
     }
 }

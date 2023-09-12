@@ -49,7 +49,7 @@ fun WireSecondaryIconButton(
     @StringRes contentDescription: Int,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinClickableSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     iconSize: Dp = dimensions().wireIconButtonSize,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wireSecondaryButtonColors(),

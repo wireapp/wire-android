@@ -212,7 +212,7 @@ fun ConversationScreen(
 
         ConversationScreenDialogType.CALL_CONFIRMATION -> {
             ConfirmStartCallDialog(
-                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
+                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount - 1,
                 onConfirm = {
                     startCallIfPossible(
                         conversationCallViewModel,

@@ -52,14 +52,14 @@
     <string name="label_message_knock">%s zaczepi&#322;(a)</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 participant from %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
         <item quantity="many">%1$d participants from %2$s</item>
         <item quantity="other">%1$d participants from %2$s</item>
     </plurals>
-    <string name="label_try_again">Spr&#243;buj ponownie</string>
     <string name="label_reset_session">Zresetuj sesj&#281;</string>
     <string name="label_reset_session_success">Sesja zosta&#322;a pomy&#347;lnie zresetowana.</string>
     <string name="label_federated_membership">Federowane</string>
@@ -576,7 +576,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -682,6 +683,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_general_error">Wyst&#261;pi&#322; problem</string>
     <string name="label_add_member_people">People</string>
     <string name="label_add_member_services">Services</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Wyst&#261;pi&#322; problem</string>
     <string name="error_unknown_message">Spr&#243;buj ponownie</string>

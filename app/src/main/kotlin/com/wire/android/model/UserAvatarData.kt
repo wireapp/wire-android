@@ -20,10 +20,12 @@
 
 package com.wire.android.model
 
+import androidx.compose.runtime.Stable
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
+@Stable
 data class UserAvatarData(
     val asset: ImageAsset.UserAvatarAsset? = null,
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,

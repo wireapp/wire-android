@@ -102,7 +102,8 @@ fun EnterRestorePasswordDialog(
         ) {
             WirePasswordTextField(
                 value = restorePassword,
-                onValueChange = { restorePassword = it }
+                onValueChange = { restorePassword = it },
+                autofill = false
             )
         }
     } else {

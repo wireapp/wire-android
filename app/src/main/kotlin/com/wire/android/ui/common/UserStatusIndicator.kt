@@ -48,7 +48,7 @@ private fun AvailableDot(modifier: Modifier) {
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
             .background(MaterialTheme.wireColorScheme.background, CircleShape)
-            .padding(dimensions().userAvatarStatusBorderSize)
+            .padding(dimensions().avatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.positive, CircleShape)
     )
 }
@@ -59,7 +59,7 @@ private fun BusyDot(modifier: Modifier) {
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
             .background(MaterialTheme.wireColorScheme.background, CircleShape)
-            .padding(dimensions().userAvatarStatusBorderSize)
+            .padding(dimensions().avatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.warning, CircleShape)
             .padding(
                 top = dimensions().userAvatarBusyVerticalPadding,
@@ -77,9 +77,9 @@ private fun AwayDot(modifier: Modifier) {
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
             .background(MaterialTheme.wireColorScheme.background, CircleShape)
-            .padding(dimensions().userAvatarStatusBorderSize)
+            .padding(dimensions().avatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.error, CircleShape)
-            .padding(dimensions().userAvatarStatusBorderSize)
+            .padding(dimensions().avatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.background, CircleShape)
     )
 }

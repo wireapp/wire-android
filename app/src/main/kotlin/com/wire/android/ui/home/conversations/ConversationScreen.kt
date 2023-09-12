@@ -755,12 +755,22 @@ fun MessageList(
                 // We can draw a placeholder here, as we fetch the next page of messages
                 return@itemsIndexed
             }
+            val showAuthor by remember {
+                mutableStateOf(
+                    AuthorHeaderHelper.shouldShowHeader(
+                        index,
+                        lazyPagingMessages.itemSnapshotList.items,
+                        message
+                    )
+                )
+            }
+
             when (message) {
                 is UIMessage.Regular -> {
                     MessageItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
-                        showAuthor = AuthorHeaderHelper.shouldShowHeader(index, lazyPagingMessages.itemSnapshotList.items, message),
+                        showAuthor = showAuthor,
                         audioMessagesState = audioMessagesState,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,

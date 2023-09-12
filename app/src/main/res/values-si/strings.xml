@@ -24,7 +24,7 @@
     <string name="label_new">නව</string>
     <string name="label_login">පිවිසෙන්න</string>
     <string name="label_ok">හරි</string>
-    <string name="label_open">Open</string>
+    <string name="label_open">අරින්න</string>
     <string name="label_cancel">අවලංගු</string>
     <string name="label_confirm">තහවුරු</string>
     <string name="label_continue">ඉදිරියට</string>
@@ -47,17 +47,17 @@
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">බාගැනීමේ දෝෂයකි</string>
-    <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
+    <string name="label_message_decryption_failure_message">පණිවිඩය විසංකේතනයට නොහැකි විය.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_message_knock">%s හැඬවීය</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">ඔබගේ පණිවිඩය %s වෙත නොලැබෙනු ඇත.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">ඔබගේ පණිවිඩය %s වෙත පසුව ලැබෙනු ඇත.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">ඔබගේ පණිවිඩය %s වෙත පසුව ලැබෙනු ඇත.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">ඔබගේ පණිවිඩය %s වෙත පසුව ලැබෙනු ඇත.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
-        <item quantity="one">1 participant from %2$s</item>
-        <item quantity="other">%1$d participants from %2$s</item>
+        <item quantity="one">%2$s වෙතින් සහභාගීන් 1</item>
+        <item quantity="other">%2$s වෙතින් සහභාගීන් %1$d</item>
     </plurals>
-    <string name="label_try_again">නැවත</string>
     <string name="label_reset_session">වාරය යළි සකසන්න</string>
     <string name="label_reset_session_success">වාරය සාර්ථකව යළි සැකසිණි</string>
     <string name="label_federated_membership">ඒකාබද්ධ</string>
@@ -85,7 +85,7 @@
     <string name="content_description_app_logo">යෙදුමේ ලාංඡනය</string>
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
     <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
-    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_search_back">ආපසු සොයන්න නිරූපකය</string>
     <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
     <string name="content_description_user_avatar">පැතිකඩ ඡායාරූපය</string>
     <string name="content_description_muted_conversation">නිහඬ කළ සංවාදය</string>
@@ -190,8 +190,8 @@
     <string name="settings_backup_create">උපස්ථයක් සාදන්න</string>
     <string name="settings_backup_restore">උපස්ථයකින් ප්‍රත්‍යර්පණය</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Want to chat with friends and family?</string>
-    <string name="welcome_footer_link">Create a private account for free</string>
+    <string name="welcome_footer_text">යහළුවන් හා පවුලේ අය සමඟ කතා කරන්න කැමති ද?</string>
+    <string name="welcome_footer_link">නොමිලේ පෞද්ගලික ගිණුමක් සාදන්න</string>
     <string name="welcome_button_create_personal_account">පෞද්. ගිණුමක් සාදන්න</string>
     <string name="welcome_screen_carousel_item_message_1">වයර් වෙත පිළිගනිමු, වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව!</string>
     <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
@@ -199,7 +199,7 @@
     <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
     <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
     <string name="welcome_button_create_team">කණ්ඩායමක් සාදන්න</string>
-    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_body">සේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">අපගේ නව ඇන්ඩ්‍රොයිඩ් යෙදුමට පිළිගනිමු 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
@@ -249,12 +249,12 @@
     <string name="login_error_invalid_sso_code">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="login_error_invalid_sso_code_format">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="deleted_user_error_title">මකාදැමූ ගිණුමකි</string>
-    <string name="deleted_user_error_message">You were logged out because your account was
-        deleted.
+    <string name="deleted_user_error_message">ඔබගේ ගිණුම මකා දැමූ නිසා ඔබව
+        නික්මවිණි.
     </string>
     <string name="removed_client_error_title">ඉවත් කළ උපාංගයකි</string>
-    <string name="removed_client_error_message">You were logged out because your device was
-        removed.
+    <string name="removed_client_error_message">ඔබගේ උපාංගය ඉවත් කළ නිසා ඔබව
+        නික්මවිණි.
     </string>
     <string name="session_expired_error_title">වාර්ය ඉකුත් වී ඇත</string>
     <string name="session_expired_error_message">The application did not communicate with the server
@@ -274,7 +274,7 @@
     <string name="remove_device_label">ඔබගේ උපාංග</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
-    <string name="remove_device_id_label">Proteus ID: %1$s</string>
+    <string name="remove_device_id_label">ප්‍රෝතියස් හැඳු.: %1$s</string>
     <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">පහත උපාංගය ඉවත් කරනවාද?</string>
     <string name="remove_device_invalid_password">මුරපදය වලංගු නොවේ</string>
@@ -318,7 +318,7 @@
     <string name="create_account_email_terms_dialog_view_policy">භා.නි. හා රහස්‍යතා ප්‍රතිපත්තිය බලන්න</string>
     <string name="create_account_email_already_in_use_error">වි-තැපෑල දැනටමත් භාවිතයේ ඇත.</string>
     <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
-    <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
+    <string name="create_account_email_invalid_error">වි-තැපැල් ලිපිනය නිවැරදිව යොදන්න.</string>
     <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
     <string name="create_account_details_first_name_placeholder">තිසර</string>
     <string name="create_account_details_first_name_label">මුල් නම</string>
@@ -357,8 +357,8 @@
     <string name="conversations_all_tab_title">සියල්ල</string>
     <string name="conversations_calls_tab_title">ඇමතුම්</string>
     <string name="conversations_mentions_tab_title">සැඳහුම්</string>
-    <string name="sent_a_message_with_content">sent a message with %s content</string>
-    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
+    <string name="sent_a_message_with_content">%s අන්තර්ගතය සහිත පණිවිඩයක් යවා ඇත</string>
+    <string name="sent_a_message_with_unknown_content">නොදන්නා අන්තර්ගතයක් සහිත පණිවිඩයක් යවා ඇත</string>
     <string name="new_group_title">නව සමූහය</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">සමූහයේ නම</string>
@@ -372,10 +372,10 @@
     <string name="empty_group_name_error">සමූහයට නමක් යොදන්න</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
-    <string name="group_can_not_be_created_title">Group can’t be created</string>
+    <string name="group_can_not_be_created_title">සමූහය සෑදීමට නොහැකිය</string>
     <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
-    <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
+    <string name="group_can_not_be_created_edit_participiant_list">සහභාගීන් සංස්කරණය</string>
+    <string name="group_can_not_be_created_discard_group_creation">සමූහය සෑදීම ඉවතලන්න</string>
     <string name="asset_message_tap_to_download_text">බාගැනීමට ඔබන්න</string>
     <string name="asset_message_upload_in_progress_text">උඩුගත වෙමින්…</string>
     <string name="asset_message_download_in_progress_text">බාගත වෙමින්…</string>
@@ -551,9 +551,9 @@
         <item quantity="one">තවත් %1$d</item>
         <item quantity="other">තවත් %1$d</item>
     </plurals>
-    <string name="label_system_message_blocked_user">%1$s blocked this user</string>
-    <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
-    <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
+    <string name="label_system_message_blocked_user">%1$s මෙම පරිශ්‍රීලකයාව අවහිර කළා</string>
+    <string name="label_system_message_renamed_the_conversation">%1$s සංවාදය නැවත නම් කළා\n%2$s</string>
+    <string name="label_system_message_team_member_left">%1$s කණ්ඩායමෙන් ඉවත් කර ඇත</string>
     <string name="label_system_message_user_not_available">මෙම පරිශ්‍රීලකයා තවදුරටත් නැත</string>
     <string name="label_system_message_new_conversation_receipt_mode">කියවූ බවට ලදුපත් %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s සැමට කියවූ බටව ලදුපත් %2$s කළා</string>
@@ -572,14 +572,15 @@
     <string name="label_system_message_conversation_started_by_other">%1$s සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_with_members">%1$s සමග</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
-        <item quantity="one">You added 1 person to the conversation</item>
-        <item quantity="other">You added %1$d people to the conversation</item>
+        <item quantity="one">ඔබ පුද්ගලයෙක් සංවාදයට එක් කළා</item>
+        <item quantity="other">ඔබ පුද්ගලයින් %1$d ක් සංවාදයට එක් කළා</item>
     </plurals>
-    <string name="last_message_other_added_only_self_user">You were added to the conversation</string>
+    <string name="last_message_other_added_only_self_user">ඔබව සංවාදයට එක් කර ඇත</string>
     <plurals name="last_message_other_added_self_user">
         <item quantity="one">You and 1 other person were added to the conversation</item>
         <item quantity="other">You and %1$d people were added to the conversation</item>
@@ -656,6 +657,7 @@
     <string name="label_general_error">කිසියම් වරදක් සිදුවී ඇත</string>
     <string name="label_add_member_people">පුද්ගලයින්</string>
     <string name="label_add_member_services">සේවා</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">කිසියම් වරදක් සිදුවී ඇත</string>
     <string name="error_unknown_message">යළි උත්සාහ කරන්න</string>
@@ -742,7 +744,7 @@
     <string name="calling_feature_unavailable_message_alert">සම්මන්ත්‍රණ ඇමතුම් විකල්පය තිබෙන්නේ වයර් ගෙවන අනුවාදයෙහි පමණි.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
-    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
+    <string name="connectivity_status_bar_connecting">පණිවිඩ විසංකේතනය වෙමින්</string>
     <string name="connectivity_status_bar_waiting_for_network">ජාලය සඳහා රැඳෙමින්</string>
     <!-- Connections -->
     <string name="connection_label_connect">සබඳින්න</string>
@@ -842,7 +844,7 @@
     <string name="settings_myaccount_display_name_error">ඔබගේ පැතිකඩ නාමය යොදන්න</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
     <string name="settings_myaccount_display_name_updated">පැතිකඩ නාමය වෙනස් විය</string>
-    <string name="settings_myaccount_handle_updated">Your username changed</string>
+    <string name="settings_myaccount_handle_updated">පරිශ්‍රීලක නාමය වෙනස් විය</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">කියවූ බවට ලදුපත යවන්න</string>
     <string name="settings_send_read_receipts_description">මෙය අක්‍රිය නම්, ඔබට අන් අයගෙන් කියවූ බවට ලදුපත් දැකීමට නොහැකියි. සමූහ සංවාද සඳහා මෙම සැකසුම අදාළ නොවේ.</string>
@@ -884,7 +886,7 @@
     <string name="label_client_last_active_label">අන්තිමට දුටුවේ</string>
     <string name="label_client_last_active_time_zero_weeks">සතියකට පෙර</string>
     <string name="label_client_last_active_time">%1$s කට පෙර</string>
-    <string name="label_client_device_id">Proteus ID</string>
+    <string name="label_client_device_id">ප්‍රෝතියස් හැඳු.</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS අනුග්‍රාහකයේ හැඳු.</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
@@ -896,8 +898,8 @@
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">මුරපදය (විකල්ප)</string>
-    <string name="label_proteus_details">Proteus Device Details</string>
-    <string name="label_mls_signature">MLS with %1$s Signature</string>
+    <string name="label_proteus_details">ප්‍රෝතියස් උපාංගයේ විස්තර</string>
+    <string name="label_mls_signature">%1$s අත්සන සහිත MLS</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">මුරපදය සකසන්න</string>
@@ -975,11 +977,11 @@
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
     <!-- visit link -->
-    <string name="label_visit_link_title">Visit Link</string>
-    <string name="visit_link_dialog_body">This will take you to %s</string>
+    <string name="label_visit_link_title">සබැඳිය බලන්න</string>
+    <string name="visit_link_dialog_body">මෙය ඔබව %s වෙත රැගෙන යයි</string>
     <!-- invalid link -->
-    <string name="label_invalid_link_title">Invalid Link</string>
-    <string name="invalid_link_dialog_body">Link could not be opened</string>
+    <string name="label_invalid_link_title">සැබැඳිය වලංගු නොවේ</string>
+    <string name="invalid_link_dialog_body">සබැඳිය ඇරීමට නොහැකි විය</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">ආගන්තුක සබැඳිය</string>
     <string name="guest_link_description">මෙම සංවාදයට සබැඳියක් මගින් අන් අයට ආරාධනා කරන්න. සබැඳිය තිබෙන ඕනෑම අයෙකුට වයර් නැති වුවද, සංවාදයට එක් වීමට හැකිය.</string>
@@ -1094,7 +1096,7 @@
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
     <string name="label_no_application_found_open_downloads_folder">"බාගැනීමේ බහාලුම ඇරීමට සුදුසු යෙදුමක් හමු නොවිණි"</string>
-    <string name="notification_obfuscated_message_title">Someone</string>
+    <string name="notification_obfuscated_message_title">යමෙක්</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
     <string name="settings_myaccount_logout">ගිණුම මකන්න</string>
@@ -1107,45 +1109,45 @@
     <string name="end_to_end_identity_required_dialog_positive_button">සහතිකයක් ගන්න</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">පසුව මතක් කරන්න</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
-    <string name="end_to_end_identity_renew_dialog_title">Update certificate</string>
+    <string name="end_to_end_identity_renew_dialog_title">සහතිකය යාවත්කාලය</string>
     <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
-    <string name="end_to_end_identity_renew_dialog_positive_button">Update Certificate</string>
+    <string name="end_to_end_identity_renew_dialog_positive_button">සහතිකය යාවත්කාලය</string>
     <string name="end_to_end_identity_renew_error_dialog_title">The certificate could not be updated.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">You can retry to update the certificate now, or you will get a reminder later.</string>
     <string name="end_to_end_identity_renew_error_dialog_text_no_snooze">Please try again, or reach out to your team admin.</string>
-    <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
+    <string name="end_to_end_identity_renew_success_dialog_title">සහතිකය යාවත්කාල විය</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
-    <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_renew_success_dialog_second_button">සහතිකයේ විස්තර</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">පටිගතය අරඹන්න</string>
     <string name="record_audio_recording_label">Recording Audio...</string>
     <string name="record_audio_send_label">හඬ පණිවිඩය යවන්න</string>
     <string name="record_audio_discard_dialog_title">හඬ පණිවිඩය ඉවතලන්නද?</string>
-    <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
+    <string name="record_audio_discard_dialog_text">හඬ පණිවිඩය මැකෙන අතර යැවීමට නොහැකි වනු ඇත.</string>
     <string name="record_audio_discard_dialog_discard_button">ඉවතලන්න</string>
     <string name="record_audio_permission_denied_dialog_title">ශබ්දවාහිනියට ප්‍රවේශය</string>
-    <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
+    <string name="record_audio_permission_denied_dialog_text">හඬ පණිවිඩ පටිගතය සඳහා වයර් වෙත ශබ්දවාහිනිය භාවිතයට අවසර වුවමනාය. උපාංගයේ සැකසුම් හරහා ඉඩදෙන්න.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">සැකසුම්</string>
     <string name="record_audio_max_file_size_reached_title">පටිගතය නතර විය</string>
-    <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="last_message_composite_with_missing_text">sent an interactive message</string>
-    <string name="join_conversation_dialog_password_label">Conversation Password</string>
-    <string name="join_conversation_dialog_password_placeholder">Enter password</string>
-    <string name="create_guest_link">Create Guest Link</string>
-    <string name="create_guest_link_with_password">Create password secured link</string>
-    <string name="create_guest_link_without_password_title">Create link without password</string>
-    <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
-    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
-    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
-    <string name="generate_password_button_text">Generate Password</string>
-    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
-    <string name="password_protected_link_banner_title">Link is password secured</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <string name="record_audio_max_file_size_reached_text">හඬ පණිවිඩ ගොනුවක ප්‍රමාණය මෙ.බ. %1$d කට සීමා වේ.</string>
+    <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර හඬ පණිවිඩ පටිගත කිරීමට නොහැකිය.</string>
+    <string name="last_message_composite_with_missing_text">අන්‍යෝන්‍ය පණිවිඩයක් යවා ඇත</string>
+    <string name="join_conversation_dialog_password_label">සංවාදයේ මුරපදය</string>
+    <string name="join_conversation_dialog_password_placeholder">මුරපදය යොදන්න</string>
+    <string name="create_guest_link">ආගන්තුක සබැඳියක් සාදන්න</string>
+    <string name="create_guest_link_with_password">මුරපදයකින් ආරක්‍ෂිත සබැඳියක් සාදන්න</string>
+    <string name="create_guest_link_without_password_title">මුරපදයක් නැතිව සබැඳියක් සාදන්න</string>
+    <string name="conversation_options_create_password_protected_guest_link_title">මුරපදයකින් ආරක්‍ෂිත සබැඳියක් සාදන්න</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption">ආගන්තුක සබැඳිය හරහා සංවාදයට එක් වන අය පළමුව මෙම මුරපදය ඇතුල් කළ යුතුය.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">ඔබට මුරපදය පසුව වෙනස් කිරීමට නොහැකිය. එය ගබඩා කර ගන්න.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_label">මුරපදය සකසන්න</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">මුරපදය තහවුරු කරන්න</string>
+    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">මුරපදය යොදන්න</string>
+    <string name="generate_password_button_text">මුරපදය උත්පාදනය</string>
+    <string name="password_protected_link_banner_description">ආගන්තුක සබැඳිය හරහා සංවාදයට එක් වන අය පළමුව මෙම මුරපදය ඇතුල් කළ යුතුය.\nමුරපදය අමතකද? සබැඳිය අහෝසි කර අළුතින් සාදන්න.</string>
+    <string name="password_protected_link_banner_title">සබැඳිය මුරපදයකින් ආරක්‍ෂිතයි</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">මුරපදය පසුරු පුවරුවට පිටපත් විය</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_description">කුඩා සහ ලොකු අකුරක් ද, අංකයක් ද, විශේෂ අකුරක් ද සහිතව අවම වශයෙන් අකුරු 8 ක් යොදා ගන්න.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_generated">නව මුරපදයක් උත්පාදනය විය</string>
 </resources>

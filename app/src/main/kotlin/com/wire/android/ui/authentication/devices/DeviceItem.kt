@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -62,12 +61,14 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.shimmerPlaceholder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
@@ -145,8 +146,8 @@ private fun DeviceItemContent(
                 onClick = { onRemoveDeviceClick(device) },
                 leadingIcon = leadingIcon,
                 fillMaxWidth = false,
-                minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
-                minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
+                minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
                 contentPadding = PaddingValues(0.dp),
                 borderWidth = leadingIconBorder,
@@ -260,7 +261,8 @@ fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
         Text(
             text = stringResource(id = if (isVerified) R.string.label_client_verified else R.string.label_client_unverified),
             color = if (isVerified) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.secondaryText,
-            style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
+            style = MaterialTheme.wireTypography.label03,
+            textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -270,10 +272,10 @@ fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewDeviceItem() {
-    Box(modifier = Modifier.fillMaxWidth()) {
+    WireTheme {
         DeviceItem(
             device = Device(name = UIText.DynamicString("name")),
             placeholder = false,

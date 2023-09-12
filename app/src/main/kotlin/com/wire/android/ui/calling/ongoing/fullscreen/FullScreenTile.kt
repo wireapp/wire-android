@@ -75,7 +75,7 @@ fun FullScreenTile(
                 participantTitleState = it,
                 isSelfUser = selectedParticipant.isSelfUser,
                 shouldFill = false,
-                shouldZoom = true,
+                isZoomingEnabled = true,
                 onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
                 onClearSelfUserVideoPreview = sharedCallingViewModel::clearVideoPreview
             )

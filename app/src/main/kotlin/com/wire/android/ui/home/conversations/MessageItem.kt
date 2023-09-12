@@ -136,7 +136,7 @@ fun MessageItem(
 
         Box(backgroundColorModifier) {
             val fullAvatarOuterPadding = if (showAuthor) {
-                dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+                dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
             } else {
                 0.dp
             }
@@ -172,7 +172,7 @@ fun MessageItem(
                         clickable = avatarClickable
                     )
                 } else {
-                    Spacer(Modifier.width(MaterialTheme.wireDimensions.userAvatarDefaultSize))
+                    Spacer(Modifier.width(MaterialTheme.wireDimensions.avatarDefaultSize))
                 }
                 Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
                 Column {

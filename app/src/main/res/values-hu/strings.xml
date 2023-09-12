@@ -52,12 +52,12 @@
     <string name="label_message_knock">%s kopogott</string>
     <string name="label_message_partial_delivery_participants_count">%1$d résztvevők nem kapták meg az Ön üzenetét.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s nem fogja megkapni az Ön üzenetét.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s később fogja megkapni az Ön üzenetét.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 résztvevő a(z) %2$s kiszolgálóról</item>
         <item quantity="other">%1$d résztvevő a %2$s kiszolgálóról</item>
     </plurals>
-    <string name="label_try_again">Próbálja meg újra</string>
     <string name="label_reset_session">Munkamenet újraindítása</string>
     <string name="label_reset_session_success">Munkamenet sikeresen újraindítva</string>
     <string name="label_federated_membership">Szövetséges</string>
@@ -572,7 +572,8 @@
     <string name="label_system_message_conversation_started_by_other">%1$s indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_with_members">%1$s résztvevővel</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_failed_add_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
@@ -656,6 +657,7 @@
     <string name="label_general_error">Valami hiba történt</string>
     <string name="label_add_member_people">Partner</string>
     <string name="label_add_member_services">Szolgáltatások</string>
+    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Valami hiba történt</string>
     <string name="error_unknown_message">Kérjük, próbálja újra</string>

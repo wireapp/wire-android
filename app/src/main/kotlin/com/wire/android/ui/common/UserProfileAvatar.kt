@@ -23,6 +23,7 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -32,6 +33,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -52,25 +55,27 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 @Composable
 fun UserProfileAvatar(
     avatarData: UserAvatarData = UserAvatarData(),
-    size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
+    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
+    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
+    statusBorderSize: PaddingValues = PaddingValues(all = dimensions().avatarStatusBorderSize),
     modifier: Modifier = Modifier,
-    clickable: Clickable? = null
+    clickable: Clickable? = null,
+    showPlaceholderIfNoAsset: Boolean = true,
+    withCrossfadeAnimation: Boolean = false,
 ) {
-    val painter = painter(avatarData)
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
-            .clip(CircleShape)
-            .clickable(clickable)
-            .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+            .let { if (clickable != null) it.clip(CircleShape).clickable(clickable) else it }
+            .padding(padding)
     ) {
+        val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
-                .padding(dimensions().userAvatarStatusBorderSize)
+                .padding(statusBorderSize)
                 .background(MaterialTheme.wireColorScheme.divider, CircleShape)
                 .size(size)
                 .clip(CircleShape)
@@ -89,20 +94,39 @@ fun UserProfileAvatar(
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
  */
 @Composable
-private fun painter(data: UserAvatarData): Painter = if (data.connectionState == ConnectionState.BLOCKED) {
-    painterResource(id = R.drawable.ic_blocked_user_avatar)
-} else if (LocalInspectionMode.current || data.asset == null) {
-    getDefaultAvatar(membership = data.membership)
-} else {
-    data.asset.paint(R.drawable.ic_default_user_avatar)
+private fun painter(
+    data: UserAvatarData,
+    showPlaceholderIfNoAsset: Boolean = true,
+    withCrossfadeAnimation: Boolean = false,
+): Painter = when {
+    LocalInspectionMode.current -> {
+        getDefaultAvatar(membership = data.membership)
+    }
+
+    data.connectionState == ConnectionState.BLOCKED -> {
+        painterResource(id = R.drawable.ic_blocked_user_avatar)
+    }
+
+    data.asset == null -> {
+        if (showPlaceholderIfNoAsset) getDefaultAvatar(membership = data.membership)
+        else ColorPainter(Color.Transparent)
+    }
+
+    else -> {
+        data.asset.paint(getDefaultAvatarResourceId(membership = data.membership), withCrossfadeAnimation)
+    }
 }
 
 @Composable
 private fun getDefaultAvatar(membership: Membership): Painter =
+    painterResource(id = getDefaultAvatarResourceId(membership))
+
+@Composable
+private fun getDefaultAvatarResourceId(membership: Membership): Int =
     if (membership == Membership.Service) {
-        painterResource(id = R.drawable.ic_default_service_avatar)
+        R.drawable.ic_default_service_avatar
     } else {
-        painterResource(id = R.drawable.ic_default_user_avatar)
+        R.drawable.ic_default_user_avatar
     }
 
 @Preview

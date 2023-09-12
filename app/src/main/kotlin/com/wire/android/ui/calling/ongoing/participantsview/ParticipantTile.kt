@@ -86,7 +86,7 @@ fun ParticipantTile(
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
     shouldFill: Boolean = true,
-    shouldZoom: Boolean = false,
+    isZoomingEnabled: Boolean = false,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -139,9 +139,9 @@ fun ParticipantTile(
                                 size = it
                             }
                             .pointerInput(Unit) {
-                                // enable zooming only when camera is on
-                                detectTransformGestures { _, gesturePan, gestureZoom, _ ->
-                                    if (shouldZoom) {
+                                // enable zooming on full screen and when video is on
+                                if (isZoomingEnabled) {
+                                    detectTransformGestures { _, gesturePan, gestureZoom, _ ->
                                         zoom = (zoom * gestureZoom).coerceIn(1f, 3f)
                                         val maxX = (size.width * (zoom - 1)) / 2
                                         val minX = -maxX

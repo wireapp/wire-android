@@ -45,6 +45,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -289,8 +290,8 @@ private fun ManualMigrationOptions(
         },
         actions = {
             WirePrimaryButton(
-                minSize = MaterialTheme.wireDimensions.buttonMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMediumMinClickableSize,
                 onClick = onManualMigrationClicked,
                 text = stringResource(R.string.start_manual_migration),
                 fillMaxWidth = false
@@ -425,7 +426,7 @@ private fun EnableEncryptedProteusStorageSwitch(
                 enabled = !isEnabled,
                 modifier = Modifier
                     .padding(end = dimensions().spacing8x)
-                    .size(dimensions().buttonSmallMinSize)
+                    .size(width = dimensions().buttonSmallMinSize.width, height = dimensions().buttonSmallMinSize.height)
             )
         }
     )
@@ -453,4 +454,14 @@ fun PreviewOtherDebugOptions() {
         onRestartSlowSyncForRecovery = {},
         onManualMigrationPressed = {}
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewDevelopmentApiVersioningOptions() {
+    WireTheme {
+        DevelopmentApiVersioningOptions(
+            onForceLatestDevelopmentApiChange = {}
+        )
+    }
 }

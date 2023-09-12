@@ -61,6 +61,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -183,9 +184,6 @@ fun SystemMessageItem(
                     minClickableSize = dimensions().buttonSmallMinClickableSize,
                     shape = RoundedCornerShape(size = dimensions().corner12x),
                     contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
-                    modifier = Modifier
-                        .padding(top = dimensions().spacing4x)
-                        .height(height = dimensions().spacing32x)
                 )
             }
             if (message.sendingFailed) {

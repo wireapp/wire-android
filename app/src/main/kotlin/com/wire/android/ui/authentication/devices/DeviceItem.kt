@@ -68,6 +68,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
@@ -260,7 +261,8 @@ fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
         Text(
             text = stringResource(id = if (isVerified) R.string.label_client_verified else R.string.label_client_unverified),
             color = if (isVerified) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.secondaryText,
-            style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
+            style = MaterialTheme.wireTypography.label03,
+            textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -282,4 +284,19 @@ fun PreviewDeviceItem() {
             { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
         ) {}
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewDeviceItemContent() {
+    DeviceItemContent(
+        device = Device(name = UIText.DynamicString("name")),
+        placeholder = false,
+        shouldShowVerifyLabel = true,
+        background = null,
+        isWholeItemClickable = false,
+        onRemoveDeviceClick = null,
+        leadingIcon = { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") },
+        leadingIconBorder = 1.dp,
+    )
 }

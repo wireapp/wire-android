@@ -48,7 +48,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 
-
 @Composable
 fun SearchConversationScreen(
     searchQuery: String,

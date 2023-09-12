@@ -44,6 +44,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -96,7 +97,7 @@ fun WireDialog(
         optionButton2Properties = optionButton2Properties,
         dismissButtonProperties = dismissButtonProperties,
         buttonsHorizontalAlignment = buttonsHorizontalAlignment,
-        modifier = modifier,
+        modifier = modifier.semantics(mergeDescendants = true) {},
         shape = shape,
         contentPadding = contentPadding,
         title = title,

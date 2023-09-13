@@ -29,15 +29,16 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun rememberOtherUserProfileScreenState(
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ): OtherUserProfileScreenState {
     val coroutineScope = rememberCoroutineScope()
     val clipBoardManager = LocalClipboardManager.current
+    val snackBarHostState = LocalSnackbarHostState.current
 
     return remember {
         OtherUserProfileScreenState(

@@ -37,8 +37,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -72,7 +70,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.ProgressDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -82,6 +80,7 @@ import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -139,7 +138,7 @@ private fun SelfUserProfileContent(
     onOtherAccountClick: (UserId) -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
 
     state.errorMessageCode?.let { errorCode ->
         val errorMessage = mapErrorCodeToString(errorCode)
@@ -158,12 +157,6 @@ private fun SelfUserProfileContent(
                 onLogoutClick = remember {
                     { logoutOptionsDialogState.show(logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()) }
                 }
-            )
-        },
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
             )
         }
     ) { internalPadding ->

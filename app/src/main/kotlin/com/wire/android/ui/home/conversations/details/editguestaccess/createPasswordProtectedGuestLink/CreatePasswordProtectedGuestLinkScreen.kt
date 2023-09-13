@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +50,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.editguestaccess.GenerateGuestRoomLinkFailureDialog
@@ -71,7 +69,6 @@ fun CreatePasswordProtectedGuestLinkScreen(
     viewModel: CreatePasswordGuestLinkViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val onCopyClick = remember(viewModel.state.password.text) {
@@ -98,10 +95,6 @@ fun CreatePasswordProtectedGuestLinkScreen(
             elevation = scrollState.rememberTopBarElevationState().value,
             onNavigationPressed = navigator::navigateBack,
             title = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_title),
-        )
-    }, snackbarHost = {
-        SwipeDismissSnackbarHost(
-            hostState = snackbarHostState, modifier = Modifier.fillMaxWidth()
         )
     }) { internalPadding ->
         Column {

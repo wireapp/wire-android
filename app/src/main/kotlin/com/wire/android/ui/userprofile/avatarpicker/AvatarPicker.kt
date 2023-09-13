@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -58,7 +57,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
@@ -128,13 +127,7 @@ private fun AvatarPickerContent(
     }
 
     WireScaffold(
-        topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) },
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = state.snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) }
     ) { internalPadding ->
         Box(
             Modifier

@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,13 +54,13 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.EnabledMessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.Ping
-import com.wire.android.ui.home.messagecomposer.state.EnabledMessageComposerStateHolder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
@@ -74,7 +73,6 @@ import kotlin.time.Duration
 fun MessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
-    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
@@ -122,7 +120,6 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     conversationId = conversationId,
                     messageComposerStateHolder = messageComposerStateHolder,
-                    snackbarHostState = snackbarHostState,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
@@ -226,7 +223,6 @@ fun MessageComposerPreview() {
         onClearMentionSearchResult = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
-        tempWritableImageUri = null,
-        snackbarHostState = SnackbarHostState()
+        tempWritableImageUri = null
     )
 }

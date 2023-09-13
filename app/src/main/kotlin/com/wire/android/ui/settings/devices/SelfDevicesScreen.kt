@@ -21,7 +21,6 @@
 package com.wire.android.ui.settings.devices
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -30,10 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -48,7 +44,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
@@ -62,10 +58,7 @@ fun SelfDevicesScreen(
     navigator: Navigator,
     viewModel: SelfDevicesViewModel = hiltViewModel()
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
     SelfDevicesScreenContent(
-        snackbarHostState = snackbarHostState,
         state = viewModel.state,
         onNavigateBack = navigator::navigateBack,
         onDeviceClick = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId))) }
@@ -74,7 +67,6 @@ fun SelfDevicesScreen(
 
 @Composable
 fun SelfDevicesScreenContent(
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigateBack: () -> Unit = {},
     onDeviceClick: (Device) -> Unit = {},
     state: SelfDevicesState
@@ -83,12 +75,6 @@ fun SelfDevicesScreenContent(
     val context = LocalContext.current
 
     WireScaffold(
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
         topBar = {
             TopBarHeader(
                 onNavigateBack = onNavigateBack

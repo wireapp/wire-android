@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -51,7 +50,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
@@ -108,12 +107,6 @@ fun DeviceDetailsContent(
                 onNavigationPressed = onNavigateBack,
                 elevation = 0.dp,
                 title = state.device.name.asString()
-            )
-        },
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = screenState.snackBarHostState,
-                modifier = Modifier.fillMaxWidth()
             )
         },
         bottomBar = {

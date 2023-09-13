@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +38,7 @@ import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
@@ -46,12 +46,12 @@ import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 @Composable
 fun RecordAudioComponent(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    snackbarHostState: SnackbarHostState,
     onAudioRecorded: (UriAsset) -> Unit,
     onCloseRecordAudio: () -> Unit
 ) {
     val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
 
     val recordAudioFlow = RecordAudioFlow(
         startRecording = { viewModel.startRecording() },

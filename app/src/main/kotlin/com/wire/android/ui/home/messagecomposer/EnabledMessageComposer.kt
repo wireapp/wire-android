@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,7 +61,6 @@ import com.wire.kalium.logic.util.isPositiveNotNull
 fun EnabledMessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
-    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
@@ -245,7 +243,6 @@ fun EnabledMessageComposer(
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                            snackbarHostState = snackbarHostState,
                             onRecordAudioMessageClicked = {
                                 stateHolder.showOptions = true
                                 toAudioRecording()

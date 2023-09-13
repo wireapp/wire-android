@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +42,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
@@ -87,13 +86,7 @@ fun MediaGalleryScreen(
                 Box(modifier = Modifier.padding(internalPadding)) {
                     MediaGalleryContent(navigator, mediaGalleryViewModel, mediaGalleryScreenState)
                 }
-            },
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = mediaGalleryScreenState.snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
+            }
         )
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,

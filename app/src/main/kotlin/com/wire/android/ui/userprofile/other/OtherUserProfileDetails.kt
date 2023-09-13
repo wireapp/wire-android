@@ -45,7 +45,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun OtherUserProfileDetails(
     state: OtherUserProfileState,
-    otherUserProfileScreenState: OtherUserProfileScreenState = rememberOtherUserProfileScreenState(remember { SnackbarHostState() }),
+    otherUserProfileScreenState: OtherUserProfileScreenState = rememberOtherUserProfileScreenState(),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current

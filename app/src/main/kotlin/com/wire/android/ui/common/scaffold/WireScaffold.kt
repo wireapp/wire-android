@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -34,6 +35,8 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 
 /**
  * A custom scaffold that automatically applies system UI insets and IME (Input Method Editor)
@@ -60,7 +63,7 @@ fun WireScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
-    snackbarHost: @Composable () -> Unit = {},
+//    snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     containerColor: Color = MaterialTheme.colorScheme.background,
@@ -79,7 +82,6 @@ fun WireScaffold(
                 }
             }
         },
-
         bottomBar = {
             if (bottomBar != null) {
                 Box(
@@ -90,7 +92,15 @@ fun WireScaffold(
                 }
             }
         },
-        snackbarHost,
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = LocalSnackbarHostState.current,
+                // added navigation padding because our WireScaffold has zero bottom WindowInsets
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+            )
+        },
         floatingActionButton,
         floatingActionButtonPosition,
         containerColor,

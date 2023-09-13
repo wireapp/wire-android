@@ -31,7 +31,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -78,7 +77,6 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -239,12 +237,6 @@ fun HomeContent(
                                 )
                             }
                         }
-                    },
-                    snackbarHost = {
-                        SwipeDismissSnackbarHost(
-                            hostState = snackBarHostState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     },
                     topBarCollapsing = {
                         if (currentNavigationItem.isSearchable) {

@@ -31,8 +31,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -57,7 +55,7 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -128,8 +126,6 @@ private fun MessageDetailsScreenContent(
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -148,12 +144,6 @@ private fun MessageDetailsScreenContent(
             }
         },
         modifier = Modifier.fillMaxHeight(),
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
     ) { internalPadding ->
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current

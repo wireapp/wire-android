@@ -32,11 +32,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import com.wire.android.ui.common.scaffold.WireScaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,8 +49,8 @@ import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -72,7 +69,6 @@ fun EditSelfDeletingMessagesScreen(
     editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     WireScaffold(
@@ -81,11 +77,6 @@ fun EditSelfDeletingMessagesScreen(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 onNavigationPressed = navigator::navigateBack,
                 title = stringResource(id = R.string.self_deleting_messages_title)
-            )
-        }, snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
             )
         }) { internalPadding ->
         with(editSelfDeletingMessagesViewModel) {

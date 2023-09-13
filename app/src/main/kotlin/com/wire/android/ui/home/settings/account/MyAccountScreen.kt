@@ -29,12 +29,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,7 +55,7 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
 import com.wire.android.ui.destinations.ChangeEmailScreenDestination
@@ -69,6 +67,7 @@ import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -87,7 +86,7 @@ fun MyAccountScreen(
     viewModel: MyAccountViewModel = hiltViewModel(),
     deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     with(viewModel.myAccountState) {
         MyAccountContent(
@@ -96,15 +95,14 @@ fun MyAccountScreen(
                 navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
                 navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
                 navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) }
-                ),
+            ),
             forgotPasswordUrl = this.changePasswordUrl,
             canDeleteAccount = viewModel.myAccountState.teamName.isNullOrBlank(),
             onDeleteAccountClicked = deleteAccountViewModel::onDeleteAccountClicked,
             onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
             onDeleteAccountDismissed = deleteAccountViewModel::onDeleteAccountDialogDismissed,
             startDeleteAccountFlow = deleteAccountViewModel.state.startDeleteAccountFlow,
-            onNavigateBack = navigator::navigateBack,
-            snackbarHostState = snackbarHostState,
+            onNavigateBack = navigator::navigateBack
         )
     }
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -127,6 +125,7 @@ private fun <T : DestinationSpec<*>> handleNavResult(
             is NavResult.Canceled -> {
                 appLogger.i("Error with receiving navigation back args")
             }
+
             is NavResult.Value -> {
                 scope.launch {
                     if (result.value) {
@@ -161,7 +160,8 @@ private fun mapToUISections(
             },
             if (email.isNotBlank()) Email(
                 email,
-                clickableActionIfPossible(!state.isEditEmailAllowed, navigateToChangeEmail)) else null,
+                clickableActionIfPossible(!state.isEditEmailAllowed, navigateToChangeEmail)
+            ) else null,
             if (!teamName.isNullOrBlank()) Team(teamName) else null,
             if (domain.isNotBlank()) Domain(domain) else null
         )
@@ -180,8 +180,7 @@ fun MyAccountContent(
     onDeleteAccountConfirmed: () -> Unit,
     onDeleteAccountDismissed: () -> Unit,
     startDeleteAccountFlow: Boolean,
-    onNavigateBack: () -> Unit = {},
-    snackbarHostState: SnackbarHostState
+    onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -215,12 +214,6 @@ fun MyAccountContent(
                     )
                 }
             }
-        },
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     ) { internalPadding ->
 
@@ -283,7 +276,6 @@ fun PreviewMyAccountScreen() {
         { },
         {},
         false,
-        { },
-        snackbarHostState = remember { SnackbarHostState() }
+        { }
     )
 }

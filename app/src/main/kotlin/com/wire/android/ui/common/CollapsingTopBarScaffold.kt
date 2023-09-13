@@ -28,7 +28,6 @@ import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -46,6 +45,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.theme.wireDimensions
 import kotlin.math.roundToInt
 
@@ -73,7 +73,6 @@ fun CollapsingTopBarScaffold(
     topBarHeader: @Composable (elevation: Dp) -> Unit,
     topBarCollapsing: @Composable () -> Unit,
     topBarFooter: @Composable () -> Unit = {},
-    snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -125,7 +124,6 @@ fun CollapsingTopBarScaffold(
 
     WireScaffold(
         topBar = { topBarHeader(with(LocalDensity.current) { topBarElevationState.toDp() }) },
-        snackbarHost = snackbarHost,
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,

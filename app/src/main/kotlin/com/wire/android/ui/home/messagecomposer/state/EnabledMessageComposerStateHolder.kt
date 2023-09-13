@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.max
 @Stable
 class EnabledMessageComposerStateHolder {
 
-    var keyboardHeight by mutableStateOf(220.dp)
+    var keyboardHeight by mutableStateOf(250.dp)
     var optionsHeight by mutableStateOf(0.dp)
     var showOptions by mutableStateOf(false)
     var showSubOptions by mutableStateOf(false)
@@ -98,14 +98,16 @@ class EnabledMessageComposerStateHolder {
 
         fun saver(density: Density): Saver<EnabledMessageComposerStateHolder, *> = Saver(
             save = {
-                listOf(
-                    it.keyboardHeight.value,
-                    it.optionsHeight.value,
-                    it.showOptions,
-                    it.showSubOptions,
-                    it.isTextExpanded,
-                    it.previousOffset.value
-                )
+                with(density) {
+                    listOf(
+                        it.keyboardHeight.toPx(),
+                        it.optionsHeight.toPx(),
+                        it.showOptions,
+                        it.showSubOptions,
+                        it.isTextExpanded,
+                        it.previousOffset.toPx()
+                    )
+                }
             },
             restore = { savedState ->
                 with(density) {

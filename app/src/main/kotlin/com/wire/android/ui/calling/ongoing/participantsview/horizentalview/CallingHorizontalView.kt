@@ -62,6 +62,7 @@ fun CallingHorizontalView(
             start = dimensions().spacing4x,
             end = dimensions().spacing4x
         ),
+        userScrollEnabled = false,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
     ) {
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->

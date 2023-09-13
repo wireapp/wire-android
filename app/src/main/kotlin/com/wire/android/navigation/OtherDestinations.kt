@@ -19,7 +19,9 @@ package com.wire.android.navigation
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
+import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -35,6 +37,13 @@ interface ExternalUriDirection : Direction {
     val uri: Uri
     override val route: String
         get() = uri.toString()
+}
+
+interface ExternalUriStringResDirection : Direction {
+    @get:StringRes val uriStringRes: Int
+    override val route: String
+        get() = "android.resource://${BuildConfig.APPLICATION_ID}/$uriStringRes"
+    fun getUri(resources: Resources): Uri = Uri.parse(resources.getString(uriStringRes))
 }
 
 interface IntentDirection : Direction {
@@ -75,4 +84,14 @@ object ReportBugDestination : IntentDirection {
     }
     override val route: String
         get() = "wire-intent:report-bug"
+}
+
+object WelcomeToNewAndroidAppDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_welcome_to_new_android
+}
+
+object AndroidReleaseNotesDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_android_release_notes
 }

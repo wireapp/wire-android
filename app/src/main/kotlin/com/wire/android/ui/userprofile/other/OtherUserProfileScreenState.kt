@@ -34,8 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberOtherUserProfileScreenState(
-): OtherUserProfileScreenState {
+fun rememberOtherUserProfileScreenState(): OtherUserProfileScreenState {
     val coroutineScope = rememberCoroutineScope()
     val clipBoardManager = LocalClipboardManager.current
     val snackBarHostState = LocalSnackbarHostState.current

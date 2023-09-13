@@ -14,12 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.whatsnew
 
-package com.wire.android.ui.home.conversations
+data class WhatsNewState(
+    val releaseNotesItems: List<ReleaseNotesItem> = emptyList()
+)
 
-enum class ConversationScreenDialogType {
-    ONGOING_ACTIVE_CALL, NO_CONNECTIVITY, CALL_CONFIRMATION, CALLING_FEATURE_UNAVAILABLE, NONE
-}
+data class ReleaseNotesItem(
+    val id: String,
+    val title: String,
+    val link: String,
+    val publishDate: String
+)

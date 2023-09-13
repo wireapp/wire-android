@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Icon
@@ -60,8 +61,8 @@ fun WirePrimaryButton(
     textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
+    minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
@@ -83,8 +84,8 @@ fun WirePrimaryButton(
     textStyle = textStyle,
     state = state,
     clickBlockParams = clickBlockParams,
-    minHeight = minHeight,
-    minWidth = minWidth,
+    minSize = minSize,
+    minClickableSize = minClickableSize,
     fillMaxWidth = fillMaxWidth,
     shape = shape,
     colors = colors,
@@ -132,8 +133,8 @@ fun PreviewWirePrimaryButtonSmallOnlyIcons() {
         leadingIcon = Icons.Filled.Search.Icon(),
         leadingIconAlignment = IconAlignment.Center,
         fillMaxWidth = false,
-        minHeight = 32.dp,
-        minWidth = 40.dp,
+        minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
     )

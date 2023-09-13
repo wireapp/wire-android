@@ -68,6 +68,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -128,6 +129,11 @@ import kotlin.time.Duration.Companion.milliseconds
  * Once the user scrolls further into older messages, we stop autoscroll.
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
+
+/**
+ * The maximum number of participants to start a call without showing a confirmation dialog.
+ */
+private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
@@ -202,6 +208,26 @@ fun ConversationScreen(
             CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
                 showDialog.value = ConversationScreenDialogType.NONE
             }
+        }
+
+        ConversationScreenDialogType.CALL_CONFIRMATION -> {
+            ConfirmStartCallDialog(
+                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount - 1,
+                onConfirm = {
+                    startCallIfPossible(
+                        conversationCallViewModel,
+                        showDialog,
+                        coroutineScope,
+                        conversationInfoViewModel.conversationInfoViewState.conversationType,
+                        onOpenInitiatingCallScreen = {
+                            navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
+                        }
+                    ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+                },
+                onDialogDismiss = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                }
+            )
         }
 
         ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
@@ -410,10 +436,17 @@ private fun startCallIfPossible(
         } else {
             val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
                 ConferenceCallingResult.Enabled -> {
-                    conversationCallViewModel.endEstablishedCallIfAny {
-                        onOpenInitiatingCallScreen(conversationCallViewModel.conversationId)
+                    if (
+                        showDialog.value != ConversationScreenDialogType.CALL_CONFIRMATION &&
+                        conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
+                    ) {
+                        ConversationScreenDialogType.CALL_CONFIRMATION
+                    } else {
+                        conversationCallViewModel.endEstablishedCallIfAny {
+                            onOpenInitiatingCallScreen(conversationCallViewModel.conversationId)
+                        }
+                        ConversationScreenDialogType.NONE
                     }
-                    ConversationScreenDialogType.NONE
                 }
 
                 ConferenceCallingResult.Disabled.Established -> {

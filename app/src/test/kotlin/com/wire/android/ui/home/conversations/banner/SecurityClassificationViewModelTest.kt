@@ -113,8 +113,13 @@ class SecurityClassificationViewModelTest {
         val classificationUserChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
 
         init {
+            val navArg = when {
+                conversationId != null -> SecurityClassificationArgs.Conversation(conversationId)
+                userId != null -> SecurityClassificationArgs.User(userId)
+                else -> throw IllegalArgumentException("Either conversationId or userId must be provided")
+            }
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns SecurityClassificationArgs(conversationId, userId)
+            every { savedStateHandle.scopedArgs<SecurityClassificationArgs>() } returns navArg
             coEvery { observeSecurityClassificationLabel(any()) } returns classificationChannel.consumeAsFlow()
             coEvery { getOtherUserSecurityClassificationLabel(any()) } returns classificationUserChannel.consumeAsFlow()
         }

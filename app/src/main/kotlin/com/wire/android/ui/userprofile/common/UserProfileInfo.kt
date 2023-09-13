@@ -58,7 +58,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -213,10 +213,13 @@ fun UserProfileInfo(
                 )
             }
         }
-        SecurityClassificationBanner(
-            userId = userId,
-            modifier = Modifier.padding(top = dimensions().spacing8x)
-        )
+
+        userId?.also {
+            SecurityClassificationBannerForUser(
+                userId = it,
+                modifier = Modifier.padding(top = dimensions().spacing8x)
+            )
+        }
     }
 }
 

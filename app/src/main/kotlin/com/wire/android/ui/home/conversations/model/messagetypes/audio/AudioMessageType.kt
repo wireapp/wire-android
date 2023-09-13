@@ -41,7 +41,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun AudioMessage(
@@ -132,7 +134,8 @@ private fun SuccessfulAudioMessage(
         verticalAlignment = Alignment.CenterVertically
     ) {
         WireSecondaryIconButton(
-            minWidth = 32.dp,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
             iconSize = dimensions().spacing12x,
             iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
             shape = CircleShape,
@@ -158,7 +161,8 @@ private fun SuccessfulAudioMessage(
         } else {
             Text(
                 text = audioDuration.formattedTimeLeft(),
-                style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.wireColorScheme.secondaryText,
                 maxLines = 1
             )
         }
@@ -246,5 +250,19 @@ private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs
         }
 
         return UNKNOWN_DURATION_LABEL
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewSuccessfulAudioMessage() {
+    WireTheme {
+        SuccessfulAudioMessage(
+            audioMediaPlayingState = AudioMediaPlayingState.Completed,
+            totalTimeInMs = AudioState.TotalTimeInMs.Known(10000),
+            currentPositionInMs = 5000,
+            onPlayButtonClick = {},
+            onSliderPositionChange = {}
+        )
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WireButtonState
@@ -42,9 +43,9 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 fun JoinButton(
     buttonClick: () -> Unit,
     onPermanentPermissionDecline: () -> Unit,
-    modifier: Modifier = Modifier,
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMediumMinSize.width
+    minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
 ) {
     val audioBTPermissionCheck = AudioBluetoothPermissionCheckFlow(
         onJoinCall = buttonClick,
@@ -58,10 +59,10 @@ fun JoinButton(
         text = stringResource(R.string.calling_button_label_join_call),
         textStyle = MaterialTheme.wireTypography.button03,
         state = WireButtonState.Positive,
-        minHeight = minHeight,
-        minWidth = minWidth,
-        modifier = modifier.padding(
-            horizontal = dimensions().spacing8x
+        minSize = minSize,
+        minClickableSize = minClickableSize,
+        modifier = Modifier.padding(
+            horizontal = horizontalPadding
         ),
         contentPadding = PaddingValues(
             horizontal = dimensions().spacing8x,

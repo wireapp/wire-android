@@ -115,7 +115,7 @@ fun UserProfileInfo(
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
                 UserProfileAvatar(
-                    size = dimensions().userAvatarDefaultBigSize,
+                    size = dimensions().avatarDefaultBigSize,
                     avatarData = userAvatarData,
                     clickable = remember(editableState) {
                         Clickable(
@@ -130,8 +130,7 @@ fun UserProfileInfo(
             this@Column.AnimatedVisibility(visible = isLoading) {
                 Box(
                     Modifier
-                        .padding(dimensions().userAvatarClickablePadding)
-                        .size(dimensions().userAvatarDefaultBigSize)
+                        .padding(dimensions().avatarClickablePadding)
                         .clip(CircleShape)
                         .background(MaterialTheme.wireColorScheme.background.copy(alpha = 0.6f))
                 ) {

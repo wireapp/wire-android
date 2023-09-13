@@ -99,6 +99,7 @@ fun WireScaffold(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
+                    .imePadding()
             )
         },
         floatingActionButton,

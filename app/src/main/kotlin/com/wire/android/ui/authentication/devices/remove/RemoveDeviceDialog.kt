@@ -84,7 +84,8 @@ fun RemoveDeviceDialog(
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
-                    .testTag("remove device password field")
+                    .testTag("remove device password field"),
+                autofill = true
             )
             LaunchedEffect(Unit) { // executed only once when showing the dialog
                 focusRequester.requestFocus()

@@ -144,11 +144,11 @@ fun JoinConversationViaDeepLinkDialog(
                     },
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                    autofillTypes = emptyList(),
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
-                        .testTag("remove device password field")
+                        .testTag("remove device password field"),
+                    autofill = false
                 )
                 LaunchedEffect(Unit) { // executed only once when showing the dialog
                     focusRequester.requestFocus()

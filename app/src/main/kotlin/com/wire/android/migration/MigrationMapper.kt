@@ -103,8 +103,8 @@ class MigrationMapper @Inject constructor() {
                 receiptMode = fromScalaReceiptMode(receiptMode),
                 messageTimer = null,
                 userMessageTimer = null,
-                archivedDateTime = null,
-                archived = false
+                archived = false,
+                archivedDateTime = null
             )
         }
     }

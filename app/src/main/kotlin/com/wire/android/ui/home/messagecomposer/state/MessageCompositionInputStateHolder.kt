@@ -67,7 +67,6 @@ class MessageCompositionInputStateHolder(
     var previousOffset by mutableStateOf(0.dp)
         private set
 
-
     private val messageType = derivedStateOf {
         if (selfDeletionTimer.value.duration.isPositiveNotNull()) {
             MessageType.SelfDeleting(selfDeletionTimer.value)

@@ -90,9 +90,9 @@ fun EnabledMessageComposer(
             inputStateHolder.handleIMEVisibility(isImeVisible)
         }
         LaunchedEffect(modalBottomSheetState.isVisible) {
-            if (!modalBottomSheetState.isVisible
-                && additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting
-            ) {
+            if (modalBottomSheetState.isVisible) {
+                messageCompositionInputStateHolder.clearFocus()
+            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
                 messageCompositionInputStateHolder.requestFocus()
                 additionalOptionStateHolder.hideAdditionalOptionsMenu()
             }

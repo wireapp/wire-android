@@ -258,8 +258,7 @@ fun EnabledMessageComposer(
             BackHandler(isImeVisible || inputStateHolder.showOptions) {
                 inputStateHolder.handleBackPressed(
                     isImeVisible,
-                    additionalOptionStateHolder.additionalOptionsSubMenuState,
-                    focusManager
+                    additionalOptionStateHolder.additionalOptionsSubMenuState
                 )
             }
         }

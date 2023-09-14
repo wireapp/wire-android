@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
@@ -153,18 +154,33 @@ class MessageCompositionInputStateHolder(
         optionsHeight = keyboardHeight
     }
 
-    fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState, focusManager: FocusManager) {
+    fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState) {
         if ((isImeVisible || showOptions) && additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
             showOptions = false
             showSubOptions = false
             isTextExpanded = false
             optionsHeight = 0.dp
-            focusManager.clearFocus(force = true)
+            inputFocused = false
         }
     }
 
     fun calculateOptionsMenuHeight(additionalOptionsSubMenuState: AdditionalOptionSubMenuState): Dp {
         return optionsHeight + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) 0.dp else composeTextHeight
+    }
+
+    @VisibleForTesting
+    fun updateValuesForTesting(
+        keyboardHeight: Dp = KeyboardHeight.default,
+        previousOffset: Dp = 0.dp,
+        showSubOptions: Boolean = false,
+        optionsHeight: Dp = 0.dp,
+        showOptions: Boolean = false,
+        ) {
+        this.keyboardHeight = keyboardHeight
+        this.previousOffset = previousOffset
+        this.showSubOptions = showSubOptions
+        this.optionsHeight = optionsHeight
+        this.showOptions = showOptions
     }
 
     companion object {

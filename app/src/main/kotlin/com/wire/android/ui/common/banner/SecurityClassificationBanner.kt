@@ -49,42 +49,68 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun SecurityClassificationBanner(
-    conversationId: ConversationId? = null,
-    userId: UserId? = null,
+fun SecurityClassificationBannerForConversation(
+    conversationId: ConversationId,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationArgs>(SecurityClassificationArgs(
-            userId = userId,
-            conversationId = conversationId,
-        )),
+        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationArgs>(
+            SecurityClassificationArgs.Conversation(
+                id = conversationId,
+            )
+        ),
     modifier: Modifier = Modifier
 ) {
-    val securityClassificationType = viewModel.state()
+    SecurityClassificationBanner(
+        state = viewModel.state(),
+        modifier = modifier
+    )
+}
 
-    if (securityClassificationType != SecurityClassificationType.NONE) {
+@Composable
+fun SecurityClassificationBannerForUser(
+    userId: UserId,
+    viewModel: SecurityClassificationViewModel =
+        hiltViewModelScoped<SecurityClassificationViewModelImpl, SecurityClassificationArgs>(
+            SecurityClassificationArgs.User(
+                id = userId,
+            )
+        ),
+    modifier: Modifier = Modifier
+) {
+    SecurityClassificationBanner(
+        state = viewModel.state(),
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun SecurityClassificationBanner(
+    state: SecurityClassificationType,
+    modifier: Modifier = Modifier
+) {
+    if (state != SecurityClassificationType.NONE) {
         Column(modifier = modifier) {
-            Divider(color = getDividerColorFor(securityClassificationType))
+            Divider(color = getDividerColorFor(state))
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .background(getBackgroundColorFor(securityClassificationType))
+                    .background(getBackgroundColorFor(state))
                     .height(dimensions().spacing24x)
                     .fillMaxWidth()
             ) {
                 Icon(
-                    painter = getIconFor(securityClassificationType),
-                    tint = getColorTextFor(securityClassificationType),
-                    contentDescription = getTextFor(securityClassificationType),
+                    painter = getIconFor(state),
+                    tint = getColorTextFor(state),
+                    contentDescription = getTextFor(state),
                     modifier = Modifier.padding(end = dimensions().spacing8x)
                 )
                 Text(
-                    text = getTextFor(securityClassificationType),
-                    color = getColorTextFor(securityClassificationType),
+                    text = getTextFor(state),
+                    color = getColorTextFor(state),
                     style = MaterialTheme.wireTypography.label03
                 )
             }
-            Divider(color = getDividerColorFor(securityClassificationType))
+            Divider(color = getDividerColorFor(state))
         }
     }
 }
@@ -141,15 +167,15 @@ fun PreviewClassifiedIndicator() {
         Surface {
             Column(modifier = Modifier.fillMaxWidth()) {
                 SecurityClassificationBanner(
-                    viewModel = SecurityClassificationPreviewModel(SecurityClassificationType.NONE)
+                    state = SecurityClassificationType.NONE
                 )
                 Divider()
                 SecurityClassificationBanner(
-                    viewModel = SecurityClassificationPreviewModel(SecurityClassificationType.NOT_CLASSIFIED)
+                    state = SecurityClassificationType.NOT_CLASSIFIED
                 )
                 Divider()
                 SecurityClassificationBanner(
-                    viewModel = SecurityClassificationPreviewModel(SecurityClassificationType.CLASSIFIED)
+                    state = SecurityClassificationType.CLASSIFIED
                 )
             }
         }

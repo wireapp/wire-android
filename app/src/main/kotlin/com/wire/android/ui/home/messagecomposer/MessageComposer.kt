@@ -54,7 +54,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
-import com.wire.android.ui.home.messagecomposer.state.EnabledMessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
@@ -214,8 +213,7 @@ fun MessageComposerPreview() {
                 context = LocalContext.current
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            modalBottomSheetState = WireModalSheetState(),
-            enabledMessageComposerStateHolder = EnabledMessageComposerStateHolder()
+            modalBottomSheetState = WireModalSheetState()
         ),
         messageListContent = { },
         onChangeSelfDeletionClicked = { },

@@ -50,7 +50,6 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
@@ -75,35 +74,34 @@ fun EnabledMessageComposer(
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
     val navBarHeight = BottomNavigationBarHeight()
-
-    val stateHolder = messageComposerStateHolder.enabledMessageComposerStateHolder
-
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
 
-    LaunchedEffect(offsetY) {
-        stateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
-    }
-
-    LaunchedEffect(isImeVisible) {
-        stateHolder.handleIMEVisibility(isImeVisible)
-    }
-    LaunchedEffect(messageComposerStateHolder.modalBottomSheetState.isVisible) {
-        if (!messageComposerStateHolder.modalBottomSheetState.isVisible
-            && messageComposerStateHolder.additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting
-        ) {
-            messageComposerStateHolder.messageCompositionInputStateHolder.requestFocus()
-            messageComposerStateHolder.additionalOptionStateHolder.hideAdditionalOptionsMenu()
-        }
-    }
-
     with(messageComposerStateHolder) {
+        val inputStateHolder = messageCompositionInputStateHolder
+
+        LaunchedEffect(offsetY) {
+            inputStateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
+        }
+
+        LaunchedEffect(isImeVisible) {
+            inputStateHolder.handleIMEVisibility(isImeVisible)
+        }
+        LaunchedEffect(modalBottomSheetState.isVisible) {
+            if (modalBottomSheetState.isVisible) {
+                messageCompositionInputStateHolder.clearFocus()
+            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
+                messageCompositionInputStateHolder.requestFocus()
+                additionalOptionStateHolder.hideAdditionalOptionsMenu()
+            }
+        }
+
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
                 val expandOrHideMessages =
-                    if (stateHolder.isTextExpanded) {
+                    if (inputStateHolder.isTextExpanded) {
                         Modifier.height(0.dp)
                     } else {
                         Modifier.weight(1f)
@@ -125,7 +123,7 @@ fun EnabledMessageComposer(
                     }
                 }
                 val fillRemainingSpaceOrWrapContent =
-                    if (!stateHolder.isTextExpanded) {
+                    if (!inputStateHolder.isTextExpanded) {
                         Modifier.wrapContentHeight()
                     } else {
                         Modifier.weight(1f)
@@ -147,15 +145,11 @@ fun EnabledMessageComposer(
 
                             ActiveMessageComposerInput(
                                 messageComposition = messageComposition.value,
-                                inputSize = if (stateHolder.isTextExpanded) {
-                                    MessageCompositionInputSize.EXPANDED
-                                } else {
-                                    MessageCompositionInputSize.COLLAPSED
-                                },
+                                isTextExpanded = inputStateHolder.isTextExpanded,
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 onInputFocusedChanged = ::onInputFocusedChanged,
-                                onToggleInputSize = { stateHolder.isTextExpanded = !stateHolder.isTextExpanded },
+                                onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onCancelEdit = ::cancelEdit,
                                 onMessageTextChanged = {
@@ -177,19 +171,14 @@ fun EnabledMessageComposer(
                                 onSelectedLineIndexChanged = { index ->
                                     currentSelectedLineIndex = index
                                 },
-                                showOptions = stateHolder.showOptions,
-                                onPlusClick = {
-                                    stateHolder.showOptions = true
-                                    stateHolder.showSubOptions = true
-                                    showAdditionalOptionsMenu()
-                                    stateHolder.optionsHeight = stateHolder.keyboardHeight
-                                },
+                                showOptions = inputStateHolder.showOptions,
+                                onPlusClick = ::showAdditionalOptionsMenu,
                                 modifier = fillRemainingSpaceOrWrapContent,
                             )
 
                             val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
                             if (mentionSearchResult.isNotEmpty() &&
-                                stateHolder.isTextExpanded
+                                inputStateHolder.isTextExpanded
                             ) {
                                 DropDownMentionsSuggestions(
                                     currentSelectedLineIndex = currentSelectedLineIndex,
@@ -205,7 +194,7 @@ fun EnabledMessageComposer(
                         }
                     }
 
-                    if (stateHolder.showOptions) {
+                    if (inputStateHolder.showOptions) {
                         if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
                             AdditionalOptionsMenu(
                                 additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
@@ -221,17 +210,15 @@ fun EnabledMessageComposer(
                                     )
                                 },
                                 onOnSelfDeletingOptionClicked = {
-                                    messageComposerStateHolder.additionalOptionStateHolder.toSelfDeletingOptionsMenu()
+                                    additionalOptionStateHolder.toSelfDeletingOptionsMenu()
                                     onChangeSelfDeletionClicked()
                                 },
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                 onPingOptionClicked = onPingOptionClicked,
                                 onAdditionalOptionsMenuClicked = {
-                                    if (stateHolder.showSubOptions) {
+                                    if (inputStateHolder.showSubOptions) {
                                         messageCompositionInputStateHolder.toComposing()
                                     } else {
-                                        stateHolder.showSubOptions = true
-                                        focusManager.clearFocus()
                                         showAdditionalOptionsMenu()
                                     }
                                 },
@@ -243,17 +230,18 @@ fun EnabledMessageComposer(
                         AdditionalOptionSubMenu(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                            onRecordAudioMessageClicked = {
-                                stateHolder.showOptions = true
-                                toAudioRecording()
-                            },
+                            onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseRecordAudio = ::toCloseAudioRecording,
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,
                             tempWritableImageUri = tempWritableImageUri,
                             tempWritableVideoUri = tempWritableVideoUri,
                             modifier = Modifier
-                                .height(stateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState))
+                                .height(
+                                    inputStateHolder.calculateOptionsMenuHeight(
+                                        additionalOptionStateHolder.additionalOptionsSubMenuState
+                                    )
+                                )
                                 .fillMaxWidth()
                                 .background(
                                     colorsScheme().messageComposerBackgroundColor
@@ -264,11 +252,10 @@ fun EnabledMessageComposer(
                 }
             }
 
-            BackHandler(isImeVisible || stateHolder.showOptions) {
-                stateHolder.handleBackPressed(
+            BackHandler(isImeVisible || inputStateHolder.showOptions) {
+                inputStateHolder.handleBackPressed(
                     isImeVisible,
-                    additionalOptionStateHolder.additionalOptionsSubMenuState,
-                    focusManager
+                    additionalOptionStateHolder.additionalOptionsSubMenuState
                 )
             }
         }

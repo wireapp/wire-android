@@ -62,7 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.KeyboardHelper
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -214,7 +214,7 @@ private fun DisabledInteractionMessageComposer(
                     )
                 }
             }
-            SecurityClassificationBanner(conversationId = conversationId)
+            SecurityClassificationBannerForConversation(conversationId = conversationId)
         }
     }
 }
@@ -296,7 +296,7 @@ private fun InactiveMessageComposer(
             ) {
                 messageListContent()
             }
-            SecurityClassificationBanner(conversationId)
+            SecurityClassificationBannerForConversation(conversationId)
             Divider(color = MaterialTheme.wireColorScheme.outline)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -413,7 +413,7 @@ private fun ActiveMessageComposer(
                         ) {
                             Column {
                                 Box(Modifier.wrapContentSize()) {
-                                    SecurityClassificationBanner(
+                                    SecurityClassificationBannerForConversation(
                                         conversationId = conversationId
                                     )
                                 }

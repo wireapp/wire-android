@@ -43,7 +43,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -114,9 +114,10 @@ fun CallerDetails(
             MembershipQualifierLabel(membership)
         }
 
-        SecurityClassificationBanner(
+        SecurityClassificationBannerForConversation(
             conversationId = conversationId,
-            modifier = Modifier.padding(top = dimensions().spacing8x)
+            modifier = Modifier.padding(top = dimensions().spacing8x),
+
         )
 
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {

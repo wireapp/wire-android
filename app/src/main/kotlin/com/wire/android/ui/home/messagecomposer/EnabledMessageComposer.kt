@@ -76,10 +76,9 @@ fun EnabledMessageComposer(
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
     val navBarHeight = BottomNavigationBarHeight()
-
-
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
+
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 

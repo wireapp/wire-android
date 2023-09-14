@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.compose)
 
+    // RSS feed loading
+    implementation(libs.rss.parser)
+
     // Androidx - Lifecycle
     implementation(libs.androidx.lifecycle.viewModel)
     implementation(libs.androidx.lifecycle.viewModelCompose)

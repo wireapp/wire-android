@@ -59,7 +59,8 @@ fun rememberMessageComposerStateHolder(
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageComposition = messageCompositionHolder.messageComposition,
-            selfDeletionTimer = selfDeletionTimer
+            selfDeletionTimer = selfDeletionTimer,
+            density = density
         )
     ) {
         MessageCompositionInputStateHolder(
@@ -74,12 +75,6 @@ fun rememberMessageComposerStateHolder(
         AdditionalOptionStateHolder()
     }
 
-    val enabledMessageComposerStateHolder = rememberSaveable(
-        saver = EnabledMessageComposerStateHolder.saver(density)
-    ) {
-        EnabledMessageComposerStateHolder()
-    }
-
     return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
@@ -87,7 +82,6 @@ fun rememberMessageComposerStateHolder(
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = additionalOptionStateHolder,
-            enabledMessageComposerStateHolder = enabledMessageComposerStateHolder
         )
     }
 }
@@ -101,8 +95,7 @@ class MessageComposerStateHolder(
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState,
-    val enabledMessageComposerStateHolder: EnabledMessageComposerStateHolder
+    val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
 
@@ -129,6 +122,7 @@ class MessageComposerStateHolder(
     }
 
     fun toAudioRecording() {
+        messageCompositionInputStateHolder.showOptions()
         additionalOptionStateHolder.toAudioRecording()
     }
 
@@ -142,6 +136,7 @@ class MessageComposerStateHolder(
     }
 
     fun showAdditionalOptionsMenu() {
+        messageCompositionInputStateHolder.showOptions()
         additionalOptionStateHolder.showAdditionalOptionsMenu()
         messageCompositionInputStateHolder.clearFocus()
     }

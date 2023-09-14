@@ -61,7 +61,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.Ping
-import com.wire.android.ui.home.messagecomposer.state.EnabledMessageComposerStateHolder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
@@ -217,8 +216,7 @@ fun MessageComposerPreview() {
                 context = LocalContext.current
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            modalBottomSheetState = WireModalSheetState(),
-            enabledMessageComposerStateHolder = EnabledMessageComposerStateHolder()
+            modalBottomSheetState = WireModalSheetState()
         ),
         messageListContent = { },
         onChangeSelfDeletionClicked = { },

@@ -61,7 +61,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme
@@ -70,7 +69,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ActiveMessageComposerInput(
     messageComposition: MessageComposition,
-    inputSize: MessageCompositionInputSize,
+    isTextExpanded: Boolean,
     inputType: MessageCompositionType,
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
@@ -95,7 +94,7 @@ fun ActiveMessageComposerInput(
         Divider(color = MaterialTheme.wireColorScheme.outline)
         if (showOptions) {
             CollapseButton(
-                isCollapsed = inputSize == MessageCompositionInputSize.COLLAPSED,
+                isCollapsed = !isTextExpanded,
                 onCollapseClick = onToggleInputSize
             )
         }
@@ -116,12 +115,10 @@ fun ActiveMessageComposerInput(
                 .wrapContentHeight(),
             verticalAlignment = Alignment.Bottom
         ) {
-            val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
-                MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
-                    max = dimensions().messageComposerActiveInputMaxHeight
-                )
-
-                MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+            val stretchToMaxParentConstraintHeightOrWithInBoundary = if (isTextExpanded) {
+                Modifier.fillMaxHeight()
+            } else {
+                Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
             }.weight(1f)
 
             if (!showOptions) {

@@ -183,6 +183,11 @@
     <string name="backup_and_restore_screen_title">Beszélgetések mentése &amp; visszaállítása</string>
     <string name="search_bar_conversations_hint">Beszélgetés keresése</string>
     <string name="search_no_results">Nincs találat</string>
+    <!--Whats New -->
+    <string name="whats_new_screen_title">What\'s New</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
+    <string name="whats_new_release_notes_group_title">Release Notes</string>
+    <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Biztonsági másolatok</string>
     <string name="settings_other_group_title">Egyéb</string>
@@ -742,6 +747,9 @@
     <string name="calling_ongoing_double_tap_to_go_back">Visszalépéshez koppintson duplán</string>
     <string name="calling_feature_unavailable_title_alert">Ez a funkció nem érhető el</string>
     <string name="calling_feature_unavailable_message_alert">Konferenciahívás kezdeményezése lehetőség csak a Wire fizetős verziójában elérhető.</string>
+    <string name="calling_confirm_start_call_title_dialog">Start a call</string>
+    <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
+    <string name="calling_confirm_start_call_action_dialog">Call</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Visszatérés a híváshoz</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>

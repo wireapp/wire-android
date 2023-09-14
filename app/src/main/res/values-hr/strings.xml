@@ -77,7 +77,7 @@
     <string name="label_value_copied">%s kopirano</string>
     <string name="label_disable">Onemogući</string>
     <string name="folder_label_access">Pristup</string>
-    <string name="folder_label_protocol_details">Protocol details (beta)</string>
+    <string name="folder_label_protocol_details">Detalji protokola (beta)</string>
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blokiran</string>
     <string name="label_and">i</string>
@@ -119,7 +119,7 @@
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
     <string name="content_description_remove_devices_screen_remove_icon">Ukloni uređaj</string>
-    <string name="content_description_avatar_preview">Preview of profile picture</string>
+    <string name="content_description_avatar_preview">Pregled profilne slike</string>
     <string name="content_description_choose_from_gallery">Izaberi iz galerije</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Desna strelica</string>
@@ -184,6 +184,11 @@
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Pretraži razgovore</string>
     <string name="search_no_results">Nije pronađen nijedan rezultat</string>
+    <!--Whats New -->
+    <string name="whats_new_screen_title">What\'s New</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
+    <string name="whats_new_release_notes_group_title">Release Notes</string>
+    <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Ostalo</string>
@@ -295,7 +300,7 @@
     <string name="create_personal_account_summary_title">Personal Account Created</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
     <string name="create_personal_account_email_text">Unesite svoj email kako biste počeli koristiti najsigurniju platformu za suradnju.</string>
-    <string name="create_personal_account_details_text">Enter your personal details:</string>
+    <string name="create_personal_account_details_text">Unesite osobne podatke:</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
     <string name="create_team_title">Create a Team</string>
     <string name="create_team_summary_title">Team Created</string>
@@ -454,7 +459,7 @@
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
-    <string name="user_profile_details_tab">Details</string>
+    <string name="user_profile_details_tab">Detalji</string>
     <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
     <string name="user_profile_group_member">Member of the group ”%s”</string>
@@ -693,26 +698,26 @@
     <string name="conversation_group_removed_success">“%s” removed</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="joined_conversation_group_success">You joined the conversation.</string>
-    <string name="left_conversation_group_success">You left the conversation.</string>
+    <string name="left_conversation_group_success">Napustili ste razgovor.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
-    <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
-    <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <string name="delete_group_conversation_error">Došlo je do pogreške prilikom brisanja razgovora</string>
+    <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
     <!-- Animation label -->
-    <string name="label_open_conversation">Open Conversation</string>
+    <string name="label_open_conversation">Otvori razgovor</string>
     <string name="email_label">E-mail</string>
-    <string name="phone_label">Phone</string>
+    <string name="phone_label">Telefon</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
-    <string name="notification_shared_file">Shared a file</string>
+    <string name="notification_shared_file">Podijelila/o datoteku</string>
     <string name="notification_reacted">Added a reaction</string>
-    <string name="notification_missed_call">Missed call</string>
+    <string name="notification_missed_call">Propušten poziv</string>
     <string name="notification_knock">Pinged</string>
-    <string name="notification_reply">Reply: %1$s</string>
+    <string name="notification_reply">Odgovor: %1$s</string>
     <string name="notification_not_supported_issue">Feature not supported</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>
     <string name="notification_action_reply">Odgovor</string>
-    <string name="notification_receiver_name">You</string>
+    <string name="notification_receiver_name">Vi</string>
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
@@ -749,6 +754,9 @@
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
+    <string name="calling_confirm_start_call_title_dialog">Start a call</string>
+    <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
+    <string name="calling_confirm_start_call_action_dialog">Call</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>

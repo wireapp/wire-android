@@ -44,7 +44,8 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
     fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec<*> }
     fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
-    fun firstDestinationWithRoute(route: String) = currentBackStack.value.firstOrNull { it.destination.route == route }
+    fun firstDestinationWithRoute(route: String) =
+        currentBackStack.value.firstOrNull { it.destination.route?.getPrimaryRoute() == route.getPrimaryRoute() }
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
     appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")

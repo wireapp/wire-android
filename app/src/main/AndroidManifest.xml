@@ -78,7 +78,7 @@
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
-                android:windowSoftInputMode="adjustNothing|stateHidden">
+                android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

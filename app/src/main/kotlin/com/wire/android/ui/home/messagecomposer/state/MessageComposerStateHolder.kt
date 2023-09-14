@@ -133,7 +133,6 @@ class MessageComposerStateHolder(
     }
 
     fun toCloseAudioRecording() {
-//        messageCompositionInputStateHolder.show()
         additionalOptionStateHolder.hideAudioRecording()
     }
 

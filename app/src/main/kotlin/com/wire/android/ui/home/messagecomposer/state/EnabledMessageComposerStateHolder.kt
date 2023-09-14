@@ -36,7 +36,6 @@ class EnabledMessageComposerStateHolder {
     var showOptions by mutableStateOf(false)
     var showSubOptions by mutableStateOf(false)
     var isTextExpanded by mutableStateOf(false)
-    var isFocused by mutableStateOf(false)
     var previousOffset by mutableStateOf(0.dp)
 
     fun handleIMEVisibility(isImeVisible: Boolean) {
@@ -47,21 +46,15 @@ class EnabledMessageComposerStateHolder {
         }
     }
 
-    fun handleOffsetChange(offset: Dp, navBarHeight: Dp, focusManager: FocusManager) {
+    fun handleOffsetChange(offset: Dp, navBarHeight: Dp) {
         val actualOffset = max(offset - navBarHeight, 0.dp)
 
         if (previousOffset < actualOffset) {
-            if (!isFocused) {
-                isFocused = true
-            }
-            if (!showSubOptions) {
+            if (!showSubOptions || optionsHeight <= actualOffset) {
                 optionsHeight = actualOffset
+                showSubOptions = false
             }
         } else if (previousOffset > actualOffset) {
-            if (isFocused) {
-                focusManager.clearFocus()
-                isFocused = false
-            }
             if (!showSubOptions) {
                 optionsHeight = actualOffset
                 if (actualOffset == 0.dp) {
@@ -88,12 +81,11 @@ class EnabledMessageComposerStateHolder {
 
     fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState, focusManager: FocusManager) {
         if ((isImeVisible || showOptions) && additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
-            isFocused = false
             showOptions = false
             showSubOptions = false
             isTextExpanded = false
             optionsHeight = 0.dp
-            focusManager.clearFocus()
+            focusManager.clearFocus(force = true)
         }
     }
 
@@ -106,15 +98,16 @@ class EnabledMessageComposerStateHolder {
 
         fun saver(density: Density): Saver<EnabledMessageComposerStateHolder, *> = Saver(
             save = {
-                listOf(
-                    it.keyboardHeight.value,
-                    it.optionsHeight.value,
-                    it.showOptions,
-                    it.showSubOptions,
-                    it.isTextExpanded,
-                    it.isFocused,
-                    it.previousOffset.value
-                )
+                with(density) {
+                    listOf(
+                        it.keyboardHeight.toPx(),
+                        it.optionsHeight.toPx(),
+                        it.showOptions,
+                        it.showSubOptions,
+                        it.isTextExpanded,
+                        it.previousOffset.toPx()
+                    )
+                }
             },
             restore = { savedState ->
                 with(density) {
@@ -124,8 +117,7 @@ class EnabledMessageComposerStateHolder {
                         showOptions = savedState[2] as Boolean
                         showSubOptions = savedState[3] as Boolean
                         isTextExpanded = savedState[4] as Boolean
-                        isFocused = savedState[5] as Boolean
-                        previousOffset = (savedState[6] as Float).toDp()
+                        previousOffset = (savedState[5] as Float).toDp()
                     }
                 }
             }

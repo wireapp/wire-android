@@ -83,8 +83,8 @@ fun EnabledMessageComposer(
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
 
-    with(density) {
-        stateHolder.handleOffsetChange(offsetY.toDp(), navBarHeight, focusManager)
+    LaunchedEffect(offsetY) {
+        stateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
     }
 
     LaunchedEffect(isImeVisible) {

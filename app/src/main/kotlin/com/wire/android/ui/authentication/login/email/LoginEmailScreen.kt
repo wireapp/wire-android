@@ -245,6 +245,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier.testTag("passwordField"),
+        autofill = true,
         testTag = "PasswordInput"
     )
 }

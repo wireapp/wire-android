@@ -214,7 +214,7 @@ private fun OngoingCallContent(
                         size = dimensions().spacing32x
                     )
                     Text(
-                        text = stringResource(id = R.string.connectivity_status_bar_connecting),
+                        text = stringResource(id = R.string.calling_screen_connecting_until_call_established),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
                 }

@@ -104,7 +104,7 @@ class MigrationMapper @Inject constructor() {
                 messageTimer = null,
                 userMessageTimer = null,
                 archived = false,
-                archivedRef = ""
+                archivedDateTime = null
             )
         }
     }

@@ -99,8 +99,7 @@ fun ActiveMessageComposerInput(
             )
         }
 
-        val quotedMessage = messageComposition.quotedMessage
-        if (quotedMessage != null) {
+        messageComposition.quotedMessage?.let { quotedMessage ->
             Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                 QuotedMessagePreview(
                     quotedMessageData = quotedMessage,
@@ -108,7 +107,6 @@ fun ActiveMessageComposerInput(
                 )
             }
         }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()

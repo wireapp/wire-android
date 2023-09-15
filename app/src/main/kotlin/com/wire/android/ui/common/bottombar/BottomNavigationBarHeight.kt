@@ -18,6 +18,7 @@
 package com.wire.android.ui.common.bottombar
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
@@ -27,6 +28,10 @@ import androidx.core.view.WindowInsetsCompat
 @Composable
 fun BottomNavigationBarHeight(): Dp {
     val insets = ViewCompat.getRootWindowInsets(LocalView.current)
-    val bottomInset = insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
-    return with(LocalDensity.current) { bottomInset.toDp() }
+    val density = LocalDensity.current
+    val navigationBarHeight = remember(insets) {
+        val bottomInset = insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+        with(density) { bottomInset.toDp() }
+    }
+    return navigationBarHeight
 }

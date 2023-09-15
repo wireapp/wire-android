@@ -181,7 +181,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleOffsetChange(40.dp, NAVIGATION_BAR_HEIGHT)
 
         // Then
-        state.keyboardHeight shouldBeEqualTo 40.dp  // Updated
+        state.keyboardHeight shouldBeEqualTo 40.dp
         state.optionsHeight shouldBeEqualTo 0.dp
     }
 
@@ -203,5 +203,4 @@ class MessageCompositionInputStateHolderTest {
         // I set it 0 to make tests more straight forward
         val NAVIGATION_BAR_HEIGHT = 0.dp
     }
-
 }

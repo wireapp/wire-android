@@ -174,7 +174,7 @@ class MessageCompositionInputStateHolder(
         showSubOptions: Boolean = false,
         optionsHeight: Dp = 0.dp,
         showOptions: Boolean = false,
-        ) {
+    ) {
         this.keyboardHeight = keyboardHeight
         this.previousOffset = previousOffset
         this.subOptionsVisible = showSubOptions

@@ -17,8 +17,10 @@
  */
 package com.wire.android.ui.common.bottomsheet
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -52,22 +54,24 @@ fun WireBottomSheetScaffold(
     contentColor: Color = WireBottomSheetDefaults.WireContentColor,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    BottomSheetScaffold(
-        sheetContent = sheetContent,
-        modifier = modifier,
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = sheetPeekHeight,
-        sheetShape = sheetShape,
-        sheetContainerColor = sheetContainerColor,
-        sheetContentColor = sheetContentColor,
-        sheetTonalElevation = sheetTonalElevation,
-        sheetShadowElevation = sheetShadowElevation,
-        sheetDragHandle = sheetDragHandle,
-        sheetSwipeEnabled = sheetSwipeEnabled,
-        topBar = topBar,
-        snackbarHost = snackbarHost,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        content = content
-    )
+    Box(modifier = Modifier.navigationBarsPadding()) {
+        BottomSheetScaffold(
+            sheetContent = sheetContent,
+            modifier = modifier,
+            scaffoldState = scaffoldState,
+            sheetPeekHeight = sheetPeekHeight,
+            sheetShape = sheetShape,
+            sheetContainerColor = sheetContainerColor,
+            sheetContentColor = sheetContentColor,
+            sheetTonalElevation = sheetTonalElevation,
+            sheetShadowElevation = sheetShadowElevation,
+            sheetDragHandle = sheetDragHandle,
+            sheetSwipeEnabled = sheetSwipeEnabled,
+            topBar = topBar,
+            snackbarHost = snackbarHost,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            content = content
+        )
+    }
 }

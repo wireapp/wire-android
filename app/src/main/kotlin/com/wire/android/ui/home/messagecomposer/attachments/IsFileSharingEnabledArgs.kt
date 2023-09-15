@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.home.messagecomposer.attachments
 
-package com.wire.android.util.ui
+import com.wire.android.di.ScopedArgs
+import kotlinx.serialization.Serializable
 
-import androidx.compose.ui.unit.dp
+@Serializable
+object IsFileSharingEnabledArgs : ScopedArgs {
 
-object KeyboardHeight {
-    val default = 250.dp
+    override val key = "IsFileSharingEnabledArgsKey"
 }

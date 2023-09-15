@@ -19,12 +19,11 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -40,20 +38,20 @@ import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
-import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun RecordAudioComponent(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    snackbarHostState: SnackbarHostState,
     onAudioRecorded: (UriAsset) -> Unit,
     onCloseRecordAudio: () -> Unit
 ) {
     val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
 
     val recordAudioFlow = RecordAudioFlow(
         startRecording = { viewModel.startRecording() },
@@ -91,7 +89,7 @@ fun RecordAudioComponent(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(containerHeight)
+            .fillMaxHeight()
             .background(colorsScheme().background)
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
@@ -166,14 +164,3 @@ private fun RecordAudioFlow(
         showPermissionsDeniedDialog()
     }
 )
-
-/**
- * This height was based on the size of Input Text + Additional Options (Text Format, Ping, etc)
- */
-private val composeTextHeight = 128.dp
-
-/**
- * To keep the height of the container true to the previous shown content, we acquire the height of
- * the keyboard + text input and additional options.
- */
-private val containerHeight = KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET + composeTextHeight

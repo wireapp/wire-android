@@ -32,7 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -102,14 +102,13 @@ fun ChangeDisplayNameContent(
 ) {
     val scrollState = rememberScrollState()
     with(state) {
-        Scaffold(topBar = {
+        WireScaffold(topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 onNavigationPressed = onBackPressed,
                 title = stringResource(id = R.string.settings_myaccount_display_name_title)
             )
         }) { internalPadding ->
-
             Column(
                 modifier = Modifier
                     .padding(internalPadding)

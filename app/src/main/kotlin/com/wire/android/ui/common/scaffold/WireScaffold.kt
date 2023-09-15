@@ -17,16 +17,9 @@
  */
 package com.wire.android.ui.common.scaffold
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -57,13 +50,11 @@ import com.wire.android.ui.snackbar.LocalSnackbarHostState
  * @param content A composable function that describes the main content of the scaffold. This content
  *                will automatically receive padding for system UI insets.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WireScaffold(
     modifier: Modifier = Modifier,
-    topBar: @Composable (() -> Unit)? = null,
-    bottomBar: @Composable (() -> Unit)? = null,
-//    snackbarHost: @Composable () -> Unit = {},
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     containerColor: Color = MaterialTheme.colorScheme.background,
@@ -71,50 +62,19 @@ fun WireScaffold(
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
-        modifier = modifier.imePadding(),
-        topBar = {
-            if (topBar != null) {
-                Box(
-                    modifier = Modifier
-                        .statusBarsPadding(),
-                ) {
-                    topBar()
-                }
-            }
-        },
-        bottomBar = {
-            if (bottomBar != null) {
-                Box(
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                ) {
-                    bottomBar()
-                }
-            }
-        },
+        modifier = modifier
+            .imePadding()
+            .systemBarsPadding(),
+        topBar = topBar,
+        bottomBar = bottomBar,
         snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = LocalSnackbarHostState.current,
-                // added navigation padding because our WireScaffold has zero bottom WindowInsets
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .imePadding()
-            )
+            SwipeDismissSnackbarHost(hostState = LocalSnackbarHostState.current)
         },
         floatingActionButton,
         floatingActionButtonPosition,
         containerColor,
         contentColor,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .consumeWindowInsets(padding)
-                .systemBarsPadding()
-        ) {
-            content(padding)
-        }
-    }
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        content = content
+    )
 }

@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.banner.SecurityClassificationBanner
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
@@ -74,7 +73,6 @@ fun EnabledMessageComposer(
     tempWritableImageUri: Uri?
 ) {
     val density = LocalDensity.current
-    val focusManager = LocalFocusManager.current
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
@@ -102,14 +100,14 @@ fun EnabledMessageComposer(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val expandOrHideMessages =
+                val expandOrHideMessagesModifier =
                     if (inputStateHolder.isTextExpanded) {
                         Modifier.height(0.dp)
                     } else {
                         Modifier.weight(1f)
                     }
                 Box(
-                    modifier = expandOrHideMessages
+                    modifier = expandOrHideMessagesModifier
                         .background(color = colorsScheme().backgroundVariant)
                 ) {
                     messageListContent()
@@ -173,7 +171,7 @@ fun EnabledMessageComposer(
                                 onSelectedLineIndexChanged = { index ->
                                     currentSelectedLineIndex = index
                                 },
-                                showOptions = inputStateHolder.showOptions,
+                                showOptions = inputStateHolder.optionsVisible,
                                 onPlusClick = ::showAdditionalOptionsMenu,
                                 modifier = fillRemainingSpaceOrWrapContent,
                             )
@@ -196,7 +194,7 @@ fun EnabledMessageComposer(
                         }
                     }
 
-                    if (inputStateHolder.showOptions) {
+                    if (inputStateHolder.optionsVisible) {
                         if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
                             AdditionalOptionsMenu(
                                 additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
@@ -218,7 +216,7 @@ fun EnabledMessageComposer(
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                 onPingOptionClicked = onPingOptionClicked,
                                 onAdditionalOptionsMenuClicked = {
-                                    if (inputStateHolder.showSubOptions) {
+                                    if (inputStateHolder.subOptionsVisible) {
                                         messageCompositionInputStateHolder.toComposing()
                                     } else {
                                         showAdditionalOptionsMenu()
@@ -255,7 +253,7 @@ fun EnabledMessageComposer(
                 }
             }
 
-            BackHandler(isImeVisible || inputStateHolder.showOptions) {
+            BackHandler(isImeVisible || inputStateHolder.optionsVisible) {
                 inputStateHolder.handleBackPressed(
                     isImeVisible,
                     additionalOptionStateHolder.additionalOptionsSubMenuState

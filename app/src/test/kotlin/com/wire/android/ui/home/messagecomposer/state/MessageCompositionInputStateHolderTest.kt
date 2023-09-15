@@ -37,7 +37,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleIMEVisibility(isImeVisible)
 
         // Then
-        state.showOptions shouldBeEqualTo true
+        state.optionsVisible shouldBeEqualTo true
     }
 
     @Test
@@ -50,7 +50,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleIMEVisibility(isImeVisible)
 
         // Then
-        state.showOptions shouldBeEqualTo false
+        state.optionsVisible shouldBeEqualTo false
     }
 
     @Test
@@ -63,7 +63,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleIMEVisibility(isImeVisible)
 
         // Then
-        state.showOptions shouldBeEqualTo false
+        state.optionsVisible shouldBeEqualTo false
     }
 
     @Test
@@ -73,7 +73,7 @@ class MessageCompositionInputStateHolderTest {
 
         // Then
         state.optionsHeight shouldBeEqualTo 50.dp
-        state.showSubOptions shouldBeEqualTo false
+        state.subOptionsVisible shouldBeEqualTo false
     }
 
     @Test
@@ -97,7 +97,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT)
 
         // Then
-        state.showOptions shouldBeEqualTo false
+        state.optionsVisible shouldBeEqualTo false
         state.isTextExpanded shouldBeEqualTo false
     }
 
@@ -110,7 +110,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
 
         // Then
-        state.showSubOptions shouldBeEqualTo false
+        state.subOptionsVisible shouldBeEqualTo false
     }
 
     @Test
@@ -195,7 +195,7 @@ class MessageCompositionInputStateHolderTest {
 
         // Then
         state.optionsHeight shouldBeEqualTo 10.dp
-        state.showOptions shouldBeEqualTo false  // No change
+        state.optionsVisible shouldBeEqualTo false  // No change
         state.isTextExpanded shouldBeEqualTo false  // No change
     }
 

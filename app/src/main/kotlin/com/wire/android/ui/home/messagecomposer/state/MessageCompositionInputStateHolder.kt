@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
@@ -56,10 +55,10 @@ class MessageCompositionInputStateHolder(
     var optionsHeight by mutableStateOf(0.dp)
         private set
 
-    var showOptions by mutableStateOf(false)
+    var optionsVisible by mutableStateOf(false)
         private set
 
-    var showSubOptions by mutableStateOf(false)
+    var subOptionsVisible by mutableStateOf(false)
         private set
 
     var isTextExpanded by mutableStateOf(false)
@@ -85,9 +84,9 @@ class MessageCompositionInputStateHolder(
 
     fun handleIMEVisibility(isImeVisible: Boolean) {
         if (isImeVisible) {
-            showOptions = true
-        } else if (!showSubOptions) {
-            showOptions = false
+            optionsVisible = true
+        } else if (!subOptionsVisible) {
+            optionsVisible = false
         }
     }
 
@@ -95,15 +94,15 @@ class MessageCompositionInputStateHolder(
         val actualOffset = max(offset - navBarHeight, 0.dp)
 
         if (previousOffset < actualOffset) {
-            if (!showSubOptions || optionsHeight <= actualOffset) {
+            if (!subOptionsVisible || optionsHeight <= actualOffset) {
                 optionsHeight = actualOffset
-                showSubOptions = false
+                subOptionsVisible = false
             }
         } else if (previousOffset > actualOffset) {
-            if (!showSubOptions) {
+            if (!subOptionsVisible) {
                 optionsHeight = actualOffset
                 if (actualOffset == 0.dp) {
-                    showOptions = false
+                    optionsVisible = false
                     isTextExpanded = false
                 }
             }
@@ -112,7 +111,7 @@ class MessageCompositionInputStateHolder(
         previousOffset = actualOffset
 
         if (keyboardHeight == actualOffset) {
-            showSubOptions = false
+            subOptionsVisible = false
         }
 
         if (keyboardHeight < actualOffset) {
@@ -149,15 +148,15 @@ class MessageCompositionInputStateHolder(
     }
 
     fun showOptions() {
-        showOptions = true
-        showSubOptions = true
+        optionsVisible = true
+        subOptionsVisible = true
         optionsHeight = keyboardHeight
     }
 
     fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState) {
-        if ((isImeVisible || showOptions) && additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
-            showOptions = false
-            showSubOptions = false
+        if ((isImeVisible || optionsVisible) && additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+            optionsVisible = false
+            subOptionsVisible = false
             isTextExpanded = false
             optionsHeight = 0.dp
             inputFocused = false
@@ -178,9 +177,9 @@ class MessageCompositionInputStateHolder(
         ) {
         this.keyboardHeight = keyboardHeight
         this.previousOffset = previousOffset
-        this.showSubOptions = showSubOptions
+        this.subOptionsVisible = showSubOptions
         this.optionsHeight = optionsHeight
-        this.showOptions = showOptions
+        this.optionsVisible = showOptions
     }
 
     companion object {
@@ -201,8 +200,8 @@ class MessageCompositionInputStateHolder(
                         it.inputFocused,
                         it.keyboardHeight.toPx(),
                         it.optionsHeight.toPx(),
-                        it.showOptions,
-                        it.showSubOptions,
+                        it.optionsVisible,
+                        it.subOptionsVisible,
                         it.isTextExpanded,
                         it.previousOffset.toPx()
                     )
@@ -217,8 +216,8 @@ class MessageCompositionInputStateHolder(
                         inputFocused = savedState[0] as Boolean
                         keyboardHeight = (savedState[1] as Float).toDp()
                         optionsHeight = (savedState[2] as Float).toDp()
-                        showOptions = savedState[3] as Boolean
-                        showSubOptions = savedState[4] as Boolean
+                        optionsVisible = savedState[3] as Boolean
+                        subOptionsVisible = savedState[4] as Boolean
                         isTextExpanded = savedState[5] as Boolean
                         previousOffset = (savedState[6] as Float).toDp()
                     }

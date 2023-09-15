@@ -748,6 +748,7 @@
     <string name="calling_ongoing_double_tap_to_go_back">Zum Zurückgehen doppeltippen</string>
     <string name="calling_feature_unavailable_title_alert">Funktion nicht verfügbar</string>
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Anruf starten</string>
     <string name="calling_confirm_start_call_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anrufen möchten?</string>
     <string name="calling_confirm_start_call_action_dialog">Anrufen</string>

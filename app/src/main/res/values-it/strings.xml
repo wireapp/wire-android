@@ -746,6 +746,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_ongoing_double_tap_to_go_back">Tocca due volte su un pannello per tornare indietro</string>
     <string name="calling_feature_unavailable_title_alert">Funzione non disponibile</string>
     <string name="calling_feature_unavailable_message_alert">La possibilità di effetturare chiamate in conferenza é disponibile solo nella version a pagamento di Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>

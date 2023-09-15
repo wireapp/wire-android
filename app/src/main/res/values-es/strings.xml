@@ -745,6 +745,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_ongoing_double_tap_to_go_back">Toca dos veces para volver atrás</string>
     <string name="calling_feature_unavailable_title_alert">Caracter&#237;stica no disponible</string>
     <string name="calling_feature_unavailable_message_alert">La opci&#243;n de iniciar una llamada en conferencia solo est&#225; disponible en la versi&#243;n de pago de Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>

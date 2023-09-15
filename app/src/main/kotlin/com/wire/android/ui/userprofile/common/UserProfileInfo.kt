@@ -58,7 +58,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -115,7 +115,7 @@ fun UserProfileInfo(
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
                 UserProfileAvatar(
-                    size = dimensions().userAvatarDefaultBigSize,
+                    size = dimensions().avatarDefaultBigSize,
                     avatarData = userAvatarData,
                     clickable = remember(editableState) {
                         Clickable(
@@ -130,8 +130,7 @@ fun UserProfileInfo(
             this@Column.AnimatedVisibility(visible = isLoading) {
                 Box(
                     Modifier
-                        .padding(dimensions().userAvatarClickablePadding)
-                        .size(dimensions().userAvatarDefaultBigSize)
+                        .padding(dimensions().avatarClickablePadding)
                         .clip(CircleShape)
                         .background(MaterialTheme.wireColorScheme.background.copy(alpha = 0.6f))
                 ) {
@@ -214,10 +213,13 @@ fun UserProfileInfo(
                 )
             }
         }
-        SecurityClassificationBanner(
-            userId = userId,
-            modifier = Modifier.padding(top = dimensions().spacing8x)
-        )
+
+        userId?.also {
+            SecurityClassificationBannerForUser(
+                userId = it,
+                modifier = Modifier.padding(top = dimensions().spacing8x)
+            )
+        }
     }
 }
 

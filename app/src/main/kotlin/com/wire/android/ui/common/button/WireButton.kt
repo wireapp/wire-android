@@ -35,9 +35,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -59,7 +63,9 @@ import com.wire.android.ui.common.rememberClickBlockAction
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
+import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireButton(
     onClick: () -> Unit,
@@ -73,8 +79,8 @@ fun WireButton(
     textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
-    minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
-    minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
+    minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     colors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
@@ -99,32 +105,47 @@ fun WireButton(
         disabledContentColor = colors.rippleColor(),
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
-    Button(
-        onClick = onClickWithSyncObserver,
-        modifier = modifier
-            .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
-            .sizeIn(minHeight = minHeight, minWidth = minWidth),
-        enabled = state != WireButtonState.Disabled,
-        interactionSource = interactionSource,
-        elevation = elevation,
-        shape = shape,
-        border = border,
-        colors = baseColors,
-        contentPadding = contentPadding
-    ) {
-        InnerButtonBox(
-            fillMaxWidth = fillMaxWidth,
-            loading = loading,
-            leadingIcon = leadingIcon,
-            leadingIconAlignment = leadingIconAlignment,
-            trailingIcon = trailingIcon,
-            trailingIconAlignment = trailingIconAlignment,
-            text = text,
-            textStyle = textStyle,
-            state = state,
-            colors = colors,
-            interactionSource = interactionSource
-        )
+    CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+        Button(
+            onClick = onClickWithSyncObserver,
+            modifier = modifier
+                .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
+                .sizeIn(minHeight = minSize.height, minWidth = minSize.width)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
+                    // Be at least as big as the minimum dimension in both dimensions
+                    val width = maxOf(placeable.width, minClickableSize.width.roundToPx())
+                    val height = maxOf(placeable.height, minClickableSize.height.roundToPx())
+
+                    layout(width, height) {
+                        val centerX = ((width - placeable.width) / 2f).roundToInt()
+                        val centerY = ((height - placeable.height) / 2f).roundToInt()
+                        placeable.place(centerX, centerY)
+                    }
+                },
+            enabled = state != WireButtonState.Disabled,
+            interactionSource = interactionSource,
+            elevation = elevation,
+            shape = shape,
+            border = border,
+            colors = baseColors,
+            contentPadding = contentPadding
+        ) {
+            InnerButtonBox(
+                fillMaxWidth = fillMaxWidth,
+                loading = loading,
+                leadingIcon = leadingIcon,
+                leadingIconAlignment = leadingIconAlignment,
+                trailingIcon = trailingIcon,
+                trailingIconAlignment = trailingIconAlignment,
+                text = text,
+                textStyle = textStyle,
+                state = state,
+                colors = colors,
+                interactionSource = interactionSource
+            )
+        }
     }
 }
 
@@ -167,9 +188,12 @@ private fun InnerButtonBox(
         ) { if (leadingIconAlignment == IconAlignment.Border) leadingItem() }
 
         Row(
-            modifier = Modifier.padding(horizontal = borderItemsMaxWidth).let {
-                if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth()
-            },
+            modifier = Modifier
+                .padding(horizontal = borderItemsMaxWidth)
+                .let {
+                    if (fillMaxWidth) it.fillMaxWidth()
+                    else it.wrapContentWidth()
+                },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {

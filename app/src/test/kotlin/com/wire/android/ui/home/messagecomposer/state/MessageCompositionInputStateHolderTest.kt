@@ -126,7 +126,7 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
-    fun `when offset increases but is less than previousOffset, keyboardHeight and optionsHeight are updated if actualOffset is greater than current keyboardHeight`() {
+    fun `when offset increases and is greater than keyboardHeight but is less than previousOffset, keyboardHeight is updated`() {
         // Given
         state.updateValuesForTesting(previousOffset = 50.dp, keyboardHeight = 20.dp)
 
@@ -152,7 +152,7 @@ class MessageCompositionInputStateHolderTest {
         state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
 
         // Then
-        state.optionsHeight shouldBeEqualTo 10.dp  // No change
+        state.optionsHeight shouldBeEqualTo 10.dp
     }
 
     @Test
@@ -181,8 +181,8 @@ class MessageCompositionInputStateHolderTest {
         state.handleOffsetChange(40.dp, NAVIGATION_BAR_HEIGHT)
 
         // Then
-        state.keyboardHeight shouldBeEqualTo 40.dp  // Updated
-        state.optionsHeight shouldBeEqualTo 0.dp  // No change
+        state.keyboardHeight shouldBeEqualTo 40.dp
+        state.optionsHeight shouldBeEqualTo 0.dp
     }
 
     @Test
@@ -195,13 +195,12 @@ class MessageCompositionInputStateHolderTest {
 
         // Then
         state.optionsHeight shouldBeEqualTo 10.dp
-        state.optionsVisible shouldBeEqualTo false  // No change
-        state.isTextExpanded shouldBeEqualTo false  // No change
+        state.optionsVisible shouldBeEqualTo false
+        state.isTextExpanded shouldBeEqualTo false
     }
 
     companion object {
         // I set it 0 to make tests more straight forward
         val NAVIGATION_BAR_HEIGHT = 0.dp
     }
-
 }

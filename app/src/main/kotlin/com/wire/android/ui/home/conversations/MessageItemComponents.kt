@@ -7,8 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -39,7 +37,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 internal fun MessageSendFailureWarning(
@@ -54,7 +55,8 @@ internal fun MessageSendFailureWarning(
             VerticalSpace.x4()
             Text(
                 text = messageStatus.errorText.asString(),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                style = LocalTextStyle.current,
+                color = MaterialTheme.colorScheme.error
             )
             if (messageStatus is MessageFlowStatus.Failure.Send.Remotely) {
                 OfflineBackendsLearnMoreLink()
@@ -63,14 +65,16 @@ internal fun MessageSendFailureWarning(
                 WireSecondaryButton(
                     text = stringResource(R.string.label_retry),
                     onClick = onRetryClick,
-                    minHeight = dimensions().spacing32x,
+                    minSize = dimensions().buttonSmallMinSize,
+                    minClickableSize = dimensions().buttonMinClickableSize,
                     fillMaxWidth = false
                 )
                 HorizontalSpace.x8()
                 WireSecondaryButton(
                     text = stringResource(R.string.label_cancel),
                     onClick = onCancelClick,
-                    minHeight = dimensions().spacing32x,
+                    minSize = dimensions().buttonSmallMinSize,
+                    minClickableSize = dimensions().buttonMinClickableSize,
                     fillMaxWidth = false
                 )
             }
@@ -145,13 +149,10 @@ private fun MultiUserDeliveryFailure(
                 onClick = { expanded = !expanded },
                 text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
                 fillMaxWidth = false,
-                minHeight = dimensions().spacing32x,
-                minWidth = dimensions().spacing40x,
+                minSize = dimensions().buttonSmallMinSize,
+                minClickableSize = dimensions().buttonMinClickableSize,
                 shape = RoundedCornerShape(size = dimensions().corner12x),
                 contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
-                modifier = Modifier
-                    .padding(top = dimensions().spacing4x)
-                    .height(height = dimensions().spacing32x)
             )
         }
     }
@@ -210,21 +211,22 @@ internal fun MessageDecryptionFailure(
             VerticalSpace.x4()
             Text(
                 text = decryptionStatus.errorText.asString(),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                style = LocalTextStyle.current,
+                color = MaterialTheme.colorScheme.error
             )
             Text(
                 modifier = Modifier
                     .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
-                style = LocalTextStyle.current.copy(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                    textDecoration = TextDecoration.Underline
-                ),
+                style = LocalTextStyle.current,
+                textDecoration = TextDecoration.Underline,
+                color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
                 text = stringResource(R.string.label_learn_more)
             )
             VerticalSpace.x4()
             Text(
                 text = stringResource(R.string.label_message_decryption_failure_informative_message),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                style = LocalTextStyle.current,
+                color = MaterialTheme.colorScheme.error
             )
             if (!decryptionStatus.isDecryptionResolved) {
                 Row {
@@ -238,7 +240,8 @@ internal fun MessageDecryptionFailure(
                                 )
                             }
                         },
-                        minHeight = dimensions().spacing32x,
+                        minSize = dimensions().buttonSmallMinSize,
+                        minClickableSize = dimensions().buttonMinClickableSize,
                         fillMaxWidth = false
                     )
                 }
@@ -288,5 +291,22 @@ fun PreviewMessageSendFailureWarning() {
 fun PreviewMessageDecryptionFailure() {
     WireTheme {
         MessageDecryptionFailure(mockHeader, MessageFlowStatus.Failure.Decryption(false)) { _, _ -> }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMultiUserDeliveryFailure() {
+    WireTheme {
+        MultiUserDeliveryFailure(
+            DeliveryStatusContent.PartialDelivery(
+                failedRecipients = persistentListOf(UIText.DynamicString("username")),
+                noClients = persistentMapOf(
+                    "iOS" to listOf(UIText.DynamicString("ios")),
+                    "Android" to listOf(UIText.DynamicString("android"))
+                ),
+            ),
+            LocalContext.current.resources
+        )
     }
 }

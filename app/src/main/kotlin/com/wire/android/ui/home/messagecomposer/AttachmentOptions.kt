@@ -22,11 +22,9 @@ import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
@@ -51,7 +49,6 @@ import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
-import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun AttachmentOptionsComponent(
@@ -61,38 +58,36 @@ fun AttachmentOptionsComponent(
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean
 ) {
-    Box(modifier = Modifier.height(KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)) {
-        val attachmentOptions = buildAttachmentOptionItems(
-            isFileSharingEnabled,
-            tempWritableImageUri,
-            tempWritableVideoUri,
-            onAttachmentPicked,
-            onRecordAudioMessageClicked
-        )
+    val attachmentOptions = buildAttachmentOptionItems(
+        isFileSharingEnabled,
+        tempWritableImageUri,
+        tempWritableVideoUri,
+        onAttachmentPicked,
+        onRecordAudioMessageClicked
+    )
 
-        BoxWithConstraints(Modifier.fillMaxSize()) {
-            val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
-            val minColumnWidth: Dp = dimensions().spacing80x
-            val minPadding: Dp = dimensions().spacing8x
-            val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
-            val params by remember(fullWidth, visibleAttachmentOptions.size) {
-                derivedStateOf {
-                    calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
-                }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
+        val minColumnWidth: Dp = dimensions().spacing80x
+        val minPadding: Dp = dimensions().spacing8x
+        val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
+        val params by remember(fullWidth, visibleAttachmentOptions.size) {
+            derivedStateOf {
+                calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
             }
-            val (columns, contentPadding) = params
+        }
+        val (columns, contentPadding) = params
 
-            LazyVerticalGrid(
-                columns = columns,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = contentPadding,
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                visibleAttachmentOptions.forEach { option ->
-                    if (option.shouldShow) {
-                        item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
-                    }
+        LazyVerticalGrid(
+            columns = columns,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            visibleAttachmentOptions.forEach { option ->
+                if (option.shouldShow) {
+                    item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
                 }
             }
         }

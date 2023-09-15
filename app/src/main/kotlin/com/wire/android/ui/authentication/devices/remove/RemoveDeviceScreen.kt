@@ -29,7 +29,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -132,7 +132,7 @@ private fun RemoveDeviceContent(
     }
 
     val lazyListState = rememberLazyListState()
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         RemoveDeviceTopBar(
             elevation = lazyListState.rememberTopBarElevationState().value,
             onBackButtonClicked = onBackButtonClicked

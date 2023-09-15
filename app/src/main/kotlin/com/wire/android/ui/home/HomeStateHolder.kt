@@ -44,6 +44,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -112,9 +113,9 @@ fun rememberHomeScreenState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberTrackingAnimatedNavController() { HomeDestination.fromRoute(it)?.itemName },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    bottomSheetState: WireModalSheetState = rememberWireModalSheetState()
 ): HomeStateHolder {
+    val snackbarHostState = LocalSnackbarHostState.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentNavigationItem = currentRoute?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
@@ -130,7 +131,7 @@ fun rememberHomeScreenState(
             drawerState,
             bottomSheetState,
             currentNavigationItem,
-            snackBarHostState,
+            snackbarHostState,
             searchBarState,
             navigator
         )

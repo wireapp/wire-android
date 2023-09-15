@@ -17,12 +17,8 @@
  */
 package com.wire.android.ui.home.newconversation.search
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.ramcosta.composedestinations.annotation.Destination
@@ -30,7 +26,6 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
@@ -38,6 +33,7 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleScreen
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
@@ -50,7 +46,6 @@ fun NewConversationSearchPeopleScreen(
     newConversationViewModel: NewConversationViewModel,
 ) {
     val searchAllPeopleViewModel = newConversationViewModel as SearchAllPeopleViewModel
-    val snackbarHostState = remember { SnackbarHostState() }
     SearchPeopleScreen(
         searchPeopleState = searchAllPeopleViewModel.state,
         searchTitle = stringResource(id = R.string.label_new_conversation),
@@ -66,16 +61,12 @@ fun NewConversationSearchPeopleScreen(
         onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         onClose = navigator::navigateBack,
         onServiceClicked = { },
-        screenType = SearchPeopleScreenType.NEW_CONVERSATION,
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        screenType = SearchPeopleScreenType.NEW_CONVERSATION
     )
 
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
+
     LaunchedEffect(Unit) {
         searchAllPeopleViewModel.infoMessage.collect {
             snackbarHostState.showSnackbar(it.asString(context.resources))

@@ -71,7 +71,7 @@ import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -214,7 +214,7 @@ private fun OngoingCallContent(
                         size = dimensions().spacing32x
                     )
                     Text(
-                        text = stringResource(id = R.string.connectivity_status_bar_connecting),
+                        text = stringResource(id = R.string.calling_screen_connecting_until_call_established),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
                 }
@@ -349,7 +349,7 @@ private fun CallingControls(
             )
         }
         Spacer(modifier = Modifier.weight(1F))
-        SecurityClassificationBanner(conversationId)
+        SecurityClassificationBannerForConversation(conversationId)
     }
 }
 

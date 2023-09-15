@@ -99,7 +99,7 @@ fun SystemMessageItem(
             onStartMessageSelfDeletion = onSelfDeletingMessageRead
         )
     }
-    val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+    val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
     Row(
         Modifier
             .customizeMessageBackground(message.sendingFailed, message.decryptionFailed)
@@ -113,7 +113,7 @@ fun SystemMessageItem(
     ) {
         Box(
             modifier = Modifier
-                .width(dimensions().userAvatarDefaultSize),
+                .width(dimensions().avatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
@@ -179,13 +179,10 @@ fun SystemMessageItem(
                     onClick = { expanded = !expanded },
                     text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
                     fillMaxWidth = false,
-                    minHeight = dimensions().spacing32x,
-                    minWidth = dimensions().spacing40x,
+                    minSize = dimensions().buttonSmallMinSize,
+                    minClickableSize = dimensions().buttonMinClickableSize,
                     shape = RoundedCornerShape(size = dimensions().corner12x),
                     contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
-                    modifier = Modifier
-                        .padding(top = dimensions().spacing4x)
-                        .height(height = dimensions().spacing32x)
                 )
             }
             if (message.sendingFailed) {

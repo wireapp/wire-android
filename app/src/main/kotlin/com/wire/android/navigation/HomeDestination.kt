@@ -31,6 +31,7 @@ import com.wire.android.ui.destinations.CallsScreenDestination
 import com.wire.android.ui.destinations.MentionScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
+import com.wire.android.ui.destinations.WhatsNewScreenDestination
 
 @Suppress("LongParameterList")
 sealed class HomeDestination(
@@ -90,16 +91,10 @@ sealed class HomeDestination(
         direction = SupportScreenDestination
     )
 
-    data object GiveFeedback : HomeDestination(
-        title = R.string.give_feedback_screen_title,
-        icon = R.drawable.ic_emoticon,
-        direction = GiveFeedbackDestination
-    )
-
-    data object ReportBug : HomeDestination(
-        title = R.string.report_bug_screen_title,
-        icon = R.drawable.ic_bug,
-        direction = ReportBugDestination
+    data object WhatsNew : HomeDestination(
+        title = R.string.whats_new_screen_title,
+        icon = R.drawable.ic_star,
+        direction = WhatsNewScreenDestination
     )
 
     val withBottomTabs: Boolean get() = bottomTabItems.contains(this)
@@ -115,8 +110,9 @@ sealed class HomeDestination(
         val bottomTabItems = listOf<HomeDestination>()
 
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
-        fun fromRoute(fullRoute: String): HomeDestination? = values().find { it.direction.route == fullRoute.getPrimaryRoute() }
+        fun fromRoute(fullRoute: String): HomeDestination? =
+            values().find { it.direction.route.getPrimaryRoute() == fullRoute.getPrimaryRoute() }
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Calls, Mentions, Settings, Vault, Archive, Support, GiveFeedback, ReportBug)
+            arrayOf(Conversations, Calls, Mentions, Settings, Vault, Archive, Support, WhatsNew)
     }
 }

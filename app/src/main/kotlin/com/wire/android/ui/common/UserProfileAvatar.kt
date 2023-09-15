@@ -23,6 +23,7 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -54,7 +55,9 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 @Composable
 fun UserProfileAvatar(
     avatarData: UserAvatarData = UserAvatarData(),
-    size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
+    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
+    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
+    statusBorderSize: PaddingValues = PaddingValues(all = dimensions().avatarStatusBorderSize),
     modifier: Modifier = Modifier,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
@@ -64,16 +67,15 @@ fun UserProfileAvatar(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
-            .clip(CircleShape)
-            .clickable(clickable)
-            .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
+            .let { if (clickable != null) it.clip(CircleShape).clickable(clickable) else it }
+            .padding(padding)
     ) {
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
-                .padding(dimensions().userAvatarStatusBorderSize)
+                .padding(statusBorderSize)
                 .background(MaterialTheme.wireColorScheme.divider, CircleShape)
                 .size(size)
                 .clip(CircleShape)

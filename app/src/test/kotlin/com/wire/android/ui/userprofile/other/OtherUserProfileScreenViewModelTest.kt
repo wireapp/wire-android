@@ -241,7 +241,9 @@ class OtherUserProfileScreenViewModelTest {
             creatorId = null,
             receiptMode = Conversation.ReceiptMode.ENABLED,
             messageTimer = null,
-            userMessageTimer = null
+            userMessageTimer = null,
+            archived = false,
+            archivedDateTime = null
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

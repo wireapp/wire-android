@@ -47,7 +47,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.common.banner.SecurityClassificationBanner
+import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -192,7 +192,7 @@ private fun DisabledInteractionMessageComposer(
                     )
                 }
             }
-            SecurityClassificationBanner(conversationId = conversationId)
+            SecurityClassificationBannerForConversation(conversationId = conversationId)
         }
     }
 }

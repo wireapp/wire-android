@@ -20,28 +20,29 @@ package com.wire.android.ui.sharing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberImportMediaScreenState(
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     searchBarState: SearchBarState = rememberSearchbarState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     bottomSheetState: WireModalSheetState = rememberWireModalSheetState()
 ): ImportMediaScreenState {
+    val snackbarHostState = LocalSnackbarHostState.current
+
     return ImportMediaScreenState(
-        snackbarHostState = snackbarHostState,
         searchBarState = searchBarState,
         coroutineScope = coroutineScope,
-        bottomSheetState = bottomSheetState
+        bottomSheetState = bottomSheetState,
+        snackbarHostState = snackbarHostState
     )
 }
 

@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,7 +91,7 @@ fun BackupAndRestoreContent(
     onBackPressed: () -> Unit
 ) {
     val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
             title = stringResource(id = R.string.backup_and_restore_screen_title),

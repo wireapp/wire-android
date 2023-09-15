@@ -37,18 +37,19 @@ import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberConversationScreenState(
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+    val snackBarHostState = LocalSnackbarHostState.current
 
     return remember {
         ConversationScreenState(

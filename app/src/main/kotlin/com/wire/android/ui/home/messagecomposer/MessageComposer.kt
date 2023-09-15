@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,7 +72,6 @@ import kotlin.time.Duration
 fun MessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
-    snackbarHostState: SnackbarHostState,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
@@ -121,7 +119,6 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     conversationId = conversationId,
                     messageComposerStateHolder = messageComposerStateHolder,
-                    snackbarHostState = snackbarHostState,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle())
@@ -224,7 +221,6 @@ fun MessageComposerPreview() {
         onClearMentionSearchResult = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
-        tempWritableImageUri = null,
-        snackbarHostState = SnackbarHostState()
+        tempWritableImageUri = null
     )
 }

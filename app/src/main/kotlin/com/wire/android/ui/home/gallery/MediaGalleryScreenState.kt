@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -46,10 +47,10 @@ data class MediaGalleryScreenState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberMediaGalleryScreenState(
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): MediaGalleryScreenState {
+    val snackbarHostState = LocalSnackbarHostState.current
 
     return remember {
         MediaGalleryScreenState(

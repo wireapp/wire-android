@@ -25,11 +25,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -104,6 +104,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.ui.UIText
@@ -507,6 +508,7 @@ private fun ConversationScreen(
     onLinkClick: (String) -> Unit,
 ) {
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
 
     val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
         MenuModalSheetHeader.Visible(
@@ -548,6 +550,7 @@ private fun ConversationScreen(
 
         ConversationScreenState.BottomSheetMenuType.None -> emptyList()
     }
+    // only here we will use normal Scaffold because of specific behaviour of message composer
     Scaffold(
         topBar = {
             Column {
@@ -568,8 +571,8 @@ private fun ConversationScreen(
         },
         snackbarHost = {
             SwipeDismissSnackbarHost(
-                hostState = conversationScreenState.snackBarHostState,
-                modifier = Modifier.fillMaxWidth()
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth().imePadding()
             )
         },
         content = { internalPadding ->
@@ -600,7 +603,6 @@ private fun ConversationScreen(
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    snackBarHostState = conversationScreenState.snackBarHostState,
                     onLinkClick = onLinkClick
                 )
             }
@@ -612,7 +614,7 @@ private fun ConversationScreen(
         coroutineScope = conversationScreenState.coroutineScope,
         menuItems = menuItems
     )
-    SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
+    SnackBarMessage(composerMessages, conversationMessages)
 }
 
 @Suppress("LongParameterList")
@@ -643,7 +645,6 @@ private fun ConversationScreenContent(
     onClearMentionSearchResult: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    snackBarHostState: SnackbarHostState,
     onLinkClick: (String) -> Unit,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
@@ -655,7 +656,6 @@ private fun ConversationScreenContent(
     MessageComposer(
         conversationId = conversationId,
         messageComposerStateHolder = messageComposerStateHolder,
-        snackbarHostState = snackBarHostState,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
@@ -708,15 +708,15 @@ private fun ConversationScreenContent(
 @Composable
 private fun SnackBarMessage(
     composerMessages: SharedFlow<SnackBarMessage>,
-    conversationMessages: SharedFlow<SnackBarMessage>,
-    conversationScreenState: ConversationScreenState
+    conversationMessages: SharedFlow<SnackBarMessage>
 ) {
     val showLabel = stringResource(R.string.label_show)
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
 
     LaunchedEffect(Unit) {
         composerMessages.collect {
-            conversationScreenState.snackBarHostState.showSnackbar(
+            snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources)
             )
         }
@@ -725,7 +725,7 @@ private fun SnackBarMessage(
     LaunchedEffect(Unit) {
         conversationMessages.collect {
             val actionLabel = if (it is OnFileDownloaded) showLabel else null
-            val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
+            val snackbarResult = snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
                 actionLabel = actionLabel
             )

@@ -25,7 +25,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import org.junit.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.runner.RunWith
 
 @ExtendWith(CoroutineTestExtension::class)
 class SetLockScreenViewModelTest {

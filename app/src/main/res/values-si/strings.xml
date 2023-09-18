@@ -742,6 +742,7 @@
     <string name="calling_ongoing_double_tap_to_go_back">ආපසු යාමට දෙවරක් ඔබන්න</string>
     <string name="calling_feature_unavailable_title_alert">විශේෂාංගය නොතිබේ</string>
     <string name="calling_feature_unavailable_message_alert">සම්මන්ත්‍රණ ඇමතුම් විකල්පය තිබෙන්නේ වයර් ගෙවන අනුවාදයෙහි පමණි.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
     <string name="connectivity_status_bar_connecting">පණිවිඩ විසංකේතනය වෙමින්</string>

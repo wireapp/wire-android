@@ -1000,6 +1000,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveTypingIndicatorEnabled(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.observeTypingIndicatorEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistTypingIndicatorStatusConfig(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.persistTypingIndicatorStatusConfig
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeIfAppUpdateRequired
 

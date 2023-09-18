@@ -48,8 +48,10 @@ fun PrivacySettingsConfigScreen(
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(
-            isReadReceiptsEnabled = state.isReadReceiptsEnabled,
+            areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
+            isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
+            setTypingIndicatorState = ::setTypingIndicatorState,
             screenshotCensoringConfig = state.screenshotCensoringConfig,
             setScreenshotCensoringConfig = ::setScreenshotCensoringConfig,
             onBackPressed = navigator::navigateBack
@@ -59,8 +61,10 @@ fun PrivacySettingsConfigScreen(
 
 @Composable
 fun PrivacySettingsScreenContent(
-    isReadReceiptsEnabled: Boolean,
+    areReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
+    isTypingIndicatorEnabled: Boolean,
+    setTypingIndicatorState: (Boolean) -> Unit,
     screenshotCensoringConfig: ScreenshotCensoringConfig,
     setScreenshotCensoringConfig: (Boolean) -> Unit,
     onBackPressed: () -> Unit
@@ -79,7 +83,7 @@ fun PrivacySettingsScreenContent(
         ) {
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),
-                switchState = SwitchState.Enabled(value = isReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
+                switchState = SwitchState.Enabled(value = areReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
             )
@@ -103,6 +107,12 @@ fun PrivacySettingsScreenContent(
                     }
                 )
             )
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.settings_show_typing_indicator_title),
+                switchState = SwitchState.Enabled(value = isTypingIndicatorEnabled, onCheckedChange = setTypingIndicatorState),
+                arrowType = ArrowType.NONE,
+                subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
+            )
         }
     }
 }
@@ -110,5 +120,5 @@ fun PrivacySettingsScreenContent(
 @Composable
 @Preview
 fun PreviewSendReadReceipts() {
-    PrivacySettingsScreenContent(true, {}, ScreenshotCensoringConfig.DISABLED, {}, {})
+    PrivacySettingsScreenContent(true, {}, true, {}, ScreenshotCensoringConfig.DISABLED, {}, {})
 }

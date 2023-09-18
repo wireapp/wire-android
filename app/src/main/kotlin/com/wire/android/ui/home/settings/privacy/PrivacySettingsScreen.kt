@@ -124,8 +124,7 @@ fun AppLockItem(
     state: Boolean,
     canBeUpdated: Boolean,
     navigator: Navigator
-    ) {
-
+) {
     val onCLick = remember(state) {
         if (state) {
             {

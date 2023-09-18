@@ -124,7 +124,6 @@ fun SetLockCodeScreenContent(
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-
             Surface(
                 shadowElevation = scrollState.rememberBottomBarElevationState().value,
                 color = MaterialTheme.wireColorScheme.background,
@@ -163,4 +162,3 @@ private fun ContinueButton(
         )
     }
 }
-

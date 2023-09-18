@@ -38,7 +38,7 @@ class SetLockScreenViewModel @Inject constructor(
         state = state.copy(
             password = password
         )
-        state = if(validatePassword(password.text)) {
+        state = if (validatePassword(password.text)) {
             state.copy(
                 continueEnabled = true,
                 isPasswordValid = true

@@ -19,7 +19,7 @@ package com.wire.android.ui.home.appLock
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-data class SetLockCodeViewState (
+data class SetLockCodeViewState(
     val continueEnabled: Boolean = false,
     val password: TextFieldValue = TextFieldValue(),
     val isPasswordValid: Boolean = false,

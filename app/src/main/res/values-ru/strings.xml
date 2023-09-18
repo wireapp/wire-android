@@ -768,6 +768,7 @@
     <string name="calling_ongoing_double_tap_to_go_back">Двойное нажатие для возврата назад</string>
     <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_connecting">Расшифровка сообщений</string>

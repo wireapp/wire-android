@@ -741,6 +741,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="calling_ongoing_double_tap_to_go_back">Toque duas vezes para voltar</string>
     <string name="calling_feature_unavailable_title_alert">Funcionalidade não disponível</string>
     <string name="calling_feature_unavailable_message_alert">A opção para iniciar uma conferência é apenas disponível na versão paga do Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Retornar à chamada</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>

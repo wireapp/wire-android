@@ -743,6 +743,7 @@
     <string name="calling_ongoing_double_tap_to_go_back">Zum Zurückgehen doppeltippen</string>
     <string name="calling_feature_unavailable_title_alert">Funktion nicht verfügbar</string>
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
+    <string name="calling_screen_connecting_until_call_established">Verbinden…</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
@@ -1134,7 +1135,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
-    <string name="last_message_composite_with_missing_text">sent an interactive message</string>
+    <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Passwort eingeben</string>
     <string name="create_guest_link">Create Guest Link</string>

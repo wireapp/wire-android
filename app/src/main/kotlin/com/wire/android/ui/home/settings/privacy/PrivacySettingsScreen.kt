@@ -23,7 +23,7 @@ package com.wire.android.ui.home.settings.privacy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -69,7 +69,7 @@ fun PrivacySettingsScreenContent(
     setScreenshotCensoringConfig: (Boolean) -> Unit,
     onBackPressed: () -> Unit
 ) {
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onBackPressed,
             elevation = 0.dp,

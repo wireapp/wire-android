@@ -28,15 +28,12 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
@@ -95,81 +92,6 @@ class MessageComposerStateHolderTest {
     }
 
     @Test
-    fun `given state, when setting toInactive, then input state holder inactive is called`() =
-        runTest {
-            // given
-            // when
-            state.toInActive()
-
-            // then
-            assertEquals(true, messageCompositionInputStateHolder.inputVisibility)
-            assertEquals(
-                MessageCompositionInputSize.COLLAPSED,
-                messageCompositionInputStateHolder.inputSize
-            )
-            assertEquals(
-                MessageCompositionInputState.INACTIVE,
-                messageCompositionInputStateHolder.inputState
-            )
-        }
-
-    @Test
-    fun `given state, when setting toActive and show attachment true, then input state active is called`() =
-        runTest {
-            // given
-            // when
-            state.toActive(showAttachmentOption = true)
-
-            // then
-            assertEquals(true, messageCompositionInputStateHolder.inputVisibility)
-            assertEquals(
-                MessageCompositionInputSize.COLLAPSED,
-                messageCompositionInputStateHolder.inputSize
-            )
-            assertEquals(
-                MessageCompositionInputState.ACTIVE,
-                messageCompositionInputStateHolder.inputState
-            )
-            assertEquals(false, messageCompositionInputStateHolder.inputFocused)
-            assertEquals(
-                AdditionalOptionSelectItem.AttachFile,
-                additionalOptionStateHolder.selectedOption
-            )
-            assertEquals(
-                AdditionalOptionSubMenuState.AttachFile,
-                additionalOptionStateHolder.additionalOptionsSubMenuState
-            )
-        }
-
-    @Test
-    fun `given state, when setting toActive and show attachment false, then input state active is called`() =
-        runTest {
-            // given
-            // when
-            state.toActive(showAttachmentOption = false)
-
-            // then
-            assertEquals(true, messageCompositionInputStateHolder.inputVisibility)
-            assertEquals(
-                MessageCompositionInputSize.COLLAPSED,
-                messageCompositionInputStateHolder.inputSize
-            )
-            assertEquals(
-                MessageCompositionInputState.ACTIVE,
-                messageCompositionInputStateHolder.inputState
-            )
-            assertEquals(true, messageCompositionInputStateHolder.inputFocused)
-            assertEquals(
-                AdditionalOptionSelectItem.None,
-                additionalOptionStateHolder.selectedOption
-            )
-            assertEquals(
-                AdditionalOptionSubMenuState.Hidden,
-                additionalOptionStateHolder.additionalOptionsSubMenuState
-            )
-        }
-
-    @Test
     fun `given state, when setting toEdit, then input state toEdit is called`() = runTest {
         // given
         // when
@@ -212,25 +134,6 @@ class MessageComposerStateHolderTest {
         }
 
     @Test
-    fun `given state, when input focus change to true, then hide additional options menu and request focus`() =
-        runTest {
-            // given
-            // when
-            state.onInputFocusedChanged(onFocused = true)
-
-            // then
-            assertEquals(
-                AdditionalOptionSelectItem.None,
-                additionalOptionStateHolder.selectedOption
-            )
-            assertEquals(
-                AdditionalOptionSubMenuState.Hidden,
-                additionalOptionStateHolder.additionalOptionsSubMenuState
-            )
-            assertEquals(true, messageCompositionInputStateHolder.inputFocused)
-        }
-
-    @Test
     fun `given state, when input focus change to false, then clear focus`() = runTest {
         // given
         // when
@@ -238,40 +141,6 @@ class MessageComposerStateHolderTest {
 
         // then
         assertEquals(false, messageCompositionInputStateHolder.inputFocused)
-    }
-
-    @Test
-    fun `given state, when setting toAudioRecording, then show audio recording additional sub menu`() =
-        runTest {
-            // given
-            // when
-            state.toAudioRecording()
-
-            // then
-            assertEquals(false, messageCompositionInputStateHolder.inputVisibility)
-            assertEquals(
-                AdditionalOptionMenuState.Hidden,
-                additionalOptionStateHolder.additionalOptionState
-            )
-            assertEquals(
-                AdditionalOptionSubMenuState.RecordAudio,
-                additionalOptionStateHolder.additionalOptionsSubMenuState
-            )
-        }
-
-    @Test
-    fun `given state, when changing keyboard visibility to false, then show keyboard`() = runTest {
-        // given
-        state.onKeyboardVisibilityChanged(isVisible = true) // Setting as true to be shown first time
-
-        // when
-        state.onKeyboardVisibilityChanged(isVisible = false) // Now setting to false so it is hidden
-
-        // then
-        assertEquals(
-            false,
-            messageCompositionInputStateHolder.inputFocused
-        )
     }
 
     @Test

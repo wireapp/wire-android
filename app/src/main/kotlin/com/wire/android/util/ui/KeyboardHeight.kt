@@ -18,14 +18,8 @@
 
 package com.wire.android.util.ui
 
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-sealed class KeyboardHeight(open val height: Dp) {
-    companion object {
-        val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
-    }
-
-    object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
-    data class Known(override val height: Dp) : KeyboardHeight(height)
+object KeyboardHeight {
+    val default = 250.dp
 }

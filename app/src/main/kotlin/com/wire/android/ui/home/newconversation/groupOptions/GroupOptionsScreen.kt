@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -117,7 +117,7 @@ fun GroupOptionScreenContent(
     onBackPressed: () -> Unit,
 ) {
     with(groupOptionState) {
-        Scaffold(topBar = {
+        WireScaffold(topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
                 elevation = 0.dp,

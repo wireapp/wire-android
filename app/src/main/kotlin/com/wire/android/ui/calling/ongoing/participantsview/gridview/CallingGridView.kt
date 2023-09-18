@@ -132,16 +132,8 @@ fun GroupCallGrid(
                 onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
                 avatarSize = userAvatarSize,
                 isSelfUser = isSelfUser,
-                onSelfUserVideoPreviewCreated = {
-                    if (isSelfUser) {
-                        onSelfVideoPreviewCreated(it)
-                    }
-                },
-                onClearSelfUserVideoPreview = {
-                    if (isSelfUser) {
-                        onSelfClearVideoPreview()
-                    }
-                }
+                onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
+                onClearSelfUserVideoPreview = onSelfClearVideoPreview
             )
         }
     }

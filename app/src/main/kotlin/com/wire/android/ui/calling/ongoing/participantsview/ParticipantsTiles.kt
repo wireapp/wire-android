@@ -37,6 +37,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,7 +79,9 @@ fun VerticalCallingPager(
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
 
-                    val participantsChunkedList = participants.chunked(MAX_TILES_PER_PAGE)
+                    val participantsChunkedList = remember(participants) {
+                        participants.chunked(MAX_TILES_PER_PAGE)
+                    }
                     val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
 
@@ -97,7 +100,11 @@ fun VerticalCallingPager(
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
+                            onSelfVideoPreviewCreated = {
+                                if (pagerState.currentPage == 0) {
+                                    onSelfVideoPreviewCreated(it)
+                                }
+                            },
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )
@@ -108,7 +115,11 @@ fun VerticalCallingPager(
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
+                            onSelfVideoPreviewCreated = {
+                                if (pagerState.currentPage == 0) {
+                                    onSelfVideoPreviewCreated(it)
+                                }
+                            },
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )
@@ -152,7 +163,7 @@ private fun pagesCount(size: Int): Int {
     } else pages
 }
 
-private const val MAX_TILES_PER_PAGE = 8
+private const val MAX_TILES_PER_PAGE = 3
 private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
 
 @Composable

@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -68,7 +69,7 @@ fun CallingHorizontalView(
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for self user
-            val isSelfUser = pageIndex == 0 && participants.first() == participant
+            val isSelfUser = remember { pageIndex == 0 && participants.first() == participant }
 
             val isCameraOn = if (isSelfUser) {
                 isSelfUserCameraOn
@@ -117,14 +118,8 @@ fun CallingHorizontalView(
                     .animateItemPlacement(tween(durationMillis = 200)),
                 participantTitleState = participantState,
                 isSelfUser = isSelfUser,
-                onSelfUserVideoPreviewCreated = {
-                    if (isSelfUser) onSelfVideoPreviewCreated(it)
-                },
-                onClearSelfUserVideoPreview = {
-                    if (isSelfUser) {
-                        onSelfClearVideoPreview()
-                    }
-                }
+                onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
+                onClearSelfUserVideoPreview = onSelfClearVideoPreview
             )
         }
     }

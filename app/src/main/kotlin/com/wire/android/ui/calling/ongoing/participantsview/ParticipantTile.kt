@@ -119,7 +119,8 @@ fun ParticipantTile(
                 )
             } else {
                 val context = LocalContext.current
-                val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
+                val rendererFillColor =
+                    (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
                     val videoRenderer = remember {
                         VideoRenderer(
@@ -246,12 +247,17 @@ private fun SelfVideo(
 ) {
     if (isCameraOn) {
         val context = LocalContext.current
-        AndroidView(factory = {
-            val videoPreview = VideoPreview(context).apply {
+        val videoPreview = remember {
+            VideoPreview(context).apply {
+                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 setShouldFill(false)
-            }.also(onSelfUserVideoPreviewCreated)
-            videoPreview
-        })
+            }
+        }
+        AndroidView(
+            factory = { videoPreview },
+            update = {
+                onSelfUserVideoPreviewCreated(videoPreview)
+            })
     } else onClearSelfUserVideoPreview()
 }
 
@@ -313,7 +319,9 @@ private fun MicrophoneTile(
                     .padding(dimensions().spacing4x),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
                 tint = MaterialTheme.wireColorScheme.muteButtonColor,
-                contentDescription = stringResource(R.string.content_description_calling_participant_muted)
+                contentDescription = stringResource(
+                    id = R.string.content_description_calling_participant_muted
+                )
             )
         }
     }

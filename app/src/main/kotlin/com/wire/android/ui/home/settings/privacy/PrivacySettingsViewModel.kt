@@ -34,6 +34,9 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.user.typingIndicator.ObserveTypingIndicatorEnabledUseCase
+import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicatorStatusConfigUseCase
+import com.wire.kalium.logic.feature.user.typingIndicator.TypingIndicatorConfigResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -46,7 +49,9 @@ class PrivacySettingsViewModel @Inject constructor(
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
     private val observeReadReceiptsEnabled: ObserveReadReceiptsEnabledUseCase,
     private val persistScreenshotCensoringConfig: PersistScreenshotCensoringConfigUseCase,
-    private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase
+    private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase,
+    private val persistTypingIndicatorStatusConfig: PersistTypingIndicatorStatusConfigUseCase,
+    private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(PrivacySettingsState())
@@ -56,11 +61,13 @@ class PrivacySettingsViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 observeReadReceiptsEnabled(),
+                observeTypingIndicatorEnabled(),
                 observeScreenshotCensoringConfig(),
-                ::Pair
-            ).collect { (readReceiptsEnabled, screenshotCensoringConfig) ->
+                ::Triple
+            ).collect { (readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig) ->
                 state = state.copy(
-                    isReadReceiptsEnabled = readReceiptsEnabled,
+                    areReadReceiptsEnabled = readReceiptsEnabled,
+                    isTypingIndicatorEnabled = typingIndicatorEnabled,
                     screenshotCensoringConfig = when (screenshotCensoringConfig) {
                         ObserveScreenshotCensoringConfigResult.Disabled ->
                             ScreenshotCensoringConfig.DISABLED
@@ -78,16 +85,35 @@ class PrivacySettingsViewModel @Inject constructor(
 
     fun setReadReceiptsState(isEnabled: Boolean) {
         viewModelScope.launch {
-            when (withContext(dispatchers.io()) { persistReadReceiptsStatusConfig(isEnabled) }) {
-                is ReadReceiptStatusConfigResult.Failure -> {
-                    appLogger.e("Something went wrong while updating read receipts config")
-                    state = state.copy(isReadReceiptsEnabled = !isEnabled)
+            state =
+                when (withContext(dispatchers.io()) { persistReadReceiptsStatusConfig(isEnabled) }) {
+                    is ReadReceiptStatusConfigResult.Failure -> {
+                        appLogger.e("Something went wrong while updating read receipts config")
+                        state.copy(areReadReceiptsEnabled = !isEnabled)
+                    }
+
+                    is ReadReceiptStatusConfigResult.Success -> {
+                        appLogger.d("Read receipts config changed")
+                        state.copy(areReadReceiptsEnabled = isEnabled)
+                    }
                 }
-                is ReadReceiptStatusConfigResult.Success -> {
-                    appLogger.d("Read receipts config changed")
-                    state = state.copy(isReadReceiptsEnabled = isEnabled)
+        }
+    }
+
+    fun setTypingIndicatorState(isEnabled: Boolean) {
+        viewModelScope.launch {
+            state =
+                when (withContext(dispatchers.io()) { persistTypingIndicatorStatusConfig(isEnabled) }) {
+                    is TypingIndicatorConfigResult.Failure -> {
+                        appLogger.e("Something went wrong while updating typing indicator config")
+                        state.copy(isTypingIndicatorEnabled = !isEnabled)
+                    }
+
+                    is TypingIndicatorConfigResult.Success -> {
+                        appLogger.d("Typing indicator configuration changed successfully")
+                        state.copy(isTypingIndicatorEnabled = isEnabled)
+                    }
                 }
-            }
         }
     }
 

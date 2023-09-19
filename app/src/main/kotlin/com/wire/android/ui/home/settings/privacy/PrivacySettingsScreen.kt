@@ -23,8 +23,8 @@ package com.wire.android.ui.home.settings.privacy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,8 +33,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.model.Clickable
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
@@ -48,26 +54,30 @@ fun PrivacySettingsConfigScreen(
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(
-            isReadReceiptsEnabled = state.isReadReceiptsEnabled,
+            areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
+            isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
+            setTypingIndicatorState = ::setTypingIndicatorState,
             screenshotCensoringConfig = state.screenshotCensoringConfig,
             setScreenshotCensoringConfig = ::setScreenshotCensoringConfig,
-            onBackPressed = navigator::navigateBack
+            navigator = navigator
         )
     }
 }
 
 @Composable
 fun PrivacySettingsScreenContent(
-    isReadReceiptsEnabled: Boolean,
+    areReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
+    isTypingIndicatorEnabled: Boolean,
+    setTypingIndicatorState: (Boolean) -> Unit,
     screenshotCensoringConfig: ScreenshotCensoringConfig,
     setScreenshotCensoringConfig: (Boolean) -> Unit,
-    onBackPressed: () -> Unit
+    navigator: Navigator,
 ) {
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPressed,
+            onNavigationPressed = navigator::navigateBack,
             elevation = 0.dp,
             title = stringResource(id = R.string.settings_privacy_settings_label)
         )
@@ -79,7 +89,7 @@ fun PrivacySettingsScreenContent(
         ) {
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),
-                switchState = SwitchState.Enabled(value = isReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
+                switchState = SwitchState.Enabled(value = areReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
             )
@@ -103,12 +113,57 @@ fun PrivacySettingsScreenContent(
                     }
                 )
             )
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.settings_show_typing_indicator_title),
+                switchState = SwitchState.Enabled(value = isTypingIndicatorEnabled, onCheckedChange = setTypingIndicatorState),
+                arrowType = ArrowType.NONE,
+                subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
+            )
+
+            AppLockItem(
+                state = false,
+                canBeUpdated = true,
+                navigator = navigator
+            )
         }
     }
 }
 
 @Composable
+fun AppLockItem(
+    state: Boolean,
+    canBeUpdated: Boolean,
+    navigator: Navigator
+) {
+    val onCLick = remember(state) {
+        if (state) {
+            {
+                // call function to disable app lock IF POSSIBLE
+                // this will include checking if all logged accouts does not enforce app-lock
+            }
+        } else {
+            {
+                // navigate to app lock screen
+                navigator.navigate(
+                    NavigationCommand(
+                        SetLockCodeScreenDestination,
+                        backStackMode = BackStackMode.NONE
+                    )
+                )
+            }
+        }
+    }
+    GroupConversationOptionsItem(
+        title = "App lock",
+        switchState = SwitchState.Enabled(value = state, onCheckedChange = null),
+        arrowType = ArrowType.NONE,
+        subtitle = "subtitle",
+        clickable = Clickable(enabled = canBeUpdated, onClick = onCLick)
+    )
+}
+
+@Composable
 @Preview
 fun PreviewSendReadReceipts() {
-    PrivacySettingsScreenContent(true, {}, ScreenshotCensoringConfig.DISABLED, {}, {})
+    PrivacySettingsScreenContent(true, {}, true, {}, ScreenshotCensoringConfig.DISABLED, {}, rememberNavigator({}))
 }

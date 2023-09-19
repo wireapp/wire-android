@@ -26,6 +26,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.migration.failure.UserMigrationStatus
@@ -50,6 +51,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
+        private val APP_LOCK_PASSWORD = stringPreferencesKey("app_lock_password")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
@@ -133,4 +135,31 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
+
+    fun getAppLockPasswordFlow(): Flow<String?> =
+        context.dataStore.data.map {
+            it[APP_LOCK_PASSWORD]?.let {
+                try {
+                    EncryptionManager.decrypt(APP_LOCK_PASSWORD.name, it)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
+
+    suspend fun clearAppLockPassword() {
+        context.dataStore.edit {
+            it.remove(APP_LOCK_PASSWORD)
+        }
+    }
+
+    suspend fun setAppLockPassword(passphrase: String) {
+        context.dataStore.edit {
+            try {
+                it[APP_LOCK_PASSWORD] = EncryptionManager.encrypt(APP_LOCK_PASSWORD.name, passphrase)
+            } catch (e: Exception) {
+                it.remove(APP_LOCK_PASSWORD)
+            }
+        }
+    }
 }

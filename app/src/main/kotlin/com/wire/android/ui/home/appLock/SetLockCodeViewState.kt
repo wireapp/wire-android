@@ -14,18 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.appLock
 
-package com.wire.android.ui.home.settings.privacy
+import androidx.compose.ui.text.input.TextFieldValue
 
-data class PrivacySettingsState(
-    val areReadReceiptsEnabled: Boolean = true,
-    val isTypingIndicatorEnabled: Boolean = true,
-    val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER
+data class SetLockCodeViewState(
+    val continueEnabled: Boolean = false,
+    val password: TextFieldValue = TextFieldValue(),
+    val isPasswordValid: Boolean = false,
+    val done: Boolean = false
 )
-
-enum class ScreenshotCensoringConfig {
-    DISABLED, ENABLED_BY_USER, ENFORCED_BY_TEAM
-}

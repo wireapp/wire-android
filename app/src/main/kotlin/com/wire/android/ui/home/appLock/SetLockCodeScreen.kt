@@ -40,7 +40,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -48,6 +47,7 @@ import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField

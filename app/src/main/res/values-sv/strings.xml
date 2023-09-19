@@ -860,6 +860,8 @@
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_show_typing_indicator_title">Typing indicator</string>
+    <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <!--Devices -->
     <string name="devices_title">Dina enheter</string>
     <string name="current_device_label">Current Device</string>

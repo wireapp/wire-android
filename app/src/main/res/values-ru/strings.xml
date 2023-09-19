@@ -773,7 +773,7 @@
     <string name="calling_ongoing_double_tap_to_go_back">Двойное нажатие для возврата назад</string>
     <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
-    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
+    <string name="calling_screen_connecting_until_call_established">Подключение…</string>
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
@@ -886,6 +886,8 @@
     <string name="settings_censor_screenshots">Запретить скриншоты</string>
     <string name="settings_censor_screenshots_description">При включении этого параметра содержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
+    <string name="settings_show_typing_indicator_title">Typing indicator</string>
+    <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>

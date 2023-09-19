@@ -92,7 +92,7 @@ fun SetLockCodeScreenContent(
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onBackPress,
-            elevation = 0.dp,
+            elevation = dimensions().spacing0x,
             title = stringResource(id = R.string.settings_privacy_settings_label)
         )
     }) { internalPadding ->

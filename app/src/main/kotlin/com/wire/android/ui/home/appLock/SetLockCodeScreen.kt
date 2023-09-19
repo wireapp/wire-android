@@ -152,7 +152,7 @@ private fun ContinueButton(
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         WirePrimaryButton(
-            text = "continue",
+            text = stringResource(R.string.label_continue),
             onClick = onContinue,
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             interactionSource = interactionSource,

@@ -181,7 +181,7 @@ sealed class SwitchState {
     data class Enabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true,
-        val onCheckedChange: (Boolean) -> Unit
+        val onCheckedChange: ((Boolean) -> Unit)?
     ) : Visible(value = value, isOnOffVisible = isOnOffVisible, isSwitchVisible = true)
 
     data class Disabled(

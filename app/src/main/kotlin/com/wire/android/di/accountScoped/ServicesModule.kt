@@ -53,7 +53,6 @@ class ServicesModule {
     fun provideGetServiceByIdUseCase(serviceScope: ServiceScope): GetServiceByIdUseCase =
         serviceScope.getServiceById
 
-
     @ViewModelScoped
     @Provides
     fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
@@ -63,5 +62,4 @@ class ServicesModule {
     @Provides
     fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
         serviceScope.searchServicesByName
-
 }

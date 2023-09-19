@@ -49,6 +49,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class MessageModule {
 
     @ViewModelScoped
@@ -87,7 +88,6 @@ class MessageModule {
     @Provides
     fun provideUpdateAssetMessageDownloadStatusUseCase(messageScope: MessageScope): UpdateAssetMessageDownloadStatusUseCase =
         messageScope.updateAssetMessageDownloadStatus
-
 
     @ViewModelScoped
     @Provides
@@ -142,7 +142,6 @@ class MessageModule {
     @Provides
     fun provideGetMessageByIdUseCase(messageScope: MessageScope): GetMessageByIdUseCase =
         messageScope.getMessageById
-
 
     @ViewModelScoped
     @Provides

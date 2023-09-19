@@ -58,6 +58,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class ConversationModule {
 
     @Provides
@@ -94,7 +95,9 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationInteractionAvailability(conversationScope: ConversationScope): ObserveConversationInteractionAvailabilityUseCase =
+    fun provideObserveConversationInteractionAvailability(
+        conversationScope: ConversationScope
+    ): ObserveConversationInteractionAvailabilityUseCase =
         conversationScope.observeConversationInteractionAvailabilityUseCase
 
     @ViewModelScoped
@@ -122,24 +125,22 @@ class ConversationModule {
     fun providesCanCreatePasswordProtectedLinksUseCase(conversationScope: ConversationScope): CanCreatePasswordProtectedLinksUseCase =
         conversationScope.canCreatePasswordProtectedLinks
 
-
     @ViewModelScoped
     @Provides
-    fun provideRefreshConversationsWithoutMetadataUseCase(conversationScope: ConversationScope): RefreshConversationsWithoutMetadataUseCase =
+    fun provideRefreshConversationsWithoutMetadataUseCase(
+        conversationScope: ConversationScope
+    ): RefreshConversationsWithoutMetadataUseCase =
         conversationScope.refreshConversationsWithoutMetadata
-
 
     @ViewModelScoped
     @Provides
     fun provideGetConversationUnreadEventsCountUseCase(conversationScope: ConversationScope): GetConversationUnreadEventsCountUseCase =
         conversationScope.getConversationUnreadEventsCountUseCase
 
-
     @ViewModelScoped
     @Provides
     fun provideUpdateMessageTimerUseCase(conversationScope: ConversationScope): UpdateMessageTimerUseCase =
         conversationScope.updateMessageTimer
-
 
     @ViewModelScoped
     @Provides
@@ -181,7 +182,6 @@ class ConversationModule {
     fun provideRemoveMemberFromConversationUseCase(conversationScope: ConversationScope): RemoveMemberFromConversationUseCase =
         conversationScope.removeMemberFromConversation
 
-
     @ViewModelScoped
     @Provides
     fun provideCreateGroupConversationUseCase(conversationScope: ConversationScope): CreateGroupConversationUseCase =
@@ -216,5 +216,4 @@ class ConversationModule {
     @Provides
     fun provideClearConversationContentUseCase(conversationScope: ConversationScope): ClearConversationContentUseCase =
         conversationScope.clearConversationContent
-
 }

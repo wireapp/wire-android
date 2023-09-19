@@ -44,6 +44,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class CallsModule {
 
     @ViewModelScoped
@@ -72,7 +73,6 @@ class CallsModule {
     @Provides
     fun provideObserveOngoingCallsUseCase(callsScope: CallsScope) =
         callsScope.observeOngoingCalls
-
 
     @ViewModelScoped
     @Provides

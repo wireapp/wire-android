@@ -46,10 +46,8 @@ class TeamModule {
     fun provideGetSelfTeamUseCase(teamScope: TeamScope): GetSelfTeamUseCase =
         teamScope.getSelfTeamUseCase
 
-
     @ViewModelScoped
     @Provides
     fun provideIsSelfATeamMemberUseCase(teamScope: TeamScope): IsSelfATeamMemberUseCase =
         teamScope.isSelfATeamMember
-
 }

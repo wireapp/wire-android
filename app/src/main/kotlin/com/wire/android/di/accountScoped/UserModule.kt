@@ -53,9 +53,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 
-
 @Module
 @InstallIn(ViewModelComponent::class)
+@Suppress("TooManyFunctions")
 class UserModule {
 
     @Provides
@@ -99,7 +99,6 @@ class UserModule {
     ): GetAssetSizeLimitUseCase =
         userScope.getAssetSizeLimit
 
-
     @ViewModelScoped
     @Provides
     fun provideObserveReadReceiptsEnabled(userScope: UserScope): ObserveReadReceiptsEnabledUseCase =
@@ -126,13 +125,11 @@ class UserModule {
         userScope: UserScope
     ): SelfServerConfigUseCase = userScope.serverLinks
 
-
     @ViewModelScoped
     @Provides
     fun provideObserveUserInfoUseCase(
         userScope: UserScope
     ): ObserveUserInfoUseCase = userScope.observeUserInfo
-
 
     @ViewModelScoped
     @Provides
@@ -145,7 +142,6 @@ class UserModule {
     fun provideIsReadOnlyAccountUseCase(
         userScope: UserScope
     ): IsReadOnlyAccountUseCase = userScope.isReadOnlyAccount
-
 
     @ViewModelScoped
     @Provides

@@ -17,7 +17,6 @@
  */
 package com.wire.android.di.accountScoped
 
-import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
@@ -95,7 +94,6 @@ class ClientModule {
     @Provides
     fun provideUpdateClientVerificationStatusUseCase(clientScope: ClientScope): UpdateClientVerificationStatusUseCase =
         clientScope.updateClientVerificationStatus
-
 
     @ViewModelScoped
     @Provides

@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -55,6 +56,8 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
+import java.util.Locale
 
 @RootNavGraph
 @Destination
@@ -93,7 +96,7 @@ fun SetLockCodeScreenContent(
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onBackPress,
             elevation = dimensions().spacing0x,
-            title = stringResource(id = R.string.settings_privacy_settings_label)
+            title = stringResource(id = R.string.settings_set_lock_screen_title)
         )
     }) { internalPadding ->
         Column(
@@ -110,6 +113,17 @@ fun SetLockCodeScreenContent(
                         testTagsAsResourceId = true
                     }
             ) {
+                Text(
+                    text = stringResource(id = R.string.settings_set_lock_screen_description),
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing24x
+                        )
+                        .testTag("registerText")
+                )
                 WirePasswordTextField(
                     value = state.password,
                     onValueChange = onPasswordChanged,
@@ -119,7 +133,9 @@ fun SetLockCodeScreenContent(
                     modifier = Modifier
                         .testTag("password"),
                     state = WireTextFieldState.Default,
-                    autofill = false
+                    autofill = false,
+                    placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
+                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(Locale.getDefault())
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -152,7 +168,7 @@ private fun ContinueButton(
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
         WirePrimaryButton(
-            text = stringResource(R.string.label_continue),
+            text = stringResource(R.string.settings_set_lock_screen_continue_button_label),
             onClick = onContinue,
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             interactionSource = interactionSource,

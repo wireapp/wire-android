@@ -30,12 +30,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -76,6 +77,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
@@ -87,18 +89,16 @@ fun ParticipantTile(
     isSelfUser: Boolean,
     shouldFill: Boolean = true,
     isZoomingEnabled: Boolean = false,
+    isSelfUserMuted: Boolean,
+    isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
     Surface(
         modifier = modifier,
         color = colorsScheme().callingParticipantTileBackgroundColor,
-        shape = RoundedCornerShape(dimensions().corner6x)
+        shape = RoundedCornerShape(dimensions().corner6x),
     ) {
-        var size by remember { mutableStateOf(IntSize.Zero) }
-        var zoom by remember { mutableStateOf(1f) }
-        var offsetX by remember { mutableStateOf(0f) }
-        var offsetY by remember { mutableStateOf(0f) }
 
         ConstraintLayout {
             val (avatar, userName, muteIcon) = createRefs()
@@ -112,60 +112,20 @@ fun ParticipantTile(
             )
 
             if (isSelfUser) {
-                SelfVideo(
-                    isCameraOn = participantTitleState.isCameraOn,
+                CameraPreview(
+                    isCameraOn = isSelfUserCameraOn,
                     onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
             } else {
-                val context = LocalContext.current
-                val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
-                if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
-                    val videoRenderer = remember {
-                        VideoRenderer(
-                            context,
-                            participantTitleState.id.toString(),
-                            participantTitleState.clientId,
-                            false
-                        ).apply {
-                            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                            setFillColor(rendererFillColor)
-                            setShouldFill(shouldFill)
-                        }
-                    }
-                    AndroidView(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                size = it
-                            }
-                            .pointerInput(Unit) {
-                                // enable zooming on full screen and when video is on
-                                if (isZoomingEnabled) {
-                                    detectTransformGestures { _, gesturePan, gestureZoom, _ ->
-                                        zoom = (zoom * gestureZoom).coerceIn(1f, 3f)
-                                        val maxX = (size.width * (zoom - 1)) / 2
-                                        val minX = -maxX
-                                        offsetX = maxOf(minX, minOf(maxX, offsetX + gesturePan.x))
-                                        val maxY = (size.height * (zoom - 1)) / 2
-                                        val minY = -maxY
-                                        offsetY = maxOf(minY, minOf(maxY, offsetY + gesturePan.y))
-                                    }
-                                }
-                            }
-                            .graphicsLayer(
-                                scaleX = zoom,
-                                scaleY = zoom,
-                                translationX = offsetX,
-                                translationY = offsetY
-                            ),
-
-                        factory = {
-                            val frameLayout = FrameLayout(it)
-                            frameLayout.addView(videoRenderer)
-                            frameLayout
-                        })
-                    clearRendererIfNeeded(videoRenderer)
-                }
+                OthersVideoRenderer(
+                    participantId = participantTitleState.id.toString(),
+                    clientId = participantTitleState.clientId,
+                    isCameraOn = participantTitleState.isCameraOn,
+                    isSharingScreen = participantTitleState.isSharingScreen,
+                    shouldFill = shouldFill,
+                    isZoomingEnabled = isZoomingEnabled
+                )
             }
 
             MicrophoneTile(
@@ -178,7 +138,7 @@ fun ParticipantTile(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                     },
-                isMuted = participantTitleState.isMuted
+                isMuted = if (isSelfUser) isSelfUserMuted else participantTitleState.isMuted,
             )
 
             UsernameTile(
@@ -217,7 +177,7 @@ private fun clearRendererIfNeeded(videoRenderer: VideoRenderer) {
 }
 
 @Composable
-fun TileBorder(isSpeaking: Boolean) {
+private fun TileBorder(isSpeaking: Boolean) {
     if (isSpeaking) {
         val color = MaterialTheme.wireColorScheme.primary
         val strokeWidth = dimensions().corner8x
@@ -239,20 +199,95 @@ fun TileBorder(isSpeaking: Boolean) {
 }
 
 @Composable
-private fun SelfVideo(
+private fun CameraPreview(
     isCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
     if (isCameraOn) {
         val context = LocalContext.current
-        AndroidView(factory = {
-            val videoPreview = VideoPreview(context).apply {
+        val videoPreview = remember {
+            VideoPreview(context).apply {
+                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 setShouldFill(false)
-            }.also(onSelfUserVideoPreviewCreated)
-            videoPreview
-        })
-    } else onClearSelfUserVideoPreview()
+            }
+        }
+        AndroidView(
+            factory = { videoPreview },
+            update = {
+                onSelfUserVideoPreviewCreated(videoPreview)
+            }
+        )
+    } else {
+        onClearSelfUserVideoPreview()
+    }
+}
+
+@Composable
+private fun OthersVideoRenderer(
+    participantId: String,
+    clientId: String,
+    isCameraOn: Boolean,
+    isSharingScreen: Boolean,
+    shouldFill: Boolean,
+    isZoomingEnabled: Boolean
+) {
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    var zoom by remember { mutableStateOf(1f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+
+    val context = LocalContext.current
+    val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
+    if (isCameraOn || isSharingScreen) {
+
+        val videoRenderer = remember {
+            VideoRenderer(
+                context,
+                participantId,
+                clientId,
+                false
+            ).apply {
+                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                setFillColor(rendererFillColor)
+                setShouldFill(shouldFill)
+            }
+        }
+
+        clearRendererIfNeeded(videoRenderer)
+
+        AndroidView(
+            modifier = Modifier
+                .onSizeChanged {
+                    size = it
+                }
+                .pointerInput(Unit) {
+                    // enable zooming on full screen and when video is on
+                    if (isZoomingEnabled) {
+                        detectTransformGestures { _, gesturePan, gestureZoom, _ ->
+                            zoom = (zoom * gestureZoom).coerceIn(1f, 3f)
+                            val maxX = (size.width * (zoom - 1)) / 2
+                            val minX = -maxX
+                            offsetX = maxOf(minX, minOf(maxX, offsetX + gesturePan.x))
+                            val maxY = (size.height * (zoom - 1)) / 2
+                            val minY = -maxY
+                            offsetY = maxOf(minY, minOf(maxY, offsetY + gesturePan.y))
+                        }
+                    }
+                }
+                .graphicsLayer(
+                    scaleX = zoom,
+                    scaleY = zoom,
+                    translationX = offsetX,
+                    translationY = offsetY
+                ),
+
+            factory = {
+                val frameLayout = FrameLayout(it)
+                frameLayout.addView(videoRenderer)
+                frameLayout
+            })
+    }
 }
 
 @Composable
@@ -319,7 +354,7 @@ private fun MicrophoneTile(
     }
 }
 
-@Preview
+@Preview("Default view")
 @Composable
 fun PreviewParticipantTile() {
     ParticipantTile(
@@ -327,16 +362,68 @@ fun PreviewParticipantTile() {
         participantTitleState = UICallParticipant(
             id = QualifiedID("", ""),
             clientId = "client-id",
-            name = "name",
+            name = "user name",
             isMuted = true,
-            isSpeaking = true,
-            isCameraOn = true,
+            isSpeaking = false,
+            isCameraOn = false,
             isSharingScreen = false,
             avatar = null,
-            membership = Membership.Admin
+            membership = Membership.Admin,
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantTalking() {
+    ParticipantTile(
+        modifier = Modifier.height(300.dp),
+        participantTitleState = UICallParticipant(
+            id = QualifiedID("", ""),
+            clientId = "client-id",
+            name = "long user name to be displayed in participant tile during a call",
+            isMuted = false,
+            isSpeaking = true,
+            isCameraOn = false,
+            isSharingScreen = false,
+            avatar = null,
+            membership = Membership.Admin,
+        ),
+        onClearSelfUserVideoPreview = {},
+        onSelfUserVideoPreviewCreated = {},
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantConnecting() {
+    ParticipantTile(
+        modifier = Modifier
+            .height(350.dp)
+            .width(200.dp),
+        participantTitleState = UICallParticipant(
+            id = QualifiedID("", ""),
+            clientId = "client-id",
+            name = "Oussama2",
+            isMuted = true,
+            isSpeaking = false,
+            isCameraOn = false,
+            isSharingScreen = false,
+            avatar = null,
+            membership = Membership.Admin,
+        ),
+        onClearSelfUserVideoPreview = {},
+        onSelfUserVideoPreviewCreated = {},
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }

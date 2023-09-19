@@ -32,17 +32,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.calling.ConversationName
-import com.wire.android.ui.calling.getConversationName
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.id.QualifiedID
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -54,7 +56,7 @@ fun CallingHorizontalView(
     contentHeight: Dp,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onDoubleTap: (userId: UserId, clientId: String, isSelfUser: Boolean) -> Unit
+    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit
 ) {
 
     LazyColumn(
@@ -68,64 +70,78 @@ fun CallingHorizontalView(
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for self user
-            val isSelfUser = pageIndex == 0 && participants.first() == participant
-
-            val isCameraOn = if (isSelfUser) {
-                isSelfUserCameraOn
-            } else {
-                participant.isCameraOn
+            val isSelfUser = remember(pageIndex, participants.first()) {
+                pageIndex == 0 && participants.first() == participant
             }
-            val isMuted = if (isSelfUser) {
-                isSelfUserMuted
-            } else {
-                participant.isMuted
+            val spacing4x = dimensions().spacing4x
+            val tileHeight = remember(participants.size) {
+                (contentHeight - spacing4x) / participants.size
             }
-
-            val username = when (val conversationName = getConversationName(participant.name)) {
-                is ConversationName.Known -> conversationName.name
-                is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-            }
-
-            val participantState = UICallParticipant(
-                id = participant.id,
-                clientId = participant.clientId,
-                name = username,
-                isMuted = isMuted,
-                isSpeaking = participant.isSpeaking,
-                isCameraOn = isCameraOn,
-                isSharingScreen = participant.isSharingScreen,
-                avatar = participant.avatar,
-                membership = participant.membership
-            )
-
-            val tileHeight = (contentHeight - dimensions().spacing4x) / participants.size
 
             ParticipantTile(
                 modifier = Modifier
-                    .pointerInput(Unit) {
+                    .pointerInput(isSelfUserCameraOn, isSelfUserMuted) {
                         detectTapGestures(
-                            onPress = { /* Called when the gesture starts */ },
                             onDoubleTap = {
-                                onDoubleTap(participantState.id, participantState.clientId, isSelfUser)
-                            },
-                            onLongPress = { /* Called on Long Press */ },
-                            onTap = { /* Called on Tap */ }
+                                onDoubleTap(
+                                    SelectedParticipant(
+                                        userId = participant.id,
+                                        clientId = participant.clientId,
+                                        isSelfUser = isSelfUser,
+                                        isSelfUserCameraOn = isSelfUserCameraOn,
+                                        isSelfUserMuted = isSelfUserMuted
+                                    )
+                                )
+                            }
                         )
                     }
                     .fillMaxWidth()
                     .height(tileHeight)
                     .animateItemPlacement(tween(durationMillis = 200)),
-                participantTitleState = participantState,
+                participantTitleState = participant,
                 isSelfUser = isSelfUser,
-                onSelfUserVideoPreviewCreated = {
-                    if (isSelfUser) onSelfVideoPreviewCreated(it)
-                },
-                onClearSelfUserVideoPreview = {
-                    if (isSelfUser) {
-                        onSelfClearVideoPreview()
-                    }
-                }
+                isSelfUserMuted = isSelfUserMuted,
+                isSelfUserCameraOn = isSelfUserCameraOn,
+                onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
+                onClearSelfUserVideoPreview = onSelfClearVideoPreview
             )
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCallingHorizontalView() {
+    val participant1 = UICallParticipant(
+        id = QualifiedID("", ""),
+        clientId = "client-id",
+        name = "user name",
+        isMuted = true,
+        isSpeaking = false,
+        isCameraOn = false,
+        isSharingScreen = false,
+        avatar = null,
+        membership = Membership.Admin,
+    )
+    val participant2 = UICallParticipant(
+        id = QualifiedID("", ""),
+        clientId = "client-id",
+        name = "user name 2",
+        isMuted = true,
+        isSpeaking = false,
+        isCameraOn = false,
+        isSharingScreen = false,
+        avatar = null,
+        membership = Membership.Admin,
+    )
+    CallingHorizontalView(
+        participants = listOf(participant1, participant2),
+        pageIndex = 0,
+        isSelfUserMuted = true,
+        isSelfUserCameraOn = false,
+        contentHeight = 500.dp,
+        onSelfVideoPreviewCreated = {},
+        onSelfClearVideoPreview = {},
+        onDoubleTap = { }
+    )
 }

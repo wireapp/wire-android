@@ -52,7 +52,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-private fun loadBiMap(imageUri: Uri): State<Bitmap?> {
+private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     return produceState<Bitmap?>(initialValue = null, imageUri) {

@@ -886,8 +886,8 @@
     <string name="settings_censor_screenshots">Запретить скриншоты</string>
     <string name="settings_censor_screenshots_description">При включении этого параметра содержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
-    <string name="settings_show_typing_indicator_title">Typing indicator</string>
-    <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
+    <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>

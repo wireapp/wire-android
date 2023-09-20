@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -79,6 +78,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
@@ -90,6 +90,8 @@ fun ParticipantTile(
     isSelfUser: Boolean,
     shouldFill: Boolean = true,
     isZoomingEnabled: Boolean = false,
+    isSelfUserMuted: Boolean,
+    isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -114,7 +116,7 @@ fun ParticipantTile(
 
             if (isSelfUser) {
                 CameraPreview(
-                    isCameraOn = participantTitleState.isCameraOn,
+                    isCameraOn = isSelfUserCameraOn,
                     onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
@@ -139,8 +141,7 @@ fun ParticipantTile(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                     },
-                isMuted = participantTitleState.isMuted,
-                hasEstablishedAudio = participantTitleState.hasEstablishedAudio
+                isMuted = if (isSelfUser) isSelfUserMuted else participantTitleState.isMuted,
             )
 
             UsernameTile(
@@ -216,12 +217,12 @@ private fun CameraPreview(
                 setShouldFill(false)
             }
         }
-        AndroidView(factory = {
-            val frameLayout = FrameLayout(it)
-            onSelfUserVideoPreviewCreated(videoPreview)
-            frameLayout.addView(videoPreview)
-            frameLayout
-        })
+        AndroidView(
+            factory = { videoPreview },
+            update = {
+                onSelfUserVideoPreviewCreated(videoPreview)
+            }
+        )
     } else {
         onClearSelfUserVideoPreview()
     }
@@ -258,7 +259,7 @@ private fun OthersVideoRenderer(
             }
         }
 
-        cleanUpRendererIfNeeded(videoRenderer)
+        clearRendererIfNeeded(videoRenderer)
 
         AndroidView(
             modifier = Modifier
@@ -415,15 +416,16 @@ fun PreviewParticipantTile() {
             isSharingScreen = false,
             avatar = null,
             membership = Membership.Admin,
-            hasEstablishedAudio = true
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewParticipantTalking() {
     ParticipantTile(
@@ -438,15 +440,16 @@ fun PreviewParticipantTalking() {
             isSharingScreen = false,
             avatar = null,
             membership = Membership.Admin,
-            hasEstablishedAudio = true
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewParticipantConnecting() {
     ParticipantTile(
@@ -463,10 +466,11 @@ fun PreviewParticipantConnecting() {
             isSharingScreen = false,
             avatar = null,
             membership = Membership.Admin,
-            hasEstablishedAudio = false
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }

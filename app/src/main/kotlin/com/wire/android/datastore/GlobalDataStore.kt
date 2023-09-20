@@ -136,6 +136,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
 
+    @Suppress("TooGenericExceptionCaught")
     fun getAppLockPasscodeFlow(): Flow<String?> =
         context.dataStore.data.map {
             it[APP_LOCK_PASSCODE]?.let {
@@ -153,6 +154,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     suspend fun setAppLockPasscode(passcode: String) {
         context.dataStore.edit {
             try {

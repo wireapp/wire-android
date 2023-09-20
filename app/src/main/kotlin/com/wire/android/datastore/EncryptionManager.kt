@@ -91,6 +91,7 @@ object EncryptionManager {
         AEADBadTagException::class,
         UnsupportedEncodingException::class
     )
+    @Suppress("MagicNumber")
     fun decrypt(keyAlias: String, encryptedText: String): String {
         val (encryptedData, iv) = encryptedText.split(":")
             .map { Base64.decode(it.toByteArray(charset), Base64.NO_WRAP) }

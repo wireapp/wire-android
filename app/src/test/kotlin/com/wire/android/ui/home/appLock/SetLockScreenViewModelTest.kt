@@ -19,11 +19,14 @@ package com.wire.android.ui.home.appLock
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
@@ -60,6 +63,13 @@ class SetLockScreenViewModelTest {
     private class Arrangement {
         @MockK
         lateinit var validatePassword: ValidatePasswordUseCase
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { globalDataStore.setAppLockPasscode(any()) } returns Unit
+        }
 
         fun withValidPassword() = apply {
             every { validatePassword(any()) } returns true
@@ -70,7 +80,8 @@ class SetLockScreenViewModelTest {
         }
 
         private val viewModel = SetLockScreenViewModel(
-            validatePassword
+            validatePassword,
+            globalDataStore
         )
 
         fun arrange() = this to viewModel

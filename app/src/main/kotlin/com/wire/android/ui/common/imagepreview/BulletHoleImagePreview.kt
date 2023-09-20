@@ -84,7 +84,7 @@ fun BulletHoleImagePreview(
                 }
         ) {
             Image(
-                painter = rememberAsyncImagePainter(loadBiMap(imageUri).value),
+                painter = rememberAsyncImagePainter(loadBitMap(imageUri).value),
                 contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(),

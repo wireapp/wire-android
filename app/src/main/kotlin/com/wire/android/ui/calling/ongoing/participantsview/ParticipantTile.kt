@@ -79,6 +79,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
@@ -90,6 +91,8 @@ fun ParticipantTile(
     isSelfUser: Boolean,
     shouldFill: Boolean = true,
     isZoomingEnabled: Boolean = false,
+    isSelfUserMuted: Boolean,
+    isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -114,7 +117,7 @@ fun ParticipantTile(
 
             if (isSelfUser) {
                 CameraPreview(
-                    isCameraOn = participantTitleState.isCameraOn,
+                    isCameraOn = isSelfUserCameraOn,
                     onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
@@ -139,7 +142,7 @@ fun ParticipantTile(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                     },
-                isMuted = participantTitleState.isMuted,
+                isMuted = if (isSelfUser) isSelfUserMuted else participantTitleState.isMuted,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )
 
@@ -216,12 +219,12 @@ private fun CameraPreview(
                 setShouldFill(false)
             }
         }
-        AndroidView(factory = {
-            val frameLayout = FrameLayout(it)
-            onSelfUserVideoPreviewCreated(videoPreview)
-            frameLayout.addView(videoPreview)
-            frameLayout
-        })
+        AndroidView(
+            factory = { videoPreview },
+            update = {
+                onSelfUserVideoPreviewCreated(videoPreview)
+            }
+        )
     } else {
         onClearSelfUserVideoPreview()
     }
@@ -419,11 +422,13 @@ fun PreviewParticipantTile() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewParticipantTalking() {
     ParticipantTile(
@@ -442,11 +447,13 @@ fun PreviewParticipantTalking() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewParticipantConnecting() {
     ParticipantTile(
@@ -467,6 +474,8 @@ fun PreviewParticipantConnecting() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false
     )
 }

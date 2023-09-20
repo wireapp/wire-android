@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +42,7 @@ import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
 
 @Composable
@@ -74,6 +74,8 @@ fun FullScreenTile(
                     ),
                 participantTitleState = it,
                 isSelfUser = selectedParticipant.isSelfUser,
+                isSelfUserCameraOn = selectedParticipant.isSelfUserCameraOn,
+                isSelfUserMuted = selectedParticipant.isSelfUserMuted,
                 shouldFill = false,
                 isZoomingEnabled = true,
                 onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
@@ -98,7 +100,7 @@ fun FullScreenTile(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewFullScreenVideoCall() {
     FullScreenTile(

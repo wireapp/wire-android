@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationSource
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -39,9 +41,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
+import com.wire.android.appLogger
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -52,8 +58,9 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
+import kotlin.math.max
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun EnabledMessageComposer(
@@ -71,20 +78,31 @@ fun EnabledMessageComposer(
     tempWritableImageUri: Uri?
 ) {
     val density = LocalDensity.current
+    val focusManager = LocalFocusManager.current
+
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
-    val offsetY = WindowInsets.ime.getBottom(density)
+    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
+    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
+    val height = WindowInsets.ime.getBottom(density)
+    val staticHeight = with(density) { max(imeAnimationSource, imeAnimationTarget).toDp() - navBarHeight }
+
+    val heightDp = with(density) { max((height.toDp() - navBarHeight), 0.dp) }
+
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
-        LaunchedEffect(offsetY) {
-            inputStateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
+        LaunchedEffect(height) {
+            inputStateHolder.handleIMEVisibility(isImeVisible)
+            appLogger.d("KBX offset $heightDp isImeVisible $isImeVisible imeAnimationSource $imeAnimationSource imeAnimationTarget $imeAnimationTarget")
+            inputStateHolder.handleOffsetChange(with(density) { height.toDp() }, navBarHeight)
         }
 
-        LaunchedEffect(isImeVisible) {
-            inputStateHolder.handleIMEVisibility(isImeVisible)
-        }
+//        LaunchedEffect(imeAnimationSource) {
+//            inputStateHolder.handleIMEVisibility(isImeVisible)
+//        }
+
         LaunchedEffect(modalBottomSheetState.isVisible) {
             if (modalBottomSheetState.isVisible) {
                 messageCompositionInputStateHolder.clearFocus()
@@ -214,9 +232,13 @@ fun EnabledMessageComposer(
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                 onPingOptionClicked = onPingOptionClicked,
                                 onAdditionalOptionsMenuClicked = {
-                                    if (inputStateHolder.subOptionsVisible) {
+                                    if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
+                                        // TODO block on click when keyboard shows/hides
+                                        appLogger.d("KBX clicked plus toComposing")
+                                        additionalOptionStateHolder.hideAdditionalOptionsMenu()
                                         messageCompositionInputStateHolder.toComposing()
                                     } else {
+                                        appLogger.d("KBX clicked plus showOptions")
                                         showAdditionalOptionsMenu()
                                     }
                                 },

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
@@ -83,9 +84,11 @@ class MessageCompositionInputStateHolder(
     )
 
     fun handleIMEVisibility(isImeVisible: Boolean) {
+        appLogger.d("KBX isImeVisible $isImeVisible")
         if (isImeVisible) {
             optionsVisible = true
         } else if (!subOptionsVisible) {
+            appLogger.d("KBX isImeVisible optionsVisible false")
             optionsVisible = false
         }
     }
@@ -94,6 +97,7 @@ class MessageCompositionInputStateHolder(
         val actualOffset = max(offset - navBarHeight, 0.dp)
 
         if (previousOffset < actualOffset) {
+            optionsVisible = true
             if (!subOptionsVisible || optionsHeight <= actualOffset) {
                 optionsHeight = actualOffset
                 subOptionsVisible = false
@@ -140,10 +144,12 @@ class MessageCompositionInputStateHolder(
     }
 
     fun clearFocus() {
+        appLogger.d("KBX holder clear focus")
         inputFocused = false
     }
 
     fun requestFocus() {
+        appLogger.d("KBX holder request focus")
         inputFocused = true
     }
 
@@ -151,6 +157,7 @@ class MessageCompositionInputStateHolder(
         optionsVisible = true
         subOptionsVisible = true
         optionsHeight = keyboardHeight
+        clearFocus()
     }
 
     fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState) {

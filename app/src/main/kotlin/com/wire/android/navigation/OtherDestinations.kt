@@ -27,7 +27,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.util.EmailComposer
 import com.wire.android.util.LogFileWriter
-import com.wire.android.util.getDeviceId
+import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -62,7 +62,7 @@ object GiveFeedbackDestination : IntentDirection {
         intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
         intent.putExtra(
             Intent.EXTRA_TEXT,
-            EmailComposer.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId())
+            EmailComposer.giveFeedbackEmailTemplate(context.getDeviceIdString()?.sha256(), context.getGitBuildId())
         )
         intent.selector = Intent(Intent.ACTION_SENDTO).setData(Uri.parse("mailto:"))
         return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
@@ -78,7 +78,7 @@ object ReportBugDestination : IntentDirection {
         val intent = context.multipleFileSharingIntent(logsUris)
         intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
         intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-        intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
+        intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceIdString()?.sha256(), context.getGitBuildId()))
         intent.type = "message/rfc822"
         return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
     }

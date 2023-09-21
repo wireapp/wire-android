@@ -49,7 +49,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getDeviceId
+import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
@@ -95,7 +95,7 @@ class DebugDataOptionsViewModel
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
         state = state.copy(
-            debugId = context.getDeviceId() ?: "null",
+            debugId = context.getDeviceIdString() ?: "null",
             commitish = context.getGitBuildId()
         )
     }

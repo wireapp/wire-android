@@ -24,6 +24,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,17 +44,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
@@ -161,6 +165,8 @@ fun ActiveMessageComposerInput(
                                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
                                 )
                             }
+
+                            else -> {}
                         }
                     }
                 }
@@ -180,6 +186,7 @@ fun ActiveMessageComposerInput(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun MessageComposerTextInput(
     inputFocused: Boolean,
@@ -193,14 +200,26 @@ private fun MessageComposerTextInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     var focused by remember(inputFocused) { mutableStateOf(inputFocused) }
+    var isReadOnly by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(focused) {
-        if (focused) focusRequester.requestFocus()
-        else focusManager.clearFocus()
+        if (focused) {
+            appLogger.d("KBX requestFocus isReadOnly $isReadOnly")
+            isReadOnly = false
+            keyboardController?.show()
+            focusRequester.requestFocus()
+        } else {
+            appLogger.d("KBX clearFocus isReadOnly $isReadOnly")
+            isReadOnly = true
+//            focusManager.clearFocus()
+            keyboardController?.hide()
+        }
     }
 
     WireTextField(
@@ -212,13 +231,15 @@ private fun MessageComposerTextInput(
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
         placeholderText = " $placeHolderText",
-        modifier = modifier.then(
-            Modifier
-                .onFocusChanged { focusState ->
+        readOnly = isReadOnly,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                appLogger.d("KBX onFocusChanged ${focusState.isFocused}")
+                if (focusState.isFocused) {
                     onFocusChanged(focusState.isFocused)
                 }
-                .focusRequester(focusRequester)
-        ),
+            },
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )

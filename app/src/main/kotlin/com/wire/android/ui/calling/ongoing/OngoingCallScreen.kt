@@ -50,7 +50,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -81,6 +80,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
@@ -214,7 +214,7 @@ private fun OngoingCallContent(
                         size = dimensions().spacing32x
                     )
                     Text(
-                        text = stringResource(id = R.string.connectivity_status_bar_connecting),
+                        text = stringResource(id = R.string.calling_screen_connecting_until_call_established),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
                 }
@@ -250,12 +250,8 @@ private fun OngoingCallContent(
                             onSelfVideoPreviewCreated = setVideoPreview,
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,
-                            onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
-                                selectedParticipantForFullScreen = SelectedParticipant(
-                                    userId = selectedUserId,
-                                    clientId = selectedClientId,
-                                    isSelfUser = isSelf
-                                )
+                            onDoubleTap = { selectedParticipant ->
+                                selectedParticipantForFullScreen = selectedParticipant
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             }
                         )
@@ -295,7 +291,9 @@ private fun OngoingCallTopBar(
                     .fillMaxWidth()
                     .offset(y = -(5).dp),
                 textAlign = TextAlign.Center,
-                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(Locale.getDefault()),
+                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(
+                    Locale.getDefault()
+                ),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
             )
@@ -353,8 +351,8 @@ private fun CallingControls(
     }
 }
 
+@PreviewMultipleThemes
 @Composable
-@Preview
 fun PreviewOngoingCallTopBar() {
     OngoingCallTopBar("Default", true) { }
 }

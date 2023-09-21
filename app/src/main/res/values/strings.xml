@@ -768,9 +768,11 @@
     <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
+
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
@@ -880,6 +882,15 @@
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_show_typing_indicator_title">Typing indicator</string>
+    <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set a passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>

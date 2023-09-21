@@ -22,13 +22,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SetLockScreenViewModel @Inject constructor(
-    private val validatePassword: ValidatePasswordUseCase
+    private val validatePassword: ValidatePasswordUseCase,
+    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
     var state: SetLockCodeViewState by mutableStateOf(SetLockCodeViewState())
@@ -51,14 +56,16 @@ class SetLockScreenViewModel @Inject constructor(
     }
 
     fun onContinue() {
-        state = state.copy(continueEnabled = false)
-        // the continue button is enabled iff the password is valid
-        // this check is for safety only
-        state = if (!validatePassword(state.password.text)) {
-            state.copy(isPasswordValid = false)
-        } else {
-            // TODO: store password in secure storage
-            state.copy(done = true)
+        viewModelScope.launch {
+            state = state.copy(continueEnabled = false)
+            // the continue button is enabled iff the password is valid
+            // this check is for safety only
+            state = if (!validatePassword(state.password.text)) {
+                state.copy(isPasswordValid = false)
+            } else {
+                globalDataStore.setAppLockPasscode(state.password.text.sha256())
+                state.copy(done = true)
+            }
         }
     }
 }

@@ -80,7 +80,7 @@ fun CallingHorizontalView(
 
             ParticipantTile(
                 modifier = Modifier
-                    .pointerInput(isSelfUserCameraOn, isSelfUserMuted) {
+                    .pointerInput(Unit) {
                         detectTapGestures(
                             onDoubleTap = {
                                 onDoubleTap(

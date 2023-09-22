@@ -793,8 +793,8 @@ fun MessageList(
         items(
             count = lazyPagingMessages.itemCount,
             contentType = lazyPagingMessages.itemContentType(),
-            key = { index -> lazyPagingMessages[index]?.header?.messageId ?: index })
-        { index ->
+            key = { index -> lazyPagingMessages[index]?.header?.messageId ?: index }
+        ) { index ->
             val message = lazyPagingMessages[index]
 
             // We can draw a placeholder here, as we fetch the next page of messages

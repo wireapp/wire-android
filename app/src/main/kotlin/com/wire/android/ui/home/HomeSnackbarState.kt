@@ -35,6 +35,6 @@ sealed class HomeSnackbarState {
     object DeleteConversationGroupError : HomeSnackbarState()
     object LeftConversationSuccess : HomeSnackbarState()
     object LeaveConversationError : HomeSnackbarState()
-    object ArchivingConversationSuccess: HomeSnackbarState()
-    object ArchivingConversationError: HomeSnackbarState()
+    object ArchivingConversationSuccess : HomeSnackbarState()
+    object ArchivingConversationError : HomeSnackbarState()
 }

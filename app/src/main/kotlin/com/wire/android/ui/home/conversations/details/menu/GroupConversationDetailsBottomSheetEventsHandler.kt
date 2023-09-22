@@ -38,7 +38,9 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
         val PREVIEW = object : GroupConversationDetailsBottomSheetEventsHandler {
             override fun onMutingConversationStatusChange(
                 conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit
-            ) {}
+            ) {
+            }
+
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun onMoveConversationToArchive(conversationId: ConversationId, shouldArchive: Boolean, onMessage: (UIText) -> Unit) {}

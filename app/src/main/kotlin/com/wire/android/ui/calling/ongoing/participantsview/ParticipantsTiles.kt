@@ -44,13 +44,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.model.UICallParticipant
-import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
 import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 
 private const val MAX_TILES_PER_PAGE = 8
 private const val MAX_ITEMS_FOR_HORIZONTAL_VIEW = 3
@@ -65,7 +65,7 @@ fun VerticalCallingPager(
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
-    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit
+    onDoubleTap: (userId: UserId, clientId: String, isSelfUser: Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -82,9 +82,7 @@ fun VerticalCallingPager(
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
 
-                    val participantsChunkedList = remember(participants) {
-                        participants.chunked(MAX_TILES_PER_PAGE)
-                    }
+                    val participantsChunkedList = participants.chunked(MAX_TILES_PER_PAGE)
                     val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
 
@@ -103,11 +101,7 @@ fun VerticalCallingPager(
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = {
-                                if (pagerState.currentPage == 0) {
-                                    onSelfVideoPreviewCreated(it)
-                                }
-                            },
+                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )
@@ -118,11 +112,7 @@ fun VerticalCallingPager(
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = {
-                                if (pagerState.currentPage == 0) {
-                                    onSelfVideoPreviewCreated(it)
-                                }
-                            },
+                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )
@@ -177,6 +167,6 @@ fun PreviewVerticalCallingPager() {
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},
-        onDoubleTap = { }
+        onDoubleTap = { _, _, _ -> run {} }
     )
 }

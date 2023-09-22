@@ -250,8 +250,12 @@ private fun OngoingCallContent(
                             onSelfVideoPreviewCreated = setVideoPreview,
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,
-                            onDoubleTap = { selectedParticipant ->
-                                selectedParticipantForFullScreen = selectedParticipant
+                            onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
+                                selectedParticipantForFullScreen = SelectedParticipant(
+                                    userId = selectedUserId,
+                                    clientId = selectedClientId,
+                                    isSelfUser = isSelf
+                                )
                                 shouldOpenFullScreen = !shouldOpenFullScreen
                             }
                         )

@@ -132,13 +132,16 @@ class DebugDataOptionsViewModel
     // this is why we check the existence of the database file
     private fun checkIfCanTriggerManualMigration() {
         viewModelScope.launch {
-            globalDataStore.getUserMigrationStatus(currentAccount.value).first().let { migrationStatus ->
-                if (migrationStatus != UserMigrationStatus.NoNeed) {
-                    context.getDatabasePath(currentAccount.value).let {
-                        state = state.copy(isManualMigrationAllowed = (it.exists() && it.isFile))
+            globalDataStore.getUserMigrationStatus(currentAccount.value).first()
+                .let { migrationStatus ->
+                    if (migrationStatus != UserMigrationStatus.NoNeed) {
+                        context.getDatabasePath(currentAccount.value).let {
+                            state = state.copy(
+                                isManualMigrationAllowed = (it.exists() && it.isFile)
+                            )
+                        }
                     }
                 }
-            }
         }
     }
 
@@ -426,7 +429,10 @@ private fun EnableEncryptedProteusStorageSwitch(
                 enabled = !isEnabled,
                 modifier = Modifier
                     .padding(end = dimensions().spacing8x)
-                    .size(width = dimensions().buttonSmallMinSize.width, height = dimensions().buttonSmallMinSize.height)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
             )
         }
     )

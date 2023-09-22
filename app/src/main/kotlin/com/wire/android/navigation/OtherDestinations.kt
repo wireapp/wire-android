@@ -40,9 +40,11 @@ interface ExternalUriDirection : Direction {
 }
 
 interface ExternalUriStringResDirection : Direction {
-    @get:StringRes val uriStringRes: Int
+    @get:StringRes
+    val uriStringRes: Int
     override val route: String
         get() = "android.resource://${BuildConfig.APPLICATION_ID}/$uriStringRes"
+
     fun getUri(resources: Resources): Uri = Uri.parse(resources.getString(uriStringRes))
 }
 
@@ -58,15 +60,22 @@ object SupportScreenDestination : ExternalUriDirection {
 object GiveFeedbackDestination : IntentDirection {
     override fun intent(context: Context): Intent {
         val intent = Intent(Intent.ACTION_SEND)
-        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
+        intent.putExtra(
+            Intent.EXTRA_EMAIL,
+            arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com")
+        )
         intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
         intent.putExtra(
             Intent.EXTRA_TEXT,
-            EmailComposer.giveFeedbackEmailTemplate(context.getDeviceIdString()?.sha256(), context.getGitBuildId())
+            EmailComposer.giveFeedbackEmailTemplate(
+                context.getDeviceIdString()?.sha256(),
+                context.getGitBuildId()
+            )
         )
         intent.selector = Intent(Intent.ACTION_SENDTO).setData(Uri.parse("mailto:"))
         return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
     }
+
     override val route: String
         get() = "wire-intent:give-feedback"
 }
@@ -78,10 +87,17 @@ object ReportBugDestination : IntentDirection {
         val intent = context.multipleFileSharingIntent(logsUris)
         intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
         intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-        intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceIdString()?.sha256(), context.getGitBuildId()))
+        intent.putExtra(
+            Intent.EXTRA_TEXT,
+            EmailComposer.reportBugEmailTemplate(
+                context.getDeviceIdString()?.sha256(),
+                context.getGitBuildId()
+            )
+        )
         intent.type = "message/rfc822"
         return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
     }
+
     override val route: String
         get() = "wire-intent:report-bug"
 }

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.common.imagepreview
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +30,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
@@ -44,6 +48,19 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.toBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+@Composable
+private fun loadBitMap(imageUri: Uri): State<Bitmap?> {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    return produceState<Bitmap?>(initialValue = null, imageUri) {
+        coroutineScope.launch(Dispatchers.IO) {
+            value = imageUri.toBitmap(context)
+        }
+    }
+}
 
 @Composable
 fun BulletHoleImagePreview(
@@ -67,7 +84,7 @@ fun BulletHoleImagePreview(
                 }
         ) {
             Image(
-                painter = rememberAsyncImagePainter(imageUri.toBitmap(LocalContext.current)),
+                painter = rememberAsyncImagePainter(loadBitMap(imageUri).value),
                 contentScale = ContentScale.Crop,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(),
@@ -97,7 +114,11 @@ fun BulletHoleImagePreview(
 @Suppress("MagicNumber")
 class BulletHoleShape : Shape {
 
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
         return Outline.Generic(
             drawBulletHolePath(size)
         )

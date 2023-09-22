@@ -10,13 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,9 +29,10 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -51,7 +49,7 @@ fun ServiceDetailsScreen(
     navigator: Navigator,
     viewModel: ServiceDetailsViewModel = hiltViewModel()
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -64,8 +62,7 @@ fun ServiceDetailsScreen(
         navigateBack = navigator::navigateBack,
         addService = viewModel::addService,
         removeService = viewModel::removeService,
-        serviceDetailsState = viewModel.serviceDetailsState,
-        snackbarHostState = snackbarHostState
+        serviceDetailsState = viewModel.serviceDetailsState
     )
 }
 
@@ -74,16 +71,9 @@ private fun ServiceDetailsContent(
     navigateBack: () -> Unit,
     addService: () -> Unit,
     removeService: () -> Unit,
-    serviceDetailsState: ServiceDetailsState,
-    snackbarHostState: SnackbarHostState
+    serviceDetailsState: ServiceDetailsState
 ) {
-    Scaffold(
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
+    WireScaffold(
         topBar = {
             Column {
                 ServiceDetailsTopAppBar(
@@ -204,5 +194,5 @@ private fun ServiceDetailsAddOrRemoveButton(
 @Preview
 @Composable
 fun PreviewServiceDetailsScreen() {
-    ServiceDetailsContent({}, {}, {}, ServiceDetailsState(), SnackbarHostState())
+    ServiceDetailsContent({}, {}, {}, ServiceDetailsState())
 }

@@ -31,9 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,11 +52,12 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreatePasswordProtectedGuestLinkScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -78,7 +77,7 @@ fun EditGuestAccessScreen(
     editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
     val sheetState = remember {
         WireModalSheetState(SheetValue.Hidden)
@@ -107,15 +106,11 @@ fun EditGuestAccessScreen(
         isPasswordInviteLinksAllowed = editGuestAccessViewModel.editGuestAccessState.isPasswordProtectedLinksAllowed
     )
 
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = scrollState.rememberTopBarElevationState().value,
             onNavigationPressed = navigator::navigateBack,
             title = stringResource(id = R.string.conversation_options_guests_label)
-        )
-    }, snackbarHost = {
-        SwipeDismissSnackbarHost(
-            hostState = snackbarHostState, modifier = Modifier.fillMaxWidth()
         )
     }) { internalPadding ->
         Column {

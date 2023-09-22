@@ -20,9 +20,13 @@
 
 package com.wire.android.ui.home.settings.privacy
 
+import com.wire.android.feature.AppLockConfig
+
 data class PrivacySettingsState(
-    val isReadReceiptsEnabled: Boolean = true,
-    val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER
+    val areReadReceiptsEnabled: Boolean = true,
+    val isTypingIndicatorEnabled: Boolean = true,
+    val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER,
+    val appLockConfig: AppLockConfig = AppLockConfig.Disabled,
 )
 
 enum class ScreenshotCensoringConfig {

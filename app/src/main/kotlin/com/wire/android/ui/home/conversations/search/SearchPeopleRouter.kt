@@ -83,8 +83,7 @@ fun SearchPeopleScreen(
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
-    screenType: SearchPeopleScreenType,
-    snackbarHost: @Composable () -> Unit = {},
+    screenType: SearchPeopleScreenType
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -95,7 +94,6 @@ fun SearchPeopleScreen(
 
     with(searchPeopleState) {
         CollapsingTopBarScaffold(
-            snackbarHost = snackbarHost,
             topBarHeader = { elevation ->
                 AnimatedVisibility(
                     visible = !searchBarState.isSearchActive,

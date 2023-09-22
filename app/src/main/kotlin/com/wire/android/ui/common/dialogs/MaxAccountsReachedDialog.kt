@@ -41,7 +41,7 @@ fun MaxAccountsReachedDialogContent(
             text = stringResource(id = R.string.max_account_reached_dialog_message),
             onDismiss = dialogState::dismiss,
             optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.max_account_reached_dialog_button_open_profile),
+                text = stringResource(R.string.label_ok),
                 onClick = onActionButtonClicked,
                 type = WireDialogButtonType.Primary
             )

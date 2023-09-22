@@ -86,7 +86,6 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
-import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -173,8 +172,7 @@ private fun WelcomeContent(
             ) {
                 LoginContent(
                     maxAccountsReached = maxAccountsReached,
-                    onLoginButtonActionClicked = { navigate(NavigationCommand(LoginScreenDestination())) },
-                    onActionButtonMaxAccountsClicked = { navigate(NavigationCommand(SelfUserProfileScreenDestination())) },
+                    onLoginButtonActionClicked = { navigate(NavigationCommand(LoginScreenDestination())) }
                 )
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
@@ -318,10 +316,9 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 private fun LoginContent(
     maxAccountsReached: Boolean,
     onLoginButtonActionClicked: () -> Unit,
-    onActionButtonMaxAccountsClicked: () -> Unit,
 ) {
     val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
-    MaxAccountsReachedDialogContent(maxAccountsReachedDialogState, onActionButtonMaxAccountsClicked)
+    MaxAccountsReachedDialogContent(maxAccountsReachedDialogState, maxAccountsReachedDialogState::dismiss)
 
     val action = if (maxAccountsReached) {
         { maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState) }

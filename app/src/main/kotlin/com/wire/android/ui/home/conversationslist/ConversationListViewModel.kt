@@ -111,7 +111,7 @@ class ConversationListViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
-    private val updateConversationArchivedStatusUseCase: UpdateConversationArchivedStatusUseCase,
+    private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -423,7 +423,7 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToArchive(conversationId: ConversationId, isArchiving: Boolean) {
         viewModelScope.launch {
             requestInProgress = true
-            val result = withContext(dispatcher.io()) { updateConversationArchivedStatusUseCase(conversationId, isArchiving) }
+            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving) }
             requestInProgress = false
             when (result) {
                 is ArchiveStatusUpdateResult.Failure -> {

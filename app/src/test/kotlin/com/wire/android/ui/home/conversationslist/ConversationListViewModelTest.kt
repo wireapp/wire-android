@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -111,6 +112,9 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
 
+    @MockK
+    private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
+
     @MockK(relaxed = true)
     private lateinit var onJoined: (ConversationId) -> Unit
 
@@ -119,7 +123,7 @@ class ConversationListViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationListDetailsUseCase.invoke() } returns emptyFlow()
+        coEvery { observeConversationListDetailsUseCase.invoke(any()) } returns emptyFlow()
 
         mockUri()
         conversationListViewModel =
@@ -139,9 +143,10 @@ class ConversationListViewModelTest {
                 refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
                 refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
                 userTypeMapper = UserTypeMapper(),
+                updateConversationArchivedStatus = updateConversationArchivedStatus
             )
 
-        coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
+        coEvery { observeConversationListDetailsUseCase(any()) } returns flowOf(listOf())
     }
 
     @Test

@@ -12,7 +12,7 @@ ktx-immutableCollections = "0.3.5"
 ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
-google-gms = "4.3.15"
+google-gms = "4.4.0"
 android-gradlePlugin = "8.1.1"
 desugaring = "2.0.3"
 firebaseBOM = "32.2.3"

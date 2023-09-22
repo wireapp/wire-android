@@ -215,7 +215,7 @@ private fun MessageComposerTextInput(
     }
 
     LaunchedEffect(isPressed) {
-        if(isPressed) {
+        if (isPressed) {
             onFocusChanged(true)
         }
     }

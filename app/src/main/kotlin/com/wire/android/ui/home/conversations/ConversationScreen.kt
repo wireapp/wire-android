@@ -572,7 +572,9 @@ private fun ConversationScreen(
         snackbarHost = {
             SwipeDismissSnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth().imePadding()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
             )
         },
         content = { internalPadding ->
@@ -795,7 +797,7 @@ fun MessageList(
         { index ->
             val message = lazyPagingMessages[index]
 
-                // We can draw a placeholder here, as we fetch the next page of messages
+            // We can draw a placeholder here, as we fetch the next page of messages
             val showAuthor by remember {
                 mutableStateOf(
                     message?.let {

@@ -84,11 +84,9 @@ class MessageCompositionInputStateHolder(
     )
 
     fun handleIMEVisibility(isImeVisible: Boolean) {
-        appLogger.d("KBX isImeVisible $isImeVisible")
         if (isImeVisible) {
             optionsVisible = true
         } else if (!subOptionsVisible) {
-            appLogger.d("KBX isImeVisible optionsVisible false")
             optionsVisible = false
         }
     }
@@ -144,12 +142,10 @@ class MessageCompositionInputStateHolder(
     }
 
     fun clearFocus() {
-        appLogger.d("KBX holder clear focus")
         inputFocused = false
     }
 
     fun requestFocus() {
-        appLogger.d("KBX holder request focus")
         inputFocused = true
     }
 

@@ -44,10 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
-import com.wire.android.appLogger
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -58,7 +55,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
-import kotlin.math.max
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Suppress("ComplexMethod")
@@ -78,30 +74,21 @@ fun EnabledMessageComposer(
     tempWritableImageUri: Uri?
 ) {
     val density = LocalDensity.current
-    val focusManager = LocalFocusManager.current
-
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
-    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
-    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
     val height = WindowInsets.ime.getBottom(density)
-    val staticHeight = with(density) { max(imeAnimationSource, imeAnimationTarget).toDp() - navBarHeight }
-
-    val heightDp = with(density) { max((height.toDp() - navBarHeight), 0.dp) }
-
+    val isKeyboardMoving = isKeyboardMoving()
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
         LaunchedEffect(height) {
-            inputStateHolder.handleIMEVisibility(isImeVisible)
-            appLogger.d("KBX offset $heightDp isImeVisible $isImeVisible imeAnimationSource $imeAnimationSource imeAnimationTarget $imeAnimationTarget")
             inputStateHolder.handleOffsetChange(with(density) { height.toDp() }, navBarHeight)
         }
 
-//        LaunchedEffect(imeAnimationSource) {
-//            inputStateHolder.handleIMEVisibility(isImeVisible)
-//        }
+        LaunchedEffect(isImeVisible) {
+            inputStateHolder.handleIMEVisibility(isImeVisible)
+        }
 
         LaunchedEffect(modalBottomSheetState.isVisible) {
             if (modalBottomSheetState.isVisible) {
@@ -232,14 +219,13 @@ fun EnabledMessageComposer(
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                 onPingOptionClicked = onPingOptionClicked,
                                 onAdditionalOptionsMenuClicked = {
-                                    if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
-                                        // TODO block on click when keyboard shows/hides
-                                        appLogger.d("KBX clicked plus toComposing")
-                                        additionalOptionStateHolder.hideAdditionalOptionsMenu()
-                                        messageCompositionInputStateHolder.toComposing()
-                                    } else {
-                                        appLogger.d("KBX clicked plus showOptions")
-                                        showAdditionalOptionsMenu()
+                                    if (!isKeyboardMoving) {
+                                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
+                                            additionalOptionStateHolder.hideAdditionalOptionsMenu()
+                                            messageCompositionInputStateHolder.toComposing()
+                                        } else {
+                                            showAdditionalOptionsMenu()
+                                        }
                                     }
                                 },
                                 onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,
@@ -280,4 +266,14 @@ fun EnabledMessageComposer(
             }
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun isKeyboardMoving(): Boolean {
+    val density = LocalDensity.current
+    val isImeVisible = WindowInsets.isImeVisible
+    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
+    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
+    return isImeVisible && imeAnimationSource != imeAnimationTarget
 }

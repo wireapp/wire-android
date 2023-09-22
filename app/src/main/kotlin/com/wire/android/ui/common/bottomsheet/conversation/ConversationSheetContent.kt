@@ -41,7 +41,7 @@ fun ConversationSheetContent(
     onMutingConversationStatusChange: () -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: () -> Unit,
+    moveConversationToArchive: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
@@ -61,7 +61,7 @@ fun ConversationSheetContent(
 //
 //                addConversationToFavourites = addConversationToFavourites,
 //                moveConversationToFolder = moveConversationToFolder,
-//                moveConversationToArchive = moveConversationToArchive,
+                moveConversationToArchive = moveConversationToArchive,
                 clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
                 unblockUserClick = unblockUser,

@@ -30,20 +30,18 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
     fun onAddConversationToFavourites(conversationId: ConversationId? = null)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
-    fun onMoveConversationToArchive(conversationId: ConversationId? = null)
+    fun onMoveConversationToArchive(conversationId: ConversationId, shouldArchive: Boolean, onMessage: (UIText) -> Unit)
     fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit)
 
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : GroupConversationDetailsBottomSheetEventsHandler {
             override fun onMutingConversationStatusChange(
-                conversationId: ConversationId?,
-                status: MutedConversationStatus,
-                onMessage: (UIText) -> Unit
+                conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit
             ) {}
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
-            override fun onMoveConversationToArchive(conversationId: ConversationId?) {}
+            override fun onMoveConversationToArchive(conversationId: ConversationId, shouldArchive: Boolean, onMessage: (UIText) -> Unit) {}
             override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {}
         }
     }

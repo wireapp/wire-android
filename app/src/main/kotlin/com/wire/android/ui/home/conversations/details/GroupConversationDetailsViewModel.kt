@@ -45,12 +45,14 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -91,6 +93,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val clearConversationContent: ClearConversationContentUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
+    private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
@@ -375,8 +378,20 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
-    @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToArchive(conversationId: ConversationId?) {
+    override fun onMoveConversationToArchive(
+        conversationId: ConversationId,
+        shouldArchive: Boolean,
+        onMessage: (UIText) -> Unit
+    ) {
+        viewModelScope.launch {
+            requestInProgress = true
+            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, shouldArchive) }
+            requestInProgress = false
+            when (result) {
+                ArchiveStatusUpdateResult.Failure -> onMessage(UIText.StringResource(R.string.error_archiving_conversation))
+                ArchiveStatusUpdateResult.Success -> onMessage(UIText.StringResource(R.string.success_archiving_conversation))
+            }
+        }
     }
 
     companion object {

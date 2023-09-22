@@ -119,7 +119,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
         searchQueryFlow.mapLatest { searchQuery ->
-            val conversations = observeConversationListDetails().first()
+            val conversations = observeConversationListDetails(fetchArchivedConversations = false).first()
                 .mapNotNull { conversationDetails ->
                     conversationDetails.toConversationItem(
                         wireSessionImageLoader,

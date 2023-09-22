@@ -66,12 +66,14 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -108,7 +110,8 @@ class ConversationListViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val endCall: EndCallUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
+    private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
+    private val updateConversationArchivedStatusUseCase: UpdateConversationArchivedStatusUseCase,
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -148,7 +151,7 @@ class ConversationListViewModel @Inject constructor(
         }
         viewModelScope.launch {
             searchQueryFlow.combine(
-                observeConversationListDetails()
+                observeConversationListDetails(fetchArchivedConversations = false)
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
@@ -417,9 +420,20 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToFolder(id: String = "") {
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String = "") {
+    fun moveConversationToArchive(conversationId: ConversationId, isArchiving: Boolean) {
+        viewModelScope.launch {
+            requestInProgress = true
+            val result = withContext(dispatcher.io()) { updateConversationArchivedStatusUseCase(conversationId, isArchiving) }
+            requestInProgress = false
+            when (result) {
+                is ArchiveStatusUpdateResult.Failure -> {
+                    homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationError)
+                }
+                is ArchiveStatusUpdateResult.Success -> {
+                    homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationSuccess)
+                }
+            }
+        }
     }
 
     fun clearConversationContent(dialogState: DialogState) {

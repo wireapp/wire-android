@@ -358,7 +358,13 @@ private fun GroupConversationDetailsContent(
                 },
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
-                moveConversationToArchive = bottomSheetEventsHandler::onMoveConversationToArchive,
+                moveConversationToArchive = {
+                    bottomSheetEventsHandler.onMoveConversationToArchive(
+                        conversationId = conversationSheetContent!!.conversationId,
+                        shouldArchive = true,
+                        closeBottomSheetAndShowSnackbarMessage
+                    )
+                },
                 clearConversationContent = clearConversationDialogState::show,
                 blockUser = {},
                 unblockUser = {},

@@ -91,8 +91,6 @@ fun ParticipantTile(
     isSelfUser: Boolean,
     shouldFill: Boolean = true,
     isZoomingEnabled: Boolean = false,
-    isSelfUserMuted: Boolean,
-    isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -117,7 +115,7 @@ fun ParticipantTile(
 
             if (isSelfUser) {
                 CameraPreview(
-                    isCameraOn = isSelfUserCameraOn,
+                    isCameraOn = participantTitleState.isCameraOn,
                     onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
@@ -142,8 +140,7 @@ fun ParticipantTile(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                     },
-                isMuted = if (isSelfUser) isSelfUserMuted else participantTitleState.isMuted,
-                hasEstablishedAudio = participantTitleState.hasEstablishedAudio
+                isMuted = participantTitleState.isMuted,
             )
 
             UsernameTile(
@@ -213,18 +210,12 @@ private fun CameraPreview(
 ) {
     if (isCameraOn) {
         val context = LocalContext.current
-        val videoPreview = remember {
-            VideoPreview(context).apply {
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        AndroidView(factory = {
+            val videoPreview = VideoPreview(context).apply {
                 setShouldFill(false)
-            }
-        }
-        AndroidView(
-            factory = { videoPreview },
-            update = {
-                onSelfUserVideoPreviewCreated(videoPreview)
-            }
-        )
+            }.also(onSelfUserVideoPreviewCreated)
+            videoPreview
+        })
     } else {
         onClearSelfUserVideoPreview()
     }
@@ -245,7 +236,8 @@ private fun OthersVideoRenderer(
     var offsetY by remember { mutableStateOf(0f) }
 
     val context = LocalContext.current
-    val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
+    val rendererFillColor =
+        (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
     if (isCameraOn || isSharingScreen) {
 
         val videoRenderer = remember {
@@ -422,9 +414,7 @@ fun PreviewParticipantTile() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false,
-        isSelfUserMuted = false,
-        isSelfUserCameraOn = false
+        isSelfUser = false
     )
 }
 
@@ -447,9 +437,7 @@ fun PreviewParticipantTalking() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false,
-        isSelfUserMuted = false,
-        isSelfUserCameraOn = false
+        isSelfUser = false
     )
 }
 
@@ -474,8 +462,6 @@ fun PreviewParticipantConnecting() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false,
-        isSelfUserMuted = false,
-        isSelfUserCameraOn = false
+        isSelfUser = false
     )
 }

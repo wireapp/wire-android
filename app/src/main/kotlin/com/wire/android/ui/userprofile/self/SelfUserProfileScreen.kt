@@ -238,7 +238,7 @@ private fun SelfUserProfileContent(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
-            
+
             LogoutOptionsDialog(
                 dialogState = logoutOptionsDialogState,
                 logout = logout

@@ -226,7 +226,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    //todo. cleanup unused code
+    // todo. cleanup unused code
     fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
         viewModelScope.launch {
             // the total number of accounts is otherAccounts + 1 for the current account

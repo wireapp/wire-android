@@ -36,6 +36,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -62,9 +65,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -77,6 +77,8 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogContent
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -84,6 +86,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -106,12 +109,19 @@ fun WelcomeScreen(
     navigator: Navigator,
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
-    WelcomeContent(viewModel.isThereActiveSession, viewModel.state, navigator::navigateBack, navigator::navigate)
+    WelcomeContent(
+        viewModel.state.isThereActiveSession,
+        viewModel.state.maxAccountsReached,
+        viewModel.state.links,
+        navigator::navigateBack,
+        navigator::navigate
+    )
 }
 
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
+    maxAccountsReached: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
@@ -161,7 +171,11 @@ private fun WelcomeContent(
                     horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
                 )
             ) {
-                LoginButton() { navigate(NavigationCommand(LoginScreenDestination())) }
+                LoginContent(
+                    maxAccountsReached = maxAccountsReached,
+                    onLoginButtonActionClicked = { navigate(NavigationCommand(LoginScreenDestination())) },
+                    onActionButtonMaxAccountsClicked = { navigate(NavigationCommand(SelfUserProfileScreenDestination())) },
+                )
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -301,9 +315,22 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 }
 
 @Composable
-private fun LoginButton(onClick: () -> Unit) {
+private fun LoginContent(
+    maxAccountsReached: Boolean,
+    onLoginButtonActionClicked: () -> Unit,
+    onActionButtonMaxAccountsClicked: () -> Unit,
+) {
+    val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
+    MaxAccountsReachedDialogContent(maxAccountsReachedDialogState, onActionButtonMaxAccountsClicked)
+
+    val action = if (maxAccountsReached) {
+        { maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState) }
+    } else {
+        onLoginButtonActionClicked
+    }
+
     WirePrimaryButton(
-        onClick = onClick,
+        onClick = action,
         text = stringResource(R.string.label_login),
         modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )
@@ -368,7 +395,12 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 fun PreviewWelcomeScreen() {
     WireTheme(isPreview = true) {
-        WelcomeContent(false, ServerConfig.DEFAULT, {}, {})
+        WelcomeContent(
+            isThereActiveSession = false,
+            maxAccountsReached = false,
+            state = ServerConfig.DEFAULT,
+            navigateBack = {},
+            navigate = {})
     }
 }
 

@@ -146,6 +146,12 @@ private fun WelcomeContent(
             modifier = Modifier
                 .padding(internalPadding)
         ) {
+            val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
+            MaxAccountsReachedDialogContent(maxAccountsReachedDialogState) { navigateBack() }
+            if (maxAccountsReached) {
+                maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
+            }
+
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
@@ -170,10 +176,7 @@ private fun WelcomeContent(
                     horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
                 )
             ) {
-                LoginContent(
-                    maxAccountsReached = maxAccountsReached,
-                    onLoginButtonActionClicked = { navigate(NavigationCommand(LoginScreenDestination())) }
-                )
+                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -313,21 +316,9 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
 }
 
 @Composable
-private fun LoginContent(
-    maxAccountsReached: Boolean,
-    onLoginButtonActionClicked: () -> Unit,
-) {
-    val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
-    MaxAccountsReachedDialogContent(maxAccountsReachedDialogState, maxAccountsReachedDialogState::dismiss)
-
-    val loginClickAction = if (maxAccountsReached) {
-        { maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState) }
-    } else {
-        onLoginButtonActionClicked
-    }
-
+private fun LoginButton(onClick: () -> Unit) {
     WirePrimaryButton(
-        onClick = loginClickAction,
+        onClick = onClick,
         text = stringResource(R.string.label_login),
         modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )

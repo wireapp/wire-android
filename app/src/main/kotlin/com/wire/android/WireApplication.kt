@@ -106,24 +106,24 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableStrictMode() {
-        if (!BuildConfig.DEBUG) return
-
-        StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .penaltyLog()
-                // .penaltyDeath() TODO: add it later after fixing reported violations
-                .build()
-        )
-        StrictMode.setVmPolicy(
-            StrictMode.VmPolicy.Builder()
-                .detectLeakedSqlLiteObjects()
-                .detectLeakedClosableObjects()
-                .penaltyLog()
-                // .penaltyDeath() TODO: add it later after fixing reported violations
-                .build()
-        )
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build()
+            )
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    // .penaltyDeath() TODO: add it later after fixing reported violations
+                    .build()
+            )
+        }
     }
 
     private fun initializeApplicationLoggingFrameworks() {
@@ -199,7 +199,8 @@ class WireApplication : Application(), Configuration.Provider {
             TRIM_MEMORY_UNKNOWN(-1);
 
             companion object {
-                fun byLevel(value: Int) = values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
+                fun byLevel(value: Int) =
+                    values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
     }

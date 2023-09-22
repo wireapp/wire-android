@@ -65,7 +65,6 @@ class MessageCompositionHolder(
 
             messageComposition.update {
                 it.copy(
-                    messageTextFieldValue = TextFieldValue(""),
                     quotedMessage = quotedMessage,
                     quotedMessageId = message.header.messageId
                 )

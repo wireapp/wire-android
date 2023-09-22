@@ -7,7 +7,7 @@ kotlin = "1.9.0"
 
 # KotlinX
 coroutines = "1.7.3"
-ktx-dateTime = "0.4.0"
+ktx-dateTime = "0.4.1"
 ktx-immutableCollections = "0.3.5"
 ktx-serialization = "1.5.1"
 

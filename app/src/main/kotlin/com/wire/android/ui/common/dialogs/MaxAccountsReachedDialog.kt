@@ -28,6 +28,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
 // todo: parametrize the dialog with the number of accounts using BuildConfig
 @Composable
@@ -44,6 +45,10 @@ fun MaxAccountsReachedDialogContent(
                 text = stringResource(R.string.label_ok),
                 onClick = onActionButtonClicked,
                 type = WireDialogButtonType.Primary
+            ),
+            properties = wireDialogPropertiesBuilder(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
             )
         )
     }

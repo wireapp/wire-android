@@ -238,15 +238,7 @@ private fun SelfUserProfileContent(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
-
-            if (state.maxAccountsReached) {
-                MaxAccountReachedDialog(
-                    onConfirm = onMaxAccountReachedDialogDismissed,
-                    onDismiss = onMaxAccountReachedDialogDismissed,
-                    buttonText = R.string.label_ok
-                )
-            }
-
+            
             LogoutOptionsDialog(
                 dialogState = logoutOptionsDialogState,
                 logout = logout

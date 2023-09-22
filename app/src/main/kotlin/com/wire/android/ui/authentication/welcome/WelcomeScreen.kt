@@ -320,14 +320,14 @@ private fun LoginContent(
     val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
     MaxAccountsReachedDialogContent(maxAccountsReachedDialogState, maxAccountsReachedDialogState::dismiss)
 
-    val action = if (maxAccountsReached) {
+    val loginClickAction = if (maxAccountsReached) {
         { maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState) }
     } else {
         onLoginButtonActionClicked
     }
 
     WirePrimaryButton(
-        onClick = action,
+        onClick = loginClickAction,
         text = stringResource(R.string.label_login),
         modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
     )

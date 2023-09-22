@@ -38,7 +38,7 @@ data class SelfUserProfileState constructor(
     val otherAccounts: List<OtherAccount> = emptyList(),
     val statusDialogData: StatusDialogData? = null, // null means no dialog to display
     val isAvatarLoading: Boolean = false,
-    val maxAccountsReached: Boolean = false,
+    val maxAccountsReached: Boolean = false, // todo. cleanup unused code
     val isReadOnlyAccount: Boolean = true,
     val isLoggingOut: Boolean = false
 )

@@ -226,6 +226,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
+    // todo. cleanup unused code
     fun tryToInitAddingAccount(onSucceeded: () -> Unit) {
         viewModelScope.launch {
             // the total number of accounts is otherAccounts + 1 for the current account
@@ -280,6 +281,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
+    // todo. cleanup unused code
     fun onMaxAccountReachedDialogDismissed() {
         userProfileState = userProfileState.copy(maxAccountsReached = false)
     }

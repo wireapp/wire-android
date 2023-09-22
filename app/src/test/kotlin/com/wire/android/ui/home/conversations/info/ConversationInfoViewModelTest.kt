@@ -232,6 +232,10 @@ class ConversationInfoViewModelTest {
                 groupConversationDetails.conversation.protocol,
                 viewModel.conversationInfoViewState.protocolInfo
             )
+            assertEquals(
+                groupConversationDetails.conversation.verificationStatus,
+                viewModel.conversationInfoViewState.verificationStatus
+            )
             cancel()
         }
     }
@@ -251,6 +255,10 @@ class ConversationInfoViewModelTest {
             assertEquals(
                 groupConversationDetails.conversation.protocol,
                 viewModel.conversationInfoViewState.protocolInfo
+            )
+            assertEquals(
+                groupConversationDetails.conversation.verificationStatus,
+                viewModel.conversationInfoViewState.verificationStatus
             )
             cancel()
         }
@@ -272,6 +280,10 @@ class ConversationInfoViewModelTest {
                 groupConversationDetails.conversation.protocol,
                 viewModel.conversationInfoViewState.protocolInfo
             )
+            assertEquals(
+                groupConversationDetails.conversation.verificationStatus,
+                viewModel.conversationInfoViewState.verificationStatus
+            )
             cancel()
         }
     }
@@ -287,6 +299,10 @@ class ConversationInfoViewModelTest {
         assertEquals(
             null,
             viewModel.conversationInfoViewState.protocolInfo
+        )
+        assertEquals(
+            null,
+            viewModel.conversationInfoViewState.verificationStatus
         )
     }
 

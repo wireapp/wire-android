@@ -133,7 +133,7 @@ private fun ConversationScreenTopAppBarContent(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                VerificationIcon(conversationInfoViewState.protocolInfo)
+                VerificationIcon(conversationInfoViewState.protocolInfo, conversationInfoViewState.verificationStatus)
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -181,14 +181,14 @@ private fun ConversationScreenTopAppBarContent(
 }
 
 @Composable
-private fun VerificationIcon(protocolInfo: Conversation.ProtocolInfo?) {
-    if (protocolInfo?.verificationStatus != Conversation.VerificationStatus.VERIFIED) return
+private fun VerificationIcon(protocolInfo: Conversation.ProtocolInfo?, verificationStatus: Conversation.VerificationStatus?) {
+    if (verificationStatus != Conversation.VerificationStatus.VERIFIED || protocolInfo == null) return
 
     val (iconId, contentDescriptionId) = when (protocolInfo) {
         is Conversation.ProtocolInfo.MLS ->
             R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
 
-        is Conversation.ProtocolInfo.Proteus ->
+        Conversation.ProtocolInfo.Proteus ->
             R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
     }
     Image(

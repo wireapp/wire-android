@@ -36,6 +36,7 @@ data class ConversationInfoViewState(
     val hasUserPermissionToEdit: Boolean = false,
     val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
     val protocolInfo: Conversation.ProtocolInfo? = null,
+    val verificationStatus: Conversation.VerificationStatus? = null,
 )
 
 sealed class ConversationDetailsData {

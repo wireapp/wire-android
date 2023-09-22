@@ -291,7 +291,7 @@ class MediaGalleryViewModelTest {
                 name = mockedConversationTitle,
                 type = Conversation.Type.ONE_ON_ONE,
                 teamId = null,
-                protocol = Conversation.ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
+                protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = AllAllowed,
                 removedBy = null,
                 lastNotificationDate = null,
@@ -304,7 +304,8 @@ class MediaGalleryViewModelTest {
                 messageTimer = null,
                 userMessageTimer = null,
                 archived = false,
-                archivedDateTime = null
+                archivedDateTime = null,
+                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),

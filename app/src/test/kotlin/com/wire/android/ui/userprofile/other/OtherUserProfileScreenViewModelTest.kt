@@ -230,7 +230,7 @@ class OtherUserProfileScreenViewModelTest {
             name = "some_name",
             type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
-            protocol = Conversation.ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
+            protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,
             removedBy = null,
             lastNotificationDate = null,
@@ -243,7 +243,8 @@ class OtherUserProfileScreenViewModelTest {
             messageTimer = null,
             userMessageTimer = null,
             archived = false,
-            archivedDateTime = null
+            archivedDateTime = null,
+            verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

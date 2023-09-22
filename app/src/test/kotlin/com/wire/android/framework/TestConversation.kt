@@ -38,7 +38,7 @@ object TestConversation {
         "ONE_ON_ONE Name",
         Conversation.Type.ONE_ON_ONE,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
+        ProtocolInfo.Proteus,
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -51,14 +51,15 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
     val SELF = Conversation(
         ID.copy(value = "SELF ID"),
         "SELF Name",
         Conversation.Type.SELF,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
+        ProtocolInfo.Proteus,
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -71,10 +72,11 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
-    fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED)) = Conversation(
+    fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
         ID,
         "GROUP Name",
         Conversation.Type.GROUP,
@@ -92,7 +94,8 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     fun one_on_one(convId: ConversationId) = Conversation(
@@ -100,7 +103,7 @@ object TestConversation {
         "ONE_ON_ONE Name",
         Conversation.Type.ONE_ON_ONE,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
+        ProtocolInfo.Proteus,
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -113,7 +116,8 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     val USER_1 = UserId("member1", "domainMember")
@@ -128,7 +132,7 @@ object TestConversation {
         "ONE_ON_ONE Name",
         Conversation.Type.ONE_ON_ONE,
         TestTeam.TEAM_ID,
-        ProtocolInfo.Proteus(Conversation.VerificationStatus.NOT_VERIFIED),
+        ProtocolInfo.Proteus,
         MutedConversationStatus.AllAllowed,
         null,
         null,
@@ -141,6 +145,7 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 }

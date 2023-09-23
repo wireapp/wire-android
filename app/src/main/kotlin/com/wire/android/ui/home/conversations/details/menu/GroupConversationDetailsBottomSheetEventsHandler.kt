@@ -37,7 +37,9 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : GroupConversationDetailsBottomSheetEventsHandler {
             override fun onMutingConversationStatusChange(
-                conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit
+                conversationId: ConversationId?,
+                status: MutedConversationStatus,
+                onMessage: (UIText) -> Unit
             ) {
             }
 

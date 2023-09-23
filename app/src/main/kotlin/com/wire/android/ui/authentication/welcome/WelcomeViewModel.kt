@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -40,10 +41,8 @@ class WelcomeViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase
 ) : ViewModel() {
 
-    var state by mutableStateOf(authServerConfigProvider.authServer.value)
+    var state by mutableStateOf(WelcomeScreenState(ServerConfig.DEFAULT))
         private set
-
-    var isThereActiveSession by mutableStateOf(false)
 
     init {
         observerAuthServer()
@@ -53,7 +52,7 @@ class WelcomeViewModel @Inject constructor(
     private fun observerAuthServer() {
         viewModelScope.launch {
             authServerConfigProvider.authServer.collect {
-                state = it
+                state = state.copy(links = it)
             }
         }
     }
@@ -63,12 +62,15 @@ class WelcomeViewModel @Inject constructor(
             getSessions().let {
                 when (it) {
                     is GetAllSessionsResult.Success -> {
-                        isThereActiveSession =
-                            it.sessions.filterIsInstance<AccountInfo.Valid>().isEmpty().not()
+                        state = state.copy(
+                            isThereActiveSession = it.sessions.filterIsInstance<AccountInfo.Valid>().isEmpty().not(),
+                            maxAccountsReached = it.sessions.filterIsInstance<AccountInfo.Valid>().size >= BuildConfig.MAX_ACCOUNTS
+                        )
                     }
+
                     is GetAllSessionsResult.Failure.Generic -> {}
                     GetAllSessionsResult.Failure.NoSessionFound -> {
-                        isThereActiveSession = false
+                        state = state.copy(isThereActiveSession = false)
                     }
                 }
             }

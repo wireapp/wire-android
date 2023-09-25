@@ -77,7 +77,6 @@ fun WirePasswordTextField(
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
     modifier: Modifier = Modifier,
-    testTag: String = String.EMPTY,
     autofillTypes: List<AutofillType> = listOf(AutofillType.Password),
     testTag: String = String.EMPTY,
 ) {

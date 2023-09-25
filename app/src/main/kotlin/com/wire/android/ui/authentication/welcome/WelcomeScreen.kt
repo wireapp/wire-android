@@ -81,6 +81,8 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogContent
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -110,13 +112,20 @@ fun WelcomeScreen(
     navigator: Navigator,
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
-    WelcomeContent(viewModel.isThereActiveSession, viewModel.state, navigator::navigateBack, navigator::navigate)
+    WelcomeContent(
+        viewModel.state.isThereActiveSession,
+        viewModel.state.maxAccountsReached,
+        viewModel.state.links,
+        navigator::navigateBack,
+        navigator::navigate
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
+    maxAccountsReached: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
@@ -142,6 +151,12 @@ private fun WelcomeContent(
             modifier = Modifier
                 .padding(internalPadding)
         ) {
+            val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
+            MaxAccountsReachedDialogContent(maxAccountsReachedDialogState) { navigateBack() }
+            if (maxAccountsReached) {
+                maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
+            }
+
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
@@ -170,7 +185,7 @@ private fun WelcomeContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                LoginButton { navigate(NavigationCommand(LoginScreenDestination())) }
+                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -379,7 +394,12 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 fun PreviewWelcomeScreen() {
     WireTheme(isPreview = true) {
-        WelcomeContent(false, ServerConfig.DEFAULT, {}, {})
+        WelcomeContent(
+            isThereActiveSession = false,
+            maxAccountsReached = false,
+            state = ServerConfig.DEFAULT,
+            navigateBack = {},
+            navigate = {})
     }
 }
 

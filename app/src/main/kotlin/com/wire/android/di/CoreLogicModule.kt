@@ -31,12 +31,6 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.IsUserLoggedInUseCase
 import com.wire.kalium.logic.feature.UpdateLoggedInUsersCountUseCase
-import com.wire.kalium.logic.feature.UpdateLoggedInUsersCountUseCaseImpl
-import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
@@ -127,10 +121,6 @@ class CoreLogicModule {
         coreLogic.getGlobalScope().session.updateCurrentSession
 
     @Provides
-    fun provideIsUserLoggedInUseCase(@KaliumCoreLogic coreLogic: CoreLogic): IsUserLoggedInUseCase =
-        coreLogic.getGlobalScope().session.isUserLoggedIn
-
-    @Provides
     fun provideUpdateLoggedInUsersCountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateLoggedInUsersCountUseCase =
         coreLogic.getGlobalScope().session.updateLoggedInUsersCount
 
@@ -145,10 +135,6 @@ class CoreLogicModule {
     @Provides
     fun provideIsUserLoggedInUseCase(@KaliumCoreLogic coreLogic: CoreLogic): IsUserLoggedInUseCase =
         coreLogic.getGlobalScope().session.isUserLoggedIn
-
-    @Provides
-    fun provideUpdateLoggedInUsersCountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateLoggedInUsersCountUseCase =
-        coreLogic.getGlobalScope().session.updateLoggedInUsersCount
 
     @NoSession
     @Singleton
@@ -185,8 +171,7 @@ class SessionModule {
     fun provideCurrentAccountUserDataStore(
         @CurrentAccount currentAccount: UserId,
         userDataStoreProvider: UserDataStoreProvider
-    ) =
-        userDataStoreProvider.getOrCreate(currentAccount)
+    ) = userDataStoreProvider.getOrCreate(currentAccount)
 }
 
 @Module
@@ -209,8 +194,7 @@ class UseCaseModule {
     fun provideObserveSyncStateUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).observeSyncState
+    ) = coreLogic.getSessionScope(currentAccount).observeSyncState
 
     @ViewModelScoped
     @Provides
@@ -290,24 +274,21 @@ class UseCaseModule {
     fun provideIsMLSEnabledUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).isMLSEnabled
+    ) = coreLogic.getSessionScope(currentAccount).isMLSEnabled
 
     @ViewModelScoped
     @Provides
     fun provideIsFileSharingEnabledUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
+    ) = coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
 
     @ViewModelScoped
     @Provides
     fun provideFileSharingStatusFlowUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).observeFileSharingStatus
+    ) = coreLogic.getSessionScope(currentAccount).observeFileSharingStatus
 
     @ViewModelScoped
     @Provides
@@ -373,24 +354,21 @@ class UseCaseModule {
     fun provideCreateBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).createBackup
+    ) = coreLogic.getSessionScope(currentAccount).createBackup
 
     @ViewModelScoped
     @Provides
     fun provideVerifyBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).verifyBackupUseCase
+    ) = coreLogic.getSessionScope(currentAccount).verifyBackupUseCase
 
     @ViewModelScoped
     @Provides
     fun provideRestoreBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).restoreBackup
+    ) = coreLogic.getSessionScope(currentAccount).restoreBackup
 
     @ViewModelScoped
     @Provides
@@ -451,16 +429,14 @@ class UseCaseModule {
     fun provideObserveGuestRoomLinkFeatureFlagUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
+    ) = coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
 
     @ViewModelScoped
     @Provides
     fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
+    ) = coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
 
     @ViewModelScoped
     @Provides
@@ -501,6 +477,5 @@ class UseCaseModule {
     fun provideGetConversationVerificationStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) =
-        coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
+    ) = coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
 }

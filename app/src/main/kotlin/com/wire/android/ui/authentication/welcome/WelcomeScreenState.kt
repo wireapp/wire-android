@@ -14,18 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.authentication.welcome
 
-package com.wire.android.ui.common.dialogs
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
-import androidx.annotation.StringRes
-import com.wire.kalium.logic.data.user.UserId
-
-data class BlockUserDialogState(val userName: String, val userId: UserId)
-data class UnblockUserDialogState(val userName: String, val userId: UserId)
-data class FeatureDisabledWithProxyDialogState(@StringRes val description: Int, val teamUrl: String = "")
-object CancelLoginDialogState
-object FileSharingRestrictedDialogState
-object MaxAccountsReachedDialogState
+data class WelcomeScreenState(
+    val links: ServerConfig.Links,
+    val isThereActiveSession: Boolean = false,
+    val maxAccountsReached: Boolean = false
+)

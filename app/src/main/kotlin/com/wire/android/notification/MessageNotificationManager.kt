@@ -406,7 +406,7 @@ class MessageNotificationManager
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
             is NotificationMessage.ObfuscatedMessage,
-            is NotificationMessage.ObfuscatedKnock-> italicTextFromResId(
+            is NotificationMessage.ObfuscatedKnock -> italicTextFromResId(
                 R.string.notification_obfuscated_message_content
             )
         }

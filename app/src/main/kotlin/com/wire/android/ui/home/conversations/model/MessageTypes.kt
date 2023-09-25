@@ -233,7 +233,7 @@ internal fun MessageGenericAsset(
  * @param resources: Resources - To be able to get String out of UIText message
  * @return Pair<List<DisplayMention>, String>
  */
-private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
+fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
     return if (uiText is UIText.DynamicString) {
         val stringBuilder: StringBuilder = StringBuilder(uiText.value)
         val mentions = uiText.mentions

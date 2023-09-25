@@ -103,11 +103,7 @@ fun VerticalCallingPager(
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = {
-                                if (pagerState.currentPage == 0) {
-                                    onSelfVideoPreviewCreated(it)
-                                }
-                            },
+                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )
@@ -118,11 +114,7 @@ fun VerticalCallingPager(
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
-                            onSelfVideoPreviewCreated = {
-                                if (pagerState.currentPage == 0) {
-                                    onSelfVideoPreviewCreated(it)
-                                }
-                            },
+                            onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )

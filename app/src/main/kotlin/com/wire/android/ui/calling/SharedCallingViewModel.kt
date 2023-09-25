@@ -195,7 +195,11 @@ class SharedCallingViewModel @Inject constructor(
                     isCameraOn = it.isCameraOn,
                     isCbrEnabled = it.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE,
                     callerName = it.callerName,
-                    participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
+                    participants = it.participants.map { participant ->
+                        uiCallParticipantMapper.toUICallParticipant(
+                            participant
+                        )
+                    }
                 )
             }
         }
@@ -205,9 +209,19 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             onCompleted()
             endCall(conversationId)
-            // we need to update mute state to false, so if the user re-join the call te mic will will be muted
-            muteCall(conversationId, false)
+            resetCallConfig()
             callRinger.stop()
+        }
+    }
+
+    private suspend fun resetCallConfig() {
+        // we need to update mute state to false, so if the user re-join the call te mic will will be muted
+        muteCall(conversationId, false)
+        if (callState.isCameraOn) {
+            flipToFrontCamera(conversationId)
+        }
+        if (callState.isCameraOn || callState.isSpeakerOn) {
+            turnLoudSpeakerOff()
         }
     }
 

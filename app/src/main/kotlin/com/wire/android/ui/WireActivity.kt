@@ -142,24 +142,6 @@ class WireActivity : AppCompatActivity() {
         false
     }
 
-    fun shouldLogIn(): Boolean {
-        return viewModel.isLoggedIn()?.let {
-            // user already logged in/out
-            Log.d("shouldLogIn", "shouldLogIn: $it")
-            !it
-        } ?: run {
-            if (isFirstInstall()) {
-                // first install, user not logged in, go to welcome screen
-                Log.d("shouldLogIn", "shouldLogIn: first install")
-                true
-            } else {
-                // already logged in user, check session
-                Log.d("shouldLogIn", "shouldLogIn: check session")
-                viewModel.hasValidCurrentSession()
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -167,15 +149,11 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
         viewModel.observePersistentConnectionStatus()
 
-//        val startDestination = when (viewModel.initialAppState) {
-//            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-//            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
-//            InitialAppState.LOGGED_IN -> HomeScreenDestination
-//        }
+
         val startDestination = if (viewModel.initialAppState == InitialAppState.NOT_MIGRATED) {
             MigrationScreenDestination
         } else {
-            if (shouldLogIn()) {
+            if (viewModel.shouldLogIn()) {
                 WelcomeScreenDestination
             } else {
                 HomeScreenDestination

@@ -54,6 +54,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.IsUserLoggedInUseCase
+import com.wire.kalium.logic.feature.UpdateLoggedInUsersCountUseCase
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
@@ -66,6 +67,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
@@ -74,8 +76,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -94,6 +96,7 @@ class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
+    private val observeValidAccount: ObserveValidAccountsUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -107,6 +110,7 @@ class WireActivityViewModel @Inject constructor(
     private val clearNewClientsForUser: ClearNewClientsForUserUseCase,
     private val currentScreenManager: CurrentScreenManager,
     private val isUserLoggedIn: IsUserLoggedInUseCase,
+    private val updateLoggedInUsersCount: UpdateLoggedInUsersCountUseCase,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
 ) : ViewModel() {
 
@@ -131,7 +135,10 @@ class WireActivityViewModel @Inject constructor(
             } else {
                 null
             }
-        }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
@@ -141,13 +148,20 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
+        viewModelScope.launch {
+            observeValidAccount().distinctUntilChanged().collectLatest {
+                updateLoggedInUsersCount(it.size)
+            }
+        }
+
     }
 
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
-                    it?.let { observeSyncStateUseCaseProviderFactory.create(it).observeSyncState() } ?: flowOf(null)
+                    it?.let { observeSyncStateUseCaseProviderFactory.create(it).observeSyncState() }
+                        ?: flowOf(null)
                 }
                 .distinctUntilChanged()
                 .collect { _observeSyncFlowState.emit(it) }
@@ -183,7 +197,8 @@ class WireActivityViewModel @Inject constructor(
             observeUserId
                 .flatMapLatest {
                     it?.let {
-                        observeScreenshotCensoringConfigUseCaseProviderFactory.create(it).observeScreenshotCensoringConfig()
+                        observeScreenshotCensoringConfigUseCaseProviderFactory.create(it)
+                            .observeScreenshotCensoringConfig()
                     } ?: flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
                 }.collect {
                     globalAppState = globalAppState.copy(
@@ -201,13 +216,16 @@ class WireActivityViewModel @Inject constructor(
                 }
 
                 LogoutReason.REMOVED_CLIENT ->
-                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
+                    globalAppState =
+                        globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
 
                 LogoutReason.DELETED_ACCOUNT ->
-                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
+                    globalAppState =
+                        globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
 
                 LogoutReason.SESSION_EXPIRED ->
-                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
+                    globalAppState =
+                        globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
             }
         }
     }
@@ -245,8 +263,15 @@ class WireActivityViewModel @Inject constructor(
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, already handled by initialAppState
                 }
+
                 result is DeepLinkResult.JoinConversation ->
-                    onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+                    onConversationInviteDeepLink(
+                        result.code,
+                        result.key,
+                        result.domain,
+                        onOpenConversation
+                    )
+
                 result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
@@ -305,14 +330,15 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadServerConfig(url: String): ServerConfig.Links? = when (val result = getServerConfigUseCase(url)) {
-        is GetServerConfigResult.Success -> result.serverConfigLinks
-        // TODO: show error message on failure
-        is GetServerConfigResult.Failure.Generic -> {
-            appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
-            null
+    private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
+        when (val result = getServerConfigUseCase(url)) {
+            is GetServerConfigResult.Success -> result.serverConfigLinks
+            // TODO: show error message on failure
+            is GetServerConfigResult.Failure.Generic -> {
+                appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
+                null
+            }
         }
-    }
 
     private suspend fun onCustomServerConfig(result: DeepLinkResult.CustomServerConfig) {
         loadServerConfig(result.url)?.let { serverLinks ->
@@ -355,7 +381,11 @@ class WireActivityViewModel @Inject constructor(
                     }
 
                     is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
-                        globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
+                        globalAppState.copy(
+                            conversationJoinedDialog = JoinConversationViaCodeState.Error(
+                                result
+                            )
+                        )
                 }
             }
         }
@@ -365,19 +395,10 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    fun shouldLogIn(): Boolean = !hasValidCurrentSession()
-
-    fun isLoggedIn(): Boolean? = runBlocking { isUserLoggedIn() }
-
-    fun hasValidCurrentSession(): Boolean = runBlocking {
-        // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
-        currentSessionFlow().first().let {
-            when (it) {
-                is CurrentSessionResult.Failure.Generic -> false
-                CurrentSessionResult.Failure.SessionNotFound -> false
-                is CurrentSessionResult.Success -> true
-            }
-        }
+    fun shouldLogIn(): Boolean = runBlocking { isUserLoggedIn() }?.let {
+        !it
+    } ?: run {
+        true
     }
 
     fun shouldMigrate(): Boolean = runBlocking {
@@ -473,7 +494,10 @@ sealed class NewClientsData(open val clientsInfo: List<NewClientInfo>, open val 
 data class NewClientInfo(val date: String, val deviceInfo: UIText) {
     companion object {
         fun fromClient(client: Client): NewClientInfo =
-            NewClientInfo(client.registrationTime?.toIsoDateTimeString() ?: "", client.displayName())
+            NewClientInfo(
+                client.registrationTime?.toIsoDateTimeString() ?: "",
+                client.displayName()
+            )
     }
 }
 

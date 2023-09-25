@@ -79,6 +79,7 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
+import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
@@ -420,15 +421,20 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToFolder(id: String = "") {
     }
 
-    fun moveConversationToArchive(conversationId: ConversationId, isArchiving: Boolean) {
+    fun moveConversationToArchive(
+        conversationId: ConversationId,
+        isArchiving: Boolean,
+        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
+    ) {
         viewModelScope.launch {
             requestInProgress = true
-            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving) }
+            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving, timestamp) }
             requestInProgress = false
             when (result) {
                 is ArchiveStatusUpdateResult.Failure -> {
                     homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationError)
                 }
+
                 is ArchiveStatusUpdateResult.Success -> {
                     homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationSuccess)
                 }

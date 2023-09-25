@@ -381,11 +381,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override fun onMoveConversationToArchive(
         conversationId: ConversationId,
         shouldArchive: Boolean,
+        timestamp: Long,
         onMessage: (UIText) -> Unit
     ) {
         viewModelScope.launch {
             requestInProgress = true
-            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, shouldArchive) }
+            val result =
+                withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, shouldArchive, timestamp) }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> onMessage(UIText.StringResource(R.string.error_archiving_conversation))

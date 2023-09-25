@@ -365,7 +365,7 @@ private fun GroupConversationDetailsContent(
                         bottomSheetEventsHandler.onMoveConversationToArchive(
                             conversationId = it.conversationId,
                             shouldArchive = true,
-                            closeBottomSheetAndShowSnackbarMessage
+                            onMessage = closeBottomSheetAndShowSnackbarMessage
                         )
                     }
                 },

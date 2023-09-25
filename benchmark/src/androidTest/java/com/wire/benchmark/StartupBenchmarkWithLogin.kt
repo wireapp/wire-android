@@ -98,7 +98,7 @@ class StartupBenchmarkWithLogin {
     companion object {
         private const val PACKAGE_NAME = "com.wire.android.internal"
         private const val ITERATIONS = 5
-        private const val EMAIL = "oussama.hassine+7@wire.com"
-        private const val PASSWORD = "Wire+2021"
+        private const val EMAIL = ""
+        private const val PASSWORD = ""
     }
 }

@@ -48,6 +48,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -106,6 +108,7 @@ fun LoginEmailScreen(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,
@@ -129,6 +132,9 @@ private fun LoginEmailContent(
                 .weight(weight = 1f, fill = true)
                 .verticalScroll(scrollState)
                 .padding(MaterialTheme.wireDimensions.spacing16x)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
         ) {
             if (loginState.isProxyAuthRequired) {
                 Text(
@@ -177,7 +183,10 @@ private fun LoginEmailContent(
 
         Surface(
             shadowElevation = scrollState.rememberBottomBarElevationState().value,
-            color = MaterialTheme.wireColorScheme.background
+            color = MaterialTheme.wireColorScheme.background,
+            modifier = Modifier.semantics {
+                testTagsAsResourceId = true
+            }
         ) {
             Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                 LoginButton(
@@ -221,7 +230,8 @@ private fun UserIdentifierInput(
             else -> WireTextFieldState.Default
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-        modifier = modifier.testTag("emailField")
+        modifier = modifier.testTag("emailField"),
+        testTag = "userIdentifierInput"
     )
 }
 
@@ -234,7 +244,9 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
         onValueChange = onPasswordChange,
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        modifier = modifier.testTag("passwordField")
+        modifier = modifier.testTag("passwordField"),
+        autofill = true,
+        testTag = "PasswordInput"
     )
 }
 

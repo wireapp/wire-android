@@ -22,5 +22,7 @@ import com.wire.kalium.logic.data.user.UserId
 data class SelectedParticipant(
     val userId: UserId = UserId("", ""),
     val clientId: String = "",
-    val isSelfUser: Boolean = false
+    val isSelfUser: Boolean = false,
+    val isSelfUserCameraOn: Boolean = false,
+    val isSelfUserMuted: Boolean = false
 )

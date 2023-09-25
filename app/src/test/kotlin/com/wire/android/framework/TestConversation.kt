@@ -49,7 +49,9 @@ object TestConversation {
         creatorId = null,
         receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null,
-        userMessageTimer = null
+        userMessageTimer = null,
+        archived = false,
+        archivedDateTime = null
     )
     val SELF = Conversation(
         ID.copy(value = "SELF ID"),
@@ -67,7 +69,9 @@ object TestConversation {
         creatorId = null,
         receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null,
-        userMessageTimer = null
+        userMessageTimer = null,
+        archived = false,
+        archivedDateTime = null
     )
 
     fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
@@ -86,7 +90,9 @@ object TestConversation {
         creatorId = null,
         receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null,
-        userMessageTimer = null
+        userMessageTimer = null,
+        archived = false,
+        archivedDateTime = null
     )
 
     fun one_on_one(convId: ConversationId) = Conversation(
@@ -105,7 +111,9 @@ object TestConversation {
         creatorId = null,
         receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null,
-        userMessageTimer = null
+        userMessageTimer = null,
+        archived = false,
+        archivedDateTime = null
     )
 
     val USER_1 = UserId("member1", "domainMember")
@@ -131,6 +139,8 @@ object TestConversation {
         creatorId = null,
         receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null,
-        userMessageTimer = null
+        userMessageTimer = null,
+        archived = false,
+        archivedDateTime = null
     )
 }

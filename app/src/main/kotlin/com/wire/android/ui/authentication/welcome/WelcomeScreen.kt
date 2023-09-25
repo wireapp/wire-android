@@ -36,9 +36,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,24 +50,25 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -77,6 +81,8 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogContent
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -106,12 +112,20 @@ fun WelcomeScreen(
     navigator: Navigator,
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
-    WelcomeContent(viewModel.isThereActiveSession, viewModel.state, navigator::navigateBack, navigator::navigate)
+    WelcomeContent(
+        viewModel.state.isThereActiveSession,
+        viewModel.state.maxAccountsReached,
+        viewModel.state.links,
+        navigator::navigateBack,
+        navigator::navigate
+    )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
+    maxAccountsReached: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
@@ -119,7 +133,7 @@ private fun WelcomeContent(
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         if (isThereActiveSession) {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
@@ -137,6 +151,12 @@ private fun WelcomeContent(
             modifier = Modifier
                 .padding(internalPadding)
         ) {
+            val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
+            MaxAccountsReachedDialogContent(maxAccountsReachedDialogState) { navigateBack() }
+            if (maxAccountsReached) {
+                maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
+            }
+
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
                 tint = MaterialTheme.colorScheme.onBackground,
@@ -156,12 +176,16 @@ private fun WelcomeContent(
             }
 
             Column(
-                modifier = Modifier.padding(
-                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                    horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                )
+                modifier = Modifier
+                    .padding(
+                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                        horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+                    )
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
             ) {
-                LoginButton() { navigate(NavigationCommand(LoginScreenDestination())) }
+                LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -305,7 +329,9 @@ private fun LoginButton(onClick: () -> Unit) {
     WirePrimaryButton(
         onClick = onClick,
         text = stringResource(R.string.label_login),
-        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
+        modifier = Modifier
+            .padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
+            .testTag("loginButton")
     )
 }
 
@@ -368,7 +394,12 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 fun PreviewWelcomeScreen() {
     WireTheme(isPreview = true) {
-        WelcomeContent(false, ServerConfig.DEFAULT, {}, {})
+        WelcomeContent(
+            isThereActiveSession = false,
+            maxAccountsReached = false,
+            state = ServerConfig.DEFAULT,
+            navigateBack = {},
+            navigate = {})
     }
 }
 

@@ -37,6 +37,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
@@ -44,7 +45,6 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 fun MessageComposeActions(
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
-    isFileSharingEnabled: Boolean = true,
     isMentionActive: Boolean = true,
     isSelfDeletingSettingEnabled: Boolean = true,
     isSelfDeletingActive: Boolean = false,
@@ -66,7 +66,6 @@ fun MessageComposeActions(
         ComposingActions(
             selectedOption,
             isMentionActive,
-            isFileSharingEnabled,
             onAdditionalOptionButtonClicked,
             onRichEditingButtonClicked,
             onGifButtonClicked,
@@ -83,7 +82,6 @@ fun MessageComposeActions(
 private fun ComposingActions(
     selectedOption: AdditionalOptionSelectItem,
     isMentionActive: Boolean,
-    isFileSharingEnabled: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
     onGifButtonClicked: () -> Unit,
@@ -105,7 +103,6 @@ private fun ComposingActions(
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(
                 isSelected = selectedOption == AdditionalOptionSelectItem.AttachFile,
-                isEnabled = isFileSharingEnabled,
                 onClick = onAdditionalOptionButtonClicked
             )
             RichTextEditingAction(
@@ -240,7 +237,7 @@ fun PreviewMessageActionsBox() {
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
+        AdditionalOptionButton(isSelected = false, onClick = {})
         RichTextEditingAction(true, { })
         AddEmojiAction({})
         AddGifAction({})

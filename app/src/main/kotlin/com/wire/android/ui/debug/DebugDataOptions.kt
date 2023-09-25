@@ -50,11 +50,12 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.getActivity
-import com.wire.android.util.getDeviceId
+import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
@@ -106,7 +107,7 @@ class DebugDataOptionsViewModel
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
         state = state.copy(
-            debugId = context.getDeviceId() ?: "null",
+            debugId = context.getDeviceIdString() ?: "null",
             commitish = context.getGitBuildId()
         )
     }
@@ -176,13 +177,16 @@ class DebugDataOptionsViewModel
     // this is why we check the existence of the database file
     private fun checkIfCanTriggerManualMigration() {
         viewModelScope.launch {
-            globalDataStore.getUserMigrationStatus(currentAccount.value).first().let { migrationStatus ->
-                if (migrationStatus != UserMigrationStatus.NoNeed) {
-                    context.getDatabasePath(currentAccount.value).let {
-                        state = state.copy(isManualMigrationAllowed = (it.exists() && it.isFile))
+            globalDataStore.getUserMigrationStatus(currentAccount.value).first()
+                .let { migrationStatus ->
+                    if (migrationStatus != UserMigrationStatus.NoNeed) {
+                        context.getDatabasePath(currentAccount.value).let {
+                            state = state.copy(
+                                isManualMigrationAllowed = (it.exists() && it.isFile)
+                            )
+                        }
                     }
                 }
-            }
         }
     }
 
@@ -384,8 +388,8 @@ private fun ManualMigrationOptions(
         },
         actions = {
             WirePrimaryButton(
-                minHeight = MaterialTheme.wireDimensions.buttonMinSize.height,
-                minWidth = MaterialTheme.wireDimensions.buttonMinSize.width,
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 onClick = onManualMigrationClicked,
                 text = stringResource(R.string.start_manual_migration),
                 fillMaxWidth = false
@@ -413,8 +417,8 @@ private fun DevelopmentApiVersioningOptions(
         },
         actions = {
             WirePrimaryButton(
-                minHeight = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
-                minWidth = MaterialTheme.wireDimensions.buttonMediumMinSize.width,
+                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 onClick = onForceLatestDevelopmentApiChange,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
@@ -474,8 +478,8 @@ private fun MLSOptions(
             },
             actions = {
                 WirePrimaryButton(
-                    minHeight = MaterialTheme.wireDimensions.buttonMediumMinSize.height,
-                    minWidth = MaterialTheme.wireDimensions.buttonMediumMinSize.width,
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                     onClick = restartSlowSyncForRecovery,
                     text = stringResource(R.string.restart_slowsync_for_recovery_button),
                     fillMaxWidth = false
@@ -520,7 +524,10 @@ private fun EnableEncryptedProteusStorageSwitch(
                 enabled = !isEnabled,
                 modifier = Modifier
                     .padding(end = dimensions().spacing8x)
-                    .size(dimensions().buttonSmallMinSize)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
             )
         }
     )
@@ -550,4 +557,14 @@ fun PreviewOtherDebugOptions() {
         enrollE2EICertificate = {},
         dismissCertificateDialog = {},
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewDevelopmentApiVersioningOptions() {
+    WireTheme {
+        DevelopmentApiVersioningOptions(
+            onForceLatestDevelopmentApiChange = {}
+        )
+    }
 }

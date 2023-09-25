@@ -301,7 +301,9 @@ class MediaGalleryViewModelTest {
                 creatorId = null,
                 receiptMode = Conversation.ReceiptMode.ENABLED,
                 messageTimer = null,
-                userMessageTimer = null
+                userMessageTimer = null,
+                archived = false,
+                archivedDateTime = null
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),

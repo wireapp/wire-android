@@ -31,7 +31,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -66,11 +65,10 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.IntentDirection
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
@@ -78,7 +76,6 @@ import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -88,7 +85,6 @@ import com.wire.android.ui.home.conversations.details.GroupConversationActionTyp
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
@@ -187,19 +183,20 @@ fun HomeContent(
     val context = LocalContext.current
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
-            when (item.direction) {
-                is ExternalUriDirection -> CustomTabsHelper.launchUri(context, item.direction.uri)
-                is IntentDirection -> context.startActivity(item.direction.intent(context))
-                else -> navController.navigate(item.direction.route) {
-                    navController.graph.startDestinationRoute?.let { route ->
-                        popUpTo(route) {
-                            saveState = true
+            item.direction.handleNavigation(
+                context = context,
+                handleOtherDirection = { direction ->
+                    navController.navigate(direction.route) {
+                        navController.graph.startDestinationRoute?.let { route ->
+                            popUpTo(route) {
+                                saveState = true
+                            }
                         }
+                        launchSingleTop = true
+                        restoreState = true
                     }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
+                },
+            )
         }
 
         ModalNavigationDrawer(
@@ -239,12 +236,6 @@ fun HomeContent(
                                 )
                             }
                         }
-                    },
-                    snackbarHost = {
-                        SwipeDismissSnackbarHost(
-                            hostState = snackBarHostState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     },
                     topBarCollapsing = {
                         if (currentNavigationItem.isSearchable) {

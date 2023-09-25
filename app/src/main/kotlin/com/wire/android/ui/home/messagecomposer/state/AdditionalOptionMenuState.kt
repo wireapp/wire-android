@@ -30,7 +30,6 @@ enum class AdditionalOptionMenuState {
 }
 
 enum class AdditionalOptionSubMenuState {
-    Hidden,
     RecordAudio,
     AttachFile,
     AttachImage,
@@ -40,6 +39,7 @@ enum class AdditionalOptionSubMenuState {
 
 enum class AdditionalOptionSelectItem {
     RichTextEditing,
+    // it's only used to show keyboard after self deleting bottom sheet collapses
     SelfDeleting,
     AttachFile,
     None,
@@ -50,7 +50,7 @@ class AdditionalOptionStateHolder {
     var selectedOption by mutableStateOf(AdditionalOptionSelectItem.None)
 
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-        AdditionalOptionSubMenuState.Hidden
+        AdditionalOptionSubMenuState.AttachFile
     )
         private set
 
@@ -63,13 +63,11 @@ class AdditionalOptionStateHolder {
     }
 
     fun hideAdditionalOptionsMenu() {
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
         selectedOption = AdditionalOptionSelectItem.None
     }
 
     fun toAudioRecording() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.RecordAudio
-        additionalOptionState = AdditionalOptionMenuState.Hidden
     }
 
     fun hideAudioRecording() {
@@ -83,6 +81,10 @@ class AdditionalOptionStateHolder {
 
     fun toAttachmentAndAdditionalOptionsMenu() {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+    }
+
+    fun toSelfDeletingOptionsMenu() {
+        selectedOption = AdditionalOptionSelectItem.SelfDeleting
     }
 
     companion object {

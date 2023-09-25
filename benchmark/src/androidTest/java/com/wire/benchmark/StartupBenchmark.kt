@@ -56,6 +56,6 @@ class StartupBenchmark {
 
     companion object {
         private const val PACKAGE_NAME = "com.wire.android.internal"
-        private const val ITERATIONS = 5
+        private const val ITERATIONS = 10
     }
 }

@@ -48,7 +48,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,48 +58,19 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
-import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
+import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun InactiveMessageComposerInput(
-    messageText: TextFieldValue,
-    onMessageComposerFocused: () -> Unit
-) {
-    MessageComposerTextInput(
-        inputFocused = false,
-        colors = wireTextFieldColors(
-            backgroundColor = Color.Transparent,
-            borderColor = Color.Transparent,
-            focusColor = Color.Transparent,
-            placeholderColor = colorsScheme().secondaryText
-        ),
-        placeHolderText = stringResource(id = R.string.label_type_a_message),
-        messageText = messageText,
-        onMessageTextChanged = {
-            // non functional
-        },
-        singleLine = false,
-        onFocusChanged = { isFocused ->
-            if (isFocused) {
-                onMessageComposerFocused()
-            }
-        }
-    )
-}
-
-@Composable
 fun ActiveMessageComposerInput(
     messageComposition: MessageComposition,
-    inputSize: MessageCompositionInputSize,
+    isTextExpanded: Boolean,
     inputType: MessageCompositionType,
-    inputVisibility: Boolean,
     inputFocused: Boolean,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
@@ -112,56 +82,67 @@ fun ActiveMessageComposerInput(
     onInputFocusedChanged: (Boolean) -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
+    showOptions: Boolean,
+    onPlusClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (inputVisibility) {
-        Column(
-            modifier = modifier
-                .wrapContentSize()
-                .background(inputType.backgroundColor())
-        ) {
-            Divider(color = MaterialTheme.wireColorScheme.outline)
+    Column(
+        modifier = modifier
+            .wrapContentSize()
+            .background(inputType.backgroundColor())
+    ) {
+        Divider(color = MaterialTheme.wireColorScheme.outline)
+        if (showOptions) {
             CollapseButton(
+                isCollapsed = !isTextExpanded,
                 onCollapseClick = onToggleInputSize
             )
+        }
 
-            val quotedMessage = messageComposition.quotedMessage
-            if (quotedMessage != null) {
-                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                    QuotedMessagePreview(
-                        quotedMessageData = quotedMessage,
-                        onCancelReply = onCancelReply
-                    )
-                }
+        messageComposition.quotedMessage?.let { quotedMessage ->
+            Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                QuotedMessagePreview(
+                    quotedMessageData = quotedMessage,
+                    onCancelReply = onCancelReply
+                )
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            val stretchToMaxParentConstraintHeightOrWithInBoundary = if (isTextExpanded) {
+                Modifier.fillMaxHeight()
+            } else {
+                Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+            }.weight(1f)
+
+            if (!showOptions) {
+                AdditionalOptionButton(
+                    isSelected = false,
+                    onClick = {
+                        onPlusClick()
+                    },
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
-                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
-                        max = dimensions().messageComposerActiveInputMaxHeight
-                    )
+            MessageComposerTextInput(
+                inputFocused = inputFocused,
+                colors = inputType.inputTextColor(),
+                messageText = messageComposition.messageTextFieldValue,
+                placeHolderText = inputType.labelText(),
+                onMessageTextChanged = onMessageTextChanged,
+                singleLine = false,
+                onFocusChanged = onInputFocusedChanged,
+                onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+                onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+                modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
+            )
 
-                    MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                }.weight(1f)
-
-                MessageComposerTextInput(
-                    inputFocused = inputFocused,
-                    colors = inputType.inputTextColor(),
-                    messageText = messageComposition.messageTextFieldValue,
-                    placeHolderText = inputType.labelText(),
-                    onMessageTextChanged = onMessageTextChanged,
-                    singleLine = false,
-                    onFocusChanged = onInputFocusedChanged,
-                    onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-                    onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
-                )
-
+            if (showOptions) {
                 Row(Modifier.wrapContentSize()) {
                     if (inputType is MessageCompositionType.Composing) {
                         when (val messageType = inputType.messageType.value) {
@@ -184,17 +165,17 @@ fun ActiveMessageComposerInput(
                     }
                 }
             }
-            when (inputType) {
-                is MessageCompositionType.Editing -> {
-                    MessageEditActions(
-                        onEditSaveButtonClicked = onEditButtonClicked,
-                        onEditCancelButtonClicked = onCancelEdit,
-                        editButtonEnabled = inputType.isEditButtonEnabled
-                    )
-                }
-
-                else -> {}
+        }
+        when (inputType) {
+            is MessageCompositionType.Editing -> {
+                MessageEditActions(
+                    onEditSaveButtonClicked = onEditButtonClicked,
+                    onEditCancelButtonClicked = onCancelEdit,
+                    editButtonEnabled = inputType.isEditButtonEnabled
+                )
             }
+
+            else -> {}
         }
     }
 }
@@ -244,22 +225,20 @@ private fun MessageComposerTextInput(
 }
 
 @Composable
-private fun CollapseButton(
+fun CollapseButton(
+    isCollapsed: Boolean,
     onCollapseClick: () -> Unit
 ) {
-    var isCollapsed by remember { mutableStateOf(false) }
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        val collapseButtonRotationDegree by animateFloatAsState(targetValue = if (isCollapsed) 180f else 0f)
+        val collapseButtonRotationDegree by animateFloatAsState(targetValue = if (isCollapsed) 0F else 180f)
 
         IconButton(
             onClick = {
-                isCollapsed = !isCollapsed
                 onCollapseClick()
             },
             modifier = Modifier.size(20.dp)

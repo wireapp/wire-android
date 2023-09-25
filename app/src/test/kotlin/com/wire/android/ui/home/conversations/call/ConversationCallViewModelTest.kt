@@ -21,6 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -74,6 +75,9 @@ class ConversationCallViewModelTest {
     @MockK
     private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
+    @MockK
+    private lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
     @BeforeEach
@@ -84,6 +88,7 @@ class ConversationCallViewModelTest {
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
         coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails(any()) } returns flowOf()
+        coEvery { observeParticipantsForConversation(any()) } returns flowOf()
 
         conversationCallViewModel = ConversationCallViewModel(
             savedStateHandle = savedStateHandle,
@@ -93,7 +98,8 @@ class ConversationCallViewModelTest {
             endCall = endCall,
             observeSyncState = observeSyncState,
             isConferenceCallingEnabled = isConferenceCallingEnabled,
-            observeConversationDetails = observeConversationDetails
+            observeConversationDetails = observeConversationDetails,
+            observeParticipantsForConversation = observeParticipantsForConversation
         )
     }
 

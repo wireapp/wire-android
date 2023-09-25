@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -73,6 +74,7 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                     color = MaterialTheme.wireColorScheme.labelText,
                     style = MaterialTheme.wireTypography.body01
                 )
+                VerticalSpace.x24()
             }
         }
     }

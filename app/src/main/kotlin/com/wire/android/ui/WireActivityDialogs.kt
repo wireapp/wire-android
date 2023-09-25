@@ -37,6 +37,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
@@ -55,7 +56,8 @@ fun FileRestrictionDialog(
     isFileSharingEnabled: Boolean,
     hideDialogStatus: () -> Unit,
 ) {
-    val text: String = stringResource(id = if (isFileSharingEnabled) R.string.sharing_files_enabled else R.string.sharing_files_disabled)
+    val text: String =
+        stringResource(id = if (isFileSharingEnabled) R.string.sharing_files_enabled else R.string.sharing_files_disabled)
 
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),
@@ -82,7 +84,10 @@ fun SelfDeletingMessagesDialog(
         }
 
         areSelfDeletingMessagesEnabled -> {
-            stringResource(R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
+            stringResource(
+                R.string.self_deleting_messages_team_setting_enabled_enforced_timeout,
+                formattedTimeout
+            )
         }
 
         else -> {
@@ -152,16 +157,15 @@ fun JoinConversationDialog(
     joinedDialogState?.let { state ->
 
         val onComplete: (convId: ConversationId?) -> Unit = remember {
-            { convIdNullable ->
-                convIdNullable?.also {
-                    appLogger.d("Join conversation via code dialog completed, navigating to conversation screen")
+            {
+                onJoinConversationFlowCompleted()
+                it?.also {
                     navigate(
                         NavigationCommand(
-                            com.wire.android.ui.destinations.ConversationScreenDestination(it),
+                            ConversationScreenDestination(it),
                             BackStackMode.CLEAR_TILL_START
                         )
                     )
-                    onJoinConversationFlowCompleted()
                 }
             }
         }
@@ -286,7 +290,11 @@ fun NewClientDialog(
         }.joinToString("")
         when (data) {
             is NewClientsData.OtherUser -> {
-                title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
+                title = stringResource(
+                    R.string.new_device_dialog_other_user_title,
+                    data.userName ?: "",
+                    data.userHandle ?: ""
+                )
                 text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
                 btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                 btnAction = { switchAccountAndOpenDeviceManager(data.userId) }
@@ -378,7 +386,12 @@ fun previewJoinConversationDialogError() {
 @Composable
 fun previewCustomBackendDialog() {
     WireTheme {
-        CustomBackendDialog(GlobalAppState(customBackendDialog = CustomServerDialogState(ServerConfig.STAGING)), {}, {})
+        CustomBackendDialog(
+            GlobalAppState(
+                customBackendDialog = CustomServerDialogState(
+                    ServerConfig.STAGING
+                )
+            ), {}, {})
     }
 }
 

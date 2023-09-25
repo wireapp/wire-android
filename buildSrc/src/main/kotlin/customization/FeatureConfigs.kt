@@ -77,6 +77,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN),
 
     URL_SUPPORT("url_support", ConfigType.STRING),
+    URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
 
     /**
      * In runtime, will use these values to determine which backend to use.
@@ -92,4 +93,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     CERTIFICATE_PINNING_CONFIG("cert_pinning_config", ConfigType.MapOfStringToListOfStrings),
     // TODO: Add support for default proxy configs
+
+    IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED("is_password_protected_guest_link_enabled", ConfigType.BOOLEAN)
 }

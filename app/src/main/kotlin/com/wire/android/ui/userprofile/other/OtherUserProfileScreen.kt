@@ -33,7 +33,6 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -42,7 +41,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -82,8 +80,6 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.spacers.VerticalSpace.x24
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -138,7 +134,6 @@ fun OtherUserProfileScreen(
         sheetState = sheetState,
         openBottomSheet = openBottomSheet,
         closeBottomSheet = closeBottomSheet,
-        snackbarHostState = snackbarHostState,
         eventsHandler = viewModel,
         bottomSheetEventsHandler = viewModel,
         onIgnoreConnectionRequest = {
@@ -176,13 +171,12 @@ fun OtherProfileScreenContent(
     closeBottomSheet: () -> Unit,
     eventsHandler: OtherUserProfileEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onIgnoreConnectionRequest: (String) -> Unit = { },
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
-    val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
+    val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
@@ -243,12 +237,6 @@ fun OtherProfileScreenContent(
     }
 
     CollapsingTopBarScaffold(
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = otherUserProfileScreenState.snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
         topBarHeader = { elevation ->
             TopBarHeader(
                 state = state,
@@ -348,21 +336,20 @@ private fun TopBarHeader(
     )
 }
 
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
-    Crossfade(targetState = state.isDataLoading, label = "OtherUserProfileScreenTopBarCollapsing") {
+    Crossfade(targetState = state, label = "OtherUserProfileScreenTopBarCollapsing") { targetState ->
         UserProfileInfo(
-            userId = state.userId,
-            isLoading = state.isAvatarLoading,
-            avatarAsset = state.userAvatarAsset,
-            fullName = state.fullName,
-            userName = state.userName,
-            teamName = state.teamName,
-            membership = state.membership,
+            userId = targetState.userId,
+            isLoading = targetState.isAvatarLoading,
+            avatarAsset = targetState.userAvatarAsset,
+            fullName = targetState.fullName,
+            userName = targetState.userName,
+            teamName = targetState.teamName,
+            membership = targetState.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = state.connectionState
+            connection = targetState.connectionState
         )
     }
 }
@@ -414,8 +401,9 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            OtherUserConnectionStatusInfo(state.connectionState, state.membership)
-            x24()
+            if (!state.isDataLoading) {
+                OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+            }
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
                 state.connectionState == ConnectionState.ACCEPTED -> {

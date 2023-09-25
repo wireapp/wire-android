@@ -30,6 +30,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.capitalizeFirstLetter
@@ -143,17 +144,21 @@ fun JoinConversationViaDeepLinkDialog(
                     },
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                    autofillTypes = emptyList(),
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
-                        .testTag("remove device password field")
+                        .testTag("remove device password field"),
+                    autofill = false
                 )
                 LaunchedEffect(Unit) { // executed only once when showing the dialog
                     focusRequester.requestFocus()
                 }
             }
-        }
+        },
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
 

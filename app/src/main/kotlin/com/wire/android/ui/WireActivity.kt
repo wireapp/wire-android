@@ -25,23 +25,29 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -116,6 +122,8 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         viewModel.observePersistentConnectionStatus()
         val startDestination = when (viewModel.initialAppState) {
             InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
@@ -141,6 +149,7 @@ class WireActivity : AppCompatActivity() {
     ) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            var isLoaded by remember { mutableStateOf(false) }
 
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -150,7 +159,8 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    Column {
+                    Column(modifier = Modifier.statusBarsPadding()) {
+                        ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         val scope = rememberCoroutineScope()
                         CommonTopAppBar(
@@ -163,9 +173,11 @@ class WireActivity : AppCompatActivity() {
                             navigator = navigator,
                             startDestination = startDestination
                         )
+
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete, scope)
+                        isLoaded = true
                         handleScreenshotCensoring()
                         handleDialogs(navigator::navigate)
                     }

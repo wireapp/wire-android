@@ -220,6 +220,11 @@ class MessageNotificationManager
                                 addAction(getActionReply(context, conversation.id, userIdString))
                             }
 
+                            is NotificationMessage.ObfuscatedKnock -> {
+                                setChannelId(NotificationConstants.getPingsChannelId(userId))
+                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                            }
+
                             null -> {
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                                 addAction(getActionReply(context, conversation.id, userIdString))
@@ -400,7 +405,8 @@ class MessageNotificationManager
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
-            is NotificationMessage.ObfuscatedMessage -> italicTextFromResId(
+            is NotificationMessage.ObfuscatedMessage,
+            is NotificationMessage.ObfuscatedKnock-> italicTextFromResId(
                 R.string.notification_obfuscated_message_content
             )
         }

@@ -70,6 +70,11 @@ sealed class NotificationMessage(open val messageId: String, open val author: No
         override val time: Long
     ) : NotificationMessage(messageId, null, time)
 
+    data class ObfuscatedKnock(
+        override val messageId: String,
+        override val time: Long
+    ) : NotificationMessage(messageId, null, time)
+
     data class Text(
         override val messageId: String,
         override val author: NotificationMessageAuthor,
@@ -87,7 +92,7 @@ sealed class NotificationMessage(open val messageId: String, open val author: No
     ) :
         NotificationMessage(messageId, author, time)
 
-    data class Knock(override val messageId: String, override val author: NotificationMessageAuthor, override val time: Long) :
+    data class Knock(override val messageId: String, override val author: NotificationMessageAuthor?, override val time: Long) :
         NotificationMessage(messageId, author, time)
 
     data class ConnectionRequest(
@@ -204,6 +209,13 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
                 messageId,
                 notificationMessageAuthor,
                 notificationMessageTime
+            )
+        }
+
+        is LocalNotificationMessage.SelfDeleteKnock -> {
+            NotificationMessage.ObfuscatedKnock(
+                messageId = messageId,
+                time = notificationMessageTime
             )
         }
 

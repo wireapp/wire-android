@@ -18,8 +18,6 @@
 package com.wire.android.util
 
 import java.net.URI
-import android.net.Uri
-import java.net.URLDecoder
 
 fun containsSchema(url: String): Boolean {
     return try {

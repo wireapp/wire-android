@@ -94,4 +94,3 @@ class MessageTypesTest {
         assertEquals(1, result.first.size)
     }
 }
-

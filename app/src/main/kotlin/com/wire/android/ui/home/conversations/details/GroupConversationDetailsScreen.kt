@@ -350,20 +350,24 @@ private fun GroupConversationDetailsContent(
                 isBottomSheetVisible = getBottomSheetVisibility,
                 conversationSheetState = conversationSheetState,
                 onMutingConversationStatusChange = {
-                    bottomSheetEventsHandler.onMutingConversationStatusChange(
-                        conversationSheetState.conversationId,
-                        conversationSheetState.conversationSheetContent!!.mutingConversationState,
-                        closeBottomSheetAndShowSnackbarMessage
-                    )
+                    conversationSheetContent?.let {
+                        bottomSheetEventsHandler.onMutingConversationStatusChange(
+                            conversationSheetState.conversationId,
+                            it.mutingConversationState,
+                            closeBottomSheetAndShowSnackbarMessage
+                        )
+                    }
                 },
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
                 moveConversationToArchive = {
-                    bottomSheetEventsHandler.onMoveConversationToArchive(
-                        conversationId = conversationSheetContent!!.conversationId,
-                        shouldArchive = true,
-                        closeBottomSheetAndShowSnackbarMessage
-                    )
+                    conversationSheetContent?.let {
+                        bottomSheetEventsHandler.onMoveConversationToArchive(
+                            conversationId = it.conversationId,
+                            shouldArchive = true,
+                            closeBottomSheetAndShowSnackbarMessage
+                        )
+                    }
                 },
                 clearConversationContent = clearConversationDialogState::show,
                 blockUser = {},

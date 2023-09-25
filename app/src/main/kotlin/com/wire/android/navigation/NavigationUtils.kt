@@ -21,18 +21,21 @@
 package com.wire.android.navigation
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptionsBuilder
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.appLogger
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.Destination
+import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logger.obfuscateId
 
 @SuppressLint("RestrictedApi")
@@ -41,7 +44,8 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec<*> }
     fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec<*> }
     fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
-    fun firstDestinationWithRoute(route: String) = currentBackStack.value.firstOrNull { it.destination.route == route }
+    fun firstDestinationWithRoute(route: String) =
+        currentBackStack.value.firstOrNull { it.destination.route?.getPrimaryRoute() == route.getPrimaryRoute() }
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
     appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")
@@ -109,6 +113,13 @@ fun String.getPrimaryRoute(): String {
         else -> this
     }
     return primaryRoute
+}
+
+fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
+    is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)
+    is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))
+    is IntentDirection -> context.startActivity(this.intent(context))
+    else -> handleOtherDirection(this)
 }
 
 private const val TAG = "NavigationUtils"

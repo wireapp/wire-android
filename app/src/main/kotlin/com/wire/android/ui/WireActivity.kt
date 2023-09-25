@@ -35,6 +35,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -48,8 +49,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -147,6 +150,9 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         viewModel.observePersistentConnectionStatus()
 
 
@@ -188,7 +194,7 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    Column {
+                    Column(modifier = Modifier.statusBarsPadding()) {
                         ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         val scope = rememberCoroutineScope()

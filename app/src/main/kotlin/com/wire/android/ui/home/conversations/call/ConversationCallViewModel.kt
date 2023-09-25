@@ -27,6 +27,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -56,6 +57,7 @@ class ConversationCallViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
+    private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -73,6 +75,16 @@ class ConversationCallViewModel @Inject constructor(
     init {
         listenOngoingCall()
         observeEstablishedCall()
+        observeParticipantsForConversation()
+    }
+
+    private fun observeParticipantsForConversation() {
+        viewModelScope.launch {
+            observeParticipantsForConversation(conversationId)
+                .collectLatest {
+                    conversationCallViewState = conversationCallViewState.copy(participantsCount = it.allCount)
+                }
+        }
     }
 
     private fun listenOngoingCall() = viewModelScope.launch {

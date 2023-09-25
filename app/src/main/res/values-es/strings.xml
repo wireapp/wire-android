@@ -19,12 +19,12 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="app_version">Versión</string>
+    <string name="build_variant_name">Variante</string>
     <string name="label_new">Nuevo</string>
     <string name="label_login">Iniciar sesión</string>
     <string name="label_ok">OK</string>
-    <string name="label_open">Open</string>
+    <string name="label_open">Abrir</string>
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_continue">Continuar</string>
@@ -35,7 +35,7 @@
     <string name="label_proceed">Proceder</string>
     <string name="label_leave">Salir</string>
     <string name="label_add_device">Agregar Dispositivo</string>
-    <string name="label_learn_more">Saber más</string>
+    <string name="label_learn_more">Más información</string>
     <string name="label_removing">Eliminando...</string>
     <string name="label_logging_in">Iniciando sesión…</string>
     <string name="label_membership_guest">Invitado</string>
@@ -44,19 +44,19 @@
     <string name="label_user_deleted">Eliminado</string>
     <string name="label_message_sent_failure">No se pudo enviar el mensaje debido a problemas de conectividad.</string>
     <string name="label_message_edit_sent_failure">El mensaje editado no se pudo enviar debido a problemas de conectividad.</string>
-    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
-    <string name="label_message_receive_failure">Error de descarga</string>
+    <string name="label_message_sent_remotely_failure">No se pudo enviar el mensaje, ya que el servidor %s parece estar fuera de línea.</string>
+    <string name="label_message_edit_sent_remotely_failure">El mensaje editado no pudo ser enviado, ya que el servidor %s parece estar fuera de línea.</string>
+    <string name="label_message_receive_failure">Errores en la descarga</string>
     <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
     <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
     <string name="label_message_knock">%s hizo ping</string>
-    <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participantes no recibieron tu mensaje.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s no recibirá tu mensaje.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s recibirá tu mensaje más tarde.</string>
     <string name="label_message_partial_delivery_participants_many_deliver_later">%s recibirán tu mensaje más tarde.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
-        <item quantity="one">1 participant from %2$s</item>
-        <item quantity="other">%1$d participants from %2$s</item>
+        <item quantity="one">1 participante de %2$s</item>
+        <item quantity="other">%1$d participantes de %2$s</item>
     </plurals>
     <string name="label_reset_session">Restablecer la sesión</string>
     <string name="label_reset_session_success">Sesión restablecida con éxito</string>
@@ -68,30 +68,30 @@
     <string name="label_show">Mostrar</string>
     <string name="label_show_all">Mostrar todo</string>
     <string name="label_show_less">Mostrar menos</string>
-    <string name="label_show_details">Show Details</string>
-    <string name="label_hide_details">Hide Details</string>
-    <string name="label_message_status_edited_with_date">Editado en %s</string>
+    <string name="label_show_details">Ver detalles</string>
+    <string name="label_hide_details">Ocultar detalles</string>
+    <string name="label_message_status_edited_with_date">Editado el %s</string>
     <string name="label_on">Encendido</string>
     <string name="label_off">Apagado</string>
     <string name="label_value_copied">%s copiado</string>
-    <string name="label_disable">Deshabilitar</string>
+    <string name="label_disable">Desactivar</string>
     <string name="folder_label_access">Acceso</string>
     <string name="folder_label_protocol_details">Detalles del protocolo (beta)</string>
-    <string name="folder_label_messaging">Mensajer&#237;a</string>
+    <string name="folder_label_messaging">Mensajería</string>
     <string name="label_user_blocked">Bloqueado</string>
     <string name="label_and">y</string>
     <string name="label_retry">Reintentar</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Logotipo de la aplicaci&#243;n</string>
-    <string name="content_description_reveal_password">Mostrar contrase&#241;a</string>
-    <string name="content_description_hide_password">Ocultar contrase&#241;a</string>
-    <string name="content_description_search_back">Icono de b&#250;squeda de vuelta</string>
+    <string name="content_description_app_logo">Logo de la aplicación</string>
+    <string name="content_description_reveal_password">Mostrar contraseña</string>
+    <string name="content_description_hide_password">Ocultar contraseña</string>
+    <string name="content_description_search_back">Icono de búsqueda atrás</string>
     <string name="content_description_clear_content">Borrar contenido</string>
     <string name="content_description_user_avatar">Foto de perfil</string>
-    <string name="content_description_muted_conversation">Conversaci&#243;n silenciada</string>
+    <string name="content_description_muted_conversation">Conversación silenciada</string>
     <string name="content_description_check">Marca de verificaci&#243;n</string>
     <string name="content_description_download_icon">Icono de descarga</string>
-    <string name="content_description_open_asset_icon">Abrir icono</string>
+    <string name="content_description_open_asset_icon">Icono de abrir</string>
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
     <string name="content_description_move_to_folder">Mover a carpeta</string>
     <string name="content_description_move_to_archive">Mover a archivo</string>
@@ -99,27 +99,27 @@
     <string name="content_description_unblock_the_user">Desbloquear</string>
     <string name="content_description_leave_the_group">Abandonar el grupo</string>
     <string name="content_description_delete_the_group">Eliminar el grupo</string>
-    <string name="content_description_conversation_phone_icon">Comenzar llamada de audio</string>
+    <string name="content_description_conversation_phone_icon">Iniciar una llamada</string>
     <string name="content_description_welcome_wire_logo">Logo de Wire</string>
-    <string name="content_description_conversation_search_icon">Icono de b&#250;squeda de conversaci&#243;n</string>
+    <string name="content_description_conversation_search_icon">Icono de búsqueda de conversación</string>
     <string name="content_description_conversation_enable_rich_text_mode">Bot&#243;n de modo de texto enriquecido</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
-    <string name="content_description_conversation_send_emoticon">Bot&#243;n Enviar emoticono</string>
-    <string name="content_description_conversation_send_gif">Bot&#243;n Enviar GIF</string>
+    <string name="content_description_conversation_send_emoticon">Botón Enviar Emoticon</string>
+    <string name="content_description_conversation_send_gif">Botón de enviar GIF</string>
     <string name="content_description_conversation_mention_someone">Mencionar a alguien</string>
-    <string name="content_description_new_conversation">Comenzar una nueva conversaci&#243;n</string>
-    <string name="content_description_back_button">Bot&#243;n de volver</string>
+    <string name="content_description_new_conversation">Iniciar una nueva conversación</string>
+    <string name="content_description_back_button">Botón atrás</string>
     <string name="content_description_send_button">Enviar</string>
     <string name="content_description_timed_message_button">Mensaje con autoborrado, botón</string>
-    <string name="content_description_close_button">Bot&#243;n de cerrar</string>
-    <string name="content_description_menu_button">Navegaci&#243;n principal</string>
+    <string name="content_description_close_button">Botón de Cerrar</string>
+    <string name="content_description_menu_button">Navegación principal</string>
     <string name="content_description_drop_down_icon">Flecha hacia abajo</string>
-    <string name="content_description_remove_devices_screen_device_item_icon">Elemento de dispositivo</string>
+    <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
     <string name="content_description_remove_devices_screen_remove_icon">Eliminar dispositivo</string>
     <string name="content_description_avatar_preview">Vista previa de la foto de perfil</string>
-    <string name="content_description_choose_from_gallery">Seleccionar de la galer&#237;a</string>
+    <string name="content_description_choose_from_gallery">Elegir de la galería</string>
     <string name="content_description_take_a_picture">Tomar una foto</string>
     <string name="content_description_right_arrow">Flecha derecha</string>
     <string name="content_description_left_arrow">Ir hacia atr&#225;s</string>
@@ -183,6 +183,11 @@
     <string name="backup_and_restore_screen_title">Copia de seguridad y restauraci&#243;n de conversaciones</string>
     <string name="search_bar_conversations_hint">Buscar conversaciones</string>
     <string name="search_no_results">No se encontraron resultados</string>
+    <!--Whats New -->
+    <string name="whats_new_screen_title">What\'s New</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
+    <string name="whats_new_release_notes_group_title">Release Notes</string>
+    <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Copias de seguridad</string>
     <string name="settings_other_group_title">Otras</string>
@@ -740,6 +745,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_ongoing_double_tap_to_go_back">Toca dos veces para volver atrás</string>
     <string name="calling_feature_unavailable_title_alert">Caracter&#237;stica no disponible</string>
     <string name="calling_feature_unavailable_message_alert">La opci&#243;n de iniciar una llamada en conferencia solo est&#225; disponible en la versi&#243;n de pago de Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
+    <string name="calling_confirm_start_call_title_dialog">Start a call</string>
+    <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
+    <string name="calling_confirm_start_call_action_dialog">Call</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Volver a la llamada</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
@@ -846,6 +855,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_show_typing_indicator_title">Typing indicator</string>
+    <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <!--Devices -->
     <string name="devices_title">Tus dispositivos</string>
     <string name="current_device_label">Dispositivo actual</string>

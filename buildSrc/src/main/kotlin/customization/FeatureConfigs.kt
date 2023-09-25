@@ -77,6 +77,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN),
 
     URL_SUPPORT("url_support", ConfigType.STRING),
+    URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
 
     /**
      * In runtime, will use these values to determine which backend to use.

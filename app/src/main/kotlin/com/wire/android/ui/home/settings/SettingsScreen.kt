@@ -34,12 +34,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.IntentDirection
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.home.HomeStateHolder
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
 
@@ -53,11 +51,10 @@ fun SettingsScreen(homeStateHolder: HomeStateHolder) {
         lazyListState = lazyListState,
         onItemClicked = remember {
             {
-                when (it.direction) {
-                    is ExternalUriDirection -> CustomTabsHelper.launchUri(context, it.direction.uri)
-                    is IntentDirection -> context.startActivity(it.direction.intent(context))
-                    else -> homeStateHolder.navigator.navigate(NavigationCommand(it.direction))
-                }
+                it.direction.handleNavigation(
+                    context = context,
+                    handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
+                )
             }
         }
     )
@@ -108,6 +105,8 @@ fun SettingsScreenContent(
                         add(SettingsItem.DebugSettings)
                     }
                     add(SettingsItem.Licenses)
+                    add(SettingsItem.GiveFeedback)
+                    add(SettingsItem.ReportBug)
                 },
 
                 onItemClicked = onItemClicked

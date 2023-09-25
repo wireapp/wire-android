@@ -12,10 +12,10 @@ import com.datadog.android.rum.tracking.ActivityViewTrackingStrategy
 import com.datadog.android.rum.tracking.ComponentPredicate
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.WireActivity
-import com.wire.android.util.getDeviceId
 import com.wire.android.util.sha256
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import com.wire.android.util.getDeviceIdString
 
 private const val LONG_TASK_THRESH_HOLD_MS = 1000L
 
@@ -60,7 +60,7 @@ object ExternalLoggerManager {
         )
 
         Datadog.initialize(context, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = context.getDeviceId()?.sha256(), extraInfo = extraInfo)
+        Datadog.setUserInfo(id = context.getDeviceIdString()?.sha256(), extraInfo = extraInfo)
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 }

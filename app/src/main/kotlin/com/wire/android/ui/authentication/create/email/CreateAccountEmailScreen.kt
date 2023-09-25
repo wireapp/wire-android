@@ -33,7 +33,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -77,9 +76,8 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.textfield.AutoFillTextField
+import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -139,10 +137,9 @@ private fun EmailContent(
     tosUrl: String,
     serverConfig: ServerConfig.Links
 ) {
-    clearAutofillTree()
     val focusRequester = remember { FocusRequester() }
 
-    Scaffold(topBar = {
+    WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
             title = stringResource(id = state.type.titleResId),
@@ -174,8 +171,7 @@ private fun EmailContent(
                     )
                     .testTag("createTeamText")
             )
-            AutoFillTextField(
-                autofillTypes = listOf(AutofillType.EmailAddress),
+            WireTextField(
                 value = state.email,
                 onValueChange = onEmailChange,
                 placeholderText = stringResource(R.string.create_account_email_placeholder),
@@ -216,7 +212,7 @@ private fun EmailContent(
 private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
     val learnMoreTag = "learn_more"
     val context = LocalContext.current
-    val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" // TODO should we keep it in a different way?
+    val learnMoreUrl = stringResource(id = R.string.url_create_account_learn_more)
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(

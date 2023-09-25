@@ -287,7 +287,7 @@ class WireActivityViewModel @Inject constructor(
             viewModelScope.launch {
                 authServerConfigProvider.updateAuthServer(globalAppState.customBackendDialog!!.serverLinks)
                 dismissCustomBackendDialog()
-                if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
+                if (checkNumberOfSessions() >= BuildConfig.MAX_ACCOUNTS) {
                     globalAppState = globalAppState.copy(maxAccountDialog = true)
                 } else {
                     onProceed()

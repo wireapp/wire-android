@@ -185,6 +185,11 @@
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
     <string name="search_no_results">Совпадений не найдено</string>
+    <!--Whats New -->
+    <string name="whats_new_screen_title">Что нового</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Добро пожаловать в новое приложение Wire для Android!</string>
+    <string name="whats_new_release_notes_group_title">Список изменений</string>
+    <string name="whats_new_android_release_notes_label">Список всех изменений для Android</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервные копии</string>
     <string name="settings_other_group_title">Другое</string>
@@ -768,6 +773,10 @@
     <string name="calling_ongoing_double_tap_to_go_back">Двойное нажатие для возврата назад</string>
     <string name="calling_feature_unavailable_title_alert">Возможность недоступна</string>
     <string name="calling_feature_unavailable_message_alert">Возможность инициировать групповой вызов доступна только в платной версии Wire.</string>
+    <string name="calling_screen_connecting_until_call_established">Подключение…</string>
+    <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
+    <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
+    <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_connecting">Расшифровка сообщений</string>
@@ -877,6 +886,8 @@
     <string name="settings_censor_screenshots">Запретить скриншоты</string>
     <string name="settings_censor_screenshots_description">При включении этого параметра содержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
+    <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
+    <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>

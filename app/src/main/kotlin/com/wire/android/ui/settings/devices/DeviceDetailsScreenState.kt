@@ -9,23 +9,24 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun rememberConversationScreenState(
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): DeviceDetailsScreenState {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+    val snackbarHostState = LocalSnackbarHostState.current
 
     return remember {
         DeviceDetailsScreenState(
             clipboardManager = clipboardManager,
-            snackBarHostState = snackBarHostState,
             coroutineScope = coroutineScope,
-            copiedText = context.getString(R.string.label_text_copied)
+            copiedText = context.getString(R.string.label_text_copied),
+            snackBarHostState = snackbarHostState
         )
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 
@@ -90,8 +92,8 @@ fun SelfDeletingActions(
             shape = RoundedCornerShape(dimensions().spacing20x),
             colors = wireSendPrimaryButtonColors(),
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
-            minHeight = dimensions().spacing40x,
-            minWidth = dimensions().spacing40x
+            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         )
     }
 }
@@ -118,8 +120,8 @@ fun MessageEditActions(
                 iconResource = R.drawable.ic_close,
                 contentDescription = R.string.content_description_close_button,
                 shape = CircleShape,
-                minHeight = dimensions().spacing40x,
-                minWidth = dimensions().spacing40x,
+                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -135,8 +137,8 @@ fun MessageEditActions(
                 colors = wireSendPrimaryButtonColors(),
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
                 shape = CircleShape,
-                minHeight = dimensions().spacing40x,
-                minWidth = dimensions().spacing40x,
+                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
             )
         }
     }
@@ -155,8 +157,8 @@ private fun SendButton(
         shape = RoundedCornerShape(dimensions().spacing20x),
         colors = wireSendPrimaryButtonColors(),
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
-        minHeight = dimensions().spacing40x,
-        minWidth = dimensions().spacing40x
+        minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     )
 }
 

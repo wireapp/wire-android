@@ -32,8 +32,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -70,7 +68,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -94,6 +92,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
@@ -112,9 +111,9 @@ fun GroupConversationDetailsScreen(
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
+    val snackbarHostState = LocalSnackbarHostState.current
     val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
 
     GroupConversationDetailsContent(
@@ -129,6 +128,7 @@ fun GroupConversationDetailsScreen(
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
                 participant.isService && participant.botService != null ->
                     navigator.navigate(NavigationCommand(ServiceDetailsScreenDestination(participant.botService, viewModel.conversationId)))
+
                 else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
             }
         },
@@ -195,8 +195,7 @@ fun GroupConversationDetailsScreen(
         onEditGroupName = {
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
-        isLoading = viewModel.requestInProgress,
-        snackbarHostState = snackbarHostState
+        isLoading = viewModel.requestInProgress
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -240,11 +239,11 @@ private fun GroupConversationDetailsContent(
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    isLoading: Boolean,
-    snackbarHostState: SnackbarHostState
+    isLoading: Boolean
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
+    val snackbarHostState = LocalSnackbarHostState.current
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.values().size })
@@ -284,7 +283,7 @@ private fun GroupConversationDetailsContent(
         leaveGroupDialogState.dismiss()
         clearConversationDialogState.dismiss()
     }
-    Scaffold(
+    WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
@@ -303,12 +302,6 @@ private fun GroupConversationDetailsContent(
             }
         },
         modifier = Modifier.fillMaxHeight(),
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
     ) { internalPadding ->
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -416,7 +409,6 @@ fun PreviewGroupConversationDetails() {
             onDeleteGroup = {},
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
-            snackbarHostState = remember { SnackbarHostState() },
             onEditGroupName = {},
             onEditSelfDeletingMessages = {},
             onEditGuestAccess = {}

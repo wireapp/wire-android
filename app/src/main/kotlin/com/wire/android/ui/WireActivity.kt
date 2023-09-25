@@ -120,30 +120,6 @@ class WireActivity : AppCompatActivity() {
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
-    private fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): PackageInfo =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags.toLong()))
-        } else {
-            @Suppress("DEPRECATION") getPackageInfo(packageName, flags)
-        }
-
-    fun Context.isFirstInstall(): Boolean = try {
-        val firstInstallTime: Long = packageManager.getPackageInfoCompat(packageName, 0).firstInstallTime
-        val lastUpdateTime: Long = packageManager.getPackageInfoCompat(packageName, 0).lastUpdateTime
-        firstInstallTime == lastUpdateTime
-    } catch (e: PackageManager.NameNotFoundException) {
-        e.printStackTrace()
-        true
-    }
-
-    fun Context.isInstallFromUpdate(): Boolean = try {
-        val firstInstallTime: Long = packageManager.getPackageInfoCompat(packageName, 0).firstInstallTime
-        val lastUpdateTime: Long = packageManager.getPackageInfoCompat(packageName, 0).lastUpdateTime
-        firstInstallTime != lastUpdateTime
-    } catch (e: PackageManager.NameNotFoundException) {
-        e.printStackTrace()
-        false
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -154,7 +130,6 @@ class WireActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         viewModel.observePersistentConnectionStatus()
-
 
         val startDestination = if (viewModel.initialAppState == InitialAppState.NOT_MIGRATED) {
             MigrationScreenDestination

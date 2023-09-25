@@ -71,8 +71,6 @@
             android:theme="@style/AppTheme.SplashScreen"
             tools:replace="android:allowBackup,android:supportsRtl">
 
-        <profileable android:shell="true" />
-
         <activity
                 android:name=".ui.WireActivity"
                 android:exported="true"

@@ -99,7 +99,6 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
-androidTest = { id = "com.android.test", version.ref = "android-gradlePlugin" }
 
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]

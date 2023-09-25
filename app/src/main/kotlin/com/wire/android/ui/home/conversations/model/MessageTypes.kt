@@ -46,7 +46,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
-import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
@@ -63,6 +62,7 @@ import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.node.Document
 import org.commonmark.parser.Parser
+import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
@@ -179,17 +179,20 @@ internal fun MessageGenericAsset(
 private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
     return if (uiText is UIText.DynamicString) {
         val stringBuilder: StringBuilder = StringBuilder(uiText.value)
-        val mentions = uiText.mentions.sortedBy { it.start }.reversed()
-        val mentionList = mentions.mapNotNull {
+        val mentions = uiText.mentions
+            .filter { it.start >= 0 && it.length > 0 }
+            .sortedBy { it.start }
+            .reversed()
+        val mentionList = mentions.mapNotNull { mention ->
             // secured crash for mentions caused by web when text without mentions contains mention data
-            if (it.start + it.length < uiText.value.length && uiText.value.elementAt(it.start) == '@') {
-                val mentionName = uiText.value.substring(it.start, it.start + it.length)
-                stringBuilder.insert(it.start + it.length, MENTION_MARK)
-                stringBuilder.insert(it.start, MENTION_MARK)
+            if (mention.start + mention.length <= uiText.value.length && uiText.value.elementAt(mention.start) == '@') {
+                val mentionName = uiText.value.substring(mention.start, mention.start + mention.length)
+                stringBuilder.insert(mention.start + mention.length, MENTION_MARK)
+                stringBuilder.insert(mention.start, MENTION_MARK)
                 DisplayMention(
-                    it.userId,
-                    it.length,
-                    it.isSelfMention,
+                    mention.userId,
+                    mention.length,
+                    mention.isSelfMention,
                     mentionName
                 )
             } else {

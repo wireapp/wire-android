@@ -105,9 +105,7 @@ fun GroupCallGrid(
                                     SelectedParticipant(
                                         userId = participant.id,
                                         clientId = participant.clientId,
-                                        isSelfUser = isSelfUser,
-                                        isSelfUserCameraOn = isSelfUserCameraOn,
-                                        isSelfUserMuted = isSelfUserMuted
+                                        isSelfUser = isSelfUser
                                     )
                                 )
                             }

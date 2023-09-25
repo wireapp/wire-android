@@ -18,7 +18,6 @@
 package com.wire.android.util
 
 import java.net.URI
-import java.net.URLDecoder
 
 fun containsSchema(url: String): Boolean {
     return try {
@@ -29,11 +28,9 @@ fun containsSchema(url: String): Boolean {
 }
 
 fun normalizeLink(url: String): String {
-    val normalizedUrl = URLDecoder.decode(url, "UTF-8") // Decode URL to human-readable format
-
-    return if (containsSchema(normalizedUrl)) {
-        normalizedUrl
+    return if (containsSchema(url)) {
+        url
     } else {
-        "https://$normalizedUrl"
+        "https://$url"
     }
 }

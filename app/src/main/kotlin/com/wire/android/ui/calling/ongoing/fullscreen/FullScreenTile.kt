@@ -74,8 +74,16 @@ fun FullScreenTile(
                     ),
                 participantTitleState = it,
                 isSelfUser = selectedParticipant.isSelfUser,
-                isSelfUserCameraOn = selectedParticipant.isSelfUserCameraOn,
-                isSelfUserMuted = selectedParticipant.isSelfUserMuted,
+                isSelfUserCameraOn = if (selectedParticipant.isSelfUser) {
+                    sharedCallingViewModel.callState.isCameraOn
+                } else {
+                    it.isCameraOn
+                },
+                isSelfUserMuted = if (selectedParticipant.isSelfUser) {
+                    sharedCallingViewModel.callState.isMuted!!
+                } else {
+                    it.isMuted
+                },
                 shouldFill = false,
                 isZoomingEnabled = true,
                 onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,

@@ -96,7 +96,8 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    val alpha = if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
+    val alpha =
+        if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
         modifier = modifier,
         color = colorsScheme().callingParticipantTileBackgroundColor,
@@ -220,9 +221,9 @@ private fun CameraPreview(
             }
         }
         AndroidView(
-            factory = { videoPreview },
-            update = {
+            factory = {
                 onSelfUserVideoPreviewCreated(videoPreview)
+                videoPreview
             }
         )
     } else {
@@ -245,7 +246,8 @@ private fun OthersVideoRenderer(
     var offsetY by remember { mutableStateOf(0f) }
 
     val context = LocalContext.current
-    val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
+    val rendererFillColor =
+        (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
     if (isCameraOn || isSharingScreen) {
 
         val videoRenderer = remember {

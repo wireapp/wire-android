@@ -153,7 +153,6 @@ class WireActivityViewModel @Inject constructor(
                 updateLoggedInUsersCount(it.size)
             }
         }
-
     }
 
     private fun observeSyncState() {

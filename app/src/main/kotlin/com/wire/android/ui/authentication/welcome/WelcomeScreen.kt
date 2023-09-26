@@ -130,10 +130,8 @@ private fun WelcomeContent(
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
-    val enterpriseDisabledWithProxyDialogState =
-        rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    val createPersonalAccountDisabledWithProxyDialogState =
-        rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
     WireScaffold(topBar = {
         if (isThereActiveSession) {
@@ -153,13 +151,10 @@ private fun WelcomeContent(
             modifier = Modifier
                 .padding(internalPadding)
         ) {
-            val maxAccountsReachedDialogState =
-                rememberVisibilityState<MaxAccountsReachedDialogState>()
+            val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
             MaxAccountsReachedDialogContent(maxAccountsReachedDialogState) { navigateBack() }
             if (maxAccountsReached) {
-                maxAccountsReachedDialogState.show(
-                    maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState
-                )
+                maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
             }
 
             Icon(
@@ -169,10 +164,7 @@ private fun WelcomeContent(
             )
 
             if (state.isOnPremises) {
-                ServerTitle(
-                    serverLinks = state,
-                    modifier = Modifier.padding(top = dimensions().spacing16x)
-                )
+                ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
             }
 
             Column(
@@ -206,11 +198,10 @@ private fun WelcomeContent(
                     CreateEnterpriseAccountButton {
                         if (state.isProxyEnabled()) {
                             enterpriseDisabledWithProxyDialogState.show(
-                                enterpriseDisabledWithProxyDialogState.savedState
-                                    ?: FeatureDisabledWithProxyDialogState(
-                                        R.string.create_team_not_supported_dialog_description,
-                                        state.teams
-                                    )
+                                enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                    R.string.create_team_not_supported_dialog_description,
+                                    state.teams
+                                )
                             )
                         } else {
                             navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
@@ -225,17 +216,12 @@ private fun WelcomeContent(
                     onPrivateAccountClick = {
                         if (state.isProxyEnabled()) {
                             createPersonalAccountDisabledWithProxyDialogState.show(
-                                createPersonalAccountDisabledWithProxyDialogState.savedState
-                                    ?: FeatureDisabledWithProxyDialogState(
-                                        R.string.create_personal_account_not_supported_dialog_description
-                                    )
-                            )
-                        } else {
-                            navigate(
-                                NavigationCommand(
-                                    CreatePersonalAccountOverviewScreenDestination
+                                createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                    R.string.create_personal_account_not_supported_dialog_description
                                 )
                             )
+                        } else {
+                            navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination))
                         }
                     }
                 )
@@ -248,19 +234,15 @@ private fun WelcomeContent(
 @Composable
 private fun WelcomeCarousel() {
     val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
-    val icons: List<Int> =
-        typedArrayResource(id = R.array.welcome_carousel_icons).drawableResIdList()
+    val icons: List<Int> = typedArrayResource(id = R.array.welcome_carousel_icons).drawableResIdList()
     val texts: List<String> = stringArrayResource(id = R.array.welcome_carousel_texts).toList()
-    val items: List<CarouselPageData> =
-        icons.zip(texts) { icon, text -> CarouselPageData(icon, text) }
+    val items: List<CarouselPageData> = icons.zip(texts) { icon, text -> CarouselPageData(icon, text) }
 
     // adding repeated elements on both edges to have list like: [E A B C D E A] and because of that we can flip to the other side of the
     // list when we reach the end while keeping swipe capability both ways and from the user side it looks like an infinite loop both ways
-    val circularItemsList =
-        listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
+    val circularItemsList = listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
     val initialPage = 1
-    val pagerState =
-        rememberPagerState(initialPage = initialPage, pageCount = { circularItemsList.size })
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { circularItemsList.size })
 
     LaunchedEffect(pagerState) {
         autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
@@ -287,12 +269,7 @@ private suspend fun autoScrollCarousel(
     .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
     .flatMapLatest { (previousPage, currentPage) ->
         when {
-            shouldJumpToStart(
-                previousPage,
-                currentPage,
-                circularItemsList.lastIndex,
-                initialPage
-            ) -> flow {
+            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) -> flow {
                 emit(
                     CarouselScrollData(
                         scrollToPage = initialPage,
@@ -305,23 +282,9 @@ private suspend fun autoScrollCarousel(
                 previousPage,
                 currentPage,
                 circularItemsList.lastIndex
-            ) -> flow {
-                emit(
-                    CarouselScrollData(
-                        scrollToPage = circularItemsList.lastIndex - 1,
-                        animate = false
-                    )
-                )
-            }
+            ) -> flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
 
-            else -> flow {
-                emit(
-                    CarouselScrollData(
-                        scrollToPage = pageState.currentPage + 1,
-                        animate = true
-                    )
-                )
-            }.onEach {
+            else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach {
                 delay(
                     delay
                 )
@@ -413,20 +376,13 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
 
 @Composable
 @ReadOnlyComposable
-private fun typedArrayResource(@ArrayRes id: Int): TypedArray =
-    LocalContext.current.resources.obtainTypedArray(id)
+private fun typedArrayResource(@ArrayRes id: Int): TypedArray = LocalContext.current.resources.obtainTypedArray(id)
 
-private fun TypedArray.drawableResIdList(): List<Int> =
-    (0 until this.length()).map { this.getResourceId(it, 0) }
+private fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).map { this.getResourceId(it, 0) }
 
 // having list [E A B C D E A], when moving forward we reach the last one - second "A", we want to flip to the first "A"
 // to keep swipe capability both ways and the feeling of an endless loop
-private fun shouldJumpToStart(
-    previousPage: Int,
-    currentPage: Int,
-    lastPage: Int,
-    initialPage: Int
-): Boolean =
+private fun shouldJumpToStart(previousPage: Int, currentPage: Int, lastPage: Int, initialPage: Int): Boolean =
     currentPage == lastPage && previousPage < currentPage && previousPage >= initialPage
 
 // having list [E A B C D E A], when moving backward we reach the first one - first "E", we want to flip to the second "E"

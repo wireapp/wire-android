@@ -90,259 +90,236 @@ import org.junit.jupiter.api.extension.ExtendWith
 class WireActivityViewModelTest {
 
     @Test
-    fun `given Intent is null, when currentSession is present, then initialAppState is LOGGED_IN`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .arrange()
+    fun `given Intent is null, when currentSession is present, then initialAppState is LOGGED_IN`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .arrange()
 
-            viewModel.handleDeepLink(null, {}, {}, {})
+        viewModel.handleDeepLink(null, {}, {}, {})
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-        }
-
-    @Test
-    fun `given Intent is null, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .arrange()
-
-            viewModel.handleDeepLink(null, {}, {}, {})
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-        }
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+    }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then return SSOLogin result`() =
-        runTest {
-            val result = DeepLinkResult.SSOLogin.Success("cookie", "config")
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent is null, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-            coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any()) }
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
+        viewModel.handleDeepLink(null, {}, {}, {})
+
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+    }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is present, then initialAppState is LOGGED_IN and customBackEnd dialog is shown`() =
-        runTest {
-            val result = DeepLinkResult.CustomServerConfig("url")
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent with SSOLogin, when currentSession is present, then return SSOLogin result`() = runTest {
+        val result = DeepLinkResult.SSOLogin.Success("cookie", "config")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertEquals(
-                newServerConfig(1).links,
-                viewModel.globalAppState.customBackendDialog!!.serverLinks
-            )
-        }
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any()) }
+        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+    }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and customBackEnd dialog is shown`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .arrange()
+    fun `given Intent with ServerConfig, when currentSession is present, then initialAppState is LOGGED_IN and customBackEnd dialog is shown`() = runTest {
+        val result = DeepLinkResult.CustomServerConfig("url")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertEquals(
-                newServerConfig(1).links,
-                viewModel.globalAppState.customBackendDialog!!.serverLinks
-            )
-        }
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
+    }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then initialAppState is NOT_MIGRATED`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withMigrationRequired()
-                .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
-                .arrange()
+    fun `given Intent with ServerConfig, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and customBackEnd dialog is shown`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState)
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertEquals(null, viewModel.globalAppState.customBackendDialog)
-        }
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
+    }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then initialAppState is LOGGED_IN and result SSOLogin`() =
-        runTest {
-            val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(ssoLogin)
-                .arrange()
+    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then initialAppState is NOT_MIGRATED`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withMigrationRequired()
+            .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
-        }
-
-    @Test
-    fun `given Intent with SSOLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result SSOLogin`() =
-        runTest {
-            val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(ssoLogin)
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
-        }
+        assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState)
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        assertEquals(null, viewModel.globalAppState.customBackendDialog)
+    }
 
     @Test
-    fun `given Intent with MigrationLogin, when currentSession is present, then initialAppState is LOGGED_IN and result MigrationLogin`() =
-        runTest {
-            val result = DeepLinkResult.MigrationLogin("handle")
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent with SSOLogin, when currentSession is present, then initialAppState is LOGGED_IN and result SSOLogin`() = runTest {
+        val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(ssoLogin)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
-
-    @Test
-    fun `given Intent with MigrationLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result MigrationLogin`() =
-        runTest {
-            val result = DeepLinkResult.MigrationLogin("handle")
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
+    }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is present, then initialAppState is LOGGED_IN and result IncomingCall`() =
-        runTest {
-            val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent with SSOLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result SSOLogin`() = runTest {
+        val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(ssoLogin)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
-
-    @Test
-    fun `given Intent with IncomingCall, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() =
-        runTest {
-            val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-        }
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
+    }
 
     @Test
-    fun `given Intent with OpenConversation, when currentSession is present, then initialAppState is LOGGED_IN and result OpenConversation`() =
-        runTest {
-            val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent with MigrationLogin, when currentSession is present, then initialAppState is LOGGED_IN and result MigrationLogin`() = runTest {
+        val result = DeepLinkResult.MigrationLogin("handle")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
-
-    @Test
-    fun `given Intent with OpenConversation, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() =
-        runTest {
-            val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-        }
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+    }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is present, then then initialAppState is LOGGED_IN and result OpenOtherUserProfile`() =
-        runTest {
-            val userId = QualifiedID("val", "dom")
-            val result = DeepLinkResult.OpenOtherUserProfile(userId)
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent with MigrationLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result MigrationLogin`() = runTest {
+        val result = DeepLinkResult.MigrationLogin("handle")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+    }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() =
-        runTest {
-            val result = DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
+    fun `given Intent with IncomingCall, when currentSession is present, then initialAppState is LOGGED_IN and result IncomingCall`() = runTest {
+        val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
 
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-        }
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+    }
 
     @Test
-    fun `given Intent is null, when currentSession is present, then should not return any deeplink result`() =
-        runTest {
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .arrange()
+    fun `given Intent with IncomingCall, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+        val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
 
-            viewModel.handleDeepLink(null, {}, {}, arrangement.onDeepLinkResult)
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
 
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-        }
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+    }
+
+    @Test
+    fun `given Intent with OpenConversation, when currentSession is present, then initialAppState is LOGGED_IN and result OpenConversation`() = runTest {
+        val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+    }
+
+    @Test
+    fun `given Intent with OpenConversation, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+        val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+    }
+
+    @Test
+    fun `given Intent with OpenOtherUser, when currentSession is present, then then initialAppState is LOGGED_IN and result OpenOtherUserProfile`() = runTest {
+        val userId = QualifiedID("val", "dom")
+        val result = DeepLinkResult.OpenOtherUserProfile(userId)
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
+    }
+
+    @Test
+    fun `given Intent with OpenOtherUser, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+        val result = DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom"))
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(result)
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+    }
+
+    @Test
+    fun `given Intent is null, when currentSession is present, then should not return any deeplink result`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .arrange()
+
+        viewModel.handleDeepLink(null, {}, {}, arrangement.onDeepLinkResult)
+
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+    }
 
     @Test
     fun `given appUpdate is required, then should show the appUpdate dialog`() = runTest {
@@ -355,212 +332,180 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newIntent with Join Conversation Deep link, when user is not a member, then start join conversation flow`() =
-        runTest {
-            val (code, key, domain) = Triple("code", "key", "domain")
-            val isPasswordRequired = false
-            val (conversationName, conversationId, isSelfMember) = Triple(
-                "conversation_name",
-                ConversationId("id", "domain"),
-                false
-            )
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
-                .withCheckConversationCode(
-                    code,
-                    key,
-                    domain,
-                    CheckConversationInviteCodeUseCase.Result.Success(
-                        conversationName,
-                        conversationId,
-                        isSelfMember,
-                        isPasswordProtected = isPasswordRequired
-                    )
-                )
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
-                conversationName,
+    fun `given newIntent with Join Conversation Deep link, when user is not a member, then start join conversation flow`() = runTest {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val isPasswordRequired = false
+        val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), false)
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withCheckConversationCode(
                 code,
                 key,
                 domain,
-                isPasswordRequired
-            )
-            coVerify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-        }
-
-    @Test
-    fun `given newIntent with Join Conversation Deep link, when user is a member, then result JoinConversation deeplink`() =
-        runTest {
-            val (code, key, domain) = Triple("code", "key", "domain")
-            val isPasswordRequired = false
-            val (conversationName, conversationId, isSelfMember) = Triple(
-                "conversation_name",
-                ConversationId("id", "domain"),
-                true
-            )
-            val result = DeepLinkResult.JoinConversation(code, key, domain)
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .withCheckConversationCode(
-                    code,
-                    key,
-                    domain,
-                    CheckConversationInviteCodeUseCase.Result.Success(
-                        conversationName,
-                        conversationId,
-                        isSelfMember,
-                        isPasswordProtected = isPasswordRequired
-                    )
-                ).arrange()
-
-            viewModel.handleDeepLink(
-                mockedIntent(),
-                {},
-                arrangement.onSuccess,
-                arrangement.onDeepLinkResult
-            )
-
-            viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            verify(exactly = 1) { arrangement.onSuccess(conversationId) }
-        }
-
-    @Test
-    fun `given valid accounts, all with persistent socket disabled, then stop socket service`() =
-        runTest {
-            val statuses = listOf(
-                PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
-                PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), false)
-            )
-            val (arrangement, manager) = Arrangement()
-                .withPersistentWebSocketConnectionStatuses(statuses)
-                .arrange()
-
-            manager.observePersistentConnectionStatus()
-
-            coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
-            coVerify(exactly = 1) { arrangement.servicesManager.stopPersistentWebSocketService() }
-        }
-
-    @Test
-    fun `given valid accounts, at least one with persistent socket enabled, and socket service not running, then start service`() =
-        runTest {
-            val statuses = listOf(
-                PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
-                PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
-            )
-            val (arrangement, manager) = Arrangement()
-                .withPersistentWebSocketConnectionStatuses(statuses)
-                .withIsPersistentWebSocketServiceRunning(false)
-                .arrange()
-
-            manager.observePersistentConnectionStatus()
-
-            coVerify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
-            coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
-        }
-
-    @Test
-    fun `given valid accounts, at least one with persistent socket enabled, and socket service running, then do not start service again`() =
-        runTest {
-            val statuses = listOf(
-                PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
-                PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
-            )
-            val (arrangement, manager) = Arrangement()
-                .withPersistentWebSocketConnectionStatuses(statuses)
-                .withIsPersistentWebSocketServiceRunning(true)
-                .arrange()
-
-            manager.observePersistentConnectionStatus()
-
-            coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
-            coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
-        }
-
-    @Test
-    fun `given newClient is registered for the current user, then should show the NewClient dialog`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
-                .arrange()
-
-            assertEquals(
-                NewClientsData.CurrentUser(
-                    listOf(NewClientInfo.fromClient(TestClient.CLIENT)),
-                    USER_ID
-                ),
-                viewModel.globalAppState.newClientDialog
-            )
-        }
-
-    @Test
-    fun `given newClient is registered for the other user, then should show the NewClient dialog`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withNewClient(
-                    NewClientResult.InOtherAccount(
-                        listOf(TestClient.CLIENT),
-                        USER_ID,
-                        "name",
-                        "handle"
-                    )
+                CheckConversationInviteCodeUseCase.Result.Success(
+                    conversationName,
+                    conversationId,
+                    isSelfMember,
+                    isPasswordProtected = isPasswordRequired
                 )
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
-                .arrange()
-
-            assertEquals(
-                NewClientsData.OtherUser(
-                    listOf(NewClientInfo.fromClient(TestClient.CLIENT)),
-                    USER_ID,
-                    "name",
-                    "handle"
-                ),
-                viewModel.globalAppState.newClientDialog
             )
-        }
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
+
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
+            conversationName,
+            code,
+            key,
+            domain,
+            isPasswordRequired
+        )
+        coVerify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+    }
 
     @Test
-    fun `given newClient is registered when current screen does not allow dialog, then remember NewClient dialog state`() =
-        runTest {
-            val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
-            val newClientFlow = MutableSharedFlow<NewClientResult>()
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withNewClient(newClientFlow)
-                .withCurrentScreen(currentScreenFlow)
-                .arrange()
+    fun `given newIntent with Join Conversation Deep link, when user is a member, then result JoinConversation deeplink`() = runTest {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val isPasswordRequired = false
+        val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), true)
+        val result = DeepLinkResult.JoinConversation(code, key, domain)
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(result)
+            .withCheckConversationCode(
+                code,
+                key,
+                domain,
+                CheckConversationInviteCodeUseCase.Result.Success(
+                    conversationName,
+                    conversationId,
+                    isSelfMember,
+                    isPasswordProtected = isPasswordRequired
+                )
+            ).arrange()
 
-            currentScreenFlow.value = CurrentScreen.ImportMedia
-            newClientFlow.emit(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+        viewModel.handleDeepLink(mockedIntent(), {}, arrangement.onSuccess, arrangement.onDeepLinkResult)
 
-            advanceUntilIdle()
-
-            assertEquals(null, viewModel.globalAppState.newClientDialog)
-        }
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+        verify(exactly = 1) { arrangement.onSuccess(conversationId) }
+    }
 
     @Test
-    fun `given newClient is registered when current screen changed to ImportMedea, then remember NewClient dialog state`() =
-        runTest {
-            val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
-                .withCurrentScreen(currentScreenFlow)
-                .arrange()
+    fun `given valid accounts, all with persistent socket disabled, then stop socket service`() = runTest {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), false)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .arrange()
 
-            currentScreenFlow.value = CurrentScreen.ImportMedia
+        manager.observePersistentConnectionStatus()
 
-            assertEquals(null, viewModel.globalAppState.newClientDialog)
-        }
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 1) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given valid accounts, at least one with persistent socket enabled, and socket service not running, then start service`() = runTest {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(false)
+            .arrange()
+
+        manager.observePersistentConnectionStatus()
+
+        coVerify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given valid accounts, at least one with persistent socket enabled, and socket service running, then do not start service again`() = runTest {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(true)
+            .arrange()
+
+        manager.observePersistentConnectionStatus()
+
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given newClient is registered for the current user, then should show the NewClient dialog`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
+            .arrange()
+
+        assertEquals(
+            NewClientsData.CurrentUser(listOf(NewClientInfo.fromClient(TestClient.CLIENT)), USER_ID),
+            viewModel.globalAppState.newClientDialog
+        )
+    }
+
+    @Test
+    fun `given newClient is registered for the other user, then should show the NewClient dialog`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(NewClientResult.InOtherAccount(listOf(TestClient.CLIENT), USER_ID, "name", "handle"))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
+            .arrange()
+
+        assertEquals(
+            NewClientsData.OtherUser(
+                listOf(NewClientInfo.fromClient(TestClient.CLIENT)),
+                USER_ID,
+                "name",
+                "handle"
+            ),
+            viewModel.globalAppState.newClientDialog
+        )
+    }
+
+    @Test
+    fun `given newClient is registered when current screen does not allow dialog, then remember NewClient dialog state`() = runTest {
+        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+        val newClientFlow = MutableSharedFlow<NewClientResult>()
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(newClientFlow)
+            .withCurrentScreen(currentScreenFlow)
+            .arrange()
+
+        currentScreenFlow.value = CurrentScreen.ImportMedia
+        newClientFlow.emit(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.globalAppState.newClientDialog)
+    }
+
+    @Test
+    fun `given newClient is registered when current screen changed to ImportMedea, then remember NewClient dialog state`() = runTest {
+        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
+            .withCurrentScreen(currentScreenFlow)
+            .arrange()
+
+        currentScreenFlow.value = CurrentScreen.ImportMedia
+
+        assertEquals(null, viewModel.globalAppState.newClientDialog)
+    }
 
     @Test
     fun `when dismissNewClientsDialog is called, then cleared NewClients for user`() = runTest {
@@ -573,48 +518,44 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given session and screenshot censoring disabled, when observing it, then set state to false`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
-                .arrange()
-            advanceUntilIdle()
-            assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
-        }
+    fun `given session and screenshot censoring disabled, when observing it, then set state to false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
 
     @Test
-    fun `given session and screenshot censoring enabled by user, when observing it, then set state to true`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
-                .arrange()
-            advanceUntilIdle()
-            assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
-        }
+    fun `given session and screenshot censoring enabled by user, when observing it, then set state to true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
 
     @Test
-    fun `given session and screenshot censoring enforced by team, when observing it, then set state to true`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
-                .arrange()
-            advanceUntilIdle()
-            assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
-        }
+    fun `given session and screenshot censoring enforced by team, when observing it, then set state to true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
 
     @Test
-    fun `given no session, when observing screenshot censoring, then set state to false`() =
-        runTest {
-            val (_, viewModel) = Arrangement()
-                .withNoCurrentSession()
-                .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
-                .arrange()
-            advanceUntilIdle()
-            assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
-        }
+    fun `given no session, when observing screenshot censoring, then set state to false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
 
     private class Arrangement {
         init {
@@ -624,9 +565,7 @@ class WireActivityViewModelTest {
             // Default empty values
             mockUri()
             coEvery { currentSessionFlow() } returns flowOf()
-            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(
-                newServerConfig(1).links
-            )
+            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { getSessionsUseCase.invoke() }
             coEvery { migrationManager.shouldMigrate() } returns false
@@ -636,12 +575,8 @@ class WireActivityViewModelTest {
             coEvery { observeNewClients() } returns flowOf()
             every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
                     observeScreenshotCensoringConfigUseCase
-            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(
-                ObserveScreenshotCensoringConfigResult.Disabled
-            )
-            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
-                CurrentScreen.SomeOther
-            )
+            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         }
 
         @MockK
@@ -689,15 +624,6 @@ class WireActivityViewModelTest {
         lateinit var currentScreenManager: CurrentScreenManager
 
         @MockK
-        lateinit var isUserLoggedIn: IsUserLoggedInUseCase
-
-        @MockK
-        lateinit var updateLoggedInUsersCount: UpdateLoggedInUsersCountUseCase
-
-        @MockK
-        lateinit var observeValidAccounts: ObserveValidAccountsUseCase
-
-        @MockK
         private lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
 
         @MockK
@@ -708,6 +634,15 @@ class WireActivityViewModelTest {
 
         @MockK(relaxed = true)
         lateinit var onSuccess: (ConversationId) -> Unit
+
+        @MockK
+        lateinit var isUserLoggedIn: IsUserLoggedInUseCase
+
+        @MockK
+        lateinit var updateLoggedInUsersCount: UpdateLoggedInUsersCountUseCase
+
+        @MockK
+        lateinit var observeValidAccounts: ObserveValidAccountsUseCase
 
         private val viewModel by lazy {
             WireActivityViewModel(
@@ -734,14 +669,8 @@ class WireActivityViewModelTest {
         }
 
         fun withSomeCurrentSession(): Arrangement = apply {
-            coEvery { currentSessionFlow() } returns flowOf(
-                CurrentSessionResult.Success(
-                    TEST_ACCOUNT_INFO
-                )
-            )
-            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(
-                TEST_ACCOUNT_INFO
-            )
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
         }
 
         fun withNoCurrentSession(): Arrangement {
@@ -774,13 +703,10 @@ class WireActivityViewModelTest {
             } returns result
         }
 
-        fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement =
-            apply {
-                coEvery {
-                    coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus()
-                } returns
-                        ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(flowOf(list))
-            }
+        fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus() } returns
+                    ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(flowOf(list))
+        }
 
         fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
@@ -802,10 +728,9 @@ class WireActivityViewModelTest {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
         }
 
-        suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) =
-            apply {
-                coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
-            }
+        suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {
+            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
+        }
 
         fun arrange() = this to viewModel
     }

@@ -55,7 +55,6 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -138,7 +137,7 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeConversationDetails(coroutineScope: CoroutineScope) {
         conversationDetails(conversationId = conversationId)
-            .filterIsInstance<ObserveConversationDetailsResult.Success>() // TODO handle StorageFailure
+            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
             .flowOn(dispatchers.default())
             .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))

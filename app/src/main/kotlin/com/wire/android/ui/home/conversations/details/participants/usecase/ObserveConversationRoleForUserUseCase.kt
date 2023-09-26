@@ -26,7 +26,6 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -45,7 +44,7 @@ class ObserveConversationRoleForUserUseCase @Inject constructor(
         combine(
             getSelfUser(),
             observeConversationDetails(conversationId)
-                .filterIsInstance<ObserveConversationDetailsResult.Success>() // TODO handle StorageFailure
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
                 .map { it.conversationDetails },
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->

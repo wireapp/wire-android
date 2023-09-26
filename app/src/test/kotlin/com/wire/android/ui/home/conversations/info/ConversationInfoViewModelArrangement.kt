@@ -32,7 +32,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
@@ -87,7 +86,7 @@ class ConversationInfoViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
-            ObserveConversationDetailsResult.Success(it)
+            ObserveConversationDetailsUseCase.Result.Success(it)
         }
     }
 
@@ -99,7 +98,7 @@ class ConversationInfoViewModelArrangement {
     }
 
     suspend fun withConversationDetailFailure(failure: StorageFailure) = apply {
-        coEvery { observeConversationDetails(any()) } returns flowOf(ObserveConversationDetailsResult.Failure(failure))
+        coEvery { observeConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Failure(failure))
     }
 
     suspend fun withSelfUser() = apply {

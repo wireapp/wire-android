@@ -40,7 +40,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -86,9 +85,9 @@ class ConversationInfoViewModel @Inject constructor(
             .collect { it.handleConversationDetailsResult(onNotFound) }
     }
 
-    private fun ObserveConversationDetailsResult.handleConversationDetailsResult(onNotFound: () -> Unit) {
+    private fun ObserveConversationDetailsUseCase.Result.handleConversationDetailsResult(onNotFound: () -> Unit) {
         when (this) {
-            is ObserveConversationDetailsResult.Failure -> {
+            is ObserveConversationDetailsUseCase.Result.Failure -> {
                 when (val failure = this.storageFailure) {
                     is StorageFailure.DataNotFound -> onNotFound()
 
@@ -97,7 +96,7 @@ class ConversationInfoViewModel @Inject constructor(
                 }
             }
 
-            is ObserveConversationDetailsResult.Success -> handleConversationDetails(
+            is ObserveConversationDetailsUseCase.Result.Success -> handleConversationDetails(
                 this.conversationDetails
             )
         }

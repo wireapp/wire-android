@@ -42,7 +42,6 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -596,7 +595,7 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
-            .map { ObserveConversationDetailsResult.Success(it) }
+            .map { ObserveConversationDetailsUseCase.Result.Success(it) }
         conversationDetailsChannel.send(conversationDetails)
     }
 

@@ -41,7 +41,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.functional.onFailure
@@ -118,7 +117,7 @@ class MediaGalleryViewModel @Inject constructor(
     private fun getConversationTitle() {
         viewModelScope.launch {
             getConversationDetails(conversationId)
-                .filterIsInstance<ObserveConversationDetailsResult.Success>() // TODO handle StorageFailure
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
                 .map { it.conversationDetails }
                 .collect {
                     updateMediaGalleryTitle(getScreenTitle(it))

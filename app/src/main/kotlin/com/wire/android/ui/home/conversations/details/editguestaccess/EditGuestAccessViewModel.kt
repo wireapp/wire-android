@@ -32,7 +32,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
@@ -112,7 +111,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private fun observeConversationDetails() {
         viewModelScope.launch {
             val conversationDetailsFlow = observeConversationDetails(conversationId)
-                .filterIsInstance<ObserveConversationDetailsResult.Success>()
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
                 .map { it.conversationDetails }
                 .distinctUntilChanged()
                 .flowOn(dispatcher.io())

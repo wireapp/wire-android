@@ -33,7 +33,6 @@ import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
@@ -70,7 +69,7 @@ class EditConversationMetadataViewModel @Inject constructor(
     private fun observeConversationDetails() {
         viewModelScope.launch {
             observeConversationDetails(conversationId)
-                .filterIsInstance<ObserveConversationDetailsResult.Success>()
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
                 .map { it.conversationDetails }
                 .distinctUntilChanged()
                 .flowOn(dispatcher.io())

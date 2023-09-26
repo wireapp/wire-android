@@ -45,7 +45,6 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.functional.Either
@@ -235,7 +234,7 @@ class MediaGalleryViewModelTest {
         }
 
         fun withConversationDetails(conversationDetails: ConversationDetails): Arrangement {
-            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsResult.Success(conversationDetails))
+            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
             return this
         }
 

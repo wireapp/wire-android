@@ -148,7 +148,7 @@ class ConversationListViewModel @Inject constructor(
         }
         viewModelScope.launch {
             searchQueryFlow.combine(
-                observeConversationListDetails()
+                observeConversationListDetails(includeArchived = false)
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(

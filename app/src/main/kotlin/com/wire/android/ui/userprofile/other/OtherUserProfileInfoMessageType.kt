@@ -50,12 +50,12 @@ sealed class OtherUserProfileInfoMessageType(override val uiText: UIText) : Snac
         OtherUserProfileInfoMessageType(UIText.StringResource(R.string.blocking_user_success, name))
 
     object MutingOperationError : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.error_updating_muting_setting))
-
     object UnblockingUserOperationError : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.error_unblocking_user))
-
     object ConversationContentDeleted : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.conversation_content_deleted))
-
     object ConversationContentDeleteFailure :
         OtherUserProfileInfoMessageType(UIText.StringResource(R.string.conversation_content_delete_failure))
+
+    object ArchiveConversationError : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.error_archiving_conversation))
+    object ArchiveConversationSuccess : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.success_archiving_conversation))
 
 }

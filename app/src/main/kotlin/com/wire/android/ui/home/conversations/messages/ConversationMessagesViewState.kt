@@ -24,6 +24,7 @@ import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Instant
@@ -33,7 +34,8 @@ data class ConversationMessagesViewState(
     val firstUnreadInstant: Instant? = null,
     val firstuUnreadEventIndex: Int = 0,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val audioMessagesState: Map<String, AudioState> = emptyMap()
+    val audioMessagesState: Map<String, AudioState> = emptyMap(),
+    val usersTyping: Set<UserId> = emptySet(),
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +51,9 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -68,7 +71,8 @@ fun EnabledMessageComposer(
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?
+    tempWritableImageUri: Uri?,
+    usersTyping: Set<UserId>
 ) {
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
@@ -246,6 +250,10 @@ fun EnabledMessageComposer(
                                 )
                                 .animateContentSize()
                         )
+                    }
+
+                    if (usersTyping.isNotEmpty()) {
+                        Text(text = usersTyping.joinToString(",") { it.value.obfuscateId() })
                     }
                 }
             }

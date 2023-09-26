@@ -54,6 +54,7 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
@@ -83,7 +84,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
-    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
+    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
+    private val observeUsersTyping: ObserveUsersTypingUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -100,6 +102,18 @@ class ConversationMessagesViewModel @Inject constructor(
         loadPaginatedMessages()
         loadLastMessageInstant()
         observeAudioPlayerState()
+        observeUsersTypingState()
+    }
+
+    private fun observeUsersTypingState() {
+        viewModelScope.launch {
+            observeUsersTyping.invoke(conversationId).collect {
+                appLogger.d("Collecting users typing: $it")
+                conversationViewState = conversationViewState.copy(
+                    usersTyping = it
+                )
+            }
+        }
     }
 
     private fun observeAudioPlayerState() {

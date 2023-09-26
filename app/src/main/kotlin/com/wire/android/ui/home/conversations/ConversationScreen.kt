@@ -580,6 +580,7 @@ private fun ConversationScreen(
                 ConversationScreenContent(
                     conversationId = conversationInfoViewState.conversationId,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                    usersTyping = conversationMessagesViewState.usersTyping,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
@@ -624,6 +625,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
+    usersTyping: Set<UserId>,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
@@ -683,8 +685,8 @@ private fun ConversationScreenContent(
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         tempWritableVideoUri = tempWritableVideoUri,
-        tempWritableImageUri = tempWritableImageUri
-
+        tempWritableImageUri = tempWritableImageUri,
+        usersTyping = usersTyping
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

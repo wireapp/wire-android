@@ -90,9 +90,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 class WireActivityViewModelTest {
 
     @Test
-    fun `given Intent is null, when currentSession is present, then initialAppState is LOGGED_IN`() = runTest {
+    fun `given Intent is null, when there is a logged in user, then initialAppState is LOGGED_IN`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .arrange()
 
         viewModel.handleDeepLink(null, {}, {}, {})
@@ -101,9 +101,9 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent is null, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+    fun `given Intent is null, when no user logged in, then initialAppState is NOT_LOGGED_IN`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .arrange()
 
         viewModel.handleDeepLink(null, {}, {}, {})
@@ -112,10 +112,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then return SSOLogin result`() = runTest {
+    fun `given Intent with SSOLogin, when there is a logged in user, then return SSOLogin result`() = runTest {
         val result = DeepLinkResult.SSOLogin.Success("cookie", "config")
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -125,10 +125,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is present, then initialAppState is LOGGED_IN and customBackEnd dialog is shown`() = runTest {
+    fun `given Intent with ServerConfig, when there is a logged in user, then initialAppState is LOGGED_IN and customBackEnd dialog is shown`() = runTest {
         val result = DeepLinkResult.CustomServerConfig("url")
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -140,9 +140,9 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and customBackEnd dialog is shown`() = runTest {
+    fun `given Intent with ServerConfig, when no user logged in, then initialAppState is NOT_LOGGED_IN and customBackEnd dialog is shown`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
             .arrange()
 
@@ -154,9 +154,9 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then initialAppState is NOT_MIGRATED`() = runTest {
+    fun `given Intent with ServerConfig, when no user logged in and migration is required, then initialAppState is NOT_MIGRATED`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withMigrationRequired()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
             .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
@@ -170,10 +170,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then initialAppState is LOGGED_IN and result SSOLogin`() = runTest {
+    fun `given Intent with SSOLogin, when there is a logged in user, then initialAppState is LOGGED_IN and result SSOLogin`() = runTest {
         val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(ssoLogin)
             .arrange()
 
@@ -184,10 +184,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result SSOLogin`() = runTest {
+    fun `given Intent with SSOLogin, when no user logged in, then initialAppState is NOT_LOGGED_IN and result SSOLogin`() = runTest {
         val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withDeepLinkResult(ssoLogin)
             .arrange()
 
@@ -198,10 +198,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with MigrationLogin, when currentSession is present, then initialAppState is LOGGED_IN and result MigrationLogin`() = runTest {
+    fun `given Intent with MigrationLogin, when there is a logged in user, then initialAppState is LOGGED_IN and result MigrationLogin`() = runTest {
         val result = DeepLinkResult.MigrationLogin("handle")
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -212,10 +212,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with MigrationLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result MigrationLogin`() = runTest {
+    fun `given Intent with MigrationLogin, when no user logged in, then initialAppState is NOT_LOGGED_IN and result MigrationLogin`() = runTest {
         val result = DeepLinkResult.MigrationLogin("handle")
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -229,7 +229,7 @@ class WireActivityViewModelTest {
     fun `given Intent with IncomingCall, when currentSession is present, then initialAppState is LOGGED_IN and result IncomingCall`() = runTest {
         val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -240,10 +240,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+    fun `given Intent with IncomingCall, when no user logged in, then initialAppState is NOT_LOGGED_IN`() = runTest {
         val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -254,10 +254,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenConversation, when currentSession is present, then initialAppState is LOGGED_IN and result OpenConversation`() = runTest {
+    fun `given Intent with OpenConversation, when there is a logged in user, then initialAppState is LOGGED_IN and result OpenConversation`() = runTest {
         val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -268,10 +268,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenConversation, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+    fun `given Intent with OpenConversation, when no user logged in, then initialAppState is NOT_LOGGED_IN`() = runTest {
         val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -282,11 +282,11 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is present, then then initialAppState is LOGGED_IN and result OpenOtherUserProfile`() = runTest {
+    fun `given Intent with OpenOtherUser, when there is a logged in user, then then initialAppState is LOGGED_IN and result OpenOtherUserProfile`() = runTest {
         val userId = QualifiedID("val", "dom")
         val result = DeepLinkResult.OpenOtherUserProfile(userId)
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -297,10 +297,10 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
+    fun `given Intent with OpenOtherUser, when no user logged in, then initialAppState is NOT_LOGGED_IN`() = runTest {
         val result = DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom"))
         val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withDeepLinkResult(result)
             .arrange()
 
@@ -311,9 +311,9 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent is null, when currentSession is present, then should not return any deeplink result`() = runTest {
+    fun `given Intent is null, when there is a logged in user, then should not return any deeplink result`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .arrange()
 
         viewModel.handleDeepLink(null, {}, {}, arrangement.onDeepLinkResult)
@@ -324,7 +324,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given appUpdate is required, then should show the appUpdate dialog`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withAppUpdateRequired(true)
             .arrange()
 
@@ -337,6 +337,7 @@ class WireActivityViewModelTest {
         val isPasswordRequired = false
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), false)
         val (arrangement, viewModel) = Arrangement()
+            .withLoggedInUser()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
             .withCheckConversationCode(
@@ -371,6 +372,7 @@ class WireActivityViewModelTest {
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), true)
         val result = DeepLinkResult.JoinConversation(code, key, domain)
         val (arrangement, viewModel) = Arrangement()
+            .withLoggedInUser()
             .withSomeCurrentSession()
             .withDeepLinkResult(result)
             .withCheckConversationCode(
@@ -445,7 +447,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given newClient is registered for the current user, then should show the NewClient dialog`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
             .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
@@ -459,7 +461,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given newClient is registered for the other user, then should show the NewClient dialog`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withNewClient(NewClientResult.InOtherAccount(listOf(TestClient.CLIENT), USER_ID, "name", "handle"))
             .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
@@ -480,7 +482,7 @@ class WireActivityViewModelTest {
         val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
         val newClientFlow = MutableSharedFlow<NewClientResult>()
         val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withNewClient(newClientFlow)
             .withCurrentScreen(currentScreenFlow)
             .arrange()
@@ -497,7 +499,7 @@ class WireActivityViewModelTest {
     fun `given newClient is registered when current screen changed to ImportMedea, then remember NewClient dialog state`() = runTest {
         val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
         val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
+            .withNoLoggedInUser()
             .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
             .withCurrentScreen(currentScreenFlow)
             .arrange()
@@ -520,7 +522,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given session and screenshot censoring disabled, when observing it, then set state to false`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withNoCurrentSession()
             .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Disabled)
             .arrange()
         advanceUntilIdle()
@@ -530,7 +532,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given session and screenshot censoring enabled by user, when observing it, then set state to true`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
             .arrange()
         advanceUntilIdle()
@@ -540,7 +542,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given session and screenshot censoring enforced by team, when observing it, then set state to true`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withSomeCurrentSession()
+            .withLoggedInUser()
             .withScreenshotCensoringConfig(ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings)
             .arrange()
         advanceUntilIdle()
@@ -577,6 +579,7 @@ class WireActivityViewModelTest {
                     observeScreenshotCensoringConfigUseCase
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
+            coEvery { observeValidAccounts() } returns flowOf()
         }
 
         @MockK
@@ -666,6 +669,16 @@ class WireActivityViewModelTest {
                 updateLoggedInUsersCount = updateLoggedInUsersCount,
                 observeValidAccounts = observeValidAccounts
             )
+        }
+
+        fun withLoggedInUser(): Arrangement = apply {
+            coEvery { isUserLoggedIn() } returns true
+//            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
+        }
+
+        fun withNoLoggedInUser(): Arrangement = apply {
+            coEvery { isUserLoggedIn() } returns false
+//            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
         }
 
         fun withSomeCurrentSession(): Arrangement = apply {

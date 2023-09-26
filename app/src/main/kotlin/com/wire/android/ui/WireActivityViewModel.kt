@@ -148,6 +148,10 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
+        observeAccounts()
+    }
+
+    private fun observeAccounts() {
         viewModelScope.launch {
             observeValidAccounts().distinctUntilChanged().collectLatest {
                 updateLoggedInUsersCount(it.size)
@@ -395,7 +399,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    fun shouldLogIn(): Boolean = runBlocking { !isUserLoggedIn() }
+    private fun shouldLogIn(): Boolean = runBlocking { !isUserLoggedIn() }
 
     fun shouldMigrate(): Boolean = runBlocking {
         migrationManager.shouldMigrate()

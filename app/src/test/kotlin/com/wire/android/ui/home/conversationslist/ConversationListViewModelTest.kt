@@ -119,7 +119,7 @@ class ConversationListViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationListDetailsUseCase.invoke() } returns emptyFlow()
+        coEvery { observeConversationListDetailsUseCase(false) } returns emptyFlow()
 
         mockUri()
         conversationListViewModel =
@@ -141,7 +141,7 @@ class ConversationListViewModelTest {
                 userTypeMapper = UserTypeMapper(),
             )
 
-        coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
+        coEvery { observeConversationListDetailsUseCase(false) } returns flowOf(listOf())
     }
 
     @Test

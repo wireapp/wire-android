@@ -96,7 +96,7 @@ class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
-    private val observeValidAccount: ObserveValidAccountsUseCase,
+    private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -149,7 +149,7 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         viewModelScope.launch {
-            observeValidAccount().distinctUntilChanged().collectLatest {
+            observeValidAccounts().distinctUntilChanged().collectLatest {
                 updateLoggedInUsersCount(it.size)
             }
         }
@@ -232,6 +232,7 @@ class WireActivityViewModel @Inject constructor(
     val initialAppState: InitialAppState
         get() = when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
+            shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
             else -> InitialAppState.LOGGED_IN
         }
 

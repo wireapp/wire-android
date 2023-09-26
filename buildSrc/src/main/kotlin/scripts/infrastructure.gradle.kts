@@ -22,7 +22,6 @@ package scripts
 
 import findVersion
 import scripts.Variants_gradle.Default
-import java.util.Locale
 import java.util.Properties
 
 tasks.register("clean", Delete::class) {

@@ -126,14 +126,10 @@ class WireActivity : AppCompatActivity() {
 
         viewModel.observePersistentConnectionStatus()
 
-        val startDestination = if (viewModel.initialAppState == InitialAppState.NOT_MIGRATED) {
-            MigrationScreenDestination
-        } else {
-            if (viewModel.shouldLogIn()) {
-                WelcomeScreenDestination
-            } else {
-                HomeScreenDestination
-            }
+        val startDestination = when (viewModel.initialAppState) {
+            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
+            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+            InitialAppState.LOGGED_IN -> HomeScreenDestination
         }
         setComposableContent(startDestination) {
             handleDeepLink(intent, savedInstanceState)

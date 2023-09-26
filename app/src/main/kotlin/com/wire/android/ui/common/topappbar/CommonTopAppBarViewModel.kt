@@ -43,7 +43,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,8 +60,8 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
 
-    private suspend fun connectivityFlow(userId: UserId): Flow<Connectivity> = coreLogic.sessionScope(userId) {
-        observeSyncState().stateIn(viewModelScope).map {
+    private fun connectivityFlow(userId: UserId): Flow<Connectivity> = coreLogic.sessionScope(userId) {
+        observeSyncState().map {
             when (it) {
                 is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
                 SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING

@@ -35,10 +35,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun HighlightSubtitle(
@@ -47,20 +47,22 @@ fun HighlightSubtitle(
     suffix: String = "@"
 ) {
     val scope = rememberCoroutineScope()
-
     var highlightIndexes by remember {
         mutableStateOf(emptyList<MatchQueryResult>())
     }
 
+    val queryWithoutSuffix = searchQuery.removeQueryPrefix()
+
     SideEffect {
         scope.launch {
             highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-                matchText = searchQuery.validateSearchQuery(),
+                matchText = queryWithoutSuffix,
                 text = subTitle
             )
         }
     }
-    if (highlightIndexes.isNotEmpty()) {
+
+    if (queryWithoutSuffix != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -76,14 +78,16 @@ fun HighlightSubtitle(
                 }
 
                 highlightIndexes
-                    .forEach { highLightIndexes ->
-                        addStyle(
-                            style = SpanStyle(
-                                background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
-                            ),
-                            start = highLightIndexes.startIndex + suffix.length,
-                            end = highLightIndexes.endIndex + suffix.length
-                        )
+                    .forEach { highLightIndex ->
+                        if (highLightIndex.endIndex <= this.length) {
+                            addStyle(
+                                style = SpanStyle(
+                                    background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
+                                ),
+                                start = highLightIndex.startIndex + suffix.length,
+                                end = highLightIndex.endIndex + suffix.length
+                            )
+                        }
                     }
             },
             maxLines = 1,
@@ -97,13 +101,5 @@ fun HighlightSubtitle(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-private fun String.validateSearchQuery(): String {
-    if (startsWith("@")) {
-        return removePrefix("@")
-    } else {
-        return this
     }
 }

@@ -171,7 +171,8 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-            .testTag("password field")
+            .testTag("password field"),
+        autofill = true
     )
 }
 

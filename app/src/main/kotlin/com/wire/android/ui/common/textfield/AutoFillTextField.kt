@@ -29,9 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -70,7 +72,8 @@ internal fun AutoFillTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onTap: (Offset) -> Unit = { },
 ) {
     val autofillNode = AutofillNode(
         autofillTypes = autofillTypes,
@@ -103,18 +106,26 @@ internal fun AutoFillTextField(
         shape = shape,
         colors = colors,
         modifier = modifier
-            .onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() }
-            .onFocusChanged { focusState ->
-                autofill?.run {
-                    if (focusState.isFocused) {
-                        requestAutofillForNode(autofillNode)
-                    } else {
-                        cancelAutofillForNode(autofillNode)
-                    }
-                }
-            }
+            .fillBounds(autofillNode)
+            .defaultOnFocusAutoFill(autofill, autofillNode),
+        onTap = onTap
     )
 }
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.fillBounds(autofillNode: AutofillNode) = this.then(
+    Modifier.onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() }
+)
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.defaultOnFocusAutoFill(autofill: Autofill?, autofillNode: AutofillNode): Modifier =
+    then(Modifier.onFocusChanged { focusState ->
+        if (focusState.isFocused) {
+            autofill?.requestAutofillForNode(autofillNode)
+        } else {
+            autofill?.cancelAutofillForNode(autofillNode)
+        }
+    })
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

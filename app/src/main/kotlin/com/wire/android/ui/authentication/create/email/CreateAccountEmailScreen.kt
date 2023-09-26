@@ -25,7 +25,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -69,9 +67,8 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.textfield.AutoFillTextField
+import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -95,7 +92,7 @@ fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfi
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun EmailContent(
     state: CreateAccountEmailViewState,
@@ -109,7 +106,6 @@ private fun EmailContent(
     tosUrl: String,
     serverConfig: ServerConfig.Links
 ) {
-    clearAutofillTree()
     val focusRequester = remember { FocusRequester() }
 
     Scaffold(topBar = {
@@ -144,8 +140,7 @@ private fun EmailContent(
                     )
                     .testTag("createTeamText")
             )
-            AutoFillTextField(
-                autofillTypes = listOf(AutofillType.EmailAddress),
+            WireTextField(
                 value = state.email,
                 onValueChange = onEmailChange,
                 placeholderText = stringResource(R.string.create_account_email_placeholder),

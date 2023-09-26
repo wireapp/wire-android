@@ -45,6 +45,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 
 @Composable
 fun DropDownMentionsSuggestions(
+    searchQuery: String,
     currentSelectedLineIndex: Int,
     cursorCoordinateY: Float,
     membersToMention: List<Contact>,
@@ -91,6 +92,7 @@ fun DropDownMentionsSuggestions(
                     clickable = Clickable(enabled = true) {
                         onMentionPicked(item)
                     },
+                    searchQuery = searchQuery,
                     modifier = Modifier.onSizeChanged {
                         itemHeights[index] = it.height
                     }

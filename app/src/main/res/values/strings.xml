@@ -714,6 +714,8 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>

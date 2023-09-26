@@ -20,12 +20,14 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
@@ -43,11 +45,13 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -58,9 +62,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -111,6 +115,9 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
 
+    @MockK
+    private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
+
     @MockK(relaxed = true)
     private lateinit var onJoined: (ConversationId) -> Unit
 
@@ -119,7 +126,7 @@ class ConversationListViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationListDetailsUseCase.invoke() } returns emptyFlow()
+        coEvery { observeConversationListDetailsUseCase.invoke(any()) } returns emptyFlow()
 
         mockUri()
         conversationListViewModel =
@@ -139,9 +146,8 @@ class ConversationListViewModelTest {
                 refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
                 refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
                 userTypeMapper = UserTypeMapper(),
+                updateConversationArchivedStatus = updateConversationArchivedStatus
             )
-
-        coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
     }
 
     @Test
@@ -246,6 +252,32 @@ class ConversationListViewModelTest {
         conversationListViewModel.dismissCallingPermissionDialog()
 
         assertEquals(false, conversationListViewModel.conversationListState.shouldShowCallingPermissionDialog)
+    }
+
+    @Test
+    fun `given a valid conversation state, when archiving it correctly, then the right success message is shown`() = runTest {
+        val isArchiving = true
+        val archivingTimestamp = 123456789L
+
+        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
+
+        conversationListViewModel.homeSnackBarState.test {
+            conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.ArchivingConversationSuccess
+        }
+    }
+
+    @Test
+    fun `given a valid conversation state, when archiving it with an error, then the right failure message is shown`() = runTest {
+        val isArchiving = true
+        val archivingTimestamp = 123456789L
+
+        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
+
+        conversationListViewModel.homeSnackBarState.test {
+            conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.ArchivingConversationError
+        }
     }
 
     companion object {

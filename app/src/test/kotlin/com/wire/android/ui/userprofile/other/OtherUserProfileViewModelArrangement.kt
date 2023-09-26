@@ -37,9 +37,11 @@ import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -99,6 +101,9 @@ internal class OtherUserProfileViewModelArrangement {
     @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
 
+    @MockK
+    lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
+
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             TestDispatcherProvider(),
@@ -115,6 +120,7 @@ internal class OtherUserProfileViewModelArrangement {
             observeClientList,
             persistOtherUserClientsUseCase,
             clearConversationContent,
+            updateConversationArchivedStatus,
             savedStateHandle
         )
     }
@@ -138,6 +144,7 @@ internal class OtherUserProfileViewModelArrangement {
             )
         )
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
+        coEvery { updateConversationArchivedStatus(any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { userTypeMapper.toMembership(any()) } returns Membership.None
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)

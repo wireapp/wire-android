@@ -79,4 +79,11 @@ class UriUtilTest {
         val actual = normalizeLink(input)
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun givenEncodedLink_whenTheLinkIsValidWithSchema_thenReturnsTheSameLink() {
+        val input = "https://google.com/this+is+a+link+with+space"
+        val actual = normalizeLink(input)
+        assertEquals(input, actual)
+    }
 }

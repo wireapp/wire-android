@@ -53,8 +53,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.IsUserLoggedInUseCase
-import com.wire.kalium.logic.feature.UpdateLoggedInUsersCountUseCase
+import com.wire.kalium.logic.feature.user.IsUserLoggedInUseCase
+import com.wire.kalium.logic.feature.user.UpdateLoggedInUsersCountUseCase
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
@@ -395,11 +395,7 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    fun shouldLogIn(): Boolean = runBlocking { isUserLoggedIn() }?.let {
-        !it
-    } ?: run {
-        true
-    }
+    fun shouldLogIn(): Boolean = runBlocking { !isUserLoggedIn() }
 
     fun shouldMigrate(): Boolean = runBlocking {
         migrationManager.shouldMigrate()

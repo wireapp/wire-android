@@ -29,8 +29,8 @@ import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.IsUserLoggedInUseCase
-import com.wire.kalium.logic.feature.UpdateLoggedInUsersCountUseCase
+import com.wire.kalium.logic.feature.user.IsUserLoggedInUseCase
+import com.wire.kalium.logic.feature.user.UpdateLoggedInUsersCountUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase

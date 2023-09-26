@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -60,9 +61,18 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import okhttp3.internal.wait
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -256,14 +266,25 @@ class ConversationListViewModelTest {
     fun `given a valid conversation state, when archiving it correctly, then the right success message is shown`() = runTest {
         val isArchiving = true
         val archivingTimestamp = 123456789L
-        conversationListViewModel.conversationListState =
-            conversationListViewModel.conversationListState.copy(shouldShowCallingPermissionDialog = true)
+
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
 
-        conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+        conversationListViewModel.homeSnackBarState.test {
+            conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.ArchivingConversationSuccess
+        }
+    }
 
-        coVerify(exactly = 1) {
-            conversationListViewModel.homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationSuccess)
+    @Test
+    fun `given a valid conversation state, when archiving it with an error, then the right failure message is shown`() = runTest {
+        val isArchiving = true
+        val archivingTimestamp = 123456789L
+
+        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
+
+        conversationListViewModel.homeSnackBarState.test {
+            conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.ArchivingConversationError
         }
     }
 

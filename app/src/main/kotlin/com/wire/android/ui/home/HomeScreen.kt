@@ -362,6 +362,9 @@ private fun handleSnackBarMessage(
             is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
                 if (messageType.isGroup) R.string.group_content_deleted else R.string.conversation_content_deleted
             )
+
+            HomeSnackbarState.ArchivingConversationError -> stringResource(id = R.string.error_archiving_conversation)
+            HomeSnackbarState.ArchivingConversationSuccess -> stringResource(id = R.string.success_archiving_conversation)
         }
 
         LaunchedEffect(messageType) {

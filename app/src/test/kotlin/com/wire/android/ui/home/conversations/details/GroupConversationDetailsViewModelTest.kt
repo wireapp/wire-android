@@ -39,12 +39,14 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -121,6 +123,78 @@ class GroupConversationDetailsViewModelTest {
         // When - Then
         arrangement.withConversationDetailUpdate(details2)
         assertEquals(details2.conversation.name, viewModel.groupOptionsState.value.groupName)
+    }
+
+    @Test
+    fun `given some conversation details, when archiving that conversation, then the use case is invoked`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val archivingEventTimestamp = 123456789L
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val conversationDetails = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withUpdateArchivedStatus(ArchiveStatusUpdateResult.Success)
+            .arrange()
+
+        // When
+        viewModel.onMoveConversationToArchive(
+            conversationId = viewModel.conversationId,
+            shouldArchive = true,
+            timestamp = archivingEventTimestamp
+        ) {}
+
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.updateConversationArchivedStatus(
+                conversationId = viewModel.conversationId,
+                shouldArchiveConversation = true,
+                archivedStatusTimestamp = archivingEventTimestamp
+            )
+        }
+    }
+
+    @Test
+    fun `given some conversation details, when un-archiving that conversation, then the use case is invoked`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val archivingEventTimestamp = 123456789L
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val conversationDetails = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withUpdateArchivedStatus(ArchiveStatusUpdateResult.Success)
+            .arrange()
+
+        // When
+        viewModel.onMoveConversationToArchive(viewModel.conversationId, false, archivingEventTimestamp) {}
+
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.updateConversationArchivedStatus(
+                conversationId = viewModel.conversationId,
+                shouldArchiveConversation = false,
+                archivedStatusTimestamp = archivingEventTimestamp
+            )
+        }
     }
 
     @Test
@@ -542,6 +616,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase
 
+    @MockK
+    lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
@@ -566,6 +643,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             isMLSEnabled = isMLSEnabledUseCase,
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
+            updateConversationArchivedStatus = updateConversationArchivedStatus
         )
     }
 
@@ -591,6 +669,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
+        coEvery { updateConversationArchivedStatus(any(), any()) } returns ArchiveStatusUpdateResult.Success
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
@@ -614,6 +693,11 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {
         coEvery { updateConversationReceiptMode(any(), any()) } returns ConversationUpdateReceiptModeResult.Success
+    }
+
+    suspend fun withUpdateArchivedStatus(result: ArchiveStatusUpdateResult) = apply {
+        coEvery { updateConversationArchivedStatus(any(), any()) } returns result
+        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

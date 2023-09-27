@@ -53,7 +53,7 @@ fun OtherUserProfileBottomSheetContent(
                 },
                 addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
-                moveConversationToArchive = eventsHandler::onMoveConversationToArchive,
+                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(it.conversationId, true) },
                 clearConversationContent = clearContent,
                 blockUser = blockUser,
                 unblockUser = unblockUser,

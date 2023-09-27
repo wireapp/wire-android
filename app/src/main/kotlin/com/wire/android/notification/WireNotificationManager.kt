@@ -438,7 +438,10 @@ class WireNotificationManager @Inject constructor(
                 .any {
                     it.conversationId == conversationId &&
                             it is LocalNotification.Conversation &&
-                            it.messages.any { message -> message is LocalNotificationMessage.Knock }
+                            it.messages.any { message ->
+                                message is LocalNotificationMessage.Knock ||
+                                        message is LocalNotificationMessage.SelfDeleteKnock
+                            }
                 }
 
             if (containsPingMessage) {

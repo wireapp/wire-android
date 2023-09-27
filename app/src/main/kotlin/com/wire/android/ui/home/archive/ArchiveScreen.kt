@@ -20,17 +20,60 @@
 
 package com.wire.android.ui.home.archive
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
+import com.wire.android.R
 import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.ui.common.UnderConstructionScreen
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
 @HomeNavGraph
 @Destination
 @Composable
 fun ArchiveScreen() {
-    UnderConstructionScreen(screenName = "ArchiveScreen")
+    ArchivedConversationsEmptyStateScreen()
+}
+
+@Composable
+fun ArchivedConversationsEmptyStateScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            modifier = Modifier.padding(
+                bottom = dimensions().spacing24x,
+            ),
+            text = stringResource(R.string.archive_screen_empty_state_title),
+            style = MaterialTheme.wireTypography.title01,
+            color = MaterialTheme.wireColorScheme.onSurface,
+        )
+        Text(
+            modifier = Modifier.padding(
+                bottom = dimensions().spacing8x,
+                start = dimensions().spacing40x,
+                end = dimensions().spacing40x
+            ),
+            text = stringResource(R.string.archive_screen_empty_state_description),
+            style = MaterialTheme.wireTypography.body01,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+        )
+    }
 }
 
 @Preview(showBackground = false)

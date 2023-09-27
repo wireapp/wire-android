@@ -94,6 +94,7 @@ class MessageCompositionInputStateHolder(
         val actualOffset = max(offset - navBarHeight, 0.dp)
 
         if (previousOffset < actualOffset) {
+            optionsVisible = true
             if (!subOptionsVisible || optionsHeight <= actualOffset) {
                 optionsHeight = actualOffset
                 subOptionsVisible = false
@@ -151,6 +152,7 @@ class MessageCompositionInputStateHolder(
         optionsVisible = true
         subOptionsVisible = true
         optionsHeight = keyboardHeight
+        clearFocus()
     }
 
     fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState) {

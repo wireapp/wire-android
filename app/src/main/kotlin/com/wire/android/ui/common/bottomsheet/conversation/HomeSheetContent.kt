@@ -58,10 +58,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
 // TODO(profile): enable when implemented
-//
 //    addConversationToFavourites: () -> Unit,
 //    moveConversationToFolder: () -> Unit,
-//    moveConversationToArchive: () -> Unit,
+    moveConversationToArchive: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
@@ -135,18 +134,27 @@ internal fun ConversationMainSheetContent(
 //                    onItemClick = moveConversationToFolder
 //                )
 //            }
-//            add {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_archive,
-//                            contentDescription = stringResource(R.string.content_description_move_to_archive),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_move_to_archive),
-//                    onItemClick = moveConversationToArchive
-//                )
-//            }
+            add {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_archive,
+                            contentDescription = stringResource(R.string.content_description_move_to_archive),
+                        )
+                    },
+                    title = stringResource(R.string.label_move_to_archive),
+                    onItemClick = {
+                        with(conversationSheetContent) {
+                            moveConversationToArchive(
+                                DialogState(
+                                    conversationId,
+                                    title,
+                                    conversationTypeDetail
+                                )
+                            )
+                        }
+                    })
+            }
             add {
                 MenuBottomSheetItem(
                     icon = {

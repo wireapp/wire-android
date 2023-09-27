@@ -45,7 +45,6 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
-import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -53,6 +52,7 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
@@ -66,6 +66,7 @@ import javax.inject.Inject
 //region DebugDataOptionsViewModel
 data class DebugDataOptionsState(
     val isEncryptedProteusStorageEnabled: Boolean = false,
+    val isEventProcessingDisabled: Boolean = false,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = "null",
     val mlsErrorMessage: String = "null",
@@ -83,7 +84,8 @@ class DebugDataOptionsViewModel
     private val globalDataStore: GlobalDataStore,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase
+    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
+    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -116,6 +118,13 @@ class DebugDataOptionsViewModel
 
     fun forceUpdateApiVersions() {
         updateApiVersions.scheduleImmediateApiVersionUpdate()
+    }
+
+    fun disableEventProcessing(disabled: Boolean) {
+        viewModelScope.launch {
+            disableEventProcessingUseCase(disabled)
+            state = state.copy(isEventProcessingDisabled = disabled)
+        }
     }
 
     //region Private
@@ -189,7 +198,8 @@ fun DebugDataOptions(
         onEnableEncryptedProteusStorageChange = viewModel::enableEncryptedProteusStorage,
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
-        onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) }
+        onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) },
+        onDisableEventProcessingChange = viewModel::disableEventProcessing
     )
 }
 
@@ -201,6 +211,7 @@ fun DebugDataOptionsContent(
     buildVariant: String,
     onCopyText: (String) -> Unit,
     onEnableEncryptedProteusStorageChange: (Boolean) -> Unit,
+    onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     onManualMigrationPressed: () -> Unit
@@ -264,7 +275,12 @@ fun DebugDataOptionsContent(
                 onCopyText = onCopyText
             )
 
-            DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceUpdateApiVersions)
+            DebugToolsOptions(
+                isEventProcessingEnabled = state.isEventProcessingDisabled,
+                onDisableEventProcessingChange = onDisableEventProcessingChange,
+                onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
+                onForceUpdateApiVersions = onForceUpdateApiVersions
+            )
         }
 
         if (state.isManualMigrationAllowed) {
@@ -297,35 +313,6 @@ private fun ManualMigrationOptions(
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
                 onClick = onManualMigrationClicked,
                 text = stringResource(R.string.start_manual_migration),
-                fillMaxWidth = false
-            )
-        }
-    )
-}
-//endregion
-
-//region Development API Options
-@Composable
-private fun DevelopmentApiVersioningOptions(
-    onForceLatestDevelopmentApiChange: () -> Unit
-) {
-    FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
-    RowItemTemplate(
-        modifier = Modifier.wrapContentWidth(),
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.debug_settings_force_api_versioning_update),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WirePrimaryButton(
-                minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                onClick = onForceLatestDevelopmentApiChange,
-                text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
             )
         }
@@ -370,26 +357,6 @@ private fun MLSOptions(
                 enabled = true,
                 onClick = { onCopyText(mlsClientId) }
             )
-        )
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.label_restart_slowsync_for_recovery),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = restartSlowSyncForRecovery,
-                    text = stringResource(R.string.restart_slowsync_for_recovery_button),
-                    fillMaxWidth = false
-                )
-            }
         )
     }
 }
@@ -439,6 +406,93 @@ private fun EnableEncryptedProteusStorageSwitch(
 }
 //endregion
 
+//region Debug Tools
+@Composable
+private fun DebugToolsOptions(
+    isEventProcessingEnabled: Boolean,
+    onDisableEventProcessingChange: (Boolean) -> Unit,
+    onRestartSlowSyncForRecovery: () -> Unit,
+    onForceUpdateApiVersions: () -> Unit
+) {
+    FolderHeader(stringResource(R.string.label_debug_tools_title))
+    Column {
+        DisableEventProcessingSwitch(
+            isEnabled = isEventProcessingEnabled,
+            onCheckedChange = onDisableEventProcessingChange
+        )
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_restart_slowsync_for_recovery),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onRestartSlowSyncForRecovery,
+                    text = stringResource(R.string.restart_slowsync_for_recovery_button),
+                    fillMaxWidth = false
+                )
+            }
+        )
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.debug_settings_force_api_versioning_update),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onForceUpdateApiVersions,
+                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                    fillMaxWidth = false
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun DisableEventProcessingSwitch(
+    isEnabled: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_disable_event_processing),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
+            )
+        }
+    )
+}
+//endregion
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewOtherDebugOptions() {
@@ -457,17 +511,8 @@ fun PreviewOtherDebugOptions() {
         ),
         onEnableEncryptedProteusStorageChange = {},
         onForceUpdateApiVersions = {},
+        onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},
         onManualMigrationPressed = {}
     )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewDevelopmentApiVersioningOptions() {
-    WireTheme {
-        DevelopmentApiVersioningOptions(
-            onForceLatestDevelopmentApiChange = {}
-        )
-    }
 }

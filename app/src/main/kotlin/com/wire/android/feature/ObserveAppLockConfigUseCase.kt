@@ -18,12 +18,12 @@
 package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@ViewModelScoped
+@Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
 ) {
@@ -43,6 +43,6 @@ sealed class AppLockConfig(open val timeoutInSeconds: Int = DEFAULT_TIMEOUT) {
     data class EnforcedByTeam(override val timeoutInSeconds: Int) : AppLockConfig(timeoutInSeconds)
 
     companion object {
-        const val DEFAULT_TIMEOUT = 60
+        const val DEFAULT_TIMEOUT = 5
     }
 }

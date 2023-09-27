@@ -26,6 +26,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
@@ -52,6 +53,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
+        private val APP_LOCK_TIMESTAMP = longPreferencesKey("app_lock_timestamp")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
@@ -158,10 +160,18 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setAppLockPasscode(passcode: String) {
         context.dataStore.edit {
             try {
-                it[APP_LOCK_PASSCODE] = EncryptionManager.encrypt(APP_LOCK_PASSCODE.name, passcode)
+                val encrypted = EncryptionManager.encrypt(APP_LOCK_PASSCODE.name, passcode)
+                it[APP_LOCK_PASSCODE] = encrypted
             } catch (e: Exception) {
                 it.remove(APP_LOCK_PASSCODE)
             }
         }
+    }
+
+    fun getAppLockTimestampFlow(): Flow<Long?> =
+        context.dataStore.data.map { it[APP_LOCK_TIMESTAMP] }
+
+    suspend fun setAppLockTimestamp(timestamp: Long) {
+        context.dataStore.edit { it[APP_LOCK_TIMESTAMP] = timestamp }
     }
 }

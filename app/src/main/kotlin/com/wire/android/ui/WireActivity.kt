@@ -188,7 +188,6 @@ class WireActivity : AppCompatActivity() {
                         handleScreenshotCensoring()
                         handleAppLock()
                         handleDialogs(navigator::navigate)
-
                     }
                 }
             }

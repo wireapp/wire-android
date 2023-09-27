@@ -128,8 +128,7 @@ fun EnterLockCodeScreenContent(
                             errorText = stringResource(R.string.settings_enter_lock_screen_wrong_passcode_label)
                         )
                         EnterLockCodeError.None -> WireTextFieldState.Default
-                    }
-                    ,
+                    },
                     autofill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
                     labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(Locale.getDefault())

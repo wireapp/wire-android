@@ -42,6 +42,7 @@ class LockCodeTimeManager @Inject constructor(
     globalDataStore: GlobalDataStore,
 ) {
 
+    @Suppress("MagicNumber")
     private val lockCodeRequiredFlow = globalDataStore.getAppLockTimestampFlow().take(1)
         .flatMapLatest { lastAppLockTimestamp ->
             combine(

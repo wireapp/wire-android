@@ -76,7 +76,6 @@ class EnterLockScreenViewModel @Inject constructor(
                         state.copy(error = EnterLockCodeError.InvalidValue)
                     }
                 }
-
             }
         }
     }

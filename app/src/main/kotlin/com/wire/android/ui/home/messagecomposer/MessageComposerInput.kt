@@ -22,6 +22,8 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +50,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -161,6 +163,8 @@ fun ActiveMessageComposerInput(
                                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
                                 )
                             }
+
+                            else -> {}
                         }
                     }
                 }
@@ -193,14 +197,27 @@ private fun MessageComposerTextInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    var isReadOnly by remember { mutableStateOf(false) }
 
-    var focused by remember(inputFocused) { mutableStateOf(inputFocused) }
+    LaunchedEffect(inputFocused) {
+        if (inputFocused) {
+            isReadOnly = false
+            keyboardController?.show()
+            focusRequester.requestFocus()
+        } else {
+            isReadOnly = true
+            keyboardController?.hide()
+        }
+    }
 
-    LaunchedEffect(focused) {
-        if (focused) focusRequester.requestFocus()
-        else focusManager.clearFocus()
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            onFocusChanged(true)
+        }
     }
 
     WireTextField(
@@ -212,13 +229,15 @@ private fun MessageComposerTextInput(
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
         placeholderText = " $placeHolderText",
-        modifier = modifier.then(
-            Modifier
-                .onFocusChanged { focusState ->
+        readOnly = isReadOnly,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
                     onFocusChanged(focusState.isFocused)
                 }
-                .focusRequester(focusRequester)
-        ),
+            },
+        interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )

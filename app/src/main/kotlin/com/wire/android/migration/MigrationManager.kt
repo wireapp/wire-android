@@ -71,6 +71,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
@@ -91,9 +92,11 @@ class MigrationManager @Inject constructor(
     private val markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated,
     private val notificationManager: NotificationManager
 ) {
-    private fun isScalaDBPresent(): Boolean =
-        applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
-
+    private suspend fun isScalaDBPresent(): Boolean = withContext(Dispatchers.IO) {
+        applicationContext
+            .getDatabasePath(ScalaDBNameProvider.globalDB())
+            .let { it.isFile && it.exists() }
+    }
     suspend fun shouldMigrate(): Boolean = when {
         // already migrated
         globalDataStore.isMigrationCompleted() -> false

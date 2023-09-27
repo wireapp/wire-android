@@ -43,6 +43,6 @@ sealed class AppLockConfig(open val timeoutInSeconds: Int = DEFAULT_TIMEOUT) {
     data class EnforcedByTeam(override val timeoutInSeconds: Int) : AppLockConfig(timeoutInSeconds)
 
     companion object {
-        const val DEFAULT_TIMEOUT = 5
+        const val DEFAULT_TIMEOUT = 60
     }
 }

@@ -80,7 +80,7 @@ fun MessageComposer(
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    usersTyping: Set<UserId>
+    usersTyping: Set<String>
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {

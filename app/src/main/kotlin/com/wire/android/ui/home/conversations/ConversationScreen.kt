@@ -627,7 +627,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
-    usersTyping: Set<UserId>,
+    usersTyping: Set<String>,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,

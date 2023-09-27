@@ -75,7 +75,7 @@ fun EnabledMessageComposer(
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    usersTyping: Set<UserId>
+    usersTyping: Set<String>
 ) {
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
@@ -261,7 +261,7 @@ fun EnabledMessageComposer(
                     }
 
                     if (usersTyping.isNotEmpty()) {
-                        Text(text = usersTyping.joinToString(",") { it.value.obfuscateId() })
+                        Text(text = usersTyping.joinToString(",") { it })
                     }
                 }
             }

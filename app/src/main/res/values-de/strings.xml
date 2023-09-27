@@ -49,8 +49,8 @@
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
-    <string name="label_system_message_self_user_knock">%s haben gepingt</string>
-    <string name="label_system_message_other_user_knock">%s hat gepingt</string>
+    <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d Teilnehmer haben Ihre Nachricht nicht erhalten.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s werden Ihre Nachricht nicht erhalten.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s wird Ihre Nachricht später erhalten.</string>
@@ -174,6 +174,8 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
     <string name="archive_screen_title">Archiv</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
     <string name="user_profile_screen_title">Benutzerprofil</string>
     <string name="settings_screen_title">Einstellungen</string>
     <string name="app_settings_screen_title">App-Einstellungen</string>
@@ -697,6 +699,8 @@
     <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
     <string name="delete_group_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="error_limit_number_assets_imported_exceeded">Sie können nur bis zu 20 Dateien gleichzeitig senden</string>
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="email_label">E-Mail-Adresse</string>
@@ -864,6 +868,13 @@
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set a passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>
     <string name="current_device_label">Aktuelles Gerät</string>
@@ -1135,7 +1146,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
-    <string name="record_audio_recording_label">Recording Audio…</string>
+    <string name="record_audio_recording_label">Audio-Aufnahme…</string>
     <string name="record_audio_send_label">Audionachricht senden</string>
     <string name="record_audio_discard_dialog_title">Audionachricht verwerfen?</string>
     <string name="record_audio_discard_dialog_text">Die Audionachricht wird gelöscht und Sie können sie nicht versenden.</string>

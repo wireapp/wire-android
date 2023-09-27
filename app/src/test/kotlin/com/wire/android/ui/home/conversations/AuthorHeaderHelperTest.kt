@@ -202,7 +202,7 @@ class AuthorHeaderHelperTest {
                 userId = userId
             ),
             source = MessageSource.OtherUser,
-            messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("pinged")),
+            messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("pinged"), false),
         )
 
         private fun testRegularMessage(

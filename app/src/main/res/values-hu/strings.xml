@@ -49,7 +49,7 @@
     <string name="label_message_receive_failure">Letöltési hiba</string>
     <string name="label_message_decryption_failure_message">Az üzenetet nem sikerült dekódolni.</string>
     <string name="label_message_decryption_failure_informative_message">Próbálja meg újraindítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
-    <string name="label_message_knock">%s kopogott</string>
+    <string name="label_system_message_self_user_knock">%s kopogott</string>
     <string name="label_message_partial_delivery_participants_count">%1$d résztvevők nem kapták meg az Ön üzenetét.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s nem fogja megkapni az Ön üzenetét.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>

@@ -49,7 +49,8 @@
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
-    <string name="label_message_knock">%s hat gepingt</string>
+    <string name="label_system_message_self_user_knock">%s haben gepingt</string>
+    <string name="label_system_message_other_user_knock">%s hat gepingt</string>
     <string name="label_message_partial_delivery_participants_count">%1$d Teilnehmer haben Ihre Nachricht nicht erhalten.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s werden Ihre Nachricht nicht erhalten.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s wird Ihre Nachricht später erhalten.</string>

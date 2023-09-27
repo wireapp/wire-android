@@ -238,7 +238,7 @@ Enable typographer option to see result.
 
 val mockMessageWithKnock = UIMessage.System(
     header = mockHeader,
-    messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("John Doe pinged")),
+    messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("John Doe pinged"), true),
     source = MessageSource.Self,
 )
 

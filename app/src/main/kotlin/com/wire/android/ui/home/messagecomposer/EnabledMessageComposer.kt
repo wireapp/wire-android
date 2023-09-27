@@ -76,14 +76,14 @@ fun EnabledMessageComposer(
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
-    val height = WindowInsets.ime.getBottom(density)
+    val offsetY = WindowInsets.ime.getBottom(density)
     val isKeyboardMoving = isKeyboardMoving()
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
-        LaunchedEffect(height) {
-            inputStateHolder.handleOffsetChange(with(density) { height.toDp() }, navBarHeight)
+        LaunchedEffect(offsetY) {
+            inputStateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
         }
 
         LaunchedEffect(isImeVisible) {

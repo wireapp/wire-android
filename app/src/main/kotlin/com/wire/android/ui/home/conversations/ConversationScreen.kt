@@ -50,7 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemsIndexed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
@@ -790,23 +790,20 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        items(
-            count = lazyPagingMessages.itemCount,
-            contentType = lazyPagingMessages.itemContentType(),
-            key = { index -> lazyPagingMessages[index]?.header?.messageId ?: index }
-        ) { index ->
-            val message = lazyPagingMessages[index]
-
-            // We can draw a placeholder here, as we fetch the next page of messages
+        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
+            uiMessage.header.messageId
+        }) { index, message ->
+            if (message == null) {
+                // We can draw a placeholder here, as we fetch the next page of messages
+                return@itemsIndexed
+            }
             val showAuthor by remember {
                 mutableStateOf(
-                    message?.let {
-                        AuthorHeaderHelper.shouldShowHeader(
-                            index,
-                            lazyPagingMessages.itemSnapshotList.items,
-                            it
-                        )
-                    } ?: false
+                    AuthorHeaderHelper.shouldShowHeader(
+                        index,
+                        lazyPagingMessages.itemSnapshotList.items,
+                        message
+                    )
                 )
             }
 
@@ -838,8 +835,6 @@ fun MessageList(
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead
                 )
-
-                null -> {}
             }
         }
     }

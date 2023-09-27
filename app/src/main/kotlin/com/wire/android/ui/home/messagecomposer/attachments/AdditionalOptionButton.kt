@@ -46,9 +46,6 @@ import kotlinx.coroutines.delay
  * @param onClick The action to be performed when the button is clicked.
  * @param modifier The optional [Modifier] to be applied to this composable.
  */
-
-private const val BUTTON_CLICK_DELAY_MILLIS = 500L
-
 @Composable
 fun AdditionalOptionButton(
     isSelected: Boolean,
@@ -83,6 +80,8 @@ fun AdditionalOptionButton(
         )
     }
 }
+
+private const val BUTTON_CLICK_DELAY_MILLIS = 400L
 
 @PreviewMultipleThemes
 @Composable

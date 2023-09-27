@@ -49,7 +49,7 @@
     <string name="label_message_receive_failure">Hämtningsfel</string>
     <string name="label_message_decryption_failure_message">Meddelandet kunde inte avkrypteras.</string>
     <string name="label_message_decryption_failure_informative_message">Försök att återställa sessionen för att generera nya krypteringsnycklar.</string>
-    <string name="label_message_knock">%s pingade</string>
+    <string name="label_system_message_self_user_knock">%s pingade</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>

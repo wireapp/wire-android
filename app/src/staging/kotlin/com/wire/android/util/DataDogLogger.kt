@@ -28,13 +28,19 @@ object DataDogLogger : LogWriter() {
 
     private val logger = Logger.Builder()
         .setNetworkInfoEnabled(true)
-        .setLogcatLogsEnabled(true)
+        .setLogcatLogsEnabled(false) // we already use platformLogWriter() along with DataDogLogger, don't need duplicates in LogCat
         .setDatadogLogsEnabled(true)
         .setBundleWithTraceEnabled(true)
         .setLoggerName("DATADOG")
         .build()
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
-        logger.log(severity.ordinal, message, throwable)
+        val attributes = KaliumLogger.UserClientData.getFromTag(tag)?.let { userClientData ->
+            mapOf(
+                "userId" to userClientData.userId,
+                "clientId" to userClientData.clientId,
+            )
+        } ?: emptyMap<String, Any?>()
+        logger.log(severity.ordinal, message, throwable, attributes)
     }
 }

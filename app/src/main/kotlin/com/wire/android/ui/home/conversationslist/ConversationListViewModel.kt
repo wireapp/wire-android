@@ -27,29 +27,22 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.mapper.toUIPreview
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserAvatarData
+import com.wire.android.mapper.ConversationDetailsMapper
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
-import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
-import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.withFolders
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
-import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
@@ -57,7 +50,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -107,8 +99,7 @@ class ConversationListViewModel @Inject constructor(
     private val unblockUserUseCase: UnblockUserUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
-    private val userTypeMapper: UserTypeMapper,
+    private val conversationDetailsMapper: ConversationDetailsMapper,
     private val endCall: EndCallUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
@@ -155,9 +146,8 @@ class ConversationListViewModel @Inject constructor(
                 observeConversationListDetails(includeArchived = false)
                     .map {
                         it.map { conversationDetails ->
-                            conversationDetails.toConversationItem(
-                                wireSessionImageLoader,
-                                userTypeMapper
+                            conversationDetailsMapper.toConversationItem(
+                                conversationDetails = conversationDetails
                             )
                         }
                     }
@@ -207,42 +197,6 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             refreshUsersWithoutMetadata()
             refreshConversationsWithoutMetadata()
-        }
-    }
-
-    @Suppress("ComplexMethod")
-    private fun List<ConversationItem>.withFolders(): Map<ConversationFolder, List<ConversationItem>> {
-        val unreadConversations = filter {
-            when (it.mutedStatus) {
-                MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
-                    BadgeEventType.Blocked -> false
-                    BadgeEventType.Deleted -> false
-                    BadgeEventType.Knock -> true
-                    BadgeEventType.MissedCall -> true
-                    BadgeEventType.None -> false
-                    BadgeEventType.ReceivedConnectionRequest -> true
-                    BadgeEventType.SentConnectRequest -> false
-                    BadgeEventType.UnreadMention -> true
-                    is BadgeEventType.UnreadMessage -> true
-                    BadgeEventType.UnreadReply -> true
-                }
-
-                MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
-                    BadgeEventType.UnreadReply -> true
-                    BadgeEventType.UnreadMention -> true
-                    BadgeEventType.ReceivedConnectionRequest -> true
-                    else -> false
-                }
-
-                MutedConversationStatus.AllMuted -> false
-            } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
-        }
-
-        val remainingConversations = this - unreadConversations.toSet()
-
-        return buildMap {
-            if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
-            if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
         }
     }
 
@@ -402,7 +356,9 @@ class ConversationListViewModel @Inject constructor(
     private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
             .map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper)
+                conversationDetailsMapper.toConversationItem(
+                    conversationDetails = it
+                )
             }
 
     fun searchConversation(searchQuery: TextFieldValue) {
@@ -477,92 +433,6 @@ class ConversationListViewModel @Inject constructor(
 }
 
 fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
-
-@Suppress("LongMethod")
-private fun ConversationDetails.toConversationItem(
-    wireSessionImageLoader: WireSessionImageLoader,
-    userTypeMapper: UserTypeMapper
-): ConversationItem = when (this) {
-    is Group -> {
-        ConversationItem.GroupConversation(
-            groupName = conversation.name.orEmpty(),
-            conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-            badgeEventType = parseConversationEventType(
-                conversation.mutedStatus,
-                unreadEventCount
-            ),
-            hasOnGoingCall = hasOngoingCall && this.isSelfUserMember,
-            isSelfUserCreator = isSelfUserCreator,
-            isSelfUserMember = isSelfUserMember,
-            teamId = conversation.teamId,
-            selfMemberRole = selfRole
-        )
-    }
-
-    is OneOne -> {
-        ConversationItem.PrivateConversation(
-            userAvatarData = UserAvatarData(
-                otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser.availabilityStatus,
-                otherUser.connectionStatus
-            ),
-            conversationInfo = ConversationInfo(
-                name = otherUser.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType),
-                isSenderUnavailable = otherUser.isUnavailableUser
-            ),
-            conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-            badgeEventType = parsePrivateConversationEventType(
-                otherUser.connectionStatus,
-                otherUser.deleted,
-                parseConversationEventType(
-                    conversation.mutedStatus,
-                    unreadEventCount
-                )
-            ),
-            userId = otherUser.id,
-            blockingState = otherUser.BlockState,
-            teamId = otherUser.teamId
-        )
-    }
-
-    is Connection -> {
-        ConversationItem.ConnectionConversation(
-            userAvatarData = UserAvatarData(
-                otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
-            ),
-            conversationInfo = ConversationInfo(
-                name = otherUser?.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType)
-            ),
-            lastMessageContent = UILastMessageContent.Connection(
-                connection.status,
-                connection.qualifiedToId
-            ),
-            badgeEventType = parseConnectionEventType(connection.status),
-            conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus
-        )
-    }
-
-    is Self -> {
-        throw IllegalArgumentException("Self conversations should not be visible to the user.")
-    }
-
-    else -> {
-        throw IllegalArgumentException("$this conversations should not be visible to the user.")
-    }
-}
-
-private fun parseConnectionEventType(connectionState: ConnectionState) =
-    if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
 
 fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) {

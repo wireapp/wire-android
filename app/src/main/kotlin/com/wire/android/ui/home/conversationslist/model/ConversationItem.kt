@@ -116,3 +116,39 @@ fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership
     )
+
+@Suppress("ComplexMethod")
+fun List<ConversationItem>.withFolders(): Map<ConversationFolder, List<ConversationItem>> {
+    val unreadConversations = filter {
+        when (it.mutedStatus) {
+            MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                BadgeEventType.Blocked -> false
+                BadgeEventType.Deleted -> false
+                BadgeEventType.Knock -> true
+                BadgeEventType.MissedCall -> true
+                BadgeEventType.None -> false
+                BadgeEventType.ReceivedConnectionRequest -> true
+                BadgeEventType.SentConnectRequest -> false
+                BadgeEventType.UnreadMention -> true
+                is BadgeEventType.UnreadMessage -> true
+                BadgeEventType.UnreadReply -> true
+            }
+
+            MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
+                BadgeEventType.UnreadReply -> true
+                BadgeEventType.UnreadMention -> true
+                BadgeEventType.ReceivedConnectionRequest -> true
+                else -> false
+            }
+
+            MutedConversationStatus.AllMuted -> false
+        } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+    }
+
+    val remainingConversations = this - unreadConversations.toSet()
+
+    return buildMap {
+        if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+        if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
+    }
+}

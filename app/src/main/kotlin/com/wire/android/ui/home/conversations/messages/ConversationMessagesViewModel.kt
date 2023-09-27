@@ -101,14 +101,14 @@ class ConversationMessagesViewModel @Inject constructor(
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
-        observeAudioPlayerState()
         observeUsersTypingState()
+        observeAudioPlayerState()
     }
 
     private fun observeUsersTypingState() {
         viewModelScope.launch {
-            observeUsersTyping.invoke(conversationId).collect {
-                appLogger.d("Collecting users typing: $it")
+            observeUsersTyping(conversationId).collect {
+                appLogger.d("Users typing: $it")
                 conversationViewState = conversationViewState.copy(
                     usersTyping = it
                 )

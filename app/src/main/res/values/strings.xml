@@ -194,7 +194,6 @@
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
-    <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
     <string name="support_screen_title">Support</string>
@@ -925,6 +924,8 @@
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_proteus_option_title">Proteus Options</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
+    <string name="label_debug_tools_title" translatable="false">Debug Tools</string>
+    <string name="label_disable_event_processing" translatable="false">Disable event processing</string>
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>

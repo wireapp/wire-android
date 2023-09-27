@@ -83,7 +83,10 @@ fun HomeDrawer(
             onCloseDrawer()
         }
 
-        val topItems = listOf(HomeDestination.Conversations)
+        val topItems = listOf(
+            HomeDestination.Conversations,
+            HomeDestination.Archive
+        )
         // TODO: Re-enable once we have Archive & Vault
         // listOf(HomeDestination.Conversations, HomeDestination.Archive, HomeDestination.Vault)
         topItems.forEach { item ->

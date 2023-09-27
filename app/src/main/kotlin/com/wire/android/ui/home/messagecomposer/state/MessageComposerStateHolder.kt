@@ -138,7 +138,6 @@ class MessageComposerStateHolder(
     fun showAdditionalOptionsMenu() {
         messageCompositionInputStateHolder.showOptions()
         additionalOptionStateHolder.showAdditionalOptionsMenu()
-        messageCompositionInputStateHolder.clearFocus()
     }
 
     fun clearMessage() {

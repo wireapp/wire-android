@@ -163,6 +163,7 @@ class WireActivity : AppCompatActivity() {
                     Column {
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         val scope = rememberCoroutineScope()
+
                         CommonTopAppBar(
                             connectivityUIState = commonTopAppBarViewModel.connectivityState,
                             onReturnToCallClick = { establishedCall ->
@@ -230,7 +231,11 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
         updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog, navigate)
+        joinConversationDialog(
+            viewModel.globalAppState.conversationJoinedDialog,
+            navigate,
+            viewModel::onJoinConversationFlowCompleted
+        )
         customBackendDialog(navigate)
         maxAccountDialog(
             onConfirm = {
@@ -276,15 +281,24 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?, navigate: (NavigationCommand) -> Unit) {
+    private fun joinConversationDialog(
+        joinedDialogState: JoinConversationViaCodeState?,
+        navigate: (NavigationCommand) -> Unit,
+        onJoinConversationFlowCompleted: () -> Unit
+    ) {
         joinedDialogState?.let {
 
             val onComplete: (convId: ConversationId?) -> Unit = remember {
                 {
+                    onJoinConversationFlowCompleted()
                     it?.also {
                         appLogger.d("Join conversation via code dialog completed, navigating to conversation screen")
-                        navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START))
-                        viewModel.onJoinConversationFlowCompleted()
+                        navigate(
+                            NavigationCommand(
+                                ConversationScreenDestination(it),
+                                BackStackMode.CLEAR_TILL_START
+                            )
+                        )
                     }
                 }
             }
@@ -407,7 +421,11 @@ class WireActivity : AppCompatActivity() {
             }.joinToString("")
             when (data) {
                 is NewClientsData.OtherUser -> {
-                    title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
+                    title = stringResource(
+                        R.string.new_device_dialog_other_user_title,
+                        data.userName ?: "",
+                        data.userHandle ?: ""
+                    )
                     text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccountAndOpenDeviceManager(data.userId) }

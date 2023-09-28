@@ -103,7 +103,9 @@ fun EditGuestAccessScreen(
     CreateGuestLinkBottomSheet(
         sheetState = sheetState,
         onSheetItemClick,
-        isPasswordInviteLinksAllowed = editGuestAccessViewModel.editGuestAccessState.isPasswordProtectedLinksAllowed
+        isPasswordInviteLinksAllowed = editGuestAccessViewModel
+            .editGuestAccessState
+            .isPasswordProtectedLinksAllowed
     )
 
     WireScaffold(topBar = {

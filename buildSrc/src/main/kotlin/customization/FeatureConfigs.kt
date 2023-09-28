@@ -93,6 +93,5 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     CERTIFICATE_PINNING_CONFIG("cert_pinning_config", ConfigType.MapOfStringToListOfStrings),
     // TODO: Add support for default proxy configs
-
     IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED("is_password_protected_guest_link_enabled", ConfigType.BOOLEAN)
 }

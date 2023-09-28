@@ -417,4 +417,19 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ObserveScreenshotCensoringConfigUseCase = coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationVerificationStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
+
+    @ViewModelScoped
+    @Provides
+    fun providesJoinConversationViaCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.joinConversationViaCode
+
+    @ViewModelScoped
+    @Provides
+    fun providesCanCreatePasswordProtectedLinksUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.canCreatePasswordProtectedLinks
 }

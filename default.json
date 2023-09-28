@@ -34,7 +34,6 @@
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
-
             "is_password_protected_guest_link_enabled": true
         },
         "staging": {
@@ -105,7 +104,5 @@
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
     "default_backend_title": "wire-production",
-    "cert_pinning_config": {},
-    "is_password_protected_guest_link_enabled": false,
-    "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android"
+    "is_password_protected_guest_link_enabled": false
 }

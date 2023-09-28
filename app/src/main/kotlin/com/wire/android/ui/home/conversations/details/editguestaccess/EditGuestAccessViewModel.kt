@@ -94,7 +94,9 @@ class EditGuestAccessViewModel @Inject constructor(
                 !BuildConfig.IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED -> false
                 else -> canCreatePasswordProtectedLinks()
             }
-            editGuestAccessState = editGuestAccessState.copy(isPasswordProtectedLinksAllowed = canCreatePasswordProtectedLinks)
+            editGuestAccessState = editGuestAccessState.copy(
+                isPasswordProtectedLinksAllowed = canCreatePasswordProtectedLinks
+            )
         }
     }
 

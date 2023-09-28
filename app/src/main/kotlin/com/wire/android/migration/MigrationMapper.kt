@@ -104,7 +104,8 @@ class MigrationMapper @Inject constructor() {
                 messageTimer = null,
                 userMessageTimer = null,
                 archived = false,
-                archivedDateTime = null
+                archivedDateTime = null,
+                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             )
         }
     }

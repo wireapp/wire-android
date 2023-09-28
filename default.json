@@ -25,7 +25,8 @@
             "default_backend_url_teams": "https://wire-teams-staging.zinfra.io",
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
-            "default_backend_title": "wire-staging"
+            "default_backend_title": "wire-staging",
+            "is_password_protected_guest_link_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -100,5 +101,6 @@
     "default_backend_url_teams": "https://teams.wire.com",
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
-    "default_backend_title": "wire-production"
+    "default_backend_title": "wire-production",
+    "is_password_protected_guest_link_enabled": false
 }

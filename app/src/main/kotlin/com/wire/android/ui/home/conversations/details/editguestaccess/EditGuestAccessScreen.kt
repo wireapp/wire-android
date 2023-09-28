@@ -104,7 +104,9 @@ fun EditGuestAccessScreen(
     CreateGuestLinkBottomSheet(
         sheetState = sheetState,
         onSheetItemClick,
-        isPasswordInviteLinksAllowed = true,
+        isPasswordInviteLinksAllowed = editGuestAccessViewModel
+            .editGuestAccessState
+            .isPasswordProtectedLinksAllowed
     )
 
     Scaffold(topBar = {

@@ -110,7 +110,7 @@ class ConversationMessagesViewModel @Inject constructor(
             observeUsersTyping(conversationId).collect {
                 appLogger.d("Users typing: $it")
                 conversationViewState = conversationViewState.copy(
-                    usersTyping = it.mapNotNull { it.name }.toSet()
+                    usersTyping = it.filter { it.userName.orEmpty().isNotEmpty() }.map { it.userName!! }.toSet()
                 )
             }
         }

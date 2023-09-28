@@ -65,7 +65,9 @@ class RegularMessageMapper @Inject constructor(
                 is AssetContent.AssetMetadata.Audio -> {
                     mapAudio(
                         assetContent = content.value,
-                        metadata = metadata
+                        metadata = metadata,
+                        userList = userList,
+                        deliveryStatus = message.deliveryStatus
                     )
                 }
 
@@ -125,6 +127,8 @@ class RegularMessageMapper @Inject constructor(
     private fun mapAudio(
         assetContent: AssetContent,
         metadata: AssetContent.AssetMetadata.Audio,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus,
     ): UIMessageContent {
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
@@ -133,7 +137,8 @@ class RegularMessageMapper @Inject constructor(
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                 audioMessageDurationInMs = metadata.durationMs ?: 0,
                 uploadStatus = uploadStatus,
-                downloadStatus = downloadStatus
+                downloadStatus = downloadStatus,
+                deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
             )
         }
     }

@@ -556,23 +556,26 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            val audioMessageState: AudioState = audioMessagesState[message.header.messageId]
-                ?: AudioState.DEFAULT
+            Column {
+                val audioMessageState: AudioState = audioMessagesState[message.header.messageId]
+                    ?: AudioState.DEFAULT
 
-            val totalTimeInMs = remember(audioMessageState.totalTimeInMs) {
-                audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())
+                val totalTimeInMs = remember(audioMessageState.totalTimeInMs) {
+                    audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())
+                }
+
+                AudioMessage(
+                    audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
+                    totalTimeInMs = totalTimeInMs,
+                    currentPositionInMs = audioMessageState.currentPositionInMs,
+                    onPlayButtonClick = { onAudioClick(message.header.messageId) },
+                    onSliderPositionChange = { position ->
+                        onChangeAudioPosition(message.header.messageId, position.toInt())
+                    },
+                    onAudioMessageLongClick = onLongClick
+                )
+                PartialDeliveryInformation(messageContent.deliveryStatus)
             }
-
-            AudioMessage(
-                audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
-                totalTimeInMs = totalTimeInMs,
-                currentPositionInMs = audioMessageState.currentPositionInMs,
-                onPlayButtonClick = { onAudioClick(message.header.messageId) },
-                onSliderPositionChange = { position ->
-                    onChangeAudioPosition(message.header.messageId, position.toInt())
-                },
-                onAudioMessageLongClick = onLongClick
-            )
         }
 
         UIMessageContent.Deleted -> {}

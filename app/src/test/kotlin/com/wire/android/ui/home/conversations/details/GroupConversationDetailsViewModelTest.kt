@@ -561,7 +561,8 @@ class GroupConversationDetailsViewModelTest {
                 messageTimer = null,
                 userMessageTimer = null,
                 archived = false,
-                archivedDateTime = null
+                archivedDateTime = null,
+                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

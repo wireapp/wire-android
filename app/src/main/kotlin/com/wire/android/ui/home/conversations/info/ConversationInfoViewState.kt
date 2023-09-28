@@ -27,7 +27,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ConversationVerificationStatusResult
 
 data class ConversationInfoViewState(
     val conversationId: QualifiedID,
@@ -36,7 +35,8 @@ data class ConversationInfoViewState(
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
     val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
-    val verificationStatus: ConversationVerificationStatusResult.Success? = null,
+    val protocolInfo: Conversation.ProtocolInfo? = null,
+    val verificationStatus: Conversation.VerificationStatus? = null,
 )
 
 sealed class ConversationDetailsData {

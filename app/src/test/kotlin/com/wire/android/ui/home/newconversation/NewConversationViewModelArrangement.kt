@@ -157,7 +157,8 @@ internal class NewConversationViewModelArrangement {
             messageTimer = null,
             userMessageTimer = null,
             archived = false,
-            archivedDateTime = null
+            archivedDateTime = null,
+            verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
 
         val PUBLIC_USER = OtherUser(

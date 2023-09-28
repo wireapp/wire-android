@@ -95,7 +95,7 @@ fun rememberConversationSheetState(
                     ),
                     isTeamConversation = isTeamConversation,
                     selfRole = Conversation.Member.Role.Member,
-                    isArchived = conversationItem.isTeamConversation
+                    isArchived = conversationItem.isArchived
                 )
             }
         }

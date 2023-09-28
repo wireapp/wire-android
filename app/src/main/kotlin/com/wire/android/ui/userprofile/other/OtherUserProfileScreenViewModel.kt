@@ -372,7 +372,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         otherUser.BlockState
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversation.archived
                 )
             }
         )

@@ -147,7 +147,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When
-        viewModel.onMoveConversationToArchive(
+        viewModel.updateConversationArchiveStatus(
             conversationId = viewModel.conversationId,
             shouldArchive = true,
             timestamp = archivingEventTimestamp
@@ -185,7 +185,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When
-        viewModel.onMoveConversationToArchive(viewModel.conversationId, false, archivingEventTimestamp) {}
+        viewModel.updateConversationArchiveStatus(viewModel.conversationId, false, archivingEventTimestamp) {}
 
         // Then
         coVerify(exactly = 1) {

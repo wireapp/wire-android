@@ -96,6 +96,7 @@
     <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
+    <string name="content_description_unarchive">Move out of Archive</string>
     <string name="content_description_block_the_user">Block</string>
     <string name="content_description_unblock_the_user">Unblock</string>
     <string name="content_description_leave_the_group">Leave the group</string>

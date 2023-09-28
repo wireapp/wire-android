@@ -60,7 +60,7 @@ internal fun ConversationMainSheetContent(
 // TODO(profile): enable when implemented
 //    addConversationToFavourites: () -> Unit,
 //    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: (DialogState) -> Unit,
+    updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
@@ -139,17 +139,23 @@ internal fun ConversationMainSheetContent(
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_archive,
-                            contentDescription = stringResource(R.string.content_description_move_to_archive),
+                            contentDescription = stringResource(
+                                if (conversationSheetContent.isArchived)
+                                    R.string.content_description_unarchive
+                                else
+                                    R.string.content_description_move_to_archive
+                            ),
                         )
                     },
                     title = stringResource(R.string.label_move_to_archive),
                     onItemClick = {
                         with(conversationSheetContent) {
-                            moveConversationToArchive(
+                            updateConversationArchiveStatus(
                                 DialogState(
                                     conversationId,
                                     title,
-                                    conversationTypeDetail
+                                    conversationTypeDetail,
+                                    isArchived
                                 )
                             )
                         }
@@ -169,7 +175,8 @@ internal fun ConversationMainSheetContent(
                             DialogState(
                                 conversationSheetContent.conversationId,
                                 conversationSheetContent.title,
-                                conversationSheetContent.conversationTypeDetail
+                                conversationSheetContent.conversationTypeDetail,
+                                conversationSheetContent.isArchived
                             )
                         )
                     }

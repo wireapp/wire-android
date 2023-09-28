@@ -498,7 +498,8 @@ private fun ConversationDetails.toConversationItem(
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
             teamId = conversation.teamId,
-            selfMemberRole = selfRole
+            selfMemberRole = selfRole,
+            isArchived = conversation.archived
         )
     }
 
@@ -528,7 +529,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState,
-            teamId = otherUser.teamId
+            teamId = otherUser.teamId,
+            isArchived = conversation.archived
         )
     }
 

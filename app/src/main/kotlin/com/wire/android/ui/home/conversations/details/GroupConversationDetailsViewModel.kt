@@ -149,7 +149,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     mutingConversationState = groupDetails.conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
                     isTeamConversation = groupDetails.conversation.teamId?.value != null,
-                    selfRole = groupDetails.selfRole
+                    selfRole = groupDetails.selfRole,
+                    isArchived = groupDetails.conversation.archived
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
                 val isUpdatingReadReceiptAllowed = if (selfTeam == null) {
@@ -378,7 +379,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
-    override fun onMoveConversationToArchive(
+    override fun updateConversationArchiveStatus(
         conversationId: ConversationId,
         shouldArchive: Boolean,
         timestamp: Long,

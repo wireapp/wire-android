@@ -359,7 +359,7 @@ fun PreviewSystemMessageKnock() {
     WireTheme {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
-                messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+                messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"), true)
             )
         )
     }

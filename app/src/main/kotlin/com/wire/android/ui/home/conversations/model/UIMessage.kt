@@ -273,9 +273,9 @@ sealed class UIMessageContent {
         @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {
 
-        data class Knock(val author: UIText) : SystemMessage(
+        data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
-            R.string.label_message_knock
+            if (isSelfTriggered) R.string.label_system_message_self_user_knock else R.string.label_system_message_other_user_knock
         )
 
         data class MemberAdded(

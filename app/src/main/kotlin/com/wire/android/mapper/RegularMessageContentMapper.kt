@@ -81,7 +81,7 @@ class RegularMessageMapper @Inject constructor(
                 UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             } else {
                 sender?.name.orUnknownName()
-            }
+            }, message.isSelfMessage
         )
 
         is MessageContent.RestrictedAsset -> toRestrictedAsset(

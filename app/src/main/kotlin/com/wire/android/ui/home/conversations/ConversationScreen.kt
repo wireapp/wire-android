@@ -572,7 +572,9 @@ private fun ConversationScreen(
         snackbarHost = {
             SwipeDismissSnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth().imePadding()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
             )
         },
         content = { internalPadding ->

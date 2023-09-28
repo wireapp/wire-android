@@ -19,6 +19,11 @@ package com.wire.android.ui.home.messagecomposer.attachments
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import com.wire.android.R
@@ -26,7 +31,21 @@ import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.delay
 
+/**
+ * Represents an additional option button with controlled interactivity for message composer.
+ *
+ * The button's clickability can be controlled via the `isSelected` parameter. This composable also
+ * internally handles preventing rapid successive clicks using the `enableAgain` variable. This
+ * mechanism is particularly important to ensure that, during keyboard transitions (expanding or
+ * collapsing), unintended or unexpected repetitive button clicks do not occur, preventing the
+ * keyboard from collapsing in an unexpected manner.
+ *
+ * @param isSelected Indicates whether the button is selected or not.
+ * @param onClick The action to be performed when the button is clicked.
+ * @param modifier The optional [Modifier] to be applied to this composable.
+ */
 @Composable
 fun AdditionalOptionButton(
     isSelected: Boolean,
@@ -39,9 +58,21 @@ fun AdditionalOptionButton(
         hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledArgs>(IsFileSharingEnabledArgs)
     }
 
+    var enableAgain by remember { mutableStateOf(true) }
+    LaunchedEffect(enableAgain, block = {
+        if (enableAgain) return@LaunchedEffect
+        delay(timeMillis = BUTTON_CLICK_DELAY_MILLIS)
+        enableAgain = true
+    })
+
     Box(modifier = modifier) {
         WireSecondaryIconButton(
-            onButtonClicked = onClick,
+            onButtonClicked = {
+                if (enableAgain) {
+                    enableAgain = false
+                    onClick()
+                }
+            },
             iconResource = R.drawable.ic_add,
             contentDescription = R.string.content_description_attachment_item,
             state = if (!viewModel.isFileSharingEnabled()) WireButtonState.Disabled
@@ -50,8 +81,16 @@ fun AdditionalOptionButton(
     }
 }
 
+private const val BUTTON_CLICK_DELAY_MILLIS = 400L
+
 @PreviewMultipleThemes
 @Composable
-fun PreviewAdditionalOptionButtonEnabled() {
+fun PreviewAdditionalOptionButtonUnSelected() {
     AdditionalOptionButton(isSelected = false, onClick = {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAdditionalOptionButtonSelected() {
+    AdditionalOptionButton(isSelected = true, onClick = {})
 }

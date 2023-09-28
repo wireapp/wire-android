@@ -391,8 +391,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, shouldArchive, timestamp) }
             requestInProgress = false
             when (result) {
-                ArchiveStatusUpdateResult.Failure -> onMessage(UIText.StringResource(R.string.error_archiving_conversation))
-                ArchiveStatusUpdateResult.Success -> onMessage(UIText.StringResource(R.string.success_archiving_conversation))
+                ArchiveStatusUpdateResult.Failure -> onMessage(
+                    UIText.StringResource(
+                        if (shouldArchive) R.string.error_archiving_conversation else R.string.error_unarchiving_conversation
+                    )
+                )
+
+                ArchiveStatusUpdateResult.Success -> onMessage(
+                    UIText.StringResource(
+                        if (shouldArchive) R.string.success_archiving_conversation else R.string.success_unarchiving_conversation
+                    )
+                )
             }
         }
     }

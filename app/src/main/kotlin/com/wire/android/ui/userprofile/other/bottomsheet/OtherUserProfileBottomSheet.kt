@@ -56,7 +56,7 @@ fun OtherUserProfileBottomSheetContent(
                 updateConversationArchiveStatus = {
                     eventsHandler.onMoveConversationToArchive(
                         conversationId = it.conversationId,
-                        shouldArchiveConversation = !it.isArchived
+                        isArchivingConversation = !it.isArchived
                     )
                 },
                 clearConversationContent = clearContent,

@@ -432,11 +432,11 @@ class ConversationListViewModel @Inject constructor(
             requestInProgress = false
             when (result) {
                 is ArchiveStatusUpdateResult.Failure -> {
-                    homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationError)
+                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusError(isArchiving))
                 }
 
                 is ArchiveStatusUpdateResult.Success -> {
-                    homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationSuccess)
+                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving))
                 }
             }
         }

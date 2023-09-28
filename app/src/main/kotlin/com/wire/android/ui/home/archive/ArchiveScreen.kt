@@ -32,18 +32,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.all.AllConversationScreenContent
+import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 
 @HomeNavGraph
 @Destination
 @Composable
-fun ArchiveScreen() {
-    ArchivedConversationsEmptyStateScreen()
+fun ArchiveScreen(
+    viewModel: ArchiveViewModel = hiltViewModel()
+) {
+    if (viewModel.archivedConversationListState.hasNoConversations) {
+        ArchivedConversationsEmptyStateScreen()
+    } else {
+//        Column {
+//            viewModel.archivedConversationListState.foldersWithConversations.forEach {
+//                Text(text = "Folder: ${it.key}")
+//                Text(text = "Conversations: ${it.value.size}")
+//                Text(text = "---------")
+//            }
+//        }
+        
+        ConversationList(
+            conversationListItems = viewModel.archivedConversationListState.foldersWithConversations,
+            searchQuery = String.EMPTY,
+            onOpenConversation = {},
+            onEditConversation = {},
+            onOpenUserProfile = {},
+            onOpenConversationNotificationsSettings = {},
+            onJoinCall = {},
+            onPermanentPermissionDecline = {}
+        )
+    }
 }
 
 @Composable

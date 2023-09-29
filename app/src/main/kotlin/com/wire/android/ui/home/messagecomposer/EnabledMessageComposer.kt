@@ -144,6 +144,12 @@ fun EnabledMessageComposer(
                         )
                     }
 
+                    if (usersTyping.isNotEmpty()) {
+                        Box(Modifier.wrapContentSize()) {
+                            Text(text = usersTyping.joinToString(",") { it.name })
+                        }
+                    }
+
                     if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
                         Box(fillRemainingSpaceOrWrapContent) {
                             var currentSelectedLineIndex by remember { mutableStateOf(0) }
@@ -257,10 +263,6 @@ fun EnabledMessageComposer(
                                 )
                                 .animateContentSize()
                         )
-                    }
-
-                    if (usersTyping.isNotEmpty()) {
-                        Text(text = usersTyping.joinToString(",") { it.name })
                     }
                 }
             }

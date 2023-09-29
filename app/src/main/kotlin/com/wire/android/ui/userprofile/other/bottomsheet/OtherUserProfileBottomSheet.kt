@@ -32,7 +32,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileBottomSheetEventsHa
 fun OtherUserProfileBottomSheetContent(
     bottomSheetState: OtherUserBottomSheetState,
     eventsHandler: OtherUserProfileBottomSheetEventsHandler,
-    clearContent : (DialogState) -> Unit,
+    clearContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     closeBottomSheet: () -> Unit,
@@ -53,7 +53,12 @@ fun OtherUserProfileBottomSheetContent(
                 },
                 addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
-                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(it.conversationId, true) },
+                updateConversationArchiveStatus = {
+                    eventsHandler.onMoveConversationToArchive(
+                        conversationId = it.conversationId,
+                        isArchivingConversation = !it.isArchived
+                    )
+                },
                 clearConversationContent = clearContent,
                 blockUser = blockUser,
                 unblockUser = unblockUser,
@@ -61,12 +66,14 @@ fun OtherUserProfileBottomSheetContent(
                 deleteGroup = { }
             )
         }
+
         is BottomSheetContent.ChangeRole ->
             EditGroupRoleBottomSheet(
                 groupState = state.groupState,
                 changeMemberRole = eventsHandler::onChangeMemberRole,
                 closeChangeRoleBottomSheet = closeBottomSheet
             )
+
         null -> {
             // we don't want to show empty BottomSheet
             closeBottomSheet()

@@ -75,10 +75,15 @@ fun ConversationRouterHomeBridge(
     onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
-    isBottomSheetVisible: () -> Boolean
+    isBottomSheetVisible: () -> Boolean,
+    isFromArchive: Boolean = false
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
     val context = LocalContext.current
+
+    LaunchedEffect(isFromArchive) {
+        viewModel.updateConversationsSource(isFromArchive)
+    }
 
     MicrophoneBTPermissionsDeniedDialog(
         shouldShow = viewModel.conversationListState.shouldShowCallingPermissionDialog,

@@ -20,10 +20,12 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.ui.text.input.TextFieldValue
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -31,9 +33,11 @@ import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.SearchQuery
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -60,9 +64,15 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -74,7 +84,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 // TODO write more tests
 class ConversationListViewModelTest {
 
-    private lateinit var conversationListViewModel: ConversationListViewModel
+    private var conversationListViewModel: ConversationListViewModel
 
     @MockK
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
@@ -121,12 +131,20 @@ class ConversationListViewModelTest {
     @MockK(relaxed = true)
     private lateinit var onJoined: (ConversationId) -> Unit
 
-    @BeforeEach
-    fun setUp() {
+    private val dispatcher = StandardTestDispatcher()
+
+  init {
         MockKAnnotations.init(this, relaxUnitFun = true)
+        Dispatchers.setMain(dispatcher)
 
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationListDetailsUseCase.invoke(any()) } returns emptyFlow()
+        coEvery { observeConversationListDetailsUseCase.invoke(any()) } returns flowOf(
+            listOf(
+                TestConversationDetails.CONNECTION,
+                TestConversationDetails.CONVERSATION_ONE_ONE,
+                TestConversationDetails.GROUP
+            )
+        )
 
         mockUri()
         conversationListViewModel =
@@ -148,6 +166,40 @@ class ConversationListViewModelTest {
                 userTypeMapper = UserTypeMapper(),
                 updateConversationArchivedStatus = updateConversationArchivedStatus
             )
+    }
+
+    @Test
+    fun `given empty search query, when collecting, then update state with all conversations`() = runTest {
+        // Given
+        val searchQueryText = ""
+
+        // When
+        conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(
+            3,
+            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
+        )
+        assertEquals( searchQueryText, conversationListViewModel.conversationListState.searchQuery)
+    }
+
+    @Test
+    fun `given non-empty search query, when collecting, then update state with filtered conversations`() = runTest {
+        // Given
+        val searchQueryText = "testQuery"
+
+        // When
+        conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(
+            3,
+            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
+        )
+        assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
     }
 
     @Test
@@ -283,6 +335,8 @@ class ConversationListViewModelTest {
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
         private val userId: UserId = UserId("someUser", "some_domain")
+
+        private val testConversations = TestConversationDetails.CONVERSATION_ONE_ONE
 
         private val conversationItem = ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(),

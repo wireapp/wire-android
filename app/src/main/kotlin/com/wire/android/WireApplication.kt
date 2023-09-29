@@ -112,7 +112,7 @@ class WireApplication : Application(), Configuration.Provider {
                     .detectDiskReads()
                     .detectDiskWrites()
                     .penaltyLog()
-                    .penaltyDeath()
+//                    .penaltyDeath()
                     .build()
             )
             StrictMode.setVmPolicy(

@@ -82,6 +82,7 @@ sealed class HomeDestination(
     data object Archive : HomeDestination(
         title = R.string.archive_screen_title,
         icon = R.drawable.ic_archive,
+        isSearchable = true,
         direction = ArchiveScreenDestination
     )
 

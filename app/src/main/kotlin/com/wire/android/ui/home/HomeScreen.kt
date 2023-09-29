@@ -107,6 +107,14 @@ fun HomeScreen(
         showNotificationsFlow.launch()
     }
 
+    LaunchedEffect(homeScreenState.currentNavigationItem) {
+        when (homeScreenState.currentNavigationItem) {
+            HomeDestination.Archive -> conversationListViewModel.updateConversationsSource(fromArchived = true)
+            HomeDestination.Conversations -> conversationListViewModel.updateConversationsSource(fromArchived = false)
+            else -> {}
+        }
+    }
+
     handleSnackBarMessage(
         snackbarHostState = homeScreenState.snackBarHostState,
         conversationListSnackBarState = homeScreenState.snackbarState,

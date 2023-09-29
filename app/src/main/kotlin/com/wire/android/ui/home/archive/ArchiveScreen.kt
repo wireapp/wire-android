@@ -36,14 +36,29 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversationslist.ConversationItemType
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @HomeNavGraph
 @Destination
 @Composable
-fun ArchiveScreen() {
-    ArchivedConversationsEmptyStateScreen()
+fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationRouterHomeBridge(
+            navigator = navigator,
+            conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
+            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
+            onOpenBottomSheet = ::openBottomSheet,
+            onCloseBottomSheet = ::closeBottomSheet,
+            onSnackBarStateChanged = ::setSnackBarState,
+            searchBarState = searchBarState,
+            isBottomSheetVisible = ::isBottomSheetVisible,
+            isFromArchive = true
+        )
+    }
 }
 
 @Composable
@@ -78,6 +93,6 @@ fun ArchivedConversationsEmptyStateScreen() {
 
 @Preview(showBackground = false)
 @Composable
-fun PreviewArchiveScreen() {
-    ArchiveScreen()
+fun PreviewArchiveEmptyScreen() {
+    ArchivedConversationsEmptyStateScreen()
 }

@@ -88,6 +88,7 @@ import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
@@ -627,7 +628,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
-    usersTyping: Set<String>,
+    usersTyping: List<UIParticipant>,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,

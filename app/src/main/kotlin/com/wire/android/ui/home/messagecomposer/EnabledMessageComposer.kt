@@ -49,14 +49,13 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
@@ -75,7 +74,7 @@ fun EnabledMessageComposer(
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    usersTyping: Set<String>
+    usersTyping: List<UIParticipant>
 ) {
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
@@ -261,7 +260,7 @@ fun EnabledMessageComposer(
                     }
 
                     if (usersTyping.isNotEmpty()) {
-                        Text(text = usersTyping.joinToString(",") { it })
+                        Text(text = usersTyping.joinToString(",") { it.name })
                     }
                 }
             }

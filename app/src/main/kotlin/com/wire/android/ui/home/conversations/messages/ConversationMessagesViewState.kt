@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.user.UserId
@@ -35,7 +36,7 @@ data class ConversationMessagesViewState(
     val firstuUnreadEventIndex: Int = 0,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val audioMessagesState: Map<String, AudioState> = emptyMap(),
-    val usersTyping: Set<String> = emptySet(),
+    val usersTyping: List<UIParticipant> = emptyList(),
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

@@ -51,6 +51,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
@@ -64,7 +65,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
@@ -80,7 +80,7 @@ fun MessageComposer(
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    usersTyping: Set<String>
+    usersTyping: List<UIParticipant>
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -225,6 +225,6 @@ fun MessageComposerPreview() {
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
-        usersTyping = emptySet()
+        usersTyping = emptyList()
     )
 }

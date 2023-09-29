@@ -448,6 +448,13 @@ sealed class UIMessageContent {
             else R.drawable.ic_shield_holo,
             R.string.label_system_message_conversation_degraded
         )
+
+        data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
+            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+            else R.drawable.ic_certificate_valid_proteus,
+            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+            else R.string.label_system_message_conversation_verified_proteus
+        )
     }
 }
 

@@ -244,6 +244,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.ConversationDegraded -> null
+        is SystemMessage.ConversationVerified -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
         is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
         is SystemMessage.MemberAdded,
@@ -488,6 +489,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberFailedToAdd -> this.usersCount > SINGLE_EXPANDABLE_THRESHOLD
         is SystemMessage.ConversationDegraded -> false
+        is SystemMessage.ConversationVerified -> false
         is SystemMessage.FederationStopped -> false
     }
 
@@ -552,6 +554,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.HistoryLost -> arrayOf()
         is SystemMessage.MLSWrongEpochWarning -> arrayOf()
         is SystemMessage.ConversationDegraded -> arrayOf()
+        is SystemMessage.ConversationVerified -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
             author.asString(res),
             selfDeletionDuration.longLabel.asString(res)

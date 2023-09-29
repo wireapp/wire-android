@@ -273,9 +273,9 @@ sealed class UIMessageContent {
         @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {
 
-        data class Knock(val author: UIText) : SystemMessage(
+        data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
-            R.string.label_message_knock
+            if (isSelfTriggered) R.string.label_system_message_self_user_knock else R.string.label_system_message_other_user_knock
         )
 
         data class MemberAdded(
@@ -447,6 +447,13 @@ sealed class UIMessageContent {
             if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_shield_holo,
             R.string.label_system_message_conversation_degraded
+        )
+
+        data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
+            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+            else R.drawable.ic_certificate_valid_proteus,
+            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+            else R.string.label_system_message_conversation_verified_proteus
         )
     }
 }

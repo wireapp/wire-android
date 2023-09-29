@@ -243,7 +243,8 @@ class OtherUserProfileScreenViewModelTest {
             messageTimer = null,
             userMessageTimer = null,
             archived = false,
-            archivedDateTime = null
+            archivedDateTime = null,
+            verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

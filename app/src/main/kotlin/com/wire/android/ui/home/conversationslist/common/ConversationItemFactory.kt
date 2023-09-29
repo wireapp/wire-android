@@ -249,7 +249,8 @@ fun PreviewGroupConversationItemWithUnreadCount() {
             ),
             badgeEventType = BadgeEventType.UnreadMessage(100),
             selfMemberRole = null,
-            teamId = null
+            teamId = null,
+            isArchived = false
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -271,7 +272,8 @@ fun PreviewGroupConversationItemWithNoBadges() {
             ),
             badgeEventType = BadgeEventType.None,
             selfMemberRole = null,
-            teamId = null
+            teamId = null,
+            isArchived = false
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -293,7 +295,8 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
             ),
             badgeEventType = BadgeEventType.UnreadMention,
             selfMemberRole = null,
-            teamId = null
+            teamId = null,
+            isArchived = false
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -317,6 +320,7 @@ fun PreviewGroupConversationItemWithOngoingCall() {
             selfMemberRole = null,
             teamId = null,
             hasOnGoingCall = true,
+            isArchived = false
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -376,7 +380,8 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
             conversationInfo = ConversationInfo("Name"),
             blockingState = BlockingState.BLOCKED,
             teamId = null,
-            userId = UserId("value", "domain")
+            userId = UserId("value", "domain"),
+            isArchived = false
         ),
         searchQuery = "",
         isSelectableItem = false,

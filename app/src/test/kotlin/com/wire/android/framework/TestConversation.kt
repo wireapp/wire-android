@@ -51,7 +51,8 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
     val SELF = Conversation(
         ID.copy(value = "SELF ID"),
@@ -71,7 +72,8 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
@@ -92,7 +94,8 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     fun one_on_one(convId: ConversationId) = Conversation(
@@ -113,7 +116,8 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     val USER_1 = UserId("member1", "domainMember")
@@ -141,6 +145,7 @@ object TestConversation {
         messageTimer = null,
         userMessageTimer = null,
         archived = false,
-        archivedDateTime = null
+        archivedDateTime = null,
+        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 }

@@ -66,17 +66,20 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
+import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
@@ -108,7 +111,8 @@ class ConversationListViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val endCall: EndCallUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
-    private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
+    private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
+    private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -148,7 +152,7 @@ class ConversationListViewModel @Inject constructor(
         }
         viewModelScope.launch {
             searchQueryFlow.combine(
-                observeConversationListDetails()
+                observeConversationListDetails(includeArchived = false)
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
@@ -417,9 +421,25 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToFolder(id: String = "") {
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String = "") {
+    fun moveConversationToArchive(
+        conversationId: ConversationId,
+        isArchiving: Boolean,
+        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
+    ) {
+        viewModelScope.launch {
+            requestInProgress = true
+            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving, timestamp) }
+            requestInProgress = false
+            when (result) {
+                is ArchiveStatusUpdateResult.Failure -> {
+                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusError(isArchiving))
+                }
+
+                is ArchiveStatusUpdateResult.Success -> {
+                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving))
+                }
+            }
+        }
     }
 
     fun clearConversationContent(dialogState: DialogState) {
@@ -478,7 +498,8 @@ private fun ConversationDetails.toConversationItem(
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
             teamId = conversation.teamId,
-            selfMemberRole = selfRole
+            selfMemberRole = selfRole,
+            isArchived = conversation.archived
         )
     }
 
@@ -508,7 +529,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState,
-            teamId = otherUser.teamId
+            teamId = otherUser.teamId,
+            isArchived = conversation.archived
         )
     }
 

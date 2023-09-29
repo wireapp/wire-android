@@ -119,7 +119,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
         searchQueryFlow.mapLatest { searchQuery ->
-            val conversations = observeConversationListDetails().first()
+            val conversations = observeConversationListDetails(includeArchived = false).first()
                 .mapNotNull { conversationDetails ->
                     conversationDetails.toConversationItem(
                         wireSessionImageLoader,
@@ -191,7 +191,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 isSelfUserCreator = isSelfUserCreator,
                 isSelfUserMember = isSelfUserMember,
                 teamId = conversation.teamId,
-                selfMemberRole = selfRole
+                selfMemberRole = selfRole,
+                isArchived = conversation.archived
             )
         }
 
@@ -226,7 +227,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 ),
                 userId = otherUser.id,
                 blockingState = otherUser.BlockState,
-                teamId = otherUser.teamId
+                teamId = otherUser.teamId,
+                isArchived = conversation.archived
             )
         }
 

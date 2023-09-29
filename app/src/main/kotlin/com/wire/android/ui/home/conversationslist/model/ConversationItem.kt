@@ -39,21 +39,23 @@ sealed class ConversationItem {
     abstract val lastMessageContent: UILastMessageContent?
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
+    abstract val isArchived: Boolean
 
     val isTeamConversation get() = teamId != null
 
     data class GroupConversation(
         val groupName: String,
+        val hasOnGoingCall: Boolean = false,
+        val isSelfUserCreator: Boolean = false,
+        val selfMemberRole: Conversation.Member.Role?,
+        val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
-        val hasOnGoingCall: Boolean = false,
-        val isSelfUserCreator: Boolean = false,
-        val selfMemberRole: Conversation.Member.Role?,
-        val isSelfUserMember: Boolean = true,
+        override val isArchived: Boolean,
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -66,7 +68,8 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
-        override val teamId: TeamId?
+        override val teamId: TeamId?,
+        override val isArchived: Boolean
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -77,6 +80,7 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
+        override val isArchived: Boolean = false,
     ) : ConversationItem() {
         override val teamId: TeamId? = null
     }

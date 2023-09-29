@@ -263,7 +263,7 @@ class ConversationListViewModelTest {
 
         conversationListViewModel.homeSnackBarState.test {
             conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
-            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.ArchivingConversationSuccess
+            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving = isArchiving)
         }
     }
 
@@ -276,7 +276,7 @@ class ConversationListViewModelTest {
 
         conversationListViewModel.homeSnackBarState.test {
             conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
-            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.ArchivingConversationError
+            expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.UpdateArchivingStatusError(isArchiving = isArchiving)
         }
     }
 
@@ -297,7 +297,8 @@ class ConversationListViewModelTest {
             badgeEventType = BadgeEventType.None,
             userId = userId,
             blockingState = BlockingState.CAN_NOT_BE_BLOCKED,
-            teamId = null
+            teamId = null,
+            isArchived = false
         )
     }
 }

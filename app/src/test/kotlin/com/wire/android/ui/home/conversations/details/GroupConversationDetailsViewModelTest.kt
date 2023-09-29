@@ -147,7 +147,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When
-        viewModel.onMoveConversationToArchive(
+        viewModel.updateConversationArchiveStatus(
             conversationId = viewModel.conversationId,
             shouldArchive = true,
             timestamp = archivingEventTimestamp
@@ -185,7 +185,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When
-        viewModel.onMoveConversationToArchive(viewModel.conversationId, false, archivingEventTimestamp) {}
+        viewModel.updateConversationArchiveStatus(viewModel.conversationId, false, archivingEventTimestamp) {}
 
         // Then
         coVerify(exactly = 1) {
@@ -392,7 +392,8 @@ class GroupConversationDetailsViewModelTest {
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
             selfRole = Conversation.Member.Role.Member,
-            isTeamConversation = details.conversation.isTeamGroup()
+            isTeamConversation = details.conversation.isTeamGroup(),
+            isArchived = false
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)

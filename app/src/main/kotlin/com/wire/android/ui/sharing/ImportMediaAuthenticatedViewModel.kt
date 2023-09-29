@@ -191,7 +191,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 isSelfUserCreator = isSelfUserCreator,
                 isSelfUserMember = isSelfUserMember,
                 teamId = conversation.teamId,
-                selfMemberRole = selfRole
+                selfMemberRole = selfRole,
+                isArchived = conversation.archived
             )
         }
 
@@ -226,7 +227,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 ),
                 userId = otherUser.id,
                 blockingState = otherUser.BlockState,
-                teamId = otherUser.teamId
+                teamId = otherUser.teamId,
+                isArchived = conversation.archived
             )
         }
 

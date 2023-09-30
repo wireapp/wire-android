@@ -20,10 +20,18 @@ package com.wire.android.ui.home.messagecomposer
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,10 +40,15 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationSource
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,7 +62,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -291,26 +307,54 @@ private fun UsersTypingIndicator(
     usersTyping: List<UIParticipant>,
 ) {
     if (usersTyping.isNotEmpty()) {
-        Box(
+        val rememberTransition =
+            rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .background(
                     color = colorsScheme().surface,
-                    shape = RoundedCornerShape(dimensions().corner14x)
-                ),
-            contentAlignment = Alignment.Center,
+                    shape = RoundedCornerShape(dimensions().corner14x),
+                )
         ) {
             Text(
-                text = usersTyping.joinToString(",") { it.name },
-                style = MaterialTheme.wireTypography.label01,
+                text = pluralStringResource(
+                    R.plurals.typing_indicator_event_message,
+                    usersTyping.size,
+                    usersTyping.joinToString(", ") { it.name }), // todo. add and vs , logic
+                style = MaterialTheme.wireTypography.label01.copy(color = colorsScheme().secondaryText),
                 modifier = Modifier.padding(
                     top = dimensions().spacing4x,
                     bottom = dimensions().spacing4x,
                     start = dimensions().spacing8x,
-                    end = dimensions().spacing8x,
+                    end = dimensions().spacing12x,
                 ),
             )
+            HorizontalBouncingWritingPen(infiniteTransition = rememberTransition)
         }
     }
+}
+
+@Composable
+private fun HorizontalBouncingWritingPen(infiniteTransition: InfiniteTransition) {
+    val position by infiniteTransition.animateFloat(
+        initialValue = 0f, targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1_200, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = infiniteTransition.label
+    )
+
+    // todo. add dots
+    Icon(
+        imageVector = Icons.Default.Edit,
+        contentDescription = "Pen",
+        tint = colorsScheme().secondaryText,
+        modifier = Modifier
+            .size(dimensions().spacing12x)
+            .offset(x = position.dp),
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

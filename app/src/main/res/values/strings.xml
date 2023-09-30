@@ -676,6 +676,10 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="other">%s are typing.</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -727,6 +731,7 @@
     <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
+    <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>
     <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>

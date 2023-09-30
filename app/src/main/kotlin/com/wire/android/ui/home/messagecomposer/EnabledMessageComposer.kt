@@ -32,8 +32,11 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationSource
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -49,12 +53,14 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
@@ -144,10 +150,13 @@ fun EnabledMessageComposer(
                         )
                     }
 
-                    if (usersTyping.isNotEmpty()) {
-                        Box(Modifier.wrapContentSize()) {
-                            Text(text = usersTyping.joinToString(",") { it.name })
-                        }
+                    Column(
+                        modifier = Modifier
+                            .background(color = colorsScheme().backgroundVariant)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        UsersTypingIndicator(usersTyping)
                     }
 
                     if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
@@ -273,6 +282,33 @@ fun EnabledMessageComposer(
                     additionalOptionStateHolder.additionalOptionsSubMenuState
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun UsersTypingIndicator(
+    usersTyping: List<UIParticipant>,
+) {
+    if (usersTyping.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = colorsScheme().surface,
+                    shape = RoundedCornerShape(dimensions().corner14x)
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = usersTyping.joinToString(",") { it.name },
+                style = MaterialTheme.wireTypography.label01,
+                modifier = Modifier.padding(
+                    top = dimensions().spacing4x,
+                    bottom = dimensions().spacing4x,
+                    start = dimensions().spacing8x,
+                    end = dimensions().spacing8x,
+                ),
+            )
         }
     }
 }

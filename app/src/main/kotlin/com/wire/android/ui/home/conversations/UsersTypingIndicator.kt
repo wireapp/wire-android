@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
@@ -73,23 +74,42 @@ fun UsersTypingIndicator(
                     shape = RoundedCornerShape(dimensions().corner14x),
                 )
         ) {
+            UsersTypingAvatarPreviews(usersTyping)
             Text(
                 text = pluralStringResource(
                     R.plurals.typing_indicator_event_message,
                     usersTyping.size,
-                    usersTyping.last().name,
+                    usersTyping.first().name,
                     usersTyping.size - 1
                 ),
                 style = MaterialTheme.wireTypography.label01.copy(color = colorsScheme().secondaryText),
                 modifier = Modifier.padding(
                     top = dimensions().spacing4x,
                     bottom = dimensions().spacing4x,
-                    start = dimensions().spacing8x,
                     end = dimensions().spacing8x,
                 ),
             )
             HorizontalBouncingWritingPen(infiniteTransition = rememberTransition)
         }
+    }
+}
+
+@Suppress("MagicNumber")
+@Composable
+private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = 3) {
+    usersTyping.take(maxPreviewsDisplay).forEachIndexed { index, user ->
+        UserProfileAvatar(
+            avatarData = user.avatarData,
+            size = dimensions().spacing16x,
+            padding = dimensions().spacing2x,
+            modifier = if (usersTyping.size == 1 || maxPreviewsDisplay == 1) {
+                Modifier
+            } else {
+                Modifier.offset(
+                    x = if (index == 0) dimensions().spacing8x else -(dimensions().spacing6x)
+                )
+            }
+        )
     }
 }
 

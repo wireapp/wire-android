@@ -75,7 +75,12 @@ fun UsersTypingIndicator(
                 )
         ) {
             Text(
-                text = usersTypingIndicatorText(usersTyping),
+                text = pluralStringResource(
+                    R.plurals.typing_indicator_event_message,
+                    usersTyping.size,
+                    usersTyping.first().name,
+                    usersTyping.size - 1
+                ),
                 style = MaterialTheme.wireTypography.label01.copy(color = colorsScheme().secondaryText),
                 modifier = Modifier.padding(
                     top = dimensions().spacing4x,
@@ -87,21 +92,6 @@ fun UsersTypingIndicator(
             HorizontalBouncingWritingPen(infiniteTransition = rememberTransition)
         }
     }
-}
-
-@Composable
-private fun usersTypingIndicatorText(
-    usersTyping: List<UIParticipant>,
-): String {
-    return pluralStringResource(
-        R.plurals.typing_indicator_event_message,
-        usersTyping.size,
-        if (usersTyping.size == 1) usersTyping.first().name
-        else {
-            usersTyping.first().name
-        },
-        usersTyping.size - 1
-    )
 }
 
 @Suppress("MagicNumber")

@@ -98,13 +98,13 @@ fun UsersTypingIndicator(
 @Composable
 private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = 3) {
     usersTyping.take(maxPreviewsDisplay).forEachIndexed { index, user ->
+        val isSingleUser = usersTyping.size == 1 || maxPreviewsDisplay == 1
         UserProfileAvatar(
             avatarData = user.avatarData,
             size = dimensions().spacing16x,
             padding = dimensions().spacing2x,
-            modifier = if (usersTyping.size == 1 || maxPreviewsDisplay == 1) {
-                Modifier
-            } else {
+            modifier = if (isSingleUser) Modifier
+            else {
                 Modifier.offset(
                     x = if (index == 0) dimensions().spacing8x else -(dimensions().spacing6x)
                 )

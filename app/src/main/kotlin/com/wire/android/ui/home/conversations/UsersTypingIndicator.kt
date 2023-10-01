@@ -78,7 +78,7 @@ fun UsersTypingIndicator(
                 text = pluralStringResource(
                     R.plurals.typing_indicator_event_message,
                     usersTyping.size,
-                    usersTyping.first().name,
+                    usersTyping.last().name,
                     usersTyping.size - 1
                 ),
                 style = MaterialTheme.wireTypography.label01.copy(color = colorsScheme().secondaryText),

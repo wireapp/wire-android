@@ -48,6 +48,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -337,24 +338,33 @@ private fun UsersTypingIndicator(
 
 @Composable
 private fun HorizontalBouncingWritingPen(infiniteTransition: InfiniteTransition) {
-    val position by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = 8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1_200, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = infiniteTransition.label
-    )
+    Row(Modifier.wrapContentSize()) { // todo. add a11y caps
+        val position by infiniteTransition.animateFloat(
+            initialValue = -4f, targetValue = 2f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1_000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = infiniteTransition.label
+        )
 
-    // todo. add dots
-    Icon(
-        imageVector = Icons.Default.Edit,
-        contentDescription = "Pen",
-        tint = colorsScheme().secondaryText,
-        modifier = Modifier
-            .size(dimensions().spacing12x)
-            .offset(x = position.dp),
-    )
+        Icon(
+            imageVector = Icons.Default.MoreHoriz,
+            contentDescription = "More",
+            tint = colorsScheme().secondaryText,
+            modifier = Modifier
+                .size(dimensions().spacing12x)
+                .align(Alignment.Bottom)
+        )
+        Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Pen",
+            tint = colorsScheme().secondaryText,
+            modifier = Modifier
+                .size(dimensions().spacing12x)
+                .offset(x = position.dp),
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

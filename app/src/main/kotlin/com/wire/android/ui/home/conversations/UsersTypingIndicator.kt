@@ -75,10 +75,7 @@ fun UsersTypingIndicator(
                 )
         ) {
             Text(
-                text = pluralStringResource(
-                    R.plurals.typing_indicator_event_message,
-                    usersTyping.size,
-                    usersTyping.joinToString(", ") { it.name }), // todo. add and vs , logic
+                text = usersTypingIndicatorText(usersTyping),
                 style = MaterialTheme.wireTypography.label01.copy(color = colorsScheme().secondaryText),
                 modifier = Modifier.padding(
                     top = dimensions().spacing4x,
@@ -90,6 +87,21 @@ fun UsersTypingIndicator(
             HorizontalBouncingWritingPen(infiniteTransition = rememberTransition)
         }
     }
+}
+
+@Composable
+private fun usersTypingIndicatorText(
+    usersTyping: List<UIParticipant>,
+): String {
+    return pluralStringResource(
+        R.plurals.typing_indicator_event_message,
+        usersTyping.size,
+        if (usersTyping.size == 1) usersTyping.first().name
+        else {
+            usersTyping.first().name
+        },
+        usersTyping.size - 1
+    )
 }
 
 @Suppress("MagicNumber")
@@ -128,7 +140,7 @@ private fun HorizontalBouncingWritingPen(infiniteTransition: InfiniteTransition)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewUsersTyping() {
+fun PreviewUsersTypingOne() {
     Column(
         modifier = Modifier
             .background(color = colorsScheme().background)
@@ -137,6 +149,52 @@ fun PreviewUsersTyping() {
     ) {
         UsersTypingIndicator(
             listOf(
+                UIParticipant(
+                    id = QualifiedID("Alice", "wire.com"),
+                    name = "Alice",
+                    handle = "alice",
+                    isSelf = false,
+                    isService = false,
+                    avatarData = UserAvatarData(),
+                    membership = Membership.None,
+                    connectionState = ConnectionState.ACCEPTED,
+                    unavailable = false,
+                    isDeleted = false,
+                    readReceiptDate = null,
+                    botService = null,
+                    isDefederated = false
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUsersTypingMoreThanOne() {
+    Column(
+        modifier = Modifier
+            .background(color = colorsScheme().background)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        UsersTypingIndicator(
+            listOf(
+                UIParticipant(
+                    id = QualifiedID("Bob", "wire.com"),
+                    name = "Bob",
+                    handle = "bob",
+                    isSelf = false,
+                    isService = false,
+                    avatarData = UserAvatarData(),
+                    membership = Membership.None,
+                    connectionState = ConnectionState.ACCEPTED,
+                    unavailable = false,
+                    isDeleted = false,
+                    readReceiptDate = null,
+                    botService = null,
+                    isDefederated = false
+                ),
                 UIParticipant(
                     id = QualifiedID("alice", "wire.com"),
                     name = "Alice Smith",

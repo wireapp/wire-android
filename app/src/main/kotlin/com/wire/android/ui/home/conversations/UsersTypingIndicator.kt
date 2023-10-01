@@ -56,7 +56,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun UsersTypingIndicator(
@@ -96,8 +95,10 @@ fun UsersTypingIndicator(
 
 @Suppress("MagicNumber")
 @Composable
-private fun HorizontalBouncingWritingPen(infiniteTransition: InfiniteTransition) {
-    Row(modifier = Modifier.fillMaxHeight()) { // todo. add a11y caps
+private fun HorizontalBouncingWritingPen(
+    infiniteTransition: InfiniteTransition,
+) {
+    Row(modifier = Modifier.fillMaxHeight()) {
         val position by infiniteTransition.animateFloat(
             initialValue = -5f, targetValue = -1f,
             animationSpec = infiniteRepeatable(
@@ -109,7 +110,7 @@ private fun HorizontalBouncingWritingPen(infiniteTransition: InfiniteTransition)
 
         Icon(
             imageVector = Icons.Default.MoreHoriz,
-            contentDescription = "More",
+            contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
                 .size(dimensions().spacing12x)
@@ -118,7 +119,7 @@ private fun HorizontalBouncingWritingPen(infiniteTransition: InfiniteTransition)
         )
         Icon(
             imageVector = Icons.Default.Edit,
-            contentDescription = "Pen",
+            contentDescription = null,
             tint = colorsScheme().secondaryText,
             modifier = Modifier
                 .size(dimensions().spacing12x)
@@ -147,7 +148,7 @@ fun PreviewUsersTypingOne() {
                     isService = false,
                     avatarData = UserAvatarData(),
                     membership = Membership.None,
-                    connectionState = ConnectionState.ACCEPTED,
+                    connectionState = null,
                     unavailable = false,
                     isDeleted = false,
                     readReceiptDate = null,
@@ -178,7 +179,7 @@ fun PreviewUsersTypingMoreThanOne() {
                     isService = false,
                     avatarData = UserAvatarData(),
                     membership = Membership.None,
-                    connectionState = ConnectionState.ACCEPTED,
+                    connectionState = null,
                     unavailable = false,
                     isDeleted = false,
                     readReceiptDate = null,
@@ -193,7 +194,7 @@ fun PreviewUsersTypingMoreThanOne() {
                     isService = false,
                     avatarData = UserAvatarData(),
                     membership = Membership.None,
-                    connectionState = ConnectionState.ACCEPTED,
+                    connectionState = null,
                     unavailable = false,
                     isDeleted = false,
                     readReceiptDate = null,

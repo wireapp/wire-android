@@ -24,9 +24,9 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -187,5 +186,15 @@ class ConversationMessagesViewModelTest {
         viewModel.onResetSession(userId, clientId)
 
         coVerify(exactly = 1) { arrangement.resetSession(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a conversation, when starting, then should start observing user typing events`() = runTest {
+        val (arrangement, _) = ConversationMessagesViewModelArrangement()
+            .withObservableAudioMessagesState(flowOf())
+            .withObserveUsersTyping(listOf())
+            .arrange()
+
+        coVerify(exactly = 1) { arrangement.observeUsersTypingInConversation(any()) }
     }
 }

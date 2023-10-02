@@ -27,6 +27,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
@@ -173,6 +174,10 @@ class ConversationMessagesViewModelArrangement {
 
     suspend fun withResetSessionResult(resetSessionResult: ResetSessionResult = ResetSessionResult.Success) = apply {
         coEvery { resetSession(any(), any(), any()) } returns resetSessionResult
+    }
+
+    fun withObserveUsersTyping(usersTyping: List<UIParticipant> = emptyList()) = apply {
+        coEvery { observeUsersTypingInConversation(any()) } returns flowOf(usersTyping)
     }
 
     fun withSuccessfulSaveAssetMessage(

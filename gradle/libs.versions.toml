@@ -42,7 +42,7 @@ compose-compiler = "1.5.2"
 compose-constraint = "1.0.1"
 compose-material3 = "1.1.1"
 compose-navigation = "2.6.0"
-compose-destinations = "1.9.40-beta"
+compose-destinations = "1.9.53"
 
 # Hilt
 hilt = "2.48"

@@ -432,11 +432,11 @@ class ConversationListViewModel @Inject constructor(
             requestInProgress = false
             when (result) {
                 is ArchiveStatusUpdateResult.Failure -> {
-                    homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationError)
+                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusError(isArchiving))
                 }
 
                 is ArchiveStatusUpdateResult.Success -> {
-                    homeSnackBarState.emit(HomeSnackbarState.ArchivingConversationSuccess)
+                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving))
                 }
             }
         }
@@ -498,7 +498,8 @@ private fun ConversationDetails.toConversationItem(
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
             teamId = conversation.teamId,
-            selfMemberRole = selfRole
+            selfMemberRole = selfRole,
+            isArchived = conversation.archived
         )
     }
 
@@ -528,7 +529,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState,
-            teamId = otherUser.teamId
+            teamId = otherUser.teamId,
+            isArchived = conversation.archived
         )
     }
 

@@ -149,7 +149,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     mutingConversationState = groupDetails.conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
                     isTeamConversation = groupDetails.conversation.teamId?.value != null,
-                    selfRole = groupDetails.selfRole
+                    selfRole = groupDetails.selfRole,
+                    isArchived = groupDetails.conversation.archived
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
                 val isUpdatingReadReceiptAllowed = if (selfTeam == null) {
@@ -378,7 +379,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
-    override fun onMoveConversationToArchive(
+    override fun updateConversationArchiveStatus(
         conversationId: ConversationId,
         shouldArchive: Boolean,
         timestamp: Long,
@@ -390,8 +391,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, shouldArchive, timestamp) }
             requestInProgress = false
             when (result) {
-                ArchiveStatusUpdateResult.Failure -> onMessage(UIText.StringResource(R.string.error_archiving_conversation))
-                ArchiveStatusUpdateResult.Success -> onMessage(UIText.StringResource(R.string.success_archiving_conversation))
+                ArchiveStatusUpdateResult.Failure -> onMessage(
+                    UIText.StringResource(
+                        if (shouldArchive) R.string.error_archiving_conversation else R.string.error_unarchiving_conversation
+                    )
+                )
+
+                ArchiveStatusUpdateResult.Success -> onMessage(
+                    UIText.StringResource(
+                        if (shouldArchive) R.string.success_archiving_conversation else R.string.success_unarchiving_conversation
+                    )
+                )
             }
         }
     }

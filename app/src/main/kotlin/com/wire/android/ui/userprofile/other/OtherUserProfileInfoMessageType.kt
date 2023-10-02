@@ -55,7 +55,17 @@ sealed class OtherUserProfileInfoMessageType(override val uiText: UIText) : Snac
     object ConversationContentDeleteFailure :
         OtherUserProfileInfoMessageType(UIText.StringResource(R.string.conversation_content_delete_failure))
 
-    object ArchiveConversationError : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.error_archiving_conversation))
-    object ArchiveConversationSuccess : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.success_archiving_conversation))
+    data class ArchiveConversationError(val isArchiving: Boolean) : OtherUserProfileInfoMessageType(
+        UIText.StringResource(
+            if (isArchiving) R.string.error_archiving_conversation
+            else R.string.error_unarchiving_conversation
+        )
+    )
 
+    data class ArchiveConversationSuccess(val isArchiving: Boolean) : OtherUserProfileInfoMessageType(
+        UIText.StringResource(
+            if (isArchiving) R.string.success_archiving_conversation
+            else R.string.success_unarchiving_conversation
+        )
+    )
 }

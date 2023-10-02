@@ -62,7 +62,6 @@ class TypingIndicatorViewModelTest {
         }
     }
 
-
     private class Arrangement {
 
         @MockK

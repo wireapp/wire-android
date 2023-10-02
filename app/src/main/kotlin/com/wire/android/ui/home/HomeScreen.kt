@@ -113,8 +113,8 @@ fun HomeScreen(
 
     LaunchedEffect(homeScreenState.currentNavigationItem) {
         when (homeScreenState.currentNavigationItem) {
-            HomeDestination.Archive -> conversationListViewModel.updateConversationsSource(fromArchived = true)
-            HomeDestination.Conversations -> conversationListViewModel.updateConversationsSource(fromArchived = false)
+            HomeDestination.Archive -> conversationListViewModel.updateConversationsSource(fromArchive = true)
+            HomeDestination.Conversations -> conversationListViewModel.updateConversationsSource(fromArchive = false)
             else -> {}
         }
     }

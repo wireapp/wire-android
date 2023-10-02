@@ -162,7 +162,7 @@ class ConversationListViewModel @Inject constructor(
         }
         viewModelScope.launch {
             searchQueryFlow.flatMapLatest { searchQuery ->
-                observeConversationListDetails(fromArchived = searchQuery.fromArchive)
+                observeConversationListDetails(fromArchive = searchQuery.fromArchive)
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
@@ -181,7 +181,7 @@ class ConversationListViewModel @Inject constructor(
                             searchConversation(
                                 conversationsWithFolders.values.flatten(),
                                 searchQuery.text
-                            ).withFolders(fromArchived = searchQuery.fromArchive).toImmutableMap()
+                            ).withFolders(fromArchive = searchQuery.fromArchive).toImmutableMap()
                         },
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
@@ -224,8 +224,8 @@ class ConversationListViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    private fun List<ConversationItem>.withFolders(fromArchived: Boolean): Map<ConversationFolder, List<ConversationItem>> {
-        if (fromArchived) {
+    private fun List<ConversationItem>.withFolders(fromArchive: Boolean): Map<ConversationFolder, List<ConversationItem>> {
+        if (fromArchive) {
             return buildMap {
                 if (this@withFolders.isNotEmpty()) put(ConversationFolder.WithoutHeader, this@withFolders)
             }
@@ -384,9 +384,9 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun updateConversationsSource(fromArchived: Boolean) {
+    fun updateConversationsSource(fromArchive: Boolean) {
         viewModelScope.launch {
-            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateConversationsSource(fromArchived))
+            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateConversationsSource(fromArchive))
         }
     }
 

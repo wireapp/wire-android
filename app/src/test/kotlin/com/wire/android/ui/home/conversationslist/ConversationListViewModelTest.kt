@@ -212,7 +212,7 @@ class ConversationListViewModelTest {
         )
         // When
         dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.updateConversationsSource(fromArchived = true)
+        conversationListViewModel.updateConversationsSource(fromArchive = true)
         dispatcher.scheduler.advanceUntilIdle()
 
         // Then

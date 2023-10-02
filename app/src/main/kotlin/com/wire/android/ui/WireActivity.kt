@@ -62,6 +62,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.showBiometricPrompt
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -121,7 +122,6 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         viewModel.observePersistentConnectionStatus()
@@ -313,6 +313,7 @@ class WireActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         proximitySensorManager.registerListener()
+        showBiometricPrompt(this)
     }
 
     override fun onPause() {

@@ -48,21 +48,30 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
-fun UsersTypingIndicator(
-    usersTyping: List<UIParticipant>,
+fun UsersTypingIndicatorForConversation(
+    conversationId: ConversationId,
+    viewModel: TypingIndicatorViewModel = hiltViewModelScoped(conversationId),
 ) {
+    UsersTypingIndicator(usersTyping = viewModel.usersTypingViewState.usersTyping)
+}
+
+@Composable
+fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
     if (usersTyping.isNotEmpty()) {
         val rememberTransition =
             rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))

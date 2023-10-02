@@ -188,13 +188,4 @@ class ConversationMessagesViewModelTest {
         coVerify(exactly = 1) { arrangement.resetSession(any(), any(), any()) }
     }
 
-    @Test
-    fun `given a conversation, when starting, then should start observing user typing events`() = runTest {
-        val (arrangement, _) = ConversationMessagesViewModelArrangement()
-            .withObservableAudioMessagesState(flowOf())
-            .withObserveUsersTyping(listOf())
-            .arrange()
-
-        coVerify(exactly = 1) { arrangement.observeUsersTypingInConversation(any()) }
-    }
 }

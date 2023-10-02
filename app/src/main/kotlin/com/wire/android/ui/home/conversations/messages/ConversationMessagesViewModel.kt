@@ -38,7 +38,6 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnRes
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -84,8 +83,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
-    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
-    private val observeUsersTypingInConversation: ObserveUsersTypingInConversationUseCase
+    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -101,19 +99,7 @@ class ConversationMessagesViewModel @Inject constructor(
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
-        observeUsersTypingState()
         observeAudioPlayerState()
-    }
-
-    private fun observeUsersTypingState() {
-        viewModelScope.launch {
-            observeUsersTypingInConversation(conversationId).collect {
-                appLogger.d("Users typing: $it")
-                conversationViewState = conversationViewState.copy(
-                    usersTyping = it
-                )
-            }
-        }
     }
 
     private fun observeAudioPlayerState() {

@@ -49,8 +49,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.home.conversations.UsersTypingIndicator
-import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -74,8 +73,7 @@ fun EnabledMessageComposer(
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?,
-    usersTyping: List<UIParticipant>
+    tempWritableImageUri: Uri?
 ) {
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
@@ -151,7 +149,7 @@ fun EnabledMessageComposer(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        UsersTypingIndicator(usersTyping)
+                        UsersTypingIndicatorForConversation(conversationId = conversationId)
                     }
 
                     if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {

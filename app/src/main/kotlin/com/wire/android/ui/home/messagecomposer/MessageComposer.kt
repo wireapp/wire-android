@@ -79,8 +79,7 @@ fun MessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?,
-    usersTyping: List<UIParticipant>
+    tempWritableImageUri: Uri?
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -134,8 +133,7 @@ fun MessageComposer(
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    tempWritableImageUri = tempWritableImageUri,
-                    usersTyping = usersTyping
+                    tempWritableImageUri = tempWritableImageUri
                 )
             }
         }
@@ -224,7 +222,6 @@ fun MessageComposerPreview() {
         onClearMentionSearchResult = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
-        tempWritableImageUri = null,
-        usersTyping = emptyList()
+        tempWritableImageUri = null
     )
 }

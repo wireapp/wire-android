@@ -62,6 +62,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 
+const val MAX_PREVIEWS_DISPLAY = 3
+
 @Composable
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
@@ -110,7 +112,7 @@ fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
 
 @Suppress("MagicNumber")
 @Composable
-private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = 3) {
+private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY) {
     usersTyping.take(maxPreviewsDisplay).forEachIndexed { index, user ->
         val isSingleUser = usersTyping.size == 1 || maxPreviewsDisplay == 1
         UserProfileAvatar(

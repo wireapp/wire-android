@@ -187,5 +187,4 @@ class ConversationMessagesViewModelTest {
 
         coVerify(exactly = 1) { arrangement.resetSession(any(), any(), any()) }
     }
-
 }

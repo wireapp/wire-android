@@ -65,6 +65,8 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
         is MessageContent.ConversationDegradedMLS -> mapConversationDegraded(Conversation.Protocol.MLS)
         is MessageContent.ConversationDegradedProteus -> mapConversationDegraded(Conversation.Protocol.PROTEUS)
+        is MessageContent.ConversationVerifiedMLS -> mapConversationVerified(Conversation.Protocol.MLS)
+        is MessageContent.ConversationVerifiedProteus -> mapConversationVerified(Conversation.Protocol.PROTEUS)
         is MessageContent.FederationStopped -> mapFederationMessage(content)
     }
 
@@ -238,6 +240,9 @@ class SystemMessageContentMapper @Inject constructor(
     private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.MLSWrongEpochWarning()
     private fun mapConversationDegraded(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.ConversationDegraded(protocol)
+
+    private fun mapConversationVerified(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationVerified(protocol)
 
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
         is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)

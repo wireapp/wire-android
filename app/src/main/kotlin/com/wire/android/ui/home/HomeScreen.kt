@@ -85,6 +85,9 @@ import com.wire.android.ui.home.conversations.details.GroupConversationActionTyp
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.drawer.HomeDrawer
+import com.wire.android.ui.home.drawer.HomeDrawerState
+import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
@@ -94,6 +97,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     navigator: Navigator,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
@@ -130,6 +134,7 @@ fun HomeScreen(
 
     HomeContent(
         homeState = homeState,
+        homeDrawerState = homeDrawerViewModel.drawerState,
         homeStateHolder = homeScreenState,
         conversationListState = conversationListViewModel.conversationListState,
         onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
@@ -183,6 +188,7 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     homeState: HomeState,
+    homeDrawerState: HomeDrawerState,
     homeStateHolder: HomeStateHolder,
     conversationListState: ConversationListState,
     onNewConversationClick: () -> Unit,
@@ -220,6 +226,7 @@ fun HomeContent(
                     ) {
                         HomeDrawer(
                             currentRoute = currentNavigationItem.direction.route,
+                            homeDrawerState = homeDrawerState,
                             navigateToHomeItem = ::openHomeDestination,
                             onCloseDrawer = ::closeDrawer
                         )
@@ -371,8 +378,19 @@ private fun handleSnackBarMessage(
                 if (messageType.isGroup) R.string.group_content_deleted else R.string.conversation_content_deleted
             )
 
-            HomeSnackbarState.ArchivingConversationError -> stringResource(id = R.string.error_archiving_conversation)
-            HomeSnackbarState.ArchivingConversationSuccess -> stringResource(id = R.string.success_archiving_conversation)
+            is HomeSnackbarState.UpdateArchivingStatusSuccess -> {
+                stringResource(
+                    id = if (messageType.isArchiving) R.string.success_archiving_conversation
+                    else R.string.success_unarchiving_conversation
+                )
+            }
+
+            is HomeSnackbarState.UpdateArchivingStatusError -> {
+                stringResource(
+                    id = if (messageType.isArchiving) R.string.error_archiving_conversation
+                    else R.string.error_archiving_conversation
+                )
+            }
         }
 
         LaunchedEffect(messageType) {

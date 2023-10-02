@@ -31,7 +31,7 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
     fun onAddConversationToFavourites(conversationId: ConversationId? = null)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
-    fun onMoveConversationToArchive(
+    fun updateConversationArchiveStatus(
         conversationId: ConversationId,
         shouldArchive: Boolean,
         timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds(),
@@ -52,7 +52,7 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
 
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
-            override fun onMoveConversationToArchive(
+            override fun updateConversationArchiveStatus(
                 conversationId: ConversationId,
                 shouldArchive: Boolean,
                 timestamp: Long,

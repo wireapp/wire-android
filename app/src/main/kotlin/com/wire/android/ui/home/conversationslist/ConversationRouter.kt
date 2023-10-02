@@ -154,10 +154,10 @@ fun ConversationRouterHomeBridge(
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
-                    moveConversationToArchive = {
+                    updateConversationArchiveStatus = {
                         viewModel.moveConversationToArchive(
                             conversationId = it.conversationId,
-                            isArchiving = true // All conversations at this point are not archived
+                            isArchiving = !it.isArchived
                         )
                         onCloseBottomSheet()
                     },

@@ -360,11 +360,11 @@ private fun GroupConversationDetailsContent(
                 },
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
-                moveConversationToArchive = {
+                updateConversationArchiveStatus = {
                     conversationSheetContent?.let {
-                        bottomSheetEventsHandler.onMoveConversationToArchive(
+                        bottomSheetEventsHandler.updateConversationArchiveStatus(
                             conversationId = it.conversationId,
-                            shouldArchive = true,
+                            shouldArchive = !it.isArchived,
                             onMessage = closeBottomSheetAndShowSnackbarMessage
                         )
                     }

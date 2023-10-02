@@ -156,7 +156,7 @@ fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun UnreadMessageEventBadge(modifier: Modifier = Modifier, unreadMessageCount: Int) {
+fun UnreadMessageEventBadge(modifier: Modifier = Modifier, unreadMessageCount: Int) {
     if (unreadMessageCount > 0) {
         NotificationBadgeContainer(
             modifier = modifier,

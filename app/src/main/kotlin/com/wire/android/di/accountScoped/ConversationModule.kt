@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -229,6 +230,12 @@ class ConversationModule {
     @Provides
     fun provideUpdateConversationMemberRoleUseCase(conversationScope: ConversationScope): UpdateConversationMemberRoleUseCase =
         conversationScope.updateConversationMemberRole
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveArchivedUnreadConversationsCountUseCase(
+        conversationScope: ConversationScope
+    ): ObserveArchivedUnreadConversationsCountUseCase = conversationScope.observeArchivedUnreadConversationsCount
 
     @ViewModelScoped
     @Provides

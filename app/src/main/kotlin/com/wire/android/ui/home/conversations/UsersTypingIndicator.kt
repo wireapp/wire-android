@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
@@ -83,11 +84,15 @@ fun UsersTypingIndicator(
                     usersTyping.size - 1
                 ),
                 style = MaterialTheme.wireTypography.label01.copy(color = colorsScheme().secondaryText),
-                modifier = Modifier.padding(
-                    top = dimensions().spacing4x,
-                    bottom = dimensions().spacing4x,
-                    end = dimensions().spacing8x,
-                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(weight = 0.6f, fill = false)
+                    .padding(
+                        top = dimensions().spacing4x,
+                        bottom = dimensions().spacing4x,
+                        end = dimensions().spacing8x,
+                    )
             )
             HorizontalBouncingWritingPen(infiniteTransition = rememberTransition)
         }

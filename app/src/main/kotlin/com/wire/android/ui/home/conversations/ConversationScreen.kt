@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import SwipeableSnackbar
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +75,7 @@ import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
@@ -104,7 +106,6 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.ui.UIText
@@ -570,11 +571,15 @@ private fun ConversationScreen(
             }
         },
         snackbarHost = {
-            SwipeDismissSnackbarHost(
+            SnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .imePadding()
+                snackbar = { data ->
+                    SwipeableSnackbar(
+                        hostState = snackbarHostState,
+                        data = data,
+                        onDismiss = { data.dismiss() }
+                    )
+                }
             )
         },
         content = { internalPadding ->

@@ -87,7 +87,7 @@ fun UsersTypingIndicator(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.6f, fill = false)
+                    .weight(weight = 1f, fill = false)
                     .padding(
                         top = dimensions().spacing4x,
                         bottom = dimensions().spacing4x,

@@ -54,6 +54,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     excludes.add("META-INF/ASL2.0")
                     excludes.add("META-INF/NOTICE")
                     excludes.add("META-INF/licenses/ASM")
+                    excludes.add("META-INF/versions/9/previous-compilation-data.bin")
                 }
             }
 

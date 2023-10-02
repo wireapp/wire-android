@@ -88,6 +88,12 @@ class UIParticipantMapperTest {
         assertEquals(testUIParticipant(0).name, results.first().name)
         assertEquals(testUIParticipant(0).handle, results.first().handle)
         assertEquals(testUIParticipant(0).avatarData.asset, results.first().avatarData.asset)
+        assertEquals(null, results.first().botService)
+        assertEquals(null, results.first().connectionState)
+        assertEquals(false, results.first().isDefederated)
+        assertEquals(false, results.first().isSelf)
+        assertEquals(false, results.first().unavailable)
+        assertEquals(false, results.first().isService)
     }
 
     private fun compareResult(

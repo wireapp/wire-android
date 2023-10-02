@@ -37,7 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.SearchQuery
+import com.wire.android.util.orDefault
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -66,16 +66,13 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -133,12 +130,12 @@ class ConversationListViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
 
-  init {
+    init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(dispatcher)
 
         coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationListDetailsUseCase.invoke(any()) } returns flowOf(
+        coEvery { observeConversationListDetailsUseCase.invoke(false) } returns flowOf(
             listOf(
                 TestConversationDetails.CONNECTION,
                 TestConversationDetails.CONVERSATION_ONE_ONE,
@@ -174,23 +171,7 @@ class ConversationListViewModelTest {
         val searchQueryText = ""
 
         // When
-        conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
         dispatcher.scheduler.advanceUntilIdle()
-
-        // Then
-        assertEquals(
-            3,
-            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
-        )
-        assertEquals( searchQueryText, conversationListViewModel.conversationListState.searchQuery)
-    }
-
-    @Test
-    fun `given non-empty search query, when collecting, then update state with filtered conversations`() = runTest {
-        // Given
-        val searchQueryText = "testQuery"
-
-        // When
         conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -200,6 +181,46 @@ class ConversationListViewModelTest {
             conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
         )
         assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
+    }
+
+    @Test
+    fun `given non-empty search query, when collecting, then update state with filtered conversations`() = runTest {
+        // Given
+        val searchQueryText = TestConversationDetails.CONVERSATION_ONE_ONE.conversation.name.orDefault("test")
+
+        // When
+        dispatcher.scheduler.advanceUntilIdle()
+        conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(
+            1,
+            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
+        )
+        assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
+    }
+
+    @Test
+    fun `given empty search query, when collecting archived conversations, then update state with only archived conversations`() = runTest {
+        // Given
+        coEvery { observeConversationListDetailsUseCase.invoke(true) } returns flowOf(
+            listOf(
+                TestConversationDetails.CONVERSATION_ONE_ONE,
+                TestConversationDetails.GROUP
+            )
+        )
+        // When
+        dispatcher.scheduler.advanceUntilIdle()
+        conversationListViewModel.updateConversationsSource(fromArchived = true)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(
+            2,
+            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.WithoutHeader]?.size,
+        )
+        coVerify(exactly = 1) { observeConversationListDetailsUseCase.invoke(true) }
     }
 
     @Test

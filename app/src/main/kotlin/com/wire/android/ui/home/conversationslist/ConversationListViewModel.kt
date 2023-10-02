@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -186,14 +185,12 @@ class ConversationListViewModel @Inject constructor(
                         },
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
-                        // TODO: missing other lists and counters (for bottom tabs if we decide to bring them back)
-                        searchQuery = searchQuery.text,
-                        isFromArchive = searchQuery.fromArchive
+                        searchQuery = searchQuery.text
                     )
                 }
                 .flowOn(dispatcher.io())
                 .collect {
-                  conversationListState = it
+                    conversationListState = it
                 }
         }
     }

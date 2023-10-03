@@ -42,6 +42,17 @@ import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
+/**
+ * ArchiveScreen composable function.
+ *
+ * This screen leverages the ConversationRouterHomeBridge to render its UI and logic.
+ * Reasons for using ConversationRouterHomeBridge:
+ * 1. **Consistency**: Ensures a uniform UI/UX between the Archive and Conversation screens.
+ * 2. **Code Efficiency**: Eliminates redundancy by reusing shared logic and components.
+ * 3. **Flexibility**: Accommodates distinct data queries while retaining core UI logic.
+ * 4. **Maintainability**: Centralizes updates, reducing potential bugs and inconsistencies.
+ * 5. **Optimization**: Speeds up the development cycle by reusing established components.
+ */
 @HomeNavGraph
 @Destination
 @Composable

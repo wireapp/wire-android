@@ -62,6 +62,7 @@ fun UserProfileAvatar(
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
+    showStatusIndicator:Boolean = true
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -82,10 +83,12 @@ fun UserProfileAvatar(
                 .testTag("User avatar"),
             contentScale = ContentScale.Crop
         )
-        UserStatusIndicator(
-            status = avatarData.availabilityStatus,
-            modifier = Modifier.align(Alignment.BottomEnd)
-        )
+        if (showStatusIndicator) {
+            UserStatusIndicator(
+                status = avatarData.availabilityStatus,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
+        }
     }
 }
 

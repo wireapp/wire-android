@@ -119,6 +119,7 @@ private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPrevi
             avatarData = user.avatarData,
             size = dimensions().spacing16x,
             padding = dimensions().spacing2x,
+            showStatusIndicator = false,
             modifier = if (isSingleUser) Modifier
             else {
                 Modifier.offset(

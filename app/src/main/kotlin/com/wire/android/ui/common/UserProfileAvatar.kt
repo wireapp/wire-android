@@ -62,7 +62,7 @@ fun UserProfileAvatar(
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
-    showStatusIndicator:Boolean = true
+    showStatusIndicator: Boolean = true
 ) {
     Box(
         contentAlignment = Alignment.Center,

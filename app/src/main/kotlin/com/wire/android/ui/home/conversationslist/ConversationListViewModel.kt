@@ -93,7 +93,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -323,7 +322,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun blockUser(blockUserState: BlockUserDialogState) {
-        viewModelScope.launch(dispatcher.io()) {
+        viewModelScope.launch {
             requestInProgress = true
             val state = when (val result = blockUserUseCase(blockUserState.userId)) {
                 BlockUserResult.Success -> {
@@ -342,7 +341,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun unblockUser(userId: UserId) {
-        viewModelScope.launch(dispatcher.io()) {
+        viewModelScope.launch {
             requestInProgress = true
             when (val result = unblockUserUseCase(userId)) {
                 UnblockUserResult.Success -> {
@@ -362,11 +361,7 @@ class ConversationListViewModel @Inject constructor(
     fun leaveGroup(leaveGroupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
-            val response = withContext(dispatcher.io()) {
-                leaveConversation(
-                    leaveGroupState.conversationId
-                )
-            }
+            val response = leaveConversation(leaveGroupState.conversationId)
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure ->
                     homeSnackBarState.emit(HomeSnackbarState.LeaveConversationError)
@@ -382,7 +377,7 @@ class ConversationListViewModel @Inject constructor(
     fun deleteGroup(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
-            when (withContext(dispatcher.io()) { deleteTeamConversation(groupDialogState.conversationId) }) {
+            when (deleteTeamConversation(groupDialogState.conversationId)) {
                 is Result.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Failure.NoTeamFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Success -> homeSnackBarState.emit(
@@ -420,7 +415,7 @@ class ConversationListViewModel @Inject constructor(
             viewModelScope.launch {
                 val isArchiving = !isArchived
                 requestInProgress = true
-                val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving, timestamp) }
+                val result = updateConversationArchivedStatus(conversationId, isArchiving, timestamp)
                 requestInProgress = false
                 when (result) {
                     is ArchiveStatusUpdateResult.Failure -> {
@@ -438,7 +433,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             requestInProgress = true
             with(dialogState) {
-                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                val result = clearConversationContentUseCase(conversationId)
                 requestInProgress = false
                 clearContentSnackbarResult(result, conversationTypeDetail)
             }

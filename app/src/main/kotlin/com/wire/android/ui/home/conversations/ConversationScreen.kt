@@ -689,8 +689,7 @@ private fun ConversationScreenContent(
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         tempWritableVideoUri = tempWritableVideoUri,
-        tempWritableImageUri = tempWritableImageUri
-
+        tempWritableImageUri = tempWritableImageUri,
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

@@ -41,8 +41,11 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.SearchQuery
+import com.wire.android.ui.home.conversationslist.model.SearchQueryUpdate
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -78,17 +81,17 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
-import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -123,10 +126,24 @@ class ConversationListViewModel @Inject constructor(
 
     var requestInProgress: Boolean by mutableStateOf(false)
 
-    private val mutableSearchQueryFlow = MutableStateFlow("")
+    private val mutableSearchQueryFlow = MutableSharedFlow<SearchQueryUpdate>()
 
     private val searchQueryFlow = mutableSearchQueryFlow
-        .asStateFlow()
+        .scan(SearchQuery("", ConversationsSource.MAIN)) { currentSearchQuery, update ->
+            when (update) {
+                is SearchQueryUpdate.UpdateQuery -> currentSearchQuery.copy(text = update.text)
+                is SearchQueryUpdate.UpdateConversationsSource -> {
+                    if (currentSearchQuery.source != update.source) {
+                        currentSearchQuery.copy(
+                            text = "",
+                            source = update.source
+                        )
+                    } else {
+                        currentSearchQuery
+                    }
+                }
+            }
+        }
         .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     var establishedCallConversationId: QualifiedID? = null
@@ -151,8 +168,8 @@ class ConversationListViewModel @Inject constructor(
             observeEstablishedCall()
         }
         viewModelScope.launch {
-            searchQueryFlow.combine(
-                observeConversationListDetails(includeArchived = false)
+            searchQueryFlow.flatMapLatest { searchQuery ->
+                observeConversationListDetails(fromArchive = searchQuery.source == ConversationsSource.ARCHIVE)
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
@@ -161,23 +178,29 @@ class ConversationListViewModel @Inject constructor(
                             )
                         }
                     }
-            )
-                .map { (searchQuery, conversationItems) -> conversationItems.withFolders().toImmutableMap() to searchQuery }
-                .collect { (conversationsWithFolders, searchQuery) ->
-                    conversationListState = conversationListState.copy(
-                        conversationSearchResult = if (searchQuery.isEmpty()) {
+                    .map { conversationItems ->
+                        conversationItems.withFolders(source = searchQuery.source)
+                            .toImmutableMap() to searchQuery
+                    }
+            }
+                .map { (conversationsWithFolders, searchQuery) ->
+                    conversationListState.copy(
+                        conversationSearchResult = if (searchQuery.text.isEmpty()) {
                             conversationsWithFolders
                         } else {
                             searchConversation(
                                 conversationsWithFolders.values.flatten(),
-                                searchQuery
-                            ).withFolders().toImmutableMap()
+                                searchQuery.text
+                            ).withFolders(source = searchQuery.source).toImmutableMap()
                         },
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
-                        // TODO: missing other lists and counters (for bottom tabs if we decide to bring them back)
-                        searchQuery = searchQuery
+                        searchQuery = searchQuery.text
                     )
+                }
+                .flowOn(dispatcher.io())
+                .collect {
+                    conversationListState = it
                 }
         }
     }
@@ -211,77 +234,48 @@ class ConversationListViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    private fun List<ConversationItem>.withFolders(): Map<ConversationFolder, List<ConversationItem>> {
-        val unreadConversations = filter {
-            when (it.mutedStatus) {
-                MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
-                    BadgeEventType.Blocked -> false
-                    BadgeEventType.Deleted -> false
-                    BadgeEventType.Knock -> true
-                    BadgeEventType.MissedCall -> true
-                    BadgeEventType.None -> false
-                    BadgeEventType.ReceivedConnectionRequest -> true
-                    BadgeEventType.SentConnectRequest -> false
-                    BadgeEventType.UnreadMention -> true
-                    is BadgeEventType.UnreadMessage -> true
-                    BadgeEventType.UnreadReply -> true
+    private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map<ConversationFolder, List<ConversationItem>> {
+        return when (source) {
+            ConversationsSource.ARCHIVE -> {
+                buildMap {
+                    if (this@withFolders.isNotEmpty()) put(ConversationFolder.WithoutHeader, this@withFolders)
+                }
+            }
+
+            ConversationsSource.MAIN -> {
+                val unreadConversations = filter {
+                    when (it.mutedStatus) {
+                        MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                            BadgeEventType.Blocked -> false
+                            BadgeEventType.Deleted -> false
+                            BadgeEventType.Knock -> true
+                            BadgeEventType.MissedCall -> true
+                            BadgeEventType.None -> false
+                            BadgeEventType.ReceivedConnectionRequest -> true
+                            BadgeEventType.SentConnectRequest -> false
+                            BadgeEventType.UnreadMention -> true
+                            is BadgeEventType.UnreadMessage -> true
+                            BadgeEventType.UnreadReply -> true
+                        }
+
+                        MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
+                            BadgeEventType.UnreadReply -> true
+                            BadgeEventType.UnreadMention -> true
+                            BadgeEventType.ReceivedConnectionRequest -> true
+                            else -> false
+                        }
+
+                        MutedConversationStatus.AllMuted -> false
+                    } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
                 }
 
-                MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
-                    BadgeEventType.UnreadReply -> true
-                    BadgeEventType.UnreadMention -> true
-                    BadgeEventType.ReceivedConnectionRequest -> true
-                    else -> false
+                val remainingConversations = this - unreadConversations.toSet()
+
+                buildMap {
+                    if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                    if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
                 }
-
-                MutedConversationStatus.AllMuted -> false
-            } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
-        }
-
-        val remainingConversations = this - unreadConversations.toSet()
-
-        return buildMap {
-            if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
-            if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
-        }
-    }
-
-    @Suppress("ComplexMethod", "NoMultipleSpaces")
-    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
-        val unreadConversations = filter {
-            when (it.conversation.mutedStatus) {
-                MutedConversationStatus.AllAllowed ->
-                    when (it) {
-                        is Group -> it.unreadEventCount.isNotEmpty()
-                        is OneOne -> it.unreadEventCount.isNotEmpty()
-                        else -> false // TODO should connection requests also be listed on "new activities"?
-                    }
-
-                MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
-                    when (it) {
-                        is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION) ||
-                                it.unreadEventCount.containsKey(UnreadEventType.REPLY)
-
-                        is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION) ||
-                                it.unreadEventCount.containsKey(UnreadEventType.REPLY)
-
-                        else -> false
-                    }
-
-                else -> false
-            } ||
-                    (it is Connection && it.connection.status == ConnectionState.PENDING) ||
-                    (it is Group && it.hasOngoingCall)
-        }
-
-        val remainingConversations = this - unreadConversations.toSet()
-
-        val unreadConversationsItems = unreadConversations.toConversationItemList()
-        val remainingConversationsItems = remainingConversations.toConversationItemList()
-
-        return buildMap {
-            if (unreadConversationsItems.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversationsItems)
-            if (remainingConversationsItems.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversationsItems)
+            }
         }
     }
 
@@ -399,15 +393,15 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
-        filter { it is Group || it is OneOne || it is Connection }
-            .map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper)
-            }
-
     fun searchConversation(searchQuery: TextFieldValue) {
         viewModelScope.launch {
-            mutableSearchQueryFlow.emit(searchQuery.text)
+            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateQuery(searchQuery.text))
+        }
+    }
+
+    fun updateConversationsSource(source: ConversationsSource) {
+        viewModelScope.launch {
+            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateConversationsSource(source))
         }
     }
 

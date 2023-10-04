@@ -24,6 +24,7 @@ import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.UserSummary
 import com.wire.kalium.logic.data.message.reaction.MessageReaction
 import com.wire.kalium.logic.data.message.receipt.DetailedReceipt
 import com.wire.kalium.logic.data.user.OtherUser
@@ -63,7 +64,7 @@ class UIParticipantMapper @Inject constructor(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
             handle = userSummary.userHandle.orEmpty(),
-            avatarData = previewAsset(wireSessionImageLoader),
+            avatarData = userSummary.previewAsset(wireSessionImageLoader),
             membership = userTypeMapper.toMembership(userSummary.userType),
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
@@ -77,12 +78,26 @@ class UIParticipantMapper @Inject constructor(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
             handle = userSummary.userHandle.orEmpty(),
-            avatarData = previewAsset(wireSessionImageLoader),
+            avatarData = userSummary.previewAsset(wireSessionImageLoader),
             membership = userTypeMapper.toMembership(userSummary.userType),
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
             isSelf = false,
             readReceiptDate = date,
+            isDefederated = false
+        )
+    }
+
+    fun toUIParticipant(userSummary: UserSummary): UIParticipant = with(userSummary) {
+        return UIParticipant(
+            id = userSummary.userId,
+            name = userSummary.userName.orEmpty(),
+            handle = userSummary.userHandle.orEmpty(),
+            avatarData = previewAsset(wireSessionImageLoader),
+            membership = userTypeMapper.toMembership(userSummary.userType),
+            unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
+            isDeleted = userSummary.isUserDeleted,
+            isSelf = false,
             isDefederated = false
         )
     }

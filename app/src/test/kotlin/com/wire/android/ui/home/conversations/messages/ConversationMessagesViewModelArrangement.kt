@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCou
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -162,6 +163,10 @@ class ConversationMessagesViewModelArrangement {
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {
         messagesChannel.send(pagingDataFlow)
+    }
+
+    suspend fun withResetSessionResult(resetSessionResult: ResetSessionResult = ResetSessionResult.Success) = apply {
+        coEvery { resetSession(any(), any(), any()) } returns resetSessionResult
     }
 
     fun withSuccessfulSaveAssetMessage(

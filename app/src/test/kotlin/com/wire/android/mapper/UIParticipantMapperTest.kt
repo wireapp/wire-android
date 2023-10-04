@@ -30,6 +30,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.message.UserSummary
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.data.user.type.UserType
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
 class UIParticipantMapperTest {
@@ -60,6 +62,38 @@ class UIParticipantMapperTest {
         results.forEachIndexed { index, result ->
             assert(compareResult(arrangement.wireSessionImageLoader, data[index], result, arrangement.userTypeMapper))
         }
+    }
+
+    @Test
+    fun givenUserSummary_whenMappingUiParticipant_thenCorrectValuesShouldBeReturned() = runTest {
+        // Given
+        val (_, mapper) = Arrangement().arrange()
+        val data: List<UserSummary> = listOf(
+            UserSummary(
+                testOtherUser(0).id,
+                testOtherUser(0).name,
+                testOtherUser(0).handle,
+                testOtherUser(0).previewPicture,
+                testOtherUser(0).userType,
+                testOtherUser(0).deleted,
+                testOtherUser(0).connectionStatus,
+                testOtherUser(0).availabilityStatus
+            )
+        )
+        // When
+        val results: List<UIParticipant> = data.map { mapper.toUIParticipant(it) }
+
+        // Then
+        assertEquals(testUIParticipant(0).id, results.first().id)
+        assertEquals(testUIParticipant(0).name, results.first().name)
+        assertEquals(testUIParticipant(0).handle, results.first().handle)
+        assertEquals(testUIParticipant(0).avatarData.asset, results.first().avatarData.asset)
+        assertEquals(null, results.first().botService)
+        assertEquals(null, results.first().connectionState)
+        assertEquals(false, results.first().isDefederated)
+        assertEquals(false, results.first().isSelf)
+        assertEquals(false, results.first().unavailable)
+        assertEquals(false, results.first().isService)
     }
 
     private fun compareResult(

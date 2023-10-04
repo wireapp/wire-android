@@ -133,12 +133,14 @@ class ConversationListViewModel @Inject constructor(
             when (update) {
                 is SearchQueryUpdate.UpdateQuery -> currentSearchQuery.copy(text = update.text)
                 is SearchQueryUpdate.UpdateConversationsSource -> {
-                    if (currentSearchQuery.source != update.source)
+                    if (currentSearchQuery.source != update.source) {
                         currentSearchQuery.copy(
                             text = "",
                             source = update.source
                         )
-                    else currentSearchQuery
+                    } else {
+                        currentSearchQuery
+                    }
                 }
             }
         }

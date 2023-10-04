@@ -67,7 +67,7 @@ import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountDialog
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper

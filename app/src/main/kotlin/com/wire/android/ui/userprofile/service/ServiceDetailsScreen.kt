@@ -32,7 +32,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography

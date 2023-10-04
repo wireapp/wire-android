@@ -45,6 +45,7 @@ import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.archive.ArchivedConversationsEmptyStateScreen
 import com.wire.android.ui.home.conversationslist.ConversationItemType
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
@@ -80,6 +81,7 @@ fun AllConversationScreen(homeStateHolder: HomeStateHolder) {
 fun AllConversationScreenContent(
     conversations: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     hasNoConversations: Boolean,
+    isFromArchive: Boolean = false,
     viewModel: ConversationListViewModel = hiltViewModel(),
     onEditConversation: (ConversationItem) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
@@ -99,7 +101,11 @@ fun AllConversationScreenContent(
         )
     }
     if (hasNoConversations) {
-        ConversationListEmptyStateScreen()
+        if (isFromArchive) {
+            ArchivedConversationsEmptyStateScreen()
+        } else {
+            ConversationListEmptyStateScreen()
+        }
     } else {
         ConversationList(
             lazyListState = lazyListState,
@@ -154,6 +160,7 @@ fun ConversationListEmptyStateScreen() {
         )
     }
 }
+
 @Preview
 @Composable
 fun PreviewAllConversationScreen() {

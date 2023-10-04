@@ -56,6 +56,7 @@ import com.wire.android.ui.home.conversationslist.all.AllConversationScreenConte
 import com.wire.android.ui.home.conversationslist.call.CallsScreenContent
 import com.wire.android.ui.home.conversationslist.mention.MentionScreenContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
@@ -76,10 +77,15 @@ fun ConversationRouterHomeBridge(
     onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
-    isBottomSheetVisible: () -> Boolean
+    isBottomSheetVisible: () -> Boolean,
+    conversationsSource: ConversationsSource = ConversationsSource.MAIN
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
     val context = LocalContext.current
+
+    LaunchedEffect(conversationsSource) {
+        viewModel.updateConversationsSource(conversationsSource)
+    }
 
     MicrophoneBTPermissionsDeniedDialog(
         shouldShow = viewModel.conversationListState.shouldShowCallingPermissionDialog,

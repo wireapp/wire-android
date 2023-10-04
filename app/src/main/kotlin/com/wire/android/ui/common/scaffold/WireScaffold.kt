@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.common.scaffold
 
+import SwipeableSnackbar
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
@@ -24,12 +25,12 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 
 /**
  * A custom scaffold that automatically applies system UI insets and IME (Input Method Editor)
@@ -68,12 +69,21 @@ fun WireScaffold(
         topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = {
-            SwipeDismissSnackbarHost(hostState = LocalSnackbarHostState.current)
+            SnackbarHost(
+                hostState = LocalSnackbarHostState.current,
+                snackbar = { data ->
+                    SwipeableSnackbar(
+                        hostState = LocalSnackbarHostState.current,
+                        data = data,
+                        onDismiss = { data.dismiss() }
+                    )
+                }
+            )
         },
-        floatingActionButton,
-        floatingActionButtonPosition,
-        containerColor,
-        contentColor,
+        floatingActionButton = floatingActionButton,
+        floatingActionButtonPosition = floatingActionButtonPosition,
+        containerColor = containerColor,
+        contentColor = contentColor,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         content = content
     )

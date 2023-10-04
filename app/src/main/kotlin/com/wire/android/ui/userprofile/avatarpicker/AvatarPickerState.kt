@@ -32,7 +32,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.imagepreview.AvatarPickerFlow
 import com.wire.android.ui.common.imagepreview.rememberPickPictureState
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

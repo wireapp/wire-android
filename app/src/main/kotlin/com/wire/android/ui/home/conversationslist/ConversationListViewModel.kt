@@ -132,10 +132,14 @@ class ConversationListViewModel @Inject constructor(
         .scan(SearchQuery("", ConversationsSource.MAIN)) { currentSearchQuery, update ->
             when (update) {
                 is SearchQueryUpdate.UpdateQuery -> currentSearchQuery.copy(text = update.text)
-                is SearchQueryUpdate.UpdateConversationsSource -> currentSearchQuery.copy(
-                    text = "",
-                    source = update.source
-                )
+                is SearchQueryUpdate.UpdateConversationsSource -> {
+                    if (currentSearchQuery.source != update.source)
+                        currentSearchQuery.copy(
+                            text = "",
+                            source = update.source
+                        )
+                    else currentSearchQuery
+                }
             }
         }
         .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)

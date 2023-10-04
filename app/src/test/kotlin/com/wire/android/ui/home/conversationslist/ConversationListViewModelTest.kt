@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.orDefault
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -212,7 +213,7 @@ class ConversationListViewModelTest {
         )
         // When
         dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.updateConversationsSource(fromArchive = true)
+        conversationListViewModel.updateConversationsSource(ConversationsSource.ARCHIVE)
         dispatcher.scheduler.advanceUntilIdle()
 
         // Then

@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -78,6 +79,7 @@ fun AttachmentButton(
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onPrimaryButtonEnabled)
             )
         }
+        VerticalSpace.x4()
         Text(
             text = text,
             maxLines = 2,

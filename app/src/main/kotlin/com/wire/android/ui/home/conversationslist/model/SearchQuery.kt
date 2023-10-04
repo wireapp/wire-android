@@ -17,11 +17,15 @@
  */
 package com.wire.android.ui.home.conversationslist.model
 
-data class SearchQuery(val text: String, val fromArchive: Boolean)
+data class SearchQuery(val text: String, val source: ConversationsSource)
 
 sealed class SearchQueryUpdate {
     data class UpdateQuery(val text: String) : SearchQueryUpdate()
 
-    // If more conversation source will come we can change [fromArchive] to some enum like ConversationSource
-    data class UpdateConversationsSource(val fromArchive: Boolean) : SearchQueryUpdate()
+    data class UpdateConversationsSource(val source: ConversationsSource) : SearchQueryUpdate()
+}
+
+enum class ConversationsSource {
+    MAIN,
+    ARCHIVE
 }

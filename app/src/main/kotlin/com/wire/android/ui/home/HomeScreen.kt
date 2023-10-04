@@ -85,6 +85,7 @@ import com.wire.android.ui.home.conversations.details.GroupConversationActionTyp
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
@@ -113,8 +114,8 @@ fun HomeScreen(
 
     LaunchedEffect(homeScreenState.currentNavigationItem) {
         when (homeScreenState.currentNavigationItem) {
-            HomeDestination.Archive -> conversationListViewModel.updateConversationsSource(fromArchive = true)
-            HomeDestination.Conversations -> conversationListViewModel.updateConversationsSource(fromArchive = false)
+            HomeDestination.Archive -> conversationListViewModel.updateConversationsSource(ConversationsSource.ARCHIVE)
+            HomeDestination.Conversations -> conversationListViewModel.updateConversationsSource(ConversationsSource.MAIN)
             else -> {}
         }
     }

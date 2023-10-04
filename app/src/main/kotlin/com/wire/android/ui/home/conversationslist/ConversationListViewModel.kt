@@ -41,6 +41,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.SearchQuery
@@ -128,12 +129,12 @@ class ConversationListViewModel @Inject constructor(
     private val mutableSearchQueryFlow = MutableSharedFlow<SearchQueryUpdate>()
 
     private val searchQueryFlow = mutableSearchQueryFlow
-        .scan(SearchQuery("", false)) { currentSearchQuery, update ->
+        .scan(SearchQuery("", ConversationsSource.MAIN)) { currentSearchQuery, update ->
             when (update) {
                 is SearchQueryUpdate.UpdateQuery -> currentSearchQuery.copy(text = update.text)
                 is SearchQueryUpdate.UpdateConversationsSource -> currentSearchQuery.copy(
                     text = "",
-                    fromArchive = update.fromArchive
+                    source = update.source
                 )
             }
         }
@@ -162,7 +163,7 @@ class ConversationListViewModel @Inject constructor(
         }
         viewModelScope.launch {
             searchQueryFlow.flatMapLatest { searchQuery ->
-                observeConversationListDetails(fromArchive = searchQuery.fromArchive)
+                observeConversationListDetails(fromArchive = searchQuery.source == ConversationsSource.ARCHIVE)
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
@@ -171,7 +172,10 @@ class ConversationListViewModel @Inject constructor(
                             )
                         }
                     }
-                    .map { conversationItems -> conversationItems.withFolders(searchQuery.fromArchive).toImmutableMap() to searchQuery }
+                    .map { conversationItems ->
+                        conversationItems.withFolders(source = searchQuery.source)
+                            .toImmutableMap() to searchQuery
+                    }
             }
                 .map { (conversationsWithFolders, searchQuery) ->
                     conversationListState.copy(
@@ -181,7 +185,7 @@ class ConversationListViewModel @Inject constructor(
                             searchConversation(
                                 conversationsWithFolders.values.flatten(),
                                 searchQuery.text
-                            ).withFolders(fromArchive = searchQuery.fromArchive).toImmutableMap()
+                            ).withFolders(source = searchQuery.source).toImmutableMap()
                         },
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
@@ -224,43 +228,48 @@ class ConversationListViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    private fun List<ConversationItem>.withFolders(fromArchive: Boolean): Map<ConversationFolder, List<ConversationItem>> {
-        if (fromArchive) {
-            return buildMap {
-                if (this@withFolders.isNotEmpty()) put(ConversationFolder.WithoutHeader, this@withFolders)
+    private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map<ConversationFolder, List<ConversationItem>> {
+        return when (source) {
+            ConversationsSource.ARCHIVE -> {
+                buildMap {
+                    if (this@withFolders.isNotEmpty()) put(ConversationFolder.WithoutHeader, this@withFolders)
+                }
             }
-        }
-        val unreadConversations = filter {
-            when (it.mutedStatus) {
-                MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
-                    BadgeEventType.Blocked -> false
-                    BadgeEventType.Deleted -> false
-                    BadgeEventType.Knock -> true
-                    BadgeEventType.MissedCall -> true
-                    BadgeEventType.None -> false
-                    BadgeEventType.ReceivedConnectionRequest -> true
-                    BadgeEventType.SentConnectRequest -> false
-                    BadgeEventType.UnreadMention -> true
-                    is BadgeEventType.UnreadMessage -> true
-                    BadgeEventType.UnreadReply -> true
+
+            ConversationsSource.MAIN -> {
+                val unreadConversations = filter {
+                    when (it.mutedStatus) {
+                        MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                            BadgeEventType.Blocked -> false
+                            BadgeEventType.Deleted -> false
+                            BadgeEventType.Knock -> true
+                            BadgeEventType.MissedCall -> true
+                            BadgeEventType.None -> false
+                            BadgeEventType.ReceivedConnectionRequest -> true
+                            BadgeEventType.SentConnectRequest -> false
+                            BadgeEventType.UnreadMention -> true
+                            is BadgeEventType.UnreadMessage -> true
+                            BadgeEventType.UnreadReply -> true
+                        }
+
+                        MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
+                            BadgeEventType.UnreadReply -> true
+                            BadgeEventType.UnreadMention -> true
+                            BadgeEventType.ReceivedConnectionRequest -> true
+                            else -> false
+                        }
+
+                        MutedConversationStatus.AllMuted -> false
+                    } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
                 }
 
-                MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
-                    BadgeEventType.UnreadReply -> true
-                    BadgeEventType.UnreadMention -> true
-                    BadgeEventType.ReceivedConnectionRequest -> true
-                    else -> false
+                val remainingConversations = this - unreadConversations.toSet()
+
+                buildMap {
+                    if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                    if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
                 }
-
-                MutedConversationStatus.AllMuted -> false
-            } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
-        }
-
-        val remainingConversations = this - unreadConversations.toSet()
-
-        return buildMap {
-            if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
-            if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
+            }
         }
     }
 
@@ -384,9 +393,9 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun updateConversationsSource(fromArchive: Boolean) {
+    fun updateConversationsSource(source: ConversationsSource) {
         viewModelScope.launch {
-            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateConversationsSource(fromArchive))
+            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateConversationsSource(source))
         }
     }
 

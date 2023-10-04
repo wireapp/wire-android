@@ -39,6 +39,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.conversationslist.ConversationItemType
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -67,7 +68,7 @@ fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
             onSnackBarStateChanged = ::setSnackBarState,
             searchBarState = searchBarState,
             isBottomSheetVisible = ::isBottomSheetVisible,
-            isFromArchive = true
+            conversationsSource = ConversationsSource.ARCHIVE
         )
     }
 }

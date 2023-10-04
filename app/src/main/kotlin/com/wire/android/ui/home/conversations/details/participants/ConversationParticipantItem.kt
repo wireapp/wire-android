@@ -96,7 +96,6 @@ fun ConversationParticipantItem(
 
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
             }
-
         },
         subtitle = {
             HighlightSubtitle(

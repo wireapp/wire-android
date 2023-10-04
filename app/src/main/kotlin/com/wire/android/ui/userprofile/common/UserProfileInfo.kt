@@ -174,7 +174,8 @@ fun UserProfileInfo(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                         style = MaterialTheme.wireTypography.title02,
-                        color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.labelText
+                        color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
+                        else MaterialTheme.wireColorScheme.labelText
                     )
 
                     if (isProteusVerified) ProteusVerifiedIcon()

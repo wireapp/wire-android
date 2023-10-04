@@ -131,7 +131,7 @@ fun PrivacySettingsScreenContent(
                 title = stringResource(R.string.settings_show_typing_indicator_title),
                 switchState = SwitchState.Enabled(value = isTypingIndicatorEnabled, onCheckedChange = setTypingIndicatorState),
                 arrowType = ArrowType.NONE,
-                subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
+                subtitle = stringResource(id = R.string.settings_show_typing_indicator_description)
             )
 
             AppLockItem(

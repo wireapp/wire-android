@@ -26,6 +26,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
@@ -33,6 +34,7 @@ import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -257,26 +259,52 @@ class ConversationListViewModelTest {
     @Test
     fun `given a valid conversation state, when archiving it correctly, then the right success message is shown`() = runTest {
         val isArchiving = true
+        val dialogState = DialogState(
+            conversationItem.conversationId,
+            conversationItem.conversationInfo.name,
+            ConversationTypeDetail.Private(null, conversationItem.userId, BlockingState.NOT_BLOCKED),
+            !isArchiving
+        )
         val archivingTimestamp = 123456789L
 
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
 
         conversationListViewModel.homeSnackBarState.test {
-            conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+            conversationListViewModel.moveConversationToArchive(dialogState, archivingTimestamp)
             expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving = isArchiving)
+        }
+        coVerify(exactly = 1) {
+            updateConversationArchivedStatus.invoke(
+                dialogState.conversationId,
+                !dialogState.isArchived,
+                archivingTimestamp
+            )
         }
     }
 
     @Test
-    fun `given a valid conversation state, when archiving it with an error, then the right failure message is shown`() = runTest {
-        val isArchiving = true
+    fun `given a valid conversation state, when un-archiving it with an error, then the right failure message is shown`() = runTest {
+        val isArchiving = false
+        val dialogState = DialogState(
+            conversationItem.conversationId,
+            conversationItem.conversationInfo.name,
+            ConversationTypeDetail.Private(null, conversationItem.userId, BlockingState.NOT_BLOCKED),
+            !isArchiving
+        )
         val archivingTimestamp = 123456789L
 
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
 
         conversationListViewModel.homeSnackBarState.test {
-            conversationListViewModel.moveConversationToArchive(conversationId, isArchiving, archivingTimestamp)
+            conversationListViewModel.moveConversationToArchive(dialogState, archivingTimestamp)
             expectMostRecentItem() shouldBeEqualTo HomeSnackbarState.UpdateArchivingStatusError(isArchiving = isArchiving)
+        }
+        coVerify(exactly = 1) {
+            updateConversationArchivedStatus.invoke(
+                dialogState.conversationId,
+                !dialogState.isArchived,
+                archivingTimestamp
+            )
         }
     }
 
@@ -287,7 +315,7 @@ class ConversationListViewModelTest {
         private val conversationItem = ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(),
             conversationInfo = ConversationInfo(
-                name = "",
+                name = "Some dummy name",
                 membership = Membership.None
             ),
             conversationId = conversationId,

@@ -421,26 +421,24 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToFolder(id: String = "") {
     }
 
-    fun moveConversationToArchive(
-        conversationId: ConversationId,
-        isArchiving: Boolean,
-        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
-    ) {
-        viewModelScope.launch {
-            requestInProgress = true
-            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving, timestamp) }
-            requestInProgress = false
-            when (result) {
-                is ArchiveStatusUpdateResult.Failure -> {
-                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusError(isArchiving))
-                }
+    fun moveConversationToArchive(dialogState: DialogState, timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()) =
+        with(dialogState) {
+            viewModelScope.launch {
+                val isArchiving = !isArchived
+                requestInProgress = true
+                val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, isArchiving, timestamp) }
+                requestInProgress = false
+                when (result) {
+                    is ArchiveStatusUpdateResult.Failure -> {
+                        homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusError(isArchiving))
+                    }
 
-                is ArchiveStatusUpdateResult.Success -> {
-                    homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving))
+                    is ArchiveStatusUpdateResult.Success -> {
+                        homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving))
+                    }
                 }
             }
         }
-    }
 
     fun clearConversationContent(dialogState: DialogState) {
         viewModelScope.launch {

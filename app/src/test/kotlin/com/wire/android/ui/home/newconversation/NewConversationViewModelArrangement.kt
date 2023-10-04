@@ -176,7 +176,8 @@ internal class NewConversationViewModelArrangement {
             userType = UserType.FEDERATED,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false
         )
 
         val FEDERATED_KNOWN_USER = OtherUser(
@@ -194,7 +195,8 @@ internal class NewConversationViewModelArrangement {
             userType = UserType.FEDERATED,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false
         )
     }
 

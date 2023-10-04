@@ -27,9 +27,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
@@ -56,6 +56,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
@@ -87,6 +88,7 @@ fun UserProfileInfo(
     modifier: Modifier = Modifier,
     connection: ConnectionState = ConnectionState.ACCEPTED,
     delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
+    isProteusVerified: Boolean = false
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -163,16 +165,20 @@ fun UserProfileInfo(
                         end.linkTo(parent.end)
                     }
             ) {
-                Text(
-                    text = fullName.ifBlank {
-                        if (isLoading) ""
-                        else UIText.StringResource(R.string.username_unavailable_label).asString()
-                    },
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    style = MaterialTheme.wireTypography.title02,
-                    color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.labelText
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = fullName.ifBlank {
+                            if (isLoading) ""
+                            else UIText.StringResource(R.string.username_unavailable_label).asString()
+                        },
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        style = MaterialTheme.wireTypography.title02,
+                        color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.labelText
+                    )
+
+                    if (isProteusVerified) ProteusVerifiedIcon()
+                }
                 Text(
                     text = if (membership == Membership.Service) userName else userName.ifNotEmpty { "@$userName" },
                     overflow = TextOverflow.Ellipsis,
@@ -261,6 +267,7 @@ fun PreviewUserProfileInfo() {
         fullName = "fullName",
         onUserProfileClick = {},
         teamName = "Wire",
-        connection = ConnectionState.ACCEPTED
+        connection = ConnectionState.ACCEPTED,
+        isProteusVerified = true
     )
 }

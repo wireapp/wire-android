@@ -146,7 +146,7 @@ class ConnectionPolicyManager @Inject constructor(
     }
 
     private suspend fun allValidSessions() =
-        coreLogic.getGlobalScope().sessionRepository.allValidSessions()
+        coreLogic.getGlobalScope().value.sessionRepository.allValidSessions()
             .map { it.map { session -> session.userId } }.fold({ emptyList() }, { it })
 
     companion object {

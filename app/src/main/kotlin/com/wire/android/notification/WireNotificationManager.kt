@@ -375,7 +375,7 @@ class WireNotificationManager @Inject constructor(
                 if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
-                    coreLogic.getGlobalScope().session.currentSessionFlow()
+                    coreLogic.getGlobalScope().value.session.currentSessionFlow()
                         .flatMapLatest {
                             if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                                 coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall()

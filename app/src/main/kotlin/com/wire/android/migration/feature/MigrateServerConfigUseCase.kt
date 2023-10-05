@@ -44,11 +44,11 @@ class MigrateServerConfigUseCase @Inject constructor(
     suspend operator fun invoke(): Either<CoreFailure, ServerConfig> =
         when (val scalaServerConfig = scalaServerConfigDAO.scalaServerConfig) {
             is ScalaServerConfig.Full ->
-                coreLogic.getGlobalScope().storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).handleResult()
+                coreLogic.getGlobalScope().value.storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).handleResult()
             is ScalaServerConfig.Links ->
                 scalaServerConfig.links.fetchApiVersionAndStore()
             is ScalaServerConfig.ConfigUrl ->
-                coreLogic.getGlobalScope().fetchServerConfigFromDeepLink(scalaServerConfig.customConfigUrl).handleResult()
+                coreLogic.getGlobalScope().value.fetchServerConfigFromDeepLink(scalaServerConfig.customConfigUrl).handleResult()
             ScalaServerConfig.NoData ->
                 Either.Left(StorageFailure.DataNotFound)
         }
@@ -68,7 +68,7 @@ class MigrateServerConfigUseCase @Inject constructor(
     }
 
     private suspend fun ServerConfig.Links.fetchApiVersionAndStore(): Either<CoreFailure, ServerConfig> =
-        coreLogic.getGlobalScope().fetchApiVersion(this).let { // it also already stores the fetched config
+        coreLogic.getGlobalScope().value.fetchApiVersion(this).let { // it also already stores the fetched config
             when (it) {
                 is FetchApiVersionResult.Success -> Either.Right(it.serverConfig)
                 FetchApiVersionResult.Failure.TooNewVersion -> Either.Left(ServerConfigFailure.NewServerVersion)

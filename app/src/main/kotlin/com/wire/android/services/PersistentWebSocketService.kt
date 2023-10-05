@@ -84,7 +84,7 @@ class PersistentWebSocketService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+            coreLogic.getGlobalScope().value.observePersistentWebSocketConnectionStatus().let { result ->
                 when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from service")

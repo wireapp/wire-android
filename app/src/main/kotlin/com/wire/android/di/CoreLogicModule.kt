@@ -110,31 +110,31 @@ class CoreLogicModule {
 
     @Provides
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().session.currentSession
+        coreLogic.getGlobalScope().value.session.currentSession
 
     @Provides
     fun deleteSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().deleteSession
+        coreLogic.getGlobalScope().value.deleteSession
 
     @Provides
     fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
-        coreLogic.getGlobalScope().session.updateCurrentSession
+        coreLogic.getGlobalScope().value.session.updateCurrentSession
 
     @Provides
     fun provideUpdateLoggedInUsersCountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateLoggedInUsersCountUseCase =
-        coreLogic.getGlobalScope().session.updateLoggedInUsersCount
+        coreLogic.getGlobalScope().value.session.updateLoggedInUsersCount
 
     @Provides
     fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =
-        coreLogic.getGlobalScope().session.allSessions
+        coreLogic.getGlobalScope().value.session.allSessions
 
     @Provides
     fun provideServerConfigForAccountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ServerConfigForAccountUseCase =
-        coreLogic.getGlobalScope().serverConfigForAccounts
+        coreLogic.getGlobalScope().value.serverConfigForAccounts
 
     @Provides
     fun provideIsUserLoggedInUseCase(@KaliumCoreLogic coreLogic: CoreLogic): IsUserLoggedInUseCase =
-        coreLogic.getGlobalScope().session.isUserLoggedIn
+        coreLogic.getGlobalScope().value.session.isUserLoggedIn
 
     @NoSession
     @Singleton
@@ -157,7 +157,7 @@ class SessionModule {
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result =
-                coreLogic.getGlobalScope().session.currentSession.invoke()) {
+                coreLogic.getGlobalScope().value.session.currentSession.invoke()) {
                 is CurrentSessionResult.Success -> result.accountInfo.userId
                 else -> {
                     throw IllegalStateException("no current session was found")
@@ -181,7 +181,7 @@ class ServiceModule {
     @Provides
     @CurrentSessionFlowService
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().session.currentSessionFlow
+        coreLogic.getGlobalScope().value.session.currentSessionFlow
 }
 
 @Module
@@ -207,53 +207,53 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideValidateEmailUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().validateEmailUseCase
+        coreLogic.getGlobalScope().value.validateEmailUseCase
 
     @ViewModelScoped
     @Provides
     fun provideValidatePasswordUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().validatePasswordUseCase
+        coreLogic.getGlobalScope().value.validatePasswordUseCase
 
     @ViewModelScoped
     @Provides
     fun provideValidateUserHandleUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().validateUserHandleUseCase
+        coreLogic.getGlobalScope().value.validateUserHandleUseCase
 
     @ViewModelScoped
     @Provides
     fun provideGetServerConfigUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().fetchServerConfigFromDeepLink
+        coreLogic.getGlobalScope().value.fetchServerConfigFromDeepLink
 
     @ViewModelScoped
     @Provides
     fun provideFetchApiVersionUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().fetchApiVersion
+        coreLogic.getGlobalScope().value.fetchApiVersion
 
     @ViewModelScoped
     @Provides
     fun provideObserveServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observeServerConfig
+        coreLogic.getGlobalScope().value.observeServerConfig
 
     @ViewModelScoped
     @Provides
     fun provideUpdateApiVersionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().updateApiVersions
+        coreLogic.getGlobalScope().value.updateApiVersions
 
     @ViewModelScoped
     @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().session.currentSessionFlow
+        coreLogic.getGlobalScope().value.session.currentSessionFlow
 
     @ViewModelScoped
     @Provides
     fun provideAddAuthenticatedUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic): AddAuthenticatedUserUseCase =
-        coreLogic.getGlobalScope().addAuthenticatedAccount
+        coreLogic.getGlobalScope().value.addAuthenticatedAccount
 
     @ViewModelScoped
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
-    ) = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+    ) = coreLogic.getGlobalScope().value.observePersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
@@ -339,7 +339,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideObserveValidAccountsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveValidAccountsUseCase =
-        coreLogic.getGlobalScope().observeValidAccounts
+        coreLogic.getGlobalScope().value.observeValidAccounts
 
     @ViewModelScoped
     @Provides
@@ -378,7 +378,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observeIfAppUpdateRequired
+        coreLogic.getGlobalScope().value.observeIfAppUpdateRequired
 
     @ViewModelScoped
     @Provides
@@ -449,12 +449,12 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observeNewClientsUseCase
+        coreLogic.getGlobalScope().value.observeNewClientsUseCase
 
     @ViewModelScoped
     @Provides
     fun provideClearNewClientsForUser(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().clearNewClientsForUser
+        coreLogic.getGlobalScope().value.clearNewClientsForUser
 
     @ViewModelScoped
     @Provides

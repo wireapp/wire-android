@@ -56,7 +56,7 @@ class StartServiceReceiver : BroadcastReceiver() {
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
         appLogger.e("persistent web socket receiver")
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+            coreLogic.getGlobalScope().value.observePersistentWebSocketConnectionStatus().let { result ->
                 when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from StartServiceReceiver")

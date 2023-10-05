@@ -122,7 +122,7 @@ class ConnectionPolicyManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { coreLogic.getGlobalScope().sessionRepository } returns sessionRepository
+            every { coreLogic.getGlobalScope().value.sessionRepository } returns sessionRepository
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
             every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             every { userSessionScope.syncManager } returns syncManager

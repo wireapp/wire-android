@@ -99,11 +99,11 @@ class GlobalObserversManagerTest {
         }
 
         fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
-            coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flowOf(list)
+            coEvery { coreLogic.getGlobalScope().value.observeValidAccounts() } returns flowOf(list)
         }
 
         fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {
-            coEvery { coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus() } returns
+            coEvery { coreLogic.getGlobalScope().value.observePersistentWebSocketConnectionStatus() } returns
                     ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(flowOf(list))
         }
 

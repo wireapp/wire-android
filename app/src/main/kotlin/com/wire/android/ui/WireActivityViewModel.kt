@@ -21,6 +21,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -154,6 +155,7 @@ class WireActivityViewModel @Inject constructor(
     private fun observeAccounts() {
         viewModelScope.launch {
             observeValidAccounts().distinctUntilChanged().collectLatest {
+                Log.d("observeValidAccounts", "viewModel observeValidAccounts ${it.size}: ")
                 updateLoggedInUsersCount(it.size)
             }
         }
@@ -359,7 +361,7 @@ class WireActivityViewModel @Inject constructor(
         key: String,
         domain: String?,
         onSuccess: (ConversationId) -> Unit
-    ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+    ) = when (val currentSession = coreLogic.getGlobalScope().value.session.currentSession()) {
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
         is CurrentSessionResult.Success -> {
@@ -411,7 +413,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+            coreLogic.getGlobalScope().value.observePersistentWebSocketConnectionStatus().let { result ->
                 when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")

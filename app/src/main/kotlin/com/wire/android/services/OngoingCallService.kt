@@ -92,7 +92,7 @@ class OngoingCallService : Service() {
             stopSelf()
         } else {
             scope.launch {
-                coreLogic.getGlobalScope().session.currentSessionFlow()
+                coreLogic.getGlobalScope().value.session.currentSessionFlow()
                     .flatMapLatest {
                         if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                             val userId = it.accountInfo.userId

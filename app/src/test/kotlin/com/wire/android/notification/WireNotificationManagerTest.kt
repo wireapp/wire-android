@@ -762,7 +762,7 @@ class WireNotificationManagerTest {
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
-            coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
+            coEvery { coreLogic.getGlobalScope().value } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
             coEvery { callsScope.establishedCall } returns establishedCall

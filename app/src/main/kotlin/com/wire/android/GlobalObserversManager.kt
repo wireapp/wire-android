@@ -32,7 +32,7 @@ class GlobalObserversManager @Inject constructor(
     fun observe() {
         scope.launch { setUpNotifications() }
         scope.launch {
-            coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
+            coreLogic.getGlobalScope().value.observeValidAccounts().distinctUntilChanged().collectLatest {
                 if (it.isNotEmpty()) {
                     coreLogic.getSessionScope(it.first().first.id).calls.endCallOnConversationChange()
                 }
@@ -41,7 +41,7 @@ class GlobalObserversManager @Inject constructor(
     }
 
     private suspend fun setUpNotifications() {
-        val persistentStatusesFlow = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus()
+        val persistentStatusesFlow = coreLogic.getGlobalScope().value.observePersistentWebSocketConnectionStatus()
             .let { result ->
                 when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
@@ -55,7 +55,7 @@ class GlobalObserversManager @Inject constructor(
                 }
             }
 
-        coreLogic.getGlobalScope().observeValidAccounts()
+        coreLogic.getGlobalScope().value.observeValidAccounts()
             .distinctUntilChanged()
             .combine(persistentStatusesFlow, ::Pair)
             .collect { (list, persistentStatuses) ->

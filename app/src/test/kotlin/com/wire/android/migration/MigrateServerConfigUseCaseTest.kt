@@ -120,7 +120,7 @@ class MigrateServerConfigUseCaseTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { coreLogic.getGlobalScope() } returns globalKaliumScope
+            every { coreLogic.getGlobalScope().value } returns globalKaliumScope
         }
 
         fun withScalaServerConfig(scalaServerConfig: ScalaServerConfig): Arrangement {

@@ -15,11 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.snackbar
+package com.wire.android.ui.home.conversationslist.model
 
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.staticCompositionLocalOf
+data class SearchQuery(val text: String, val source: ConversationsSource)
 
-val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
-    error("No SnackbarHostState provided")
+sealed class SearchQueryUpdate {
+    data class UpdateQuery(val text: String) : SearchQueryUpdate()
+
+    data class UpdateConversationsSource(val source: ConversationsSource) : SearchQueryUpdate()
+}
+
+enum class ConversationsSource {
+    MAIN,
+    ARCHIVE
 }

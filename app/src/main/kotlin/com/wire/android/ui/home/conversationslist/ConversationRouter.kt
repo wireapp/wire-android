@@ -36,6 +36,7 @@ import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
@@ -55,6 +56,7 @@ import com.wire.android.ui.home.conversationslist.all.AllConversationScreenConte
 import com.wire.android.ui.home.conversationslist.call.CallsScreenContent
 import com.wire.android.ui.home.conversationslist.mention.MentionScreenContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
@@ -75,10 +77,15 @@ fun ConversationRouterHomeBridge(
     onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
-    isBottomSheetVisible: () -> Boolean
+    isBottomSheetVisible: () -> Boolean,
+    conversationsSource: ConversationsSource = ConversationsSource.MAIN
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
     val context = LocalContext.current
+
+    LaunchedEffect(conversationsSource) {
+        viewModel.updateConversationsSource(conversationsSource)
+    }
 
     MicrophoneBTPermissionsDeniedDialog(
         shouldShow = viewModel.conversationListState.shouldShowCallingPermissionDialog,
@@ -149,13 +156,7 @@ fun ConversationRouterHomeBridge(
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
-                    updateConversationArchiveStatus = {
-                        viewModel.moveConversationToArchive(
-                            conversationId = it.conversationId,
-                            isArchiving = !it.isArchived
-                        )
-                        onCloseBottomSheet()
-                    },
+                    updateConversationArchiveStatus = archiveConversationDialogState::show,
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,
                     unblockUser = unblockUserDialogState::show,
@@ -275,6 +276,11 @@ fun ConversationRouterHomeBridge(
             onClearConversationContent = viewModel::clearConversationContent
         )
 
+        ArchiveConversationDialog(
+            dialogState = archiveConversationDialogState,
+            onArchiveButtonClicked = viewModel::moveConversationToArchive
+        )
+
         BackHandler(conversationItemType == ConversationItemType.SEARCH) {
             closeSearch()
         }
@@ -289,6 +295,7 @@ class ConversationRouterState(
     val blockUserDialogState: VisibilityState<BlockUserDialogState>,
     val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
     val clearContentDialogState: VisibilityState<DialogState>,
+    val archiveConversationDialogState: VisibilityState<DialogState>,
     requestInProgress: Boolean
 ) {
 
@@ -320,6 +327,7 @@ fun rememberConversationRouterState(
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val clearContentDialogState = rememberVisibilityState<DialogState>()
+    val archiveConversationDialogState = rememberVisibilityState<DialogState>()
 
     LaunchedEffect(Unit) {
         homeSnackBarState.collect { onSnackBarStateChanged(it) }
@@ -337,7 +345,8 @@ fun rememberConversationRouterState(
             blockUserDialogState,
             unblockUserDialogState,
             clearContentDialogState,
-            requestInProgress
+            archiveConversationDialogState,
+            requestInProgress,
         )
     }
 
@@ -348,6 +357,7 @@ fun rememberConversationRouterState(
             blockUserDialogState.dismiss()
             unblockUserDialogState.dismiss()
             clearContentDialogState.dismiss()
+            archiveConversationDialogState.dismiss()
         }
 
         conversationRouterState.requestInProgress = requestInProgress

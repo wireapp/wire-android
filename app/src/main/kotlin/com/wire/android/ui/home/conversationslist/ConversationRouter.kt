@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the BottomSheet
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
+@Suppress("ComplexMethod")
 @Composable
 fun ConversationRouterHomeBridge(
     navigator: Navigator,

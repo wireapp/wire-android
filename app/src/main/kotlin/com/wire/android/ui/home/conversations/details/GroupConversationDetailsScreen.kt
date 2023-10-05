@@ -92,7 +92,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText

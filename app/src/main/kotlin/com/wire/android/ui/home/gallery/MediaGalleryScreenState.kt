@@ -27,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

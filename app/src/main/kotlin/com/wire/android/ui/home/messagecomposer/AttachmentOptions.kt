@@ -78,13 +78,14 @@ fun AttachmentOptionsComponent(
     )
 
     val labelStyle = MaterialTheme.wireTypography.button03
+
     /**
      * Calculate the maximum text width among a list of attachment options.
      */
     val maxTextWidth: Int = attachmentOptions
         .map { optionItem ->
             val label = stringResource(optionItem.text)
-            val longestLabel = if(label.contains(" ")) {
+            val longestLabel = if (label.contains(" ")) {
                 label.split(" ").maxBy { it.length }
             } else {
                 label
@@ -96,7 +97,6 @@ fun AttachmentOptionsComponent(
             ).size.width
         }
         .maxBy { it }
-
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val fullWidth: Dp = with(density) { constraints.maxWidth.toDp() }
@@ -283,7 +283,6 @@ private data class AttachmentOptionItem(
     @DrawableRes val icon: Int,
     val onClick: () -> Unit
 )
-
 
 @Preview(showBackground = true, locale = "de")
 @Composable

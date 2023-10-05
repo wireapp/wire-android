@@ -29,3 +29,5 @@ enum class ConversationsSource {
     MAIN,
     ARCHIVE
 }
+
+fun ConversationsSource.isArchive(): Boolean = this == ConversationsSource.ARCHIVE

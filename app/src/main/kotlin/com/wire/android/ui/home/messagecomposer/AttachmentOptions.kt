@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
@@ -78,21 +77,31 @@ fun AttachmentOptionsComponent(
         onRecordAudioMessageClicked
     )
 
+    val labelStyle = MaterialTheme.wireTypography.button03
+    /**
+     * Calculate the maximum text width among a list of attachment options.
+     */
     val maxTextWidth: Int = attachmentOptions
         .map { optionItem ->
+            val label = stringResource(optionItem.text)
+            val longestLabel = if(label.contains(" ")) {
+                label.split(" ").maxBy { it.length }
+            } else {
+                label
+            }
+            // Measure the width of the longest label using the specified typography style
             textMeasurer.measure(
-                stringResource(optionItem.text).splitToSequence(" ").maxBy {
-                    it.length
-                },
-                MaterialTheme.wireTypography.button03
+                longestLabel,
+                labelStyle
             ).size.width
         }
         .maxBy { it }
-    
+
+
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val fullWidth: Dp = with(density) { constraints.maxWidth.toDp() }
         val minPadding: Dp = dimensions().spacing2x
-        val minColumnWidth = with(density) { maxTextWidth.toDp() + 8.dp }
+        val minColumnWidth: Dp = with(density) { maxTextWidth.toDp() + dimensions().spacing24x }
         val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
         val params by remember(fullWidth, visibleAttachmentOptions.size) {
             derivedStateOf {
@@ -110,7 +119,7 @@ fun AttachmentOptionsComponent(
         ) {
             visibleAttachmentOptions.forEach { option ->
                 if (option.shouldShow) {
-                    item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+                    item { AttachmentButton(stringResource(option.text), option.icon, labelStyle) { option.onClick() } }
                 }
             }
         }
@@ -276,7 +285,7 @@ private data class AttachmentOptionItem(
 )
 
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, locale = "de")
 @Composable
 fun PreviewAttachmentComponents() {
     AttachmentOptionsComponent(

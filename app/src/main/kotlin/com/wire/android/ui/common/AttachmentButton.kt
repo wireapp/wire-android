@@ -26,6 +26,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,11 +55,13 @@ import com.wire.android.ui.theme.wireTypography
 fun AttachmentButton(
     text: String = "",
     @DrawableRes icon: Int,
+    labelStyle: TextStyle,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Column(
         modifier = modifier
+            .height(dimensions().spacing100x)
             .padding(dimensions().spacing4x)
             .clip(RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize))
             .clickable { onClick() }
@@ -80,19 +85,21 @@ fun AttachmentButton(
             )
         }
         VerticalSpace.x4()
+        Spacer(modifier = Modifier.weight(1F))
         Text(
             text = text,
             maxLines = 2,
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.wireTypography.button03,
+            style = labelStyle,
             color = MaterialTheme.wireColorScheme.onBackground,
         )
+        Spacer(modifier = Modifier.weight(1F))
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {
-    AttachmentButton("Share Location", R.drawable.ic_location) { }
+    AttachmentButton("Share Location", R.drawable.ic_location, MaterialTheme.wireTypography.button03) { }
 }

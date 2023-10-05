@@ -33,7 +33,7 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleScreen
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)

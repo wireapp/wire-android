@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -68,6 +67,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -221,7 +221,6 @@ fun GroupConversationDetailsScreen(
 }
 
 @OptIn(
-    ExperimentalComposeUiApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
 )
@@ -268,6 +267,7 @@ private fun GroupConversationDetailsContent(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
+    val archiveConversationDialogState = rememberVisibilityState<DialogState>()
 
     LaunchedEffect(conversationSheetState.conversationSheetContent) {
         // on each closing BottomSheet we revert BSContent to Home.
@@ -282,6 +282,7 @@ private fun GroupConversationDetailsContent(
         deleteGroupDialogState.dismiss()
         leaveGroupDialogState.dismiss()
         clearConversationDialogState.dismiss()
+        archiveConversationDialogState.dismiss()
     }
     WireScaffold(
         topBar = {
@@ -361,10 +362,12 @@ private fun GroupConversationDetailsContent(
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
                 updateConversationArchiveStatus = {
-                    conversationSheetContent?.let {
+                    // Only show the confirmation dialog if the conversation is not archived
+                    if (!it.isArchived) {
+                        archiveConversationDialogState.show(it)
+                    } else {
                         bottomSheetEventsHandler.updateConversationArchiveStatus(
-                            conversationId = it.conversationId,
-                            shouldArchive = !it.isArchived,
+                            dialogState = it,
                             onMessage = closeBottomSheetAndShowSnackbarMessage
                         )
                     }
@@ -394,7 +397,14 @@ private fun GroupConversationDetailsContent(
         dialogState = clearConversationDialogState,
         isLoading = isLoading,
         onClearConversationContent = {
-            bottomSheetEventsHandler.onClearConversationContent(it, closeBottomSheetAndShowSnackbarMessage)
+            bottomSheetEventsHandler.onClearConversationContent(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
+        }
+    )
+
+    ArchiveConversationDialog(
+        dialogState = archiveConversationDialogState,
+        onArchiveButtonClicked = {
+            bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
         }
     )
 }

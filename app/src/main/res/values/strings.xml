@@ -726,10 +726,14 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
     <string name="success_unarchiving_conversation">Conversation was unarchived</string>
     <string name="error_archiving_conversation">Conversation could not be archived</string>
     <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">The conversation will be moved to the archive section. You can still participate in the conversation and receive new activity, but the group will be muted. You can un-archive the conversation any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>

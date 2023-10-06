@@ -51,6 +51,7 @@ import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
@@ -59,6 +60,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -102,6 +104,7 @@ class MessageComposerViewModel @Inject constructor(
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
+    private val sendTypingEventUseCase: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -218,6 +221,8 @@ class MessageComposerViewModel @Inject constructor(
 
                 is ComposableMessageBundle.SendTextMessageBundle -> {
                     with(messageBundle) {
+                        //todo, remove later, just test
+                        sendTypingEventUseCase(conversationId, Conversation.TypingIndicatorMode.STARTED)
                         sendTextMessage(
                             conversationId = conversationId,
                             text = message,

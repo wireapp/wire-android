@@ -424,5 +424,5 @@ class UseCaseModule {
     fun provideSendTypingEventUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): SendTypingEventUseCase = coreLogic.getSessionScope(currentAccount).conversations.sendTypingEventUseCase
+    ): SendTypingEventUseCase = coreLogic.getSessionScope(currentAccount).conversations.sendTypingEvent
 }

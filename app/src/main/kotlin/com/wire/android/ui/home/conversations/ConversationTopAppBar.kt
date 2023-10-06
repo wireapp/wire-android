@@ -188,7 +188,7 @@ private fun VerificationIcon(protocolInfo: Conversation.ProtocolInfo?, verificat
         is Conversation.ProtocolInfo.MLS ->
             R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
 
-        Conversation.ProtocolInfo.Proteus ->
+        is Conversation.ProtocolInfo.Proteus, is Conversation.ProtocolInfo.Mixed ->
             R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
     }
     Image(

@@ -40,6 +40,7 @@ jobs:
                     token: ${{ secrets.CROWDIN_API_TOKEN }}
 
                     download_sources: true
+                    push_sources: true
                     upload_sources: false
                     download_translations: true
                     upload_translations: false

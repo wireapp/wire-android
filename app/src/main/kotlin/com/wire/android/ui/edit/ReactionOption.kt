@@ -39,7 +39,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +47,6 @@ fun ReactionOption(
     emojiFontSize: TextUnit = 28.sp
 ) {
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
         Column {
             Row {
@@ -98,15 +96,11 @@ fun ReactionOption(
     EmojiPickerBottomSheet(
         isVisible = isEmojiPickerVisible,
         onDismiss = {
-            scope.launch {
-                isEmojiPickerVisible = false
-            }
+            isEmojiPickerVisible = false
         },
         onEmojiSelected = {
             onReactionClick(it)
-            scope.launch {
-                isEmojiPickerVisible = false
-            }
+            isEmojiPickerVisible = false
         }
     )
 }

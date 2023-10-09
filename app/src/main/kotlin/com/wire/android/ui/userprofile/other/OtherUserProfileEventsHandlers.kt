@@ -71,7 +71,7 @@ interface OtherUserProfileBottomSheetEventsHandler {
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
     fun onAddConversationToFavourites(conversationId: ConversationId? = null)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
-    fun onMoveConversationToArchive(conversationId: ConversationId, isArchivingConversation: Boolean)
+    fun onMoveConversationToArchive(dialogState: DialogState)
     fun onClearConversationContent(dialogState: DialogState)
 
     companion object {
@@ -81,7 +81,7 @@ interface OtherUserProfileBottomSheetEventsHandler {
             override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
-            override fun onMoveConversationToArchive(conversationId: ConversationId, isArchivingConversation: Boolean) {}
+            override fun onMoveConversationToArchive(dialogState: DialogState) {}
             override fun onClearConversationContent(dialogState: DialogState) {}
         }
     }

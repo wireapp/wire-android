@@ -92,7 +92,7 @@ internal fun ConversationMainSheetContent(
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            if (conversationSheetContent.canEditNotifications()) {
+            if (conversationSheetContent.canEditNotifications() && !conversationSheetContent.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),

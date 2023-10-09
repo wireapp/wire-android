@@ -75,11 +75,13 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -90,7 +92,6 @@ import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -181,6 +182,7 @@ fun OtherProfileScreenContent(
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
+    val archivingConversationDialogState = rememberVisibilityState<DialogState>()
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
     val bottomSheetState = remember { OtherUserBottomSheetState() }
     bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
@@ -234,6 +236,7 @@ fun OtherProfileScreenContent(
         unblockUserDialogState.dismiss()
         removeMemberDialogState.dismiss()
         clearConversationDialogState.dismiss()
+        archivingConversationDialogState.dismiss()
     }
 
     CollapsingTopBarScaffold(
@@ -283,6 +286,7 @@ fun OtherProfileScreenContent(
                 blockUser = blockUserDialogState::show,
                 unblockUser = unblockUserDialogState::show,
                 clearContent = clearConversationDialogState::show,
+                archivingStatusState = archivingConversationDialogState::show,
                 closeBottomSheet = closeBottomSheet,
             )
         }
@@ -309,6 +313,10 @@ fun OtherProfileScreenContent(
         onClearConversationContent = {
             bottomSheetEventsHandler.onClearConversationContent(it)
         }
+    )
+    ArchiveConversationDialog(
+        dialogState = archivingConversationDialogState,
+        onArchiveButtonClicked = bottomSheetEventsHandler::onMoveConversationToArchive
     )
 }
 

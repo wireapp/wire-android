@@ -33,6 +33,7 @@ fun OtherUserProfileBottomSheetContent(
     bottomSheetState: OtherUserBottomSheetState,
     eventsHandler: OtherUserProfileBottomSheetEventsHandler,
     clearContent: (DialogState) -> Unit,
+    archivingStatusState: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     closeBottomSheet: () -> Unit,
@@ -54,10 +55,11 @@ fun OtherUserProfileBottomSheetContent(
                 addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
                 updateConversationArchiveStatus = {
-                    eventsHandler.onMoveConversationToArchive(
-                        conversationId = it.conversationId,
-                        isArchivingConversation = !it.isArchived
-                    )
+                    if (!it.isArchived) {
+                        archivingStatusState(it)
+                    } else {
+                        eventsHandler.onMoveConversationToArchive(it)
+                    }
                 },
                 clearConversationContent = clearContent,
                 blockUser = blockUser,

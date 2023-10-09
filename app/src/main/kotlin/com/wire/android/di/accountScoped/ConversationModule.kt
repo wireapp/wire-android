@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
@@ -235,4 +236,9 @@ class ConversationModule {
     fun provideObserveArchivedUnreadConversationsCountUseCase(
         conversationScope: ConversationScope
     ): ObserveArchivedUnreadConversationsCountUseCase = conversationScope.observeArchivedUnreadConversationsCount
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveUsersTypingUseCase(conversationScope: ConversationScope): ObserveUsersTypingUseCase =
+        conversationScope.observeUsersTyping
 }

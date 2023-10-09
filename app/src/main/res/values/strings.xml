@@ -676,6 +676,11 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -721,12 +726,17 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
     <string name="success_unarchiving_conversation">Conversation was unarchived</string>
     <string name="error_archiving_conversation">Conversation could not be archived</string>
     <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">The conversation will be moved to the archive section. You can still participate in the conversation and receive new activity, but the group will be muted. You can un-archive the conversation any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
+    <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>
     <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>

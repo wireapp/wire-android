@@ -31,6 +31,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetai
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -138,8 +139,17 @@ class GroupConversationDetailsViewModelTest {
             participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
             allParticipantsCount = members.size
         )
-
         val conversationDetails = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
+        val dialogState = DialogState(
+            conversationId = conversationDetails.conversation.id,
+            conversationName = conversationDetails.conversation.name.orEmpty(),
+            conversationTypeDetail = ConversationTypeDetail.Group(
+                conversationId = conversationDetails.conversation.id,
+                isCreator = conversationDetails.isSelfUserCreator
+            ),
+            isArchived = conversationDetails.conversation.archived
+        )
+
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails)
             .withConversationMembersUpdate(conversationParticipantsData)
@@ -148,16 +158,15 @@ class GroupConversationDetailsViewModelTest {
 
         // When
         viewModel.updateConversationArchiveStatus(
-            conversationId = viewModel.conversationId,
-            shouldArchive = true,
+            dialogState = dialogState,
             timestamp = archivingEventTimestamp
-        ) {}
+        ) { }
 
         // Then
         coVerify(exactly = 1) {
             arrangement.updateConversationArchivedStatus(
                 conversationId = viewModel.conversationId,
-                shouldArchiveConversation = true,
+                shouldArchiveConversation = !conversationDetails.conversation.archived,
                 archivedStatusTimestamp = archivingEventTimestamp
             )
         }
@@ -177,7 +186,17 @@ class GroupConversationDetailsViewModelTest {
             allParticipantsCount = members.size
         )
 
-        val conversationDetails = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
+        val conversationDetails = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1", archived = true))
+        val dialogState = DialogState(
+            conversationId = conversationDetails.conversation.id,
+            conversationName = conversationDetails.conversation.name.orEmpty(),
+            conversationTypeDetail = ConversationTypeDetail.Group(
+                conversationId = conversationDetails.conversation.id,
+                isCreator = conversationDetails.isSelfUserCreator
+            ),
+            isArchived = conversationDetails.conversation.archived
+        )
+
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails)
             .withConversationMembersUpdate(conversationParticipantsData)
@@ -185,7 +204,10 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When
-        viewModel.updateConversationArchiveStatus(viewModel.conversationId, false, archivingEventTimestamp) {}
+        viewModel.updateConversationArchiveStatus(
+            dialogState = dialogState,
+            timestamp = archivingEventTimestamp
+        ) {}
 
         // Then
         coVerify(exactly = 1) {

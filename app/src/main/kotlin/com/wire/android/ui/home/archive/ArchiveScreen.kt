@@ -36,14 +36,41 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.conversationslist.ConversationItemType
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
+/**
+ * ArchiveScreen composable function.
+ *
+ * This screen leverages the ConversationRouterHomeBridge to render its UI and logic.
+ * Reasons for using ConversationRouterHomeBridge:
+ * 1. **Consistency**: Ensures a uniform UI/UX between the Archive and Conversation screens.
+ * 2. **Code Efficiency**: Eliminates redundancy by reusing shared logic and components.
+ * 3. **Flexibility**: Accommodates distinct data queries while retaining core UI logic.
+ * 4. **Maintainability**: Centralizes updates, reducing potential bugs and inconsistencies.
+ * 5. **Optimization**: Speeds up the development cycle by reusing established components.
+ */
 @HomeNavGraph
 @Destination
 @Composable
-fun ArchiveScreen() {
-    ArchivedConversationsEmptyStateScreen()
+fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationRouterHomeBridge(
+            navigator = navigator,
+            conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
+            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
+            onOpenBottomSheet = ::openBottomSheet,
+            onCloseBottomSheet = ::closeBottomSheet,
+            onSnackBarStateChanged = ::setSnackBarState,
+            searchBarState = searchBarState,
+            isBottomSheetVisible = ::isBottomSheetVisible,
+            conversationsSource = ConversationsSource.ARCHIVE
+        )
+    }
 }
 
 @Composable
@@ -78,6 +105,6 @@ fun ArchivedConversationsEmptyStateScreen() {
 
 @Preview(showBackground = false)
 @Composable
-fun PreviewArchiveScreen() {
-    ArchiveScreen()
+fun PreviewArchiveEmptyScreen() {
+    ArchivedConversationsEmptyStateScreen()
 }

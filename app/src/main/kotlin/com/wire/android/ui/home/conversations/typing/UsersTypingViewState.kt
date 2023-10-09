@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.snackbar
+package com.wire.android.ui.home.conversations.typing
 
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.staticCompositionLocalOf
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 
-val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
-    error("No SnackbarHostState provided")
-}
+data class UsersTypingViewState(
+    val usersTyping: List<UIParticipant> = emptyList()
+)

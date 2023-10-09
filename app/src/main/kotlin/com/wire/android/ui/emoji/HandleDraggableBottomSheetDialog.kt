@@ -157,19 +157,16 @@ class HandleDraggableBottomSheetDialog : AppCompatDialog {
     /** Creates the container layout which must exist to find the behavior  */
     private fun ensureContainerAndBehavior(): FrameLayout? {
         if (container == null) {
+            // ## Modified ##
             container =
                 View.inflate(context, R.layout.dialog_bottom_sheet_custom_behavior, null) as FrameLayout
+            // ## END Modified ##
 
             coordinator = container!!.findViewById<View>(R.id.coordinator) as CoordinatorLayout
             bottomSheet = container!!.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout
 
-            // ## Modified ##
             behavior = BottomSheetBehavior.from(bottomSheet!!) as DraggableByHandleBottomSheetBehavior<FrameLayout>
 
-            bottomSheet?.updateLayoutParams<CoordinatorLayout.LayoutParams> {
-                this.behavior = this@HandleDraggableBottomSheetDialog.behavior
-            }
-            // ## END Modified ##
             behavior!!.addBottomSheetCallback(bottomSheetCallback)
             behavior!!.isHideable = cancelable
         }

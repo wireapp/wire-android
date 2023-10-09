@@ -6,6 +6,8 @@ name: "Crowdin Action"
 # For more info: https://github.com/crowdin/github-action/blob/master/action.yml
 
 on:
+    push:
+        branches: [ "chore/crowdin-source-updater" ] # Delete after tst.
     workflow_dispatch:
 
 concurrency:
@@ -24,12 +26,12 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v4
 
-            -   name: "Exit if the branch is not default 'develop'"
-                run: |
-                    if [[ "${{ github.ref }}" != "refs/heads/develop" ]]; then
-                      echo "Branch is not develop, exiting."
-                      exit 0
-                    fi
+#            -   name: "Exit if the branch is not default 'develop'"
+#                run: |
+#                    if [[ "${{ github.ref }}" != "refs/heads/develop" ]]; then
+#                      echo "Branch is not develop, exiting."
+#                      exit 0
+#                    fi
 
             -   name: Crowdin action
                 uses: crowdin/github-action@v1

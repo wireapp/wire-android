@@ -50,6 +50,7 @@
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
     <string name="label_system_message_self_user_knock">%s отправил(-а) пинг</string>
+    <string name="label_system_message_other_user_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s получит ваше сообщение позднее.</string>
@@ -97,6 +98,7 @@
     <string name="content_description_add_to_favourite">Добавить в избранное</string>
     <string name="content_description_move_to_folder">Переместить в папку</string>
     <string name="content_description_move_to_archive">Переместить в архив</string>
+    <string name="content_description_unarchive">Move out of Archive</string>
     <string name="content_description_block_the_user">Заблокировать</string>
     <string name="content_description_unblock_the_user">Разблокировать</string>
     <string name="content_description_leave_the_group">Покинуть группу</string>
@@ -175,6 +177,8 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Хранилище</string>
     <string name="archive_screen_title">Архив</string>
+    <string name="archive_screen_empty_state_title">В архиве пока ничего нет 👻</string>
+    <string name="archive_screen_empty_state_description">Для поддержания порядка в списке бесед переместите сюда неиспользуемые. Позже их всегда можно будет разархивировать.</string>
     <string name="user_profile_screen_title">Профиль пользователя</string>
     <string name="settings_screen_title">Настройки</string>
     <string name="app_settings_screen_title">Настройки приложения</string>
@@ -500,6 +504,7 @@
     <string name="label_add_to_favourites">Добавить в избранное</string>
     <string name="label_move_to_folder">Переместить в папку</string>
     <string name="label_move_to_archive">Переместить в архив</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Очистить контент…</string>
     <string name="label_block">Заблокировать</string>
     <string name="label_unblock">Разблокировать</string>
@@ -584,6 +589,8 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_degraded">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
+    <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
+    <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -676,6 +683,13 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Отправил(-а) сообщение"</string>
     <string name="ephemeral_group_event_message">"Кто-то прислал сообщение"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s печатает</item>
+        <item quantity="few">%1$s и еще %2$d печатают</item>
+        <item quantity="many">%1$s и еще %2$d печатают</item>
+        <item quantity="other">%1$s и еще %2$d печатают</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>
@@ -721,6 +735,14 @@
     <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
     <string name="delete_group_conversation_error">При удалении беседы произошла ошибка</string>
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Беседа архивирована</string>
+    <string name="success_unarchiving_conversation">Беседа разархивирована</string>
+    <string name="error_archiving_conversation">Не удалось архивировать беседу</string>
+    <string name="error_unarchiving_conversation">Не удалось разархивировать беседу</string>
+    <string name="dialog_archive_conversation_title">Архивировать беседу?</string>
+    <string name="dialog_archive_conversation_description">Беседа будет перемещена в архив. Вы по-прежнему сможете участвовать в беседе и получать новую активность, но группа будет отключена. Вы сможете разархивировать беседу в любое время.</string>
+    <string name="dialog_archive_conversation_option">Архивировать</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Открыть беседу</string>
     <string name="email_label">Email</string>
@@ -888,6 +910,13 @@
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
     <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
+    <string name="settings_app_lock_title">Блокировка кодом доступа</string>
+    <string name="settings_app_lock_description">Заблокировать Wire через %1$s секунд работы в фоновом режиме. Разблокировка кодом доступа или биометрией.</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Установить код доступа</string>
+    <string name="settings_set_lock_screen_description">Приложение будет заблокировано спустя определенное время неактивности. Для его разблокировки, вам понадобится ввести код доступа. Убедитесь, что вы запомнили этот код, так как способа его восстановления не существует.</string>
+    <string name="settings_set_lock_screen_passcode_label">Код доступа</string>
+    <string name="settings_set_lock_screen_continue_button_label">Установить код доступа</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>

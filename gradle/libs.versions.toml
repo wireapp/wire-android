@@ -26,6 +26,7 @@ androidx-appcompat = "1.6.1"
 androidx-core = "1.10.1"
 androidx-dataStore = "1.0.0"
 androidx-exif = "1.3.6"
+androidx-emoji = "1.4.0"
 androidx-jetpack = "1.1.0"
 androidx-lifecycle = "2.6.1"
 androidx-paging3 = "3.1.1"
@@ -132,6 +133,7 @@ androidx-lifecycle-viewModelSavedState = { module = "androidx.lifecycle:lifecycl
 
 # AndroidX - Other
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-emoji-picker = { module = "androidx.emoji2:emoji2-emojipicker", version.ref = "androidx-emoji" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-work = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-workManager" }
 androidx-paging3 = { module = "androidx.paging:paging-runtime", version.ref = "androidx-paging3" }

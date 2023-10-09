@@ -49,8 +49,8 @@
     <string name="label_message_receive_failure">Errores en la descarga</string>
     <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
     <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
-    <string name="label_system_message_self_user_knock">%s hizo ping</string>
-    <string name="label_system_message_other_user_knock">%s has hecho ping</string>
+    <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participantes no recibieron tu mensaje.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s no recibirá tu mensaje.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s recibirá tu mensaje más tarde.</string>
@@ -96,6 +96,7 @@
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
     <string name="content_description_move_to_folder">Mover a carpeta</string>
     <string name="content_description_move_to_archive">Mover a archivo</string>
+    <string name="content_description_unarchive">Unarchive</string>
     <string name="content_description_block_the_user">Bloquear</string>
     <string name="content_description_unblock_the_user">Desbloquear</string>
     <string name="content_description_leave_the_group">Abandonar el grupo</string>
@@ -174,6 +175,8 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Caja fuerte</string>
     <string name="archive_screen_title">Archivo</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
     <string name="user_profile_screen_title">Perfil de usuario</string>
     <string name="settings_screen_title">Configuraci&#243;n</string>
     <string name="app_settings_screen_title">Configuraci&#243;n de la aplicaci&#243;n</string>
@@ -496,6 +499,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_add_to_favourites">Agregar a Favoritos</string>
     <string name="label_move_to_folder">Mover a Carpeta</string>
     <string name="label_move_to_archive">Mover a Archivo</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Borrar contenido...</string>
     <string name="label_block">Bloquear</string>
     <string name="label_unblock">Desbloquear</string>
@@ -579,6 +583,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s no pudieron ser añadidos a la conversación.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s no pudo ser añadido a la conversación.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Has añadido a 1 persona a la conversación</item>
@@ -649,6 +655,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Envió un mensaje"</string>
     <string name="ephemeral_group_event_message">"Alguien envió un mensaje"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s está escribiendo</item>
+        <item quantity="other">%1$s y %2$d más están escribiendo</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
     <string name="label_new_group">Nuevo Grupo</string>
@@ -694,6 +705,14 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="error_unblocking_user">No se pudo desbloquear al usuario.</string>
     <string name="delete_group_conversation_error">Ocurri&#243; un error al eliminar la conversaci&#243;n.</string>
     <string name="error_limit_number_assets_imported_exceeded">Solo puedes enviar hasta 20 archivos a la vez.</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
+    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">The conversation will be moved to the archive section. You can still participate in the conversation and receive new activity, but the group will be muted. You can un-archive the conversation any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversaci&#243;n</string>
     <string name="email_label">Correo electr&#243;nico</string>
@@ -858,6 +877,13 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set a passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <!--Devices -->
     <string name="devices_title">Tus dispositivos</string>
     <string name="current_device_label">Dispositivo actual</string>

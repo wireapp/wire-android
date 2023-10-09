@@ -1,4 +1,4 @@
-name: "Crowdin Action"
+name: "Crowdin Action - Base Source Updater"
 
 # **What it does**: Download new source from crowdin project.
 # **Why we have it**: We want to be able to pull-update base (EN) translations to the project.

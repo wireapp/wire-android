@@ -48,7 +48,6 @@ fun ReactionOption(
     emojiFontSize: TextUnit = 28.sp
 ) {
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
         Column {
             Row {
@@ -98,15 +97,11 @@ fun ReactionOption(
     EmojiPickerBottomSheet(
         isVisible = isEmojiPickerVisible,
         onDismiss = {
-            scope.launch {
-                isEmojiPickerVisible = false
-            }
+            isEmojiPickerVisible = false
         },
         onEmojiSelected = {
             onReactionClick(it)
-            scope.launch {
-                isEmojiPickerVisible = false
-            }
+            isEmojiPickerVisible = false
         }
     )
 }

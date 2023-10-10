@@ -35,6 +35,7 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 
@@ -114,8 +115,10 @@ class MessageCompositionHolder(
     fun setMessageText(
         messageTextFieldValue: TextFieldValue,
         onSearchMentionQueryChanged: (String) -> Unit,
-        onClearMentionSearchResult: () -> Unit
+        onClearMentionSearchResult: () -> Unit,
+        onTypingEvent: (TypingIndicatorMode) -> Unit,
     ) {
+        updateTypingEvent(messageTextFieldValue, onTypingEvent)
         updateMentionsIfNeeded(messageTextFieldValue)
         requestMentionSuggestionIfNeeded(
             messageText = messageTextFieldValue,
@@ -125,6 +128,14 @@ class MessageCompositionHolder(
 
         messageComposition.update {
             it.copy(messageTextFieldValue = messageTextFieldValue)
+        }
+    }
+
+    private fun updateTypingEvent(messageTextFieldValue: TextFieldValue, onTypingEvent: (TypingIndicatorMode) -> Unit) {
+        if (messageTextFieldValue.text.isEmpty()) {
+            onTypingEvent(TypingIndicatorMode.STOPPED)
+        } else {
+            onTypingEvent(TypingIndicatorMode.STARTED)
         }
     }
 
@@ -168,9 +179,10 @@ class MessageCompositionHolder(
 
     fun startMention(
         onSearchMentionQueryChanged: (String) -> Unit,
-        onClearMentionSearchResult: () -> Unit
+        onClearMentionSearchResult: () -> Unit,
+        onTypingEvent: (TypingIndicatorMode) -> Unit
     ) {
-        setMessageText(messageComposition.value.mentionSelection(), onSearchMentionQueryChanged, onClearMentionSearchResult)
+        setMessageText(messageComposition.value.mentionSelection(), onSearchMentionQueryChanged, onClearMentionSearchResult, onTypingEvent)
     }
 
     fun addMention(contact: Contact) {

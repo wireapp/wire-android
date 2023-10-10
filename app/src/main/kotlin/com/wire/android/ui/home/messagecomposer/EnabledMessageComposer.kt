@@ -55,6 +55,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
@@ -67,6 +68,7 @@ fun EnabledMessageComposer(
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
+    onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
@@ -167,11 +169,11 @@ fun EnabledMessageComposer(
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onCancelEdit = ::cancelEdit,
                                 onMessageTextChanged = {
-                                    // TODO, here we update and send typing events
                                     messageCompositionHolder.setMessageText(
                                         messageTextFieldValue = it,
                                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult = onClearMentionSearchResult
+                                        onClearMentionSearchResult = onClearMentionSearchResult,
+                                        onTypingEvent = onTypingEvent
                                     )
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -221,7 +223,8 @@ fun EnabledMessageComposer(
                                 onMentionButtonClicked = {
                                     messageCompositionHolder.startMention(
                                         onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult
+                                        onClearMentionSearchResult,
+                                        onTypingEvent
                                     )
                                 },
                                 onOnSelfDeletingOptionClicked = {

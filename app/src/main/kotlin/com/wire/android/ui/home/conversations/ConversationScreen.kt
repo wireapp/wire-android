@@ -111,6 +111,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -347,6 +348,7 @@ fun ConversationScreen(
                 }
             }
         },
+        onTypingEvent = messageComposerViewModel::sendTypingEvent
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -506,6 +508,7 @@ private fun ConversationScreen(
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
+    onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -609,7 +612,8 @@ private fun ConversationScreen(
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    onTypingEvent = onTypingEvent
                 )
             }
         }
@@ -652,6 +656,7 @@ private fun ConversationScreenContent(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
+    onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -690,6 +695,7 @@ private fun ConversationScreenContent(
         onSendMessageBundle = onSendMessage,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
+        onTypingEvent = onTypingEvent
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented
@@ -895,6 +901,7 @@ fun PreviewConversationScreen() {
         onClearMentionSearchResult = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
-        onLinkClick = { _ -> }
+        onLinkClick = { _ -> },
+        onTypingEvent = {}
     )
 }

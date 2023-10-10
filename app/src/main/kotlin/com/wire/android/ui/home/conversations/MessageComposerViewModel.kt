@@ -51,6 +51,7 @@ import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
@@ -438,6 +439,10 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideInvalidLinkError() {
         invalidLinkDialogState = InvalidLinkDialogState.Hidden
+    }
+
+    fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
+        appLogger.i("ym> Sending typing event: $typingIndicatorMode")
     }
 
     companion object {

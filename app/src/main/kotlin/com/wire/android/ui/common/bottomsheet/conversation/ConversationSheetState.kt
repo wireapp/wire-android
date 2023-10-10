@@ -75,7 +75,8 @@ fun rememberConversationSheetState(
                         isCreator = isSelfUserCreator
                     ),
                     isTeamConversation = teamId != null,
-                    selfRole = selfMemberRole
+                    selfRole = selfMemberRole,
+                    isArchived = conversationItem.isArchived
                 )
             }
         }
@@ -93,7 +94,8 @@ fun rememberConversationSheetState(
                         blockingState
                     ),
                     isTeamConversation = isTeamConversation,
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversationItem.isArchived
                 )
             }
         }
@@ -107,7 +109,8 @@ fun rememberConversationSheetState(
                         userAvatarData.asset
                     ),
                     isTeamConversation = isTeamConversation,
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversationItem.isArchived
                 )
             }
         }

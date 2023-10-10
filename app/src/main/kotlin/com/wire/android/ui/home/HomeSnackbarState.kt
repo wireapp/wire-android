@@ -35,4 +35,6 @@ sealed class HomeSnackbarState {
     object DeleteConversationGroupError : HomeSnackbarState()
     object LeftConversationSuccess : HomeSnackbarState()
     object LeaveConversationError : HomeSnackbarState()
+    data class UpdateArchivingStatusSuccess(val isArchiving: Boolean) : HomeSnackbarState()
+    data class UpdateArchivingStatusError(val isArchiving: Boolean) : HomeSnackbarState()
 }

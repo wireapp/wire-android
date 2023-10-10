@@ -19,9 +19,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -41,6 +45,7 @@ fun ReactionOption(
     onReactionClick: (emoji: String) -> Unit,
     emojiFontSize: TextUnit = 28.sp
 ) {
+    var isEmojiPickerVisible by remember { mutableStateOf(false) }
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
         Column {
             Row {
@@ -76,11 +81,8 @@ fun ReactionOption(
                 }
                 IconButton(
                     onClick = {
-                        // TODO show more emojis
+                        isEmojiPickerVisible = true
                     },
-                    modifier = Modifier
-                        // TODO remove when all emojis will be available
-                        .alpha(0.1F),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_more_emojis),
@@ -90,6 +92,16 @@ fun ReactionOption(
             }
         }
     }
+    EmojiPickerBottomSheet(
+        isVisible = isEmojiPickerVisible,
+        onDismiss = {
+            isEmojiPickerVisible = false
+        },
+        onEmojiSelected = {
+            onReactionClick(it)
+            isEmojiPickerVisible = false
+        }
+    )
 }
 
 @PreviewMultipleThemes

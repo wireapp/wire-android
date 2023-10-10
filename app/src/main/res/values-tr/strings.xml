@@ -49,7 +49,7 @@
     <string name="label_message_receive_failure">İndirme Hatası</string>
     <string name="label_message_decryption_failure_message">Mesajın şifresi çözülemedi.</string>
     <string name="label_message_decryption_failure_informative_message">Yeni şifreleme anahtarları oluşturmak için oturumu sıfırlamayı deneyin.</string>
-    <string name="label_message_knock">%s ping attı</string>
+    <string name="label_system_message_self_user_knock">%s ping attı</string>
     <string name="label_message_partial_delivery_participants_count">%1$d katılımcı mesajınızı alamadı.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s mesajınızı alamayacak.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s mesajınızı daha sonra alacak.</string>

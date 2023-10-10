@@ -81,7 +81,7 @@ import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -231,14 +231,6 @@ private fun SelfUserProfileContent(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
-
-            if (state.maxAccountsReached) {
-                MaxAccountReachedDialog(
-                    onConfirm = onMaxAccountReachedDialogDismissed,
-                    onDismiss = onMaxAccountReachedDialogDismissed,
-                    buttonText = R.string.label_ok
-                )
-            }
 
             LogoutOptionsDialog(
                 dialogState = logoutOptionsDialogState,

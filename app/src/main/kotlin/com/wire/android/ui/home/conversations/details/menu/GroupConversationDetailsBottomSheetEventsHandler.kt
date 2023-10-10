@@ -24,13 +24,19 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.util.DateTimeUtil
 
 @Suppress("TooManyFunctions")
 interface GroupConversationDetailsBottomSheetEventsHandler {
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus, onMessage: (UIText) -> Unit)
     fun onAddConversationToFavourites(conversationId: ConversationId? = null)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
-    fun onMoveConversationToArchive(conversationId: ConversationId? = null)
+    fun updateConversationArchiveStatus(
+        dialogState: DialogState,
+        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds(),
+        onMessage: (UIText) -> Unit
+    )
+
     fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit)
 
     companion object {
@@ -40,10 +46,18 @@ interface GroupConversationDetailsBottomSheetEventsHandler {
                 conversationId: ConversationId?,
                 status: MutedConversationStatus,
                 onMessage: (UIText) -> Unit
-            ) {}
+            ) {
+            }
+
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
-            override fun onMoveConversationToArchive(conversationId: ConversationId?) {}
+            override fun updateConversationArchiveStatus(
+                dialogState: DialogState,
+                timestamp: Long,
+                onMessage: (UIText) -> Unit
+            ) {
+            }
+
             override fun onClearConversationContent(dialogState: DialogState, onMessage: (UIText) -> Unit) {}
         }
     }

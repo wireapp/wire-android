@@ -51,7 +51,6 @@ fun EmojiPickerBottomSheet(
             setOnCancelListener { onDismiss.invoke() }
         }
     }
-    // Dialog
     if (isVisible) {
         dialog.show()
     } else {

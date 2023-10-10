@@ -49,7 +49,8 @@
     <string name="label_message_receive_failure">Allalaadimise viga</string>
     <string name="label_message_decryption_failure_message">Sõnumi dekrüpteerimine ebaõnnestus.</string>
     <string name="label_message_decryption_failure_informative_message">Proovi seanss lähtestada, et luua uued krüptimisvõtmed.</string>
-    <string name="label_system_message_self_user_knock">%s pingiti</string>
+    <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
@@ -95,6 +96,7 @@
     <string name="content_description_add_to_favourite">Lisa lemmikutesse</string>
     <string name="content_description_move_to_folder">Teisalda kausta</string>
     <string name="content_description_move_to_archive">Teisalda arhiivi</string>
+    <string name="content_description_unarchive">Move out of Archive</string>
     <string name="content_description_block_the_user">Blokeeri</string>
     <string name="content_description_unblock_the_user">Tühista blokeering</string>
     <string name="content_description_leave_the_group">Lahku grupist</string>
@@ -173,6 +175,8 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Arhiveeri</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
     <string name="user_profile_screen_title">Kasutaja profiil</string>
     <string name="settings_screen_title">Seaded</string>
     <string name="app_settings_screen_title">Rakenduse seaded</string>
@@ -498,6 +502,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
@@ -580,6 +585,8 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -650,6 +657,11 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -695,6 +707,14 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
+    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">The conversation will be moved to the archive section. You can still participate in the conversation and receive new activity, but the group will be muted. You can un-archive the conversation any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Ava vestlus</string>
     <string name="email_label">E-post</string>
@@ -862,6 +882,13 @@
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set a passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <!--Devices -->
     <string name="devices_title">Sinu seadmed</string>
     <string name="current_device_label">Current Device</string>

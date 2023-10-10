@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.conversations
 
 import android.net.Uri
-import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -368,8 +367,6 @@ class MessageComposerViewModel @Inject constructor(
                 messageComposerViewState.value.copy(mentionSearchResult = members)
         }
     }
-
-    fun isLinkValid(link: String) = URLUtil.isValidUrl(link)
 
     fun clearMentionSearchResult() {
         messageComposerViewState.value =

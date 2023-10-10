@@ -28,7 +28,7 @@ import com.google.android.material.bottomsheet.BottomSheetDragHandleView
 fun EmojiPickerBottomSheet(
     isVisible: Boolean,
     onDismiss: () -> Unit = {},
-    onEmojiSelected: (emoji: String) -> Unit // <--
+    onEmojiSelected: (emoji: String) -> Unit
 ) {
     val context = LocalContext.current
     val dialog = remember {

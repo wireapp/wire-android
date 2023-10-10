@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -17,7 +18,6 @@
   ~
   ~
   -->
-
 <resources>
     <string name="app_version">App version</string>
     <string name="build_variant_name">Build variant</string>
@@ -172,7 +172,6 @@
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
-
     <!-- Non translatable strings-->
     <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -287,7 +286,6 @@
     </string>
     <string name="conversation_history_wipe_explanation">According to your team\'s security
         settings, your conversation history has also been deleted.</string>
-
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
     <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
@@ -451,13 +449,11 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
     <string name="import_media_send_button_title">Send</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
-
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
@@ -521,7 +517,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
-    <string name="label_unarchive">Move out of Archive</string>
+    <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
@@ -619,7 +615,6 @@
         <item quantity="one">1 person was added to the conversation</item>
         <item quantity="other">%1$d people were added to the conversation</item>
     </plurals>
-
     <plurals name="last_message_self_removed_users">
         <item quantity="one">You removed 1 person from the conversation</item>
         <item quantity="other">You removed %1$d people from the conversation</item>
@@ -793,7 +788,6 @@
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
-
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
@@ -1024,7 +1018,6 @@
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
     <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
-
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
@@ -1033,21 +1026,17 @@
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
-
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
-
     <!-- visit link -->
     <string name="label_visit_link_title">Visit Link</string>
     <string name="visit_link_dialog_body">This will take you to %s</string>
-
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
     <string name="invalid_link_dialog_body">Link could not be opened</string>
-
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
@@ -1063,11 +1052,9 @@
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
     <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
-
     <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
     <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
-
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Your account was used on</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
@@ -1095,7 +1082,6 @@
     <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
     <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
     <string name="create_account_handle_title">Your User Name</string>
-
     <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
@@ -1104,7 +1090,6 @@
     <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
     <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
-
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
@@ -1115,7 +1100,6 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
-
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="other">%1$d weeks left</item>
@@ -1166,7 +1150,6 @@
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
-
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
@@ -1191,7 +1174,6 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
-
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1205,11 +1187,9 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-
     <string name="permission_dialog_title">App permissions</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
     <string name="label_not_now">Not Now</string>
-
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
@@ -1229,5 +1209,4 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
-
 </resources>

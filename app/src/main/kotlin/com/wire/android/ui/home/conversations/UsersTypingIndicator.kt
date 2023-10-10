@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
@@ -45,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -133,10 +135,20 @@ private fun HorizontalBouncingWritingPen(
 ) {
     Row(modifier = Modifier.fillMaxHeight()) {
         val position by infiniteTransition.animateFloat(
-            initialValue = -5f, targetValue = -1f,
+            initialValue = -10f, targetValue = -2f,
             animationSpec = infiniteRepeatable(
-                animation = tween(1_000, easing = FastOutSlowInEasing),
+                animation = tween(1_500, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
+            ),
+            label = infiniteTransition.label
+        )
+
+        val iconAlpha: Float by infiniteTransition.animateFloat(
+            initialValue = 0.1f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1_500, easing = FastOutLinearInEasing),
+                repeatMode = RepeatMode.Reverse,
             ),
             label = infiniteTransition.label
         )
@@ -147,6 +159,7 @@ private fun HorizontalBouncingWritingPen(
             tint = colorsScheme().secondaryText,
             modifier = Modifier
                 .size(dimensions().spacing12x)
+                .alpha(iconAlpha)
                 .offset(y = -dimensions().spacing2x)
                 .align(Alignment.Bottom)
         )

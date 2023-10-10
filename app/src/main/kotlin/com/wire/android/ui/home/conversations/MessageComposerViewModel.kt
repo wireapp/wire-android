@@ -60,6 +60,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -103,6 +104,7 @@ class MessageComposerViewModel @Inject constructor(
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
+    private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -202,6 +204,7 @@ class MessageComposerViewModel @Inject constructor(
                             mentions = newMentions.map { it.intoMessageMention() },
                         )
                     }
+                    sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
@@ -226,6 +229,7 @@ class MessageComposerViewModel @Inject constructor(
                             quotedMessageId = quotedMessageId
                         )
                     }
+                    sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
                 }
 
                 Ping -> {
@@ -442,7 +446,10 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
-        appLogger.i("ym> Sending typing event: $typingIndicatorMode")
+        viewModelScope.launch {
+            appLogger.i("ym> Sending typing event: $typingIndicatorMode")
+            sendTypingEvent(conversationId, typingIndicatorMode)
+        }
     }
 
     companion object {

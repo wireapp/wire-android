@@ -447,7 +447,6 @@ class MessageComposerViewModel @Inject constructor(
 
     fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
         viewModelScope.launch {
-            appLogger.i("ym> Sending typing event: $typingIndicatorMode")
             sendTypingEvent(conversationId, typingIndicatorMode)
         }
     }

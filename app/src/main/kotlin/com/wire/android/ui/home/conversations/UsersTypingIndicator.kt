@@ -25,6 +25,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -113,20 +114,15 @@ fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
 @Suppress("MagicNumber")
 @Composable
 private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY) {
-    usersTyping.take(maxPreviewsDisplay).forEachIndexed { index, user ->
-        val isSingleUser = usersTyping.size == 1 || maxPreviewsDisplay == 1
-        UserProfileAvatar(
-            avatarData = user.avatarData,
-            size = dimensions().spacing16x,
-            padding = dimensions().spacing2x,
-            showStatusIndicator = false,
-            modifier = if (isSingleUser) Modifier
-            else {
-                Modifier.offset(
-                    x = if (index == 0) dimensions().spacing8x else -(dimensions().spacing6x)
-                )
-            }
-        )
+    Row(horizontalArrangement = Arrangement.spacedBy((-14).dp)) {
+        usersTyping.take(maxPreviewsDisplay).forEach { user ->
+            UserProfileAvatar(
+                avatarData = user.avatarData,
+                size = dimensions().spacing16x,
+                padding = dimensions().spacing2x,
+                showStatusIndicator = false,
+            )
+        }
     }
 }
 
@@ -227,6 +223,21 @@ fun PreviewUsersTypingMoreThanOne() {
                     id = QualifiedID("alice", "wire.com"),
                     name = "Alice Smith",
                     handle = "alice",
+                    isSelf = false,
+                    isService = false,
+                    avatarData = UserAvatarData(),
+                    membership = Membership.None,
+                    connectionState = null,
+                    unavailable = false,
+                    isDeleted = false,
+                    readReceiptDate = null,
+                    botService = null,
+                    isDefederated = false
+                ),
+                UIParticipant(
+                    id = QualifiedID("alice", "wire.com"),
+                    name = "Patty",
+                    handle = "patty",
                     isSelf = false,
                     isService = false,
                     avatarData = UserAvatarData(),

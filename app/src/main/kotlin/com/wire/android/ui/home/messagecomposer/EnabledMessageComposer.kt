@@ -137,12 +137,6 @@ fun EnabledMessageComposer(
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
                 ) {
-                    Box(Modifier.wrapContentSize()) {
-                        SecurityClassificationBannerForConversation(
-                            conversationId = conversationId
-                        )
-                    }
-
                     Column(
                         modifier = Modifier
                             .background(color = colorsScheme().backgroundVariant)
@@ -150,6 +144,12 @@ fun EnabledMessageComposer(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         UsersTypingIndicatorForConversation(conversationId = conversationId)
+                    }
+
+                    Box(Modifier.wrapContentSize()) {
+                        SecurityClassificationBannerForConversation(
+                            conversationId = conversationId
+                        )
                     }
 
                     if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
@@ -167,6 +167,7 @@ fun EnabledMessageComposer(
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onCancelEdit = ::cancelEdit,
                                 onMessageTextChanged = {
+                                    // TODO, here we update and send typing events
                                     messageCompositionHolder.setMessageText(
                                         messageTextFieldValue = it,
                                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,

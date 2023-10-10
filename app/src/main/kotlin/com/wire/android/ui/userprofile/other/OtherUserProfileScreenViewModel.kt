@@ -295,18 +295,23 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
-    override fun onMoveConversationToArchive(conversationId: ConversationId, isArchivingConversation: Boolean) {
+    override fun onMoveConversationToArchive(dialogState: DialogState) {
         viewModelScope.launch {
+            val shouldArchive = !dialogState.isArchived
             requestInProgress = true
-            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(conversationId, isArchivingConversation) }
+            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(dialogState.conversationId, shouldArchive) }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> {
-                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationError(isArchivingConversation))
+                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationError(shouldArchive))
                 }
 
                 ArchiveStatusUpdateResult.Success -> {
-                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationSuccess(isArchivingConversation))
+                    closeBottomSheetAndShowInfoMessage(
+                        OtherUserProfileInfoMessageType.ArchiveConversationSuccess(
+                            shouldArchive
+                        )
+                    )
                 }
             }
         }

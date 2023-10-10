@@ -59,6 +59,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.isArchive
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.kalium.logic.data.id.ConversationId
@@ -68,6 +69,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the BottomSheet
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
+@Suppress("ComplexMethod")
 @Composable
 fun ConversationRouterHomeBridge(
     navigator: Navigator,
@@ -119,6 +121,16 @@ fun ConversationRouterHomeBridge(
         }
     }
 
+    fun showConfirmationDialogOrUnarchive(): (DialogState) -> Unit {
+        return { dialogState ->
+            if (dialogState.isArchived) {
+                viewModel.moveConversationToArchive(dialogState)
+            } else {
+                conversationRouterHomeState.archiveConversationDialogState.show(dialogState)
+            }
+        }
+    }
+
     with(conversationRouterHomeState) {
         fun openConversationBottomSheet(
             conversationItem: ConversationItem,
@@ -156,7 +168,7 @@ fun ConversationRouterHomeBridge(
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
-                    updateConversationArchiveStatus = archiveConversationDialogState::show,
+                    updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,
                     unblockUser = unblockUserDialogState::show,
@@ -201,6 +213,7 @@ fun ConversationRouterHomeBridge(
                 ConversationItemType.ALL_CONVERSATIONS ->
                     AllConversationScreenContent(
                         conversations = foldersWithConversations,
+                        isFromArchive = conversationsSource.isArchive(),
                         hasNoConversations = hasNoConversations,
                         onEditConversation = onEditConversationItem,
                         onOpenConversationNotificationsSettings = onEditNotifications,

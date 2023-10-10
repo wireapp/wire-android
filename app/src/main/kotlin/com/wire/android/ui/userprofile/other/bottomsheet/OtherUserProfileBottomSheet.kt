@@ -58,7 +58,7 @@ fun OtherUserProfileBottomSheetContent(
                     if (!it.isArchived) {
                         archivingStatusState(it)
                     } else {
-                        eventsHandler.onMoveConversationToArchive(it.conversationId, isArchivingConversation = false)
+                        eventsHandler.onMoveConversationToArchive(it)
                     }
                 },
                 clearConversationContent = clearContent,

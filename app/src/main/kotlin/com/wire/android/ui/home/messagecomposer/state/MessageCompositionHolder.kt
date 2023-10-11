@@ -132,10 +132,10 @@ class MessageCompositionHolder(
     }
 
     private fun updateTypingEvent(messageTextFieldValue: TextFieldValue, onTypingEvent: (TypingIndicatorMode) -> Unit) {
-        if (messageTextFieldValue.text.isEmpty()) {
-            onTypingEvent(TypingIndicatorMode.STOPPED)
-        } else {
-            onTypingEvent(TypingIndicatorMode.STARTED)
+        when {
+            messageTextFieldValue.text.isEmpty() -> onTypingEvent(TypingIndicatorMode.STOPPED)
+            messageTextFieldValue.text.isNotEmpty() && messageComposition.value.messageText != messageTextFieldValue.text ->
+                onTypingEvent(TypingIndicatorMode.STARTED)
         }
     }
 

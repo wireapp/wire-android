@@ -319,6 +319,7 @@ fun ConversationScreen(
             }
         },
         onBackButtonClick = {
+            messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
             focusManager.clearFocus(true)
             navigator.navigateBack()
         },

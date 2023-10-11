@@ -65,7 +65,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 
-const val MAX_PREVIEWS_DISPLAY = 3
+private const val MAX_PREVIEWS_DISPLAY = 3
+private const val ANIMATION_SPEED_MILLIS = 1_500
 
 @Composable
 fun UsersTypingIndicatorForConversation(
@@ -137,7 +138,7 @@ private fun HorizontalBouncingWritingPen(
         val position by infiniteTransition.animateFloat(
             initialValue = -10f, targetValue = -2f,
             animationSpec = infiniteRepeatable(
-                animation = tween(1_500, easing = FastOutSlowInEasing),
+                animation = tween(ANIMATION_SPEED_MILLIS, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
             ),
             label = infiniteTransition.label
@@ -147,7 +148,7 @@ private fun HorizontalBouncingWritingPen(
             initialValue = 0.1f,
             targetValue = 1f,
             animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1_500, easing = FastOutLinearInEasing),
+                animation = tween(durationMillis = ANIMATION_SPEED_MILLIS, easing = FastOutLinearInEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
             label = infiniteTransition.label

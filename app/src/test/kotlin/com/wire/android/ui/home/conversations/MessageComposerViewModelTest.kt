@@ -630,4 +630,23 @@ class MessageComposerViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `given that user types a text message, when invoked typing invoked, then send typing event is called`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        // when
+        viewModel.sendTypingEvent(Conversation.TypingIndicatorMode.STARTED)
+
+        // then
+        coVerify(exactly = 1) {
+            arrangement.sendTypingEvent.invoke(
+                any(),
+                eq(Conversation.TypingIndicatorMode.STARTED)
+            )
+        }
+    }
 }

@@ -126,6 +126,9 @@ dependencies {
     // Compose iterative code, layout inspector, etc.
     debugImplementation(libs.compose.tooling)
 
+    // Emoji
+    implementation(libs.androidx.emoji.picker)
+
     // hilt
     implementation(libs.hilt.navigationCompose)
     implementation(libs.hilt.work)

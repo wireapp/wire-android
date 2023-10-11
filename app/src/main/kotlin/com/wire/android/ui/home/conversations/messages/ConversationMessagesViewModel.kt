@@ -52,6 +52,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
@@ -83,7 +84,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
-    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
+    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
+    private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -97,9 +99,14 @@ class ConversationMessagesViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
 
     init {
+        clearOrphanedTypingEvents()
         loadPaginatedMessages()
         loadLastMessageInstant()
         observeAudioPlayerState()
+    }
+
+    private fun clearOrphanedTypingEvents() {
+        viewModelScope.launch { clearUsersTypingEvents() }
     }
 
     private fun observeAudioPlayerState() {

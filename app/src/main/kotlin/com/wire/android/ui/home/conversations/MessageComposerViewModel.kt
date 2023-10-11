@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.conversations
 
 import android.net.Uri
-import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -51,6 +50,7 @@ import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
@@ -59,6 +59,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -102,6 +103,7 @@ class MessageComposerViewModel @Inject constructor(
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
+    private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -201,6 +203,7 @@ class MessageComposerViewModel @Inject constructor(
                             mentions = newMentions.map { it.intoMessageMention() },
                         )
                     }
+                    sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
                 }
 
                 is ComposableMessageBundle.AttachmentPickedBundle -> {
@@ -225,6 +228,7 @@ class MessageComposerViewModel @Inject constructor(
                             quotedMessageId = quotedMessageId
                         )
                     }
+                    sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
                 }
 
                 Ping -> {
@@ -364,8 +368,6 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun isLinkValid(link: String) = URLUtil.isValidUrl(link)
-
     fun clearMentionSearchResult() {
         messageComposerViewState.value =
             messageComposerViewState.value.copy(mentionSearchResult = emptyList())
@@ -438,6 +440,12 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideInvalidLinkError() {
         invalidLinkDialogState = InvalidLinkDialogState.Hidden
+    }
+
+    fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
+        viewModelScope.launch {
+            sendTypingEvent(conversationId, typingIndicatorMode)
+        }
     }
 
     companion object {

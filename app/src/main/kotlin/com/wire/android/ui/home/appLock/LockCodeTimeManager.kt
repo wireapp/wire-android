@@ -40,6 +40,7 @@ class LockCodeTimeManager @Inject constructor(
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
     globalDataStore: GlobalDataStore,
+    currentTimestamp: CurrentTimestampProvider,
 ) {
 
     @Suppress("MagicNumber")
@@ -50,7 +51,7 @@ class LockCodeTimeManager @Inject constructor(
                     .scan(AppVisibilityTimestampData(lastAppLockTimestamp ?: -1, false)) { previousData, currentlyVisible ->
                         if (previousData.isAppVisible != currentlyVisible) {
                             val timestamp = if (!currentlyVisible) { // app moved to background
-                                System.currentTimeMillis().also {
+                                currentTimestamp().also {
                                     globalDataStore.setAppLockTimestamp(it)
                                 }
                             } else previousData.timestamp
@@ -65,7 +66,7 @@ class LockCodeTimeManager @Inject constructor(
                 appVisibilityTimestampData.isAppVisible
                         && appLockConfig !is AppLockConfig.Disabled
                         && appVisibilityTimestampData.timestamp >= 0
-                        && (System.currentTimeMillis() - appVisibilityTimestampData.timestamp) > (appLockConfig.timeoutInSeconds * 1000)
+                        && (currentTimestamp() - appVisibilityTimestampData.timestamp) > (appLockConfig.timeoutInSeconds * 1000)
             }
                 .distinctUntilChanged()
         }
@@ -78,3 +79,5 @@ class LockCodeTimeManager @Inject constructor(
         val isAppVisible: Boolean
     )
 }
+
+typealias CurrentTimestampProvider = () -> Long

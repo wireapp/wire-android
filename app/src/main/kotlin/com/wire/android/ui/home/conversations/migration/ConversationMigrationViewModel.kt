@@ -34,23 +34,24 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
-class ConversationMigrationViewModel(
+class ConversationMigrationViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     /**
-     * Represents the target conversation for a conversation migration.
+     * Represents the target conversation, after a conversation migration.
      * The target conversation is the active one-on-one conversation ID if the current conversation
      * is migrated to a different conversation.
-     * If the conversation is not migrated, the target conversation is null.
+     * If this conversation was not migrated to another one, the target conversation is null.
      */
-    var targetConversation by mutableStateOf<ConversationId?>(null)
+    var migratedConversationId by mutableStateOf<ConversationId?>(null)
         private set
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = savedStateHandle.navArgs<ConversationNavArgs>()
     private val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     init {
@@ -63,7 +64,7 @@ class ConversationMigrationViewModel(
                     val activeOneOnOneConversationId = it.otherUser.activeOneOnOneConversationId
                     val wasThisConversationMigrated = activeOneOnOneConversationId != conversationId
                     if (wasThisConversationMigrated) {
-                        targetConversation = activeOneOnOneConversationId
+                        migratedConversationId = activeOneOnOneConversationId
                     }
                 }
         }

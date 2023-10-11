@@ -32,6 +32,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

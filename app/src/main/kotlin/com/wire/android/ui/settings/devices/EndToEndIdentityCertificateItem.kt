@@ -87,9 +87,7 @@ fun EndToEndIdentityCertificateItem(
                         icon = R.drawable.ic_certificate_revoked_mls
                     )
                     SerialNumberBlock(certificate.serialNumber)
-                    ShowE2eiCertificateButton(enabled = true, isLoading = false) {
-
-                    }
+                    ShowE2eiCertificateButton(enabled = true, isLoading = false) { }
                 }
 
                 CertificateStatus.EXPIRED -> {
@@ -99,12 +97,8 @@ fun EndToEndIdentityCertificateItem(
                         icon = R.drawable.ic_certificate_not_activated_mls
                     )
                     SerialNumberBlock(certificate.serialNumber)
-                    UpdateE2eiCertificateButton(enabled = true, isLoading = false) {
-
-                    }
-                    ShowE2eiCertificateButton(enabled = true, isLoading = false) {
-
-                    }
+                    UpdateE2eiCertificateButton(enabled = true, isLoading = false) { }
+                    ShowE2eiCertificateButton(enabled = true, isLoading = false) { }
                 }
 
                 CertificateStatus.VALID -> {
@@ -115,7 +109,6 @@ fun EndToEndIdentityCertificateItem(
                     )
                     SerialNumberBlock(certificate.serialNumber)
                     ShowE2eiCertificateButton(enabled = true, isLoading = false) {
-
                     }
                 }
             }

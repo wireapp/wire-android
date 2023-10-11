@@ -630,5 +630,4 @@ class MessageComposerViewModelTest {
             )
         }
     }
-
 }

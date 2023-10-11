@@ -96,6 +96,7 @@
     <string name="content_description_add_to_favourite">Zu Favoriten hinzufügen</string>
     <string name="content_description_move_to_folder">In Ordner verschieben</string>
     <string name="content_description_move_to_archive">Ins Archiv verschieben</string>
+    <string name="content_description_unarchive">Move out of Archive</string>
     <string name="content_description_block_the_user">Blockieren</string>
     <string name="content_description_unblock_the_user">Freigeben</string>
     <string name="content_description_leave_the_group">Gruppe verlassen</string>
@@ -165,7 +166,7 @@
     <string name="content_description_message_error_status">Message error status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
-    <string name="content_description_record_audio_button_start">Record Audio</string>
+    <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
@@ -174,6 +175,8 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
     <string name="archive_screen_title">Archiv</string>
+    <string name="archive_screen_empty_state_title">Noch nichts archiviert 👻</string>
+    <string name="archive_screen_empty_state_description">Für eine übersichtliche Unterhaltungsliste verschieben Sie ungenutzte Unterhaltungen hierher. Sie können die Archivierung später jederzeit aufheben.</string>
     <string name="user_profile_screen_title">Benutzerprofil</string>
     <string name="settings_screen_title">Einstellungen</string>
     <string name="app_settings_screen_title">App-Einstellungen</string>
@@ -187,7 +190,7 @@
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s New</string>
     <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
-    <string name="whats_new_release_notes_group_title">Release Notes</string>
+    <string name="whats_new_release_notes_group_title">Versionshinweise</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Sicherungen</string>
@@ -386,7 +389,7 @@
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
     <string name="asset_message_upload_in_progress_text">Hochladen…</string>
     <string name="asset_message_download_in_progress_text">Herunterladen…</string>
-    <string name="asset_message_downloaded_internally_text">Heruntergeladen</string>
+    <string name="asset_message_downloaded_internally_text">Herunterladen</string>
     <string name="asset_message_saved_externally_text">Gespeichert</string>
     <string name="asset_message_failed_download_text">Datei nicht verfügbar</string>
     <string name="asset_message_failed_upload_text">Hochladen der Datei fehlgeschlagen</string>
@@ -500,6 +503,7 @@
     <string name="label_add_to_favourites">Zu Favoriten hinzufügen</string>
     <string name="label_move_to_folder">In Ordner verschieben</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Verlauf löschen…</string>
     <string name="label_block">Blockieren</string>
     <string name="label_unblock">Freigeben</string>
@@ -582,6 +586,8 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
@@ -652,6 +658,11 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Hat eine Nachricht gesendet"</string>
     <string name="ephemeral_group_event_message">"Jemand hat eine Nachricht gesendet"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s schreibt</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
@@ -697,6 +708,14 @@
     <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
     <string name="delete_group_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="error_limit_number_assets_imported_exceeded">Sie können nur bis zu 20 Dateien gleichzeitig senden</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Unterhaltung wurde archiviert</string>
+    <string name="success_unarchiving_conversation">Unterhaltung wurde reaktiviert</string>
+    <string name="error_archiving_conversation">Unterhaltung konnte nicht archiviert werden</string>
+    <string name="error_unarchiving_conversation">Unterhaltung konnte nicht reaktiviert werden</string>
+    <string name="dialog_archive_conversation_title">Unterhaltung archivieren?</string>
+    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
+    <string name="dialog_archive_conversation_option">Archiv</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="email_label">E-Mail-Adresse</string>
@@ -750,9 +769,9 @@
     <string name="calling_feature_unavailable_title_alert">Funktion nicht verfügbar</string>
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
     <string name="calling_screen_connecting_until_call_established">Verbinden…</string>
-    <string name="calling_confirm_start_call_title_dialog">Start a call</string>
-    <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
-    <string name="calling_confirm_start_call_action_dialog">Call</string>
+    <string name="calling_confirm_start_call_title_dialog">Anruf starten</string>
+    <string name="calling_confirm_start_call_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anrufen möchten?</string>
+    <string name="calling_confirm_start_call_action_dialog">Anrufen</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
@@ -862,8 +881,18 @@
     <string name="settings_censor_screenshots">Aufnahme von Screenshots verhindern</string>
     <string name="settings_censor_screenshots_description">Wenn diese Option aktiviert ist, werden Ihre Screenshots oder Bildschirmaufnahmen in Wire ohne Inhalt schwarz dargestellt.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
-    <string name="settings_show_typing_indicator_title">Typing indicator</string>
-    <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_show_typing_indicator_title">Eingabeanzeige</string>
+    <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set a passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Kennwort</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
+    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>
     <string name="current_device_label">Aktuelles Gerät</string>
@@ -1135,7 +1164,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
-    <string name="record_audio_recording_label">Recording Audio…</string>
+    <string name="record_audio_recording_label">Audio-Aufnahme…</string>
     <string name="record_audio_send_label">Audionachricht senden</string>
     <string name="record_audio_discard_dialog_title">Audionachricht verwerfen?</string>
     <string name="record_audio_discard_dialog_text">Die Audionachricht wird gelöscht und Sie können sie nicht versenden.</string>
@@ -1147,12 +1176,12 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
     <string name="permission_dialog_title">App permissions</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
-    <string name="label_not_now">Not Now</string>
+    <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon und die Suche nach Geräten in der Nähe in Ihren Geräteeinstellungen.</string>
+    <string name="label_not_now">Nicht jetzt</string>
     <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Passwort eingeben</string>
-    <string name="participant_tile_call_connecting_label">Connecting…</string>
+    <string name="participant_tile_call_connecting_label">Verbinden…</string>
     <string name="create_guest_link">Create Guest Link</string>
     <string name="create_guest_link_with_password">Create password secured link</string>
     <string name="create_guest_link_without_password_title">Create link without password</string>

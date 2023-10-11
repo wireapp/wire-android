@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import io.mockk.coVerify
@@ -572,4 +573,62 @@ class MessageComposerViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `given that user sends a text message, when invoked, then send typing stopped event is called`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendTextMessage()
+            .arrange()
+
+        // when
+        viewModel.sendMessage(ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList()))
+
+        // then
+        coVerify(exactly = 1) {
+            arrangement.sendTextMessage.invoke(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+        coVerify(exactly = 1) {
+            arrangement.sendTypingEvent.invoke(
+                any(),
+                eq(Conversation.TypingIndicatorMode.STOPPED)
+            )
+        }
+    }
+
+    @Test
+    fun `given that user sends an edited text message, when invoked, then send typing stopped event is called`() = runTest {
+        // given
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendEditTextMessage()
+            .arrange()
+
+        // when
+        viewModel.sendMessage(ComposableMessageBundle.EditMessageBundle("mocked-text-message", "new-mocked-text-message", emptyList()))
+
+        // then
+        coVerify(exactly = 1) {
+            arrangement.sendEditTextMessage.invoke(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+        coVerify(exactly = 1) {
+            arrangement.sendTypingEvent.invoke(
+                any(),
+                eq(Conversation.TypingIndicatorMode.STOPPED)
+            )
+        }
+    }
+
 }

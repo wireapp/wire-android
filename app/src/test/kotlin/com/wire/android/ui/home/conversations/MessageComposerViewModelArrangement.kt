@@ -244,6 +244,38 @@ internal class MessageComposerViewModelArrangement {
         } returns ScheduleNewAssetMessageResult.Success("some-message-id")
     }
 
+    fun withSuccessfulSendTextMessage() = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendEditTextMessage() = apply {
+        coEvery {
+            sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendTypingEvent() = apply {
+        coEvery {
+            sendTypingEvent(
+                any(),
+                any()
+            )
+        } returns Unit
+    }
+
     fun withFailureOnDeletingMessages() = apply {
         coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this

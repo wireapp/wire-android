@@ -744,7 +744,7 @@
     <string name="error_archiving_conversation">Conversation could not be archived</string>
     <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
     <string name="dialog_archive_conversation_title">Archive conversation?</string>
-    <string name="dialog_archive_conversation_description">The conversation will be moved to the archive section. You can still participate in the conversation and receive new activity, but the group will be muted. You can un-archive the conversation any time.</string>
+    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
@@ -924,6 +924,9 @@
     <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
+    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>

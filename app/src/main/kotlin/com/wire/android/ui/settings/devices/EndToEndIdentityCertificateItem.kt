@@ -135,12 +135,12 @@ private fun SerialNumberBlock(serialNumber: String) {
             style = MaterialTheme.wireTypography.label01,
             color = MaterialTheme.wireColorScheme.secondaryText,
         )
-        serialNumber
+        val updatedSerialNumber = serialNumber
             .replaceRange(24, 24, "\n")
             .replace(":", " : ")
 
         Text(
-            text = serialNumber.uppercase(),
+            text = updatedSerialNumber.uppercase(),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground,
         )

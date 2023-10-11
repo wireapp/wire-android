@@ -28,32 +28,34 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class SetLockScreenViewModel @Inject constructor(
+class EnterLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
-    var state: SetLockCodeViewState by mutableStateOf(SetLockCodeViewState())
+    var state: EnterLockCodeViewState by mutableStateOf(EnterLockCodeViewState())
         private set
 
     fun onPasswordChanged(password: TextFieldValue) {
         state = state.copy(
+            error = EnterLockCodeError.None,
             password = password
         )
         state = if (validatePassword(password.text)) {
             state.copy(
                 continueEnabled = true,
-                isPasswordValid = true
+                isUnlockEnabled = true
             )
         } else {
             state.copy(
-                isPasswordValid = false
+                isUnlockEnabled = false
             )
         }
     }
@@ -63,14 +65,16 @@ class SetLockScreenViewModel @Inject constructor(
         // the continue button is enabled iff the password is valid
         // this check is for safety only
         if (!validatePassword(state.password.text)) {
-            state = state.copy(isPasswordValid = false)
+            state = state.copy(isUnlockEnabled = false)
         } else {
             viewModelScope.launch {
-                withContext(dispatchers.io()) {
-                    globalDataStore.setAppLockPasscode(state.password.text.sha256())
-                }
+                val storedPasscode = withContext(dispatchers.io()) { globalDataStore.getAppLockPasscodeFlow().firstOrNull() }
                 withContext(dispatchers.main()) {
-                    state = state.copy(done = true)
+                    state = if (storedPasscode == state.password.text.sha256()) {
+                        state.copy(done = true)
+                    } else {
+                        state.copy(error = EnterLockCodeError.InvalidValue)
+                    }
                 }
             }
         }

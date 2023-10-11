@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -84,7 +85,8 @@ fun DeviceDetailsScreen(
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,
-            onUpdateClientVerification = viewModel::onUpdateVerificationStatus
+            onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
+            onDownloadE2eiCertificate = viewModel::onDownloadE2eiCertificate,
         )
     }
 }
@@ -98,6 +100,7 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
+    onDownloadE2eiCertificate: () -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
@@ -152,10 +155,18 @@ fun DeviceDetailsContent(
             state.device.mlsPublicKeys?.forEach { (mlsProtocolType, mlsThumbprint) ->
                 item {
                     DeviceMLSSignatureItem(mlsThumbprint, mlsProtocolType, screenState::copyMessage)
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-
+            item {
+                EndToEndIdentityCertificateItem(
+                    certificate = state.e2eiCertificate,
+                    onDownloadE2eiCertificate = onDownloadE2eiCertificate,
+                    onUpdateE2eiCertificate = {},
+                    showCertificate = {}
+                )
+                HorizontalDivider(color = colorsScheme().background)
+            }
             item {
                 FolderHeader(
                     name = stringResource(id = R.string.label_proteus_details).uppercase(),
@@ -164,7 +175,7 @@ fun DeviceDetailsContent(
                         .fillMaxWidth()
                 )
                 DeviceIdItem(state, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
             state.device.registrationTime?.formatMediumDateTime()?.let {
@@ -173,7 +184,7 @@ fun DeviceDetailsContent(
                         stringResource(id = R.string.label_client_added_time),
                         AnnotatedString(it)
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
@@ -183,13 +194,13 @@ fun DeviceDetailsContent(
                         stringResource(id = R.string.label_client_last_active_label),
                         AnnotatedString(state.device.lastActiveDescription() ?: "")
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
             item {
                 DeviceKeyFingerprintItem(state.fingerPrint, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
             if (!state.isCurrentDevice) {
@@ -346,7 +357,8 @@ private fun VerificationDescription(
                 text = stringResource(
                     id = R.string.label_client_verification_description,
                     userName ?: stringResource(id = R.string.unknown_user_name)
-                ), leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
+                ),
+                leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
             )
         }
 
@@ -362,7 +374,10 @@ private fun VerificationDescription(
                 leanMoreLink = stringResource(id = R.string.url_self_client_fingerprint_learn_more)
             )
         } else {
-            DescriptionText(text = stringResource(id = R.string.label_fingerprint_description), leanMoreLink = null)
+            DescriptionText(
+                text = stringResource(id = R.string.label_fingerprint_description),
+                leanMoreLink = null
+            )
         }
     }
 }
@@ -406,7 +421,11 @@ private fun DescriptionText(
 
         ClickableText(text = annotatedString, onClick = { offset ->
             leanMoreLink?.let {
-                annotatedString.getStringAnnotations(tag = "learn_more", start = offset, end = offset).firstOrNull()?.let {
+                annotatedString.getStringAnnotations(
+                    tag = "learn_more",
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.let {
                     CustomTabsHelper.launchUrl(context, it.item)
                 }
             }
@@ -472,6 +491,7 @@ fun PreviewDeviceDetailsScreen() {
             isCurrentDevice = false
         ),
         onPasswordChange = { },
+        onDownloadE2eiCertificate = { },
         onRemoveConfirm = { },
         onDialogDismiss = { },
         onErrorDialogDismiss = { }

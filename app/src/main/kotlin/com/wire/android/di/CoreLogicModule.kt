@@ -1240,4 +1240,9 @@ class UseCaseModule {
     @Provides
     fun providesJoinConversationViaCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.joinConversationViaCode
+
+    @ViewModelScoped
+    @Provides
+    fun providesCanCreatePasswordProtectedLinksUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.canCreatePasswordProtectedLinks
 }

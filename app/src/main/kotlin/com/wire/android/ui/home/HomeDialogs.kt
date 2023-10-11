@@ -40,7 +40,8 @@ fun FileRestrictionDialog(
     isFileSharingEnabled: Boolean,
     hideDialogStatus: () -> Unit,
 ) {
-    val text: String = stringResource(id = if (isFileSharingEnabled) R.string.sharing_files_enabled else R.string.sharing_files_disabled)
+    val text: String =
+        stringResource(id = if (isFileSharingEnabled) R.string.sharing_files_enabled else R.string.sharing_files_disabled)
 
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),
@@ -67,7 +68,10 @@ fun SelfDeletingMessagesDialog(
         }
 
         areSelfDeletingMessagesEnabled -> {
-            stringResource(R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
+            stringResource(
+                R.string.self_deleting_messages_team_setting_enabled_enforced_timeout,
+                formattedTimeout
+            )
         }
 
         else -> {

@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -33,6 +34,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
@@ -63,6 +65,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val revokeGuestRoomLink: RevokeGuestRoomLinkUseCase,
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
+    private val canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -82,6 +85,19 @@ class EditGuestAccessViewModel @Inject constructor(
         observeConversationDetails()
         startObservingGuestRoomLink()
         observeGuestRoomLinkFeature()
+        checkIfUserCanCreatePasswordProtectedLinks()
+    }
+
+    private fun checkIfUserCanCreatePasswordProtectedLinks() {
+        viewModelScope.launch {
+            val canCreatePasswordProtectedLinks = when {
+                !BuildConfig.IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED -> false
+                else -> canCreatePasswordProtectedLinks()
+            }
+            editGuestAccessState = editGuestAccessState.copy(
+                isPasswordProtectedLinksAllowed = canCreatePasswordProtectedLinks
+            )
+        }
     }
 
     private fun observeGuestRoomLinkFeature() {

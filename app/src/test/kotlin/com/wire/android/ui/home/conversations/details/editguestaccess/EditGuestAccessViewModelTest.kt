@@ -32,6 +32,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
@@ -81,6 +82,9 @@ class EditGuestAccessViewModelTest {
     @MockK
     lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
 
+    @MockK
+    lateinit var canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase
+
     private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
 
     @Before
@@ -94,7 +98,8 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink = revokeGuestRoomLink,
             observeGuestRoomLink = observeGuestRoomLink,
             savedStateHandle = savedStateHandle,
-            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag
+            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
+            canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks
         )
         every { savedStateHandle.navArgs<EditGuestAccessNavArgs>() } returns EditGuestAccessNavArgs(
             conversationId = TestConversation.ID,

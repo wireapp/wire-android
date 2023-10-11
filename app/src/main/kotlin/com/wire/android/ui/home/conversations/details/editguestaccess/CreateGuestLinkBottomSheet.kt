@@ -40,12 +40,14 @@ fun CreateGuestLinkBottomSheet(
         MenuModalSheetContent(
             header = MenuModalSheetHeader.Visible(title = stringResource(R.string.create_guest_link)),
             menuItems = buildList {
-                add {
-                    CreateInviteLinkSheetItem(
-                        title = stringResource(R.string.create_guest_link_with_password),
-                        onClicked = { onItemClick(true) },
-                        enabled = isPasswordInviteLinksAllowed
-                    )
+                if (isPasswordInviteLinksAllowed) {
+                    add {
+                        CreateInviteLinkSheetItem(
+                            title = stringResource(R.string.create_guest_link_with_password),
+                            onClicked = { onItemClick(true) },
+                            enabled = isPasswordInviteLinksAllowed
+                        )
+                    }
                 }
                 add {
                     CreateInviteLinkSheetItem(

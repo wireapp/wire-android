@@ -251,7 +251,12 @@ pipeline {
                 }
                 publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
 
-                def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true)
+                script {
+                    commitHash = sh(
+                            script: 'git rev-parse HEAD',
+                            returnStdout: true
+                    )
+                }
                 zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android_${commitHash}.zip"
             }
         }
@@ -308,7 +313,12 @@ pipeline {
                 }
                 publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/debug/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
 
-                def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true)
+                script {
+                    commitHash = sh(
+                            script: 'git rev-parse HEAD',
+                            returnStdout: true
+                    )
+                }
                 zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/debug/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android_${commitHash}.zip"
             }
         }

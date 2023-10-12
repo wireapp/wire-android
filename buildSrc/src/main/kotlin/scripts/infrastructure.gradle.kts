@@ -22,7 +22,6 @@ package scripts
 
 import findVersion
 import scripts.Variants_gradle.Default
-import java.time.LocalDateTime
 import java.util.Properties
 
 tasks.register("clean", Delete::class) {
@@ -37,13 +36,11 @@ tasks.named<Wrapper>("wrapper") {
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
-    finalizedBy("registerTargetVersion")
 }
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
     dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
-    finalizedBy("registerTargetVersion")
 }
 
 tasks.register("assembleApp") {
@@ -81,22 +78,4 @@ tasks.register("runApp", Exec::class) {
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")
     }
-}
-
-tasks.register("registerTargetVersion") {
-    description = "Registers the target version of the app, that tests were ran against."
-    val versionTested = runCatching {
-        "${project(":app").properties["archivesBaseName"]}"
-    }.onFailure {
-        println("Failed to register target version: ${it.message}")
-    }.getOrNull() ?: "Unknown"
-
-    file("${rootDir}/VERSION.md").writeText(
-        """
-            ## Test details
-            - _App version_ > $versionTested
-            - _Jenkins build_ > Unknown
-            - _Date_ > ${LocalDateTime.now()}
-        """.trimIndent()
-    )
 }

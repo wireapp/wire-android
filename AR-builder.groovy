@@ -253,7 +253,7 @@ pipeline {
 
                 script {
                     commitHash = sh(
-                            script: 'git rev-parse HEAD',
+                            script: 'git rev-parse HEAD | xargs echo -n',
                             returnStdout: true
                     )
                 }
@@ -315,7 +315,7 @@ pipeline {
 
                 script {
                     commitHash = sh(
-                            script: 'git rev-parse HEAD',
+                            script: 'git rev-parse HEAD | xargs echo -n',
                             returnStdout: true
                     )
                 }

@@ -41,7 +41,7 @@ fun normalizeLink(url: String): String {
 @Suppress("TooGenericExceptionCaught")
 fun sanitizeUrl(url: String): String {
     try {
-        val urlComponents = url.split("://")
+        val urlComponents = url.split("://", limit = 2)
         val scheme = urlComponents[0] // Extract the URL scheme (e.g., "http")
         val restOfUrl = urlComponents[1] // Extract the rest of the URL
 
@@ -53,7 +53,9 @@ fun sanitizeUrl(url: String): String {
         val asciiDomain = IDN.toASCII(domain)
 
         // Reconstruct the sanitized URL
-        return "$scheme://$asciiDomain/${domainAndPath.subList(1, domainAndPath.size).joinToString("/")}"
+        return "$scheme://$asciiDomain" +
+                if (domainAndPath.size > 1) "/" + domainAndPath.subList(1, domainAndPath.size).joinToString("/") else ""
+
     } catch (e: Exception) {
         // Handle any exceptions that might occur during the processing
         appLogger.w("Error sanitizing URL: $url", e)

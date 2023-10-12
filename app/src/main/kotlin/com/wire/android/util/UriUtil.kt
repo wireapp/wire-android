@@ -56,7 +56,7 @@ fun sanitizeUrl(url: String): String {
         return "$scheme://$asciiDomain/${domainAndPath.subList(1, domainAndPath.size).joinToString("/")}"
     } catch (e: Exception) {
         // Handle any exceptions that might occur during the processing
-        appLogger.e("Error sanitizing URL: $url", e)
+        appLogger.w("Error sanitizing URL: $url", e)
         return url // Return the original URL if any errors occur
     }
 }

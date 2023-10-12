@@ -18,11 +18,13 @@
 
 package com.wire.android.biomitric
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON
 import androidx.core.content.ContextCompat
+import com.wire.android.R
 import com.wire.android.appLogger
 
 object BiometricPromptUtils {
@@ -61,12 +63,12 @@ object BiometricPromptUtils {
         return BiometricPrompt(activity, executor, callback)
     }
 
-    fun createPromptInfo(): BiometricPrompt.PromptInfo =
+    fun createPromptInfo(context: Context): BiometricPrompt.PromptInfo =
         BiometricPrompt.PromptInfo.Builder().apply {
-            setTitle("Verify that it's you")
-            setSubtitle("To unlock Wire")
+            setTitle(context.getString(R.string.biometrics_prompt_dialog_title))
+            setSubtitle(context.getString(R.string.biometrics_prompt_dialog_subtitle))
             setConfirmationRequired(false)
-            setNegativeButtonText("Use passcode")
+            setNegativeButtonText(context.getString(R.string.biometrics_use_passcode_button))
         }.build()
 }
 
@@ -84,7 +86,7 @@ fun AppCompatActivity.showBiometricPrompt(
             onCancel,
             onRequestPasscode,
         )
-        val promptInfo = BiometricPromptUtils.createPromptInfo()
+        val promptInfo = BiometricPromptUtils.createPromptInfo(this)
         biometricPrompt.authenticate(promptInfo)
     }
 }

@@ -66,6 +66,7 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -78,6 +79,7 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -91,6 +93,8 @@ import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
@@ -107,6 +111,9 @@ class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
+
+    @Inject
+    lateinit var lockCodeTimeManager: LockCodeTimeManager
 
     private val viewModel: WireActivityViewModel by viewModels()
 
@@ -179,6 +186,7 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete, scope)
                         isLoaded = true
                         handleScreenshotCensoring()
+                        handleAppLock()
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -226,6 +234,17 @@ class WireActivity : AppCompatActivity() {
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
+        }
+    }
+
+    @Composable
+    private fun handleAppLock() {
+        LaunchedEffect(Unit) {
+            lockCodeTimeManager.shouldLock()
+                .filter { it }
+                .collectLatest {
+                    navigationCommands.emit(NavigationCommand(EnterLockCodeScreenDestination))
+                }
         }
     }
 

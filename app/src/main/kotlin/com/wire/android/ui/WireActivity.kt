@@ -29,6 +29,7 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
@@ -43,7 +44,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -62,10 +62,11 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
-import com.wire.android.showBiometricPrompt
 import com.wire.android.ui.calling.ProximitySensorManager
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -82,7 +83,6 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
@@ -102,7 +102,6 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
@@ -243,7 +242,19 @@ class WireActivity : AppCompatActivity() {
             lockCodeTimeManager.shouldLock()
                 .filter { it }
                 .collectLatest {
-                    navigationCommands.emit(NavigationCommand(EnterLockCodeScreenDestination))
+                    val canAuthenticateWithBiometrics = BiometricManager
+                        .from(this@WireActivity)
+                        .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+
+                    if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
+                        navigationCommands.emit(
+                            NavigationCommand(AppUnlockWithBiometricsScreenDestination)
+                        )
+                    } else {
+                        navigationCommands.emit(
+                            NavigationCommand(EnterLockCodeScreenDestination)
+                        )
+                    }
                 }
         }
     }
@@ -332,7 +343,6 @@ class WireActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         proximitySensorManager.registerListener()
-        showBiometricPrompt(this)
     }
 
     override fun onPause() {

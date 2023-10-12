@@ -19,6 +19,7 @@ package com.wire.android.ui.home.appLock
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import io.mockk.MockKAnnotations
@@ -81,7 +82,8 @@ class SetLockScreenViewModelTest {
 
         private val viewModel = SetLockScreenViewModel(
             validatePassword,
-            globalDataStore
+            globalDataStore,
+            dispatchers = TestDispatcherProvider(),
         )
 
         fun arrange() = this to viewModel

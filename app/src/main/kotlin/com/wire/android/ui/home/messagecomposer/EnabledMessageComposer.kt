@@ -55,6 +55,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
@@ -67,6 +68,7 @@ fun EnabledMessageComposer(
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
+    onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
@@ -137,12 +139,6 @@ fun EnabledMessageComposer(
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
                 ) {
-                    Box(Modifier.wrapContentSize()) {
-                        SecurityClassificationBannerForConversation(
-                            conversationId = conversationId
-                        )
-                    }
-
                     Column(
                         modifier = Modifier
                             .background(color = colorsScheme().backgroundVariant)
@@ -150,6 +146,12 @@ fun EnabledMessageComposer(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         UsersTypingIndicatorForConversation(conversationId = conversationId)
+                    }
+
+                    Box(Modifier.wrapContentSize()) {
+                        SecurityClassificationBannerForConversation(
+                            conversationId = conversationId
+                        )
                     }
 
                     if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
@@ -170,7 +172,8 @@ fun EnabledMessageComposer(
                                     messageCompositionHolder.setMessageText(
                                         messageTextFieldValue = it,
                                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult = onClearMentionSearchResult
+                                        onClearMentionSearchResult = onClearMentionSearchResult,
+                                        onTypingEvent = onTypingEvent
                                     )
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -220,7 +223,8 @@ fun EnabledMessageComposer(
                                 onMentionButtonClicked = {
                                     messageCompositionHolder.startMention(
                                         onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult
+                                        onClearMentionSearchResult,
+                                        onTypingEvent
                                     )
                                 },
                                 onOnSelfDeletingOptionClicked = {

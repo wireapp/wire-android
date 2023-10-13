@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.settings.devices.button.GetE2eiCertificateButton
 import com.wire.android.ui.settings.devices.button.ShowE2eiCertificateButton
 import com.wire.android.ui.settings.devices.button.UpdateE2eiCertificateButton
 import com.wire.android.ui.theme.wireColorScheme
@@ -42,9 +43,11 @@ import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
 
 @Composable
 fun EndToEndIdentityCertificateItem(
+    isE2eiCertificateActivated: Boolean,
     certificate: E2eiCertificate,
-    onDownloadE2eiCertificate: () -> Unit,
-    onUpdateE2eiCertificate: () -> Unit,
+    isSelfClient: Boolean,
+    enrollE2eiCertificate: () -> Unit,
+    updateE2eiCertificate: () -> Unit,
     showCertificate: () -> Unit
 ) {
     Column(
@@ -71,44 +74,48 @@ fun EndToEndIdentityCertificateItem(
             color = MaterialTheme.wireColorScheme.secondaryText,
         )
         Column {
-            when (certificate.status) {
-                CertificateStatus.NOT_ACTIVATED -> {
-                    E2EIStatusRow(
-                        label = stringResource(id = R.string.e2ei_certificat_status_not_activated),
-                        labelColor = colorsScheme().error,
-                        icon = R.drawable.ic_certificate_not_activated_mls
-                    )
-                }
+            if(isE2eiCertificateActivated) {
+                when (certificate.status) {
+                    CertificateStatus.REVOKED -> {
+                        E2EIStatusRow(
+                            label = stringResource(id = R.string.e2ei_certificat_status_revoked),
+                            labelColor = colorsScheme().error,
+                            icon = R.drawable.ic_certificate_revoked_mls
+                        )
+                        SerialNumberBlock(certificate.serialNumber)
+                        ShowE2eiCertificateButton(enabled = true, isLoading = false, showCertificate)
+                    }
 
-                CertificateStatus.REVOKED -> {
-                    E2EIStatusRow(
-                        label = stringResource(id = R.string.e2ei_certificat_status_revoked),
-                        labelColor = colorsScheme().error,
-                        icon = R.drawable.ic_certificate_revoked_mls
-                    )
-                    SerialNumberBlock(certificate.serialNumber)
-                    ShowE2eiCertificateButton(enabled = true, isLoading = false) { }
-                }
+                    CertificateStatus.EXPIRED -> {
+                        E2EIStatusRow(
+                            label = stringResource(id = R.string.e2ei_certificat_status_expired),
+                            labelColor = colorsScheme().error,
+                            icon = R.drawable.ic_certificate_not_activated_mls
+                        )
+                        SerialNumberBlock(certificate.serialNumber)
+                        UpdateE2eiCertificateButton(enabled = true, isLoading = false, updateE2eiCertificate)
+                        ShowE2eiCertificateButton(enabled = true, isLoading = false, showCertificate)
+                    }
 
-                CertificateStatus.EXPIRED -> {
-                    E2EIStatusRow(
-                        label = stringResource(id = R.string.e2ei_certificat_status_expired),
-                        labelColor = colorsScheme().error,
-                        icon = R.drawable.ic_certificate_not_activated_mls
-                    )
-                    SerialNumberBlock(certificate.serialNumber)
-                    UpdateE2eiCertificateButton(enabled = true, isLoading = false) { }
-                    ShowE2eiCertificateButton(enabled = true, isLoading = false) { }
+                    CertificateStatus.VALID -> {
+                        E2EIStatusRow(
+                            label = stringResource(id = R.string.e2ei_certificat_status_valid),
+                            labelColor = colorsScheme().validE2eiStatusColor,
+                            icon = R.drawable.ic_certificate_valid_mls
+                        )
+                        SerialNumberBlock(certificate.serialNumber)
+                        ShowE2eiCertificateButton(enabled = true, isLoading = false, showCertificate)
+                    }
                 }
+            } else {
+                E2EIStatusRow(
+                    label = stringResource(id = R.string.e2ei_certificat_status_not_activated),
+                    labelColor = colorsScheme().error,
+                    icon = R.drawable.ic_certificate_not_activated_mls
+                )
+                if(isSelfClient) {
+                    GetE2eiCertificateButton(enabled = true, isLoading = false) {
 
-                CertificateStatus.VALID -> {
-                    E2EIStatusRow(
-                        label = stringResource(id = R.string.e2ei_certificat_status_valid),
-                        labelColor = colorsScheme().validE2eiStatusColor,
-                        icon = R.drawable.ic_certificate_valid_mls
-                    )
-                    SerialNumberBlock(certificate.serialNumber)
-                    ShowE2eiCertificateButton(enabled = true, isLoading = false) {
                     }
                 }
             }
@@ -165,14 +172,16 @@ private fun E2EIStatusRow(
 @Composable
 fun PreviewEndToEndIdentityCertificateItem() {
     EndToEndIdentityCertificateItem(
+        isE2eiCertificateActivated = true,
+        isSelfClient = false,
         certificate = E2eiCertificate(
             issuer = "Wire",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = ""
         ),
-        onDownloadE2eiCertificate = {},
-        onUpdateE2eiCertificate = {},
+        enrollE2eiCertificate = {},
+        updateE2eiCertificate = {},
         showCertificate = {}
     )
 }

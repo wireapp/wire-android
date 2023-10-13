@@ -25,8 +25,7 @@ import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.DownloadE2eiCertificateUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -217,10 +216,6 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetE2EICertificateUseCase =
+    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetE2eiCertificateUseCase =
         userScope.getE2EICertificate
-    @ViewModelScoped
-    @Provides
-    fun provideDownloadE2eiCertificateUseCase(userScope: UserScope): DownloadE2eiCertificateUseCase =
-        userScope.downloadE2eiCertificate
 }

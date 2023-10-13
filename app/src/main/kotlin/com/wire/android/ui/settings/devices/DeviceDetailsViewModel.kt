@@ -23,8 +23,8 @@ import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.DownloadE2eiCertificateUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -44,8 +44,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val fingerprintUseCase: ClientFingerprintUseCase,
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
-    private val e2EICertificate: GetE2EICertificateUseCase,
-    private val downloadE2eiCertificate: DownloadE2eiCertificateUseCase
+    private val e2eiCertificate: GetE2eiCertificateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
@@ -59,6 +58,7 @@ class DeviceDetailsViewModel @Inject constructor(
         observeDeviceDetails()
         getClientFingerPrint()
         observeUserName()
+        getE2eiCertificate()
     }
 
     private val isSelfClient: Boolean
@@ -80,12 +80,19 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getE2eiCertificate() {
-        state = state.copy(e2eiCertificate = e2EICertificate())
+        val certificate = e2eiCertificate(deviceId)
+        state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+            state.copy(
+                isE2eiCertificateActivated = true,
+                e2eiCertificate = certificate.certificate
+            )
+        } else {
+            state.copy(isE2eiCertificateActivated = false)
+        }
     }
 
-    fun onDownloadE2eiCertificate() {
-        downloadE2eiCertificate()
-        getE2eiCertificate()
+    fun enrollE2eiCertificate() {
+        // TODO invoke correspondent use case
     }
 
     private fun getClientFingerPrint() {

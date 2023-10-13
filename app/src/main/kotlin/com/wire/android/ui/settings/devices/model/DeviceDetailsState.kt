@@ -13,5 +13,6 @@ data class DeviceDetailsState(
     val fingerPrint: String? = null,
     val isSelfClient: Boolean = false,
     val userName: String? = null,
+    val isE2eiCertificateActivated: Boolean = false,
     val e2eiCertificate: E2eiCertificate = E2eiCertificate()
 )

@@ -86,7 +86,7 @@ fun DeviceDetailsScreen(
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,
             onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
-            onDownloadE2eiCertificate = viewModel::onDownloadE2eiCertificate,
+            enrollE2eiCertificate = viewModel::enrollE2eiCertificate,
         )
     }
 }
@@ -100,7 +100,7 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
-    onDownloadE2eiCertificate: () -> Unit = {},
+    enrollE2eiCertificate: () -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
@@ -160,9 +160,11 @@ fun DeviceDetailsContent(
             }
             item {
                 EndToEndIdentityCertificateItem(
+                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
                     certificate = state.e2eiCertificate,
-                    onDownloadE2eiCertificate = onDownloadE2eiCertificate,
-                    onUpdateE2eiCertificate = {},
+                    isSelfClient = state.isSelfClient,
+                    enrollE2eiCertificate = enrollE2eiCertificate,
+                    updateE2eiCertificate = {},
                     showCertificate = {}
                 )
                 HorizontalDivider(color = colorsScheme().background)
@@ -491,7 +493,7 @@ fun PreviewDeviceDetailsScreen() {
             isCurrentDevice = false
         ),
         onPasswordChange = { },
-        onDownloadE2eiCertificate = { },
+        enrollE2eiCertificate = { },
         onRemoveConfirm = { },
         onDialogDismiss = { },
         onErrorDialogDismiss = { }

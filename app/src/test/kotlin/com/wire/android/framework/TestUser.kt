@@ -63,7 +63,8 @@ object TestUser {
         userType = UserType.INTERNAL,
         botService = null,
         deleted = false,
-        defederated = false
+        defederated = false,
+        isProteusVerified = false
     )
     val MEMBER_SELF = MemberDetails(SELF_USER, Member.Role.Admin)
     val MEMBER_OTHER = MemberDetails(OTHER_USER, Member.Role.Member)

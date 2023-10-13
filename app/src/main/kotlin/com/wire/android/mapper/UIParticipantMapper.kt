@@ -55,7 +55,8 @@ class UIParticipantMapper @Inject constructor(
             unavailable = unavailable,
             isDeleted = (user is OtherUser && user.deleted),
             botService = (user as? OtherUser)?.botService,
-            isDefederated = (user is OtherUser && user.defederated)
+            isDefederated = (user is OtherUser && user.defederated),
+            isProteusVerified = (user is OtherUser && user.isProteusVerified),
         )
     }
 
@@ -69,7 +70,8 @@ class UIParticipantMapper @Inject constructor(
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
             isSelf = isSelfUser,
-            isDefederated = false
+            isDefederated = false,
+            isProteusVerified = false
         )
     }
 
@@ -84,7 +86,8 @@ class UIParticipantMapper @Inject constructor(
             isDeleted = userSummary.isUserDeleted,
             isSelf = false,
             readReceiptDate = date,
-            isDefederated = false
+            isDefederated = false,
+            isProteusVerified = false
         )
     }
 

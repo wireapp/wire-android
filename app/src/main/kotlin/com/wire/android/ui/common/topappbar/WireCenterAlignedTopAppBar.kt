@@ -53,6 +53,36 @@ fun WireCenterAlignedTopAppBar(
     modifier: Modifier = Modifier,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
+    WireCenterAlignedTopAppBar(
+        titleContent = {
+            WireTopAppBarTitle(
+                title = title,
+                style = titleStyle,
+                maxLines = maxLines
+            )
+        },
+        subtitleContent = subtitleContent,
+        onNavigationPressed = onNavigationPressed,
+        navigationIconType = navigationIconType,
+        elevation = elevation,
+        actions = actions,
+        modifier = modifier,
+        bottomContent = bottomContent
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WireCenterAlignedTopAppBar(
+    titleContent: @Composable ColumnScope.() -> Unit,
+    subtitleContent: @Composable ColumnScope.() -> Unit = {},
+    onNavigationPressed: () -> Unit = {},
+    navigationIconType: NavigationIconType? = NavigationIconType.Back,
+    elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
+    actions: @Composable RowScope.() -> Unit = {},
+    modifier: Modifier = Modifier,
+    bottomContent: @Composable ColumnScope.() -> Unit = {}
+) {
     Surface(
         modifier = modifier,
         shadowElevation = elevation,
@@ -62,11 +92,7 @@ fun WireCenterAlignedTopAppBar(
             CenterAlignedTopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        WireTopAppBarTitle(
-                            title = title,
-                            style = titleStyle,
-                            maxLines = maxLines
-                        )
+                        titleContent()
                         subtitleContent()
                     }
                 },

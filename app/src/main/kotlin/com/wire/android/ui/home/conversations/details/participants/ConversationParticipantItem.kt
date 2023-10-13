@@ -35,6 +35,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
@@ -92,8 +93,9 @@ fun ConversationParticipantItem(
                     startPadding = dimensions().spacing6x,
                     isDeleted = uiParticipant.isDeleted
                 )
-            }
 
+                if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
+            }
         },
         subtitle = {
             HighlightSubtitle(
@@ -125,7 +127,7 @@ fun ConversationParticipantItem(
 @Composable
 fun PreviewGroupConversationParticipantItem() {
     ConversationParticipantItem(
-        UIParticipant(UserId("0", ""), "name", "handle", false, false, UserAvatarData(), Membership.Guest),
+        UIParticipant(UserId("0", ""), "name", "handle", false, false, UserAvatarData(), Membership.Guest, isProteusVerified = true),
         clickable = Clickable(enabled = true) {}
     )
 }

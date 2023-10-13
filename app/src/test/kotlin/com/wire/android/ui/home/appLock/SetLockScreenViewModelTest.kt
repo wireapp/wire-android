@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.ObserveAppLockConfigUseCase
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -42,7 +44,7 @@ class SetLockScreenViewModelTest {
         viewModel.onPasswordChanged(TextFieldValue("password"))
 
         assert(viewModel.state.password.text == "password")
-        assert(viewModel.state.isPasswordValid)
+        assert(viewModel.state.passwordValidation.isValid)
 
         verify(exactly = 1) { arrangement.validatePassword("password") }
     }
@@ -56,7 +58,7 @@ class SetLockScreenViewModelTest {
         viewModel.onPasswordChanged(TextFieldValue("password"))
 
         assert(viewModel.state.password.text == "password")
-        assert(!viewModel.state.isPasswordValid)
+        assert(!viewModel.state.passwordValidation.isValid)
 
         verify(exactly = 1) { arrangement.validatePassword("password") }
     }
@@ -66,6 +68,8 @@ class SetLockScreenViewModelTest {
         lateinit var validatePassword: ValidatePasswordUseCase
         @MockK
         lateinit var globalDataStore: GlobalDataStore
+        @MockK
+        private lateinit var observeAppLockConfigUseCase: ObserveAppLockConfigUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -73,17 +77,18 @@ class SetLockScreenViewModelTest {
         }
 
         fun withValidPassword() = apply {
-            every { validatePassword(any()) } returns true
+            every { validatePassword(any()) } returns ValidatePasswordResult.Valid
         }
 
         fun withInvalidPassword() = apply {
-            every { validatePassword(any()) } returns false
+            every { validatePassword(any()) } returns ValidatePasswordResult.Invalid()
         }
 
         private val viewModel = SetLockScreenViewModel(
             validatePassword,
             globalDataStore,
-            dispatchers = TestDispatcherProvider(),
+            TestDispatcherProvider(),
+            observeAppLockConfigUseCase
         )
 
         fun arrange() = this to viewModel

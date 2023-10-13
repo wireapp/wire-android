@@ -44,6 +44,7 @@ import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.conversations.details.options.SwitchState
+import com.wire.android.util.toTimeLongLabelUiText
 
 @RootNavGraph
 @Destination
@@ -177,7 +178,7 @@ fun AppLockItem(
             )
         },
         arrowType = ArrowType.NONE,
-        subtitle = stringResource(id = R.string.settings_app_lock_description, state.timeoutInSeconds),
+        subtitle = stringResource(id = R.string.settings_app_lock_description, state.timeout.toTimeLongLabelUiText()),
         clickable = Clickable(
             enabled = state !is AppLockConfig.EnforcedByTeam,
             onClick = onCLick

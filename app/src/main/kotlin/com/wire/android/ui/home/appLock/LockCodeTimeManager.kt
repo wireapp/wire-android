@@ -66,7 +66,7 @@ class LockCodeTimeManager @Inject constructor(
                 appVisibilityTimestampData.isAppVisible
                         && appLockConfig !is AppLockConfig.Disabled
                         && appVisibilityTimestampData.timestamp >= 0
-                        && (currentTimestamp() - appVisibilityTimestampData.timestamp) > (appLockConfig.timeoutInSeconds * 1000)
+                        && (currentTimestamp() - appVisibilityTimestampData.timestamp) > (appLockConfig.timeout.inWholeMilliseconds)
             }
                 .distinctUntilChanged()
         }

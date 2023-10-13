@@ -56,7 +56,7 @@ class LockCodeTimeManagerTest {
             assertEquals(expected, result)
         }
 
-    private fun AppLockConfig.timeoutInMillis(): Long = this.timeoutInSeconds * 1000L
+    private fun AppLockConfig.timeoutInMillis(): Long = this.timeout.inWholeMilliseconds
 
     @Test
     fun givenLockEnabledAndAppOpen_whenAppClosedAndOpenedAgainBeforeLockTimeout_thenDoNotRequirePasscode() =

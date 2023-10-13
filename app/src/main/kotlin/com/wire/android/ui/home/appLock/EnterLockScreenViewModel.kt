@@ -48,7 +48,7 @@ class EnterLockScreenViewModel @Inject constructor(
             error = EnterLockCodeError.None,
             password = password
         )
-        state = if (validatePassword(password.text)) {
+        state = if (validatePassword(password.text).isValid) {
             state.copy(
                 continueEnabled = true,
                 isUnlockEnabled = true
@@ -64,7 +64,7 @@ class EnterLockScreenViewModel @Inject constructor(
         state = state.copy(continueEnabled = false)
         // the continue button is enabled iff the password is valid
         // this check is for safety only
-        if (!validatePassword(state.password.text)) {
+        if (!validatePassword(state.password.text).isValid) {
             state = state.copy(isUnlockEnabled = false)
         } else {
             viewModelScope.launch {

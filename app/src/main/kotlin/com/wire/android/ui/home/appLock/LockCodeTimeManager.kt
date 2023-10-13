@@ -55,6 +55,7 @@ class LockCodeTimeManager @Inject constructor(
                 }
             }
         }
+        @Suppress("MagicNumber")
         // next, listen for app lock config and app visibility changes to determine if app should be locked
         appCoroutineScope.launch {
             combine(

@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations
 
 import SwipeableSnackbar
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -42,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
@@ -318,11 +320,7 @@ fun ConversationScreen(
                 }
             }
         },
-        onBackButtonClick = {
-            messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
-            focusManager.clearFocus(true)
-            navigator.navigateBack()
-        },
+        onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
@@ -351,6 +349,7 @@ fun ConversationScreen(
         },
         onTypingEvent = messageComposerViewModel::sendTypingEvent
     )
+    BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
         actions = messageComposerViewModel.deleteMessageHelper
@@ -428,6 +427,16 @@ fun ConversationScreen(
             }
         }
     }
+}
+
+private fun conversationScreenOnBackButtonClick(
+    messageComposerViewModel: MessageComposerViewModel,
+    focusManager: FocusManager,
+    navigator: Navigator
+) {
+    messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
+    focusManager.clearFocus(true)
+    navigator.navigateBack()
 }
 
 @Suppress("LongParameterList")

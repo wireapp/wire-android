@@ -240,7 +240,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun handleAppLock() {
         LaunchedEffect(Unit) {
-            lockCodeTimeManager.shouldLock()
+            lockCodeTimeManager.isLocked()
                 .filter { it }
                 .collectLatest {
                     navigationCommands.emit(NavigationCommand(EnterLockCodeScreenDestination))

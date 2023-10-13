@@ -96,7 +96,7 @@ class LoginEmailViewModel @Inject constructor(
             secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
             val storedUserId = withContext(dispatchers.io()) {
                 addAuthenticatedUser(
-                    authTokens = loginResult.authData,
+                    accountTokens = loginResult.authData,
                     ssoId = loginResult.ssoID,
                     serverConfigId = loginResult.serverConfigId,
                     proxyCredentials = loginResult.proxyCredentials,

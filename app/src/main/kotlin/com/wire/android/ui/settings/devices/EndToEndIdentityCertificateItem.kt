@@ -74,7 +74,7 @@ fun EndToEndIdentityCertificateItem(
             color = MaterialTheme.wireColorScheme.secondaryText,
         )
         Column {
-            if(isE2eiCertificateActivated) {
+            if (isE2eiCertificateActivated) {
                 when (certificate.status) {
                     CertificateStatus.REVOKED -> {
                         E2EIStatusRow(
@@ -83,7 +83,11 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_revoked_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        ShowE2eiCertificateButton(enabled = true, isLoading = false, showCertificate)
+                        ShowE2eiCertificateButton(
+                            enabled = true,
+                            isLoading = false,
+                            showCertificate
+                        )
                     }
 
                     CertificateStatus.EXPIRED -> {
@@ -93,8 +97,16 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_not_activated_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        UpdateE2eiCertificateButton(enabled = true, isLoading = false, updateE2eiCertificate)
-                        ShowE2eiCertificateButton(enabled = true, isLoading = false, showCertificate)
+                        UpdateE2eiCertificateButton(
+                            enabled = true,
+                            isLoading = false,
+                            updateE2eiCertificate
+                        )
+                        ShowE2eiCertificateButton(
+                            enabled = true,
+                            isLoading = false,
+                            showCertificate
+                        )
                     }
 
                     CertificateStatus.VALID -> {
@@ -104,7 +116,11 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_valid_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        ShowE2eiCertificateButton(enabled = true, isLoading = false, showCertificate)
+                        ShowE2eiCertificateButton(
+                            enabled = true,
+                            isLoading = false,
+                            showCertificate
+                        )
                     }
                 }
             } else {
@@ -113,10 +129,8 @@ fun EndToEndIdentityCertificateItem(
                     labelColor = colorsScheme().error,
                     icon = R.drawable.ic_certificate_not_activated_mls
                 )
-                if(isSelfClient) {
-                    GetE2eiCertificateButton(enabled = true, isLoading = false) {
-
-                    }
+                if (isSelfClient) {
+                    GetE2eiCertificateButton(enabled = true, isLoading = false) { }
                 }
             }
         }

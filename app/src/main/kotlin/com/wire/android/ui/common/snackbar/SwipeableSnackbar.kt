@@ -16,25 +16,18 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-import androidx.compose.animation.core.SpringSpec
+// import androidx.compose.foundation.gestures.AnchoredDraggableState
+// import androidx.compose.foundation.gestures.DraggableAnchors
+// import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.ExperimentalFoundationApi
-//import androidx.compose.foundation.gestures.AnchoredDraggableState
-//import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.Orientation
-//import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 
 /**
  * A swipeable [Snackbar] that allows users to manually dismiss it by dragging.
@@ -53,7 +46,6 @@ import kotlin.math.roundToInt
  */
 
 // TODO uncomment all lines when anchoredDraggable will be available on new compose version
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SwipeableSnackbar(
     hostState: SnackbarHostState,

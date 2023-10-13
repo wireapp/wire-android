@@ -157,7 +157,6 @@ hilt-test = { module = "com.google.dagger:hilt-android-testing", version.ref = "
 hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM
-
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-activity = { module = "androidx.activity:activity-compose" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }

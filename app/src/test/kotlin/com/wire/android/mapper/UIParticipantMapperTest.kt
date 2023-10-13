@@ -159,7 +159,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     userType = UserType.INTERNAL,
     botService = null,
     deleted = false,
-    defederated = false
+    defederated = false,
+    isProteusVerified = false
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

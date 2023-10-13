@@ -314,7 +314,8 @@ class MediaGalleryViewModelTest {
                 UserAvailabilityStatus.AVAILABLE,
                 null,
                 false,
-                defederated = false
+                defederated = false,
+                isProteusVerified = false
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,

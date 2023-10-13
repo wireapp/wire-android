@@ -41,6 +41,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.CopyButton
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -52,6 +53,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
@@ -102,13 +104,7 @@ fun DeviceDetailsContent(
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                onNavigationPressed = onNavigateBack,
-                elevation = 0.dp,
-                title = state.device.name.asString()
-            )
-        },
+        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice) },
         bottomBar = {
             Column(
                 Modifier
@@ -195,7 +191,7 @@ fun DeviceDetailsContent(
             if (!state.isCurrentDevice) {
                 item {
                     DeviceVerificationItem(
-                        state.device.isVerified,
+                        state.device.isVerifiedProteus,
                         state.fingerPrint != null,
                         state.isSelfClient,
                         state.userName,
@@ -229,6 +225,30 @@ fun DeviceDetailsContent(
             }
         }
     }
+}
+
+@Composable
+private fun DeviceDetailsTopBar(
+    onNavigateBack: () -> Unit,
+    device: Device,
+    isCurrentDevice: Boolean
+) {
+    WireCenterAlignedTopAppBar(
+        onNavigationPressed = onNavigateBack,
+        elevation = 0.dp,
+        titleContent = {
+            Row {
+                WireTopAppBarTitle(
+                    title = device.name.asString(),
+                    style = MaterialTheme.wireTypography.title01,
+                    maxLines = 2
+                )
+                if (!isCurrentDevice && device.isVerifiedProteus) {
+                    ProteusVerifiedIcon()
+                }
+            }
+        }
+    )
 }
 
 @Composable

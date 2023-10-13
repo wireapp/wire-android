@@ -222,7 +222,8 @@ class OtherUserProfileScreenViewModelTest {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false
         )
         val TEAM = Team("some_id", "name", "icon")
         val CONVERSATION = Conversation(

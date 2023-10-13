@@ -18,10 +18,10 @@
 
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
+//import androidx.compose.foundation.gestures.AnchoredDraggableState
+//import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
+//import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
@@ -51,6 +51,8 @@ import kotlin.math.roundToInt
  * @see SnackbarData
  * @see SnackbarHostState
  */
+
+// TODO uncomment all lines when anchoredDraggable will be available on new compose version
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SwipeableSnackbar(
@@ -62,11 +64,10 @@ fun SwipeableSnackbar(
     val configuration = LocalConfiguration.current
 
     val currentScreenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
-
-    val anchors = DraggableAnchors {
-        SnackBarState.Visible at 0f
-        SnackBarState.Dismissed at currentScreenWidth
-    }
+//    val anchors = DraggableAnchors {
+//        SnackBarState.Visible at 0f
+//        SnackBarState.Dismissed at currentScreenWidth
+//    }
 
     // Determines how far the user needs to drag (as a fraction of total distance) for an action to be triggered.
     // In this example, the Snackbar will trigger an action if dragged to half (0.5) of its width.
@@ -77,37 +78,38 @@ fun SwipeableSnackbar(
     // Here, it's set to 125 device-independent pixels per second.
     val velocityThreshold: () -> Float = with(density) { { 125.dp.toPx() } }
 
-    val state = remember {
-        AnchoredDraggableState(
-            initialValue = SnackBarState.Visible,
-            anchors = anchors,
-            positionalThreshold = positionalThreshold,
-            velocityThreshold = velocityThreshold,
-            animationSpec = SpringSpec(),
-            confirmValueChange = { true }
-        )
-    }
+//    val state = remember {
+//        AnchoredDraggableState(
+//            initialValue = SnackBarState.Visible,
+//            anchors = anchors,
+//            positionalThreshold = positionalThreshold,
+//            velocityThreshold = velocityThreshold,
+//            animationSpec = SpringSpec(),
+//            confirmValueChange = { true }
+//        )
+//    }
 
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SnackBarState.Dismissed) {
-            onDismiss()
-        }
-    }
+//    LaunchedEffect(state.currentValue) {
+//        if (state.currentValue == SnackBarState.Dismissed) {
+//            onDismiss()
+//        }
+//    }
 
     Snackbar(
         snackbarData = data,
         modifier = Modifier
-            .anchoredDraggable(
-                state = state,
-                orientation = Orientation.Horizontal
-            )
-            .offset {
-                IntOffset(
-                    state
-                        .requireOffset()
-                        .roundToInt(), 0
-                )
-            })
+//            .anchoredDraggable(
+//                state = state,
+//                orientation = Orientation.Horizontal
+//            )
+//            .offset {
+//                IntOffset(
+//                    state
+//                        .requireOffset()
+//                        .roundToInt(), 0
+//                )
+//            }
+    )
 }
 
 private enum class SnackBarState { Visible, Dismissed }

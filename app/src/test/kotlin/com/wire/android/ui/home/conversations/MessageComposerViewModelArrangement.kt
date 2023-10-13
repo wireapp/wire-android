@@ -64,6 +64,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -177,6 +178,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
 
+    @MockK
+    lateinit var sendTypingEvent: SendTypingEventUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -201,7 +205,8 @@ internal class MessageComposerViewModelArrangement {
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
-            retryFailedMessage = retryFailedMessageUseCase
+            retryFailedMessage = retryFailedMessageUseCase,
+            sendTypingEvent = sendTypingEvent
         )
     }
 
@@ -237,6 +242,38 @@ internal class MessageComposerViewModelArrangement {
                 any()
             )
         } returns ScheduleNewAssetMessageResult.Success("some-message-id")
+    }
+
+    fun withSuccessfulSendTextMessage() = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendEditTextMessage() = apply {
+        coEvery {
+            sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendTypingEvent() = apply {
+        coEvery {
+            sendTypingEvent(
+                any(),
+                any()
+            )
+        } returns Unit
     }
 
     fun withFailureOnDeletingMessages() = apply {

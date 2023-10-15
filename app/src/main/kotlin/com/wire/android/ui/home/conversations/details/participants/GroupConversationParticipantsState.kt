@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations.details.participants
 
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 
 data class GroupConversationParticipantsState(
@@ -32,8 +33,24 @@ data class GroupConversationParticipantsState(
     companion object {
         val PREVIEW = GroupConversationParticipantsState(
             data = ConversationParticipantsData(
-                admins = listOf(UIParticipant(UserId("0", ""), "name", "handle", true)),
-                participants = listOf(UIParticipant(UserId("1", ""), "name", "handle", false)),
+                admins = listOf(
+                    UIParticipant(
+                        id = UserId("0", ""),
+                        name = "admin",
+                        handle = "handle",
+                        isSelf = true,
+                        supportedProtocolList = listOf(SupportedProtocol.MLS)
+                    )
+                ),
+                participants = listOf(
+                    UIParticipant(
+                        id = UserId("1", ""),
+                        name = "participant",
+                        handle = "handle",
+                        isSelf = true,
+                        supportedProtocolList = listOf(SupportedProtocol.PROTEUS)
+                    )
+                ),
                 allAdminsCount = 1,
                 allParticipantsCount = 1,
                 isSelfAnAdmin = true

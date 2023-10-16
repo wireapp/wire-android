@@ -31,10 +31,10 @@ class ObserveAppLockConfigUseCase @Inject constructor(
 ) {
 
     operator fun invoke(): Flow<AppLockConfig> =
-        globalDataStore.getAppLockPasscodeFlow().map { // TODO: include checking if any logged account does not enforce app-lock
+        globalDataStore.isAppLockPasscodeSetFlow().map { // TODO: include checking if any logged account does not enforce app-lock
             when {
-                it.isNullOrEmpty() -> AppLockConfig.Disabled
-                else -> AppLockConfig.Enabled
+                it -> AppLockConfig.Enabled
+                else -> AppLockConfig.Disabled
             }
         }
 }

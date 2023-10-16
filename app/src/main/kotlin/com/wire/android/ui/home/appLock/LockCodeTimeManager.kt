@@ -17,20 +17,23 @@
  */
 package com.wire.android.ui.home.appLock
 
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.scan
-import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,45 +42,46 @@ class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
-    globalDataStore: GlobalDataStore,
-    currentTimestamp: CurrentTimestampProvider,
 ) {
 
-    @Suppress("MagicNumber")
-    private val lockCodeRequiredFlow = globalDataStore.getAppLockTimestampFlow().take(1)
-        .flatMapLatest { lastAppLockTimestamp ->
-            combine(
-                currentScreenManager.isAppVisibleFlow()
-                    .scan(AppVisibilityTimestampData(lastAppLockTimestamp ?: -1, false)) { previousData, currentlyVisible ->
-                        if (previousData.isAppVisible != currentlyVisible) {
-                            val timestamp = if (!currentlyVisible) { // app moved to background
-                                currentTimestamp().also {
-                                    globalDataStore.setAppLockTimestamp(it)
-                                }
-                            } else previousData.timestamp
-                            AppVisibilityTimestampData(
-                                timestamp = timestamp,
-                                isAppVisible = currentlyVisible
-                            )
-                        } else previousData
-                    },
-                observeAppLockConfigUseCase()
-            ) { appVisibilityTimestampData, appLockConfig ->
-                appVisibilityTimestampData.isAppVisible
-                        && appLockConfig !is AppLockConfig.Disabled
-                        && appVisibilityTimestampData.timestamp >= 0
-                        && (currentTimestamp() - appVisibilityTimestampData.timestamp) > (appLockConfig.timeout.inWholeMilliseconds)
+    private val isLockedFlow = MutableStateFlow(false)
+
+    init {
+        // first, set initial value - if app lock is enabled then app needs to be locked right away
+        runBlocking {
+            observeAppLockConfigUseCase().firstOrNull()?.let { appLockConfig ->
+                if (appLockConfig !is AppLockConfig.Disabled) {
+                    isLockedFlow.value = true
+                }
             }
-                .distinctUntilChanged()
         }
-        .shareIn(scope = appCoroutineScope, started = SharingStarted.Eagerly, replay = 1)
+        @Suppress("MagicNumber")
+        // next, listen for app lock config and app visibility changes to determine if app should be locked
+        appCoroutineScope.launch {
+            combine(
+                observeAppLockConfigUseCase(),
+                currentScreenManager.isAppVisibleFlow(),
+                ::Pair
+            ).flatMapLatest { (appLockConfig, isInForeground) ->
+                when {
+                    appLockConfig is AppLockConfig.Disabled -> flowOf(false)
 
-    fun shouldLock(): Flow<Boolean> = lockCodeRequiredFlow
+                    !isInForeground && !isLockedFlow.value -> flow {
+                        delay(appLockConfig.timeout.inWholeMilliseconds)
+                        emit(true)
+                    }
 
-    private data class AppVisibilityTimestampData(
-        val timestamp: Long,
-        val isAppVisible: Boolean
-    )
+                    else -> emptyFlow()
+                }
+            }.collectLatest {
+                isLockedFlow.value = it
+            }
+        }
+    }
+
+    fun appUnlocked() {
+        isLockedFlow.value = false
+    }
+
+    fun isLocked(): Flow<Boolean> = isLockedFlow
 }
-
-typealias CurrentTimestampProvider = () -> Long

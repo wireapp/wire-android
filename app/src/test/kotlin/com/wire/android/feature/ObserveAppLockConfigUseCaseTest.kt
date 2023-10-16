@@ -32,7 +32,7 @@ class ObserveAppLockConfigUseCaseTest {
     @Test
     fun givenPasscodeIsSet_whenObservingAppLockConfig_thenReturnEnabled() = runTest {
         val (_, useCase) = Arrangement()
-            .withAppLockPasscode("1234")
+            .withAppLockPasscodeSet(true)
             .arrange()
 
         val result = useCase.invoke().firstOrNull()
@@ -43,7 +43,7 @@ class ObserveAppLockConfigUseCaseTest {
     @Test
     fun givenPasscodeIsNotSet_whenObservingAppLockConfig_thenReturnDisabled() = runTest {
         val (_, useCase) = Arrangement()
-            .withAppLockPasscode(null)
+            .withAppLockPasscodeSet(false)
             .arrange()
 
         val result = useCase.invoke().firstOrNull()
@@ -60,8 +60,8 @@ class ObserveAppLockConfigUseCaseTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun withAppLockPasscode(passcode: String?) = apply {
-            every { globalDataStore.getAppLockPasscodeFlow() } returns flowOf(passcode)
+        fun withAppLockPasscodeSet(value: Boolean) = apply {
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(value)
         }
 
         fun arrange() = this to useCase

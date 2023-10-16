@@ -38,6 +38,7 @@ class EnterLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
+    private val lockCodeTimeManager: LockCodeTimeManager,
 ) : ViewModel() {
 
     var state: EnterLockCodeViewState by mutableStateOf(EnterLockCodeViewState())
@@ -71,6 +72,7 @@ class EnterLockScreenViewModel @Inject constructor(
                 val storedPasscode = withContext(dispatchers.io()) { globalDataStore.getAppLockPasscodeFlow().firstOrNull() }
                 withContext(dispatchers.main()) {
                     state = if (storedPasscode == state.password.text.sha256()) {
+                        lockCodeTimeManager.appUnlocked()
                         state.copy(done = true)
                     } else {
                         state.copy(error = EnterLockCodeError.InvalidValue)

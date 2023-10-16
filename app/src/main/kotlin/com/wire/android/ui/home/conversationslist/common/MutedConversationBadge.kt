@@ -39,12 +39,12 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 
 @Composable
-fun MutedConversationBadge(onClick: () -> Unit) {
+fun MutedConversationBadge() {
     Box(modifier = Modifier
         .width(dimensions().spacing24x)
         .height(dimensions().spacing20x)) {
         WireSecondaryButton(
-            onClick = onClick,
+            onClick = {},
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_mute),
@@ -65,5 +65,5 @@ fun MutedConversationBadge(onClick: () -> Unit) {
 @Preview
 @Composable
 fun PreviewMutedConversationBadge() {
-    MutedConversationBadge {}
+    MutedConversationBadge()
 }

@@ -80,7 +80,7 @@ internal fun MessageAsset(
         modifier = Modifier
             .padding(top = dimensions().spacing4x)
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
+                color = MaterialTheme.wireColorScheme.surfaceVariant,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(

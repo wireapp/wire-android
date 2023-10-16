@@ -53,6 +53,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SearchTopBar(
+    modifier: Modifier = Modifier,
     isSearchActive: Boolean,
     searchBarHint: String,
     searchQuery: TextFieldValue = TextFieldValue(""),
@@ -62,7 +63,7 @@ fun SearchTopBar(
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth()
             .background(MaterialTheme.wireColorScheme.background)

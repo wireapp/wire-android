@@ -106,7 +106,8 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
-    onLinkClick: (String) -> Unit = {}
+    onLinkClick: (String) -> Unit = {},
+    isFromSearch: Boolean = false
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -132,6 +133,8 @@ fun MessageItem(
             )
 
             Modifier.background(color)
+        } else if (isFromSearch) {
+            Modifier.background(colorsScheme().backgroundVariant)
         } else {
             Modifier
         }
@@ -236,7 +239,7 @@ fun MessageItem(
                                         onLinkClick = onLinkClick
                                     )
                                 }
-                                if (isMyMessage) {
+                                if (isMyMessage && !isFromSearch) {
                                     MessageStatusIndicator(
                                         status = message.header.messageStatus.flowStatus,
                                         isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
@@ -249,10 +252,12 @@ fun MessageItem(
                                     HorizontalSpace.x24()
                                 }
                             }
-                            MessageFooter(
-                                messageFooter,
-                                onReactionClicked
-                            )
+                            if (!isFromSearch) {
+                                MessageFooter(
+                                    messageFooter = messageFooter,
+                                    onReactionClicked = onReactionClicked
+                                )
+                            }
                         } else {
                             MessageDecryptionFailure(
                                 messageHeader = header,

@@ -40,6 +40,7 @@ fun WireTheme(
     content: @Composable () -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
+    @Suppress("SpreadOperator")
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
         LocalWireTypography provides wireTypography,

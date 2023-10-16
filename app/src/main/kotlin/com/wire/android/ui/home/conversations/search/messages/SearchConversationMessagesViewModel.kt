@@ -1,0 +1,92 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.ui.home.conversations.search.messages
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.usecase.GetSearchMessagesForConversationUseCase
+import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.functional.onSuccess
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class SearchConversationMessagesViewModel @Inject constructor(
+    private val getSearchMessagesForConversation: GetSearchMessagesForConversationUseCase,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
+
+    var searchConversationMessagesState by mutableStateOf(SearchConversationMessagesState())
+
+    private val mutableSearchQueryFlow = MutableStateFlow("")
+    private val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
+
+    private val searchQueryFlow = mutableSearchQueryFlow
+        .asStateFlow()
+        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+
+    init {
+        viewModelScope.launch {
+            searchQueryTextFieldFlow.collect {
+                searchConversationMessagesState = searchConversationMessagesState.copy(
+                    searchQuery = it
+                )
+            }
+        }
+        viewModelScope.launch {
+            searchQueryFlow
+                .collectLatest { searchTerm ->
+                    getSearchMessagesForConversation(
+                        searchTerm = searchTerm,
+                        conversationId = conversationId
+                    ).onSuccess { uiMessages ->
+                        searchConversationMessagesState = searchConversationMessagesState.copy(
+                            searchResult = uiMessages.toPersistentList(),
+                            noneSearchSucceed = uiMessages.isEmpty()
+                        )
+                    }
+                }
+        }
+    }
+
+    fun searchQueryChanged(searchQuery: TextFieldValue) {
+        val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
+        // we set the state with a searchQuery, immediately to update the UI first
+        viewModelScope.launch {
+            searchQueryTextFieldFlow.emit(searchQuery)
+
+            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
+        }
+    }
+}

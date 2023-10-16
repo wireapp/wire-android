@@ -142,7 +142,7 @@ private val LightWireColorScheme = WireColorScheme(
     background = WireColorPalette.Gray20, onBackground = Color.Black,
     backgroundVariant = WireColorPalette.Gray10, onBackgroundVariant = Color.Black,
     surface = Color.White, onSurface = Color.Black,
-    surfaceVariant = Color.White, onSurfaceVariant = Color.Black,
+    surfaceVariant = Color.White , onSurfaceVariant = Color.Black,
     inverted = Color.Black, onInverted = Color.White,
     primaryButtonEnabled = WireColorPalette.LightBlue500, onPrimaryButtonEnabled = Color.White,
     primaryButtonDisabled = WireColorPalette.Gray50, onPrimaryButtonDisabled = WireColorPalette.Gray80,

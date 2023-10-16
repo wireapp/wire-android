@@ -51,7 +51,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.ui.settings.devices.e2ei.CERTIFICATE_FILE_NAME
 import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider

@@ -122,7 +122,6 @@ fun E2eiCertificateDetailsScreen(
                         state.wireModalSheetState.hide()
                         snackbarHostState.showSnackbar(downloadedString)
                     }
-
                 }
             )
         }

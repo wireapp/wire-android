@@ -20,8 +20,6 @@
 
 package com.wire.android.ui.home.settings.privacy
 
-import com.wire.android.feature.AppLockConfig
-
 data class PrivacySettingsState(
     val areReadReceiptsEnabled: Boolean = true,
     val isTypingIndicatorEnabled: Boolean = true,

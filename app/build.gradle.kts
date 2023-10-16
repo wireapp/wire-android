@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.dataStore)
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.exifInterface)
+    implementation(libs.androidx.biometric)
 
     implementation(libs.ktx.dateTime)
     implementation(libs.material)

@@ -16,6 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
 // import androidx.compose.foundation.gestures.AnchoredDraggableState
 // import androidx.compose.foundation.gestures.DraggableAnchors
 // import androidx.compose.foundation.gestures.anchoredDraggable
@@ -44,7 +45,6 @@ import androidx.compose.ui.unit.dp
  * @see SnackbarHostState
  */
 
-// TODO uncomment all lines when anchoredDraggable will be available on new compose version
 @Composable
 fun SwipeableSnackbar(
     hostState: SnackbarHostState,
@@ -55,6 +55,8 @@ fun SwipeableSnackbar(
     val configuration = LocalConfiguration.current
 
     val currentScreenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
+
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
 //    val anchors = DraggableAnchors {
 //        SnackBarState.Visible at 0f
 //        SnackBarState.Dismissed at currentScreenWidth
@@ -69,6 +71,7 @@ fun SwipeableSnackbar(
     // Here, it's set to 125 device-independent pixels per second.
     val velocityThreshold: () -> Float = with(density) { { 125.dp.toPx() } }
 
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
 //    val state = remember {
 //        AnchoredDraggableState(
 //            initialValue = SnackBarState.Visible,
@@ -80,6 +83,7 @@ fun SwipeableSnackbar(
 //        )
 //    }
 
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
 //    LaunchedEffect(state.currentValue) {
 //        if (state.currentValue == SnackBarState.Dismissed) {
 //            onDismiss()
@@ -89,6 +93,7 @@ fun SwipeableSnackbar(
     Snackbar(
         snackbarData = data,
         modifier = Modifier
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
 //            .anchoredDraggable(
 //                state = state,
 //                orientation = Orientation.Horizontal
@@ -103,4 +108,5 @@ fun SwipeableSnackbar(
     )
 }
 
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
 // private enum class SnackBarState { Visible, Dismissed }

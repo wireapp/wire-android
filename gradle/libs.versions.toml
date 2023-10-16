@@ -36,11 +36,10 @@ androidx-workManager = "2.8.1"
 androidx-browser = "1.5.0"
 
 # Compose
-composeBom = "2023.10.00"
+composeBom = "2023.10.00" # TODO check if in new version [anchoredDraggable] is available
 compose-compiler = "1.5.2"
 compose-constraint = "1.0.1"
-compose-material3 = "1.2.0-alpha09"
-compose-navigation = "2.7.4"
+compose-navigation = "2.6.0"
 compose-destinations = "1.9.40-beta"
 
 # Hilt

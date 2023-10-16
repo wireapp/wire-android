@@ -14,19 +14,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.common
 
-package com.wire.android.ui.home.conversations.details.participants.model
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 
-data class ConversationParticipantsData(
-    val admins: List<UIParticipant> = listOf(),
-    val participants: List<UIParticipant> = listOf(),
-    val allAdminsCount: Int = 0,
-    val allParticipantsCount: Int = 0,
-    val isSelfAnAdmin: Boolean = false
-) {
-    val allCount: Int = allAdminsCount + allParticipantsCount
-    val allParticipants: List<UIParticipant> = participants + admins
+@Composable
+fun ProteusVerifiedIcon(modifier: Modifier = Modifier) {
+    Image(
+        modifier = modifier.padding(start = dimensions().spacing4x),
+        painter = painterResource(id = R.drawable.ic_certificate_valid_proteus),
+        contentDescription = stringResource(R.string.label_client_verified)
+    )
 }

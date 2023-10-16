@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
+import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
@@ -96,6 +97,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
 
+    @MockK
+    lateinit var clearUsersTypingEvents: ClearUsersTypingEventsUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -109,7 +113,8 @@ class ConversationMessagesViewModelArrangement {
             toggleReaction,
             resetSession,
             conversationAudioMessagePlayer,
-            getConversationUnreadEventsCount
+            getConversationUnreadEventsCount,
+            clearUsersTypingEvents
         )
     }
 
@@ -123,6 +128,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
+        coEvery { clearUsersTypingEvents() } returns Unit
     }
 
     fun withSuccessfulOpenAssetMessage(

@@ -40,6 +40,7 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
@@ -176,7 +177,9 @@ internal class NewConversationViewModelArrangement {
             userType = UserType.FEDERATED,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false,
+            supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
 
         val FEDERATED_KNOWN_USER = OtherUser(
@@ -194,7 +197,9 @@ internal class NewConversationViewModelArrangement {
             userType = UserType.FEDERATED,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false,
+            supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
     }
 

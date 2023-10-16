@@ -34,6 +34,7 @@ androidx-paging3Compose = "1.0.0-alpha18"
 androidx-splashscreen = "1.0.1"
 androidx-workManager = "2.8.1"
 androidx-browser = "1.5.0"
+androidx-biometric = "1.1.0"
 
 # Compose
 compose = "1.6.0-alpha07"
@@ -150,6 +151,7 @@ androidx-dataStore = { module = "androidx.datastore:datastore-preferences", vers
 androidx-exifInterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidx-exif" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 androidx-profile-installer = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "androidx-biometric" }
 
 # Dependency Injection
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }

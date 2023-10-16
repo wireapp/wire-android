@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -222,7 +223,9 @@ class OtherUserProfileScreenViewModelTest {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false,
+            supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
         val TEAM = Team("some_id", "name", "icon")
         val CONVERSATION = Conversation(

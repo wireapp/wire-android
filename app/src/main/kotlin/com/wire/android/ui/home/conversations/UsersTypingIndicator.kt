@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
@@ -25,6 +26,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -44,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,7 +65,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 
-const val MAX_PREVIEWS_DISPLAY = 3
+private const val MAX_PREVIEWS_DISPLAY = 3
+private const val ANIMATION_SPEED_MILLIS = 1_500
 
 @Composable
 fun UsersTypingIndicatorForConversation(
@@ -74,18 +78,18 @@ fun UsersTypingIndicatorForConversation(
 
 @Composable
 fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
-    if (usersTyping.isNotEmpty()) {
-        val rememberTransition =
-            rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .height(dimensions().spacing24x)
-                .background(
-                    color = colorsScheme().surface,
-                    shape = RoundedCornerShape(dimensions().corner14x),
-                )
-        ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .height(dimensions().spacing24x)
+            .background(
+                color = colorsScheme().surface,
+                shape = RoundedCornerShape(dimensions().corner14x),
+            )
+    ) {
+        if (usersTyping.isNotEmpty()) {
+            val rememberTransition =
+                rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))
             UsersTypingAvatarPreviews(usersTyping)
             Text(
                 text = pluralStringResource(
@@ -113,20 +117,15 @@ fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
 @Suppress("MagicNumber")
 @Composable
 private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY) {
-    usersTyping.take(maxPreviewsDisplay).forEachIndexed { index, user ->
-        val isSingleUser = usersTyping.size == 1 || maxPreviewsDisplay == 1
-        UserProfileAvatar(
-            avatarData = user.avatarData,
-            size = dimensions().spacing16x,
-            padding = dimensions().spacing2x,
-            showStatusIndicator = false,
-            modifier = if (isSingleUser) Modifier
-            else {
-                Modifier.offset(
-                    x = if (index == 0) dimensions().spacing8x else -(dimensions().spacing6x)
-                )
-            }
-        )
+    Row(horizontalArrangement = Arrangement.spacedBy((-14).dp)) {
+        usersTyping.take(maxPreviewsDisplay).forEach { user ->
+            UserProfileAvatar(
+                avatarData = user.avatarData,
+                size = dimensions().spacing16x,
+                padding = dimensions().spacing2x,
+                showStatusIndicator = false,
+            )
+        }
     }
 }
 
@@ -137,10 +136,20 @@ private fun HorizontalBouncingWritingPen(
 ) {
     Row(modifier = Modifier.fillMaxHeight()) {
         val position by infiniteTransition.animateFloat(
-            initialValue = -5f, targetValue = -1f,
+            initialValue = -10f, targetValue = -2f,
             animationSpec = infiniteRepeatable(
-                animation = tween(1_000, easing = FastOutSlowInEasing),
+                animation = tween(ANIMATION_SPEED_MILLIS, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
+            ),
+            label = infiniteTransition.label
+        )
+
+        val iconAlpha: Float by infiniteTransition.animateFloat(
+            initialValue = 0.1f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = ANIMATION_SPEED_MILLIS, easing = FastOutLinearInEasing),
+                repeatMode = RepeatMode.Reverse,
             ),
             label = infiniteTransition.label
         )
@@ -151,6 +160,7 @@ private fun HorizontalBouncingWritingPen(
             tint = colorsScheme().secondaryText,
             modifier = Modifier
                 .size(dimensions().spacing12x)
+                .alpha(iconAlpha)
                 .offset(y = -dimensions().spacing2x)
                 .align(Alignment.Bottom)
         )
@@ -227,6 +237,21 @@ fun PreviewUsersTypingMoreThanOne() {
                     id = QualifiedID("alice", "wire.com"),
                     name = "Alice Smith",
                     handle = "alice",
+                    isSelf = false,
+                    isService = false,
+                    avatarData = UserAvatarData(),
+                    membership = Membership.None,
+                    connectionState = null,
+                    unavailable = false,
+                    isDeleted = false,
+                    readReceiptDate = null,
+                    botService = null,
+                    isDefederated = false
+                ),
+                UIParticipant(
+                    id = QualifiedID("alice", "wire.com"),
+                    name = "Patty",
+                    handle = "patty",
                     isSelf = false,
                     isService = false,
                     avatarData = UserAvatarData(),

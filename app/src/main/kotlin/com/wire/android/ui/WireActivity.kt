@@ -194,6 +194,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     private fun setUpNavigation(
         navController: NavHostController,

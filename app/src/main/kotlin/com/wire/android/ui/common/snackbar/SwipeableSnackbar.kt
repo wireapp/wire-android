@@ -103,4 +103,4 @@ fun SwipeableSnackbar(
     )
 }
 
-//private enum class SnackBarState { Visible, Dismissed }
+// private enum class SnackBarState { Visible, Dismissed }

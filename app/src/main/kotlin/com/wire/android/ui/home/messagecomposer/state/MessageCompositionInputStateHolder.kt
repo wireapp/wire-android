@@ -182,6 +182,7 @@ class MessageCompositionInputStateHolder(
         return optionsHeight + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) 0.dp else composeTextHeight
     }
 
+    @Suppress("LongParameterList")
     @VisibleForTesting
     fun updateValuesForTesting(
         keyboardHeight: Dp = KeyboardHeight.default,

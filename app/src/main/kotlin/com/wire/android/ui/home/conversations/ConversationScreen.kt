@@ -81,6 +81,7 @@ import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -321,6 +322,13 @@ fun ConversationScreen(
             focusManager.clearFocus(true)
             navigator.navigateBack()
         },
+        onSearchButtonClick = {
+            navigator.navigate(
+                NavigationCommand(
+                    SearchConversationMessagesScreenDestination(conversationMessagesViewModel.conversationId)
+                )
+            )
+        },
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
@@ -493,6 +501,7 @@ private fun ConversationScreen(
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
     onBackButtonClick: () -> Unit,
+    onSearchButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
@@ -559,7 +568,7 @@ private fun ConversationScreen(
                     onBackButtonClick = onBackButtonClick,
                     onDropDownClick = onDropDownClick,
                     isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                    onSearchButtonClick = { },
+                    onSearchButtonClick = onSearchButtonClick,
                     onPhoneButtonClick = onStartCall,
                     hasOngoingCall = conversationCallViewState.hasOngoingCall,
                     onJoinCallButtonClick = onJoinCall,
@@ -883,6 +892,7 @@ fun PreviewConversationScreen() {
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
         onBackButtonClick = {},
+        onSearchButtonClick = {},
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessagesViewModel = hiltViewModel(),

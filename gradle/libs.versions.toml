@@ -34,14 +34,12 @@ androidx-paging3Compose = "1.0.0-alpha18"
 androidx-splashscreen = "1.0.1"
 androidx-workManager = "2.8.1"
 androidx-browser = "1.5.0"
+androidx-biometric = "1.1.0"
 
 # Compose
-compose = "1.6.0-alpha07"
-compose-material = "1.6.0-alpha07"
-compose-activity = "1.7.2"
+composeBom = "2023.10.00" # TODO check if in new version [anchoredDraggable] is available
 compose-compiler = "1.5.2"
 compose-constraint = "1.0.1"
-compose-material3 = "1.2.0-alpha09"
 compose-navigation = "2.6.0"
 compose-destinations = "1.9.40-beta"
 
@@ -150,6 +148,7 @@ androidx-dataStore = { module = "androidx.datastore:datastore-preferences", vers
 androidx-exifInterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidx-exif" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 androidx-profile-installer = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "androidx-biometric" }
 
 # Dependency Injection
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -158,23 +157,26 @@ hilt-navigationCompose = { module = "androidx.hilt:hilt-navigation-compose", ver
 hilt-test = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
-# Compose
-compose-core = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
-compose-material-core = { module = "androidx.compose.material:material", version.ref = "compose-material" }
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose-material" }
-compose-material-ripple = { module = "androidx.compose.material:material-ripple", version.ref = "compose-material" }
-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
-compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
-compose-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-compose-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+# Compose BOM
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-activity = { module = "androidx.activity:activity-compose" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-material-core = { module = "androidx.compose.material:material" }
+compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
+compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-runtime-liveData = { module = "androidx.compose.runtime:runtime-livedata" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+
+# Compose other
 compose-constraintLayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraint" }
-compose-liveData = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "compose" }
-compose-test-junit = {module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
-compose-test-manifest = {module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
-compose-destinations-core ={module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
-compose-destinations-ksp ={module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
+compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
+compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
+compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 
 # Accompanist
 accompanist-systemUI = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }

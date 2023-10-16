@@ -1229,4 +1229,8 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

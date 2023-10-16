@@ -19,7 +19,6 @@
 // import androidx.compose.foundation.gestures.AnchoredDraggableState
 // import androidx.compose.foundation.gestures.DraggableAnchors
 // import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHostState
@@ -104,4 +103,4 @@ fun SwipeableSnackbar(
     )
 }
 
-private enum class SnackBarState { Visible, Dismissed }
+//private enum class SnackBarState { Visible, Dismissed }

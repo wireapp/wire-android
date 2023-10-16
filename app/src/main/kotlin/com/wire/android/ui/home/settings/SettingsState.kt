@@ -14,20 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package com.wire.android.ui.home.settings.privacy
+package com.wire.android.ui.home.settings
 
 import com.wire.android.feature.AppLockConfig
 
-data class PrivacySettingsState(
-    val areReadReceiptsEnabled: Boolean = true,
-    val isTypingIndicatorEnabled: Boolean = true,
-    val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER,
+data class SettingsState(
+    val appLockConfig: AppLockConfig = AppLockConfig.Disabled,
 )
-
-enum class ScreenshotCensoringConfig {
-    DISABLED, ENABLED_BY_USER, ENFORCED_BY_TEAM
-}

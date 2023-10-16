@@ -126,7 +126,10 @@ fun SetLockCodeScreenContent(
                     }
             ) {
                 Text(
-                    text = stringResource(id = R.string.settings_set_lock_screen_description, state.timeout.toTimeLongLabelUiText()),
+                    text = stringResource(
+                        id = R.string.settings_set_lock_screen_description,
+                        state.timeout.toTimeLongLabelUiText().asString()
+                    ),
                     style = MaterialTheme.wireTypography.body01,
                     modifier = Modifier
                         .fillMaxWidth()

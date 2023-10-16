@@ -906,7 +906,6 @@
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
-    <string name="settings_app_lock_description">Lock Wire after %1$s in the background. Unlock with passcode or biometrics.</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
@@ -920,6 +919,9 @@
     <string name="password_validation_uppercase">An uppercase character</string>
     <string name="password_validation_digit">A digit</string>
     <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>

@@ -90,7 +90,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                     addAuthenticatedAccount(
                         serverConfigId = serverConfig.id,
                         ssoId = ssoId,
-                        accountTokens = authTokens,
+                        authTokens = authTokens,
                         null, // users migrated form the scala app will not have proxy
                         replace = false
                     )

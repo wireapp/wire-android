@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations
 
 import SwipeableSnackbar
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -42,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
@@ -62,6 +64,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
@@ -75,6 +78,7 @@ import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
@@ -95,6 +99,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -152,6 +157,7 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
+    conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
@@ -177,6 +183,15 @@ fun ConversationScreen(
         }
     }
     val context = LocalContext.current
+
+    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
+        navigator.navigate(
+            NavigationCommand(
+                ConversationScreenDestination(migratedConversationId),
+                BackStackMode.REMOVE_CURRENT
+            )
+        )
+    }
 
     with(conversationCallViewModel) {
         if (conversationCallViewState.shouldShowJoinAnywayDialog) {
@@ -318,11 +333,7 @@ fun ConversationScreen(
                 }
             }
         },
-        onBackButtonClick = {
-            messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
-            focusManager.clearFocus(true)
-            navigator.navigateBack()
-        },
+        onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
@@ -351,6 +362,7 @@ fun ConversationScreen(
         },
         onTypingEvent = messageComposerViewModel::sendTypingEvent
     )
+    BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
         actions = messageComposerViewModel.deleteMessageHelper
@@ -428,6 +440,16 @@ fun ConversationScreen(
             }
         }
     }
+}
+
+private fun conversationScreenOnBackButtonClick(
+    messageComposerViewModel: MessageComposerViewModel,
+    focusManager: FocusManager,
+    navigator: Navigator
+) {
+    messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
+    focusManager.clearFocus(true)
+    navigator.navigateBack()
 }
 
 @Suppress("LongParameterList")

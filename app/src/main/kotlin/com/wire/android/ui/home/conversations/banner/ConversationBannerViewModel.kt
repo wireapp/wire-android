@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("LongParameterList")
 @HiltViewModel
 class ConversationBannerViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,

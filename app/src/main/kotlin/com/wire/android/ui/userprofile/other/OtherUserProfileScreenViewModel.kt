@@ -366,6 +366,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             groupState = groupInfo,
             botService = otherUser.botService,
             blockingState = otherUser.BlockState,
+            isProteusVerified = otherUser.isProteusVerified,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),

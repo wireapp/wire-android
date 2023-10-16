@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowe
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -312,9 +313,11 @@ class MediaGalleryViewModelTest {
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
                 UserAvailabilityStatus.AVAILABLE,
+                setOf(SupportedProtocol.PROTEUS),
                 null,
                 false,
-                defederated = false
+                defederated = false,
+                isProteusVerified = false
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,

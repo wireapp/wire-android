@@ -14,19 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.appLock
 
-package com.wire.android.ui.home.conversations.details.participants.model
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-data class ConversationParticipantsData(
-    val admins: List<UIParticipant> = listOf(),
-    val participants: List<UIParticipant> = listOf(),
-    val allAdminsCount: Int = 0,
-    val allParticipantsCount: Int = 0,
-    val isSelfAnAdmin: Boolean = false
-) {
-    val allCount: Int = allAdminsCount + allParticipantsCount
-    val allParticipants: List<UIParticipant> = participants + admins
+@HiltViewModel
+class AppUnlockWithBiometricsViewModel @Inject constructor(
+    private val lockCodeTimeManager: LockCodeTimeManager
+) : ViewModel() {
+
+    fun onAppUnlocked() {
+        lockCodeTimeManager.appUnlocked()
+    }
 }

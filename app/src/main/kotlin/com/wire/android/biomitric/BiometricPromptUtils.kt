@@ -27,8 +27,9 @@ import androidx.core.content.ContextCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 
+private const val TAG = "BiometricPromptUtils"
+
 object BiometricPromptUtils {
-    private const val TAG = "BiometricPromptUtils"
     fun createBiometricPrompt(
         activity: AppCompatActivity,
         onSuccess: () -> Unit,
@@ -77,6 +78,8 @@ fun AppCompatActivity.showBiometricPrompt(
     onCancel: () -> Unit,
     onRequestPasscode: () -> Unit
 ) {
+    appLogger.i("$TAG showing biometrics dialog...")
+
     val canAuthenticate = BiometricManager.from(this)
         .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
     if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {

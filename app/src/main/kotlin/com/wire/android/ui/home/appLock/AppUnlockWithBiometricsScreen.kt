@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -48,6 +49,7 @@ import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 @Destination
 @Composable
 fun AppUnlockWithBiometricsScreen(
+    appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel(),
     navigator: Navigator,
 ) {
     Box(
@@ -68,6 +70,7 @@ fun AppUnlockWithBiometricsScreen(
         LaunchedEffect(Unit) {
             (activity as AppCompatActivity).showBiometricPrompt(
                 onSuccess = {
+                    appUnlockWithBiometricsViewModel.onAppUnlocked()
                     navigator.navigateBack()
                 },
                 onCancel = {

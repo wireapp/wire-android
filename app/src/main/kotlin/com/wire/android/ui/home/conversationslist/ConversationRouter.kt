@@ -216,7 +216,6 @@ fun ConversationRouterHomeBridge(
                         isFromArchive = conversationsSource.isArchive(),
                         hasNoConversations = hasNoConversations,
                         onEditConversation = onEditConversationItem,
-                        onOpenConversationNotificationsSettings = onEditNotifications,
                         onOpenConversation = onOpenConversation,
                         onOpenUserProfile = onOpenUserProfile,
                         onJoinedCall = onJoinedCall,
@@ -251,7 +250,6 @@ fun ConversationRouterHomeBridge(
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
-                        onOpenConversationNotificationsSettings = onEditNotifications,
                         onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) },
                         onPermanentPermissionDecline = viewModel::showCallingPermissionDialog
                     )

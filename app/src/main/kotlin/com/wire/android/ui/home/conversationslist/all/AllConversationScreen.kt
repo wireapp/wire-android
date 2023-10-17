@@ -84,7 +84,6 @@ fun AllConversationScreenContent(
     isFromArchive: Boolean = false,
     viewModel: ConversationListViewModel = hiltViewModel(),
     onEditConversation: (ConversationItem) -> Unit,
-    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
     onOpenConversation: (ConversationId) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinedCall: (ConversationId) -> Unit,
@@ -114,7 +113,6 @@ fun AllConversationScreenContent(
             onOpenConversation = onOpenConversation,
             onEditConversation = onEditConversation,
             onOpenUserProfile = onOpenUserProfile,
-            onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
             onJoinCall = {
                 callConversationIdToJoin.value = it
                 viewModel.joinOngoingCall(it, onJoinedCall)
@@ -168,7 +166,6 @@ fun PreviewAllConversationScreen() {
         conversations = persistentMapOf(),
         hasNoConversations = false,
         onEditConversation = {},
-        onOpenConversationNotificationsSettings = {},
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
@@ -183,7 +180,6 @@ fun ConversationListEmptyStateScreenPreview() {
         conversations = persistentMapOf(),
         hasNoConversations = true,
         onEditConversation = {},
-        onOpenConversationNotificationsSettings = {},
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},

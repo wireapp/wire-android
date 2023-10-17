@@ -43,6 +43,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun MutedConversationBadge() {
@@ -69,7 +70,7 @@ fun MutedConversationBadge() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewMutedConversationBadge() {
     MutedConversationBadge()

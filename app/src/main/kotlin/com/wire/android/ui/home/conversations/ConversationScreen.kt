@@ -833,7 +833,7 @@ fun MessageList(
     }
 
     Scaffold(
-        floatingActionButton = { JumpToLastMessageButton() },
+        floatingActionButton = { JumpToLastMessageButton(lazyListState) },
         content = {
             LazyColumn(
                 state = lazyListState,
@@ -895,7 +895,10 @@ fun MessageList(
 }
 
 @Composable
-fun JumpToLastMessageButton() {
+fun JumpToLastMessageButton(
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    lazyListState: LazyListState
+) {
     AnimatedVisibility(
         visible = true, // todo change to dynamic when we have a proper implementation to hide it
         enter = fadeIn(),
@@ -903,7 +906,9 @@ fun JumpToLastMessageButton() {
     ) {
         SmallFloatingActionButton(
             modifier = Modifier.offset(y = dimensions().spacing18x),
-            onClick = { },
+            onClick = {
+                coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+            },
             containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
             contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
             shape = CircleShape,

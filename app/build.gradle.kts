@@ -49,9 +49,9 @@ android {
     // through the Wire Application convention plugin
 
     // Remove protobuf-java as dependencies, so we can get protobuf-lite
-     configurations.implementation.configure {
+    configurations.implementation.configure {
         exclude(module = "protobuf-java")
-     }
+    }
 
     packaging {
         resources.pickFirsts.add("google/protobuf/*.proto")
@@ -96,7 +96,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModelSavedState)
 
     // Compose
-    implementation(libs.compose.core)
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
@@ -105,11 +109,11 @@ dependencies {
     // the only libraries with material2 packages that can be used with material3 are icons and ripple
     implementation(libs.compose.material.icons)
     implementation(libs.compose.material.ripple)
-    implementation(libs.compose.preview)
+    implementation(libs.compose.ui.preview)
     implementation(libs.compose.activity)
     implementation(libs.compose.navigation)
     implementation(libs.compose.constraintLayout)
-    implementation(libs.compose.liveData)
+    implementation(libs.compose.runtime.liveData)
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
 
@@ -124,7 +128,7 @@ dependencies {
     implementation(libs.androidx.profile.installer)
 
     // Compose iterative code, layout inspector, etc.
-    debugImplementation(libs.compose.tooling)
+    debugImplementation(libs.compose.ui.tooling)
 
     // Emoji
     implementation(libs.androidx.emoji.picker)
@@ -177,8 +181,8 @@ dependencies {
     androidTestImplementation(libs.coroutines.test)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.kluent.android)
-    androidTestImplementation(libs.compose.test.junit)
-    debugImplementation(libs.compose.test.manifest)
+    androidTestImplementation(libs.compose.ui.test.junit)
+    debugImplementation(libs.compose.ui.test.manifest)
     androidTestUtil(libs.androidx.test.orchestrator)
 
     // Development dependencies

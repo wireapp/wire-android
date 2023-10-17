@@ -235,7 +235,7 @@ class LoginSSOViewModel @Inject constructor(
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = ssoLoginResult.authTokens,
+                authTokens = ssoLoginResult.accountTokens,
                 ssoId = ssoLoginResult.ssoId,
                 serverConfigId = serverConfigId,
                 proxyCredentials = ssoLoginResult.proxyCredentials,

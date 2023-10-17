@@ -21,11 +21,13 @@
 package com.wire.android.ui.home.conversations
 
 import SwipeableSnackbar
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -60,7 +62,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -82,6 +83,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
@@ -785,6 +787,7 @@ private fun SnackBarMessage(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
@@ -829,61 +832,66 @@ fun MessageList(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        reverseLayout = true,
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-    ) {
-        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
-            uiMessage.header.messageId
-        }) { index, message ->
-            if (message == null) {
-                // We can draw a placeholder here, as we fetch the next page of messages
-                return@itemsIndexed
-            }
-            val showAuthor by remember {
-                mutableStateOf(
-                    AuthorHeaderHelper.shouldShowHeader(
-                        index,
-                        lazyPagingMessages.itemSnapshotList.items,
-                        message
-                    )
-                )
-            }
+    Scaffold(
+        floatingActionButton = { JumpToLastMessageButton() },
+        content = {
+            LazyColumn(
+                state = lazyListState,
+                reverseLayout = true,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .background(color = colorsScheme().backgroundVariant)
+            ) {
+                itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
+                    uiMessage.header.messageId
+                }) { index, message ->
+                    if (message == null) {
+                        // We can draw a placeholder here, as we fetch the next page of messages
+                        return@itemsIndexed
+                    }
+                    val showAuthor by remember {
+                        mutableStateOf(
+                            AuthorHeaderHelper.shouldShowHeader(
+                                index,
+                                lazyPagingMessages.itemSnapshotList.items,
+                                message
+                            )
+                        )
+                    }
 
-            when (message) {
-                is UIMessage.Regular -> {
-                    MessageItem(
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        showAuthor = showAuthor,
-                        audioMessagesState = audioMessagesState,
-                        onAudioClick = onAudioItemClicked,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
-                        onAssetMessageClicked = onAssetItemClicked,
-                        onImageMessageClicked = onImageFullScreenMode,
-                        onOpenProfile = onOpenProfile,
-                        onReactionClicked = onReactionClicked,
-                        onResetSessionClicked = onResetSessionClicked,
-                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onLinkClick = onLinkClick
-                    )
+                    when (message) {
+                        is UIMessage.Regular -> {
+                            MessageItem(
+                                message = message,
+                                conversationDetailsData = conversationDetailsData,
+                                showAuthor = showAuthor,
+                                audioMessagesState = audioMessagesState,
+                                onAudioClick = onAudioItemClicked,
+                                onChangeAudioPosition = onChangeAudioPosition,
+                                onLongClicked = onShowEditingOption,
+                                onAssetMessageClicked = onAssetItemClicked,
+                                onImageMessageClicked = onImageFullScreenMode,
+                                onOpenProfile = onOpenProfile,
+                                onReactionClicked = onReactionClicked,
+                                onResetSessionClicked = onResetSessionClicked,
+                                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                                onLinkClick = onLinkClick
+                            )
+                        }
+
+                        is UIMessage.System -> SystemMessageItem(
+                            message = message,
+                            onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                            onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                            onSelfDeletingMessageRead = onSelfDeletingMessageRead
+                        )
+                    }
                 }
-
-                is UIMessage.System -> SystemMessageItem(
-                    message = message,
-                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                    onSelfDeletingMessageRead = onSelfDeletingMessageRead
-                )
             }
-        }
-    }
+        })
 }
 
 @Composable
@@ -894,9 +902,7 @@ fun JumpToLastMessageButton() {
         exit = fadeOut(),
     ) {
         SmallFloatingActionButton(
-            modifier = Modifier
-                .offset(y = -dimensions().spacing48x)
-                .zIndex(Float.MAX_VALUE),
+            modifier = Modifier.offset(y = dimensions().spacing18x),
             onClick = { },
             containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
             contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,

@@ -17,13 +17,9 @@
  */
 package com.wire.android.ui.home.messagecomposer
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,17 +32,8 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationSource
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,19 +49,16 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Suppress("ComplexMethod")
 @Composable
@@ -129,45 +113,21 @@ fun EnabledMessageComposer(
                     } else {
                         Modifier.weight(1f)
                     }
-                Scaffold(
-                    modifier = expandOrHideMessagesModifier,
-                    floatingActionButton = {
-                        AnimatedVisibility(
-                            visible = messageComposerViewState.value.mentionSearchResult.isEmpty(), // todo change to dynamic when we have a proper implementation to hide it
-                            enter = fadeIn(),
-                            exit = fadeOut(),
-                        ) {
-                            SmallFloatingActionButton(
-                                onClick = { },
-                                containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
-                                contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
-                                shape = CircleShape,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    contentDescription = "Small floating action button.", // todo change later
-                                    Modifier.size(dimensions().spacing32x)
-                                )
+                Box(
+                    modifier = expandOrHideMessagesModifier.background(color = colorsScheme().backgroundVariant)
+                ) {
+                    messageListContent()
+                    if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
+                        MembersMentionList(
+                            membersToMention = messageComposerViewState.value.mentionSearchResult,
+                            searchQuery = messageComposition.value.messageText,
+                            onMentionPicked = { pickedMention ->
+                                messageCompositionHolder.addMention(pickedMention)
+                                onClearMentionSearchResult()
                             }
-                        }
-                    },
-                    content = {
-                        Box(
-                            modifier = Modifier.background(color = colorsScheme().backgroundVariant)
-                        ) {
-                            messageListContent()
-                            if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
-                                MembersMentionList(
-                                    membersToMention = messageComposerViewState.value.mentionSearchResult,
-                                    searchQuery = messageComposition.value.messageText,
-                                    onMentionPicked = { pickedMention ->
-                                        messageCompositionHolder.addMention(pickedMention)
-                                        onClearMentionSearchResult()
-                                    }
-                                )
-                            }
-                        }
-                    })
+                        )
+                    }
+                }
                 val fillRemainingSpaceOrWrapContent =
                     if (!inputStateHolder.isTextExpanded) {
                         Modifier.wrapContentHeight()
@@ -175,8 +135,7 @@ fun EnabledMessageComposer(
                         Modifier.weight(1f)
                     }
                 Column(
-                    modifier = fillRemainingSpaceOrWrapContent
-                        .fillMaxWidth()
+                    modifier = fillRemainingSpaceOrWrapContent.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier

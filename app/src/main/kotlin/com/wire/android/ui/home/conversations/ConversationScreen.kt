@@ -833,7 +833,7 @@ fun MessageList(
     }
 
     Scaffold(
-        floatingActionButton = { JumpToLastMessageButton(lazyListState) },
+        floatingActionButton = { JumpToLastMessageButton(lazyListState = lazyListState) },
         content = {
             LazyColumn(
                 state = lazyListState,

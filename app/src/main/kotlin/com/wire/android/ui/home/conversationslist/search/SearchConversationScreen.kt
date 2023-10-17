@@ -56,7 +56,6 @@ fun SearchConversationScreen(
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
     onPermanentPermissionDecline: () -> Unit
 ) {
@@ -70,7 +69,6 @@ fun SearchConversationScreen(
                 onOpenConversation = onOpenConversation,
                 onEditConversation = onEditConversation,
                 onOpenUserProfile = onOpenUserProfile,
-                onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
                 onJoinCall = onJoinCall,
                 onPermanentPermissionDecline = onPermanentPermissionDecline
             )

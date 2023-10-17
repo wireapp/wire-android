@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -29,6 +30,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -74,6 +76,7 @@ class SetLockScreenViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { globalDataStore.setAppLockPasscode(any()) } returns Unit
+            coEvery { observeAppLockConfigUseCase() } returns flowOf(AppLockConfig.Disabled)
         }
 
         fun withValidPassword() = apply {

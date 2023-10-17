@@ -103,7 +103,6 @@ private fun MentionContent(
                 openConversation = onMentionItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                openNotificationsOptions = openConversationNotificationsSettings,
                 joinCall = {},
                 onPermanentPermissionDecline = {},
                 searchQuery = ""
@@ -119,7 +118,6 @@ private fun MentionContent(
                 openConversation = onMentionItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                openNotificationsOptions = openConversationNotificationsSettings,
                 joinCall = {},
                 onPermanentPermissionDecline = {},
                 searchQuery = ""

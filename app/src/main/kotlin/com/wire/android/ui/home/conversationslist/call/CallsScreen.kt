@@ -103,7 +103,6 @@ fun CallContent(
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                openNotificationsOptions = openConversationNotificationsSettings,
                 joinCall = { },
                 onPermanentPermissionDecline = {},
                 searchQuery = ""
@@ -119,7 +118,6 @@ fun CallContent(
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
-                openNotificationsOptions = openConversationNotificationsSettings,
                 joinCall = { },
                 onPermanentPermissionDecline = {},
                 searchQuery = " "

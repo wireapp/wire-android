@@ -23,14 +23,25 @@ package com.wire.android.ui.home.conversations
 import SwipeableSnackbar
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -49,6 +60,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -76,6 +88,7 @@ import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialo
 import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -110,6 +123,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.ui.UIText
@@ -868,6 +882,31 @@ fun MessageList(
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun JumpToLastMessageButton() {
+    AnimatedVisibility(
+        visible = true, // todo change to dynamic when we have a proper implementation to hide it
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        SmallFloatingActionButton(
+            modifier = Modifier
+                .offset(y = -dimensions().spacing48x)
+                .zIndex(Float.MAX_VALUE),
+            onClick = { },
+            containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
+            contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+            shape = CircleShape,
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Small floating action button.", // todo change later
+                Modifier.size(dimensions().spacing32x)
+            )
         }
     }
 }

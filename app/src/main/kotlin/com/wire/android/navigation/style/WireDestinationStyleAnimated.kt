@@ -22,7 +22,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.spec.DestinationStyleAnimated
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.wire.android.ui.appDestination
 import com.wire.android.ui.destinations.Destination
 
@@ -32,7 +32,7 @@ import com.wire.android.ui.destinations.Destination
  * Thanks to that animations are consistent and not mixed when both destinations involved in the transition use different styles.
  */
 @OptIn(ExperimentalAnimationApi::class)
-internal interface WireDestinationStyleAnimated : DestinationStyleAnimated {
+internal interface WireDestinationStyleAnimated : DestinationStyle.Animated {
     fun animationType(): TransitionAnimationType = TransitionAnimationType.SLIDE
     private fun Destination.getAnimationTypeStyle() =
         (this.style as? WireDestinationStyleAnimated)?.animationType() ?: SlideNavigationAnimation.animationType()

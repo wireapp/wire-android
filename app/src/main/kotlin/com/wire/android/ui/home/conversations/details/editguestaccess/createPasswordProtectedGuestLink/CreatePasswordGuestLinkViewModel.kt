@@ -84,7 +84,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     }
 
     private fun checkIfPasswordIsValidAndConfirmed() {
-        state = if (validatePassword(state.password.text) && state.password.text == state.passwordConfirm.text) {
+        state = if (validatePassword(state.password.text).isValid && state.password.text == state.passwordConfirm.text) {
             state.copy(isPasswordValid = true)
         } else {
             state.copy(isPasswordValid = false)

@@ -36,17 +36,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.settings.SettingsOptionSwitch
+import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -101,7 +99,7 @@ fun GroupConversationOptionsItem(
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 }
-                ConversationOptionSwitch(switchState, trailingOnText)
+                SettingsOptionSwitch(switchState, trailingOnText)
 
                 if (arrowType == ArrowType.TITLE_ALIGNED) {
                     ArrowRight()
@@ -124,39 +122,6 @@ fun GroupConversationOptionsItem(
 }
 
 @Composable
-fun ConversationOptionSwitch(
-    switchState: SwitchState,
-    trailingOnText: String?
-) {
-    if (switchState is SwitchState.Visible) {
-        if (switchState.isOnOffVisible) {
-            HorizontalSpace.x8()
-            Text(
-                text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground
-            )
-        }
-        if (trailingOnText != null) {
-            HorizontalSpace.x2()
-            Text(
-                text = trailingOnText,
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
-            )
-        }
-        HorizontalSpace.x8()
-        if (switchState.isSwitchVisible) {
-            WireSwitch(
-                checked = switchState.value,
-                enabled = switchState is SwitchState.Enabled,
-                onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
-            )
-        }
-    }
-}
-
-@Composable
 private fun ArrowRight() {
     Box(
         modifier = Modifier.padding(
@@ -168,30 +133,6 @@ private fun ArrowRight() {
 
 enum class ArrowType {
     CENTER_ALIGNED, TITLE_ALIGNED, NONE
-}
-
-sealed class SwitchState {
-    object None : SwitchState()
-    sealed class Visible(
-        open val value: Boolean = false,
-        open val isOnOffVisible: Boolean = true,
-        open val isSwitchVisible: Boolean = true
-    ) : SwitchState()
-
-    data class Enabled(
-        override val value: Boolean = false,
-        override val isOnOffVisible: Boolean = true,
-        val onCheckedChange: ((Boolean) -> Unit)?
-    ) : Visible(value = value, isOnOffVisible = isOnOffVisible, isSwitchVisible = true)
-
-    data class Disabled(
-        override val value: Boolean = false,
-        override val isOnOffVisible: Boolean = true
-    ) : Visible(value = value, isOnOffVisible = isOnOffVisible, isSwitchVisible = true)
-
-    data class TextOnly(
-        override val value: Boolean = false,
-    ) : Visible(value = value, isOnOffVisible = true, isSwitchVisible = false)
 }
 
 @Composable

@@ -187,7 +187,7 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete, scope)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleAppLock()
+                        handleAppLock(navigator::navigate)
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -239,7 +239,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleAppLock() {
+    private fun handleAppLock(navigate: (NavigationCommand) -> Unit) {
         LaunchedEffect(Unit) {
             lockCodeTimeManager.isLocked()
                 .filter { it }
@@ -249,13 +249,9 @@ class WireActivity : AppCompatActivity() {
                         .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
 
                     if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                        navigationCommands.emit(
-                            NavigationCommand(AppUnlockWithBiometricsScreenDestination)
-                        )
+                        navigate(NavigationCommand(AppUnlockWithBiometricsScreenDestination, BackStackMode.UPDATE_EXISTED))
                     } else {
-                        navigationCommands.emit(
-                            NavigationCommand(EnterLockCodeScreenDestination)
-                        )
+                        navigate(NavigationCommand(EnterLockCodeScreenDestination, BackStackMode.UPDATE_EXISTED))
                     }
                 }
         }

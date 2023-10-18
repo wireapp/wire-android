@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
@@ -37,12 +39,12 @@ class ObserveAppLockConfigUseCase @Inject constructor(
         }
 }
 
-sealed class AppLockConfig(open val timeoutInSeconds: Int = DEFAULT_TIMEOUT) {
+sealed class AppLockConfig(open val timeout: Duration = DEFAULT_TIMEOUT) {
     data object Disabled : AppLockConfig()
     data object Enabled : AppLockConfig()
-    data class EnforcedByTeam(override val timeoutInSeconds: Int) : AppLockConfig(timeoutInSeconds)
+    data class EnforcedByTeam(override val timeout: Duration) : AppLockConfig(timeout)
 
     companion object {
-        const val DEFAULT_TIMEOUT = 60
+        val DEFAULT_TIMEOUT = 60.seconds
     }
 }

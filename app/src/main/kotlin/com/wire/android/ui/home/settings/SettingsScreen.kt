@@ -30,13 +30,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.feature.AppLockConfig
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
@@ -44,17 +49,27 @@ import com.wire.android.util.extension.folderWithElements
 @HomeNavGraph
 @Destination
 @Composable
-fun SettingsScreen(homeStateHolder: HomeStateHolder) {
+fun SettingsScreen(
+    homeStateHolder: HomeStateHolder,
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
     val lazyListState: LazyListState = rememberLazyListState()
     val context = LocalContext.current
     SettingsScreenContent(
         lazyListState = lazyListState,
+        settingsState = viewModel.state,
         onItemClicked = remember {
             {
                 it.direction.handleNavigation(
                     context = context,
                     handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
                 )
+            }
+        },
+        onAppLockSwitchChanged = remember {
+            { isChecked ->
+                if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
+                else viewModel.disableAppLock()
             }
         }
     )
@@ -63,10 +78,13 @@ fun SettingsScreen(homeStateHolder: HomeStateHolder) {
 @Composable
 fun SettingsScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
-    onItemClicked: (SettingsItem) -> Unit
+    settingsState: SettingsState,
+    onItemClicked: (SettingsItem.DirectionItem) -> Unit,
+    onAppLockSwitchChanged: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
+    val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
 
     with(featureVisibilityFlags) {
         LazyColumn(
@@ -93,6 +111,13 @@ fun SettingsScreenContent(
                         add(SettingsItem.AppSettings)
                     }
                     add(SettingsItem.NetworkSettings)
+                    add(SettingsItem.AppLock(
+                        when (settingsState.appLockConfig) {
+                            AppLockConfig.Disabled -> SwitchState.Enabled(false, true, onAppLockSwitchChanged)
+                            AppLockConfig.Enabled -> SwitchState.Enabled(true, true) { turnAppLockOffDialogState.show(Unit) }
+                            is AppLockConfig.EnforcedByTeam -> SwitchState.TextOnly(true)
+                        }
+                    ))
                 },
                 onItemClicked = onItemClicked
             )
@@ -113,12 +138,14 @@ fun SettingsScreenContent(
             )
         }
     }
+
+    TurnAppLockOffDialog(dialogState = turnAppLockOffDialogState) { onAppLockSwitchChanged(false) }
 }
 
 private fun LazyListScope.folderWithElements(
     header: String,
     items: List<SettingsItem>,
-    onItemClicked: (SettingsItem) -> Unit
+    onItemClicked: (SettingsItem.DirectionItem) -> Unit
 ) {
     folderWithElements(
         header = header.uppercase(),
@@ -126,9 +153,13 @@ private fun LazyListScope.folderWithElements(
     ) { settingsItem ->
         SettingsItem(
             text = settingsItem.title.asString(),
-            onRowPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } },
-            onIconPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } },
-            trailingIcon = R.drawable.ic_arrow_right,
+            switchState = (settingsItem as? SettingsItem.SwitchItem)?.switchState ?: SwitchState.None,
+            onRowPressed = remember {
+                Clickable(enabled = settingsItem is SettingsItem.DirectionItem) {
+                    (settingsItem as? SettingsItem.DirectionItem)?.let(onItemClicked)
+                }
+            },
+            trailingIcon = if (settingsItem is SettingsItem.DirectionItem) R.drawable.ic_arrow_right else null,
         )
     }
 }
@@ -136,5 +167,5 @@ private fun LazyListScope.folderWithElements(
 @Preview(showBackground = false)
 @Composable
 fun PreviewSettingsScreen() {
-    SettingsScreenContent {}
+    SettingsScreenContent(rememberLazyListState(), SettingsState(), {}, {})
 }

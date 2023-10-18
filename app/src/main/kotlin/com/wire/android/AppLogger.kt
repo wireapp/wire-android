@@ -15,17 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.feature.AppLockConfig
-import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
-import kotlin.time.Duration
+import com.wire.kalium.logger.KaliumLogLevel
+import com.wire.kalium.logger.KaliumLogger
 
-data class SetLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
-    val timeout: Duration = AppLockConfig.DEFAULT_TIMEOUT,
-    val done: Boolean = false
-)
+private var appLoggerConfig = KaliumLogger.Config.disabled()
+// App wide global logger, carefully initialized when our application is "onCreate"
+internal var appLogger = KaliumLogger.disabled()
+object AppLogger {
+    fun init(config: KaliumLogger.Config) {
+        appLoggerConfig = config
+        appLogger = KaliumLogger(config = config, tag = "WireAppLogger")
+    }
+    fun setLogLevel(level: KaliumLogLevel) {
+        appLoggerConfig.setLogLevel(level)
+    }
+}

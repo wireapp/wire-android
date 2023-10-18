@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
@@ -40,6 +41,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 )
 @Composable
 fun SearchConversationMessagesScreen(
+    navigator: Navigator,
     searchConversationMessagesViewModel: SearchConversationMessagesViewModel = hiltViewModel()
 ) {
     val searchBarState = rememberSearchBarConversationMessagesState()
@@ -49,7 +51,12 @@ fun SearchConversationMessagesScreen(
             topBarHeader = { },
             topBarCollapsing = {
                 val onInputClicked: () -> Unit = remember { { searchBarState.openSearch() } }
-                val onCloseSearchClicked: () -> Unit = remember { { searchBarState.closeSearch() } }
+                val onCloseSearchClicked: () -> Unit = remember {
+                    {
+                        searchBarState.closeSearch()
+                        navigator.navigateBack()
+                    }
+                }
 
                 SearchTopBar(
                     isSearchActive = searchBarState.isSearchActive,

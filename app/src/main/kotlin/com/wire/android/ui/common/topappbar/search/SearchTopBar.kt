@@ -86,7 +86,10 @@ fun SearchTopBar(
             text = searchQuery,
             onTextTyped = onSearchQueryChanged,
             leadingIcon = {
-                AnimatedContent(!isSearchActive) { isVisible ->
+                AnimatedContent(
+                    targetState = !isSearchActive,
+                    label = "SearchTopBar"
+                ) { isVisible ->
                     IconButton(onClick = {
                         if (!isVisible) {
                             onCloseSearchClicked()

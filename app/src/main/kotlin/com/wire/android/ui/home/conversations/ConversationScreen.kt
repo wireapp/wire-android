@@ -25,8 +25,8 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -900,15 +900,13 @@ fun JumpToLastMessageButton(
     lazyListState: LazyListState
 ) {
     AnimatedVisibility(
-        visible = true, // todo change to dynamic when we have a proper implementation to hide it
-        enter = fadeIn(),
-        exit = fadeOut(),
+        visible = lazyListState.firstVisibleItemIndex > 0,
+        enter = expandIn { it },
+        exit = shrinkOut { it }
     ) {
         SmallFloatingActionButton(
             modifier = Modifier.offset(y = dimensions().spacing18x),
-            onClick = {
-                coroutineScope.launch { lazyListState.animateScrollToItem(0) }
-            },
+            onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
             containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
             contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
             shape = CircleShape,

@@ -882,15 +882,22 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
-    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Set a passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
     <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">I tuoi Dispositivi</string>
     <string name="current_device_label">Dispositivo corrente</string>
@@ -1201,4 +1208,8 @@ registrato. Sei pregato di riprovare.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

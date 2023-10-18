@@ -380,7 +380,7 @@
     <string name="asset_message_tap_to_download_text">බාගැනීමට ඔබන්න</string>
     <string name="asset_message_upload_in_progress_text">උඩුගත වෙමින්…</string>
     <string name="asset_message_download_in_progress_text">බාගත වෙමින්…</string>
-    <string name="asset_message_downloaded_internally_text">Tap to view</string>
+    <string name="asset_message_downloaded_internally_text">දැකීමට ඔබන්න</string>
     <string name="asset_message_saved_externally_text">සුරැකිණි</string>
     <string name="asset_message_failed_download_text">ගොනුව නොතිබේ</string>
     <string name="asset_message_failed_upload_text">ගොනුව උඩුගත නොවිණි</string>
@@ -566,7 +566,7 @@
     <string name="label_system_message_deactivated">අක්‍රියයි</string>
     <string name="label_system_message_conversation_history_lost">ඔබ යම් කාලයක් මෙම උපාංගය භාවිත කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">MLS සමූහ යතුර අපගේ අනුදැනුමකින් තොරව යාවත්කාලීන වී ඇත. සේවාදායක අතර අහිමි වූ පණිවිඩ හෝ දෝෂයක් නිසා මෙය සිදු වීමට හැකිය. අපි ස්වයංක්‍රීයව නැවත සංවාදයට එක් වී ඇත, නමුත් ඔබගේ පණිවිඩ නැති වී තිබීමට ඉඩ ඇත.</string>
-    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">ඔබ නිසි කලට යෙදුම යාවත්කාල කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
@@ -875,15 +875,22 @@
     <string name="settings_show_typing_indicator_title">ලිවීමේ දර්ශකය</string>
     <string name="settings_show_typing_indicator_description">මෙය අක්‍රිය නම්, ඔබට වෙනත් පුද්ගලයින් ලියන විට දැකීමට නොහැකි අතර, ඔබ ලියන විට ද අන් අයට නොපෙනේ. මෙම සැකසුම උපාංගයේ සියළුම සංවාද සඳහා අදාළ වේ.</string>
     <string name="settings_app_lock_title">මුරකේතයකින් අගුළුලන්න</string>
-    <string name="settings_app_lock_description">පසුබිමේ තත්පර %1$s කට පසු වයර් අගුළු ලන්න. මුරකේතය හෝ වමිතික මගින් අගුළු හරින්න.</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">මුරකේතයක් සකසන්න</string>
-    <string name="settings_set_lock_screen_description">නිශ්චිත නිෂ්ක්‍රියත්‍වයකින් පසුව යෙදුමට අගුළු වැටෙනු ඇත. යෙදුම අගුළු හැරීමට මෙම මුරකේතය යෙදිමට සිදු වේ. මෙය ප්‍රතිසාධනයට ක්‍රමයක් නැති බැවින් මතක තබා ගැනීමට වග බලා ගන්න.</string>
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">මුර කේතය</string>
     <string name="settings_set_lock_screen_continue_button_label">මුරකේතයක් සකසන්න</string>
     <string name="settings_enter_lock_screen_title">වයර් අගුළු හැරීමට මුරකේතය යොදන්න</string>
     <string name="settings_enter_lock_screen_unlock_button_label">අනවහිර</string>
     <string name="settings_enter_lock_screen_wrong_passcode_label">වැරදි මුරකේතයකි</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">ඔබගේ උපාංග</string>
     <string name="current_device_label">වත්මන් උපාංගය</string>
@@ -1187,4 +1194,8 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">මුරපදය පසුරු පුවරුවට පිටපත් විය</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">කුඩා සහ ලොකු අකුරක් ද, අංකයක් ද, විශේෂ අකුරක් ද සහිතව අවම වශයෙන් අකුරු 8 ක් යොදා ගන්න.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">නව මුරපදයක් උත්පාදනය විය</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">වයර් අගුළු හැරීමට</string>
+    <string name="biometrics_use_passcode_button">මුරකේතය භාවිතා කරන්න</string>
 </resources>

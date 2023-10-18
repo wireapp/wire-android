@@ -177,7 +177,7 @@
     <string name="vault_screen_title">Trezor</string>
     <string name="archive_screen_title">Arhiva</string>
     <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
-    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
+    <string name="archive_screen_empty_state_description">Kako bi vaš popis razgovora bio uredan, premjestite nekorištene razgovore ovdje. Kasnije ih uvijek možete dearhivirati.</string>
     <string name="user_profile_screen_title">Korisnički profil</string>
     <string name="settings_screen_title">Postavke</string>
     <string name="app_settings_screen_title">Postavke aplikacije</string>
@@ -204,10 +204,10 @@
     <string name="welcome_footer_link">Stvorite privatni račun besplatno</string>
     <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
     <string name="welcome_screen_carousel_item_message_1">Dobrodošli u Wire, najsigurniju platformu za suradnju!</string>
-    <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
+    <string name="welcome_screen_carousel_item_message_2">Apsolutno povjerenje da su vaši podaci\u00A0sigurni</string>
     <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
-    <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
+    <string name="welcome_screen_carousel_item_message_4">Sigurno dijeljenje datoteka s timovima i\u00A0klijentima</string>
+    <string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
@@ -292,11 +292,11 @@
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
     <string name="label_delete_for_me">Izbriši za mene</string>
     <string name="label_delete_for_everyone">Izbriši za sve</string>
-    <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
-    <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
+    <string name="delete_message_for_yourself_dialog_title">Želite li izbrisati ovu poruku za sebe?</string>
+    <string name="delete_message_for_yourself_dialog_message">Ako izbrišete poruku za sebe, ona će biti vidljiva samo drugim sudionicima.\n\nIzbrisana poruka se ne može vratiti.</string>
     <string name="deleted_message_text">Izbrisana poruka</string>
     <!-- Replies/Quotes to other messages -->
-    <string name="label_quote_invalid_or_not_found">You can not see this message</string>
+    <string name="label_quote_invalid_or_not_found">Ovu poruku ne možete vidjeti</string>
     <string name="label_quote_original_message_is_a_picture">Slika</string>
     <string name="label_quote_original_message_date">Originalna poruka od %s</string>
     <!-- Create Account -->
@@ -895,15 +895,22 @@
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
-    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Set a passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
     <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -1217,4 +1224,8 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

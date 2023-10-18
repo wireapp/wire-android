@@ -123,7 +123,8 @@ fun EnabledMessageComposer(
                         Modifier.weight(1f)
                     }
                 Box(
-                    modifier = expandOrHideMessagesModifier.background(color = colorsScheme().backgroundVariant)
+                    modifier = expandOrHideMessagesModifier
+                        .background(color = colorsScheme().backgroundVariant)
                 ) {
                     messageListContent()
                     if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
@@ -144,7 +145,8 @@ fun EnabledMessageComposer(
                         Modifier.weight(1f)
                     }
                 Column(
-                    modifier = fillRemainingSpaceOrWrapContent.fillMaxWidth()
+                    modifier = fillRemainingSpaceOrWrapContent
+                        .fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier

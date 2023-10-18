@@ -66,7 +66,7 @@ class CreateAccountDetailsViewModel @Inject constructor(
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
-                !validatePasswordUseCase(detailsState.password.text) ->
+                !validatePasswordUseCase(detailsState.password.text).isValid ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
 
                 detailsState.password.text != detailsState.confirmPassword.text ->

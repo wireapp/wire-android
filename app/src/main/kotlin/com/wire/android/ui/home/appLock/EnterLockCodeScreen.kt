@@ -28,15 +28,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
@@ -46,16 +51,18 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import java.util.Locale
 
 @RootNavGraph
@@ -94,19 +101,14 @@ fun EnterLockCodeScreenContent(
         onBackPress()
     }
 
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPress,
-            elevation = dimensions().spacing0x,
-            title = stringResource(id = R.string.settings_enter_lock_screen_title)
-        )
-    }) { internalPadding ->
+    WireScaffold { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
             Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .weight(weight = 1f, fill = true)
                     .verticalScroll(scrollState)
@@ -115,11 +117,27 @@ fun EnterLockCodeScreenContent(
                         testTagsAsResourceId = true
                     }
             ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
+                )
+
+                Text(
+                    text = stringResource(id = R.string.settings_enter_lock_screen_title),
+                    style = MaterialTheme.wireTypography.title02,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(
+                        top = MaterialTheme.wireDimensions.spacing32x,
+                        bottom = MaterialTheme.wireDimensions.spacing56x
+                    )
+                )
+
                 WirePasswordTextField(
                     value = state.password,
                     onValueChange = onPasswordChanged,
                     labelMandatoryIcon = true,
-                    descriptionText = stringResource(R.string.create_account_details_password_description),
                     imeAction = ImeAction.Done,
                     modifier = Modifier
                         .testTag("password"),
@@ -171,6 +189,21 @@ private fun ContinueButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("continue_button")
+        )
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewEnterLockCodeScreen() {
+    WireTheme(isPreview = true) {
+        EnterLockCodeScreenContent(
+            navigator = rememberNavigator {},
+            state = EnterLockCodeViewState(),
+            scrollState = rememberScrollState(),
+            onPasswordChanged = {},
+            onBackPress = {},
+            onContinue = {}
         )
     }
 }

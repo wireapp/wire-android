@@ -26,8 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
@@ -54,8 +52,6 @@ class PrivacySettingsViewModel @Inject constructor(
     private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase,
     private val persistTypingIndicatorStatusConfig: PersistTypingIndicatorStatusConfigUseCase,
     private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase,
-    private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
-    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
     var state by mutableStateOf(PrivacySettingsState())
@@ -67,8 +63,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 observeReadReceiptsEnabled(),
                 observeTypingIndicatorEnabled(),
                 observeScreenshotCensoringConfig(),
-                observeAppLockConfigUseCase(),
-            ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, appLockConfig ->
+            ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig ->
                 PrivacySettingsState(
                     areReadReceiptsEnabled = readReceiptsEnabled,
                     isTypingIndicatorEnabled = typingIndicatorEnabled,
@@ -82,7 +77,6 @@ class PrivacySettingsViewModel @Inject constructor(
                         ObserveScreenshotCensoringConfigResult.Enabled.EnforcedByTeamSelfDeletingSettings ->
                             ScreenshotCensoringConfig.ENFORCED_BY_TEAM
                     },
-                    appLockConfig = appLockConfig
                 )
             }.collect { state = it }
         }
@@ -133,12 +127,6 @@ class PrivacySettingsViewModel @Inject constructor(
                     appLogger.d("Screenshot censoring config changed")
                 }
             }
-        }
-    }
-
-    fun disableAppLock() {
-        viewModelScope.launch {
-            globalDataStore.clearAppLockPasscode()
         }
     }
 }

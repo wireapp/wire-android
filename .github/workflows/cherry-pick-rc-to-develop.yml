@@ -135,6 +135,7 @@ jobs:
             - name: Create PR
               if: env.shouldCherryPick == 'true'
               env:
+                  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BRANCH: ${{ env.newBranchName }}
                   PR_ASSIGNEE: ${{ github.event.pull_request.user.login }}

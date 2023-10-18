@@ -913,7 +913,7 @@ fun JumpToLastMessageButton(
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Small floating action button.", // todo change later
+                contentDescription = stringResource(id = R.string.content_description_jump_to_last_message),
                 Modifier.size(dimensions().spacing32x)
             )
         }

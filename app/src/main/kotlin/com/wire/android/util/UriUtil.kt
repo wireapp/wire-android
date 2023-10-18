@@ -30,6 +30,7 @@ fun containsSchema(url: String): Boolean {
 }
 
 fun normalizeLink(url: String): String {
+<<<<<<< HEAD
     val sanitizedUrl = sanitizeUrl(url)
     return if (containsSchema(sanitizedUrl)) {
         sanitizedUrl
@@ -59,5 +60,11 @@ fun sanitizeUrl(url: String): String {
         // Handle any exceptions that might occur during the processing
         appLogger.w("Error sanitizing URL: $url", e)
         return url // Return the original URL if any errors occur
+=======
+    return if (containsSchema(url)) {
+        url
+    } else {
+        "https://$url"
+>>>>>>> 6bcec870d (LAST_COMMIT_MESSAGE)
     }
 }

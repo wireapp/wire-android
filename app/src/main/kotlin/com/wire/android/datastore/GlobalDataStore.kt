@@ -136,6 +136,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
 
+    // returns a flow with decoded passcode
     @Suppress("TooGenericExceptionCaught")
     fun getAppLockPasscodeFlow(): Flow<String?> =
         context.dataStore.data.map {
@@ -148,6 +149,12 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             }
         }
 
+    // returns a flow only informing whether the passcode is set, without the need to decode it
+    fun isAppLockPasscodeSetFlow(): Flow<Boolean> =
+        context.dataStore.data.map {
+            it.contains(APP_LOCK_PASSCODE)
+        }
+
     suspend fun clearAppLockPasscode() {
         context.dataStore.edit {
             it.remove(APP_LOCK_PASSCODE)
@@ -158,7 +165,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setAppLockPasscode(passcode: String) {
         context.dataStore.edit {
             try {
-                it[APP_LOCK_PASSCODE] = EncryptionManager.encrypt(APP_LOCK_PASSCODE.name, passcode)
+                val encrypted = EncryptionManager.encrypt(APP_LOCK_PASSCODE.name, passcode)
+                it[APP_LOCK_PASSCODE] = encrypted
             } catch (e: Exception) {
                 it.remove(APP_LOCK_PASSCODE)
             }

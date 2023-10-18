@@ -61,10 +61,12 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -100,6 +102,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -292,8 +295,26 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
-    @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToArchive(conversationId: ConversationId?) {
+    override fun onMoveConversationToArchive(dialogState: DialogState) {
+        viewModelScope.launch {
+            val shouldArchive = !dialogState.isArchived
+            requestInProgress = true
+            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(dialogState.conversationId, shouldArchive) }
+            requestInProgress = false
+            when (result) {
+                ArchiveStatusUpdateResult.Failure -> {
+                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationError(shouldArchive))
+                }
+
+                ArchiveStatusUpdateResult.Success -> {
+                    closeBottomSheetAndShowInfoMessage(
+                        OtherUserProfileInfoMessageType.ArchiveConversationSuccess(
+                            shouldArchive
+                        )
+                    )
+                }
+            }
+        }
     }
 
     override fun onClearConversationContent(dialogState: DialogState) {
@@ -345,6 +366,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             groupState = groupInfo,
             botService = otherUser.botService,
             blockingState = otherUser.BlockState,
+            isProteusVerified = otherUser.isProteusVerified,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),
@@ -356,7 +378,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         otherUser.BlockState
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversation.archived
                 )
             }
         )

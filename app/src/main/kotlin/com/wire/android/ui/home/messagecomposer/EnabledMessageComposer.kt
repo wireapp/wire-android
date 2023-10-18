@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationSource
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -39,21 +41,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun EnabledMessageComposer(
@@ -62,6 +68,7 @@ fun EnabledMessageComposer(
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
+    onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
@@ -74,17 +81,28 @@ fun EnabledMessageComposer(
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
+    val isKeyboardMoving = isKeyboardMoving()
+    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
+    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
         LaunchedEffect(offsetY) {
-            inputStateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
+            with(density) {
+                inputStateHolder.handleOffsetChange(
+                    offsetY.toDp(),
+                    navBarHeight,
+                    imeAnimationSource.toDp(),
+                    imeAnimationTarget.toDp()
+                )
+            }
         }
 
         LaunchedEffect(isImeVisible) {
             inputStateHolder.handleIMEVisibility(isImeVisible)
         }
+
         LaunchedEffect(modalBottomSheetState.isVisible) {
             if (modalBottomSheetState.isVisible) {
                 messageCompositionInputStateHolder.clearFocus()
@@ -130,6 +148,15 @@ fun EnabledMessageComposer(
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .background(color = colorsScheme().backgroundVariant)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        UsersTypingIndicatorForConversation(conversationId = conversationId)
+                    }
+
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
                             conversationId = conversationId
@@ -154,7 +181,8 @@ fun EnabledMessageComposer(
                                     messageCompositionHolder.setMessageText(
                                         messageTextFieldValue = it,
                                         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult = onClearMentionSearchResult
+                                        onClearMentionSearchResult = onClearMentionSearchResult,
+                                        onTypingEvent = onTypingEvent
                                     )
                                 },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -204,7 +232,8 @@ fun EnabledMessageComposer(
                                 onMentionButtonClicked = {
                                     messageCompositionHolder.startMention(
                                         onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult
+                                        onClearMentionSearchResult,
+                                        onTypingEvent
                                     )
                                 },
                                 onOnSelfDeletingOptionClicked = {
@@ -214,10 +243,13 @@ fun EnabledMessageComposer(
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                 onPingOptionClicked = onPingOptionClicked,
                                 onAdditionalOptionsMenuClicked = {
-                                    if (inputStateHolder.subOptionsVisible) {
-                                        messageCompositionInputStateHolder.toComposing()
-                                    } else {
-                                        showAdditionalOptionsMenu()
+                                    if (!isKeyboardMoving) {
+                                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
+                                            additionalOptionStateHolder.hideAdditionalOptionsMenu()
+                                            messageCompositionInputStateHolder.toComposing()
+                                        } else {
+                                            showAdditionalOptionsMenu()
+                                        }
                                     }
                                 },
                                 onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,
@@ -258,4 +290,14 @@ fun EnabledMessageComposer(
             }
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun isKeyboardMoving(): Boolean {
+    val density = LocalDensity.current
+    val isImeVisible = WindowInsets.isImeVisible
+    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
+    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
+    return isImeVisible && imeAnimationSource != imeAnimationTarget
 }

@@ -98,16 +98,14 @@ fun GroupCallGrid(
 
             ParticipantTile(
                 modifier = Modifier
-                    .pointerInput(isSelfUserCameraOn, isSelfUserMuted) {
+                    .pointerInput(Unit) {
                         detectTapGestures(
                             onDoubleTap = {
                                 onDoubleTap(
                                     SelectedParticipant(
                                         userId = participant.id,
                                         clientId = participant.clientId,
-                                        isSelfUser = isSelfUser,
-                                        isSelfUserCameraOn = isSelfUserCameraOn,
-                                        isSelfUserMuted = isSelfUserMuted
+                                        isSelfUser = isSelfUser
                                     )
                                 )
                             }

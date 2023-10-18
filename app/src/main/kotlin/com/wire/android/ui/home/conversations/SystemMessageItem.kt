@@ -244,6 +244,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.ConversationDegraded -> null
+        is SystemMessage.ConversationVerified -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
         is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
         is SystemMessage.MemberAdded,
@@ -255,7 +256,9 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.TeamMemberRemoved,
         is SystemMessage.ConversationReceiptModeChanged,
         is SystemMessage.HistoryLost,
+        is SystemMessage.HistoryLostProtocolChanged,
         is SystemMessage.NewConversationReceiptMode,
+        is SystemMessage.ConversationProtocolChanged,
         is SystemMessage.ConversationMessageTimerActivated,
         is SystemMessage.ConversationMessageCreated,
         is SystemMessage.ConversationStartedWithMembers,
@@ -359,7 +362,7 @@ fun PreviewSystemMessageKnock() {
     WireTheme {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
-                messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+                messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"), true)
             )
         )
     }
@@ -481,6 +484,8 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationReceiptModeChanged -> false
         is SystemMessage.Knock -> false
         is SystemMessage.HistoryLost -> false
+        is SystemMessage.HistoryLostProtocolChanged -> false
+        is SystemMessage.ConversationProtocolChanged -> false
         is SystemMessage.ConversationMessageTimerActivated -> false
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
@@ -488,6 +493,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberFailedToAdd -> this.usersCount > SINGLE_EXPANDABLE_THRESHOLD
         is SystemMessage.ConversationDegraded -> false
+        is SystemMessage.ConversationVerified -> false
         is SystemMessage.FederationStopped -> false
     }
 
@@ -552,6 +558,9 @@ fun SystemMessage.annotatedString(
         is SystemMessage.HistoryLost -> arrayOf()
         is SystemMessage.MLSWrongEpochWarning -> arrayOf()
         is SystemMessage.ConversationDegraded -> arrayOf()
+        is SystemMessage.ConversationVerified -> arrayOf()
+        is SystemMessage.HistoryLostProtocolChanged -> arrayOf()
+        is SystemMessage.ConversationProtocolChanged -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
             author.asString(res),
             selfDeletionDuration.longLabel.asString(res)

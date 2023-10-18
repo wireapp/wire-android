@@ -15,24 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.snackbar
+package com.wire.android
 
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import com.wire.android.util.ui.UIText
-import kotlinx.coroutines.flow.SharedFlow
+import com.wire.kalium.logger.KaliumLogLevel
+import com.wire.kalium.logger.KaliumLogger
 
-@Composable
-fun SnackbarHostState.collectAndShowSnackbar(
-    snackbarFlow: SharedFlow<UIText>
-) {
-    val localContext = LocalContext.current
-
-    LaunchedEffect(snackbarFlow) {
-        snackbarFlow.collect {
-            showSnackbar(it.asString(localContext.resources))
-        }
+private var appLoggerConfig = KaliumLogger.Config.disabled()
+// App wide global logger, carefully initialized when our application is "onCreate"
+internal var appLogger = KaliumLogger.disabled()
+object AppLogger {
+    fun init(config: KaliumLogger.Config) {
+        appLoggerConfig = config
+        appLogger = KaliumLogger(config = config, tag = "WireAppLogger")
+    }
+    fun setLogLevel(level: KaliumLogLevel) {
+        appLoggerConfig.setLogLevel(level)
     }
 }

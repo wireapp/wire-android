@@ -27,6 +27,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.EMPTY
@@ -38,15 +39,11 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.client.Client
-import com.wire.kalium.logic.data.client.ClientType
-import com.wire.kalium.logic.data.client.DeviceType
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthTokens
+import com.wire.kalium.logic.feature.auth.AccountTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -69,7 +66,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -80,7 +76,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.IOException
-import org.mockito.Mockito.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -511,21 +506,9 @@ class LoginSSOViewModelTest {
     }
 
     companion object {
-        val CLIENT_ID = ClientId("test")
-        val CLIENT = Client(
-            CLIENT_ID,
-            ClientType.Permanent,
-            Instant.DISTANT_FUTURE,
-            Instant.DISTANT_PAST,
-            false,
-            isValid = true,
-            DeviceType.Desktop,
-            "label",
-            null,
-            null
-        )
+        val CLIENT = TestClient.CLIENT
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
-        val AUTH_TOKEN = AuthTokens(
+        val AUTH_TOKEN = AccountTokens(
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",
             refreshToken = "refresh_token",

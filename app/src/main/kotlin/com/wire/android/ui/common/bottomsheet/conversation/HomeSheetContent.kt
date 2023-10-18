@@ -23,8 +23,8 @@ package com.wire.android.ui.common.bottomsheet.conversation
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,10 +58,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
 // TODO(profile): enable when implemented
-//
 //    addConversationToFavourites: () -> Unit,
 //    moveConversationToFolder: () -> Unit,
-//    moveConversationToArchive: () -> Unit,
+    updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
@@ -93,7 +92,7 @@ internal fun ConversationMainSheetContent(
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            if (conversationSheetContent.canEditNotifications()) {
+            if (conversationSheetContent.canEditNotifications() && !conversationSheetContent.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
@@ -135,18 +134,34 @@ internal fun ConversationMainSheetContent(
 //                    onItemClick = moveConversationToFolder
 //                )
 //            }
-//            add {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_archive,
-//                            contentDescription = stringResource(R.string.content_description_move_to_archive),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_move_to_archive),
-//                    onItemClick = moveConversationToArchive
-//                )
-//            }
+            add {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_archive,
+                            contentDescription = stringResource(
+                                if (conversationSheetContent.isArchived) R.string.content_description_unarchive
+                                else R.string.content_description_move_to_archive
+                            ),
+                        )
+                    },
+                    title = stringResource(
+                        if (!conversationSheetContent.isArchived) R.string.label_move_to_archive
+                        else R.string.label_unarchive
+                    ),
+                    onItemClick = {
+                        with(conversationSheetContent) {
+                            updateConversationArchiveStatus(
+                                DialogState(
+                                    conversationId,
+                                    title,
+                                    conversationTypeDetail,
+                                    isArchived
+                                )
+                            )
+                        }
+                    })
+            }
             add {
                 MenuBottomSheetItem(
                     icon = {
@@ -161,7 +176,8 @@ internal fun ConversationMainSheetContent(
                             DialogState(
                                 conversationSheetContent.conversationId,
                                 conversationSheetContent.title,
-                                conversationSheetContent.conversationTypeDetail
+                                conversationSheetContent.conversationTypeDetail,
+                                conversationSheetContent.isArchived
                             )
                         )
                     }

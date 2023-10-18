@@ -14,14 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home
+package com.wire.android.ui.home.drawer
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,25 +39,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversationslist.common.UnreadMessageEventBadge
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun HomeDrawer(
+    homeDrawerState: HomeDrawerState,
     currentRoute: String?,
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .padding(
@@ -83,16 +84,18 @@ fun HomeDrawer(
             onCloseDrawer()
         }
 
-        val topItems = listOf(HomeDestination.Conversations)
-        // TODO: Re-enable once we have Archive & Vault
-        // listOf(HomeDestination.Conversations, HomeDestination.Archive, HomeDestination.Vault)
-        topItems.forEach { item ->
-            DrawerItem(
-                destination = item,
-                selected = currentRoute == item.direction.route,
-                onItemClick = remember { { navigateAndCloseDrawer(item) } }
-            )
-        }
+        DrawerItem(
+            destination = HomeDestination.Conversations,
+            selected = currentRoute == HomeDestination.Conversations.direction.route,
+            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Conversations) } }
+        )
+
+        DrawerItem(
+            destination = HomeDestination.Archive,
+            unreadCount = homeDrawerState.unreadArchiveConversationsCount,
+            selected = currentRoute == HomeDestination.Archive.direction.route,
+            onItemClick = remember { { navigateAndCloseDrawer(HomeDestination.Archive) } }
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -108,7 +111,7 @@ fun HomeDrawer(
 }
 
 @Composable
-fun DrawerItem(destination: HomeDestination, selected: Boolean, onItemClick: () -> Unit) {
+fun DrawerItem(destination: HomeDestination, selected: Boolean, unreadCount: Int = 0, onItemClick: () -> Unit) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     Row(
@@ -131,9 +134,39 @@ fun DrawerItem(destination: HomeDestination, selected: Boolean, onItemClick: () 
         Text(
             style = MaterialTheme.wireTypography.button02,
             text = stringResource(id = destination.title),
+            textAlign = TextAlign.Start,
             color = contentColor,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
+                .weight(1F)
+        )
+        UnreadMessageEventBadge(unreadMessageCount = unreadCount)
+        HorizontalSpace.x12()
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSelectedArchivedItemWithUnreadCount() {
+    Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+        DrawerItem(
+            destination = HomeDestination.Archive,
+            selected = true,
+            unreadCount = 100,
+            {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUnSelectedArchivedItemWithUnreadCount() {
+    Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+        DrawerItem(
+            destination = HomeDestination.Archive,
+            selected = false,
+            unreadCount = 100,
+            {}
         )
     }
 }

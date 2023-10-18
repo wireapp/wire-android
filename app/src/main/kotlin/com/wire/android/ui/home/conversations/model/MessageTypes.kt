@@ -233,20 +233,23 @@ internal fun MessageGenericAsset(
  * @param resources: Resources - To be able to get String out of UIText message
  * @return Pair<List<DisplayMention>, String>
  */
-private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
+fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
     return if (uiText is UIText.DynamicString) {
         val stringBuilder: StringBuilder = StringBuilder(uiText.value)
-        val mentions = uiText.mentions.sortedBy { it.start }.reversed()
-        val mentionList = mentions.mapNotNull {
+        val mentions = uiText.mentions
+            .filter { it.start >= 0 && it.length > 0 }
+            .sortedBy { it.start }
+            .reversed()
+        val mentionList = mentions.mapNotNull { mention ->
             // secured crash for mentions caused by web when text without mentions contains mention data
-            if (it.start + it.length <= uiText.value.length && uiText.value.elementAt(it.start) == '@') {
-                val mentionName = uiText.value.substring(it.start, it.start + it.length)
-                stringBuilder.insert(it.start + it.length, MENTION_MARK)
-                stringBuilder.insert(it.start, MENTION_MARK)
+            if (mention.start + mention.length <= uiText.value.length && uiText.value.elementAt(mention.start) == '@') {
+                val mentionName = uiText.value.substring(mention.start, mention.start + mention.length)
+                stringBuilder.insert(mention.start + mention.length, MENTION_MARK)
+                stringBuilder.insert(mention.start, MENTION_MARK)
                 DisplayMention(
-                    it.userId,
-                    it.length,
-                    it.isSelfMention,
+                    mention.userId,
+                    mention.length,
+                    mention.isSelfMention,
                     mentionName
                 )
             } else {

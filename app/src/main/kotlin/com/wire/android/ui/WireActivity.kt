@@ -29,6 +29,7 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
@@ -63,9 +64,12 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -78,8 +82,8 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
@@ -91,6 +95,8 @@ import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
@@ -108,6 +114,9 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
+    @Inject
+    lateinit var lockCodeTimeManager: LockCodeTimeManager
+
     private val viewModel: WireActivityViewModel by viewModels()
 
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
@@ -121,7 +130,6 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         viewModel.observePersistentConnectionStatus()
@@ -179,6 +187,7 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete, scope)
                         isLoaded = true
                         handleScreenshotCensoring()
+                        handleAppLock()
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -226,6 +235,29 @@ class WireActivity : AppCompatActivity() {
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
+        }
+    }
+
+    @Composable
+    private fun handleAppLock() {
+        LaunchedEffect(Unit) {
+            lockCodeTimeManager.isLocked()
+                .filter { it }
+                .collectLatest {
+                    val canAuthenticateWithBiometrics = BiometricManager
+                        .from(this@WireActivity)
+                        .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+
+                    if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
+                        navigationCommands.emit(
+                            NavigationCommand(AppUnlockWithBiometricsScreenDestination)
+                        )
+                    } else {
+                        navigationCommands.emit(
+                            NavigationCommand(EnterLockCodeScreenDestination)
+                        )
+                    }
+                }
         }
     }
 

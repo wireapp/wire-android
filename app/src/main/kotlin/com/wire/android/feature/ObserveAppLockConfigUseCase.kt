@@ -18,21 +18,21 @@
 package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@ViewModelScoped
+@Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
 ) {
 
     operator fun invoke(): Flow<AppLockConfig> =
-        globalDataStore.getAppLockPasscodeFlow().map { // TODO: include checking if any logged account does not enforce app-lock
+        globalDataStore.isAppLockPasscodeSetFlow().map { // TODO: include checking if any logged account does not enforce app-lock
             when {
-                it.isNullOrEmpty() -> AppLockConfig.Disabled
-                else -> AppLockConfig.Enabled
+                it -> AppLockConfig.Enabled
+                else -> AppLockConfig.Disabled
             }
         }
 }

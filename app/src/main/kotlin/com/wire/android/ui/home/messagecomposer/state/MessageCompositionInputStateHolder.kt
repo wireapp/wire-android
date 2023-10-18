@@ -64,6 +64,9 @@ class MessageCompositionInputStateHolder(
     var isTextExpanded by mutableStateOf(false)
         private set
 
+    var initialKeyboardHeight by mutableStateOf(0.dp)
+        private set
+
     var previousOffset by mutableStateOf(0.dp)
         private set
 
@@ -90,10 +93,17 @@ class MessageCompositionInputStateHolder(
         }
     }
 
-    fun handleOffsetChange(offset: Dp, navBarHeight: Dp) {
+    fun handleOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
         val actualOffset = max(offset - navBarHeight, 0.dp)
 
+        // this check secures that if some additional space will be added to keyboard
+        // like gifs search it will save initial keyboard height
+        if (source == target && source > 0.dp && initialKeyboardHeight == 0.dp) {
+            initialKeyboardHeight = source - navBarHeight
+        }
+
         if (previousOffset < actualOffset) {
+            optionsVisible = true
             if (!subOptionsVisible || optionsHeight <= actualOffset) {
                 optionsHeight = actualOffset
                 subOptionsVisible = false
@@ -150,7 +160,12 @@ class MessageCompositionInputStateHolder(
     fun showOptions() {
         optionsVisible = true
         subOptionsVisible = true
-        optionsHeight = keyboardHeight
+        if (initialKeyboardHeight > 0.dp) {
+            optionsHeight = initialKeyboardHeight
+        } else {
+            optionsHeight = keyboardHeight
+        }
+        clearFocus()
     }
 
     fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState) {
@@ -167,6 +182,7 @@ class MessageCompositionInputStateHolder(
         return optionsHeight + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) 0.dp else composeTextHeight
     }
 
+    @Suppress("LongParameterList")
     @VisibleForTesting
     fun updateValuesForTesting(
         keyboardHeight: Dp = KeyboardHeight.default,
@@ -174,12 +190,14 @@ class MessageCompositionInputStateHolder(
         showSubOptions: Boolean = false,
         optionsHeight: Dp = 0.dp,
         showOptions: Boolean = false,
+        initialKeyboardHeight: Dp = 0.dp
     ) {
         this.keyboardHeight = keyboardHeight
         this.previousOffset = previousOffset
         this.subOptionsVisible = showSubOptions
         this.optionsHeight = optionsHeight
         this.optionsVisible = showOptions
+        this.initialKeyboardHeight = initialKeyboardHeight
     }
 
     companion object {

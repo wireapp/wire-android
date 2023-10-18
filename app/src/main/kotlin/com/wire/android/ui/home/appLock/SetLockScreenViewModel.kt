@@ -24,16 +24,19 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class SetLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     var state: SetLockCodeViewState by mutableStateOf(SetLockCodeViewState())
@@ -56,15 +59,19 @@ class SetLockScreenViewModel @Inject constructor(
     }
 
     fun onContinue() {
-        viewModelScope.launch {
-            state = state.copy(continueEnabled = false)
-            // the continue button is enabled iff the password is valid
-            // this check is for safety only
-            state = if (!validatePassword(state.password.text)) {
-                state.copy(isPasswordValid = false)
-            } else {
-                globalDataStore.setAppLockPasscode(state.password.text.sha256())
-                state.copy(done = true)
+        state = state.copy(continueEnabled = false)
+        // the continue button is enabled iff the password is valid
+        // this check is for safety only
+        if (!validatePassword(state.password.text)) {
+            state = state.copy(isPasswordValid = false)
+        } else {
+            viewModelScope.launch {
+                withContext(dispatchers.io()) {
+                    globalDataStore.setAppLockPasscode(state.password.text.sha256())
+                }
+                withContext(dispatchers.main()) {
+                    state = state.copy(done = true)
+                }
             }
         }
     }

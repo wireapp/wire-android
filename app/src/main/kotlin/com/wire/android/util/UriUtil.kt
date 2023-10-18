@@ -17,8 +17,9 @@
  */
 package com.wire.android.util
 
+import com.wire.android.appLogger
+import java.net.IDN
 import java.net.URI
-import java.net.URLDecoder
 
 fun containsSchema(url: String): Boolean {
     return try {
@@ -29,11 +30,34 @@ fun containsSchema(url: String): Boolean {
 }
 
 fun normalizeLink(url: String): String {
-    val normalizedUrl = URLDecoder.decode(url, "UTF-8") // Decode URL to human-readable format
-
-    return if (containsSchema(normalizedUrl)) {
-        normalizedUrl
+    val sanitizedUrl = sanitizeUrl(url)
+    return if (containsSchema(sanitizedUrl)) {
+        sanitizedUrl
     } else {
-        "https://$normalizedUrl"
+        "https://$sanitizedUrl"
+    }
+}
+
+@Suppress("TooGenericExceptionCaught")
+fun sanitizeUrl(url: String): String {
+    try {
+        val urlComponents = url.split("://", limit = 2)
+        val scheme = urlComponents[0] // Extract the URL scheme (e.g., "http")
+        val restOfUrl = urlComponents[1] // Extract the rest of the URL
+
+        // Split the rest of the URL by '/' to isolate the domain
+        val domainAndPath = restOfUrl.split("/")
+        val domain = domainAndPath[0] // Extract the domain
+
+        // Use IDN.toASCII to convert the domain to ASCII representation
+        val asciiDomain = IDN.toASCII(domain)
+
+        // Reconstruct the sanitized URL
+        return "$scheme://$asciiDomain" +
+                if (domainAndPath.size > 1) "/" + domainAndPath.subList(1, domainAndPath.size).joinToString("/") else ""
+    } catch (e: Exception) {
+        // Handle any exceptions that might occur during the processing
+        appLogger.w("Error sanitizing URL: $url", e)
+        return url // Return the original URL if any errors occur
     }
 }

@@ -192,7 +192,7 @@ private fun QuotedMessageContent(
             )
             .border(
                 width = 1.dp,
-                color = MaterialTheme.wireColorScheme.divider,
+                color = MaterialTheme.wireColorScheme.outline,
                 shape = quoteOutlineShape
             )
             .padding(dimensions().spacing4x)
@@ -254,7 +254,7 @@ private fun QuotedMessageTopRow(
             )
         }
         senderName?.let {
-            Text(text = senderName, style = typography().label02, color = colorsScheme().secondaryText)
+            Text(text = senderName, style = typography().label02, color = colorsScheme().onSurfaceVariant)
         }
     }
 }
@@ -381,7 +381,7 @@ private fun QuotedImage(
                 )
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.divider,
+                    color = MaterialTheme.wireColorScheme.outline,
                     shape = quoteOutlineShape
                 )
                 .padding(dimensions().spacing4x)
@@ -434,7 +434,7 @@ private fun AutosizeContainer(
                 }.clip(RoundedCornerShape(dimensions().spacing8x))
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                    color = MaterialTheme.wireColorScheme.outline,
                     shape = RoundedCornerShape(dimensions().spacing8x)
                 ),
             alignment = Alignment.Center,
@@ -482,7 +482,7 @@ private fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Norma
         style = typography().subline01,
         maxLines = TEXT_QUOTE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
-        color = colorsScheme().secondaryText,
+        color = colorsScheme().onSurfaceVariant,
         fontStyle = fontStyle
     )
 }

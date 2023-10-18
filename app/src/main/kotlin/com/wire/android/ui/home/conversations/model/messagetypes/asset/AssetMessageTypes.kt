@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,7 +79,7 @@ internal fun MessageAsset(
         modifier = Modifier
             .padding(top = dimensions().spacing4x)
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
+                color = MaterialTheme.wireColorScheme.surfaceVariant,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
@@ -299,21 +298,6 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, asse
                 assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
-        )
-
-        assetUploadStatus == Message.UploadStatus.FAILED_UPLOAD -> {}
-        assetDownloadStatus == Message.DownloadStatus.SAVED_INTERNALLY -> Icon(
-            painter = painterResource(id = R.drawable.ic_download),
-            contentDescription = stringResource(R.string.content_description_download_icon),
-            modifier = Modifier.size(dimensions().wireIconButtonSize),
-            tint = MaterialTheme.wireColorScheme.secondaryText
-        )
-
-        assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY -> Icon(
-            painter = painterResource(id = R.drawable.ic_check_tick),
-            contentDescription = stringResource(R.string.content_description_check),
-            modifier = Modifier.size(dimensions().wireIconButtonSize),
-            tint = MaterialTheme.wireColorScheme.secondaryText
         )
 
         else -> {}

@@ -63,11 +63,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import com.wire.kalium.logic.feature.conversation.ConversationProtocol
 
 @Composable
 fun ConversationScreenTopAppBar(
@@ -134,20 +133,7 @@ private fun ConversationScreenTopAppBarContent(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (conversationInfoViewState.verificationStatus?.status == ConversationVerificationStatus.VERIFIED) {
-                    val (iconId, contentDescriptionId) = when (conversationInfoViewState.verificationStatus.protocol) {
-                        ConversationProtocol.MLS ->
-                            R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
-
-                        ConversationProtocol.PROTEUS ->
-                            R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
-                    }
-                    Image(
-                        modifier = Modifier.padding(start = dimensions().spacing4x),
-                        painter = painterResource(id = iconId),
-                        contentDescription = stringResource(contentDescriptionId)
-                    )
-                }
+                VerificationIcon(conversationInfoViewState.protocolInfo, conversationInfoViewState.verificationStatus)
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -191,6 +177,24 @@ private fun ConversationScreenTopAppBarContent(
             actionIconContentColor = MaterialTheme.colorScheme.onBackground,
             navigationIconContentColor = MaterialTheme.colorScheme.onBackground
         )
+    )
+}
+
+@Composable
+private fun VerificationIcon(protocolInfo: Conversation.ProtocolInfo?, verificationStatus: Conversation.VerificationStatus?) {
+    if (verificationStatus != Conversation.VerificationStatus.VERIFIED || protocolInfo == null) return
+
+    val (iconId, contentDescriptionId) = when (protocolInfo) {
+        is Conversation.ProtocolInfo.MLS ->
+            R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
+
+        is Conversation.ProtocolInfo.Proteus, is Conversation.ProtocolInfo.Mixed ->
+            R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
+    }
+    Image(
+        modifier = Modifier.padding(start = dimensions().spacing4x),
+        painter = painterResource(id = iconId),
+        contentDescription = stringResource(contentDescriptionId)
     )
 }
 

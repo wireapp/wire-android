@@ -90,7 +90,6 @@ fun AttachmentButton(
             text = text,
             maxLines = 2,
             textAlign = TextAlign.Center,
-            overflow = TextOverflow.Ellipsis,
             style = labelStyle,
             color = MaterialTheme.wireColorScheme.onBackground,
         )

@@ -1,3 +1,25 @@
+# GitHub Action: Cherry-pick from `release/candidate` to `TARGET_BRANCH`
+#
+# This action automates the process of cherry-picking merged PRs from `release/candidate` branch to `TARGET_BRANCH`.
+# It is triggered whenever a pull request is merged into `release/candidate`.
+#
+# The action performs the following steps:
+# 1. Checkout the merged PR.
+# 2. If changes are made outside the specified submodule or no submodule is specified, the action proceeds.
+# 3. If a submodule name is provided in the `SUBMODULE_NAME` environment variable:
+#    a. The action creates a temporary branch.
+#    b. Updates the submodule to its latest version from `develop`.
+#    c. Commits the submodule updates.
+# 4. Squashes the commit with the commit message of the merged PR (if a submodule was updated).
+# 5. Cherry-picks the squashed (or original if no squashing occurred) commit to a new branch based on `develop`.
+# 6. If any conflicts arise during the cherry-pick, they are committed.
+# 7. The branch with the cherry-picked changes is pushed.
+# 8. A new pull request is created against `develop` with the cherry-picked changes.
+#
+# Note: Ensure you add a "cherry-pick" label to your project. This label is required for the creation of cherry-picked PRs.
+# If needed, you can also set the `TARGET_BRANCH` environment variable to specify a different target branch for the cherry-pick.
+# By default, it's set to `develop`.
+
 name: "Cherry-pick from rc to develop"
 
 on:
@@ -6,6 +28,11 @@ on:
             - release/candidate
         types:
             - closed
+
+env:
+
+    TARGET_BRANCH: develop
+    SUBMODULE_NAME: kalium
 
 jobs:
     cherry-pick:
@@ -17,9 +44,10 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  submodules: recursive
 
             - name: Append -cherry-pick to branch name
               id: extract
@@ -29,40 +57,87 @@ jobs:
                   echo "New branch name: $NEW_BRANCH_NAME"
                   echo "newBranchName=$NEW_BRANCH_NAME" >> $GITHUB_ENV
 
-            - name: Check if changes only in kalium submodule
+            - name: Check for changes excluding submodule
               id: check_changes
               run: |
-                  NUM_CHANGES=$(git diff origin/develop --name-only | grep -v '^kalium/' | wc -l)
-                  if [ "$NUM_CHANGES" -gt 0 ]; then
-                    echo "::set-output name=shouldCherryPick::true"
+                  if [[ -n "${{ env.SUBMODULE_NAME }}" ]]; then
+                    # If SUBMODULE_NAME is set
+                    NUM_CHANGES=$(git diff origin/${{ env.TARGET_BRANCH }} --name-only | grep -v "^${{ env.SUBMODULE_NAME }}/" | wc -l)
                   else
-                    echo "No changes outside of kalium submodule, skipping cherry-pick"
-                    echo "::set-output name=shouldCherryPick::false"
+                    # If SUBMODULE_NAME is not set
+                    NUM_CHANGES=$(git diff origin/${{ env.TARGET_BRANCH }} --name-only | wc -l)
+                  fi
+                  if [ "$NUM_CHANGES" -gt 0 ]; then
+                       echo "shouldCherryPick=true" >> $GITHUB_ENV
+                  else
+                    if [[ -n "${{ env.SUBMODULE_NAME }}" ]]; then
+                      echo "No changes outside of ${{ env.SUBMODULE_NAME }} submodule, skipping cherry-pick"
+                    else
+                      echo "No changes detected, skipping cherry-pick"
+                    fi
+                    echo "shouldCherryPick=false" >> $GITHUB_ENV
                   fi
 
             - uses: fregante/setup-git-user@v2
 
-            - name: Cherry-pick commits
-              id: cherry
-              if: steps.check_changes.outputs.shouldCherryPick == 'true'
+            - name: Update submodule
+              if: env.SUBMODULE_NAME && env.shouldCherryPick == 'true'
               run: |
-                  git fetch origin develop:develop
-                  git checkout -b ${{ env.newBranchName }} develop
-                  # Cherry-picking the last commit on the base branch
-                  OUTPUT=$(git cherry-pick ${{ github.event.pull_request.merge_commit_sha }} --strategy-option theirs || true)
-                  CONFLICTS=$(echo "$OUTPUT" | grep 'CONFLICT' || echo "")
-                  if [ -n "$CONFLICTS" ]; then
-                      git add .
-                      git cherry-pick --continue || true
+                  set -x
+                  # Create a temporary branch and get the last commit message
+                  git checkout -b temp-branch-for-cherry-pick
+                  LAST_COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.event.pull_request.merge_commit_sha }})
+                  cd ${{ env.SUBMODULE_NAME }}
+                  git checkout ${{ env.TARGET_BRANCH }}
+                  git pull origin ${{ env.TARGET_BRANCH }}
+                  cd ..
+                  git add ${{ env.SUBMODULE_NAME }}
+                  git commit -m "Update submodule ${{ env.SUBMODULE_NAME }} to latest from ${{ env.TARGET_BRANCH }}"
+                  echo "lastCommitMessage=LAST_COMMIT_MESSAGE" >> $GITHUB_ENV
+
+            - name: Get Cherry-pick commit
+              id: get-cherry
+              if: env.shouldCherryPick == 'true'
+              run: |
+                  if [[ -n "${{ env.SUBMODULE_NAME }}" ]]; then
+                    # If SUBMODULE_NAME is set
+                    git reset --soft HEAD~2
+                    git commit -m "${{ env.lastCommitMessage }}"
                   fi
+                  
+                  # Get the SHA of the current commit (either squashed or not based on the condition above)
+                  CHERRY_PICK_COMMIT=$(git rev-parse HEAD)
+                  echo "cherryPickCommit=$CHERRY_PICK_COMMIT" >> $GITHUB_ENV
+
+            - name: Cherry-pick commits
+              id: commit-cherry-pick
+              if: env.shouldCherryPick == 'true'
+              run: |
+                  # Checkout the desired branch and cherry-pick the commit  
+                  git checkout ${{ env.TARGET_BRANCH }}
+                  git checkout -b ${{ env.newBranchName }}
+                  OUTPUT=$(git cherry-pick ${{ env.cherryPickCommit }} || true)
+                  
+                  # Handle conflicts
+                  CONFLICTED_FILES=$(git diff --name-only --diff-filter=U)
+                  if [[ "$OUTPUT" == *"CONFLICT"* ]]; then
+                      # Commit the remaining conflicts
+                      git commit -am "Commit with unresolved merge conflicts outside of ${{ env.SUBMODULE_NAME }}"
+                  fi
+                  
+                  # Push branch and remove temp
                   git push origin ${{ env.newBranchName }} || (echo "Failed to push to origin" && exit 1)
-                  echo "conflicts=$CONFLICTS" >> $GITHUB_ENV
+                  echo "conflictedFiles=$CONFLICTED_FILES" >> $GITHUB_ENV
+                  if [[ -n "${{ env.SUBMODULE_NAME }}" ]]; then
+                  git branch -D temp-branch-for-cherry-pick
+                  fi
 
             - name: Create PR
-              if: steps.check_changes.outputs.shouldCherryPick == 'true'
+              if: env.shouldCherryPick == 'true'
               env:
+                  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BRANCH: ${{ env.newBranchName }}
                   PR_ASSIGNEE: ${{ github.event.pull_request.user.login }}
-                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n---- \n\n ⚠️ Conflicts during cherry-pick:\n{1}\n\n{2}', github.event.pull_request.number, env.conflicts, github.event.pull_request.body) }}"
-              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base develop --head "$PR_BRANCH" --label "cherry-pick" --assignee "$PR_ASSIGNEE"
+                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n---- \n\n ⚠️ Conflicts during cherry-pick:\n{1}\n\n{2}', github.event.pull_request.number, env.conflictedFiles, github.event.pull_request.body) }}"
+              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base ${{ env.TARGET_BRANCH }} --head "$PR_BRANCH" --label "cherry-pick" --assignee "$PR_ASSIGNEE"

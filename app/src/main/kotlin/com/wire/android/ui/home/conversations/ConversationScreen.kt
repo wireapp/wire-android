@@ -335,13 +335,6 @@ fun ConversationScreen(
             }
         },
         onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
-        onSearchButtonClick = {
-            navigator.navigate(
-                NavigationCommand(
-                    SearchConversationMessagesScreenDestination(conversationMessagesViewModel.conversationId)
-                )
-            )
-        },
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
@@ -526,7 +519,6 @@ private fun ConversationScreen(
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
     onBackButtonClick: () -> Unit,
-    onSearchButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
@@ -594,7 +586,7 @@ private fun ConversationScreen(
                     onBackButtonClick = onBackButtonClick,
                     onDropDownClick = onDropDownClick,
                     isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                    onSearchButtonClick = onSearchButtonClick,
+                    onSearchButtonClick = { },
                     onPhoneButtonClick = onStartCall,
                     hasOngoingCall = conversationCallViewState.hasOngoingCall,
                     onJoinCallButtonClick = onJoinCall,
@@ -921,7 +913,6 @@ fun PreviewConversationScreen() {
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
         onBackButtonClick = {},
-        onSearchButtonClick = {},
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessagesViewModel = hiltViewModel(),

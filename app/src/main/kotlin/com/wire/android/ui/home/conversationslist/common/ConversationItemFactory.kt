@@ -63,7 +63,6 @@ fun ConversationItemFactory(
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
-    openNotificationsOptions: (ConversationItem) -> Unit,
     joinCall: (ConversationId) -> Unit,
     onPermanentPermissionDecline: () -> Unit
 ) {
@@ -109,9 +108,6 @@ fun ConversationItemFactory(
             }
         },
         onConversationItemClick = onConversationItemClick,
-        onMutedIconClick = {
-            openNotificationsOptions(conversation)
-        },
         onJoinCallClick = {
             joinCall(conversation.conversationId)
         },
@@ -128,7 +124,6 @@ private fun GeneralConversationItem(
     isSelectable: Boolean,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
-    onMutedIconClick: () -> Unit,
     onJoinCallClick: () -> Unit,
     onPermanentPermissionDecline: () -> Unit
 ) {
@@ -174,7 +169,7 @@ private fun GeneralConversationItem(
                                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                                 ) {
                                     if (mutedStatus != MutedConversationStatus.AllAllowed) {
-                                        MutedConversationBadge(onMutedIconClick)
+                                        MutedConversationBadge()
                                     }
                                     EventBadgeFactory(eventType = conversation.badgeEventType)
                                 }
@@ -213,7 +208,7 @@ private fun GeneralConversationItem(
                                 horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
                             ) {
                                 if (mutedStatus != MutedConversationStatus.AllAllowed) {
-                                    MutedConversationBadge(onMutedIconClick)
+                                    MutedConversationBadge()
                                 }
                                 EventBadgeFactory(eventType = conversation.badgeEventType)
                             }
@@ -268,7 +263,7 @@ fun PreviewGroupConversationItemWithUnreadCount() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {},
     )
 }
 
@@ -293,7 +288,7 @@ fun PreviewGroupConversationItemWithNoBadges() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {},
     )
 }
 
@@ -318,7 +313,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {},
     )
 }
 
@@ -344,7 +339,7 @@ fun PreviewGroupConversationItemWithOngoingCall() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {},
     )
 }
 
@@ -363,7 +358,7 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -382,7 +377,7 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -407,6 +402,6 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
         searchQuery = "",
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }

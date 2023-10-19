@@ -29,6 +29,7 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
@@ -63,8 +64,10 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ProximitySensorManager
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -81,7 +84,6 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
@@ -128,7 +130,6 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         viewModel.observePersistentConnectionStatus()
@@ -186,7 +187,7 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete, scope)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleAppLock()
+                        handleAppLock(navigator::navigate)
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -238,12 +239,20 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleAppLock() {
+    private fun handleAppLock(navigate: (NavigationCommand) -> Unit) {
         LaunchedEffect(Unit) {
-            lockCodeTimeManager.shouldLock()
+            lockCodeTimeManager.isLocked()
                 .filter { it }
                 .collectLatest {
-                    navigationCommands.emit(NavigationCommand(EnterLockCodeScreenDestination))
+                    val canAuthenticateWithBiometrics = BiometricManager
+                        .from(this@WireActivity)
+                        .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+
+                    if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
+                        navigate(NavigationCommand(AppUnlockWithBiometricsScreenDestination, BackStackMode.UPDATE_EXISTED))
+                    } else {
+                        navigate(NavigationCommand(EnterLockCodeScreenDestination, BackStackMode.UPDATE_EXISTED))
+                    }
                 }
         }
     }

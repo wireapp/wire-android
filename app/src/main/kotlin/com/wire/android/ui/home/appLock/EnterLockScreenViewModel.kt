@@ -38,6 +38,7 @@ class EnterLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
+    private val lockCodeTimeManager: LockCodeTimeManager,
 ) : ViewModel() {
 
     var state: EnterLockCodeViewState by mutableStateOf(EnterLockCodeViewState())
@@ -48,7 +49,7 @@ class EnterLockScreenViewModel @Inject constructor(
             error = EnterLockCodeError.None,
             password = password
         )
-        state = if (validatePassword(password.text)) {
+        state = if (validatePassword(password.text).isValid) {
             state.copy(
                 continueEnabled = true,
                 isUnlockEnabled = true
@@ -64,13 +65,14 @@ class EnterLockScreenViewModel @Inject constructor(
         state = state.copy(continueEnabled = false)
         // the continue button is enabled iff the password is valid
         // this check is for safety only
-        if (!validatePassword(state.password.text)) {
+        if (!validatePassword(state.password.text).isValid) {
             state = state.copy(isUnlockEnabled = false)
         } else {
             viewModelScope.launch {
                 val storedPasscode = withContext(dispatchers.io()) { globalDataStore.getAppLockPasscodeFlow().firstOrNull() }
                 withContext(dispatchers.main()) {
                     state = if (storedPasscode == state.password.text.sha256()) {
+                        lockCodeTimeManager.appUnlocked()
                         state.copy(done = true)
                     } else {
                         state.copy(error = EnterLockCodeError.InvalidValue)

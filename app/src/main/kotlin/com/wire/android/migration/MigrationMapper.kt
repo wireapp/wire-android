@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -204,7 +205,8 @@ class MigrationMapper @Inject constructor() {
                 connectionStatus = ConnectionState.ACCEPTED,
                 previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
                 completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
-                availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability)
+                availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
+                supportedProtocols = setOf(SupportedProtocol.PROTEUS)
             )
         } else {
             val botService =
@@ -233,7 +235,8 @@ class MigrationMapper @Inject constructor() {
                 botService = botService,
                 deleted = scalaUserData.deleted,
                 defederated = false,
-                isProteusVerified = false
+                isProteusVerified = false,
+                supportedProtocols = setOf(SupportedProtocol.PROTEUS)
             )
         }
 }

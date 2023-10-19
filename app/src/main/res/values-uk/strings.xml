@@ -24,16 +24,16 @@
     <string name="label_new">Новий</string>
     <string name="label_login">Логін</string>
     <string name="label_ok">OK</string>
-    <string name="label_open">Open</string>
+    <string name="label_open">Вiдкрити</string>
     <string name="label_cancel">Скасувати</string>
     <string name="label_confirm">Підтвердити</string>
     <string name="label_continue">Продовжити</string>
     <string name="label_apply">Apply</string>
-    <string name="label_save">Save</string>
+    <string name="label_save">Зберегти</string>
     <string name="label_get_started">Почати роботу</string>
     <string name="label_remove">Видалити</string>
-    <string name="label_proceed">Proceed</string>
-    <string name="label_leave">Leave</string>
+    <string name="label_proceed">Продовжити</string>
+    <string name="label_leave">Вийти</string>
     <string name="label_add_device">Додати пристрій</string>
     <string name="label_learn_more">Дізнатися більше</string>
     <string name="label_removing">Видалення...</string>
@@ -50,6 +50,7 @@
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
@@ -66,7 +67,7 @@
     <string name="label_update">Оновити</string>
     <string name="label_close">Закрити</string>
     <string name="label_download">Завантажити</string>
-    <string name="label_open_asset_externally">Open</string>
+    <string name="label_open_asset_externally">Вiдкрити</string>
     <string name="label_show">Показати</string>
     <string name="label_show_all">Розгорнути</string>
     <string name="label_show_less">Згорнути</string>
@@ -78,10 +79,10 @@
     <string name="label_value_copied">%s скопійовано</string>
     <string name="label_disable">Вимкнути</string>
     <string name="folder_label_access">Access</string>
-    <string name="folder_label_protocol_details">Protocol details (beta)</string>
+    <string name="folder_label_protocol_details">Детальний опис протоколу (beta)</string>
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blocked</string>
-    <string name="label_and">and</string>
+    <string name="label_and">і</string>
     <string name="label_retry">Retry</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Логотип додатка</string>
@@ -89,16 +90,17 @@
     <string name="content_description_hide_password">Приховати пароль</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Видалити вміст</string>
-    <string name="content_description_user_avatar">Profile picture</string>
+    <string name="content_description_user_avatar">Картинка для профілю</string>
     <string name="content_description_muted_conversation">Вимкнена бесіда</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Завантажити значок</string>
     <string name="content_description_open_asset_icon">Open icon</string>
-    <string name="content_description_add_to_favourite">Add to Favorites</string>
+    <string name="content_description_add_to_favourite">Додати до вподобань</string>
     <string name="content_description_move_to_folder">Перемістити в папку</string>
     <string name="content_description_move_to_archive">Перемістити в архів</string>
-    <string name="content_description_block_the_user">Block</string>
-    <string name="content_description_unblock_the_user">Unblock</string>
+    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_block_the_user">Заблокувати</string>
+    <string name="content_description_unblock_the_user">Розблокувати</string>
     <string name="content_description_leave_the_group">Покинути групу</string>
     <string name="content_description_delete_the_group">Delete the group</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
@@ -110,7 +112,7 @@
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
-    <string name="content_description_conversation_mention_someone">Mention someone</string>
+    <string name="content_description_conversation_mention_someone">Згадати когось</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
@@ -136,7 +138,7 @@
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
-    <string name="content_description_ping_everyone">Ping</string>
+    <string name="content_description_ping_everyone">Пінг</string>
     <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
@@ -154,12 +156,12 @@
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_ping_message">Ping message</string>
-    <string name="content_description_copy">Copy</string>
-    <string name="content_description_edit">Edit</string>
+    <string name="content_description_copy">Скопіювати</string>
+    <string name="content_description_edit">Редагувати</string>
     <string name="content_description_calling_call_muted">Call Muted</string>
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
-    <string name="content_description_more_emojis">More emojis</string>
+    <string name="content_description_more_emojis">Більше емодзі</string>
     <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <string name="content_description_message_sending_status">Message sending status</string>
     <string name="content_description_message_sent_status">Message sent status</string>
@@ -171,23 +173,26 @@
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
-    <string name="archive_screen_title">Archive</string>
+    <string name="archive_screen_title">Архівувати</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
     <string name="app_settings_screen_title">App Settings</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
-    <string name="support_screen_title">Support</string>
+    <string name="support_screen_title">Підтримка</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s New</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
+    <string name="whats_new_screen_title">What\'s new</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
     <string name="whats_new_release_notes_group_title">Release Notes</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
@@ -386,7 +391,7 @@
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_upload_in_progress_text">Uploading…</string>
     <string name="asset_message_download_in_progress_text">Downloading…</string>
-    <string name="asset_message_downloaded_internally_text">Downloaded</string>
+    <string name="asset_message_downloaded_internally_text">Tap to view</string>
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
@@ -500,6 +505,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
@@ -575,6 +581,10 @@
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -584,6 +594,8 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -676,6 +688,13 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="few">%1$s and %2$d more are typing</item>
+        <item quantity="many">%1$s and %2$d more are typing</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -721,6 +740,14 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
+    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>
@@ -888,6 +915,23 @@
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
+    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -1211,4 +1255,8 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

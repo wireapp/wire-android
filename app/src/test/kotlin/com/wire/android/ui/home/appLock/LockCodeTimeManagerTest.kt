@@ -17,18 +17,16 @@
  */
 package com.wire.android.ui.home.appLock
 
-import com.wire.android.datastore.GlobalDataStore
+import app.cash.turbine.test
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -41,85 +39,139 @@ class LockCodeTimeManagerTest {
 
     private val dispatcher = StandardTestDispatcher()
 
-    private fun testStopAndStart(appLockConfig: AppLockConfig, delay: Long, expected: Boolean) =
-        runTest(dispatcher) {
-            val (arrangement, manager) = Arrangement(dispatcher)
-                .withAppLockConfig(appLockConfig)
-                .withIsAppVisible(true)
-                .arrange()
-            advanceUntilIdle()
-            arrangement.withIsAppVisible(false)
-            advanceTimeBy(delay)
-            arrangement.withIsAppVisible(true)
-            advanceUntilIdle()
-            val result = manager.shouldLock().first()
-            assertEquals(expected, result)
-        }
+    private fun AppLockConfig.timeoutInMillis(): Long = this.timeout.inWholeMilliseconds
 
-    private fun AppLockConfig.timeoutInMillis(): Long = this.timeoutInSeconds * 1000L
+    private fun testInitialStart(appLockConfig: AppLockConfig, expected: Boolean) = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement(dispatcher)
+            .withAppLockConfig(appLockConfig)
+            .withIsAppVisible(false)
+            .arrange()
+        advanceUntilIdle()
+        // when
+        arrangement.withIsAppVisible(true)
+        advanceUntilIdle()
+        // then
+        assertEquals(expected, manager.isLocked().first())
+    }
 
     @Test
-    fun givenLockEnabledAndAppOpen_whenAppClosedAndOpenedAgainBeforeLockTimeout_thenDoNotRequirePasscode() =
+    fun givenLockEnabled_whenAppInitiallyOpened_thenLocked() =
+        testInitialStart(AppLockConfig.Enabled, true)
+
+    @Test
+    fun givenLockDisabled_whenAppInitiallyOpened_thenNotLocked() =
+        testInitialStart(AppLockConfig.Disabled, false)
+
+    private fun testStop(appLockConfig: AppLockConfig, delayAfterStop: Long, expected: Boolean) = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement(dispatcher)
+            .withAppLockConfig(appLockConfig)
+            .withIsAppVisible(true)
+            .arrange()
+        manager.appUnlocked()
+        advanceUntilIdle()
+        // when
+        arrangement.withIsAppVisible(false)
+        advanceTimeBy(delayAfterStop)
+        // then
+        assertEquals(expected, manager.isLocked().first())
+    }
+
+    @Test
+    fun givenLockEnabledAndAppOpenedUnlocked_whenAppClosedAndWaitedMoreThanTimeout_thenLocked() =
+        testStop(AppLockConfig.Enabled, AppLockConfig.Enabled.timeoutInMillis() + 100L, true)
+
+    @Test
+    fun givenLockEnabledAndAppOpenedUnlocked_whenAppClosedAndWaitedLessThanTimeout_thenNotLocked() =
+        testStop(AppLockConfig.Enabled, AppLockConfig.Enabled.timeoutInMillis() - 100L, false)
+
+    @Test
+    fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndWaitedMoreThanTimeout_thenNotLocked() =
+        testStop(AppLockConfig.Disabled, AppLockConfig.Disabled.timeoutInMillis() + 100L, false)
+
+    @Test
+    fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndWaitedLessThanTimeout_thenNotLocked() =
+        testStop(AppLockConfig.Disabled, AppLockConfig.Disabled.timeoutInMillis() - 100L, false)
+
+    @Test
+    fun givenLockEnabledAndAppOpenedUnlocked_whenAppClosedAnd_thenAfterTimeoutShouldChangeFromNotLockedToLocked() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement(dispatcher)
+            .withAppLockConfig(AppLockConfig.Enabled)
+            .withIsAppVisible(true)
+            .arrange()
+        manager.appUnlocked()
+        advanceUntilIdle()
+        // when-then
+        manager.isLocked().test {
+            arrangement.withIsAppVisible(false)
+            assertEquals(false, awaitItem())
+            assertEquals(true, awaitItem())
+        }
+    }
+
+    private fun testStopAndStart(appLockConfig: AppLockConfig, startDelay: Long, expected: Boolean) = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement(dispatcher)
+            .withAppLockConfig(appLockConfig)
+            .withIsAppVisible(true)
+            .arrange()
+        manager.appUnlocked()
+        advanceUntilIdle()
+        // when
+        arrangement.withIsAppVisible(false)
+        advanceTimeBy(startDelay)
+        arrangement.withIsAppVisible(true)
+        // then
+        assertEquals(expected, manager.isLocked().first())
+    }
+
+    @Test
+    fun givenLockEnabledAndAppOpenedUnlocked_whenAppClosedAndOpenedAgainBeforeLockTimeout_thenNotLocked() =
         testStopAndStart(AppLockConfig.Enabled, AppLockConfig.Enabled.timeoutInMillis() - 100L, false)
 
     @Test
-    fun givenLockEnabledAndAppOpen_whenAppClosedAndOpenedAgainAfterLockTimeout_thenRequirePasscode() =
+    fun givenLockEnabledAndAppOpenedUnlocked_whenAppClosedAndOpenedAgainAfterLockTimeout_thenLocked() =
         testStopAndStart(AppLockConfig.Enabled, AppLockConfig.Enabled.timeoutInMillis() + 100L, true)
 
     @Test
-    fun givenLockDisabledAndAppOpen_whenAppClosedAndOpenedAgainBeforeLockTimeout_thenDoNotRequirePasscode() =
+    fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndOpenedAgainBeforeLockTimeout_thenNotLocked() =
         testStopAndStart(AppLockConfig.Disabled, AppLockConfig.Disabled.timeoutInMillis() - 100L, false)
 
     @Test
-    fun givenLockDisabledAndAppOpen_whenAppClosedAndOpenedAgainAfterLockTimeout_thenDoNotRequirePasscode() =
+    fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndOpenedAgainAfterLockTimeout_thenNotLocked() =
         testStopAndStart(AppLockConfig.Disabled, AppLockConfig.Disabled.timeoutInMillis() + 100L, false)
 
-    private fun testStart(appLockConfig: AppLockConfig, withInitialTimestamp: Boolean, delay: Long, expected: Boolean) =
-        runTest(dispatcher) {
-            val (arrangement, manager) = Arrangement(dispatcher)
-                .withInitialAppLockTimestamp(if (withInitialTimestamp) dispatcher.scheduler.currentTime else -1)
-                .withAppLockConfig(appLockConfig)
-                .withIsAppVisible(false)
-                .arrange()
-            advanceUntilIdle()
-            advanceTimeBy(delay)
-            arrangement.withIsAppVisible(true)
-            advanceUntilIdle()
-            val result = manager.shouldLock().first()
-            assertEquals(expected, result)
-        }
+    @Test
+    fun givenLockEnabledAndAppOpenedLocked_whenAppClosedAndOpenedBeforeLockTimeout_thenShouldStillBeLocked() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement(dispatcher)
+            .withAppLockConfig(AppLockConfig.Enabled)
+            .withIsAppVisible(false)
+            .arrange()
+        advanceUntilIdle()
+        // when
+        advanceTimeBy(AppLockConfig.Enabled.timeoutInMillis() - 100L)
+        arrangement.withIsAppVisible(true)
+        // then
+        assertEquals(true, manager.isLocked().first())
+    }
 
     @Test
-    fun givenLockEnabledAndNoInitialTimestamp_whenAppOpenedBeforeLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Enabled, false, AppLockConfig.Enabled.timeoutInMillis() - 100, false)
-
-    @Test
-    fun givenLockEnabledAndNoInitialTimestamp_whenAppOpenedAfterLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Enabled, false, AppLockConfig.Enabled.timeoutInMillis() + 100, false)
-
-    @Test
-    fun givenLockEnabledAndInitialTimestamp_whenAppOpenedBeforeLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Enabled, true, AppLockConfig.Enabled.timeoutInMillis() - 100, false)
-
-    @Test
-    fun givenLockEnabledAndInitialTimestamp_whenAppOpenedAfterLockTimeout_thenRequirePasscode() =
-        testStart(AppLockConfig.Enabled, true, AppLockConfig.Enabled.timeoutInMillis() + 100, true)
-
-    @Test
-    fun givenLockDisabledAndNoInitialTimestamp_whenAppOpenedBeforeLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Disabled, false, AppLockConfig.Disabled.timeoutInMillis() - 100, false)
-
-    @Test
-    fun givenLockDisabledAndNoInitialTimestamp_whenAppOpenedAfterLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Disabled, false, AppLockConfig.Disabled.timeoutInMillis() + 100, false)
-
-    @Test
-    fun givenLockDisabledAndInitialTimestamp_whenAppOpenedBeforeLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Disabled, true, AppLockConfig.Disabled.timeoutInMillis() - 100, false)
-
-    @Test
-    fun givenLockDisabledAndInitialTimestamp_whenAppOpenedAfterLockTimeout_thenDoNotRequirePasscode() =
-        testStart(AppLockConfig.Disabled, true, AppLockConfig.Disabled.timeoutInMillis() + 100, false)
+    fun givenLockEnabledAndAppOpenedLocked_whenAppIsUnlocked_thenNotLocked() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement(dispatcher)
+            .withAppLockConfig(AppLockConfig.Enabled)
+            .withIsAppVisible(true)
+            .arrange()
+        advanceUntilIdle()
+        // when
+        manager.appUnlocked()
+        advanceUntilIdle()
+        // then
+        assertEquals(false, manager.isLocked().first())
+    }
 
     class Arrangement(dispatcher: TestDispatcher) {
 
@@ -129,16 +181,11 @@ class LockCodeTimeManagerTest {
         @MockK
         private lateinit var observeAppLockConfigUseCase: ObserveAppLockConfigUseCase
 
-        @MockK
-        private lateinit var globalDataStore: GlobalDataStore
-
         private val lockCodeTimeManager by lazy {
             LockCodeTimeManager(
                 CoroutineScope(dispatcher),
                 currentScreenManager,
                 observeAppLockConfigUseCase,
-                globalDataStore,
-                dispatcher.scheduler::currentTime
             )
         }
 
@@ -149,12 +196,6 @@ class LockCodeTimeManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            withInitialAppLockTimestamp(-1L)
-            coEvery { globalDataStore.setAppLockTimestamp(any()) } returns Unit
-        }
-
-        fun withInitialAppLockTimestamp(value: Long = -1L): Arrangement = apply {
-            every { globalDataStore.getAppLockTimestampFlow() } returns flowOf(value)
         }
 
         fun withIsAppVisible(value: Boolean): Arrangement = apply {

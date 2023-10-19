@@ -49,7 +49,8 @@
     <string name="label_message_receive_failure">Greška pri preuzimanju</string>
     <string name="label_message_decryption_failure_message">Poruka se ne može dešifrirati.</string>
     <string name="label_message_decryption_failure_informative_message">Pokušajte resetirati sesiju zbog generiranja novih ključeva za enkripciju.</string>
-    <string name="label_system_message_self_user_knock">%s pingao/la</string>
+    <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
@@ -78,7 +79,7 @@
     <string name="label_disable">Onemogući</string>
     <string name="folder_label_access">Pristup</string>
     <string name="folder_label_protocol_details">Detalji protokola (beta)</string>
-    <string name="folder_label_messaging">Messaging</string>
+    <string name="folder_label_messaging">Poruke</string>
     <string name="label_user_blocked">Blokiran</string>
     <string name="label_and">i</string>
     <string name="label_retry">Pokušaj ponovo</string>
@@ -96,6 +97,7 @@
     <string name="content_description_add_to_favourite">Dodaj u Favorite</string>
     <string name="content_description_move_to_folder">Premjesti u mapu</string>
     <string name="content_description_move_to_archive">Premjesti u arhivu</string>
+    <string name="content_description_unarchive">Unarchive</string>
     <string name="content_description_block_the_user">Blokiraj</string>
     <string name="content_description_unblock_the_user">Odblokiraj</string>
     <string name="content_description_leave_the_group">Napusti grupu</string>
@@ -125,10 +127,10 @@
     <string name="content_description_right_arrow">Desna strelica</string>
     <string name="content_description_left_arrow">Povratak</string>
     <string name="content_description_mention_icon">Ikona obavijesti</string>
-    <string name="content_description_attachment_item">Attach new item to conversation</string>
+    <string name="content_description_attachment_item">Priloži novu stavku razgovoru</string>
     <string name="content_description_open_message_details">Open Message Details</string>
     <string name="content_description_copy_the_message">Kopiraj poruku</string>
-    <string name="content_description_share_the_file">Share the selected file with other app</string>
+    <string name="content_description_share_the_file">Podijelite odabranu datoteku s drugom aplikacijom</string>
     <string name="content_description_delete_the_message">Izbriši poruku</string>
     <string name="content_description_edit_the_message">Uredi poruku</string>
     <string name="content_description_more_options">Više opcija</string>
@@ -142,9 +144,9 @@
     <string name="content_description_calling_decline_call">Odbij poziv</string>
     <string name="content_description_calling_flip_camera_on">Prebaci na prednju kameru</string>
     <string name="content_description_calling_flip_camera_off">Prebaci na stražnju kameru</string>
-    <string name="content_description_calling_participant_muted">Participant muted</string>
-    <string name="content_description_calling_mute_call">Mute call</string>
-    <string name="content_description_calling_unmute_call">Unmute call</string>
+    <string name="content_description_calling_participant_muted">Sudionik utišan</string>
+    <string name="content_description_calling_mute_call">Isključi zvuk</string>
+    <string name="content_description_calling_unmute_call">Uključi zvuk</string>
     <string name="content_description_calling_turn_camera_on">Uključi kameru</string>
     <string name="content_description_calling_turn_camera_off">Isključi kameru</string>
     <string name="content_description_calling_turn_speaker_on">Uključi zvučnik</string>
@@ -170,10 +172,13 @@
     <string name="content_description_record_audio_button_send">Pošalji glasovnu poruku</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Trezor</string>
     <string name="archive_screen_title">Arhiva</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">Kako bi vaš popis razgovora bio uredan, premjestite nekorištene razgovore ovdje. Kasnije ih uvijek možete dearhivirati.</string>
     <string name="user_profile_screen_title">Korisnički profil</string>
     <string name="settings_screen_title">Postavke</string>
     <string name="app_settings_screen_title">Postavke aplikacije</string>
@@ -185,10 +190,10 @@
     <string name="search_bar_conversations_hint">Pretraži razgovore</string>
     <string name="search_no_results">Nije pronađen nijedan rezultat</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s New</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
-    <string name="whats_new_release_notes_group_title">Release Notes</string>
-    <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
+    <string name="whats_new_screen_title">Što je novo</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Dobro došli u novu Android aplikaciju Wire!</string>
+    <string name="whats_new_release_notes_group_title">Napomene o izdanoj verziji</string>
+    <string name="whats_new_android_release_notes_label">Sve napomene o Android verziji</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Ostalo</string>
@@ -199,11 +204,11 @@
     <string name="welcome_footer_text">Želite razgovarati s obitelji i prijateljima?</string>
     <string name="welcome_footer_link">Stvorite privatni račun besplatno</string>
     <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
-    <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
-    <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
+    <string name="welcome_screen_carousel_item_message_1">Dobrodošli u Wire, najsigurniju platformu za suradnju!</string>
+    <string name="welcome_screen_carousel_item_message_2">Apsolutno povjerenje da su vaši podaci\u00A0sigurni</string>
     <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
-    <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
+    <string name="welcome_screen_carousel_item_message_4">Sigurno dijeljenje datoteka s timovima i\u00A0klijentima</string>
+    <string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
@@ -288,11 +293,11 @@
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
     <string name="label_delete_for_me">Izbriši za mene</string>
     <string name="label_delete_for_everyone">Izbriši za sve</string>
-    <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
-    <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
+    <string name="delete_message_for_yourself_dialog_title">Želite li izbrisati ovu poruku za sebe?</string>
+    <string name="delete_message_for_yourself_dialog_message">Ako izbrišete poruku za sebe, ona će biti vidljiva samo drugim sudionicima.\n\nIzbrisana poruka se ne može vratiti.</string>
     <string name="deleted_message_text">Izbrisana poruka</string>
     <!-- Replies/Quotes to other messages -->
-    <string name="label_quote_invalid_or_not_found">You can not see this message</string>
+    <string name="label_quote_invalid_or_not_found">Ovu poruku ne možete vidjeti</string>
     <string name="label_quote_original_message_is_a_picture">Slika</string>
     <string name="label_quote_original_message_date">Originalna poruka od %s</string>
     <!-- Create Account -->
@@ -379,7 +384,7 @@
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_upload_in_progress_text">Uploading…</string>
     <string name="asset_message_download_in_progress_text">Downloading…</string>
-    <string name="asset_message_downloaded_internally_text">Downloaded</string>
+    <string name="asset_message_downloaded_internally_text">Tap to view</string>
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">Datoteka nije dostupna</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
@@ -493,6 +498,7 @@
     <string name="label_add_to_favourites">Dodaj u Favorite</string>
     <string name="label_move_to_folder">Premjesti u mapu</string>
     <string name="label_move_to_archive">Premjesti u Arhivu</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Blokiraj</string>
     <string name="label_unblock">Odblokiraj</string>
@@ -567,6 +573,10 @@
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -576,6 +586,8 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -657,6 +669,12 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="few">%1$s and %2$d more are typing</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTI</string>
     <string name="label_new_group">New Group</string>
@@ -702,6 +720,14 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">Došlo je do pogreške prilikom brisanja razgovora</string>
     <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
+    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Otvori razgovor</string>
     <string name="email_label">E-mail</string>
@@ -869,6 +895,23 @@
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
+    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -1182,4 +1225,8 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

@@ -125,7 +125,7 @@ fun GroupConversationDetailsScreen(
         navigator.navigate(
             NavigationCommand(
                 SearchConversationMessagesScreenDestination(
-                    viewModel.conversationId
+                    conversationId = viewModel.conversationId
                 )
             )
         )

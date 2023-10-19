@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -102,6 +103,7 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
@@ -184,7 +186,7 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleAppLock()
+                        handleAppLock(navigator::navigate)
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -239,7 +241,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleAppLock() {
+    private fun handleAppLock(navigate: (NavigationCommand) -> Unit) {
         LaunchedEffect(Unit) {
             lifecycleScope.launch {
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
@@ -251,13 +253,9 @@ class WireActivity : AppCompatActivity() {
                             .from(this@WireActivity)
                             .canAuthenticate(BIOMETRIC_STRONG)
                         if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                            navigationCommands.emit(
-                                NavigationCommand(AppUnlockWithBiometricsScreenDestination)
-                            )
+                            navigate(NavigationCommand(AppUnlockWithBiometricsScreenDestination, BackStackMode.UPDATE_EXISTED))
                         } else {
-                            navigationCommands.emit(
-                                NavigationCommand(EnterLockCodeScreenDestination)
-                            )
+                            navigate(NavigationCommand(EnterLockCodeScreenDestination, BackStackMode.UPDATE_EXISTED))
                         }
                     }
             }

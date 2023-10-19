@@ -48,8 +48,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun StatusBox(
     statusText: String,
     modifier: Modifier = Modifier,
-    textColor: Color = MaterialTheme.wireColorScheme.labelText,
-    badgeColor: Color = MaterialTheme.wireColorScheme.surface,
+    textColor: Color = MaterialTheme.wireColorScheme.secondaryText,
+    badgeColor: Color = MaterialTheme.wireColorScheme.surfaceVariant,
     withBorder: Boolean = true,
 ) {
     Box(
@@ -61,7 +61,7 @@ fun StatusBox(
                 BorderStroke(
                     width = 1.dp,
                     color = if (withBorder) {
-                        MaterialTheme.wireColorScheme.divider
+                        MaterialTheme.wireColorScheme.outline
                     } else {
                         badgeColor
                     }

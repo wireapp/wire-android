@@ -21,16 +21,29 @@
 package com.wire.android.ui.home.conversations
 
 import SwipeableSnackbar
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -70,12 +83,14 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -110,6 +125,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.ui.UIText
@@ -771,6 +787,7 @@ private fun SnackBarMessage(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
@@ -815,59 +832,90 @@ fun MessageList(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        reverseLayout = true,
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-    ) {
-        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
-            uiMessage.header.messageId
-        }) { index, message ->
-            if (message == null) {
-                // We can draw a placeholder here, as we fetch the next page of messages
-                return@itemsIndexed
-            }
-            val showAuthor by remember {
-                mutableStateOf(
-                    AuthorHeaderHelper.shouldShowHeader(
-                        index,
-                        lazyPagingMessages.itemSnapshotList.items,
-                        message
-                    )
-                )
-            }
+    Scaffold(
+        floatingActionButton = { JumpToLastMessageButton(lazyListState = lazyListState) },
+        content = {
+            LazyColumn(
+                state = lazyListState,
+                reverseLayout = true,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .background(color = colorsScheme().backgroundVariant)
+            ) {
+                itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
+                    uiMessage.header.messageId
+                }) { index, message ->
+                    if (message == null) {
+                        // We can draw a placeholder here, as we fetch the next page of messages
+                        return@itemsIndexed
+                    }
+                    val showAuthor by remember {
+                        mutableStateOf(
+                            AuthorHeaderHelper.shouldShowHeader(
+                                index,
+                                lazyPagingMessages.itemSnapshotList.items,
+                                message
+                            )
+                        )
+                    }
 
-            when (message) {
-                is UIMessage.Regular -> {
-                    MessageItem(
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        showAuthor = showAuthor,
-                        audioMessagesState = audioMessagesState,
-                        onAudioClick = onAudioItemClicked,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
-                        onAssetMessageClicked = onAssetItemClicked,
-                        onImageMessageClicked = onImageFullScreenMode,
-                        onOpenProfile = onOpenProfile,
-                        onReactionClicked = onReactionClicked,
-                        onResetSessionClicked = onResetSessionClicked,
-                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onLinkClick = onLinkClick
-                    )
+                    when (message) {
+                        is UIMessage.Regular -> {
+                            MessageItem(
+                                message = message,
+                                conversationDetailsData = conversationDetailsData,
+                                showAuthor = showAuthor,
+                                audioMessagesState = audioMessagesState,
+                                onAudioClick = onAudioItemClicked,
+                                onChangeAudioPosition = onChangeAudioPosition,
+                                onLongClicked = onShowEditingOption,
+                                onAssetMessageClicked = onAssetItemClicked,
+                                onImageMessageClicked = onImageFullScreenMode,
+                                onOpenProfile = onOpenProfile,
+                                onReactionClicked = onReactionClicked,
+                                onResetSessionClicked = onResetSessionClicked,
+                                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                                onLinkClick = onLinkClick
+                            )
+                        }
+
+                        is UIMessage.System -> SystemMessageItem(
+                            message = message,
+                            onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                            onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                            onSelfDeletingMessageRead = onSelfDeletingMessageRead
+                        )
+                    }
                 }
-
-                is UIMessage.System -> SystemMessageItem(
-                    message = message,
-                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                    onSelfDeletingMessageRead = onSelfDeletingMessageRead
-                )
             }
+        })
+}
+
+@Composable
+fun JumpToLastMessageButton(
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    lazyListState: LazyListState
+) {
+    AnimatedVisibility(
+        visible = lazyListState.firstVisibleItemIndex > 0,
+        enter = expandIn { it },
+        exit = shrinkOut { it }
+    ) {
+        SmallFloatingActionButton(
+            modifier = Modifier.offset(y = dimensions().spacing18x),
+            onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
+            containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
+            contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+            shape = CircleShape,
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = stringResource(id = R.string.content_description_jump_to_last_message),
+                Modifier.size(dimensions().spacing32x)
+            )
         }
     }
 }

@@ -94,6 +94,7 @@ private fun NavOptionsBuilder.popUpTo(
     getNavBackStackEntry: () -> NavBackStackEntry?,
 ) {
     getNavBackStackEntry()?.let { entry ->
+        appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.obfuscateId()} inclusive:${getInclusive(entry)}")
         popUpTo(entry.destination.id) {
             this.inclusive = getInclusive(entry)
         }

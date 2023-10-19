@@ -15,22 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.util
+package com.wire.android
 
-import java.net.URI
+import com.wire.kalium.logger.KaliumLogLevel
+import com.wire.kalium.logger.KaliumLogger
 
-fun containsSchema(url: String): Boolean {
-    return try {
-        URI.create(url).scheme != null
-    } catch (iae: IllegalArgumentException) {
-        false // invalid URI
+private var appLoggerConfig = KaliumLogger.Config.disabled()
+// App wide global logger, carefully initialized when our application is "onCreate"
+internal var appLogger = KaliumLogger.disabled()
+object AppLogger {
+    fun init(config: KaliumLogger.Config) {
+        appLoggerConfig = config
+        appLogger = KaliumLogger(config = config, tag = "WireAppLogger")
     }
-}
-
-fun normalizeLink(url: String): String {
-    return if (containsSchema(url)) {
-        url
-    } else {
-        "https://$url"
+    fun setLogLevel(level: KaliumLogLevel) {
+        appLoggerConfig.setLogLevel(level)
     }
 }

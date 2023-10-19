@@ -379,7 +379,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
                     selfRole = Conversation.Member.Role.Member,
-                    isArchived = conversation.archived
+                    isArchived = conversation.archived,
+                    protocol = conversation.protocol,
+                    mlsVerificationStatus = conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = conversation.proteusVerificationStatus
                 )
             }
         )

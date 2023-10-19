@@ -39,6 +39,7 @@ import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
@@ -192,7 +193,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 isSelfUserMember = isSelfUserMember,
                 teamId = conversation.teamId,
                 selfMemberRole = selfRole,
-                isArchived = conversation.archived
+                isArchived = conversation.archived,
+                mlsVerificationStatus = conversation.mlsVerificationStatus,
+                proteusVerificationStatus = conversation.proteusVerificationStatus
             )
         }
 
@@ -228,7 +231,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 userId = otherUser.id,
                 blockingState = otherUser.BlockState,
                 teamId = otherUser.teamId,
-                isArchived = conversation.archived
+                isArchived = conversation.archived,
+                mlsVerificationStatus = conversation.mlsVerificationStatus,
+                proteusVerificationStatus = conversation.proteusVerificationStatus
             )
         }
 

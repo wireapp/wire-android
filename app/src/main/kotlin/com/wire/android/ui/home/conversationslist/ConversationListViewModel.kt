@@ -486,7 +486,9 @@ private fun ConversationDetails.toConversationItem(
             isSelfUserMember = isSelfUserMember,
             teamId = conversation.teamId,
             selfMemberRole = selfRole,
-            isArchived = conversation.archived
+            isArchived = conversation.archived,
+            mlsVerificationStatus = conversation.mlsVerificationStatus,
+            proteusVerificationStatus = conversation.proteusVerificationStatus
         )
     }
 
@@ -517,7 +519,9 @@ private fun ConversationDetails.toConversationItem(
             userId = otherUser.id,
             blockingState = otherUser.BlockState,
             teamId = otherUser.teamId,
-            isArchived = conversation.archived
+            isArchived = conversation.archived,
+            mlsVerificationStatus = conversation.mlsVerificationStatus,
+            proteusVerificationStatus = conversation.proteusVerificationStatus
         )
     }
 

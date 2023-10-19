@@ -304,7 +304,7 @@ class MediaGalleryViewModelTest {
                 userMessageTimer = null,
                 archived = false,
                 archivedDateTime = null,
-                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),

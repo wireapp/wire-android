@@ -605,6 +605,8 @@
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -653,6 +655,10 @@
     <string name="last_message_self_user_left_conversation">left the conversation.</string>
     <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
     <string name="last_message_other_user_left_conversation">left the conversation.</string>
+    <string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
+    <string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
+    <string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>

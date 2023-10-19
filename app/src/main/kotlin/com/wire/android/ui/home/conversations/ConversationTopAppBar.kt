@@ -25,6 +25,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,6 +49,8 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
+import com.wire.android.ui.common.MLSVerifiedIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
@@ -133,7 +136,11 @@ private fun ConversationScreenTopAppBarContent(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                VerificationIcon(conversationInfoViewState.protocolInfo, conversationInfoViewState.verificationStatus)
+                VerificationIcons(
+                    conversationInfoViewState.protocolInfo,
+                    conversationInfoViewState.mlsVerificationStatus,
+                    conversationInfoViewState.proteusVerificationStatus
+                )
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -181,21 +188,22 @@ private fun ConversationScreenTopAppBarContent(
 }
 
 @Composable
-private fun VerificationIcon(protocolInfo: Conversation.ProtocolInfo?, verificationStatus: Conversation.VerificationStatus?) {
-    if (verificationStatus != Conversation.VerificationStatus.VERIFIED || protocolInfo == null) return
-
-    val (iconId, contentDescriptionId) = when (protocolInfo) {
-        is Conversation.ProtocolInfo.MLS ->
-            R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
-
-        Conversation.ProtocolInfo.Proteus ->
-            R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
+private fun RowScope.VerificationIcons(
+    protocolInfo: Conversation.ProtocolInfo?,
+    mlsVerificationStatus: Conversation.VerificationStatus?,
+    proteusVerificationStatus: Conversation.VerificationStatus?
+) {
+    if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+            MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+            ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
+    } else {
+        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+            ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
+        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+            MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
     }
-    Image(
-        modifier = Modifier.padding(start = dimensions().spacing4x),
-        painter = painterResource(id = iconId),
-        contentDescription = stringResource(contentDescriptionId)
-    )
 }
 
 @Composable
@@ -365,6 +373,33 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = true,
+        onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
+        isInteractionEnabled = true,
+        isSearchEnabled = false
+    )
+}
+
+@Preview("Topbar with a short conversation title and verified")
+@Composable
+fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
+    val conversationId = QualifiedID("", "")
+    ConversationScreenTopAppBarContent(
+        ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId),
+            protocolInfo = Conversation.ProtocolInfo.Proteus,
+            proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+            mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
         onJoinCallButtonClick = {},
         onPermanentPermissionDecline = {},
         isInteractionEnabled = true,

@@ -23,6 +23,8 @@ package com.wire.android.ui.home.conversations.details
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,7 +33,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -59,7 +64,9 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -68,6 +75,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationS
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -94,8 +102,11 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
@@ -291,8 +302,18 @@ private fun GroupConversationDetailsContent(
                 title = stringResource(R.string.conversation_details_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
-                actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
+                actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) },
             ) {
+                if (conversationSheetContent?.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+                    if (conversationSheetContent.protocol == Conversation.ProtocolInfo.Proteus ||
+                        conversationSheetContent.mlsVerificationStatus != Conversation.VerificationStatus.VERIFIED
+                    )
+                        ProteusVerifiedLabel()
+                } else if (conversationSheetContent?.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+                    if (conversationSheetContent.protocol is Conversation.ProtocolInfo.MLS) {
+                        MLSVerifiedLabel()
+                    }
+                }
                 WireTabRow(
                     tabs = GroupConversationDetailsTabItem.values().toList(),
                     selectedTabIndex = currentTabState,
@@ -407,6 +428,40 @@ private fun GroupConversationDetailsContent(
             bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
         }
     )
+}
+
+@Composable
+private fun MLSVerifiedLabel() {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Text(
+            modifier = Modifier.padding(
+                start = dimensions().spacing6x,
+                end = dimensions().spacing6x
+            ),
+            text = stringResource(id = R.string.label_conversations_details_verified_mls).uppercase(),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.mlsVerificationTextColor,
+            overflow = TextOverflow.Ellipsis
+        )
+        MLSVerifiedIcon()
+    }
+}
+
+@Composable
+private fun ProteusVerifiedLabel() {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Text(
+            modifier = Modifier.padding(
+                start = dimensions().spacing6x,
+                end = dimensions().spacing6x
+            ),
+            text = stringResource(id = R.string.label_conversations_details_verified_proteus).uppercase(),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.primary,
+            overflow = TextOverflow.Ellipsis
+        )
+        ProteusVerifiedIcon()
+    }
 }
 
 enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {

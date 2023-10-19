@@ -585,7 +585,7 @@ class GroupConversationDetailsViewModelTest {
                 userMessageTimer = null,
                 archived = false,
                 archivedDateTime = null,
-                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

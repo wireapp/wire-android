@@ -193,6 +193,8 @@ sealed class UILastMessageContent {
     data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
+
+    data class VerificationChanged(@StringRes val textResId: Int) : UILastMessageContent()
 }
 
 sealed class UIMessageContent {

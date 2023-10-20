@@ -73,7 +73,6 @@ import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationS
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
-import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -98,7 +97,6 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -328,19 +326,12 @@ private fun GroupConversationDetailsContent(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                WireTabRow(
-                    tabs = GroupConversationDetailsTabItem.entries,
-                    selectedTabIndex = currentTabState,
-                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                    divider = {} // no divider
-                )
                 Surface(
                     shadowElevation = elevationState,
                     color = MaterialTheme.wireColorScheme.background
                 ) {
                     WireTabRow(
-                        tabs = GroupConversationDetailsTabItem.values().toList(),
+                        tabs = GroupConversationDetailsTabItem.entries,
                         selectedTabIndex = currentTabState,
                         onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                         modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
@@ -354,27 +345,13 @@ private fun GroupConversationDetailsContent(
             val keyboardController = LocalSoftwareKeyboardController.current
             val focusManager = LocalFocusManager.current
 
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(internalPadding)
-            ) { pageIndex ->
-                when (GroupConversationDetailsTabItem.entries[pageIndex]) {
-                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        lazyListState = lazyListStates[pageIndex],
-                        onEditGuestAccess = onEditGuestAccess,
-                        onEditSelfDeletingMessages = onEditSelfDeletingMessages,
-                        onEditGroupName = onEditGroupName
-                    )
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier
                         .fillMaxWidth()
                 ) { pageIndex ->
-                    when (GroupConversationDetailsTabItem.values()[pageIndex]) {
+                    when (GroupConversationDetailsTabItem.entries[pageIndex]) {
                         GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
                             lazyListState = lazyListStates[pageIndex],
                             onEditGuestAccess = onEditGuestAccess,

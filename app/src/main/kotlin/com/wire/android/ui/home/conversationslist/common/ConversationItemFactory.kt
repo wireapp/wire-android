@@ -115,6 +115,7 @@ fun ConversationItemFactory(
     )
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun GeneralConversationItem(
     searchQuery: String,
@@ -147,10 +148,12 @@ private fun GeneralConversationItem(
                             isLegalHold = conversation.isLegalHold,
                             searchQuery = searchQuery,
                             badges = {
-                                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+                                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
                                     ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
-                                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+                                }
+                                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
                                     MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+                                }
                             }
                         )
                     },

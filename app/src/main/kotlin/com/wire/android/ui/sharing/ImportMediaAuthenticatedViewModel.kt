@@ -39,7 +39,6 @@ import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase

@@ -593,7 +593,7 @@
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_degraded">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
+    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <!-- Last messages -->

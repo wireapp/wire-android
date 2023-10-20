@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -193,16 +192,23 @@ private fun RowScope.VerificationIcons(
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?
 ) {
-    if (protocolInfo is Conversation.ProtocolInfo.MLS) {
-        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+    val mlsIcon: @Composable () -> Unit = {
+        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
             MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
-        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+        }
+    }
+    val proteusIcon: @Composable () -> Unit = {
+        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
             ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
+        }
+    }
+
+    if (protocolInfo is Conversation.ProtocolInfo.Proteus) {
+        proteusIcon()
+        mlsIcon()
     } else {
-        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED)
-            ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
-        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED)
-            MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+        mlsIcon()
+        proteusIcon()
     }
 }
 

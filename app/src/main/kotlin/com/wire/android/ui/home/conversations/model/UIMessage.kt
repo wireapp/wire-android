@@ -469,7 +469,8 @@ sealed class UIMessageContent {
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
             if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_shield_holo,
-            R.string.label_system_message_conversation_degraded
+            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
+            else R.string.label_system_message_conversation_degraded_proteus
         )
 
         data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(

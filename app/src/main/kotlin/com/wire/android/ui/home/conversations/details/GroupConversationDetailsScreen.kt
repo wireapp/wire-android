@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -301,16 +300,7 @@ private fun GroupConversationDetailsContent(
                 onNavigationPressed = onBackPressed,
                 actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) },
             ) {
-                if (conversationSheetContent?.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-                    if (conversationSheetContent.protocol == Conversation.ProtocolInfo.Proteus ||
-                        conversationSheetContent.mlsVerificationStatus != Conversation.VerificationStatus.VERIFIED
-                    )
-                        ProteusVerifiedLabel()
-                } else if (conversationSheetContent?.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-                    if (conversationSheetContent.protocol is Conversation.ProtocolInfo.MLS) {
-                        MLSVerifiedLabel()
-                    }
-                }
+                VerificationInfo(conversationSheetContent)
                 WireTabRow(
                     tabs = GroupConversationDetailsTabItem.entries,
                     selectedTabIndex = currentTabState,
@@ -425,6 +415,21 @@ private fun GroupConversationDetailsContent(
             bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
         }
     )
+}
+
+@Composable
+private fun VerificationInfo(conversationSheetContent: ConversationSheetContent?) {
+    if (conversationSheetContent == null) return
+
+    val isProteusVerified = conversationSheetContent.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isMlsVerified = conversationSheetContent.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isProteusProtocol = conversationSheetContent.protocol == Conversation.ProtocolInfo.Proteus
+
+    if (isProteusVerified && (isProteusProtocol || !isMlsVerified)) {
+        ProteusVerifiedLabel()
+    } else if (isMlsVerified) {
+        MLSVerifiedLabel()
+    }
 }
 
 @Composable

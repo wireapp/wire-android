@@ -50,10 +50,12 @@ fun UserLabel(
                     Spacer(modifier = Modifier.width(6.dp))
                     MembershipQualifierLabel(membership)
                 }
-                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
                     ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
-                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED)
+                }
+                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
                     MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+                }
             },
             searchQuery = searchQuery
         )

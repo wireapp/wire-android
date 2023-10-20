@@ -45,7 +45,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 
-
 @Composable
 fun GroupConversationDetailsTopBarCollapsing(
     title: String,

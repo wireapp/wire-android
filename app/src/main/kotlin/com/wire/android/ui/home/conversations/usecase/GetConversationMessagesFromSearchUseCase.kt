@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetSearchMessagesForConversationUseCase @Inject constructor(
+class GetConversationMessagesFromSearchUseCase @Inject constructor(
     private val getConversationMessagesFromSearch: GetConversationMessagesFromSearchQueryUseCase,
     private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
     private val messageMapper: MessageMapper

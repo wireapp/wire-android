@@ -50,7 +50,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-class GetSearchMessagesForConversationUseCaseTest {
+class GetConversationMessagesFromSearchUseCaseTest {
 
     @Test
     fun `given below minimum characters to search, when searching, then return an empty list`() =
@@ -114,8 +114,8 @@ class GetSearchMessagesForConversationUseCaseTest {
         @MockK
         lateinit var messageMapper: MessageMapper
 
-        private val useCase: GetSearchMessagesForConversationUseCase by lazy {
-            GetSearchMessagesForConversationUseCase(
+        private val useCase: GetConversationMessagesFromSearchUseCase by lazy {
+            GetConversationMessagesFromSearchUseCase(
                 getConversationMessagesFromSearch,
                 observeMemberDetailsByIds,
                 messageMapper

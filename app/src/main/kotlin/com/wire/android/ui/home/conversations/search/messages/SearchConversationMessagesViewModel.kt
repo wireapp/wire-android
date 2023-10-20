@@ -25,7 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
-import com.wire.android.ui.home.conversations.usecase.GetSearchMessagesForConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.functional.onSuccess
@@ -40,7 +40,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchConversationMessagesViewModel @Inject constructor(
-    private val getSearchMessagesForConversation: GetSearchMessagesForConversationUseCase,
+    private val getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

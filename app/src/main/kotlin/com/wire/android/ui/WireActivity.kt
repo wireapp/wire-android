@@ -30,6 +30,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,13 +67,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
+import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -82,6 +86,9 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.FeatureFlagState
+import com.wire.android.ui.home.appLock.AppUnlockWithBiometricsScreen
+import com.wire.android.ui.home.appLock.EnterLockCodeScreen
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
@@ -95,8 +102,6 @@ import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
@@ -156,6 +161,10 @@ class WireActivity : AppCompatActivity() {
         onComplete: () -> Unit
     ) {
         setContent {
+            LaunchedEffect(Unit) {
+                featureFlagNotificationViewModel.loadInitialSync()
+            }
+
             val snackbarHostState = remember { SnackbarHostState() }
             var isLoaded by remember { mutableStateOf(false) }
 
@@ -167,28 +176,39 @@ class WireActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    Column(modifier = Modifier.statusBarsPadding()) {
-                        ReportDrawnWhen { isLoaded }
-                        val navigator = rememberNavigator(this@WireActivity::finish)
-                        val scope = rememberCoroutineScope()
-                        CommonTopAppBar(
-                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
-                            onReturnToCallClick = { establishedCall ->
-                                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
-                            }
-                        )
-                        NavigationGraph(
-                            navigator = navigator,
-                            startDestination = startDestination
-                        )
+                    ReportDrawnWhen { isLoaded }
+                    val navigator = rememberNavigator(this@WireActivity::finish)
+                    val scope = rememberCoroutineScope()
 
-                        // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
-                        // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        setUpNavigation(navigator.navController, onComplete, scope)
-                        isLoaded = true
-                        handleScreenshotCensoring()
-                        handleAppLock(navigator::navigate)
-                        handleDialogs(navigator::navigate)
+                    isLoaded = true
+                    handleScreenshotCensoring()
+
+                    handleAppLock { isLocked ->
+                        Column(modifier = Modifier.statusBarsPadding()) {
+                            CommonTopAppBar(
+                                connectivityUIState = when (isLocked) {
+                                    false -> ConnectivityUIState(ConnectivityUIState.Info.None)
+                                    true -> commonTopAppBarViewModel.connectivityState
+                                },
+                                onReturnToCallClick = { establishedCall ->
+                                    navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
+                                }
+                            )
+                            NavigationGraph(
+                                navigator = navigator,
+                                startDestination = startDestination
+                            )
+                            // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
+                            // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
+                            setUpNavigation(navigator.navController, onComplete, scope)
+                        }
+
+                        handleDialogs(
+                            // Show dialogs only when the app is not locked
+                            if (isLocked) FeatureFlagState() else featureFlagNotificationViewModel.featureFlagState,
+                            if (isLocked) GlobalAppState() else viewModel.globalAppState,
+                            navigator::navigate
+                        )
                     }
                 }
             }
@@ -239,28 +259,51 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleAppLock(navigate: (NavigationCommand) -> Unit) {
-        LaunchedEffect(Unit) {
-            lockCodeTimeManager.isLocked()
-                .filter { it }
-                .collectLatest {
-                    val canAuthenticateWithBiometrics = BiometricManager
-                        .from(this@WireActivity)
-                        .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+    private fun handleAppLock(mainContent: @Composable (isLocked: Boolean) -> Unit) {
+        val isLocked by lockCodeTimeManager.isLocked().collectAsState()
 
-                    if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                        navigate(NavigationCommand(AppUnlockWithBiometricsScreenDestination, BackStackMode.UPDATE_EXISTED))
-                    } else {
-                        navigate(NavigationCommand(EnterLockCodeScreenDestination, BackStackMode.UPDATE_EXISTED))
-                    }
+        mainContent(isLocked)
+
+        AnimatedVisibility(
+            visible = isLocked,
+            enter = TransitionAnimationType.POP_UP.enterTransition,
+            exit = TransitionAnimationType.POP_UP.popExitTransition,
+        ) {
+            var withBiometrics by remember {
+                mutableStateOf(
+                    BiometricManager
+                        .from(this@WireActivity)
+                        .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+                )
+            }
+            AnimatedContent(
+                targetState = withBiometrics,
+                transitionSpec = {
+                    TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
+                },
+                label = "LockScreenAnimatedContent",
+            ) { targetWithBiometrics ->
+                if (targetWithBiometrics) {
+                    AppUnlockWithBiometricsScreen(
+                        onCanceled = { this@WireActivity.finish() },
+                        onRequestPasscode = { withBiometrics = false }
+                    )
+                } else {
+                    EnterLockCodeScreen(
+                        onCanceled = { this@WireActivity.finish() },
+                    )
                 }
+            }
         }
     }
 
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
-        featureFlagNotificationViewModel.loadInitialSync()
-        with(featureFlagNotificationViewModel.featureFlagState) {
+    private fun handleDialogs(
+        featureFlagState: FeatureFlagState,
+        globalAppState: GlobalAppState,
+        navigate: (NavigationCommand) -> Unit
+    ) {
+        with(featureFlagState) {
             if (showFileSharingDialog) {
                 FileRestrictionDialog(
                     isFileSharingEnabled = isFileSharingEnabledState,
@@ -298,18 +341,18 @@ class WireActivity : AppCompatActivity() {
                 )
             }
         }
-        UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+        UpdateAppDialog(globalAppState.updateAppDialog, ::updateTheApp)
         JoinConversationDialog(
-            viewModel.globalAppState.conversationJoinedDialog,
+            globalAppState.conversationJoinedDialog,
             navigate,
             viewModel::onJoinConversationFlowCompleted
         )
         CustomBackendDialog(
-            viewModel.globalAppState,
+            globalAppState,
             viewModel::dismissCustomBackendDialog
         ) { viewModel.customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
         MaxAccountDialog(
-            shouldShow = viewModel.globalAppState.maxAccountDialog,
+            shouldShow = globalAppState.maxAccountDialog,
             onConfirm = {
                 viewModel.dismissMaxAccountDialog()
                 navigate(NavigationCommand(SelfUserProfileScreenDestination))
@@ -317,10 +360,10 @@ class WireActivity : AppCompatActivity() {
             onDismiss = viewModel::dismissMaxAccountDialog
         )
         AccountLoggedOutDialog(
-            viewModel.globalAppState.blockUserUI
+            globalAppState.blockUserUI
         ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
         NewClientDialog(
-            viewModel.globalAppState.newClientDialog,
+            globalAppState.newClientDialog,
             { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
             {
                 viewModel.switchAccount(

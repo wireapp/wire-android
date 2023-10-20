@@ -33,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -47,11 +46,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
@@ -65,40 +60,31 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import java.util.Locale
 
-@RootNavGraph
-@Destination
 @Composable
 fun EnterLockCodeScreen(
+    onCanceled: () -> Unit,
     viewModel: EnterLockScreenViewModel = hiltViewModel(),
-    navigator: Navigator
 ) {
     EnterLockCodeScreenContent(
-        navigator = navigator,
         state = viewModel.state,
         scrollState = rememberScrollState(),
         onPasswordChanged = viewModel::onPasswordChanged,
         onContinue = viewModel::onContinue,
-        onBackPress = { navigator.finish() }
+        onCanceled = onCanceled,
     )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterLockCodeScreenContent(
-    navigator: Navigator,
     state: EnterLockCodeViewState,
     scrollState: ScrollState,
     onPasswordChanged: (TextFieldValue) -> Unit,
-    onBackPress: () -> Unit,
-    onContinue: () -> Unit
+    onCanceled: () -> Unit,
+    onContinue: () -> Unit,
 ) {
-    LaunchedEffect(state.done) {
-        if (state.done) {
-            navigator.navigateBack()
-        }
-    }
     BackHandler {
-        onBackPress()
+        onCanceled()
     }
 
     WireScaffold { internalPadding ->
@@ -198,12 +184,11 @@ private fun ContinueButton(
 fun PreviewEnterLockCodeScreen() {
     WireTheme(isPreview = true) {
         EnterLockCodeScreenContent(
-            navigator = rememberNavigator {},
             state = EnterLockCodeViewState(),
             scrollState = rememberScrollState(),
             onPasswordChanged = {},
-            onBackPress = {},
-            onContinue = {}
+            onCanceled = {},
+            onContinue = {},
         )
     }
 }

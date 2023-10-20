@@ -24,8 +24,8 @@ import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -46,16 +46,15 @@ class LockCodeTimeManager @Inject constructor(
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
 ) {
 
-    private val isLockedFlow = MutableStateFlow(false)
+    private lateinit var isLockedFlow: MutableStateFlow<Boolean>
 
     init {
         // first, set initial value - if app lock is enabled then app needs to be locked right away
         runBlocking {
             observeAppLockConfigUseCase().firstOrNull()?.let { appLockConfig ->
-                if (appLockConfig !is AppLockConfig.Disabled) {
-                    appLogger.i("$TAG app initially locked")
-                    isLockedFlow.value = true
-                }
+                val isInitiallyLocked = appLockConfig !is AppLockConfig.Disabled
+                isLockedFlow = MutableStateFlow(isInitiallyLocked)
+                appLogger.i("$TAG initial state: $isLockedFlow")
             }
         }
         @Suppress("MagicNumber")
@@ -94,7 +93,7 @@ class LockCodeTimeManager @Inject constructor(
         isLockedFlow.value = false
     }
 
-    fun isLocked(): Flow<Boolean> = isLockedFlow
+    fun isLocked(): StateFlow<Boolean> = isLockedFlow
 
     companion object {
         private const val TAG = "LockCodeTimeManager"

@@ -34,23 +34,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.biomitric.showBiometricPrompt
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 
-@RootNavGraph
-@Destination
 @Composable
 fun AppUnlockWithBiometricsScreen(
+    onCanceled: () -> Unit,
+    onRequestPasscode: () -> Unit,
     appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = hiltViewModel(),
-    navigator: Navigator,
 ) {
     Box(
         modifier = Modifier
@@ -69,25 +62,13 @@ fun AppUnlockWithBiometricsScreen(
         val activity = LocalContext.current
         LaunchedEffect(Unit) {
             (activity as AppCompatActivity).showBiometricPrompt(
-                onSuccess = {
-                    appUnlockWithBiometricsViewModel.onAppUnlocked()
-                    navigator.navigateBack()
-                },
-                onCancel = {
-                    navigator.finish()
-                },
-                onRequestPasscode = {
-                    navigator.navigate(
-                        NavigationCommand(
-                            EnterLockCodeScreenDestination(),
-                            BackStackMode.REMOVE_CURRENT
-                        )
-                    )
-                }
+                onSuccess = { appUnlockWithBiometricsViewModel.onAppUnlocked() },
+                onCancel = onCanceled,
+                onRequestPasscode = onRequestPasscode
             )
         }
     }
     BackHandler {
-        navigator.finish()
+        onCanceled()
     }
 }

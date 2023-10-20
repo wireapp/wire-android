@@ -65,11 +65,12 @@ fun SearchConversationMessagesScreen(
                     onSearchQueryChanged = searchConversationMessagesViewModel::searchQueryChanged,
                     onInputClicked = onInputClicked,
                     onCloseSearchClicked = onCloseSearchClicked,
-                    modifier = Modifier.padding(top = dimensions().spacing24x)
+                    modifier = Modifier.padding(top = dimensions().spacing24x),
+                    shouldRequestFocus = true
                 )
             },
             content = {
-                SearchConversationMessagesResultScreen(
+                SearchConversationMessagesResultContent(
                     searchQuery = searchQuery.text,
                     noneSearchSucceed = noneSearchSucceed,
                     searchResult = searchResult
@@ -86,7 +87,7 @@ fun SearchConversationMessagesScreen(
 }
 
 @Composable
-fun SearchConversationMessagesResultScreen(
+fun SearchConversationMessagesResultContent(
     searchQuery: String,
     noneSearchSucceed: Boolean,
     searchResult: List<UIMessage>

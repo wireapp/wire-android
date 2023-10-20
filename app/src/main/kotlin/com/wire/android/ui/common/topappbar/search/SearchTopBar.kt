@@ -60,6 +60,7 @@ fun SearchTopBar(
     onSearchQueryChanged: (TextFieldValue) -> Unit,
     onInputClicked: () -> Unit,
     onCloseSearchClicked: () -> Unit,
+    shouldRequestFocus: Boolean = false,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Column(
@@ -109,7 +110,8 @@ fun SearchTopBar(
             placeholderTextStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
             textStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
             interactionSource = interactionSource,
-            modifier = Modifier.padding(dimensions().spacing8x)
+            modifier = Modifier.padding(dimensions().spacing8x),
+            shouldRequestFocus = shouldRequestFocus
         )
 
         if (interactionSource.collectIsPressedAsState().value) {

@@ -50,7 +50,6 @@ fun ConversationList(
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
     onPermanentPermissionDecline: () -> Unit
 ) {
@@ -93,7 +92,6 @@ fun ConversationList(
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
-                    openNotificationsOptions = onOpenConversationNotificationsSettings,
                     joinCall = onJoinCall,
                     onPermanentPermissionDecline = onPermanentPermissionDecline
                 )

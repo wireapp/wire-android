@@ -39,7 +39,7 @@ class LockCodeTimeManagerTest {
 
     private val dispatcher = StandardTestDispatcher()
 
-    private fun AppLockConfig.timeoutInMillis(): Long = this.timeoutInSeconds * 1000L
+    private fun AppLockConfig.timeoutInMillis(): Long = this.timeout.inWholeMilliseconds
 
     private fun testInitialStart(appLockConfig: AppLockConfig, expected: Boolean) = runTest(dispatcher) {
         // given

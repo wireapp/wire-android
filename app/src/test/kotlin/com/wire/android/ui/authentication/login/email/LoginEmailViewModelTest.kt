@@ -46,7 +46,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthTokens
+import com.wire.kalium.logic.feature.auth.AccountTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.LoginUseCase
@@ -489,7 +489,7 @@ class LoginEmailViewModelTest {
     companion object {
         val CLIENT = TestClient.CLIENT
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
-        val AUTH_TOKEN = AuthTokens(
+        val AUTH_TOKEN = AccountTokens(
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",
             refreshToken = "refresh_token",

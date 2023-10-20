@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -72,6 +73,8 @@ import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationS
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -101,7 +104,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -236,10 +238,7 @@ fun GroupConversationDetailsScreen(
     }
 }
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     conversationSheetContent: ConversationSheetContent?,
@@ -260,9 +259,9 @@ private fun GroupConversationDetailsContent(
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
-    val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
+    val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.values().size })
+    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.entries.size })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
@@ -290,9 +289,9 @@ private fun GroupConversationDetailsContent(
         // on each closing BottomSheet we revert BSContent to Home.
         // So in case if user opened BS, went to MuteStatus BS and closed it by clicking outside of BS,
         // then opens BS again - Home BS suppose to be opened, not MuteStatus BS
-        snapshotFlow { sheetState.isVisible }.collect(FlowCollector { isVisible ->
+        snapshotFlow { sheetState.isVisible }.collect { isVisible ->
             if (!isVisible) conversationSheetState.toHome()
-        })
+        }
     }
 
     if (!isLoading) {
@@ -329,6 +328,13 @@ private fun GroupConversationDetailsContent(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
+                WireTabRow(
+                    tabs = GroupConversationDetailsTabItem.entries,
+                    selectedTabIndex = currentTabState,
+                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                    divider = {} // no divider
+                )
                 Surface(
                     shadowElevation = elevationState,
                     color = MaterialTheme.wireColorScheme.background
@@ -348,6 +354,20 @@ private fun GroupConversationDetailsContent(
             val keyboardController = LocalSoftwareKeyboardController.current
             val focusManager = LocalFocusManager.current
 
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
+            ) { pageIndex ->
+                when (GroupConversationDetailsTabItem.entries[pageIndex]) {
+                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                        lazyListState = lazyListStates[pageIndex],
+                        onEditGuestAccess = onEditGuestAccess,
+                        onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                        onEditGroupName = onEditGroupName
+                    )
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
@@ -394,7 +414,7 @@ private fun GroupConversationDetailsContent(
                     conversationSheetContent?.let {
                         bottomSheetEventsHandler.onMutingConversationStatusChange(
                             conversationSheetState.conversationId,
-                            it.mutingConversationState,
+                            conversationSheetState.conversationSheetContent!!.mutingConversationState,
                             closeBottomSheetAndShowSnackbarMessage
                         )
                     }

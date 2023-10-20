@@ -16,25 +16,18 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.layout.offset
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
+// import androidx.compose.foundation.gestures.AnchoredDraggableState
+// import androidx.compose.foundation.gestures.DraggableAnchors
+// import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 
 /**
  * A swipeable [Snackbar] that allows users to manually dismiss it by dragging.
@@ -51,7 +44,7 @@ import kotlin.math.roundToInt
  * @see SnackbarData
  * @see SnackbarHostState
  */
-@OptIn(ExperimentalFoundationApi::class)
+
 @Composable
 fun SwipeableSnackbar(
     hostState: SnackbarHostState,
@@ -63,10 +56,11 @@ fun SwipeableSnackbar(
 
     val currentScreenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
 
-    val anchors = DraggableAnchors {
-        SnackBarState.Visible at 0f
-        SnackBarState.Dismissed at currentScreenWidth
-    }
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
+//    val anchors = DraggableAnchors {
+//        SnackBarState.Visible at 0f
+//        SnackBarState.Dismissed at currentScreenWidth
+//    }
 
     // Determines how far the user needs to drag (as a fraction of total distance) for an action to be triggered.
     // In this example, the Snackbar will trigger an action if dragged to half (0.5) of its width.
@@ -77,37 +71,42 @@ fun SwipeableSnackbar(
     // Here, it's set to 125 device-independent pixels per second.
     val velocityThreshold: () -> Float = with(density) { { 125.dp.toPx() } }
 
-    val state = remember {
-        AnchoredDraggableState(
-            initialValue = SnackBarState.Visible,
-            anchors = anchors,
-            positionalThreshold = positionalThreshold,
-            velocityThreshold = velocityThreshold,
-            animationSpec = SpringSpec(),
-            confirmValueChange = { true }
-        )
-    }
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
+//    val state = remember {
+//        AnchoredDraggableState(
+//            initialValue = SnackBarState.Visible,
+//            anchors = anchors,
+//            positionalThreshold = positionalThreshold,
+//            velocityThreshold = velocityThreshold,
+//            animationSpec = SpringSpec(),
+//            confirmValueChange = { true }
+//        )
+//    }
 
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SnackBarState.Dismissed) {
-            onDismiss()
-        }
-    }
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
+//    LaunchedEffect(state.currentValue) {
+//        if (state.currentValue == SnackBarState.Dismissed) {
+//            onDismiss()
+//        }
+//    }
 
     Snackbar(
         snackbarData = data,
         modifier = Modifier
-            .anchoredDraggable(
-                state = state,
-                orientation = Orientation.Horizontal
-            )
-            .offset {
-                IntOffset(
-                    state
-                        .requireOffset()
-                        .roundToInt(), 0
-                )
-            })
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
+//            .anchoredDraggable(
+//                state = state,
+//                orientation = Orientation.Horizontal
+//            )
+//            .offset {
+//                IntOffset(
+//                    state
+//                        .requireOffset()
+//                        .roundToInt(), 0
+//                )
+//            }
+    )
 }
 
-private enum class SnackBarState { Visible, Dismissed }
+// TODO uncomment when anchoredDraggable will be available on [composeBom] version
+// private enum class SnackBarState { Visible, Dismissed }

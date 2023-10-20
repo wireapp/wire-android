@@ -817,7 +817,7 @@
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Accept</string>
     <string name="connection_label_ignore">Ignore</string>
-    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s before connecting.</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>

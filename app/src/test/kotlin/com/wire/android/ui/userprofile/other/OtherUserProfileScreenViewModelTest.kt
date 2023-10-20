@@ -247,7 +247,8 @@ class OtherUserProfileScreenViewModelTest {
             userMessageTimer = null,
             archived = false,
             archivedDateTime = null,
-            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

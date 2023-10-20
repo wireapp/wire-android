@@ -254,7 +254,6 @@ private fun InputContent(
     }
 }
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MessageComposerTextInput(

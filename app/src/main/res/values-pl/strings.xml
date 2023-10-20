@@ -513,8 +513,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Wszystko</string>
     <string name="muting_option_all_allowed_text">Otrzymuj powiadomienia z tej rozmowy o wszystkim (&#322;&#261;cznie z po&#322;&#261;czeniami audio i wideo)</string>
-    <string name="muting_option_only_mentions_title">Oznaczenia i odpowiedzi</string>
-    <string name="muting_option_only_mentions_text">Otrzymuj powiadomienia z tej rozmowy tylko wtedy, gdy kto&#347; Ci&#281; oznaczy lub odpowie</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nic</string>
     <string name="muting_option_all_muted_text">Nie otrzymuj &#380;adnych powiadomie&#324; z tej rozmowy</string>
     <!--Profile image-->

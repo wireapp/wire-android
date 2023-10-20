@@ -514,8 +514,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Получать уведомления о беседе по любому поводу (включая аудио- и видеозвонки)</string>
-    <string name="muting_option_only_mentions_title">Упоминания и ответы</string>
-    <string name="muting_option_only_mentions_text">Получать уведомления из этой беседы только в случае, если кто-то вас упомянет или ответит на ваше сообщение</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Ничего</string>
     <string name="muting_option_all_muted_text">Не получать уведомлений из этой беседы вообще</string>
     <!--Profile image-->

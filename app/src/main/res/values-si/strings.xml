@@ -502,8 +502,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">සියල්ල</string>
     <string name="muting_option_all_allowed_text">මෙම සංවාදයේ සියළුම දෑ පිළිබඳව දැනුම්දීම් ලබන්න (ශ්‍රව්‍ය සහ දෘශ්‍ය ඇමතුම් ඇතුළුව)</string>
-    <string name="muting_option_only_mentions_title">සැඳහුම් සහ පිළිතුරු</string>
-    <string name="muting_option_only_mentions_text">යමෙක් ඔබව සඳහන් කළ විට හෝ ඔබට පිළිතුරු දුන් විට පමණක් මෙම සංවාදයෙන් දැනුම්දීම් ලබන්න</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">කිසිවක් නැත</string>
     <string name="muting_option_all_muted_text">මෙම සංවාදයෙන් කිසිදු දැනුම්දීමක් නොලබන්න</string>
     <!--Profile image-->

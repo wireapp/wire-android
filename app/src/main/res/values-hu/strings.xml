@@ -512,8 +512,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Minden</string>
     <string name="muting_option_all_allowed_text">Értesítsen ezen beszélgetéssel kapcsolatban mindenről (hang- és videóhívásokat is beleértve)</string>
-    <string name="muting_option_only_mentions_title">Említések és válaszok</string>
-    <string name="muting_option_only_mentions_text">Ezen beszélgetéssel kapcsolatban csak akkor értesítse, ha valaki említi Önt, vagy Önnek válaszol</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Semmi</string>
     <string name="muting_option_all_muted_text">Ezen beszélgetéssel kapcsolatban egyáltalán ne értesítsen</string>
     <!--Profile image-->

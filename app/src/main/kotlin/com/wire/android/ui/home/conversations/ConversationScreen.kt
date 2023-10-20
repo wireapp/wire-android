@@ -30,9 +30,8 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
@@ -832,16 +832,21 @@ fun MessageList(
         }
     }
 
-    Scaffold(
-        floatingActionButton = { JumpToLastMessageButton(lazyListState = lazyListState) },
+    Box(
+        contentAlignment = Alignment.BottomEnd,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorsScheme().backgroundVariant),
         content = {
             LazyColumn(
                 state = lazyListState,
                 reverseLayout = true,
+                // calculating bottom padding to have space for [UsersTypingIndicator]
+                contentPadding = PaddingValues(
+                    bottom = dimensions().typingIndicatorHeight - (dimensions().messageItemBottomPadding / 2)
+                ),
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-                    .background(color = colorsScheme().backgroundVariant)
+                    .fillMaxSize()
             ) {
                 itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
                     uiMessage.header.messageId
@@ -891,6 +896,7 @@ fun MessageList(
                     }
                 }
             }
+            JumpToLastMessageButton(lazyListState = lazyListState)
         })
 }
 
@@ -905,7 +911,6 @@ fun JumpToLastMessageButton(
         exit = shrinkOut { it }
     ) {
         SmallFloatingActionButton(
-            modifier = Modifier.offset(y = dimensions().spacing18x),
             onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
             containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
             contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,

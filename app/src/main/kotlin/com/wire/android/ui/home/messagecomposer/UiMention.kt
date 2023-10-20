@@ -18,9 +18,6 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -49,34 +46,30 @@ data class UiMention(
 fun MembersMentionList(
     membersToMention: List<Contact>,
     searchQuery: String,
-    onMentionPicked: (Contact) -> Unit
+    onMentionPicked: (Contact) -> Unit,
+    modifier: Modifier
 ) {
-    Column(
-        modifier = Modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.Bottom
+    if (membersToMention.isNotEmpty()) Divider()
+    LazyColumn(
+        modifier = modifier.background(colorsScheme().background),
+        reverseLayout = true
     ) {
-        if (membersToMention.isNotEmpty()) Divider()
-        LazyColumn(
-            modifier = Modifier.background(colorsScheme().background),
-            reverseLayout = true
-        ) {
-            membersToMention.forEach {
-                if (it.membership != Membership.Service) {
-                    item {
-                        MemberItemToMention(
-                            avatarData = it.avatarData,
-                            name = it.name,
-                            label = it.label,
-                            membership = it.membership,
-                            clickable = Clickable { onMentionPicked(it) },
-                            searchQuery = searchQuery,
-                            modifier = Modifier
-                        )
-                        Divider(
-                            color = MaterialTheme.wireColorScheme.divider,
-                            thickness = Dp.Hairline
-                        )
-                    }
+        membersToMention.forEach {
+            if (it.membership != Membership.Service) {
+                item {
+                    MemberItemToMention(
+                        avatarData = it.avatarData,
+                        name = it.name,
+                        label = it.label,
+                        membership = it.membership,
+                        clickable = Clickable { onMentionPicked(it) },
+                        searchQuery = searchQuery,
+                        modifier = Modifier
+                    )
+                    Divider(
+                        color = MaterialTheme.wireColorScheme.divider,
+                        thickness = Dp.Hairline
+                    )
                 }
             }
         }

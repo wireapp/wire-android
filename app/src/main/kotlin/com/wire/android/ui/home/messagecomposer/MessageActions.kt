@@ -55,14 +55,11 @@ fun MessageSendActions(
     onSendButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier) {
-        Row(Modifier.padding(end = dimensions().spacing8x)) {
-            SendButton(
-                isEnabled = sendButtonEnabled,
-                onSendButtonClicked = onSendButtonClicked
-            )
-        }
-    }
+    SendButton(
+        isEnabled = sendButtonEnabled,
+        onSendButtonClicked = onSendButtonClicked,
+        modifier = modifier.padding(end = dimensions().spacing8x)
+    )
 }
 
 @Composable
@@ -147,9 +144,11 @@ fun MessageEditActions(
 @Composable
 private fun SendButton(
     isEnabled: Boolean,
+    modifier: Modifier = Modifier,
     onSendButtonClicked: () -> Unit
 ) {
     WirePrimaryIconButton(
+        modifier = modifier,
         onButtonClicked = onSendButtonClicked,
         iconResource = R.drawable.ic_send,
         contentDescription = R.string.content_description_send_button,

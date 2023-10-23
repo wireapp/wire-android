@@ -54,6 +54,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 @Composable
 fun WireScaffold(
     modifier: Modifier = Modifier,
+    snackbarHost: @Composable () -> Unit = { WireScaffoldSnackbarHost() },
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -68,23 +69,26 @@ fun WireScaffold(
             .systemBarsPadding(),
         topBar = topBar,
         bottomBar = bottomBar,
-        snackbarHost = {
-            SnackbarHost(
-                hostState = LocalSnackbarHostState.current,
-                snackbar = { data ->
-                    SwipeableSnackbar(
-                        hostState = LocalSnackbarHostState.current,
-                        data = data,
-                        onDismiss = { data.dismiss() }
-                    )
-                }
-            )
-        },
+        snackbarHost = snackbarHost,
         floatingActionButton = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,
         containerColor = containerColor,
         contentColor = contentColor,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         content = content
+    )
+}
+
+@Composable
+private fun WireScaffoldSnackbarHost() {
+    SnackbarHost(
+        hostState = LocalSnackbarHostState.current,
+        snackbar = { data ->
+            SwipeableSnackbar(
+                hostState = LocalSnackbarHostState.current,
+                data = data,
+                onDismiss = { data.dismiss() }
+            )
+        }
     )
 }

@@ -80,8 +80,6 @@ fun SearchConversationMessagesEmptyScreen() {
 private const val LEARN_ABOUT_SEARCH_URL =
     "${BuildConfig.URL_SUPPORT}/hc/en-us/articles/115001426529-Search-in-a-conversation"
 
-
-
 @PreviewMultipleThemes
 @Composable
 fun previewSearchConversationMessagesEmptyScreen() {

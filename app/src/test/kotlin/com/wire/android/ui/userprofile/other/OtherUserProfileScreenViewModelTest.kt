@@ -194,7 +194,7 @@ class OtherUserProfileScreenViewModelTest {
     @Test
     fun `given not connected user, then direct conversation is not found`() = runTest {
         // given
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM)
             )

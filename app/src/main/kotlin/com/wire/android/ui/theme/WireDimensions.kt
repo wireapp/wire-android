@@ -46,6 +46,8 @@ data class WireDimensions(
     val groupAvatarCornerRadius: Dp,
     val avatarConversationTopBarSize: Dp,
     val groupAvatarConversationTopBarCornerRadius: Dp,
+    val groupAvatarConversationDetailsTopBarSize: Dp,
+    val groupAvatarConversationDetailsCornerRadius: Dp,
     val avatarConversationTopBarClickablePadding: Dp,
     // Drawer Navigation
     val homeDrawerHorizontalPadding: Dp,
@@ -210,6 +212,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     groupAvatarCornerRadius = 10.dp,
     avatarConversationTopBarSize = 24.dp,
     groupAvatarConversationTopBarCornerRadius = 8.dp,
+    groupAvatarConversationDetailsTopBarSize = 64.dp,
+    groupAvatarConversationDetailsCornerRadius = 20.dp,
     avatarConversationTopBarClickablePadding = 2.dp,
     homeDrawerHorizontalPadding = 8.dp,
     homeDrawerBottomPadding = 16.dp,

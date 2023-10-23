@@ -59,16 +59,18 @@ import com.wire.android.ui.theme.wireDimensions
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SearchTopBar(
+    modifier: Modifier = Modifier,
     isSearchActive: Boolean,
     searchBarHint: String,
     searchQuery: TextFieldValue = TextFieldValue(""),
     onSearchQueryChanged: (TextFieldValue) -> Unit,
     onInputClicked: () -> Unit,
     onCloseSearchClicked: () -> Unit,
+    shouldRequestFocus: Boolean = false,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth()
             .background(MaterialTheme.wireColorScheme.background)
@@ -117,7 +119,8 @@ fun SearchTopBar(
                 interactionSource = interactionSource,
                 modifier = Modifier
                     .padding(dimensions().spacing8x)
-                    .focusRequester(focusRequester)
+                    .focusRequester(focusRequester),
+                shouldRequestFocus = shouldRequestFocus
             )
             // We added an invisible clickable box only present when the search is not active.
             // That way we can still make the whole top bar clickable and intercept and discard the long press gestures.

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.GetConversationMessagesFromSearchQueryUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
@@ -147,4 +148,9 @@ class MessageModule {
     @Provides
     fun provideGetPaginatedMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfMessagesByConversationUseCase =
         messageScope.getPaginatedFlowOfMessagesByConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationMessagesFromSearchQueryUseCase(messageScope: MessageScope): GetConversationMessagesFromSearchQueryUseCase =
+        messageScope.getConversationMessagesFromSearchQuery
 }

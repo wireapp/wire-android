@@ -85,6 +85,7 @@ data class WireDimensions(
     val messageComposerPaddingEnd: Dp,
     val systemMessageIconSize: Dp,
     val systemMessageIconLargeSize: Dp,
+    val typingIndicatorHeight: Dp,
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
@@ -328,7 +329,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationOptionsItemMinHeight = 57.dp,
     ongoingCallLabelHeight = 28.dp,
     audioMessageHeight = 48.dp,
-    importedMediaAssetSize = 120.dp
+    importedMediaAssetSize = 120.dp,
+    typingIndicatorHeight = 24.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

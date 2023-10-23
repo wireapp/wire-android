@@ -22,7 +22,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
@@ -51,5 +54,18 @@ fun SearchConversationMessagesResultsScreen(
                 is UIMessage.System -> { }
             }
         }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewSearchConversationMessagesResultsScreen() {
+    WireTheme {
+        SearchConversationMessagesResultsScreen(
+            searchResult = listOf(
+                mockMessageWithText,
+                mockMessageWithText,
+            )
+        )
     }
 }

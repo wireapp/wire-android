@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
@@ -28,6 +29,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
@@ -54,7 +56,7 @@ fun AdditionalOptionsMenu(
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier) {
+    Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
         when (additionalOptionsState) {
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(

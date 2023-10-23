@@ -114,7 +114,9 @@ fun ActiveMessageComposerInput(
         val stretchToMaxParentConstraintHeightOrWithInBoundary = if (isTextExpanded) {
             Modifier.weight(1F)
         } else {
-            Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+            Modifier
+                .heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                .weight(1F)
         }
 
         if (isTextExpanded) {

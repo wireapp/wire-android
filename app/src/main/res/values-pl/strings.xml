@@ -403,6 +403,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="member_name_you_label_lowercase">ty</string>
     <string name="label_add_participants">Dodaj uczestnik&#243;w</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Szczeg&#243;&#322;y rozmowy</string>
     <string name="conversation_details_options_tab">OPCJE</string>
     <string name="conversation_details_participants_tab">UCZESTNICY</string>
@@ -411,6 +412,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="conversation_details_group_members">UCZESTNICY GRUPY (%d)</string>
     <string name="conversation_details_participants_info">Ta grupa ma %s uczestnik&#243;w.
 Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Poka&#380; wszystkich uczestnik&#243;w (%d)</string>
     <string name="conversation_details_group_participants_title">Uczestnicy grupy</string>
     <string name="conversation_details_group_participants_add">Dodaj uczestnik&#243;w</string>
@@ -513,8 +515,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Wszystko</string>
     <string name="muting_option_all_allowed_text">Otrzymuj powiadomienia z tej rozmowy o wszystkim (&#322;&#261;cznie z po&#322;&#261;czeniami audio i wideo)</string>
-    <string name="muting_option_only_mentions_title">Oznaczenia i odpowiedzi</string>
-    <string name="muting_option_only_mentions_text">Otrzymuj powiadomienia z tej rozmowy tylko wtedy, gdy kto&#347; Ci&#281; oznaczy lub odpowie</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nic</string>
     <string name="muting_option_all_muted_text">Nie otrzymuj &#380;adnych powiadomie&#324; z tej rozmowy</string>
     <!--Profile image-->
@@ -695,7 +697,12 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
         <item quantity="many">%1$s and %2$d more are typing</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">KONTAKTY</string>
     <string name="label_new_group">Nowa grupa</string>
     <string name="label_new_conversation">Nowa rozmowa</string>

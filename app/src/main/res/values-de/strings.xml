@@ -404,6 +404,7 @@
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
     <string name="username_unavailable_label">Name nicht verfügbar</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
@@ -411,6 +412,7 @@
     <string name="conversation_details_group_admins">GRUPPEN-ADMINS (%d)</string>
     <string name="conversation_details_group_members">GRUPPEN-MITGLIEDER (%d)</string>
     <string name="conversation_details_participants_info">Diese Gruppe hat %s Teilnehmer.\nBis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
     <string name="conversation_details_group_participants_title">Teilnehmer</string>
     <string name="conversation_details_group_participants_add">Teilnehmer hinzufügen</string>
@@ -513,8 +515,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Alles</string>
     <string name="muting_option_all_allowed_text">Sie erhalten alle Benachrichtigungen für diese Unterhaltung, einschließlich Audio- und Videoanrufe</string>
-    <string name="muting_option_only_mentions_title">Erwähnungen und Antworten</string>
-    <string name="muting_option_only_mentions_text">Sie erhalten nur dann Benachrichtigungen für diese Unterhaltung, wenn jemand Sie erwähnt oder Ihnen antwortet</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nichts</string>
     <string name="muting_option_all_muted_text">Keine Benachrichtigungen für diese Unterhaltung bekommen</string>
     <!--Profile image-->
@@ -668,7 +670,12 @@
         <item quantity="one">%s schreibt</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>

@@ -399,6 +399,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="member_name_you_label_lowercase">tu</string>
     <string name="label_add_participants">Aggiungi partecipanti</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Dettagli della conversazione</string>
     <string name="conversation_details_options_tab">OPZIONI</string>
     <string name="conversation_details_participants_tab">PARTICIPANTI</string>
@@ -407,6 +408,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversation_details_group_members">MEMBRI DEL GRUPPO (%d)</string>
     <string name="conversation_details_participants_info">Questo gruppo ha %s partecipanti.
 Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Mostra tutti i partecipanti (%d)</string>
     <string name="conversation_details_group_participants_title">Partecipanti del gruppo</string>
     <string name="conversation_details_group_participants_add">Aggiungi partecipanti</string>
@@ -509,8 +511,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Tutto</string>
     <string name="muting_option_all_allowed_text">Ricevi le notifiche per questa conversazione su tutto (inclusi audio e video chiamate)</string>
-    <string name="muting_option_only_mentions_title">Menzioni e risposte</string>
-    <string name="muting_option_only_mentions_text">Ricevi solo le notifiche per questa conversazione quando qualcuno ti menziona o ti risponde</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Niente</string>
     <string name="muting_option_all_muted_text">Non ricevi alcuna notifica per questa conversazione</string>
     <!--Profile image-->
@@ -665,7 +667,12 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">%s is typing</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
     <string name="label_new_conversation">Nuova Conversazione</string>

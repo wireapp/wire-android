@@ -405,6 +405,7 @@
     <string name="member_name_you_label_lowercase">вы</string>
     <string name="label_add_participants">Добавить участников</string>
     <string name="username_unavailable_label">Имя недоступно</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Информация о беседе</string>
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
     <string name="conversation_details_participants_tab">УЧАСТНИКИ</string>
@@ -412,6 +413,7 @@
     <string name="conversation_details_group_admins">АДМИНИСТРАТОРЫ ГРУППЫ (%d)</string>
     <string name="conversation_details_group_members">УЧАСТНИКИ ГРУППЫ (%d)</string>
     <string name="conversation_details_participants_info">В этой группе %s участников.\nК групповой беседе могут присоединиться до 500 человек.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Показать всех участников (%d)</string>
     <string name="conversation_details_group_participants_title">Участники группы</string>
     <string name="conversation_details_group_participants_add">Добавить участников</string>
@@ -514,8 +516,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Все</string>
     <string name="muting_option_all_allowed_text">Получать уведомления о беседе по любому поводу (включая аудио- и видеозвонки)</string>
-    <string name="muting_option_only_mentions_title">Упоминания и ответы</string>
-    <string name="muting_option_only_mentions_text">Получать уведомления из этой беседы только в случае, если кто-то вас упомянет или ответит на ваше сообщение</string>
+    <string name="muting_option_only_mentions_title">Вызовы, упоминания и ответы</string>
+    <string name="muting_option_only_mentions_text">Получать уведомления из этой беседы только если кто-то позвонит, упомянет вас или ответит на ваше сообщение</string>
     <string name="muting_option_all_muted_title">Ничего</string>
     <string name="muting_option_all_muted_text">Не получать уведомлений из этой беседы вообще</string>
     <!--Profile image-->
@@ -695,7 +697,12 @@
         <item quantity="many">%1$s и еще %2$d печатают</item>
         <item quantity="other">%1$s и еще %2$d печатают</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_new_conversation">Новая беседа</string>
@@ -1258,6 +1265,6 @@
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Новый пароль сгенерирован</string>
     <!--    biometrics-->
     <string name="biometrics_prompt_dialog_title">Аутентификация биометрией</string>
-    <string name="biometrics_prompt_dialog_subtitle">Разблокировать Wire</string>
+    <string name="biometrics_prompt_dialog_subtitle">Для разблокировки Wire</string>
     <string name="biometrics_use_passcode_button">Использовать код доступа</string>
 </resources>

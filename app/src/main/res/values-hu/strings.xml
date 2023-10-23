@@ -403,6 +403,7 @@
     <string name="member_name_you_label_lowercase">ön</string>
     <string name="label_add_participants">Résztvevők hozzáadása</string>
     <string name="username_unavailable_label">A név nem elérhető</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Beszélgetés részletei</string>
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
@@ -410,6 +411,7 @@
     <string name="conversation_details_group_admins">CSOPORTADMINISZTRÁTOROK (%d)</string>
     <string name="conversation_details_group_members">CSOPORTTAGOK (%d)</string>
     <string name="conversation_details_participants_info">A csoportnak %s résztvevője van.\nAkár 500 fő is csatlakozhat egy csoportos beszélgetéshez.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
     <string name="conversation_details_group_participants_title">Csoport résztvevői</string>
     <string name="conversation_details_group_participants_add">Résztvevők hozzáadása</string>
@@ -512,8 +514,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Minden</string>
     <string name="muting_option_all_allowed_text">Értesítsen ezen beszélgetéssel kapcsolatban mindenről (hang- és videóhívásokat is beleértve)</string>
-    <string name="muting_option_only_mentions_title">Említések és válaszok</string>
-    <string name="muting_option_only_mentions_text">Ezen beszélgetéssel kapcsolatban csak akkor értesítse, ha valaki említi Önt, vagy Önnek válaszol</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Semmi</string>
     <string name="muting_option_all_muted_text">Ezen beszélgetéssel kapcsolatban egyáltalán ne értesítsen</string>
     <!--Profile image-->
@@ -667,7 +669,12 @@
         <item quantity="one">%s is typing</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">NÉVJEGYEK</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_new_conversation">Új beszélgetés</string>

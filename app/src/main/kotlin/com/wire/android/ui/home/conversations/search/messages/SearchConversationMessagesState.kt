@@ -25,5 +25,5 @@ import kotlinx.collections.immutable.persistentListOf
 data class SearchConversationMessagesState(
     val searchQuery: TextFieldValue = TextFieldValue(""),
     val searchResult: ImmutableList<UIMessage> = persistentListOf(),
-    val noneSearchSucceed: Boolean = false
+    val isEmptyResult: Boolean = false
 )

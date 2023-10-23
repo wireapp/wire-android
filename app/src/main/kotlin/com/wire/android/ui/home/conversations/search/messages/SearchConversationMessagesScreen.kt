@@ -72,7 +72,7 @@ fun SearchConversationMessagesScreen(
             content = {
                 SearchConversationMessagesResultContent(
                     searchQuery = searchQuery.text,
-                    noneSearchSucceed = noneSearchSucceed,
+                    noneSearchSucceed = isEmptyResult,
                     searchResult = searchResult
                 )
                 BackHandler(enabled = searchBarState.isSearchActive) {

@@ -73,7 +73,7 @@ class SearchConversationMessagesViewModel @Inject constructor(
                     ).onSuccess { uiMessages ->
                         searchConversationMessagesState = searchConversationMessagesState.copy(
                             searchResult = uiMessages.toPersistentList(),
-                            noneSearchSucceed = uiMessages.isEmpty()
+                            isEmptyResult = uiMessages.isEmpty()
                         )
                     }
                 }

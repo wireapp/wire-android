@@ -94,7 +94,7 @@ class LockCodeTimeManager @Inject constructor(
         isLockedFlow.value = false
     }
 
-    fun isAppLocked() : Boolean = isLockedFlow.value
+    fun isAppLocked(): Boolean = isLockedFlow.value
 
     fun observeAppLock(): Flow<Boolean> = isLockedFlow
 

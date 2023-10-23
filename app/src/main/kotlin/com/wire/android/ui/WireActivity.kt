@@ -330,7 +330,6 @@ class WireActivity : AppCompatActivity() {
                         )
                     }
                 }
-
         }
 
         proximitySensorManager.registerListener()

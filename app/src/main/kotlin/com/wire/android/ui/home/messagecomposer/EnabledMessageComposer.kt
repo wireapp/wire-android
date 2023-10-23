@@ -123,10 +123,14 @@ fun EnabledMessageComposer(
                         Modifier.weight(1f)
                     }
                 Box(
+                    contentAlignment = Alignment.BottomCenter,
                     modifier = expandOrHideMessagesModifier
                         .background(color = colorsScheme().backgroundVariant)
                 ) {
                     messageListContent()
+                    if (!inputStateHolder.isTextExpanded) {
+                        UsersTypingIndicatorForConversation(conversationId = conversationId)
+                    }
                     if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                         MembersMentionList(
                             membersToMention = messageComposerViewState.value.mentionSearchResult,
@@ -134,7 +138,8 @@ fun EnabledMessageComposer(
                             onMentionPicked = { pickedMention ->
                                 messageCompositionHolder.addMention(pickedMention)
                                 onClearMentionSearchResult()
-                            }
+                            },
+                            modifier = Modifier.align(Alignment.BottomCenter)
                         )
                     }
                 }
@@ -145,18 +150,11 @@ fun EnabledMessageComposer(
                         Modifier.weight(1f)
                     }
                 Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
+                        .background(color = colorsScheme().backgroundVariant)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .background(color = colorsScheme().backgroundVariant)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        UsersTypingIndicatorForConversation(conversationId = conversationId)
-                    }
-
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
                             conversationId = conversationId
@@ -169,6 +167,7 @@ fun EnabledMessageComposer(
                             var cursorCoordinateY by remember { mutableStateOf(0F) }
 
                             ActiveMessageComposerInput(
+                                conversationId = conversationId,
                                 messageComposition = messageComposition.value,
                                 isTextExpanded = inputStateHolder.isTextExpanded,
                                 inputType = messageCompositionInputStateHolder.inputType,

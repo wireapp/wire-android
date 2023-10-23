@@ -49,6 +49,8 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
 
     <!-- Allows showing incoming call when device is sleeping -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -57,6 +59,10 @@
     <uses-feature
             android:glEsVersion="0x00020000"
             android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
             android:name=".WireApplication"

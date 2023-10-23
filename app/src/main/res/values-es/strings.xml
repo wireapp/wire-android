@@ -509,8 +509,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Todo</string>
     <string name="muting_option_all_allowed_text">Recibir notificaciones para esta conversaci&#243;n sobre todo (incluidas las llamadas de audio y video).</string>
-    <string name="muting_option_only_mentions_title">Menciones y respuestas</string>
-    <string name="muting_option_only_mentions_text">Solo recibir notificaciones de esta conversaci&#243;n cuando alguien te mencione o responda a ti.</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nada</string>
     <string name="muting_option_all_muted_text">No recibir ninguna notificaci&#243;n para esta conversaci&#243;n.</string>
     <!--Profile image-->

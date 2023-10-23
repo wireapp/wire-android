@@ -171,7 +171,7 @@
     <string name="content_description_record_audio_button_send">හඬ පණිවිඩය යවන්න</string>
     <string name="content_description_mls_certificate_valid">සියළුම සහභාගීන්ගේ උපාංගවල වලංගු MLS සහතිකයක් ඇත</string>
     <string name="content_description_proteus_certificate_valid">සියළුම සහභාගීන් සත්‍යාපිතයි (ප්‍රෝතියස්)</string>
-    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_jump_to_last_message">අවසාන පණිවිඩයට යාම, බොත්තම</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -275,8 +275,8 @@
     <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
     <string name="remove_device_message">මෙහි වයර් භාවිතා කිරීම ඇරඹීමට ඔබගේ අනෙක් උපාංග වලින් එකක් ඉවත් කරන්න.</string>
     <string name="remove_device_label">ඔබගේ උපාංග</string>
-    <string name="remove_device_id_and_time_label">ප්‍රෝතියස් හැඳු.: %1$s\nඑක්කළ: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">ප්‍රෝතියස් හැඳු.: %1$s\nඑක්කළ: %2$s\nසක්‍රිය: %3$s</string>
+    <string name="remove_device_id_and_time_label">ප්‍රෝතියස් හැඳු.: %1$s\nඑක් කළේ: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">ප්‍රෝතියස් හැඳු.: %1$s\nඑක් කළේ: %2$s\nසක්‍රිය: %3$s</string>
     <string name="remove_device_id_label">ප්‍රෝතියස් හැඳු.: %1$s</string>
     <string name="remove_device_mls_thumbprint_label">MLS ඇඟිලි සටහන: %1$s</string>
     <string name="remove_device_dialog_title">පහත උපාංගය ඉවත් කරනවාද?</string>
@@ -502,8 +502,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">සියල්ල</string>
     <string name="muting_option_all_allowed_text">මෙම සංවාදයේ සියළුම දෑ පිළිබඳව දැනුම්දීම් ලබන්න (ශ්‍රව්‍ය සහ දෘශ්‍ය ඇමතුම් ඇතුළුව)</string>
-    <string name="muting_option_only_mentions_title">සැඳහුම් සහ පිළිතුරු</string>
-    <string name="muting_option_only_mentions_text">යමෙක් ඔබව සඳහන් කළ විට හෝ ඔබට පිළිතුරු දුන් විට පමණක් මෙම සංවාදයෙන් දැනුම්දීම් ලබන්න</string>
+    <string name="muting_option_only_mentions_title">ඇමතුම්, සැඳහුම් සහ පිළිතුරු</string>
+    <string name="muting_option_only_mentions_text">යමෙක් ඔබට අමතන විට, පිළිතුරු දුන් විට හෝ ඔබව සඳහන් කළ විට පමණක් මෙම සංවාදයෙන් දැනුම්දීම් ලබන්න</string>
     <string name="muting_option_all_muted_title">කිසිවක් නැත</string>
     <string name="muting_option_all_muted_text">මෙම සංවාදයෙන් කිසිදු දැනුම්දීමක් නොලබන්න</string>
     <!--Profile image-->
@@ -565,7 +565,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s සැමට ඉබේ මැකෙන පණිවිඩ **අක්‍රිය** කර ඇත</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s සැමට ඉබේ මැකෙන පණිවිඩ **අක්‍රිය** කර ඇත</string>
     <string name="label_system_message_deactivated">අක්‍රියයි</string>
-    <string name="label_system_message_conversation_history_lost">ඔබ යම් කාලයක් මෙම උපාංගය භාවිත කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
+    <string name="label_system_message_conversation_history_lost">ඔබ යම් කාලයක් මෙම උපාංගය භාවිතා කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">MLS සමූහ යතුර අපගේ අනුදැනුමකින් තොරව යාවත්කාලීන වී ඇත. සේවාදායක අතර අහිමි වූ පණිවිඩ හෝ දෝෂයක් නිසා මෙය සිදු වීමට හැකිය. අපි ස්වයංක්‍රීයව නැවත සංවාදයට එක් වී ඇත, නමුත් ඔබගේ පණිවිඩ නැති වී තිබීමට ඉඩ ඇත.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">ඔබ නිසි කලට යෙදුම යාවත්කාල කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
@@ -877,21 +877,21 @@
     <string name="settings_show_typing_indicator_description">මෙය අක්‍රිය නම්, ඔබට වෙනත් පුද්ගලයින් ලියන විට දැකීමට නොහැකි අතර, ඔබ ලියන විට ද අන් අයට නොපෙනේ. මෙම සැකසුම උපාංගයේ සියළුම සංවාද සඳහා අදාළ වේ.</string>
     <string name="settings_app_lock_title">මුරකේතයකින් අගුළුලන්න</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_title">යෙදුමට අගුලක් සකසන්න</string>
+    <string name="settings_set_lock_screen_description">%1$s නිෂ්ක්‍රියත්‍වයකින් පසුව යෙදුමට අගුළු වැටෙනු ඇත. යෙදුම අගුළු හැරීමට මෙම මුරකේතය යෙදීමට සිදු වේ.\n\nමෙය ප්‍රතිසාධනයට ක්‍රමයක් නැති බැවින් මතක තබා ගැනීමට වග බලා ගන්න.</string>
     <string name="settings_set_lock_screen_passcode_label">මුර කේතය</string>
     <string name="settings_set_lock_screen_continue_button_label">මුරකේතයක් සකසන්න</string>
     <string name="settings_enter_lock_screen_title">වයර් අගුළු හැරීමට මුරකේතය යොදන්න</string>
     <string name="settings_enter_lock_screen_unlock_button_label">අනවහිර</string>
     <string name="settings_enter_lock_screen_wrong_passcode_label">වැරදි මුරකේතයකි</string>
-    <string name="password_validation_length">At least 8 characters</string>
-    <string name="password_validation_lowercase">A lowercase character</string>
-    <string name="password_validation_uppercase">An uppercase character</string>
-    <string name="password_validation_digit">A digit</string>
-    <string name="password_validation_special_character">A special character</string>
-    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="password_validation_length">අවම වශයෙන් අකුරු 8 ක්</string>
+    <string name="password_validation_lowercase">කුඩා අකුරක්</string>
+    <string name="password_validation_uppercase">ලොකු අකුරක්</string>
+    <string name="password_validation_digit">අංකයක්</string>
+    <string name="password_validation_special_character">විශේෂ අකුරක්</string>
+    <string name="turn_app_lock_off_dialog_title">යෙදුමේ අගුල අක්‍රිය කරන්නද?</string>
     <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
-    <string name="label_turn_off">Turn Off</string>
+    <string name="label_turn_off">අක්‍රිය කරන්න</string>
     <!--Devices -->
     <string name="devices_title">ඔබගේ උපාංග</string>
     <string name="current_device_label">වත්මන් උපාංගය</string>
@@ -923,7 +923,7 @@
     <string name="label_device_id">උපාංගයේ හැඳු.: %1$s</string>
     <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">අනුග්‍රාහකයේ හැඳු.: %1$s</string>
-    <string name="label_client_added_time">එක් කෙරිණි</string>
+    <string name="label_client_added_time">එක් කළේ</string>
     <string name="label_client_last_active_label">අන්තිමට දුටුවේ</string>
     <string name="label_client_last_active_time_zero_weeks">සතියකට පෙර</string>
     <string name="label_client_last_active_time">%1$s කට පෙර</string>
@@ -1196,7 +1196,7 @@
     <string name="conversation_options_create_password_protected_guest_link_password_description">කුඩා සහ ලොකු අකුරක් ද, අංකයක් ද, විශේෂ අකුරක් ද සහිතව අවම වශයෙන් අකුරු 8 ක් යොදා ගන්න.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">නව මුරපදයක් උත්පාදනය විය</string>
     <!--    biometrics-->
-    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_title">වමිතික භාවිතයෙන්</string>
     <string name="biometrics_prompt_dialog_subtitle">වයර් අගුළු හැරීමට</string>
     <string name="biometrics_use_passcode_button">මුරකේතය භාවිතා කරන්න</string>
 </resources>

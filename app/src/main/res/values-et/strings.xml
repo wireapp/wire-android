@@ -512,7 +512,7 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Kõik</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
-    <string name="muting_option_only_mentions_title">Mainimised ja vastused</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
     <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Puuduvad</string>
     <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>

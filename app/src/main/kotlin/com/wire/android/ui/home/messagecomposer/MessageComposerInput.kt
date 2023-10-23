@@ -93,8 +93,6 @@ fun ActiveMessageComposerInput(
 ) {
     Column(
         modifier = modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
             .background(inputType.backgroundColor())
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
@@ -115,17 +113,17 @@ fun ActiveMessageComposerInput(
         }
 
         val stretchToMaxParentConstraintHeightOrWithInBoundary = if (isTextExpanded) {
-            Modifier.fillMaxHeight()
+            Modifier.weight(1F)
         } else {
             Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-        }.weight(1F)
+        }
 
         if (isTextExpanded) {
             Column(
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .weight(1F)
             ) {
                 InputContent(
                     conversationId = conversationId,

@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.search.messages
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -48,7 +49,9 @@ fun SearchConversationMessagesResultsScreen(
                         onReactionClicked = { _, _ -> },
                         onResetSessionClicked = { _, _ -> },
                         onSelfDeletingMessageRead = { },
-                        isFromSearch = true
+                        defaultBackgroundColor = colorsScheme().backgroundVariant,
+                        shouldDisplayMessageStatus = false,
+                        shouldDisplayFooter = false
                     )
                 }
                 is UIMessage.System -> { }

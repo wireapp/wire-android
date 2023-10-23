@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.graphics.Color
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -107,7 +108,9 @@ fun MessageItem(
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
-    isFromSearch: Boolean = false
+    defaultBackgroundColor: Color = Color.Transparent,
+    shouldDisplayMessageStatus: Boolean = true,
+    shouldDisplayFooter: Boolean = true
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -133,10 +136,8 @@ fun MessageItem(
             )
 
             Modifier.background(color)
-        } else if (isFromSearch) {
-            Modifier.background(colorsScheme().backgroundVariant)
         } else {
-            Modifier
+            Modifier.background(defaultBackgroundColor)
         }
 
         Box(backgroundColorModifier) {
@@ -239,7 +240,7 @@ fun MessageItem(
                                         onLinkClick = onLinkClick
                                     )
                                 }
-                                if (isMyMessage && !isFromSearch) {
+                                if (isMyMessage && shouldDisplayMessageStatus) {
                                     MessageStatusIndicator(
                                         status = message.header.messageStatus.flowStatus,
                                         isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
@@ -252,7 +253,7 @@ fun MessageItem(
                                     HorizontalSpace.x24()
                                 }
                             }
-                            if (!isFromSearch) {
+                            if (shouldDisplayFooter) {
                                 MessageFooter(
                                     messageFooter = messageFooter,
                                     onReactionClicked = onReactionClicked

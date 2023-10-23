@@ -33,8 +33,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SearchConversationMessagesNoResultsScreen() {
@@ -52,5 +54,13 @@ fun SearchConversationMessagesNoResultsScreen() {
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewSearchConversationMessagesNoResultsScreen() {
+    WireTheme {
+        SearchConversationMessagesNoResultsScreen()
     }
 }

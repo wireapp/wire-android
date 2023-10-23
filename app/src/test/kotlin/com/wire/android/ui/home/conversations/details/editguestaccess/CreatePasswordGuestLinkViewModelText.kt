@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.details.editguestaccess.createPass
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
@@ -240,7 +241,7 @@ class CreatePasswordGuestLinkViewModelText {
         fun withPasswordValidation(result: Boolean) = apply {
             every {
                 validatePassword(any())
-            } returns result
+            } returns if (result) ValidatePasswordResult.Valid else ValidatePasswordResult.Invalid()
         }
 
         fun withGenerateGuestLink(

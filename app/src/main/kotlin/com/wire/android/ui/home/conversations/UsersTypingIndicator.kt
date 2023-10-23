@@ -79,17 +79,18 @@ fun UsersTypingIndicatorForConversation(
 @Composable
 fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
     if (usersTyping.isNotEmpty()) {
-        val rememberTransition =
-            rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(dimensions().spacing24x)
+                .padding(bottom = dimensions().spacing4x)
+                .height(dimensions().typingIndicatorHeight)
                 .background(
-                    color = colorsScheme().surface,
+                    color = colorsScheme().surfaceVariant,
                     shape = RoundedCornerShape(dimensions().corner14x),
                 )
         ) {
+            val rememberTransition =
+                rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))
             UsersTypingAvatarPreviews(usersTyping)
             Text(
                 text = pluralStringResource(

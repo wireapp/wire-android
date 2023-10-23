@@ -221,6 +221,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideDisableEventProcessing(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).debug.disableEventProcessing
+
+    @ViewModelScoped
+    @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().session.currentSessionFlow
 
@@ -315,17 +320,17 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideCreateBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).createBackup
+        coreLogic.getSessionScope(currentAccount).backup.create
 
     @ViewModelScoped
     @Provides
     fun provideVerifyBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).verifyBackupUseCase
+        coreLogic.getSessionScope(currentAccount).backup.verify
 
     @ViewModelScoped
     @Provides
     fun provideRestoreBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).restoreBackup
+        coreLogic.getSessionScope(currentAccount).backup.restore
 
     @ViewModelScoped
     @Provides

@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
@@ -29,20 +31,20 @@ class ObserveAppLockConfigUseCase @Inject constructor(
 ) {
 
     operator fun invoke(): Flow<AppLockConfig> =
-        globalDataStore.getAppLockPasscodeFlow().map { // TODO: include checking if any logged account does not enforce app-lock
+        globalDataStore.isAppLockPasscodeSetFlow().map { // TODO: include checking if any logged account does not enforce app-lock
             when {
-                it.isNullOrEmpty() -> AppLockConfig.Disabled
-                else -> AppLockConfig.Enabled
+                it -> AppLockConfig.Enabled
+                else -> AppLockConfig.Disabled
             }
         }
 }
 
-sealed class AppLockConfig(open val timeoutInSeconds: Int = DEFAULT_TIMEOUT) {
+sealed class AppLockConfig(open val timeout: Duration = DEFAULT_TIMEOUT) {
     data object Disabled : AppLockConfig()
     data object Enabled : AppLockConfig()
-    data class EnforcedByTeam(override val timeoutInSeconds: Int) : AppLockConfig(timeoutInSeconds)
+    data class EnforcedByTeam(override val timeout: Duration) : AppLockConfig(timeout)
 
     companion object {
-        const val DEFAULT_TIMEOUT = 60
+        val DEFAULT_TIMEOUT = 60.seconds
     }
 }

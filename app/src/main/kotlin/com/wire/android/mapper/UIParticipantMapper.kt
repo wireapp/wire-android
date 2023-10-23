@@ -57,6 +57,7 @@ class UIParticipantMapper @Inject constructor(
             botService = (user as? OtherUser)?.botService,
             isDefederated = (user is OtherUser && user.defederated),
             isProteusVerified = (user is OtherUser && user.isProteusVerified),
+            supportedProtocolList = supportedProtocols.orEmpty().toList()
         )
     }
 
@@ -71,7 +72,8 @@ class UIParticipantMapper @Inject constructor(
             isDeleted = userSummary.isUserDeleted,
             isSelf = isSelfUser,
             isDefederated = false,
-            isProteusVerified = false
+            isProteusVerified = false,
+            supportedProtocolList = listOf()
         )
     }
 
@@ -87,7 +89,8 @@ class UIParticipantMapper @Inject constructor(
             isSelf = false,
             readReceiptDate = date,
             isDefederated = false,
-            isProteusVerified = false
+            isProteusVerified = false,
+            supportedProtocolList = listOf()
         )
     }
 

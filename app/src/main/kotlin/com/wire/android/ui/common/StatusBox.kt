@@ -32,11 +32,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 /**
  * Outlined box with a text inside.
@@ -46,17 +47,24 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun StatusBox(
     statusText: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.wireColorScheme.secondaryText,
+    badgeColor: Color = MaterialTheme.wireColorScheme.surfaceVariant,
+    withBorder: Boolean = true,
 ) {
     Box(
         modifier = modifier
             .wrapContentSize()
             .clip(RoundedCornerShape(size = dimensions().spacing4x))
-            .background(colorsScheme().surface)
+            .background(badgeColor)
             .border(
                 BorderStroke(
                     width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.divider
+                    color = if (withBorder) {
+                        MaterialTheme.wireColorScheme.outline
+                    } else {
+                        badgeColor
+                    }
                 ),
                 shape = RoundedCornerShape(size = dimensions().spacing4x),
             )
@@ -68,7 +76,7 @@ fun StatusBox(
     ) {
         Text(
             text = statusText,
-            style = typography().label03.copy(color = MaterialTheme.wireColorScheme.labelText)
+            style = typography().label03.copy(color = textColor)
         )
     }
 }
@@ -81,8 +89,28 @@ fun DeletedLabel(modifier: Modifier = Modifier) {
     )
 }
 
-@Preview
+@Composable
+fun ProtocolLabel(
+    protocolName: String,
+    modifier: Modifier = Modifier
+) {
+    StatusBox(
+        statusText = protocolName,
+        modifier = modifier,
+        textColor = MaterialTheme.wireColorScheme.onPrimary,
+        badgeColor = MaterialTheme.wireColorScheme.primary,
+        withBorder = false
+    )
+}
+
+@PreviewMultipleThemes
 @Composable
 fun PreviewDeletedLabel() {
     DeletedLabel()
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewProtocolLabel() {
+    ProtocolLabel("MLS")
 }

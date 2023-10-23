@@ -31,7 +31,6 @@ import com.wire.android.ui.home.conversations.search.messages.SearchConversation
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -40,7 +39,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -101,9 +99,6 @@ class SearchConversationMessagesViewModelTest {
             domain = "some-dummy-domain"
         )
 
-        private val messagesChannel =
-            Channel<Either<CoreFailure, List<UIMessage>>>(capacity = Channel.UNLIMITED)
-
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
@@ -124,11 +119,6 @@ class SearchConversationMessagesViewModelTest {
             every { savedStateHandle.navArgs<SearchConversationMessagesNavArgs>() } returns SearchConversationMessagesNavArgs(
                 conversationId = conversationId
             )
-//            coEvery {
-//                getSearchMessagesForConversation(any(), any())
-//            } returns messagesChannel.consume {
-//                this.receive().right(listOf())
-//            }
         }
 
         suspend fun withSuccessSearch(
@@ -138,15 +128,6 @@ class SearchConversationMessagesViewModelTest {
             coEvery {
                 getSearchMessagesForConversation(eq(searchTerm), eq(conversationId))
             } returns Either.Right(messages)
-        }
-
-        suspend fun withErrorSearch(
-            searchTerm: String,
-            error: CoreFailure // StorageFailure.DataNotFound
-        ) = apply {
-            coEvery {
-                getSearchMessagesForConversation(eq(searchTerm), eq(conversationId))
-            } returns Either.Left(error)
         }
 
         fun arrange() = this to viewModel

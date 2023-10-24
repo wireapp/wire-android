@@ -77,4 +77,3 @@ private fun unverifiedDescriptionResource(connectionStatus: ConnectionState) = w
 fun PreviewOtherUserConnectionUnverifiedWarning() {
     OtherUserConnectionUnverifiedWarning("Bob", ConnectionState.NOT_CONNECTED)
 }
-

@@ -44,7 +44,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -53,7 +52,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
@@ -100,10 +101,8 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -178,10 +177,6 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     ReportDrawnWhen { isLoaded }
                     val navigator = rememberNavigator(this@WireActivity::finish)
-                    val scope = rememberCoroutineScope()
-
-                    isLoaded = true
-                    handleScreenshotCensoring()
 
                     handleAppLock { isLocked ->
                         Column(modifier = Modifier.statusBarsPadding()) {
@@ -202,7 +197,8 @@ class WireActivity : AppCompatActivity() {
                             // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                             setUpNavigation(navigator.navController, onComplete, scope)
                         }
-
+                        isLoaded = true
+                        handleScreenshotCensoring()
                         handleDialogs(
                             // Show dialogs only when the app is not locked
                             if (isLocked) FeatureFlagState() else featureFlagNotificationViewModel.featureFlagState,
@@ -219,17 +215,20 @@ class WireActivity : AppCompatActivity() {
     private fun setUpNavigation(
         navController: NavHostController,
         onComplete: () -> Unit,
-        scope: CoroutineScope
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
-        LaunchedEffect(scope) {
-            navigationCommands
-                .onSubscription { onComplete() }
-                .onEach { command ->
-                    currentKeyboardController?.hide()
-                    currentNavController.navigateToItem(command)
-                }.launchIn(scope)
+        LaunchedEffect(Unit) {
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    navigationCommands
+                        .onSubscription { onComplete() }
+                        .collectLatest {
+                            currentKeyboardController?.hide()
+                            currentNavController.navigateToItem(it)
+                        }
+                }
+            }
         }
 
         DisposableEffect(navController) {

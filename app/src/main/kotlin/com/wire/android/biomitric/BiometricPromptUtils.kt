@@ -43,7 +43,7 @@ object BiometricPromptUtils {
             override fun onAuthenticationError(errorCode: Int, errorString: CharSequence) {
                 super.onAuthenticationError(errorCode, errorString)
                 appLogger.i("$TAG errorCode is $errorCode and errorString is: $errorString")
-                if (errorCode == ERROR_NEGATIVE_BUTTON) {
+                if (errorCode == ERROR_NEGATIVE_BUTTON || errorCode == BiometricPrompt.ERROR_LOCKOUT) {
                     onRequestPasscode()
                 } else {
                     onCancel()
@@ -78,16 +78,15 @@ fun AppCompatActivity.showBiometricPrompt(
     onCancel: () -> Unit,
     onRequestPasscode: () -> Unit
 ) {
-    appLogger.i("$TAG showing biometrics dialog...")
-
     val canAuthenticate = BiometricManager.from(this)
         .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
     if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+        appLogger.i("$TAG showing biometrics dialog...")
         val biometricPrompt = BiometricPromptUtils.createBiometricPrompt(
-            this,
-            onSuccess,
-            onCancel,
-            onRequestPasscode,
+            activity = this,
+            onSuccess = onSuccess,
+            onCancel = onCancel,
+            onRequestPasscode = onRequestPasscode
         )
         val promptInfo = BiometricPromptUtils.createPromptInfo(this)
         biometricPrompt.authenticate(promptInfo)

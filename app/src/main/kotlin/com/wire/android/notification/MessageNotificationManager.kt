@@ -37,6 +37,7 @@ import androidx.core.text.toSpannable
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.notification.NotificationConstants.getConversationNotificationId
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -51,7 +52,8 @@ class MessageNotificationManager
 @Inject constructor(
     private val context: Context,
     private val notificationManagerCompat: NotificationManagerCompat,
-    private val notificationManager: NotificationManager
+    private val notificationManager: NotificationManager,
+    private val lockCodeTimeManager: LockCodeTimeManager
 ) {
 
     fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
@@ -200,34 +202,18 @@ class MessageNotificationManager
                                 setContentIntent(openAppPendingIntent(context))
                             }
 
-                            is NotificationMessage.Comment -> {
-                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
-                            }
-
-                            is NotificationMessage.Knock -> {
-                                setChannelId(NotificationConstants.getPingsChannelId(userId))
-                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                            }
-
-                            is NotificationMessage.Text -> {
-                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
-                            }
-
-                            is NotificationMessage.ObfuscatedMessage -> {
-                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
-                            }
-
+                            is NotificationMessage.Knock,
                             is NotificationMessage.ObfuscatedKnock -> {
                                 setChannelId(NotificationConstants.getPingsChannelId(userId))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                             }
 
+                            is NotificationMessage.Comment,
+                            is NotificationMessage.Text,
+                            is NotificationMessage.ObfuscatedMessage,
                             null -> {
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString, lockCodeTimeManager.isLocked().value))
                             }
                         }
                     }
@@ -447,7 +433,8 @@ class MessageNotificationManager
             context: Context,
             conversationId: String,
             userId: QualifiedID,
-            replyText: String?
+            replyText: String?,
+            isAppLocked: Boolean
         ) {
             val conversationNotificationId = getConversationNotificationId(conversationId, userId.toString())
             val userIdString = userId.toString()
@@ -470,7 +457,7 @@ class MessageNotificationManager
 
             val notification = setUpNotificationBuilder(context, userId).apply {
                 setContentIntent(messagePendingIntent(context, conversationId, userIdString))
-                addAction(getActionReply(context, conversationId, userIdString))
+                addAction(getActionReply(context, conversationId, userIdString, isAppLocked))
 
                 setWhen(System.currentTimeMillis())
 

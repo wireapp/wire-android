@@ -28,6 +28,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -51,6 +52,9 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
     @Inject
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @Inject
+    lateinit var lockCodeTimeManager: LockCodeTimeManager
 
     override fun onReceive(context: Context, intent: Intent) {
         val remoteInput = RemoteInput.getResultsFromIntent(intent)
@@ -76,7 +80,13 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
     }
 
     private fun updateNotification(context: Context, conversationId: String, userId: QualifiedID, replyText: String?) =
-        MessageNotificationManager.updateNotificationAfterQuickReply(context, conversationId, userId, replyText)
+        MessageNotificationManager.updateNotificationAfterQuickReply(
+            context,
+            conversationId,
+            userId,
+            replyText,
+            lockCodeTimeManager.isLocked().value
+        )
 
     companion object {
         private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"

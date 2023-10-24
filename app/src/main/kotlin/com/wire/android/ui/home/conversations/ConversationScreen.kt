@@ -39,6 +39,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -912,9 +913,17 @@ fun JumpToLastMessageButton(
     ) {
         SmallFloatingActionButton(
             onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
-            containerColor = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
-            contentColor = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+            containerColor = MaterialTheme.wireColorScheme.scrollToBottomButtonColor,
+            contentColor = MaterialTheme.wireColorScheme.onScrollToBottomButtonColor,
             shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
+            modifier = Modifier
+                .padding(
+                    PaddingValues(
+                        bottom = dimensions().typingIndicatorHeight + dimensions().spacing8x,
+                        end = dimensions().spacing16x
+                    )
+                )
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,

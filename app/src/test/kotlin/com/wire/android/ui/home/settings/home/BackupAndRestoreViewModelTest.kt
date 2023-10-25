@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.settings.home
 
 import android.net.Uri
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.net.toUri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -33,6 +34,8 @@ import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation
 import com.wire.android.util.FileManager
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
@@ -101,6 +104,56 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted == true)
         assert(backupAndRestoreViewModel.state.backupCreationProgress is BackupCreationProgress.Finished)
         coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
+    }
+
+    @Test
+    fun givenAnEmptyPassword_whenValidating_thenItUpdatePasswordStateToValid() = runTest(dispatcher.default()) {
+        // Given
+        val password = ""
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withInvalidPassword()
+            .arrange()
+
+        // When
+        backupAndRestoreViewModel.validateBackupCreationPassword(TextFieldValue(password))
+        advanceUntilIdle()
+
+        // Then
+        assert(backupAndRestoreViewModel.state.passwordValidation.isValid)
+        coVerify(exactly = 0) { arrangement.validatePassword(any()) }
+
+    }
+
+    @Test
+    fun givenANonEmptyPassword_whenItIsInvalid_thenItUpdatePasswordValidationState() = runTest(dispatcher.default()) {
+        // Given
+        val password = "mayTh3ForceBeWIthYou"
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withInvalidPassword()
+            .arrange()
+
+        // When
+        backupAndRestoreViewModel.validateBackupCreationPassword(TextFieldValue(password))
+        advanceUntilIdle()
+
+        // Then
+        assert(!backupAndRestoreViewModel.state.passwordValidation.isValid)
+    }
+
+    @Test
+    fun givenANonEmptyPassword_whenItIsValid_thenItUpdatePasswordValidationState() = runTest(dispatcher.default()) {
+        // Given
+        val password = "mayTh3ForceBeWIthYou_"
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withValidPassword()
+            .arrange()
+
+        // When
+        backupAndRestoreViewModel.validateBackupCreationPassword(TextFieldValue(password))
+        advanceUntilIdle()
+
+        // Then
+        assert(backupAndRestoreViewModel.state.passwordValidation.isValid)
     }
 
     @Test
@@ -413,6 +466,9 @@ class BackupAndRestoreViewModelTest {
         private lateinit var verifyBackup: VerifyBackupUseCase
 
         @MockK
+        lateinit var validatePassword: ValidatePasswordUseCase
+
+        @MockK
         lateinit var fileManager: FileManager
 
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
@@ -423,7 +479,8 @@ class BackupAndRestoreViewModelTest {
             verifyBackup = verifyBackup,
             kaliumFileSystem = fakeKaliumFileSystem,
             dispatcher = dispatcher,
-            fileManager = fileManager
+            fileManager = fileManager,
+            validatePassword = validatePassword
         )
 
         fun withSuccessfulCreation(password: String) = apply {
@@ -489,6 +546,14 @@ class BackupAndRestoreViewModelTest {
 
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success.NotEncrypted
             coEvery { importBackup(any(), any()) } returns error
+        }
+
+        fun withValidPassword() = apply {
+            every { validatePassword(any()) } returns ValidatePasswordResult.Valid
+        }
+
+        fun withInvalidPassword() = apply {
+            every { validatePassword(any()) } returns ValidatePasswordResult.Invalid()
         }
 
         fun arrange() = this to viewModel

@@ -47,7 +47,7 @@ fun CreateBackupDialogFlow(
         when (currentBackupDialogStep) {
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
-                    isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,
+                    passwordValidation = backUpAndRestoreState.passwordValidation,
                     onBackupPasswordChanged = onValidateBackupPassword,
                     onCreateBackup = { password ->
                         toCreatingBackup()

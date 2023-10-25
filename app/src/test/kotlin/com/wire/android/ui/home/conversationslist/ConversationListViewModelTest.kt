@@ -337,11 +337,12 @@ class ConversationListViewModelTest {
             conversationItem.conversationId,
             conversationItem.conversationInfo.name,
             ConversationTypeDetail.Private(null, conversationItem.userId, BlockingState.NOT_BLOCKED),
-            !isArchiving
+            !isArchiving,
+            true
         )
         val archivingTimestamp = 123456789L
 
-        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
+        coEvery { updateConversationArchivedStatus(any(), any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
 
         conversationListViewModel.homeSnackBarState.test {
             conversationListViewModel.moveConversationToArchive(dialogState, archivingTimestamp)
@@ -351,6 +352,7 @@ class ConversationListViewModelTest {
             updateConversationArchivedStatus.invoke(
                 dialogState.conversationId,
                 !dialogState.isArchived,
+                onlyLocally = false,
                 archivingTimestamp
             )
         }
@@ -363,11 +365,12 @@ class ConversationListViewModelTest {
             conversationItem.conversationId,
             conversationItem.conversationInfo.name,
             ConversationTypeDetail.Private(null, conversationItem.userId, BlockingState.NOT_BLOCKED),
-            !isArchiving
+            !isArchiving,
+            isMember = true
         )
         val archivingTimestamp = 123456789L
 
-        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
+        coEvery { updateConversationArchivedStatus(any(), any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
 
         conversationListViewModel.homeSnackBarState.test {
             conversationListViewModel.moveConversationToArchive(dialogState, archivingTimestamp)
@@ -377,7 +380,8 @@ class ConversationListViewModelTest {
             updateConversationArchivedStatus.invoke(
                 dialogState.conversationId,
                 !dialogState.isArchived,
-                archivingTimestamp
+                false,
+                archivingTimestamp,
             )
         }
     }

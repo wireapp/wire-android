@@ -14,15 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.settings.devices.e2ei
 
-package com.wire.android.util
-
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.text.AnnotatedString
-
-fun ClipboardManager.copyLinkToClipboard(text: String) {
-    setText(AnnotatedString(text))
-}
+data class E2eiCertificateDetailsScreenNavArgs(
+    val certificateString: String
+)

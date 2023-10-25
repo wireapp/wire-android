@@ -25,9 +25,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -55,14 +55,11 @@ fun MessageSendActions(
     onSendButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier) {
-        Row(Modifier.padding(end = dimensions().spacing8x)) {
-            SendButton(
-                isEnabled = sendButtonEnabled,
-                onSendButtonClicked = onSendButtonClicked
-            )
-        }
-    }
+    SendButton(
+        isEnabled = sendButtonEnabled,
+        onSendButtonClicked = onSendButtonClicked,
+        modifier = modifier.padding(end = dimensions().spacing8x)
+    )
 }
 
 @Composable
@@ -108,9 +105,8 @@ fun MessageEditActions(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentSize()
+            .height(dimensions().spacing64x)
     ) {
-
         Box( // we need to wrap it because button is smaller than minimum touch size so compose will add paddings to it to be 48dp anyway
             modifier = Modifier.size(width = dimensions().spacing64x, height = dimensions().spacing56x),
             contentAlignment = Alignment.CenterEnd
@@ -147,9 +143,11 @@ fun MessageEditActions(
 @Composable
 private fun SendButton(
     isEnabled: Boolean,
+    modifier: Modifier = Modifier,
     onSendButtonClicked: () -> Unit
 ) {
     WirePrimaryIconButton(
+        modifier = modifier,
         onButtonClicked = onSendButtonClicked,
         iconResource = R.drawable.ic_send,
         contentDescription = R.string.content_description_send_button,

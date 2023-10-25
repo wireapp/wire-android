@@ -40,8 +40,8 @@ androidx-biometric = "1.1.0"
 composeBom = "2023.10.00" # TODO check if in new version [anchoredDraggable] is available
 compose-compiler = "1.5.2"
 compose-constraint = "1.0.1"
-compose-navigation = "2.6.0"
-compose-destinations = "1.9.40-beta"
+compose-navigation = "2.7.3" # adjusted to work with compose-destinations "1.9.54"
+compose-destinations = "1.9.54"
 
 # Hilt
 hilt = "2.48"
@@ -49,7 +49,7 @@ hilt-composeNavigation = "1.0.0"
 hilt-work = "1.0.0"
 
 # Android UI
-accompanist = "0.31.0-alpha" # adjusted to work with compose-destinations "1.9.40-beta"
+accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
 material = "1.9.0"
 coil = "2.4.0"
 commonmark = "0.21.0"

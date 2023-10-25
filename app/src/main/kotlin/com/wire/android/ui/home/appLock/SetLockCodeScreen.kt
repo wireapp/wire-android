@@ -19,23 +19,28 @@ package com.wire.android.ui.home.appLock
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -46,17 +51,24 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.toTimeLongLabelUiText
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import java.util.Locale
 
 @RootNavGraph
@@ -114,12 +126,14 @@ fun SetLockCodeScreenContent(
                     }
             ) {
                 Text(
-                    text = stringResource(id = R.string.settings_set_lock_screen_description),
+                    text = stringResource(
+                        id = R.string.settings_set_lock_screen_description,
+                        state.timeout.toTimeLongLabelUiText().asString()
+                    ),
                     style = MaterialTheme.wireTypography.body01,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
                             vertical = MaterialTheme.wireDimensions.spacing24x
                         )
                         .testTag("registerText")
@@ -128,7 +142,6 @@ fun SetLockCodeScreenContent(
                     value = state.password,
                     onValueChange = onPasswordChanged,
                     labelMandatoryIcon = true,
-                    descriptionText = stringResource(R.string.create_account_details_password_description),
                     imeAction = ImeAction.Done,
                     modifier = Modifier
                         .testTag("password"),
@@ -137,6 +150,8 @@ fun SetLockCodeScreenContent(
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
                     labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(Locale.getDefault())
                 )
+                VerticalSpace.x24()
+                PasswordVerificationGroup(state.passwordValidation)
                 Spacer(modifier = Modifier.weight(1f))
             }
 
@@ -148,7 +163,7 @@ fun SetLockCodeScreenContent(
                 }
             ) {
                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                    val enabled = state.password.text.isNotBlank() && state.isPasswordValid
+                    val enabled = state.password.text.isNotBlank() && state.passwordValidation.isValid
                     ContinueButton(
                         enabled = enabled,
                         onContinue = onContinue
@@ -156,6 +171,51 @@ fun SetLockCodeScreenContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PasswordVerificationGroup(validatePasswordResult: ValidatePasswordResult) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
+    ) {
+        PasswordVerificationItem(
+            isInvalid = (validatePasswordResult as? ValidatePasswordResult.Invalid)?.tooShort ?: false,
+            text = stringResource(id = R.string.password_validation_length)
+        )
+        PasswordVerificationItem(
+            isInvalid = (validatePasswordResult as? ValidatePasswordResult.Invalid)?.missingLowercaseCharacter ?: false,
+            text = stringResource(id = R.string.password_validation_lowercase)
+        )
+        PasswordVerificationItem(
+            isInvalid = (validatePasswordResult as? ValidatePasswordResult.Invalid)?.missingUppercaseCharacter ?: false,
+            text = stringResource(id = R.string.password_validation_uppercase)
+        )
+        PasswordVerificationItem(
+            isInvalid = (validatePasswordResult as? ValidatePasswordResult.Invalid)?.missingDigit ?: false,
+            text = stringResource(id = R.string.password_validation_digit)
+        )
+        PasswordVerificationItem(
+            isInvalid = (validatePasswordResult as? ValidatePasswordResult.Invalid)?.missingSpecialCharacter ?: false,
+            text = stringResource(id = R.string.password_validation_special_character)
+        )
+    }
+}
+
+@Composable
+private fun PasswordVerificationItem(isInvalid: Boolean, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painter = painterResource(id = if (isInvalid) R.drawable.ic_validation_block else R.drawable.ic_validation_check),
+            tint = if (isInvalid) MaterialTheme.wireColorScheme.secondaryText else MaterialTheme.wireColorScheme.positive,
+            contentDescription = null,
+        )
+        HorizontalSpace.x8()
+        Text(
+            text = text,
+            style = MaterialTheme.wireTypography.label04,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+        )
     }
 }
 
@@ -175,6 +235,37 @@ private fun ContinueButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("continue_button")
+        )
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewPasswordVerificationGroup() {
+    WireTheme {
+        PasswordVerificationGroup(
+            ValidatePasswordResult.Invalid(
+                tooShort = true,
+                missingLowercaseCharacter = false,
+                missingUppercaseCharacter = false,
+                missingDigit = true,
+                missingSpecialCharacter = false,
+            )
+        )
+    }
+}
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewSetLockCodeScreen() {
+    WireTheme(isPreview = true) {
+        SetLockCodeScreenContent(
+            navigator = rememberNavigator {},
+            state = SetLockCodeViewState(),
+            scrollState = rememberScrollState(),
+            onPasswordChanged = {},
+            onBackPress = {},
+            onContinue = {}
         )
     }
 }

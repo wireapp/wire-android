@@ -420,7 +420,6 @@ private fun ImportMediaContent(
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
-            onOpenConversationNotificationsSettings = {},
             onJoinCall = {},
             onPermanentPermissionDecline = {}
         )

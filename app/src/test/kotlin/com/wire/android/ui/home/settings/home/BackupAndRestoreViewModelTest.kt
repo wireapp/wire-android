@@ -121,7 +121,6 @@ class BackupAndRestoreViewModelTest {
         // Then
         assert(backupAndRestoreViewModel.state.passwordValidation.isValid)
         coVerify(exactly = 0) { arrangement.validatePassword(any()) }
-
     }
 
     @Test

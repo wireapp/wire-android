@@ -29,7 +29,7 @@ data class BackupAndRestoreState(
     val restorePasswordValidation: PasswordValidation,
     val backupCreationProgress: BackupCreationProgress,
     val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Valid
-    ) {
+) {
 
     data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
     companion object {

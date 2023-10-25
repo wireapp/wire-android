@@ -27,11 +27,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIMessage
 
 @RootNavGraph
@@ -73,7 +77,20 @@ fun SearchConversationMessagesScreen(
                 SearchConversationMessagesResultContent(
                     searchQuery = searchQuery.text,
                     noneSearchSucceed = isEmptyResult,
-                    searchResult = searchResult
+                    searchResult = searchResult,
+                    onMessageClick = { messageId ->
+                        navigator.navigate(
+                            NavigationCommand(
+                                ConversationScreenDestination(
+                                    navArgs = ConversationNavArgs(
+                                        conversationId = conversationId,
+                                        searchedMessageId = messageId
+                                    )
+                                ),
+                                BackStackMode.UPDATE_EXISTED
+                            )
+                        )
+                    }
                 )
                 BackHandler(enabled = searchBarState.isSearchActive) {
                     searchBarState.closeSearch()
@@ -90,7 +107,8 @@ fun SearchConversationMessagesScreen(
 fun SearchConversationMessagesResultContent(
     searchQuery: String,
     noneSearchSucceed: Boolean,
-    searchResult: List<UIMessage>
+    searchResult: List<UIMessage>,
+    onMessageClick: (messageId: String) -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         SearchConversationMessagesEmptyScreen()
@@ -99,7 +117,8 @@ fun SearchConversationMessagesResultContent(
             SearchConversationMessagesNoResultsScreen()
         } else {
             SearchConversationMessagesResultsScreen(
-                searchResult = searchResult
+                searchResult = searchResult,
+                onMessageClick = onMessageClick
             )
         }
     }

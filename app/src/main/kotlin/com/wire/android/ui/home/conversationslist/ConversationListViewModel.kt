@@ -414,11 +414,12 @@ class ConversationListViewModel @Inject constructor(
         with(dialogState) {
             viewModelScope.launch {
                 val isArchiving = !isArchived
+
                 requestInProgress = true
                 val result = updateConversationArchivedStatus(
                     conversationId = conversationId,
                     shouldArchiveConversation = isArchiving,
-                    onlyLocally = false, // TODO get correct value, this is just to pass compilation
+                    onlyLocally = !dialogState.isMember,
                     archivedStatusTimestamp = timestamp
                 )
                 requestInProgress = false

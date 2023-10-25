@@ -14,24 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.settings.devices.e2ei
 
-package com.wire.android.ui.home.conversationslist.model
-
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.kalium.logic.data.id.ConversationId
-
-data class GroupDialogState(
-    val conversationId: ConversationId,
-    val conversationName: String
-)
-
-data class DialogState(
-    val conversationId: ConversationId,
-    val conversationName: String,
-    val conversationTypeDetail: ConversationTypeDetail,
-    val isArchived: Boolean,
-    val isMember: Boolean
+data class E2eiCertificateDetailsScreenNavArgs(
+    val certificateString: String
 )

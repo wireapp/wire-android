@@ -389,9 +389,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
             requestInProgress = true
             val result = withContext(dispatcher.io()) {
                 updateConversationArchivedStatus(
-                    conversationId = dialogState.conversationId,
+                    conversationId = conversationId,
                     shouldArchiveConversation = shouldArchive,
-                    onlyLocally = false // TODO get correct value, this is just to pass compilation
+                    onlyLocally = !dialogState.isMember,
+                    archivedStatusTimestamp = timestamp
                 )
             }
             requestInProgress = false

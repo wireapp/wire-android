@@ -58,6 +58,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.isAudioMimeType
 import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
 import java.io.File
@@ -110,6 +111,22 @@ fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
+}
+
+suspend fun createPemFile(
+    pathname: String,
+    content: String
+): File {
+    return withContext(Dispatchers.IO) {
+        return@withContext File(
+            Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS
+            ),
+            pathname
+        ).apply {
+            writeText(content)
+        }
+    }
 }
 
 private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedDataPath: Path, fileSize: Long): Uri? {

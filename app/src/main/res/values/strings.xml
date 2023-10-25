@@ -1251,4 +1251,9 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
 </resources>

@@ -304,7 +304,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 updateConversationArchivedStatus(
                     conversationId = dialogState.conversationId,
                     shouldArchiveConversation = shouldArchive,
-                    onlyLocally = false // TODO get correct value, this is just to pass compilation
+                    onlyLocally = !dialogState.isMember
                 )
             }
             requestInProgress = false

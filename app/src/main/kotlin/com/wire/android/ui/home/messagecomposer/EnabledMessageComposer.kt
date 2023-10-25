@@ -21,6 +21,7 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -82,12 +83,21 @@ fun EnabledMessageComposer(
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
     val isKeyboardMoving = isKeyboardMoving()
+    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
+    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
         LaunchedEffect(offsetY) {
-            inputStateHolder.handleOffsetChange(with(density) { offsetY.toDp() }, navBarHeight)
+            with(density) {
+                inputStateHolder.handleOffsetChange(
+                    offsetY.toDp(),
+                    navBarHeight,
+                    imeAnimationSource.toDp(),
+                    imeAnimationTarget.toDp()
+                )
+            }
         }
 
         LaunchedEffect(isImeVisible) {
@@ -114,40 +124,39 @@ fun EnabledMessageComposer(
                         Modifier.weight(1f)
                     }
                 Box(
+                    contentAlignment = Alignment.BottomCenter,
                     modifier = expandOrHideMessagesModifier
                         .background(color = colorsScheme().backgroundVariant)
                 ) {
                     messageListContent()
-                    if (messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
+                    if (!inputStateHolder.isTextExpanded) {
+                        UsersTypingIndicatorForConversation(conversationId = conversationId)
+                    }
+                    if (!inputStateHolder.isTextExpanded && messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                         MembersMentionList(
                             membersToMention = messageComposerViewState.value.mentionSearchResult,
                             searchQuery = messageComposition.value.messageText,
                             onMentionPicked = { pickedMention ->
                                 messageCompositionHolder.addMention(pickedMention)
                                 onClearMentionSearchResult()
-                            }
+                            },
+                            modifier = Modifier.align(Alignment.BottomCenter)
                         )
                     }
                 }
                 val fillRemainingSpaceOrWrapContent =
-                    if (!inputStateHolder.isTextExpanded) {
-                        Modifier.wrapContentHeight()
-                    } else {
+                    if (inputStateHolder.isTextExpanded) {
                         Modifier.weight(1f)
+                    } else {
+                        Modifier.wrapContentHeight()
                     }
                 Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
                     modifier = fillRemainingSpaceOrWrapContent
                         .fillMaxWidth()
+                        .background(color = colorsScheme().backgroundVariant)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .background(color = colorsScheme().backgroundVariant)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        UsersTypingIndicatorForConversation(conversationId = conversationId)
-                    }
-
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
                             conversationId = conversationId
@@ -155,11 +164,12 @@ fun EnabledMessageComposer(
                     }
 
                     if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
-                        Box(fillRemainingSpaceOrWrapContent) {
+                        Box(fillRemainingSpaceOrWrapContent, contentAlignment = Alignment.BottomCenter) {
                             var currentSelectedLineIndex by remember { mutableStateOf(0) }
                             var cursorCoordinateY by remember { mutableStateOf(0F) }
 
                             ActiveMessageComposerInput(
+                                conversationId = conversationId,
                                 messageComposition = messageComposition.value,
                                 isTextExpanded = inputStateHolder.isTextExpanded,
                                 inputType = messageCompositionInputStateHolder.inputType,
@@ -194,8 +204,7 @@ fun EnabledMessageComposer(
                             )
 
                             val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
-                            if (mentionSearchResult.isNotEmpty() &&
-                                inputStateHolder.isTextExpanded
+                            if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded
                             ) {
                                 DropDownMentionsSuggestions(
                                     currentSelectedLineIndex = currentSelectedLineIndex,

@@ -363,6 +363,7 @@ fun ConversationScreen(
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
+        searchedMessageId = conversationMessagesViewModel.searchedMessageIdNavArgs,
         onLinkClick = { link ->
             with(messageComposerViewModel) {
                 val normalizedLink = normalizeLink(link)
@@ -547,6 +548,7 @@ private fun ConversationScreen(
     onClearMentionSearchResult: () -> Unit,
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
+    searchedMessageId: String?,
     onLinkClick: (String) -> Unit,
     onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
@@ -634,6 +636,7 @@ private fun ConversationScreen(
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
+                    searchedMessageId = searchedMessageId,
                     onSendMessage = onSendMessage,
                     onAssetItemClicked = onAssetItemClicked,
                     onAudioItemClicked = onAudioClick,
@@ -676,6 +679,7 @@ private fun ConversationScreenContent(
     audioMessagesState: Map<String, AudioState>,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
+    searchedMessageId: String?,
     onSendMessage: (MessageBundle) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -702,6 +706,13 @@ private fun ConversationScreenContent(
 
     val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
         LazyListState(unreadEventCount)
+    }
+
+    LaunchedEffect(searchedMessageId) {
+        searchedMessageId?.let { messageId ->
+            // TODO(Search): Get current messageId position from messages list
+            // scroll to message position in list
+        }
     }
 
     MessageComposer(
@@ -986,6 +997,7 @@ fun PreviewConversationScreen() {
         onClearMentionSearchResult = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
+        searchedMessageId = null,
         onLinkClick = { _ -> },
         onTypingEvent = {}
     )

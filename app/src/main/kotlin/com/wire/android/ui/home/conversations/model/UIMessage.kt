@@ -423,7 +423,8 @@ sealed class UIMessageContent {
         object HistoryLost : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_history_lost,
-            true)
+            true
+        )
 
         object HistoryLostProtocolChanged : SystemMessage(
             R.drawable.ic_info,
@@ -475,6 +476,11 @@ sealed class UIMessageContent {
             else R.drawable.ic_certificate_valid_proteus,
             if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
             else R.string.label_system_message_conversation_verified_proteus
+        )
+
+        data object ConversationMessageCreatedUnverifiedWarning : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_started_sensitive_information
         )
     }
 }

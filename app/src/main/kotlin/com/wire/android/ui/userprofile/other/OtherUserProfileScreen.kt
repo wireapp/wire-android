@@ -447,6 +447,7 @@ private fun Content(
         Column {
             if (!state.isDataLoading) {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+                OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading

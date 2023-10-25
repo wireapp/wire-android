@@ -90,6 +90,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
         private set

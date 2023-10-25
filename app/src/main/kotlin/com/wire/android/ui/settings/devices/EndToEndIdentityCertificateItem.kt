@@ -48,7 +48,7 @@ fun EndToEndIdentityCertificateItem(
     isSelfClient: Boolean,
     enrollE2eiCertificate: () -> Unit,
     updateE2eiCertificate: () -> Unit,
-    showCertificate: () -> Unit
+    showCertificate: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -86,7 +86,9 @@ fun EndToEndIdentityCertificateItem(
                         ShowE2eiCertificateButton(
                             enabled = true,
                             isLoading = false,
-                            showCertificate
+                            onShowCertificateClicked = {
+                                showCertificate(certificate.certificateDetail)
+                            }
                         )
                     }
 
@@ -105,7 +107,9 @@ fun EndToEndIdentityCertificateItem(
                         ShowE2eiCertificateButton(
                             enabled = true,
                             isLoading = false,
-                            showCertificate
+                            onShowCertificateClicked = {
+                                showCertificate(certificate.certificateDetail)
+                            }
                         )
                     }
 
@@ -119,7 +123,9 @@ fun EndToEndIdentityCertificateItem(
                         ShowE2eiCertificateButton(
                             enabled = true,
                             isLoading = false,
-                            showCertificate
+                            onShowCertificateClicked = {
+                                showCertificate(certificate.certificateDetail)
+                            }
                         )
                     }
                 }

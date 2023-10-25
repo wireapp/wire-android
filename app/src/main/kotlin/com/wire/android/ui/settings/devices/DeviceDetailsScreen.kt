@@ -34,6 +34,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
@@ -54,6 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
+import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
@@ -88,6 +90,11 @@ fun DeviceDetailsScreen(
             onNavigateBack = navigator::navigateBack,
             onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
             enrollE2eiCertificate = viewModel::enrollE2eiCertificate,
+            onNavigateToE2eiCertificateDetailsScreen = {
+                navigator.navigate(
+                    NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
+                )
+            }
         )
     }
 }
@@ -97,6 +104,7 @@ fun DeviceDetailsContent(
     state: DeviceDetailsState,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
+    onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {},
     onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
@@ -160,7 +168,7 @@ fun DeviceDetailsContent(
                     isSelfClient = state.isSelfClient,
                     enrollE2eiCertificate = enrollE2eiCertificate,
                     updateE2eiCertificate = {},
-                    showCertificate = {}
+                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
                 )
                 Divider(color = colorsScheme().background)
             }

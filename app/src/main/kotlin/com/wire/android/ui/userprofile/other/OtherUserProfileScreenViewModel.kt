@@ -300,7 +300,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val shouldArchive = !dialogState.isArchived
             requestInProgress = true
-            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(dialogState.conversationId, shouldArchive) }
+            val result = withContext(dispatchers.io()) {
+                updateConversationArchivedStatus(
+                    conversationId = dialogState.conversationId,
+                    shouldArchiveConversation = shouldArchive,
+                    onlyLocally = false // TODO get correct value, this is just to pass compilation
+                )
+            }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> {

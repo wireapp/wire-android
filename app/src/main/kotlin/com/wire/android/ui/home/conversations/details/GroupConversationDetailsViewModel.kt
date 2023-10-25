@@ -387,7 +387,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val shouldArchive = dialogState.isArchived.not()
             requestInProgress = true
-            val result = withContext(dispatcher.io()) { updateConversationArchivedStatus(conversationId, shouldArchive, timestamp) }
+            val result = withContext(dispatcher.io()) {
+                updateConversationArchivedStatus(
+                    conversationId = dialogState.conversationId,
+                    shouldArchiveConversation = shouldArchive,
+                    onlyLocally = false // TODO get correct value, this is just to pass compilation
+                )
+            }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> onMessage(

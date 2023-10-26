@@ -305,6 +305,18 @@
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
+
+    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
+    <string name="item_subtitle_status_e2ei_certificate">Status</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
+    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
+    <string name="get_e2ei_certificate_button">Get Certificate</string>
+    <string name="update_e2ei_certificat_button">Update Certificate</string>
+    <string name="e2ei_certificat_status_valid">Valid</string>
+    <string name="e2ei_certificat_status_expired">Expired</string>
+    <string name="e2ei_certificat_status_revoked">Revoked</string>
+    <string name="e2ei_certificat_status_not_activated">Not activated</string>
+
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -608,6 +620,7 @@
     <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -824,6 +837,8 @@
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Accept</string>
     <string name="connection_label_ignore">Ignore</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
+    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -1237,4 +1252,9 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
 </resources>

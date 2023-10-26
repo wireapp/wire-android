@@ -42,11 +42,11 @@ import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
-import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
+import com.wire.kalium.logic.feature.filesharing.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
-import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkStateObserver
 import dagger.Module

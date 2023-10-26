@@ -40,7 +40,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
+import com.wire.kalium.logic.feature.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

@@ -11,10 +11,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.user.E2EIRequiredResult
-import com.wire.kalium.logic.feature.user.MarkEnablingE2EIAsNotifiedUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIRequiredResult
+import com.wire.kalium.logic.feature.e2ei.usecase.MarkEnablingE2EIAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
+import com.wire.kalium.logic.feature.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

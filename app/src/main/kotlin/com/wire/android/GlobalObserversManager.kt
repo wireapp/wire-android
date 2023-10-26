@@ -25,7 +25,7 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest

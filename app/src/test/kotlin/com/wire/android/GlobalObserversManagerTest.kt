@@ -10,7 +10,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

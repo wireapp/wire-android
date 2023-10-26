@@ -19,7 +19,7 @@ package com.wire.android.di
 
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

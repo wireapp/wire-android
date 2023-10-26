@@ -29,8 +29,8 @@ import com.wire.android.appLogger
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

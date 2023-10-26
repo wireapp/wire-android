@@ -31,7 +31,7 @@ import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
-import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
+import com.wire.kalium.logic.feature.deleteaccount.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -44,10 +44,10 @@ import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.user.UserScope
-import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
-import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
-import com.wire.kalium.logic.feature.user.typingIndicator.ObserveTypingIndicatorEnabledUseCase
-import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicatorStatusConfigUseCase
+import com.wire.kalium.logic.feature.readReceipts.ObserveReadReceiptsEnabledUseCase
+import com.wire.kalium.logic.feature.readReceipts.PersistReadReceiptsStatusConfigUseCase
+import com.wire.kalium.logic.feature.typingIndicator.ObserveTypingIndicatorEnabledUseCase
+import com.wire.kalium.logic.feature.typingIndicator.PersistTypingIndicatorStatusConfigUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

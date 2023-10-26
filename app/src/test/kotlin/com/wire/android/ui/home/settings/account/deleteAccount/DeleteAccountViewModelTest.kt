@@ -18,7 +18,7 @@
 package com.wire.android.ui.home.settings.account.deleteAccount
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
+import com.wire.kalium.logic.feature.deleteaccount.DeleteAccountUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

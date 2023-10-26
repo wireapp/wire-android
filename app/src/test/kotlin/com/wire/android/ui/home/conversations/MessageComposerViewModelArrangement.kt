@@ -75,7 +75,7 @@ import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletio
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.feature.filesharing.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations

@@ -37,7 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch

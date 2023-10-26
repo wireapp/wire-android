@@ -56,9 +56,9 @@ import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
-import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.screenshotCensoring.ObserveScreenshotCensoringConfigResult
+import com.wire.kalium.logic.feature.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
+import com.wire.kalium.logic.feature.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -572,7 +572,8 @@ class WireActivityViewModelTest {
             coEvery { observeNewClients() } returns flowOf()
             every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
                     observeScreenshotCensoringConfigUseCase
-            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(
+                ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         }
 

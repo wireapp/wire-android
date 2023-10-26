@@ -40,7 +40,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

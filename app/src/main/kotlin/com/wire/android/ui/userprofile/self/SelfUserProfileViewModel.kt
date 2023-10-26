@@ -27,12 +27,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.notification.NotificationChannelsManager
@@ -70,6 +72,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+// TODO cover this class with unit test
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
@@ -91,7 +94,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val notificationChannelsManager: NotificationChannelsManager,
-    private val notificationManager: WireNotificationManager
+    private val notificationManager: WireNotificationManager,
+    private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -213,8 +217,11 @@ class SelfUserProfileViewModel @Inject constructor(
 
             notificationManager.stopObservingOnLogout(selfUserId)
             notificationChannelsManager.deleteChannelGroup(selfUserId)
-            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
-                .callAction(switchAccountActions)
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
+                if(it == SwitchAccountResult.NoOtherAccountToSwitch) {
+                    globalDataStore.clearAppLockPasscode()
+                }
+            }.callAction(switchAccountActions)
         }
     }
 

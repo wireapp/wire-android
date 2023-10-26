@@ -103,6 +103,7 @@ data class WireColorScheme(
     val recordAudioStopColor: Color,
     val scrollToBottomButtonColor: Color,
     val onScrollToBottomButtonColor: Color,
+    val validE2eiStatusColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -236,6 +237,7 @@ private val LightWireColorScheme = WireColorScheme(
     recordAudioStopColor = WireColorPalette.LightRed500,
     scrollToBottomButtonColor = WireColorPalette.Gray70,
     onScrollToBottomButtonColor = Color.White,
+    validE2eiStatusColor = WireColorPalette.LightGreen550,
 )
 
 // Dark WireColorScheme
@@ -343,6 +345,7 @@ private val DarkWireColorScheme = WireColorScheme(
     recordAudioStopColor = WireColorPalette.LightRed500,
     scrollToBottomButtonColor = WireColorPalette.Gray60,
     onScrollToBottomButtonColor = Color.Black,
+    validE2eiStatusColor = WireColorPalette.DarkGreen550,
 )
 
 @PackagePrivate

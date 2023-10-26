@@ -103,4 +103,47 @@ internal class NavigationUtilsTest {
         // Then
         assertEquals(mappedImagePrivateAsset, expectedPrivateAssetImage)
     }
+
+    @Test
+    fun `given route without segments and parameters, when getting primary route, then return only host part which is the same route`() {
+        // Given
+        val route = "route"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals(route, result)
+    }
+
+    @Test
+    fun `given route with segments but without parameters, when getting primary route, then return only host part`() {
+        // Given
+        val host = "route"
+        val route = "$host/segment1/segment2"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals(host, result)
+    }
+
+    @Test
+    fun `given route without segments but with parameters, when getting primary route, then return only host part`() {
+        // Given
+        val host = "route"
+        val route = "$host?param1=value1&param2=value2"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals(host, result)
+    }
+
+    @Test
+    fun `given route with segments and parameters, when getting primary route, then return only host part`() {
+        // Given
+        val host = "route"
+        val route = "$host/segment1/segment2?param1=value1&param2=value2"
+        // When
+        val result = route.getBaseRoute()
+        // Then
+        assertEquals(host, result)
+    }
 }

@@ -101,6 +101,9 @@ data class WireColorScheme(
     val unclassifiedBannerForegroundColor: Color,
     val recordAudioStartColor: Color,
     val recordAudioStopColor: Color,
+    val scrollToBottomButtonColor: Color,
+    val onScrollToBottomButtonColor: Color,
+    val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -233,6 +236,9 @@ private val LightWireColorScheme = WireColorScheme(
     unclassifiedBannerForegroundColor = Color.White,
     recordAudioStartColor = WireColorPalette.LightBlue500,
     recordAudioStopColor = WireColorPalette.LightRed500,
+    scrollToBottomButtonColor = WireColorPalette.Gray70,
+    onScrollToBottomButtonColor = Color.White,
+    validE2eiStatusColor = WireColorPalette.LightGreen550,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700
 )
 
@@ -339,6 +345,9 @@ private val DarkWireColorScheme = WireColorScheme(
     unclassifiedBannerForegroundColor = Color.Black,
     recordAudioStartColor = WireColorPalette.LightBlue500,
     recordAudioStopColor = WireColorPalette.LightRed500,
+    scrollToBottomButtonColor = WireColorPalette.Gray60,
+    onScrollToBottomButtonColor = Color.Black,
+    validE2eiStatusColor = WireColorPalette.DarkGreen550,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700
 )
 

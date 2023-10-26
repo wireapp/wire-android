@@ -153,10 +153,11 @@ internal fun ConversationMainSheetContent(
                         with(conversationSheetContent) {
                             updateConversationArchiveStatus(
                                 DialogState(
-                                    conversationId,
-                                    title,
-                                    conversationTypeDetail,
-                                    isArchived
+                                    conversationId = conversationId,
+                                    conversationName = title,
+                                    conversationTypeDetail = conversationTypeDetail,
+                                    isArchived = isArchived,
+                                    isMember = conversationSheetContent.selfRole != null
                                 )
                             )
                         }
@@ -174,10 +175,11 @@ internal fun ConversationMainSheetContent(
                     onItemClick = {
                         clearConversationContent(
                             DialogState(
-                                conversationSheetContent.conversationId,
-                                conversationSheetContent.title,
-                                conversationSheetContent.conversationTypeDetail,
-                                conversationSheetContent.isArchived
+                                conversationId = conversationSheetContent.conversationId,
+                                conversationName = conversationSheetContent.title,
+                                conversationTypeDetail = conversationSheetContent.conversationTypeDetail,
+                                isArchived = conversationSheetContent.isArchived,
+                                isMember = conversationSheetContent.selfRole != null
                             )
                         )
                     }

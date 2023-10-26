@@ -23,6 +23,6 @@ package com.wire.android.util
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 
-fun ClipboardManager.copyLinkToClipboard(link: String) {
-    setText(AnnotatedString(link))
+fun ClipboardManager.copyLinkToClipboard(text: String) {
+    setText(AnnotatedString(text))
 }

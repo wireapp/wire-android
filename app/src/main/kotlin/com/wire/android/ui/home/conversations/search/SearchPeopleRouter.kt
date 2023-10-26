@@ -111,15 +111,12 @@ fun SearchPeopleScreen(
                 }
             },
             topBarCollapsing = {
-                val onInputClicked: () -> Unit = remember { { searchBarState.openSearch() } }
-                val onCloseSearchClicked: () -> Unit = remember { { searchBarState.closeSearch() } }
                 SearchTopBar(
                     isSearchActive = searchBarState.isSearchActive,
                     searchBarHint = stringResource(R.string.label_search_people),
                     searchQuery = searchQuery,
                     onSearchQueryChanged = onSearchQueryChanged,
-                    onInputClicked = onInputClicked,
-                    onCloseSearchClicked = onCloseSearchClicked
+                    onActiveChanged = searchBarState::searchActiveChanged,
                 ) {
                     if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS
                         && searchPeopleState.isServicesAllowed

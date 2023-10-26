@@ -260,8 +260,7 @@ fun HomeContent(
                                 searchBarHint = stringResource(R.string.search_bar_conversations_hint),
                                 searchQuery = searchBarState.searchQuery,
                                 onSearchQueryChanged = searchBarState::searchQueryChanged,
-                                onInputClicked = searchBarState::openSearch,
-                                onCloseSearchClicked = searchBarState::closeSearch,
+                                onActiveChanged = searchBarState::searchActiveChanged,
                             )
                         }
                     },

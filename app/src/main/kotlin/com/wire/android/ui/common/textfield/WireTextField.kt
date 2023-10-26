@@ -100,6 +100,7 @@ internal fun WireTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderAlignment: Alignment.Horizontal = Alignment.Start,
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -162,6 +163,7 @@ internal fun WireTextField(
                     placeholderText,
                     state,
                     placeholderTextStyle,
+                    placeholderAlignment,
                     inputMinHeight,
                     colors,
                     shouldDetectTaps,
@@ -227,6 +229,7 @@ private fun InnerText(
     placeholderText: String? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderAlignment: Alignment.Horizontal = Alignment.Start,
     inputMinHeight: Dp = 48.dp,
     colors: WireTextFieldColors = wireTextFieldColors(),
     shouldDetectTaps: Boolean = false,
@@ -261,14 +264,18 @@ private fun InnerText(
                 top = 2.dp, bottom = 2.dp
             )
             if (value.text.isEmpty() && placeholderText != null) {
-                Text(
-                    text = placeholderText,
-                    style = placeholderTextStyle,
-                    color = colors.placeholderColor(state).value,
+                Column(
+                    horizontalAlignment = placeholderAlignment,
                     modifier = Modifier
                         .fillMaxWidth()
                         .then(padding)
-                )
+                ) {
+                    Text(
+                        text = placeholderText,
+                        style = placeholderTextStyle,
+                        color = colors.placeholderColor(state).value,
+                    )
+                }
             }
             Box(
                 modifier = Modifier

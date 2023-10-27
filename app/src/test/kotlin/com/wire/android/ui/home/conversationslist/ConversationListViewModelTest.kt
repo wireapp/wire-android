@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.orDefault
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -406,7 +407,9 @@ class ConversationListViewModelTest {
             userId = userId,
             blockingState = BlockingState.CAN_NOT_BE_BLOCKED,
             teamId = null,
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
     }
 }

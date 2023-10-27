@@ -52,7 +52,8 @@ object TestConversation {
         userMessageTimer = null,
         archived = false,
         archivedDateTime = null,
-        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
     val SELF = Conversation(
         ID.copy(value = "SELF ID"),
@@ -73,7 +74,8 @@ object TestConversation {
         userMessageTimer = null,
         archived = false,
         archivedDateTime = null,
-        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
@@ -95,7 +97,8 @@ object TestConversation {
         userMessageTimer = null,
         archived = false,
         archivedDateTime = null,
-        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     fun one_on_one(convId: ConversationId) = Conversation(
@@ -117,7 +120,8 @@ object TestConversation {
         userMessageTimer = null,
         archived = false,
         archivedDateTime = null,
-        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 
     val USER_1 = UserId("member1", "domainMember")
@@ -146,6 +150,7 @@ object TestConversation {
         userMessageTimer = null,
         archived = false,
         archivedDateTime = null,
-        verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     )
 }

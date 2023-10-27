@@ -419,7 +419,10 @@ class GroupConversationDetailsViewModelTest {
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
             selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup(),
-            isArchived = false
+            isArchived = false,
+            protocol = Conversation.ProtocolInfo.Proteus,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)
@@ -589,7 +592,8 @@ class GroupConversationDetailsViewModelTest {
                 userMessageTimer = null,
                 archived = false,
                 archivedDateTime = null,
-                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

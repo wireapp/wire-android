@@ -104,6 +104,7 @@ data class WireColorScheme(
     val scrollToBottomButtonColor: Color,
     val onScrollToBottomButtonColor: Color,
     val validE2eiStatusColor: Color,
+    val mlsVerificationTextColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -238,6 +239,7 @@ private val LightWireColorScheme = WireColorScheme(
     scrollToBottomButtonColor = WireColorPalette.Gray70,
     onScrollToBottomButtonColor = Color.White,
     validE2eiStatusColor = WireColorPalette.LightGreen550,
+    mlsVerificationTextColor = WireColorPalette.DarkGreen700
 )
 
 // Dark WireColorScheme
@@ -346,6 +348,7 @@ private val DarkWireColorScheme = WireColorScheme(
     scrollToBottomButtonColor = WireColorPalette.Gray60,
     onScrollToBottomButtonColor = Color.Black,
     validE2eiStatusColor = WireColorPalette.DarkGreen550,
+    mlsVerificationTextColor = WireColorPalette.DarkGreen700
 )
 
 @PackagePrivate

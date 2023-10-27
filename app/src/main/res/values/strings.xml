@@ -890,6 +890,13 @@
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">PROFILE NAME</string>

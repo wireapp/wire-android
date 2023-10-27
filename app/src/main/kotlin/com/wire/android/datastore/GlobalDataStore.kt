@@ -181,7 +181,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setThemeOption(option: ThemeOption) {
         context.dataStore.edit { it[APP_THEME_OPTION] = option.toString() }
     }
+
     fun selectedThemeOptionFlow(): Flow<ThemeOption> = getStringPreference(APP_THEME_OPTION, ThemeOption.SYSTEM.toString())
         .map { ThemeOption.valueOf(it) }
-
 }

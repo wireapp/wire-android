@@ -103,7 +103,6 @@ fun AppearanceScreenContent(
                 },
                 onItemClicked = onThemeOptionChanged
             )
-
         }
     }
 }
@@ -154,7 +153,6 @@ fun ThemeOptionItem(
                         append(stringResource(R.string.settings_appearance_theme_option_default_hint))
                     }
                 }
-
             },
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground,

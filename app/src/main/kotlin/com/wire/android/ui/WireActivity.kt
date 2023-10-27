@@ -162,10 +162,10 @@ class WireActivity : AppCompatActivity() {
             var isLoaded by remember { mutableStateOf(false) }
 
             LaunchedEffect(viewModel.globalAppState.themeOption) {
-                when(viewModel.globalAppState.themeOption) {
-                    ThemeOption.SYSTEM ->  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    ThemeOption.LIGHT ->  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    ThemeOption.DARK ->  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                when (viewModel.globalAppState.themeOption) {
+                    ThemeOption.SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    ThemeOption.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    ThemeOption.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 }
             }
 

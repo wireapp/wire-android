@@ -264,7 +264,7 @@ private fun DeviceDetailsTopBar(
                     maxLines = 2
                 )
                 if (!isCurrentDevice && device.isVerifiedProteus) {
-                    ProteusVerifiedIcon()
+                    ProteusVerifiedIcon(Modifier.align(Alignment.CenterVertically))
                 }
             }
         }

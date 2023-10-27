@@ -183,7 +183,7 @@ private fun DeviceItemTexts(
         )
         if (shouldShowVerifyLabel) {
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
-            if (device.isVerifiedProteus) ProteusVerifiedIcon(Modifier.wrapContentWidth())
+            if (device.isVerifiedProteus) ProteusVerifiedIcon(Modifier.wrapContentWidth().align(Alignment.CenterVertically))
         }
     }
 

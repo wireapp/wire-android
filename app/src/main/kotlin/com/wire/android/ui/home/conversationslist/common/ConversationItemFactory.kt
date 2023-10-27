@@ -32,6 +32,8 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
+import com.wire.android.ui.common.MLSVerifiedIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
@@ -45,6 +47,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -98,6 +101,8 @@ fun ConversationItemFactory(
                     )
 
                     is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
+                    is UILastMessageContent.VerificationChanged -> LastMessageSubtitle(UIText.StringResource(messageContent.textResId))
+
                     else -> {}
                 }
             }
@@ -110,6 +115,7 @@ fun ConversationItemFactory(
     )
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun GeneralConversationItem(
     searchQuery: String,
@@ -140,7 +146,15 @@ private fun GeneralConversationItem(
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                             isLegalHold = conversation.isLegalHold,
-                            searchQuery = searchQuery
+                            searchQuery = searchQuery,
+                            badges = {
+                                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+                                    ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
+                                }
+                                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+                                    MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+                                }
+                            }
                         )
                     },
                     subTitle = subTitle,
@@ -245,7 +259,9 @@ fun PreviewGroupConversationItemWithUnreadCount() {
             badgeEventType = BadgeEventType.UnreadMessage(100),
             selfMemberRole = null,
             teamId = null,
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -268,7 +284,9 @@ fun PreviewGroupConversationItemWithNoBadges() {
             badgeEventType = BadgeEventType.None,
             selfMemberRole = null,
             teamId = null,
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -291,7 +309,9 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
             badgeEventType = BadgeEventType.UnreadMention,
             selfMemberRole = null,
             teamId = null,
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -315,7 +335,9 @@ fun PreviewGroupConversationItemWithOngoingCall() {
             selfMemberRole = null,
             teamId = null,
             hasOnGoingCall = true,
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
         searchQuery = "",
         isSelectableItem = false,
@@ -376,7 +398,9 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
             blockingState = BlockingState.BLOCKED,
             teamId = null,
             userId = UserId("value", "domain"),
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
         searchQuery = "",
         isSelectableItem = false,

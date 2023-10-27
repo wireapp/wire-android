@@ -76,10 +76,14 @@ fun rememberConversationSheetState(
                     ),
                     isTeamConversation = teamId != null,
                     selfRole = selfMemberRole,
-                    isArchived = conversationItem.isArchived
+                    isArchived = conversationItem.isArchived,
+                    protocol = Conversation.ProtocolInfo.Proteus,
+                    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
                 )
             }
         }
+
         is ConversationItem.PrivateConversation -> {
             with(conversationItem) {
                 ConversationSheetContent(
@@ -95,10 +99,14 @@ fun rememberConversationSheetState(
                     ),
                     isTeamConversation = isTeamConversation,
                     selfRole = Conversation.Member.Role.Member,
-                    isArchived = conversationItem.isArchived
+                    isArchived = conversationItem.isArchived,
+                    protocol = Conversation.ProtocolInfo.Proteus,
+                    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
                 )
             }
         }
+
         is ConversationItem.ConnectionConversation -> {
             with(conversationItem) {
                 ConversationSheetContent(
@@ -110,7 +118,10 @@ fun rememberConversationSheetState(
                     ),
                     isTeamConversation = isTeamConversation,
                     selfRole = Conversation.Member.Role.Member,
-                    isArchived = conversationItem.isArchived
+                    isArchived = conversationItem.isArchived,
+                    protocol = Conversation.ProtocolInfo.Proteus,
+                    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
                 )
             }
         }

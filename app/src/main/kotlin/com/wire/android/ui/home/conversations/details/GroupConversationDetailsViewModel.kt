@@ -150,7 +150,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
                     isTeamConversation = groupDetails.conversation.teamId?.value != null,
                     selfRole = groupDetails.selfRole,
-                    isArchived = groupDetails.conversation.archived
+                    isArchived = groupDetails.conversation.archived,
+                    protocol = groupDetails.conversation.protocol,
+                    mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
                 val isUpdatingReadReceiptAllowed = if (selfTeam == null) {

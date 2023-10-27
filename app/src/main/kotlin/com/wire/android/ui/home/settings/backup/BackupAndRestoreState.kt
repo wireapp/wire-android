@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.settings.backup
 
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import okio.Path
 
 data class BackupAndRestoreState(
@@ -27,7 +28,7 @@ data class BackupAndRestoreState(
     val restoreFileValidation: RestoreFileValidation,
     val restorePasswordValidation: PasswordValidation,
     val backupCreationProgress: BackupCreationProgress,
-    val backupCreationPasswordValidation: PasswordValidation
+    val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Valid
 ) {
 
     data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
@@ -37,7 +38,7 @@ data class BackupAndRestoreState(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupCreationProgress = BackupCreationProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified,
-            backupCreationPasswordValidation = PasswordValidation.Valid,
+            passwordValidation = ValidatePasswordResult.Valid,
         )
     }
 }

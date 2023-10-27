@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.common
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -26,10 +27,25 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 
 @Composable
-fun ProteusVerifiedIcon(modifier: Modifier = Modifier) {
+fun ProteusVerifiedIcon(
+    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionId: Int = R.string.label_client_verified
+) {
     Image(
         modifier = modifier.padding(start = dimensions().spacing4x),
         painter = painterResource(id = R.drawable.ic_certificate_valid_proteus),
-        contentDescription = stringResource(R.string.label_client_verified)
+        contentDescription = stringResource(contentDescriptionId)
+    )
+}
+
+@Composable
+fun MLSVerifiedIcon(
+    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionId: Int = R.string.label_client_verified
+) {
+    Image(
+        modifier = modifier.padding(start = dimensions().spacing4x),
+        painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
+        contentDescription = stringResource(contentDescriptionId)
     )
 }

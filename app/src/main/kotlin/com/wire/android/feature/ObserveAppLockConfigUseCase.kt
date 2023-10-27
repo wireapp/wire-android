@@ -41,7 +41,7 @@ class ObserveAppLockConfigUseCase @Inject constructor(
     operator fun invoke(): Flow<AppLockConfig> = channelFlow {
         when (val currentSession = currentSession()) {
             is CurrentSessionResult.Failure -> {
-                send(AppLockConfig.Disabled)
+                send(AppLockConfig.Disabled(DEFAULT_TIMEOUT))
             }
 
             is CurrentSessionResult.Success -> {
@@ -58,7 +58,7 @@ class ObserveAppLockConfigUseCase @Inject constructor(
                         if (isAppLocked) {
                             emit(AppLockConfig.Enabled(isAppLockedByTeam.timeout))
                         } else {
-                            emit(AppLockConfig.Disabled)
+                            emit(AppLockConfig.Disabled(isAppLockedByTeam.timeout))
                         }
                     }
                 }.collectLatest {
@@ -70,7 +70,7 @@ class ObserveAppLockConfigUseCase @Inject constructor(
 }
 
 sealed class AppLockConfig(open val timeout: Duration = DEFAULT_TIMEOUT) {
-    data object Disabled : AppLockConfig()
+    data class Disabled(override val timeout: Duration) : AppLockConfig(timeout)
     data class Enabled(override val timeout: Duration) : AppLockConfig(timeout)
     data class EnforcedByTeam(override val timeout: Duration) : AppLockConfig(timeout)
 }

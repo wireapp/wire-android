@@ -64,7 +64,7 @@ class LockCodeTimeManagerTest {
 
     @Test
     fun givenLockDisabled_whenAppInitiallyOpened_thenNotLocked() =
-        testInitialStart(AppLockConfig.Disabled, false)
+        testInitialStart(AppLockConfig.Disabled(DEFAULT_TIMEOUT), false)
 
     private fun testStop(appLockConfig: AppLockConfig, delayAfterStop: Long, expected: Boolean) =
         runTest(dispatcher) {
@@ -100,11 +100,19 @@ class LockCodeTimeManagerTest {
 
     @Test
     fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndWaitedMoreThanTimeout_thenNotLocked() =
-        testStop(AppLockConfig.Disabled, AppLockConfig.Disabled.timeoutInMillis() + 100L, false)
+        testStop(
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT),
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT).timeoutInMillis() + 100L,
+            false
+        )
 
     @Test
     fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndWaitedLessThanTimeout_thenNotLocked() =
-        testStop(AppLockConfig.Disabled, AppLockConfig.Disabled.timeoutInMillis() - 100L, false)
+        testStop(
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT),
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT).timeoutInMillis() - 100L,
+            false
+        )
 
     @Test
     fun givenLockEnabledAndAppOpenedUnlocked_whenAppClosedAnd_thenAfterTimeoutShouldChangeFromNotLockedToLocked() =
@@ -163,16 +171,16 @@ class LockCodeTimeManagerTest {
     @Test
     fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndOpenedAgainBeforeLockTimeout_thenNotLocked() =
         testStopAndStart(
-            AppLockConfig.Disabled,
-            AppLockConfig.Disabled.timeoutInMillis() - 100L,
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT),
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT).timeoutInMillis() - 100L,
             false
         )
 
     @Test
     fun givenLockDisabledAndAppOpenedUnlocked_whenAppClosedAndOpenedAgainAfterLockTimeout_thenNotLocked() =
         testStopAndStart(
-            AppLockConfig.Disabled,
-            AppLockConfig.Disabled.timeoutInMillis() + 100L,
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT),
+            AppLockConfig.Disabled(DEFAULT_TIMEOUT).timeoutInMillis() + 100L,
             false
         )
 
@@ -224,7 +232,8 @@ class LockCodeTimeManagerTest {
         }
 
         private val isAppVisibleStateFlow = MutableStateFlow(false)
-        private val appLockConfigStateFlow = MutableStateFlow<AppLockConfig>(AppLockConfig.Disabled)
+        private val appLockConfigStateFlow =
+            MutableStateFlow<AppLockConfig>(AppLockConfig.Disabled(DEFAULT_TIMEOUT))
 
         fun arrange() = this to lockCodeTimeManager
 

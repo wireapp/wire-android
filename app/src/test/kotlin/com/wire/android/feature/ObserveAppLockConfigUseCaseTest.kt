@@ -50,7 +50,7 @@ class ObserveAppLockConfigUseCaseTest {
         result.test {
             val appLockStatus = awaitItem()
 
-            assertEquals(AppLockConfig.Disabled, appLockStatus)
+            assertEquals(AppLockConfig.Disabled(timeout), appLockStatus)
             awaitComplete()
         }
     }
@@ -107,7 +107,7 @@ class ObserveAppLockConfigUseCaseTest {
             result.test {
                 val appLockStatus = awaitItem()
 
-                assertEquals(AppLockConfig.Disabled, appLockStatus)
+                assertEquals(AppLockConfig.Disabled(timeout), appLockStatus)
                 awaitComplete()
             }
         }

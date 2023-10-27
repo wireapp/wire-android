@@ -28,6 +28,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -50,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -84,6 +86,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
@@ -312,13 +315,18 @@ private fun GroupConversationDetailsContent(
         topBarHeader = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
-                title = stringResource(R.string.conversation_details_title),
+                titleContent = {
+                    WireTopAppBarTitle(
+                        title = stringResource(R.string.conversation_details_title),
+                        style = MaterialTheme.wireTypography.title01,
+                        maxLines = 2
+                    )
+                    VerificationInfo(conversationSheetContent)
+                },
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
                 actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
-            ) {
-                VerificationInfo(conversationSheetContent)
-            }
+            )
         },
         topBarCollapsing = {
             conversationSheetState.conversationSheetContent?.let {
@@ -474,35 +482,39 @@ private fun VerificationInfo(conversationSheetContent: ConversationSheetContent?
 
 @Composable
 private fun MLSVerifiedLabel() {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        Text(
-            modifier = Modifier.padding(
-                start = dimensions().spacing6x,
-                end = dimensions().spacing6x
-            ),
-            text = stringResource(id = R.string.label_conversations_details_verified_mls).uppercase(),
-            style = MaterialTheme.wireTypography.label01,
-            color = MaterialTheme.wireColorScheme.mlsVerificationTextColor,
-            overflow = TextOverflow.Ellipsis
-        )
-        MLSVerifiedIcon()
-    }
+    VerifiedLabel(
+        stringResource(id = R.string.label_conversations_details_verified_mls).uppercase(),
+        MaterialTheme.wireColorScheme.mlsVerificationTextColor
+    ) { MLSVerifiedIcon() }
 }
 
 @Composable
 private fun ProteusVerifiedLabel() {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+    VerifiedLabel(
+        stringResource(id = R.string.label_conversations_details_verified_proteus).uppercase(),
+        MaterialTheme.wireColorScheme.primary
+    ) { ProteusVerifiedIcon() }
+}
+
+@Composable
+private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope.() -> Unit = {}) {
+    Row(
+        modifier = Modifier
+            .padding(top = dimensions().spacing4x)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
         Text(
             modifier = Modifier.padding(
                 start = dimensions().spacing6x,
                 end = dimensions().spacing6x
             ),
-            text = stringResource(id = R.string.label_conversations_details_verified_proteus).uppercase(),
+            text = text,
             style = MaterialTheme.wireTypography.label01,
-            color = MaterialTheme.wireColorScheme.primary,
+            color = color,
             overflow = TextOverflow.Ellipsis
         )
-        ProteusVerifiedIcon()
+        icon()
     }
 }
 

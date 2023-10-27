@@ -118,7 +118,8 @@ class ConversationInfoViewModel @Inject constructor(
             hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None,
             conversationType = conversationDetails.conversation.type,
             protocolInfo = conversationDetails.conversation.protocol,
-            verificationStatus = conversationDetails.conversation.verificationStatus
+            mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
+            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus
         )
     }
 

@@ -300,7 +300,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val shouldArchive = !dialogState.isArchived
             requestInProgress = true
-            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(dialogState.conversationId, shouldArchive) }
+            val result = withContext(dispatchers.io()) {
+                updateConversationArchivedStatus(
+                    conversationId = dialogState.conversationId,
+                    shouldArchiveConversation = shouldArchive,
+                    onlyLocally = !dialogState.isMember
+                )
+            }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> {
@@ -380,7 +386,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
                     selfRole = Conversation.Member.Role.Member,
-                    isArchived = conversation.archived
+                    isArchived = conversation.archived,
+                    protocol = conversation.protocol,
+                    mlsVerificationStatus = conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = conversation.proteusVerificationStatus
                 )
             }
         )

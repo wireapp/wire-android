@@ -62,6 +62,8 @@ object WireColorPalette {
     @Stable
     val LightGreen500 = Color(0xFF207C37)
     @Stable
+    val LightGreen550 = Color(0xFF1D7833)
+    @Stable
     val LightGreen600 = Color(0xFF1A632C)
     @Stable
     val LightGreen700 = Color(0xFF134A21)
@@ -187,6 +189,7 @@ object WireColorPalette {
     val DarkGreen400 = Color(0xFF59E27C)
     @Stable
     val DarkGreen500 = Color(0xFF30DB5B)
+    val DarkGreen550 = Color(0xFF1D7833)
     @Stable
     val DarkGreen600 = Color(0xFF26AF49)
     @Stable

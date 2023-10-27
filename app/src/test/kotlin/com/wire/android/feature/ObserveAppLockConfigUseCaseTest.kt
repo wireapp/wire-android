@@ -112,7 +112,6 @@ class ObserveAppLockConfigUseCaseTest {
             }
         }
 
-
     inner class Arrangement {
 
         @MockK

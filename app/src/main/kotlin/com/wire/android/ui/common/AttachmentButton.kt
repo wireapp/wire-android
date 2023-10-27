@@ -60,7 +60,6 @@ fun AttachmentButton(
 ) {
     Column(
         modifier = modifier
-            .height(dimensions().spacing100x)
             .padding(dimensions().spacing4x)
             .clip(RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize))
             .clickable { onClick() }
@@ -96,6 +95,7 @@ fun AttachmentButton(
     }
 }
 
+// This composable has not fixed height to adapt to GridView in [AttachmentOptionsComponent]
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {

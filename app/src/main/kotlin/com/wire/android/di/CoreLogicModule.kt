@@ -391,6 +391,14 @@ class UseCaseModule {
     fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
 
+//    @ViewModelScoped
+//    @Provides
+//    fun provideAppLockTeamFeatureConfigObserver(
+//        @KaliumCoreLogic coreLogic: CoreLogic,
+//        @CurrentAccount currentAccount: UserId
+//    ): AppLockTeamFeatureConfigObserver =
+//        coreLogic.getSessionScope(currentAccount).appLockTeamFeatureConfigObserver
+
     @ViewModelScoped
     @Provides
     fun provideGetOtherUserSecurityClassificationLabelUseCase(

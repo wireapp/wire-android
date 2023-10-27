@@ -113,9 +113,20 @@ fun SettingsScreenContent(
                     add(SettingsItem.NetworkSettings)
                     add(SettingsItem.AppLock(
                         when (settingsState.appLockConfig) {
-                            AppLockConfig.Disabled -> SwitchState.Enabled(false, true, onAppLockSwitchChanged)
-                            AppLockConfig.Enabled -> SwitchState.Enabled(true, true) { turnAppLockOffDialogState.show(Unit) }
-                            is AppLockConfig.EnforcedByTeam -> SwitchState.TextOnly(true)
+                            is AppLockConfig.Disabled -> SwitchState.Enabled(
+                                value = false,
+                                isOnOffVisible = true,
+                                onCheckedChange = onAppLockSwitchChanged
+                            )
+                            is AppLockConfig.Enabled -> SwitchState.Enabled(
+                                value = true,
+                                isOnOffVisible = true
+                            ) {
+                                turnAppLockOffDialogState.show(Unit)
+                            }
+                            is AppLockConfig.EnforcedByTeam -> {
+                                SwitchState.TextOnly(true)
+                            }
                         }
                     ))
                 },

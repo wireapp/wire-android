@@ -13,7 +13,7 @@ ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
 google-gms = "4.4.0"
-android-gradlePlugin = "8.1.1"
+android-gradlePlugin = "8.1.2"
 desugaring = "2.0.3"
 firebaseBOM = "32.2.3"
 fragment = "1.5.6"

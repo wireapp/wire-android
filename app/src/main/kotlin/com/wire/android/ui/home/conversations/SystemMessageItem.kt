@@ -265,6 +265,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationMessageTimerDeactivated,
         is SystemMessage.FederationMemberRemoved,
         is SystemMessage.FederationStopped,
+        is SystemMessage.ConversationMessageCreatedUnverifiedWarning,
         is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -495,6 +496,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationDegraded -> false
         is SystemMessage.ConversationVerified -> false
         is SystemMessage.FederationStopped -> false
+        is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources): String = when {
@@ -581,6 +583,7 @@ fun SystemMessage.annotatedString(
             )
 
         is SystemMessage.FederationStopped -> domainList.toTypedArray()
+        is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> arrayOf()
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)

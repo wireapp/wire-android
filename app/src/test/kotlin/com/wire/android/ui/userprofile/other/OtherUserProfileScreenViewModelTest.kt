@@ -194,7 +194,7 @@ class OtherUserProfileScreenViewModelTest {
     @Test
     fun `given not connected user, then direct conversation is not found`() = runTest {
         // given
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM)
             )
@@ -247,7 +247,8 @@ class OtherUserProfileScreenViewModelTest {
             userMessageTimer = null,
             archived = false,
             archivedDateTime = null,
-            verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

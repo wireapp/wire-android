@@ -101,7 +101,7 @@ fun AttachmentOptionsComponent(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val fullWidth: Dp = with(density) { constraints.maxWidth.toDp() }
         val minPadding: Dp = dimensions().spacing2x
-        val minColumnWidth: Dp = with(density) { maxTextWidth.toDp() + dimensions().spacing24x }
+        val minColumnWidth: Dp = with(density) { maxTextWidth.toDp() + dimensions().spacing28x }
         val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
         val params by remember(fullWidth, visibleAttachmentOptions.size) {
             derivedStateOf {

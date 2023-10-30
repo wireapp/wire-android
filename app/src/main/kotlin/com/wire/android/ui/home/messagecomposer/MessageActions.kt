@@ -25,9 +25,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -105,9 +105,8 @@ fun MessageEditActions(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentSize()
+            .height(dimensions().spacing64x)
     ) {
-
         Box( // we need to wrap it because button is smaller than minimum touch size so compose will add paddings to it to be 48dp anyway
             modifier = Modifier.size(width = dimensions().spacing64x, height = dimensions().spacing56x),
             contentAlignment = Alignment.CenterEnd

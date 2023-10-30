@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.orDefault
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -337,11 +338,12 @@ class ConversationListViewModelTest {
             conversationItem.conversationId,
             conversationItem.conversationInfo.name,
             ConversationTypeDetail.Private(null, conversationItem.userId, BlockingState.NOT_BLOCKED),
-            !isArchiving
+            !isArchiving,
+            true
         )
         val archivingTimestamp = 123456789L
 
-        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
+        coEvery { updateConversationArchivedStatus(any(), any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
 
         conversationListViewModel.homeSnackBarState.test {
             conversationListViewModel.moveConversationToArchive(dialogState, archivingTimestamp)
@@ -351,6 +353,7 @@ class ConversationListViewModelTest {
             updateConversationArchivedStatus.invoke(
                 dialogState.conversationId,
                 !dialogState.isArchived,
+                onlyLocally = false,
                 archivingTimestamp
             )
         }
@@ -363,11 +366,12 @@ class ConversationListViewModelTest {
             conversationItem.conversationId,
             conversationItem.conversationInfo.name,
             ConversationTypeDetail.Private(null, conversationItem.userId, BlockingState.NOT_BLOCKED),
-            !isArchiving
+            !isArchiving,
+            isMember = true
         )
         val archivingTimestamp = 123456789L
 
-        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
+        coEvery { updateConversationArchivedStatus(any(), any(), any(), any()) } returns ArchiveStatusUpdateResult.Failure
 
         conversationListViewModel.homeSnackBarState.test {
             conversationListViewModel.moveConversationToArchive(dialogState, archivingTimestamp)
@@ -377,7 +381,8 @@ class ConversationListViewModelTest {
             updateConversationArchivedStatus.invoke(
                 dialogState.conversationId,
                 !dialogState.isArchived,
-                archivingTimestamp
+                false,
+                archivingTimestamp,
             )
         }
     }
@@ -402,7 +407,9 @@ class ConversationListViewModelTest {
             userId = userId,
             blockingState = BlockingState.CAN_NOT_BE_BLOCKED,
             teamId = null,
-            isArchived = false
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
     }
 }

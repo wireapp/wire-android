@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.graphics.Color
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -106,7 +107,10 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
-    onLinkClick: (String) -> Unit = {}
+    onLinkClick: (String) -> Unit = {},
+    defaultBackgroundColor: Color = Color.Transparent,
+    shouldDisplayMessageStatus: Boolean = true,
+    shouldDisplayFooter: Boolean = true
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -133,7 +137,7 @@ fun MessageItem(
 
             Modifier.background(color)
         } else {
-            Modifier
+            Modifier.background(defaultBackgroundColor)
         }
 
         Box(backgroundColorModifier) {
@@ -236,7 +240,7 @@ fun MessageItem(
                                         onLinkClick = onLinkClick
                                     )
                                 }
-                                if (isMyMessage) {
+                                if (isMyMessage && shouldDisplayMessageStatus) {
                                     MessageStatusIndicator(
                                         status = message.header.messageStatus.flowStatus,
                                         isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
@@ -249,10 +253,12 @@ fun MessageItem(
                                     HorizontalSpace.x24()
                                 }
                             }
-                            MessageFooter(
-                                messageFooter,
-                                onReactionClicked
-                            )
+                            if (shouldDisplayFooter) {
+                                MessageFooter(
+                                    messageFooter = messageFooter,
+                                    onReactionClicked = onReactionClicked
+                                )
+                            }
                         } else {
                             MessageDecryptionFailure(
                                 messageHeader = header,

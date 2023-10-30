@@ -48,6 +48,7 @@ class SearchBarState(
         private set
 
     var searchQuery by mutableStateOf(searchQuery)
+        private set
 
     fun closeSearch() {
         isSearchActive = false
@@ -55,6 +56,10 @@ class SearchBarState(
 
     fun openSearch() {
         isSearchActive = true
+    }
+
+    fun searchActiveChanged(isSearchActive: Boolean) {
+        this.isSearchActive = isSearchActive
     }
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {

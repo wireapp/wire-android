@@ -18,6 +18,8 @@ import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -212,6 +214,9 @@ class DeviceDetailsViewModelTest {
         @MockK
         lateinit var observeUserInfo: ObserveUserInfoUseCase
 
+        @MockK
+        lateinit var getE2eiCertificate: GetE2eiCertificateUseCase
+
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit
 
@@ -226,7 +231,8 @@ class DeviceDetailsViewModelTest {
                 fingerprintUseCase = deviceFingerprint,
                 updateClientVerificationStatus = updateClientVerificationStatus,
                 currentUserId = currentUserId,
-                observeUserInfo = observeUserInfo
+                observeUserInfo = observeUserInfo,
+                e2eiCertificate = getE2eiCertificate
             )
         }
 
@@ -234,6 +240,7 @@ class DeviceDetailsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withFingerprintSuccess()
             coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
+            coEvery { getE2eiCertificate(any()) } returns GetE2EICertificateUseCaseResult.Failure.NotActivated
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = IsPasswordRequiredUseCase.Result.Success(true)) =

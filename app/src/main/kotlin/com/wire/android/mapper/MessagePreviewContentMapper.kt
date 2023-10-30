@@ -310,6 +310,14 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         }
 
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
+        MessagePreviewContent.VerificationChanged.VerifiedMls ->
+            UILastMessageContent.VerificationChanged(R.string.last_message_verified_conversation_mls)
+        MessagePreviewContent.VerificationChanged.VerifiedProteus ->
+            UILastMessageContent.VerificationChanged(R.string.last_message_verified_conversation_proteus)
+        MessagePreviewContent.VerificationChanged.DegradedMls ->
+            UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_mls)
+        MessagePreviewContent.VerificationChanged.DegradedProteus ->
+            UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_proteus)
         Unknown -> UILastMessageContent.None
     }
 }

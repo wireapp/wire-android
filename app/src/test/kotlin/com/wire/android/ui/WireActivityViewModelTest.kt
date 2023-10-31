@@ -569,10 +569,10 @@ class WireActivityViewModelTest {
     @Test
     fun `given app theme change, when observing it, then update state with theme option`() = runTest {
         val (_, viewModel) = Arrangement()
-            .withThemeOption(ThemeOption.LIGHT)
+            .withThemeOption(ThemeOption.DARK)
             .arrange()
         advanceUntilIdle()
-        assertEquals(ThemeOption.LIGHT, viewModel.globalAppState.themeOption)
+        assertEquals(ThemeOption.DARK, viewModel.globalAppState.themeOption)
     }
 
     private class Arrangement {
@@ -595,7 +595,7 @@ class WireActivityViewModelTest {
                     observeScreenshotCensoringConfigUseCase
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
-            coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.DARK)
+            coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
         }
 
         @MockK

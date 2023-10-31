@@ -23,7 +23,10 @@ import com.wire.android.ui.theme.ThemeOption
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -31,7 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class AppearanceViewModelTest {
 
     @Test
-    fun `given theme option, when changing it, then should update global data store`() {
+    fun `given theme option, when changing it, then should update global data store`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
@@ -47,6 +50,7 @@ class AppearanceViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { globalDataStore.setThemeOption(any()) } returns Unit
+            every { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.DARK)
         }
 
         private val viewModel = AppearanceViewModel(globalDataStore)

@@ -844,7 +844,7 @@ fun MessageList(
                 reverseLayout = true,
                 // calculating bottom padding to have space for [UsersTypingIndicator]
                 contentPadding = PaddingValues(
-                    bottom = dimensions().typingIndicatorHeight - (dimensions().messageItemBottomPadding / 2)
+                    bottom = dimensions().typingIndicatorHeight - dimensions().messageItemVerticalPadding
                 ),
                 modifier = Modifier
                     .fillMaxSize()

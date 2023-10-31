@@ -112,7 +112,7 @@ sealed class HomeDestination(
 
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
         fun fromRoute(fullRoute: String): HomeDestination? =
-            values().find { it.direction.route.getPrimaryRoute() == fullRoute.getPrimaryRoute() }
+            values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
         fun values(): Array<HomeDestination> =
             arrayOf(Conversations, Calls, Mentions, Settings, Vault, Archive, Support, WhatsNew)
     }

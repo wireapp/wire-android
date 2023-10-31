@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.BiometricPrompt.ERROR_LOCKOUT
 import androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON
 import androidx.core.content.ContextCompat
 import com.wire.android.R
@@ -34,7 +35,8 @@ object BiometricPromptUtils {
         activity: AppCompatActivity,
         onSuccess: () -> Unit,
         onCancel: () -> Unit,
-        onRequestPasscode: () -> Unit
+        onRequestPasscode: () -> Unit,
+        onTooManyFailedAttempts: () -> Unit
     ): BiometricPrompt {
         val executor = ContextCompat.getMainExecutor(activity)
 
@@ -43,10 +45,10 @@ object BiometricPromptUtils {
             override fun onAuthenticationError(errorCode: Int, errorString: CharSequence) {
                 super.onAuthenticationError(errorCode, errorString)
                 appLogger.i("$TAG errorCode is $errorCode and errorString is: $errorString")
-                if (errorCode == ERROR_NEGATIVE_BUTTON || errorCode == BiometricPrompt.ERROR_LOCKOUT) {
-                    onRequestPasscode()
-                } else {
-                    onCancel()
+                when (errorCode) {
+                    ERROR_NEGATIVE_BUTTON -> onRequestPasscode()
+                    ERROR_LOCKOUT -> onTooManyFailedAttempts()
+                    else -> onCancel()
                 }
             }
 
@@ -76,7 +78,8 @@ object BiometricPromptUtils {
 fun AppCompatActivity.showBiometricPrompt(
     onSuccess: () -> Unit,
     onCancel: () -> Unit,
-    onRequestPasscode: () -> Unit
+    onRequestPasscode: () -> Unit,
+    onTooManyFailedAttempts: () -> Unit
 ) {
     val canAuthenticate = BiometricManager.from(this)
         .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
@@ -86,7 +89,8 @@ fun AppCompatActivity.showBiometricPrompt(
             activity = this,
             onSuccess = onSuccess,
             onCancel = onCancel,
-            onRequestPasscode = onRequestPasscode
+            onRequestPasscode = onRequestPasscode,
+            onTooManyFailedAttempts = onTooManyFailedAttempts
         )
         val promptInfo = BiometricPromptUtils.createPromptInfo(this)
         biometricPrompt.authenticate(promptInfo)

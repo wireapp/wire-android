@@ -365,7 +365,6 @@ fun ConversationScreen(
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
-        searchedMessageId = conversationMessagesViewModel.searchedMessageIdNavArgs,
         onLinkClick = { link ->
             with(messageComposerViewModel) {
                 val normalizedLink = normalizeLink(link)
@@ -550,7 +549,6 @@ private fun ConversationScreen(
     onClearMentionSearchResult: () -> Unit,
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
-    searchedMessageId: String?,
     onLinkClick: (String) -> Unit,
     onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
@@ -638,7 +636,6 @@ private fun ConversationScreen(
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
-                    searchedMessageId = searchedMessageId,
                     onSendMessage = onSendMessage,
                     onAssetItemClicked = onAssetItemClicked,
                     onAudioItemClicked = onAudioClick,
@@ -681,7 +678,6 @@ private fun ConversationScreenContent(
     audioMessagesState: Map<String, AudioState>,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
-    searchedMessageId: String?,
     onSendMessage: (MessageBundle) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -708,20 +704,6 @@ private fun ConversationScreenContent(
 
     val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
         LazyListState(unreadEventCount)
-    }
-
-    // TODO(Search): Properly verify searched message and try to scroll to message position
-    LaunchedEffect(lazyListState.isScrollInProgress) {
-        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
-            searchedMessageId?.let { messageId ->
-                appLogger.d("SEARCH_MSGS -> loaded = ${messageId}")
-                appLogger.d("SEARCH_MSGS -> count = ${lazyPagingMessages.itemCount}")
-
-                val item = lazyPagingMessages[99]
-                appLogger.d("SEARCH_MSGS -> also = ${(item?.messageContent as? UIMessageContent.TextMessage)?.messageBody ?: "no message body"}")
-                lazyListState.scrollToItem(99)
-            }
-        }
     }
 
     MessageComposer(
@@ -1009,7 +991,6 @@ fun PreviewConversationScreen() {
         onClearMentionSearchResult = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
-        searchedMessageId = null,
         onLinkClick = { _ -> },
         onTypingEvent = {}
     )

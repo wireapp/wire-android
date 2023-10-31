@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.sync
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,11 +35,13 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,7 +49,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val currentSessionUseCase: CurrentSessionUseCase
+    private val currentSessionUseCase: CurrentSessionUseCase,
+    private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -84,6 +88,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             observeTeamSettingsSelfDeletionStatus(userId)
                             setGuestRoomLinkFeatureFlag(userId)
                             setE2EIRequiredState(userId)
+                            setTeamAppLockFeatureFlag(userId)
                         }
                 }
             }
@@ -120,6 +125,22 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 guestRoomLinkStatus.isStatusChanged?.let {
                     featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
                 }
+            }
+        }
+    }
+
+    private fun setTeamAppLockFeatureFlag(userId: UserId) {
+        viewModelScope.launch {
+            coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
+                .distinctUntilChanged()
+                .collect {
+                    Log.d("appLock", "appLockTeamFeatureConfigObserver changed $it ")
+                    it.isStatusChanged?.let { isStatusChanged ->
+                        featureFlagState = featureFlagState.copy(
+                            isTeamAppLockEnabled = it.isEnabled,
+                            shouldShowTeamAppLockDialog = isStatusChanged
+                        )
+                    }
             }
         }
     }
@@ -181,6 +202,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             currentUserId?.let { coreLogic.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged() }
         }
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
+    }
+
+    fun dismissTeamAppLockDialog() {
+        featureFlagState = featureFlagState.copy(shouldShowTeamAppLockDialog = false)
     }
 
     fun getE2EICertificate() {

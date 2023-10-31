@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.appLock
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.applock.passcode.setAppLockPasscode
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore

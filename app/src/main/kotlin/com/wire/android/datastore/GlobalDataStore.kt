@@ -40,7 +40,7 @@ import javax.inject.Singleton
 
 @Suppress("TooManyFunctions")
 @Singleton
-class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
+class GlobalDataStore @Inject constructor(@ApplicationContext val context: Context) {
 
     companion object {
         private const val PREFERENCES_NAME = "global_data"
@@ -51,8 +51,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
-        private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
+        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
@@ -65,7 +64,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it.clear() }
     }
 
-    private fun getBooleanPreference(key: Preferences.Key<Boolean>, defaultValue: Boolean): Flow<Boolean> =
+    fun getBooleanPreference(key: Preferences.Key<Boolean>, defaultValue: Boolean): Flow<Boolean> =
         context.dataStore.data.map { it[key] ?: defaultValue }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
@@ -135,41 +134,4 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
-
-    // returns a flow with decoded passcode
-    @Suppress("TooGenericExceptionCaught")
-    fun getAppLockPasscodeFlow(): Flow<String?> =
-        context.dataStore.data.map {
-            it[APP_LOCK_PASSCODE]?.let {
-                try {
-                    EncryptionManager.decrypt(APP_LOCK_PASSCODE.name, it)
-                } catch (e: Exception) {
-                    null
-                }
-            }
-        }
-
-    // returns a flow only informing whether the passcode is set, without the need to decode it
-    fun isAppLockPasscodeSetFlow(): Flow<Boolean> =
-        context.dataStore.data.map {
-            it.contains(APP_LOCK_PASSCODE)
-        }
-
-    suspend fun clearAppLockPasscode() {
-        context.dataStore.edit {
-            it.remove(APP_LOCK_PASSCODE)
-        }
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    suspend fun setAppLockPasscode(passcode: String) {
-        context.dataStore.edit {
-            try {
-                val encrypted = EncryptionManager.encrypt(APP_LOCK_PASSCODE.name, passcode)
-                it[APP_LOCK_PASSCODE] = encrypted
-            } catch (e: Exception) {
-                it.remove(APP_LOCK_PASSCODE)
-            }
-        }
-    }
 }

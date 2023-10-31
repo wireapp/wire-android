@@ -27,5 +27,6 @@ data class SetLockCodeViewState(
     val password: TextFieldValue = TextFieldValue(),
     val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
     val timeout: Duration = DEFAULT_TIMEOUT,
+    val isAppLockByUser: Boolean = true,
     val done: Boolean = false
 )

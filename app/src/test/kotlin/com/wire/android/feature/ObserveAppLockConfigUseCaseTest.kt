@@ -18,11 +18,12 @@
 package com.wire.android.feature
 
 import app.cash.turbine.test
+import com.wire.android.applock.passcode.isAppLockedByUserFlow
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.applock.AppLockTeamConfig
+import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -142,7 +143,7 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withAppLockPasscodeSet(value: Boolean) = apply {
-            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(value)
+            every { globalDataStore.isAppLockedByUserFlow() } returns flowOf(value)
         }
 
         fun arrange() = this to useCase
@@ -162,7 +163,7 @@ class ObserveAppLockConfigUseCaseTest {
             } returns appLockTeamFeatureConfigObserver
             every {
                 appLockTeamFeatureConfigObserver.invoke()
-            } returns flowOf(AppLockTeamConfig(true, timeout))
+            } returns flowOf(AppLockTeamConfig(true, timeout, false))
         }
 
         fun withTeamAppLockDisabled() = apply {
@@ -172,15 +173,15 @@ class ObserveAppLockConfigUseCaseTest {
             } returns appLockTeamFeatureConfigObserver
             every {
                 appLockTeamFeatureConfigObserver.invoke()
-            } returns flowOf(AppLockTeamConfig(false, timeout))
+            } returns flowOf(AppLockTeamConfig(false, timeout, false))
         }
 
         fun withAppLockedByCurrentUser() = apply {
-            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(true)
+            every { globalDataStore.isAppLockedByUserFlow() } returns flowOf(true)
         }
 
         fun withAppNonLockedByCurrentUser() = apply {
-            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(false)
+            every { globalDataStore.isAppLockedByUserFlow() } returns flowOf(false)
         }
     }
 

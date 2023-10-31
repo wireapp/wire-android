@@ -82,6 +82,7 @@ import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
@@ -277,6 +278,15 @@ class WireActivity : AppCompatActivity() {
                 GuestRoomLinkFeatureFlagDialog(
                     isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
                     onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+                )
+            }
+
+            if (shouldShowTeamAppLockDialog) {
+                TeamAppLockFeatureFlagDialog(
+                    isTeamAppLockEnabled = isTeamAppLockEnabled,
+                    onDismiss = {
+                        // TODO to be handled in next PR
+                    }
                 )
             }
 

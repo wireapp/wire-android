@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature
 
+import com.wire.android.applock.passcode.isAppLockedByUserFlow
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
@@ -50,7 +51,7 @@ class ObserveAppLockConfigUseCase @Inject constructor(
                     coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
 
                 appLockTeamFeatureConfigFlow().combineTransform(
-                    globalDataStore.isAppLockPasscodeSetFlow()
+                    globalDataStore.isAppLockedByUserFlow()
                 ) { isAppLockedByTeam, isAppLocked ->
                     if (isAppLockedByTeam.isEnabled) {
                         emit(AppLockConfig.EnforcedByTeam(isAppLockedByTeam.timeout))

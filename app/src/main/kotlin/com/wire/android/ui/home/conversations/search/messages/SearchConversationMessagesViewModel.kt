@@ -51,9 +51,14 @@ class SearchConversationMessagesViewModel @Inject constructor(
     var searchConversationMessagesState by savedStateHandle.saveable(
         stateSaver = Saver<SearchConversationMessagesState, String>(
             save = { it.searchQuery.text },
-            restore = { SearchConversationMessagesState(searchQuery = TextFieldValue(it)) }
+            restore = {
+                SearchConversationMessagesState(
+                    conversationId = conversationId,
+                    searchQuery = TextFieldValue(it)
+                )
+            }
         )
-    ) { mutableStateOf(SearchConversationMessagesState()) }
+    ) { mutableStateOf(SearchConversationMessagesState(conversationId)) }
 
     private val mutableSearchQueryFlow = MutableStateFlow(searchConversationMessagesState.searchQuery.text)
 

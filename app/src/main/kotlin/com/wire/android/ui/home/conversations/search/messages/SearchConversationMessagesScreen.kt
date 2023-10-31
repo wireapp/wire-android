@@ -17,10 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,29 +46,17 @@ fun SearchConversationMessagesScreen(
     navigator: Navigator,
     searchConversationMessagesViewModel: SearchConversationMessagesViewModel = hiltViewModel()
 ) {
-    val searchBarState = rememberSearchBarConversationMessagesState()
-
     with(searchConversationMessagesViewModel.searchConversationMessagesState) {
         CollapsingTopBarScaffold(
             topBarHeader = { },
             topBarCollapsing = {
-                val onInputClicked: () -> Unit = remember { { searchBarState.openSearch() } }
-                val onCloseSearchClicked: () -> Unit = remember {
-                    {
-                        searchBarState.closeSearch()
-                        navigator.navigateBack()
-                    }
-                }
-
                 SearchTopBar(
-                    isSearchActive = searchBarState.isSearchActive,
+                    isSearchActive = true, // we want the search to be always active and back arrow visible on this particular screen
                     searchBarHint = stringResource(id = R.string.label_search_messages),
                     searchQuery = searchQuery,
                     onSearchQueryChanged = searchConversationMessagesViewModel::searchQueryChanged,
-                    onInputClicked = onInputClicked,
-                    onCloseSearchClicked = onCloseSearchClicked,
                     modifier = Modifier.padding(top = dimensions().spacing24x),
-                    shouldRequestFocus = true
+                    onCloseSearchClicked = navigator::navigateBack,
                 )
             },
             content = {
@@ -92,9 +78,6 @@ fun SearchConversationMessagesScreen(
                         )
                     }
                 )
-                BackHandler(enabled = searchBarState.isSearchActive) {
-                    searchBarState.closeSearch()
-                }
             },
             bottomBar = { },
             snapOnFling = false,

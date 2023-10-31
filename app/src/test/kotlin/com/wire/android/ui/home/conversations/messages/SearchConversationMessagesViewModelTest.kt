@@ -17,7 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.messages
 
+import android.os.Bundle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -119,6 +121,7 @@ class SearchConversationMessagesViewModelTest {
             every { savedStateHandle.navArgs<SearchConversationMessagesNavArgs>() } returns SearchConversationMessagesNavArgs(
                 conversationId = conversationId
             )
+            every { savedStateHandle.get<Bundle?>("searchConversationMessagesState") } returns bundleOf("value" to "")
         }
 
         suspend fun withSuccessSearch(

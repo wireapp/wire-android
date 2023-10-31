@@ -403,8 +403,7 @@ private fun ImportMediaContent(
                     onSearchQueryChanged(it)
                     searchBarState.searchQueryChanged(it)
                 },
-                onInputClicked = searchBarState::openSearch,
-                onCloseSearchClicked = searchBarState::closeSearch
+                onActiveChanged = searchBarState::searchActiveChanged,
             )
         }
         ConversationList(

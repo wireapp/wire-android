@@ -67,7 +67,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
@@ -118,6 +119,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
@@ -708,10 +710,17 @@ private fun ConversationScreenContent(
         LazyListState(unreadEventCount)
     }
 
-    LaunchedEffect(searchedMessageId) {
-        searchedMessageId?.let { messageId ->
-            // TODO(Search): Get current messageId position from messages list
-            // scroll to message position in list
+    // TODO(Search): Properly verify searched message and try to scroll to message position
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
+            searchedMessageId?.let { messageId ->
+                appLogger.d("SEARCH_MSGS -> loaded = ${messageId}")
+                appLogger.d("SEARCH_MSGS -> count = ${lazyPagingMessages.itemCount}")
+
+                val item = lazyPagingMessages[99]
+                appLogger.d("SEARCH_MSGS -> also = ${(item?.messageContent as? UIMessageContent.TextMessage)?.messageBody ?: "no message body"}")
+                lazyListState.scrollToItem(99)
+            }
         }
     }
 
@@ -860,12 +869,15 @@ fun MessageList(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
-                    uiMessage.header.messageId
-                }) { index, message ->
+                items(
+                    count = lazyPagingMessages.itemCount,
+                    key = lazyPagingMessages.itemKey { it.header.messageId },
+                    contentType = lazyPagingMessages.itemContentType { it }
+                ) { index ->
+                    val message: UIMessage? = lazyPagingMessages[index]
                     if (message == null) {
                         // We can draw a placeholder here, as we fetch the next page of messages
-                        return@itemsIndexed
+                        return@items
                     }
                     val showAuthor by remember {
                         mutableStateOf(

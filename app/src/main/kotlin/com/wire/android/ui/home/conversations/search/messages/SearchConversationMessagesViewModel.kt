@@ -17,13 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
+import androidx.lifecycle.viewmodel.compose.saveable
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.navArgs
@@ -32,7 +33,6 @@ import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -47,25 +47,20 @@ class SearchConversationMessagesViewModel @Inject constructor(
     private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
 
-    var searchConversationMessagesState by mutableStateOf(SearchConversationMessagesState())
+    @OptIn(SavedStateHandleSaveableApi::class)
+    var searchConversationMessagesState by savedStateHandle.saveable(
+        stateSaver = Saver<SearchConversationMessagesState, String>(
+            save = { it.searchQuery.text },
+            restore = { SearchConversationMessagesState(searchQuery = TextFieldValue(it)) }
+        )
+    ) { mutableStateOf(SearchConversationMessagesState()) }
 
-    private val mutableSearchQueryFlow = MutableStateFlow("")
-    private val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
-
-    private val searchQueryFlow = mutableSearchQueryFlow
-        .asStateFlow()
-        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+    private val mutableSearchQueryFlow = MutableStateFlow(searchConversationMessagesState.searchQuery.text)
 
     init {
         viewModelScope.launch {
-            searchQueryTextFieldFlow.collect {
-                searchConversationMessagesState = searchConversationMessagesState.copy(
-                    searchQuery = it
-                )
-            }
-        }
-        viewModelScope.launch {
-            searchQueryFlow
+            mutableSearchQueryFlow
+                .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
                 .collectLatest { searchTerm ->
                     getSearchMessagesForConversation(
                         searchTerm = searchTerm,
@@ -81,12 +76,13 @@ class SearchConversationMessagesViewModel @Inject constructor(
     }
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
-        val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
+        val textQueryChanged = searchConversationMessagesState.searchQuery.text != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
-        viewModelScope.launch {
-            searchQueryTextFieldFlow.emit(searchQuery)
-
-            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
+        searchConversationMessagesState = searchConversationMessagesState.copy(searchQuery = searchQuery)
+        if (textQueryChanged) {
+            viewModelScope.launch {
+                mutableSearchQueryFlow.emit(searchQuery.text)
+            }
         }
     }
 }

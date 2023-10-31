@@ -33,6 +33,8 @@ import com.wire.android.appLogger
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
@@ -58,6 +60,7 @@ class BackupAndRestoreViewModel
     private val importBackup: RestoreBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
+    private val validatePassword: ValidatePasswordUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
     private val dispatcher: DispatcherProvider,
@@ -228,7 +231,13 @@ class BackupAndRestoreViewModel
     }
 
     fun validateBackupCreationPassword(backupPassword: TextFieldValue) {
-        // TODO: modify in case the password requirements change
+        state = state.copy(
+            passwordValidation = if (backupPassword.text.isEmpty()) {
+                ValidatePasswordResult.Valid
+            } else {
+                validatePassword(backupPassword.text)
+            }
+        )
     }
 
     fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {

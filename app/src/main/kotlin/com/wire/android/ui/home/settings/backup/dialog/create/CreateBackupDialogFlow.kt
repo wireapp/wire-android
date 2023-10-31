@@ -29,7 +29,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
-import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 
 @Composable
@@ -47,7 +46,7 @@ fun CreateBackupDialogFlow(
         when (currentBackupDialogStep) {
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
-                    isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,
+                    passwordValidation = backUpAndRestoreState.passwordValidation,
                     onBackupPasswordChanged = onValidateBackupPassword,
                     onCreateBackup = { password ->
                         toCreatingBackup()

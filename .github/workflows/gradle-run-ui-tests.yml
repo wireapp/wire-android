@@ -36,7 +36,7 @@ jobs:
 
       - name: AVD cache
         uses: buildjet/cache@v3
-        id: avd-cache-${{ runner.os }}
+        id: avd-cache
         with:
           path: |
             ~/.android/avd/*

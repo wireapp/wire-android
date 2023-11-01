@@ -20,13 +20,13 @@
 
 package com.wire.android.ui.home.sync
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -41,7 +41,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +52,8 @@ import javax.inject.Inject
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSessionUseCase: CurrentSessionUseCase,
-    private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
+    private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase,
+    private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -133,13 +136,20 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
                 .distinctUntilChanged()
-                .collect {
-                    Log.d("appLock", "appLockTeamFeatureConfigObserver changed $it ")
+                .collectLatest {
                     it.isStatusChanged?.let { isStatusChanged ->
                         featureFlagState = featureFlagState.copy(
                             isTeamAppLockEnabled = it.isEnabled,
                             shouldShowTeamAppLockDialog = isStatusChanged
                         )
+                    } ?: run {
+                        // to handle the case of first app install with team app lock enabled
+                        if (it.isEnabled && !globalDataStore.isAppTeamPasscodeSetFlow().first()) {
+                            featureFlagState = featureFlagState.copy(
+                                isTeamAppLockEnabled = true,
+                                shouldShowTeamAppLockDialog = true
+                            )
+                        }
                     }
             }
         }
@@ -207,6 +217,17 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun dismissTeamAppLockDialog() {
         featureFlagState = featureFlagState.copy(shouldShowTeamAppLockDialog = false)
     }
+    fun markTeamAppLockStatusAsNot() {
+        markTeamAppLockStatusAsNotified()
+    }
+
+    fun clearTeamAppLockPasscode() {
+        viewModelScope.launch {
+            globalDataStore.clearTeamAppLockPasscode()
+        }
+    }
+
+    fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
 
     fun getE2EICertificate() {
         // TODO do the magic

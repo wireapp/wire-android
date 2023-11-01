@@ -27,6 +27,7 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
+import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -37,19 +38,23 @@ class AppLockActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             WireTheme {
-                val canAuthenticateWithBiometrics = BiometricManager
-                    .from(this)
-                    .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-
                 val navigator = rememberNavigator(this@AppLockActivity::finish)
 
                 val startDestination =
-                    if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                        appLogger.i("appLock: requesting app Unlock with biometrics")
-                        AppUnlockWithBiometricsScreenDestination
+                    if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {
+                        appLogger.i("appLock: requesting set team app lock")
+                        SetLockCodeScreenDestination
                     } else {
-                        appLogger.i("appLock: requesting app Unlock with passcode")
-                        EnterLockCodeScreenDestination
+                        val canAuthenticateWithBiometrics = BiometricManager
+                            .from(this)
+                            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                        if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
+                            appLogger.i("appLock: requesting app Unlock with biometrics")
+                            AppUnlockWithBiometricsScreenDestination
+                        } else {
+                            appLogger.i("appLock: requesting app Unlock with passcode")
+                            EnterLockCodeScreenDestination
+                        }
                     }
 
                 NavigationGraph(
@@ -58,5 +63,9 @@ class AppLockActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    companion object {
+        const val SET_TEAM_APP_LOCK = "set_team_app_lock"
     }
 }

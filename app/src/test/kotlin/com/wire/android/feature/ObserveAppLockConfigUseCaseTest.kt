@@ -18,7 +18,6 @@
 package com.wire.android.feature
 
 import app.cash.turbine.test
-import com.wire.android.applock.passcode.isAppLockedByUserFlow
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
@@ -143,7 +142,7 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withAppLockPasscodeSet(value: Boolean) = apply {
-            every { globalDataStore.isAppLockedByUserFlow() } returns flowOf(value)
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(value)
         }
 
         fun arrange() = this to useCase
@@ -177,11 +176,11 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withAppLockedByCurrentUser() = apply {
-            every { globalDataStore.isAppLockedByUserFlow() } returns flowOf(true)
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(true)
         }
 
         fun withAppNonLockedByCurrentUser() = apply {
-            every { globalDataStore.isAppLockedByUserFlow() } returns flowOf(false)
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(false)
         }
     }
 

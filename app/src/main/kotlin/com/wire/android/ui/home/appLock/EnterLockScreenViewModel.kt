@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.applock.passcode.getAppLockPasscodeFlow
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256

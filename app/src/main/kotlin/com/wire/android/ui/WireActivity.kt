@@ -257,8 +257,28 @@ class WireActivity : AppCompatActivity() {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(
                     isTeamAppLockEnabled = isTeamAppLockEnabled,
-                    onDismiss = {
-                        // TODO to be handled in next PR
+                    onConfirm = {
+                        featureFlagNotificationViewModel.dismissTeamAppLockDialog()
+                        if (isTeamAppLockEnabled) {
+                            val isUserAppLockSet =
+                                featureFlagNotificationViewModel.isUserAppLockSet()
+                            // No need to setup another app lock if the user already has one
+                            if (!isUserAppLockSet) {
+                                Intent(this@WireActivity, AppLockActivity::class.java)
+                                    .apply {
+                                        putExtra(AppLockActivity.SET_TEAM_APP_LOCK, true)
+                                    }.also {
+                                        startActivity(it)
+                                    }
+                            } else {
+                                featureFlagNotificationViewModel.markTeamAppLockStatusAsNot()
+                            }
+                        } else {
+                            with(featureFlagNotificationViewModel) {
+                                markTeamAppLockStatusAsNot()
+                                clearTeamAppLockPasscode()
+                            }
+                        }
                     }
                 )
             }

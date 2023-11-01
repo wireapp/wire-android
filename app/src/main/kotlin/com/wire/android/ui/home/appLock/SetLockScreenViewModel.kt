@@ -23,8 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.applock.passcode.setAppLockPasscode
-import com.wire.android.applock.passcode.setAppLockedByUser
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
@@ -43,7 +41,8 @@ class SetLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
-    private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase
+    private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
+    private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
     var state: SetLockCodeViewState by mutableStateOf(SetLockCodeViewState())
@@ -83,10 +82,12 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore){
-                            setAppLockPasscode(state.password.text.sha256())
                             if (state.isAppLockByUser) {
-                                setAppLockedByUser(true)
+                                setUserAppLock(state.password.text.sha256())
+                            } else {
+                                setTeamAppLock(state.password.text.sha256())
                             }
+                            markTeamAppLockStatusAsNotified()
                         }
                     }
                     withContext(dispatchers.main()) {

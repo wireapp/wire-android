@@ -116,7 +116,6 @@ fun WireDialog(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WireDialog(
     title: String,

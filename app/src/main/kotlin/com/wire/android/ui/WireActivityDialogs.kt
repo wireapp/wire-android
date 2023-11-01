@@ -130,7 +130,7 @@ fun GuestRoomLinkFeatureFlagDialog(
 @Composable
 fun TeamAppLockFeatureFlagDialog(
     isTeamAppLockEnabled: Boolean,
-    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
 ) {
     val text: String =
         stringResource(id = if (isTeamAppLockEnabled) R.string.team_app_lock_enabled
@@ -139,9 +139,9 @@ fun TeamAppLockFeatureFlagDialog(
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),
         text = text,
-        onDismiss = onDismiss,
+        onDismiss = {},
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDismiss,
+            onClick = onConfirm,
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,
         )

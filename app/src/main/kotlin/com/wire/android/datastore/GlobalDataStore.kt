@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -134,4 +135,92 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
 
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
+
+    private val IS_APP_LOCKED_BY_USER = booleanPreferencesKey("is_app_locked_by_user")
+    private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
+    private val TEAM_APP_LOCK_PASSCODE = stringPreferencesKey("team_app_lock_passcode")
+
+    /**
+     * returns a flow with decoded passcode
+     */
+    @Suppress("TooGenericExceptionCaught")
+    fun getAppLockPasscodeFlow(): Flow<String?> =
+        context.dataStore.data.map {
+            it[APP_LOCK_PASSCODE]?.let { passcode ->
+                try {
+                    EncryptionManager.decrypt(APP_LOCK_PASSCODE.name, passcode)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
+
+    /**
+     * returns a flow only informing whether the passcode is set, without the need to decode it
+     */
+    fun isAppLockPasscodeSetFlow(): Flow<Boolean> =
+        context.dataStore.data.map {
+            it.contains(APP_LOCK_PASSCODE)
+        }
+
+    fun isAppLockPasscodeSet(): Boolean = runBlocking {
+        context.dataStore.data.map {
+            it.contains(APP_LOCK_PASSCODE)
+        }.first()
+    }
+
+    fun isAppTeamPasscodeSetFlow(): Flow<Boolean> =
+        context.dataStore.data.map {
+            it.contains(TEAM_APP_LOCK_PASSCODE)
+        }
+
+    fun isAppTeamPasscodeSet(): Boolean = runBlocking {
+        context.dataStore.data.map {
+            it.contains(TEAM_APP_LOCK_PASSCODE)
+        }.first()
+    }
+
+    suspend fun clearAppLockPasscode() {
+        context.dataStore.edit {
+            it.remove(APP_LOCK_PASSCODE)
+        }
+    }
+    suspend fun clearTeamAppLockPasscode() {
+        context.dataStore.edit {
+            it.remove(TEAM_APP_LOCK_PASSCODE)
+        }
+    }
+
+    private suspend fun setAppLockPasscode(
+        passcode: String,
+        key: Preferences.Key<String>
+    ) {
+        context.dataStore.edit {
+            try {
+                val encrypted =
+                    EncryptionManager.encrypt(key.name, passcode)
+                it[key] = encrypted
+            } catch (e: Exception) {
+                it.remove(key)
+            }
+        }
+    }
+
+    suspend fun setTeamAppLock(
+        passcode: String,
+        key: Preferences.Key<String> = TEAM_APP_LOCK_PASSCODE
+    ) {
+        setAppLockPasscode(passcode, key)
+    }
+
+    suspend fun setUserAppLock(
+        passcode: String,
+        key: Preferences.Key<String> = APP_LOCK_PASSCODE
+    ) {
+        setAppLockPasscode(passcode, key)
+    }
+
+    fun isAppLockedByUserFlow(): Flow<Boolean> =
+        getBooleanPreference(IS_APP_LOCKED_BY_USER, false)
+
 }

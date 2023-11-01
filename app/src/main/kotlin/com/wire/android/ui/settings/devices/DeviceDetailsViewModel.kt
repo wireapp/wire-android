@@ -80,14 +80,16 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getE2eiCertificate() {
-        val certificate = e2eiCertificate(deviceId)
-        state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
-            state.copy(
-                isE2eiCertificateActivated = true,
-                e2eiCertificate = certificate.certificate
-            )
-        } else {
-            state.copy(isE2eiCertificateActivated = false)
+        viewModelScope.launch {
+            val certificate = e2eiCertificate(deviceId)
+            state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+                state.copy(
+                    isE2eiCertificateActivated = true,
+                    e2eiCertificate = certificate.certificate
+                )
+            } else {
+                state.copy(isE2eiCertificateActivated = false)
+            }
         }
     }
 

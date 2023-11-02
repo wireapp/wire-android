@@ -148,16 +148,18 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      * returns a flow with decoded passcode
      */
     @Suppress("TooGenericExceptionCaught")
-    fun getAppLockPasscodeFlow(): Flow<String?> =
-        context.dataStore.data.map {
-            it[APP_LOCK_PASSCODE]?.let { passcode ->
+    fun getAppLockPasscodeFlow(): Flow<String?> {
+        val preference = if(isAppLockPasscodeSet()) APP_LOCK_PASSCODE else TEAM_APP_LOCK_PASSCODE
+        return context.dataStore.data.map {
+            it[preference]?.let { passcode ->
                 try {
-                    EncryptionManager.decrypt(APP_LOCK_PASSCODE.name, passcode)
+                    EncryptionManager.decrypt(preference.name, passcode)
                 } catch (e: Exception) {
                     null
                 }
             }
         }
+    }
 
     /**
      * returns a flow only informing whether the passcode is set, without the need to decode it
@@ -172,11 +174,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             it.contains(APP_LOCK_PASSCODE)
         }.first()
     }
-
-    fun isAppTeamPasscodeSetFlow(): Flow<Boolean> =
-        context.dataStore.data.map {
-            it.contains(TEAM_APP_LOCK_PASSCODE)
-        }
 
     fun isAppTeamPasscodeSet(): Boolean = runBlocking {
         context.dataStore.data.map {

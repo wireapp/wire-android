@@ -104,9 +104,7 @@ fun EnterLockCodeScreenContent(
     onContinue: () -> Unit,
     onForgotCodeClicked: () -> Unit,
 ) {
-    WireScaffold(
-        snackbarHost = {}
-    ) { internalPadding ->
+    WireScaffold { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

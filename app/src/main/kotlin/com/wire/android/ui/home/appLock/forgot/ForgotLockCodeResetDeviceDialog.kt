@@ -20,15 +20,12 @@ package com.wire.android.ui.home.appLock.forgot
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -84,7 +81,6 @@ fun ForgotLockCodeResetDeviceDialog(
         // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
         // to the dialog's content and use keyboard controller from there
         keyboardController = LocalSoftwareKeyboardController.current
-        val focusRequester = remember { FocusRequester() }
         WirePasswordTextField(
             state = when {
                 !isPasswordValid -> WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
@@ -97,13 +93,8 @@ fun ForgotLockCodeResetDeviceDialog(
             },
             autofill = false,
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .padding(bottom = dimensions().spacing16x)
+            modifier = Modifier.padding(bottom = dimensions().spacing16x)
         )
-        LaunchedEffect(Unit) { // executed only once when showing the dialog
-            focusRequester.requestFocus()
-        }
     }
 }
 

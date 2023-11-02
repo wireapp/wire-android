@@ -9,7 +9,6 @@ import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -222,15 +221,11 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markE2EIRequiredAsNotified: MarkEnablingE2EIAsNotifiedUseCase
 
         @MockK
-        lateinit var markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
-
-        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession,
-            markTeamAppLockStatusAsNotified = markTeamAppLockStatusAsNotified,
             globalDataStore = globalDataStore
         )
 

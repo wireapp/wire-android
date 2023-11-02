@@ -53,7 +53,6 @@ import javax.inject.Inject
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSessionUseCase: CurrentSessionUseCase,
-    private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
 
@@ -80,7 +79,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {
                     appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                    featureFlagState = featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
+                    featureFlagState =
+                        featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
                 }
 
                 is CurrentSessionResult.Success -> {
@@ -122,14 +122,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setGuestRoomLinkFeatureFlag(userId: UserId) {
         viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
-                guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
-                    featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+            coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
+                .collect { guestRoomLinkStatus ->
+                    guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                        featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+                    }
+                    guestRoomLinkStatus.isStatusChanged?.let {
+                        featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+                    }
                 }
-                guestRoomLinkStatus.isStatusChanged?.let {
-                    featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
-                }
-            }
         }
     }
 
@@ -152,32 +153,33 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             )
                         }
                     }
-            }
+                }
         }
     }
 
     private fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus().collect { teamSettingsSelfDeletingStatus ->
-                val areSelfDeletedMessagesEnabled =
-                    teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
-                val shouldShowSelfDeletingMessagesDialog =
-                    teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false
-                val enforcedTimeoutDuration: SelfDeletionDuration =
-                    with(teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer) {
-                        when (this) {
-                            TeamSelfDeleteTimer.Disabled,
-                            TeamSelfDeleteTimer.Enabled -> SelfDeletionDuration.None
+            coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus()
+                .collect { teamSettingsSelfDeletingStatus ->
+                    val areSelfDeletedMessagesEnabled =
+                        teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
+                    val shouldShowSelfDeletingMessagesDialog =
+                        teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false
+                    val enforcedTimeoutDuration: SelfDeletionDuration =
+                        with(teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer) {
+                            when (this) {
+                                TeamSelfDeleteTimer.Disabled,
+                                TeamSelfDeleteTimer.Enabled -> SelfDeletionDuration.None
 
-                            is TeamSelfDeleteTimer.Enforced -> this.enforcedDuration.toSelfDeletionDuration()
+                                is TeamSelfDeleteTimer.Enforced -> this.enforcedDuration.toSelfDeletionDuration()
+                            }
                         }
-                    }
-                featureFlagState = featureFlagState.copy(
-                    areSelfDeletedMessagesEnabled = areSelfDeletedMessagesEnabled,
-                    shouldShowSelfDeletingMessagesDialog = shouldShowSelfDeletingMessagesDialog,
-                    enforcedTimeoutDuration = enforcedTimeoutDuration
-                )
-            }
+                    featureFlagState = featureFlagState.copy(
+                        areSelfDeletedMessagesEnabled = areSelfDeletedMessagesEnabled,
+                        shouldShowSelfDeletingMessagesDialog = shouldShowSelfDeletingMessagesDialog,
+                        enforcedTimeoutDuration = enforcedTimeoutDuration
+                    )
+                }
         }
     }
 
@@ -186,8 +188,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             val state = when (result) {
                 E2EIRequiredResult.NoGracePeriod.Create -> FeatureFlagState.E2EIRequired.NoGracePeriod.Create
                 E2EIRequiredResult.NoGracePeriod.Renew -> FeatureFlagState.E2EIRequired.NoGracePeriod.Renew
-                is E2EIRequiredResult.WithGracePeriod.Create -> FeatureFlagState.E2EIRequired.WithGracePeriod.Create(result.timeLeft)
-                is E2EIRequiredResult.WithGracePeriod.Renew -> FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(result.timeLeft)
+                is E2EIRequiredResult.WithGracePeriod.Create -> FeatureFlagState.E2EIRequired.WithGracePeriod.Create(
+                    result.timeLeft
+                )
+
+                is E2EIRequiredResult.WithGracePeriod.Renew -> FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(
+                    result.timeLeft
+                )
+
                 E2EIRequiredResult.NotRequired -> null
             }
             featureFlagState = featureFlagState.copy(e2EIRequired = state)
@@ -197,7 +205,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun dismissSelfDeletingMessagesDialog() {
         featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
         viewModelScope.launch {
-            currentUserId?.let { coreLogic.getSessionScope(it).markSelfDeletingMessagesAsNotified() }
+            currentUserId?.let {
+                coreLogic.getSessionScope(it).markSelfDeletingMessagesAsNotified()
+            }
         }
     }
 
@@ -210,7 +220,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun dismissGuestRoomLinkDialog() {
         viewModelScope.launch {
-            currentUserId?.let { coreLogic.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged() }
+            currentUserId?.let {
+                coreLogic.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged()
+            }
         }
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
     }
@@ -218,8 +230,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun dismissTeamAppLockDialog() {
         featureFlagState = featureFlagState.copy(shouldShowTeamAppLockDialog = false)
     }
+
     fun markTeamAppLockStatusAsNot() {
-        markTeamAppLockStatusAsNotified()
+        viewModelScope.launch {
+            val currentSession = currentSessionUseCase()
+            if (currentSessionUseCase() is CurrentSessionResult.Success) {
+                coreLogic.getSessionScope((currentSession as CurrentSessionResult.Success).accountInfo.userId).markTeamAppLockStatusAsNotified()
+            }
+        }
     }
 
     fun clearTeamAppLockPasscode() {

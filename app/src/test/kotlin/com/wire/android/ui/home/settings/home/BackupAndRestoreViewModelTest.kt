@@ -427,6 +427,7 @@ class BackupAndRestoreViewModelTest {
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withFailedDBImport(Failure(BackupIOFailure("IO error")))
             .withRequestedPasswordDialog()
+            .withValidPassword()
             .arrange()
 
         // When

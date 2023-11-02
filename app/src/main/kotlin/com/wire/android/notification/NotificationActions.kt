@@ -30,15 +30,25 @@ import com.wire.android.R
 fun getActionFromOldOne(oldAction: Notification.Action) =
     NotificationCompat.Action.Builder(null, oldAction.title, oldAction.actionIntent).build()
 
-fun getActionReply(context: Context, conversationId: String, userId: String?): NotificationCompat.Action {
-    val resultPendingIntent = replyMessagePendingIntent(context, conversationId, userId)
+fun getActionReply(
+    context: Context,
+    conversationId: String,
+    userId: String?,
+    isAppLocked: Boolean
+): NotificationCompat.Action {
+    return if (isAppLocked) {
+        val resultPendingIntent = messagePendingIntent(context, conversationId, userId)
+        NotificationCompat.Action.Builder(null, context.getString(R.string.notification_action_reply), resultPendingIntent)
+            .build()
+    } else {
+        val resultPendingIntent = replyMessagePendingIntent(context, conversationId, userId)
+        val remoteInput = RemoteInput.Builder(NotificationConstants.KEY_TEXT_REPLY).build()
 
-    val remoteInput = RemoteInput.Builder(NotificationConstants.KEY_TEXT_REPLY).build()
-
-    return NotificationCompat.Action.Builder(null, context.getString(R.string.notification_action_reply), resultPendingIntent)
-        .addRemoteInput(remoteInput)
-        .setAllowGeneratedReplies(true)
-        .build()
+        NotificationCompat.Action.Builder(null, context.getString(R.string.notification_action_reply), resultPendingIntent)
+            .addRemoteInput(remoteInput)
+            .setAllowGeneratedReplies(true)
+            .build()
+    }
 }
 
 fun getOpenIncomingCallAction(context: Context, conversationId: String, userId: String) = getAction(

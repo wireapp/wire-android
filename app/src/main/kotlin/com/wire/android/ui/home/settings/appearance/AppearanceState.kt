@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings
+package com.wire.android.ui.home.settings.appearance
 
-import com.wire.android.feature.AppLockConfig
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
+import com.wire.android.ui.theme.ThemeOption
 
-data class SettingsState(
-    val appLockConfig: AppLockConfig = AppLockConfig.Disabled(DEFAULT_TIMEOUT),
+data class AppearanceState(
+    val selectedThemeOption: ThemeOption = ThemeOption.SYSTEM,
 )

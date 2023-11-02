@@ -18,7 +18,8 @@
 package com.wire.android.ui.home.settings
 
 import com.wire.android.feature.AppLockConfig
+import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
 
 data class SettingsState(
-    val appLockConfig: AppLockConfig = AppLockConfig.Disabled,
+    val appLockConfig: AppLockConfig = AppLockConfig.Disabled(DEFAULT_TIMEOUT),
 )

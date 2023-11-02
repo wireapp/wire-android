@@ -291,8 +291,6 @@ class WireActivity : AppCompatActivity() {
                     )
                 }
 
-
-
                 if (shouldShowSelfDeletingMessagesDialog) {
                     SelfDeletingMessagesDialog(
                         areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,

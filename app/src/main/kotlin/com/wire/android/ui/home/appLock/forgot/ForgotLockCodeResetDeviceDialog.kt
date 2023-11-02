@@ -19,6 +19,7 @@ package com.wire.android.ui.home.appLock.forgot
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -36,11 +38,14 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.stringWithStyledArgs
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -60,7 +65,14 @@ fun ForgotLockCodeResetDeviceDialog(
     }
     WireDialog(
         title = stringResource(R.string.settings_forgot_lock_screen_reset_device),
-        text = stringResource(R.string.settings_forgot_lock_screen_reset_device_description, username),
+        text = LocalContext.current.resources.stringWithStyledArgs(
+            R.string.settings_forgot_lock_screen_reset_device_description,
+            MaterialTheme.wireTypography.body01,
+            MaterialTheme.wireTypography.body02,
+            colorsScheme().onBackground,
+            colorsScheme().onBackground,
+            username
+        ),
         onDismiss = onDialogDismissHideKeyboard,
         buttonsHorizontalAlignment = false,
         dismissButtonProperties = WireDialogButtonProperties(

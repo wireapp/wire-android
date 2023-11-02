@@ -48,20 +48,21 @@ class LockCodeTimeManagerTest {
         appLockConfig: AppLockConfig,
         isTeamPasscodeSet: Boolean = false,
         expected: Boolean
-    ) = runTest(dispatcher) {
-        // given
-        val (arrangement, manager) = Arrangement(dispatcher)
-            .withAppLockConfig(appLockConfig)
+    ) =
+        runTest(dispatcher) {
+            // given
+            val (arrangement, manager) = Arrangement(dispatcher)
+                .withAppLockConfig(appLockConfig)
             .withTeamPasscodeSet(isTeamPasscodeSet)
-            .withIsAppVisible(false)
-            .arrange()
-        advanceUntilIdle()
-        // when
-        arrangement.withIsAppVisible(true)
-        advanceUntilIdle()
-        // then
-        assertEquals(expected, manager.observeAppLock().first())
-    }
+                .withIsAppVisible(false)
+                .arrange()
+            advanceUntilIdle()
+            // when
+            arrangement.withIsAppVisible(true)
+            advanceUntilIdle()
+            // then
+            assertEquals(expected, manager.observeAppLock().first())
+        }
 
     @Test
     fun givenLockEnabled_whenAppInitiallyOpened_thenLocked() =

@@ -105,15 +105,15 @@ fun SystemMessageItem(
             .customizeMessageBackground(message.sendingFailed, message.decryptionFailed)
             .padding(
                 end = dimensions().spacing16x,
-                start = dimensions().spacing8x,
                 top = fullAvatarOuterPadding,
-                bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
+                bottom = dimensions().messageItemVerticalPadding
             )
             .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
-                .width(dimensions().avatarDefaultSize),
+                .width(dimensions().spacing56x)
+                .padding(end = fullAvatarOuterPadding),
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
@@ -140,7 +140,7 @@ fun SystemMessageItem(
                 }
             }
         }
-        Spacer(Modifier.padding(start = dimensions().spacing16x))
+        Spacer(Modifier.padding(start = dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
         Column(
             Modifier
                 .defaultMinSize(minHeight = dimensions().spacing20x)

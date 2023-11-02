@@ -30,6 +30,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.migration.failure.UserMigrationStatus
+import com.wire.android.ui.theme.ThemeOption
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -52,7 +53,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
-        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
+        val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
@@ -66,6 +68,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
     }
 
     fun getBooleanPreference(key: Preferences.Key<Boolean>, defaultValue: Boolean): Flow<Boolean> =
+        context.dataStore.data.map { it[key] ?: defaultValue }
+
+    private fun getStringPreference(key: Preferences.Key<String>, defaultValue: String): Flow<String> =
         context.dataStore.data.map { it[key] ?: defaultValue }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
@@ -223,4 +228,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
     fun isAppLockedByUserFlow(): Flow<Boolean> =
         getBooleanPreference(IS_APP_LOCKED_BY_USER, false)
 
+    suspend fun setThemeOption(option: ThemeOption) {
+        context.dataStore.edit { it[APP_THEME_OPTION] = option.toString() }
+    }
+
+    fun selectedThemeOptionFlow(): Flow<ThemeOption> = getStringPreference(APP_THEME_OPTION, ThemeOption.SYSTEM.toString())
+        .map { ThemeOption.valueOf(it) }
 }

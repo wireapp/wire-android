@@ -27,7 +27,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -60,7 +59,6 @@ fun AttachmentButton(
 ) {
     Column(
         modifier = modifier
-            .height(dimensions().spacing100x)
             .padding(dimensions().spacing4x)
             .clip(RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize))
             .clickable { onClick() }
@@ -96,6 +94,7 @@ fun AttachmentButton(
     }
 }
 
+// This composable has not fixed height to adapt to GridView in [AttachmentOptionsComponent]
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {

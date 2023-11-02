@@ -168,7 +168,7 @@ class ForgotLockScreenViewModel @Inject constructor(
                 }
                 getAllSessionsResult.sessions.map { session ->
                     hardLogoutAccount(session.userId)
-                }.joinAll()
+                }
                 globalDataStore.clearAppLockPasscode()
                 accountSwitch(SwitchAccountParam.Clear)
                 Either.Right(Result.Success)
@@ -176,11 +176,11 @@ class ForgotLockScreenViewModel @Inject constructor(
         }
 
     // TODO: we should have a dedicated manager to perform these required actions in AR after every LogoutUseCase call
-    private suspend fun hardLogoutAccount(userId: UserId): Job {
+    private suspend fun hardLogoutAccount(userId: UserId) {
         notificationManager.stopObservingOnLogout(userId)
         notificationChannelsManager.deleteChannelGroup(userId)
+        coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT)
         userDataStoreProvider.getOrCreate(userId).clear()
-        return coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT)
     }
 
     private enum class Result { InvalidPassword, Success; }

@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,

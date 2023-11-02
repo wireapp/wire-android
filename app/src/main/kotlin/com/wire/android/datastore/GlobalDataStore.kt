@@ -53,6 +53,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
+        private val IS_APP_LOCKED_BY_USER = booleanPreferencesKey("is_app_locked_by_user")
+        private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
+        private val TEAM_APP_LOCK_PASSCODE = stringPreferencesKey("team_app_lock_passcode")
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
@@ -141,10 +144,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
     suspend fun getShouldShowDoubleTapToast(userId: String): Boolean =
         getBooleanPreference(userDoubleTapToastStatusKey(userId), true).first()
 
-    private val IS_APP_LOCKED_BY_USER = booleanPreferencesKey("is_app_locked_by_user")
-    private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
-    private val TEAM_APP_LOCK_PASSCODE = stringPreferencesKey("team_app_lock_passcode")
-
     /**
      * returns a flow with decoded passcode
      */
@@ -196,6 +195,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext val context: Conte
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun setAppLockPasscode(
         passcode: String,
         key: Preferences.Key<String>

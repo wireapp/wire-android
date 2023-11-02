@@ -81,7 +81,7 @@ class SetLockScreenViewModel @Inject constructor(
             if (it.isValid) {
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
-                        with(globalDataStore){
+                        with(globalDataStore) {
                             if (state.isAppLockByUser) {
                                 setUserAppLock(state.password.text.sha256())
                             } else {

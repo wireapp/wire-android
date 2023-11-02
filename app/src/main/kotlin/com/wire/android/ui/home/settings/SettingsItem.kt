@@ -41,6 +41,7 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
+import com.wire.android.ui.destinations.AppearanceScreenDestination
 import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
 import com.wire.android.ui.destinations.DebugScreenDestination
 import com.wire.android.ui.destinations.LicensesScreenDestination
@@ -122,6 +123,12 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         id = "your_account_settings",
         title = UIText.StringResource(R.string.settings_your_account_label),
         direction = MyAccountScreenDestination
+    )
+
+    data object Appearance : DirectionItem(
+        id = "appearance_settings",
+        title = UIText.StringResource(R.string.settings_appearance_label),
+        direction = AppearanceScreenDestination
     )
 
     data object NetworkSettings : DirectionItem(

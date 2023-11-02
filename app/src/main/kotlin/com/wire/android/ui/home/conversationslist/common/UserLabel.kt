@@ -27,9 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
+import com.wire.kalium.logic.data.conversation.Conversation
 
 @Composable
 fun UserLabel(
@@ -47,6 +50,12 @@ fun UserLabel(
                     Spacer(modifier = Modifier.width(6.dp))
                     MembershipQualifierLabel(membership)
                 }
+                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+                    ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
+                }
+                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+                    MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+                }
             },
             searchQuery = searchQuery
         )
@@ -57,5 +66,7 @@ data class UserInfoLabel(
     val labelName: String,
     val isLegalHold: Boolean,
     val membership: Membership,
-    val unavailable: Boolean = false
+    val unavailable: Boolean = false,
+    val proteusVerificationStatus: Conversation.VerificationStatus? = null,
+    val mlsVerificationStatus: Conversation.VerificationStatus? = null,
 )

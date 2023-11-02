@@ -49,10 +49,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
@@ -60,6 +60,7 @@ import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.ForgotLockCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -76,35 +77,42 @@ fun EnterLockCodeScreen(
     navigator: Navigator
 ) {
     EnterLockCodeScreenContent(
-        navigator = navigator,
         state = viewModel.state,
         scrollState = rememberScrollState(),
         onPasswordChanged = viewModel::onPasswordChanged,
         onContinue = viewModel::onContinue,
-        onBackPress = { navigator.finish() }
+        onDone = navigator::navigateBack,
+        onForgotCodeClicked = { navigator.navigate(NavigationCommand(ForgotLockCodeScreenDestination)) }
     )
+
+    BackHandler {
+        if (navigator.navController.previousBackStackEntry?.destination() is AppUnlockWithBiometricsScreenDestination) {
+            navigator.navigateBack()
+        } else {
+            navigator.finish()
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterLockCodeScreenContent(
-    navigator: Navigator,
     state: EnterLockCodeViewState,
     scrollState: ScrollState,
     onPasswordChanged: (TextFieldValue) -> Unit,
-    onBackPress: () -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    onDone: () -> Unit,
+    onForgotCodeClicked: () -> Unit,
 ) {
     LaunchedEffect(state.done) {
         if (state.done) {
-            navigator.navigateBack()
+            onDone()
         }
     }
-    BackHandler {
-        onBackPress()
-    }
 
-    WireScaffold { internalPadding ->
+    WireScaffold(
+        snackbarHost = {}
+    ) { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -153,12 +161,14 @@ fun EnterLockCodeScreenContent(
                     },
                     autofill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
-                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(Locale.getDefault())
+                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(
+                        Locale.getDefault()
+                    )
                 )
 
                 WireTertiaryButton(
                     text = stringResource(id = R.string.settings_enter_lock_screen_forgot_passcode_label),
-                    onClick = { navigator.navigate(NavigationCommand(ForgotLockCodeScreenDestination)) },
+                    onClick = onForgotCodeClicked,
                     modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)
                 )
 
@@ -209,12 +219,12 @@ private fun ContinueButton(
 fun PreviewEnterLockCodeScreen() {
     WireTheme(isPreview = true) {
         EnterLockCodeScreenContent(
-            navigator = rememberNavigator {},
             state = EnterLockCodeViewState(),
             scrollState = rememberScrollState(),
             onPasswordChanged = {},
-            onBackPress = {},
-            onContinue = {}
+            onContinue = {},
+            onDone = {},
+            onForgotCodeClicked = {}
         )
     }
 }

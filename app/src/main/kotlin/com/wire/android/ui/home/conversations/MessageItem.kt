@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,12 +43,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.ui.graphics.Color
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -82,7 +81,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
@@ -141,12 +139,8 @@ fun MessageItem(
         }
 
         Box(backgroundColorModifier) {
-            val fullAvatarOuterPadding = if (showAuthor) {
-                dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
-            } else {
-                0.dp
-            }
-            val halfItemBottomPadding = dimensions().messageItemBottomPadding / 2
+            // padding needed to have same top padding for avatar and rest composables in message item
+            val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -156,31 +150,42 @@ fun MessageItem(
                         onLongClick = remember(message) { { onLongClicked(message) } }
                     )
                     .padding(
-                        end = dimensions().spacing12x,
-                        top = halfItemBottomPadding - fullAvatarOuterPadding,
-                        bottom = halfItemBottomPadding
+                        end = dimensions().messageItemHorizontalPadding,
+                        top = dimensions().messageItemVerticalPadding - fullAvatarOuterPadding,
+                        bottom = dimensions().messageItemVerticalPadding
                     )
             ) {
-                Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
-
                 val isProfileRedirectEnabled =
                     header.userId != null &&
                             !(header.isSenderDeleted || header.isSenderUnavailable)
 
-                if (showAuthor) {
-                    val avatarClickable = remember {
-                        Clickable(enabled = isProfileRedirectEnabled) {
-                            onOpenProfile(header.userId!!.toString())
+                Box(
+                    modifier = Modifier.width(dimensions().spacing56x),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    if (showAuthor) {
+                        val avatarClickable = remember {
+                            Clickable(enabled = isProfileRedirectEnabled) {
+                                onOpenProfile(header.userId!!.toString())
+                            }
                         }
+                        // because avatar takes start padding we don't need to add padding to message item
+                        UserProfileAvatar(
+                            avatarData = message.userAvatarData,
+                            clickable = avatarClickable
+                        )
+                    } else {
+                        // imitating width of space that avatar takes
+                        Spacer(
+                            Modifier.width(
+                                dimensions().avatarDefaultSize
+                                        + (dimensions().avatarStatusBorderSize * 2)
+                                        + (dimensions().avatarClickablePadding * 2)
+                            )
+                        )
                     }
-                    UserProfileAvatar(
-                        avatarData = message.userAvatarData,
-                        clickable = avatarClickable
-                    )
-                } else {
-                    Spacer(Modifier.width(MaterialTheme.wireDimensions.avatarDefaultSize))
                 }
-                Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
+                Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
                 Column {
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     if (showAuthor) {

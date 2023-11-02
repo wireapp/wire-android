@@ -52,7 +52,7 @@ class LockCodeTimeManagerTest {
         arrangement.withIsAppVisible(true)
         advanceUntilIdle()
         // then
-        assertEquals(expected, manager.isLocked().first())
+        assertEquals(expected, manager.observeAppLock().first())
     }
 
     @Test
@@ -75,7 +75,7 @@ class LockCodeTimeManagerTest {
         arrangement.withIsAppVisible(false)
         advanceTimeBy(delayAfterStop)
         // then
-        assertEquals(expected, manager.isLocked().first())
+        assertEquals(expected, manager.observeAppLock().first())
     }
 
     @Test
@@ -104,7 +104,7 @@ class LockCodeTimeManagerTest {
         manager.appUnlocked()
         advanceUntilIdle()
         // when-then
-        manager.isLocked().test {
+        manager.observeAppLock().test {
             arrangement.withIsAppVisible(false)
             assertEquals(false, awaitItem())
             assertEquals(true, awaitItem())
@@ -124,7 +124,7 @@ class LockCodeTimeManagerTest {
         advanceTimeBy(startDelay)
         arrangement.withIsAppVisible(true)
         // then
-        assertEquals(expected, manager.isLocked().first())
+        assertEquals(expected, manager.observeAppLock().first())
     }
 
     @Test
@@ -155,7 +155,7 @@ class LockCodeTimeManagerTest {
         advanceTimeBy(AppLockConfig.Enabled.timeoutInMillis() - 100L)
         arrangement.withIsAppVisible(true)
         // then
-        assertEquals(true, manager.isLocked().first())
+        assertEquals(true, manager.observeAppLock().first())
     }
 
     @Test
@@ -170,7 +170,7 @@ class LockCodeTimeManagerTest {
         manager.appUnlocked()
         advanceUntilIdle()
         // then
-        assertEquals(false, manager.isLocked().first())
+        assertEquals(false, manager.observeAppLock().first())
     }
 
     class Arrangement(dispatcher: TestDispatcher) {

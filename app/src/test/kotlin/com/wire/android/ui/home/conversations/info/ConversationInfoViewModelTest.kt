@@ -233,8 +233,8 @@ class ConversationInfoViewModelTest {
                 viewModel.conversationInfoViewState.protocolInfo
             )
             assertEquals(
-                groupConversationDetails.conversation.verificationStatus,
-                viewModel.conversationInfoViewState.verificationStatus
+                groupConversationDetails.conversation.mlsVerificationStatus,
+                viewModel.conversationInfoViewState.mlsVerificationStatus
             )
             cancel()
         }
@@ -257,8 +257,8 @@ class ConversationInfoViewModelTest {
                 viewModel.conversationInfoViewState.protocolInfo
             )
             assertEquals(
-                groupConversationDetails.conversation.verificationStatus,
-                viewModel.conversationInfoViewState.verificationStatus
+                groupConversationDetails.conversation.mlsVerificationStatus,
+                viewModel.conversationInfoViewState.mlsVerificationStatus
             )
             cancel()
         }
@@ -281,8 +281,8 @@ class ConversationInfoViewModelTest {
                 viewModel.conversationInfoViewState.protocolInfo
             )
             assertEquals(
-                groupConversationDetails.conversation.verificationStatus,
-                viewModel.conversationInfoViewState.verificationStatus
+                groupConversationDetails.conversation.mlsVerificationStatus,
+                viewModel.conversationInfoViewState.mlsVerificationStatus
             )
             cancel()
         }
@@ -302,7 +302,7 @@ class ConversationInfoViewModelTest {
         )
         assertEquals(
             null,
-            viewModel.conversationInfoViewState.verificationStatus
+            viewModel.conversationInfoViewState.mlsVerificationStatus
         )
     }
 

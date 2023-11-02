@@ -29,8 +29,7 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
@@ -70,9 +69,7 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -87,6 +84,7 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
@@ -98,7 +96,7 @@ import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -159,6 +157,14 @@ class WireActivity : AppCompatActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             var isLoaded by remember { mutableStateOf(false) }
 
+            LaunchedEffect(viewModel.globalAppState.themeOption) {
+                when (viewModel.globalAppState.themeOption) {
+                    ThemeOption.SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    ThemeOption.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    ThemeOption.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }
+            }
+
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
@@ -186,7 +192,6 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleAppLock(navigator::navigate)
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -236,28 +241,6 @@ class WireActivity : AppCompatActivity() {
                 window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-        }
-    }
-
-    @Composable
-    private fun handleAppLock(navigate: (NavigationCommand) -> Unit) {
-        LaunchedEffect(Unit) {
-            lifecycleScope.launch {
-                // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
-                lockCodeTimeManager.isLocked()
-                    .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                    .filter { it }
-                    .collectLatest {
-                        val canAuthenticateWithBiometrics = BiometricManager
-                            .from(this@WireActivity)
-                            .canAuthenticate(BIOMETRIC_STRONG)
-                        if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                            navigate(NavigationCommand(AppUnlockWithBiometricsScreenDestination, BackStackMode.UPDATE_EXISTED))
-                        } else {
-                            navigate(NavigationCommand(EnterLockCodeScreenDestination, BackStackMode.UPDATE_EXISTED))
-                        }
-                    }
             }
         }
     }
@@ -345,6 +328,20 @@ class WireActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        lifecycleScope.launch {
+            lockCodeTimeManager.observeAppLock()
+                // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .first().let {
+                    if (it) {
+                        startActivity(
+                            Intent(this@WireActivity, AppLockActivity::class.java)
+                        )
+                    }
+                }
+        }
+
         proximitySensorManager.registerListener()
     }
 

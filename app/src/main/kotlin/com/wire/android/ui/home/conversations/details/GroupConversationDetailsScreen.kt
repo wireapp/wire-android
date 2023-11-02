@@ -26,6 +26,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -35,6 +38,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -47,10 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -64,7 +70,9 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -73,10 +81,12 @@ import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationS
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
@@ -84,6 +94,7 @@ import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
 import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
@@ -97,11 +108,12 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -303,7 +315,14 @@ private fun GroupConversationDetailsContent(
         topBarHeader = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
-                title = stringResource(R.string.conversation_details_title),
+                titleContent = {
+                    WireTopAppBarTitle(
+                        title = stringResource(R.string.conversation_details_title),
+                        style = MaterialTheme.wireTypography.title01,
+                        maxLines = 2
+                    )
+                    VerificationInfo(conversationSheetContent)
+                },
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
                 actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
@@ -444,6 +463,59 @@ private fun GroupConversationDetailsContent(
             bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
         }
     )
+}
+
+@Composable
+private fun VerificationInfo(conversationSheetContent: ConversationSheetContent?) {
+    if (conversationSheetContent == null) return
+
+    val isProteusVerified = conversationSheetContent.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isMlsVerified = conversationSheetContent.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isProteusProtocol = conversationSheetContent.protocol == Conversation.ProtocolInfo.Proteus
+
+    if (isProteusVerified && (isProteusProtocol || !isMlsVerified)) {
+        ProteusVerifiedLabel()
+    } else if (isMlsVerified) {
+        MLSVerifiedLabel()
+    }
+}
+
+@Composable
+private fun MLSVerifiedLabel() {
+    VerifiedLabel(
+        stringResource(id = R.string.label_conversations_details_verified_mls).uppercase(),
+        MaterialTheme.wireColorScheme.mlsVerificationTextColor
+    ) { MLSVerifiedIcon() }
+}
+
+@Composable
+private fun ProteusVerifiedLabel() {
+    VerifiedLabel(
+        stringResource(id = R.string.label_conversations_details_verified_proteus).uppercase(),
+        MaterialTheme.wireColorScheme.primary
+    ) { ProteusVerifiedIcon() }
+}
+
+@Composable
+private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope.() -> Unit = {}) {
+    Row(
+        modifier = Modifier
+            .padding(top = dimensions().spacing4x)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            modifier = Modifier.padding(
+                start = dimensions().spacing6x,
+                end = dimensions().spacing6x
+            ),
+            text = text,
+            style = MaterialTheme.wireTypography.label01,
+            color = color,
+            overflow = TextOverflow.Ellipsis
+        )
+        icon()
+    }
 }
 
 enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {

@@ -50,9 +50,11 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -89,7 +91,7 @@ class ForgotLockScreenViewModel @Inject constructor(
 
     fun onResetDevice() {
         viewModelScope.launch {
-            state = state.copy(dialogState = ForgotLockCodeDialogState.Visible(username = getSelf().firstOrNull()?.name ?: "",))
+            state = state.copy(dialogState = ForgotLockCodeDialogState.Visible(username = getSelf().firstOrNull()?.name ?: ""))
         }
     }
 
@@ -112,14 +114,14 @@ class ForgotLockScreenViewModel @Inject constructor(
                             .flatMapIfSuccess { hardLogoutAllAccounts() }
                     }
                     .fold({ error ->
-                            state = state.copy(error = error)
-                            updateIfDialogStateVisible { it.copy(loading = false, resetDeviceEnabled = true) }
-                        }, { result ->
-                            when (result) {
-                                Result.InvalidPassword -> updateIfDialogStateVisible { it.copy(passwordValid = false, loading = false) }
-                                Result.Success -> state = state.copy(completed = true, dialogState = ForgotLockCodeDialogState.Hidden)
-                            }
+                        state = state.copy(error = error)
+                        updateIfDialogStateVisible { it.copy(loading = false, resetDeviceEnabled = true) }
+                    }, { result ->
+                        when (result) {
+                            Result.InvalidPassword -> updateIfDialogStateVisible { it.copy(passwordValid = false, loading = false) }
+                            Result.Success -> state = state.copy(completed = true, dialogState = ForgotLockCodeDialogState.Hidden)
                         }
+                    }
                     )
             }
         }
@@ -164,7 +166,9 @@ class ForgotLockScreenViewModel @Inject constructor(
                 observeEstablishedCalls().firstOrNull()?.let { establishedCalls ->
                     establishedCalls.forEach { endCall(it.conversationId) }
                 }
-                getAllSessionsResult.sessions.forEach { session -> hardLogoutAccount(session.userId) }
+                getAllSessionsResult.sessions.map { session ->
+                    hardLogoutAccount(session.userId)
+                }.joinAll()
                 globalDataStore.clearAppLockPasscode()
                 // it won't switch to any other account because there is none anymore, just required to clear-up after logout
                 accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
@@ -173,11 +177,11 @@ class ForgotLockScreenViewModel @Inject constructor(
         }
 
     // TODO: we should have a dedicated manager to perform these required actions in AR after every LogoutUseCase call
-    private suspend fun hardLogoutAccount(userId: UserId) {
+    private suspend fun hardLogoutAccount(userId: UserId): Job {
         notificationManager.stopObservingOnLogout(userId)
         notificationChannelsManager.deleteChannelGroup(userId)
-        coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT)
         userDataStoreProvider.getOrCreate(userId).clear()
+        return coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT)
     }
 
     private enum class Result { InvalidPassword, Success; }

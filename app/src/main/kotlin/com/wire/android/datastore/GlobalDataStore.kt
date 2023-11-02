@@ -48,17 +48,21 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private const val PREFERENCES_NAME = "global_data"
 
         // keys
-        private val SHOW_CALLING_DOUBLE_TAP_TOAST = booleanPreferencesKey("show_calling_double_tap_toast_")
+        private val SHOW_CALLING_DOUBLE_TAP_TOAST =
+            booleanPreferencesKey("show_calling_double_tap_toast_")
         private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
-        private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
+        private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED =
+            booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val IS_APP_LOCKED_BY_USER = booleanPreferencesKey("is_app_locked_by_user")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val TEAM_APP_LOCK_PASSCODE = stringPreferencesKey("team_app_lock_passcode")
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
-        private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
+        private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> =
+            intPreferencesKey("user_migration_status_$userId")
+
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
 
@@ -73,21 +77,28 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     fun getBooleanPreference(key: Preferences.Key<Boolean>, defaultValue: Boolean): Flow<Boolean> =
         context.dataStore.data.map { it[key] ?: defaultValue }
 
-    private fun getStringPreference(key: Preferences.Key<String>, defaultValue: String): Flow<String> =
+    private fun getStringPreference(
+        key: Preferences.Key<String>,
+        defaultValue: String
+    ): Flow<String> =
         context.dataStore.data.map { it[key] ?: defaultValue }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
-    fun isLoggingEnabled(): Flow<Boolean> = getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
+    fun isLoggingEnabled(): Flow<Boolean> =
+        getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
 
     suspend fun setLoggingEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
     }
 
     fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =
-        getBooleanPreference(IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED, BuildConfig.ENCRYPT_PROTEUS_STORAGE)
+        getBooleanPreference(
+            IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED,
+            BuildConfig.ENCRYPT_PROTEUS_STORAGE
+        )
 
     suspend fun setEncryptedProteusStorageEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
@@ -113,7 +124,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         when (status) {
             UserMigrationStatus.Completed,
             UserMigrationStatus.CompletedWithErrors,
-            UserMigrationStatus.Successfully -> setUserMigrationAppVersion(userId, BuildConfig.VERSION_CODE)
+            UserMigrationStatus.Successfully -> setUserMigrationAppVersion(
+                userId,
+                BuildConfig.VERSION_CODE
+            )
 
             UserMigrationStatus.NoNeed,
             UserMigrationStatus.NotStarted -> {
@@ -128,7 +142,13 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      * meaning that the user does not need to be migrated.
      */
     fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
-        context.dataStore.data.map { it[userMigrationStatusKey(userId)]?.let { status -> UserMigrationStatus.fromInt(status) } }
+        context.dataStore.data.map {
+            it[userMigrationStatusKey(userId)]?.let { status ->
+                UserMigrationStatus.fromInt(
+                    status
+                )
+            }
+        }
 
     suspend fun setUserMigrationAppVersion(userId: String, version: Int) {
         context.dataStore.edit { it[userLastMigrationAppVersion(userId)] = version }
@@ -148,16 +168,18 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      * returns a flow with decoded passcode
      */
     @Suppress("TooGenericExceptionCaught")
-    fun getAppLockPasscodeFlow(): Flow<String?> =
-        context.dataStore.data.map {
-            it[APP_LOCK_PASSCODE]?.let { passcode ->
+    fun getAppLockPasscodeFlow(): Flow<String?> {
+        val preference = if (isAppLockPasscodeSet()) APP_LOCK_PASSCODE else TEAM_APP_LOCK_PASSCODE
+        return context.dataStore.data.map {
+            it[preference]?.let { passcode ->
                 try {
-                    EncryptionManager.decrypt(APP_LOCK_PASSCODE.name, passcode)
+                    EncryptionManager.decrypt(preference.name, passcode)
                 } catch (e: Exception) {
                     null
                 }
             }
         }
+    }
 
     /**
      * returns a flow only informing whether the passcode is set, without the need to decode it
@@ -173,11 +195,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }.first()
     }
 
-    fun isAppTeamPasscodeSetFlow(): Flow<Boolean> =
-        context.dataStore.data.map {
-            it.contains(TEAM_APP_LOCK_PASSCODE)
-        }
-
     fun isAppTeamPasscodeSet(): Boolean = runBlocking {
         context.dataStore.data.map {
             it.contains(TEAM_APP_LOCK_PASSCODE)
@@ -189,6 +206,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             it.remove(APP_LOCK_PASSCODE)
         }
     }
+
     suspend fun clearTeamAppLockPasscode() {
         context.dataStore.edit {
             it.remove(TEAM_APP_LOCK_PASSCODE)
@@ -232,6 +250,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[APP_THEME_OPTION] = option.toString() }
     }
 
-    fun selectedThemeOptionFlow(): Flow<ThemeOption> = getStringPreference(APP_THEME_OPTION, ThemeOption.SYSTEM.toString())
-        .map { ThemeOption.valueOf(it) }
+    fun selectedThemeOptionFlow(): Flow<ThemeOption> =
+        getStringPreference(APP_THEME_OPTION, ThemeOption.SYSTEM.toString())
+            .map { ThemeOption.valueOf(it) }
 }

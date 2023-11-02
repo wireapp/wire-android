@@ -50,9 +50,11 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -165,8 +167,10 @@ class ForgotLockScreenViewModel @Inject constructor(
                     establishedCalls.forEach { endCall(it.conversationId) }
                 }
                 getAllSessionsResult.sessions.map { session ->
-                    hardLogoutAccount(session.userId)
-                }
+                    viewModelScope.async {
+                        hardLogoutAccount(session.userId)
+                    }
+                }.joinAll() // wait until all accounts are logged out
                 globalDataStore.clearAppLockPasscode()
                 accountSwitch(SwitchAccountParam.Clear)
                 Either.Right(Result.Success)
@@ -177,7 +181,7 @@ class ForgotLockScreenViewModel @Inject constructor(
     private suspend fun hardLogoutAccount(userId: UserId) {
         notificationManager.stopObservingOnLogout(userId)
         notificationChannelsManager.deleteChannelGroup(userId)
-        coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT)
+        coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
         userDataStoreProvider.getOrCreate(userId).clear()
     }
 

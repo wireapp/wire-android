@@ -170,8 +170,7 @@ class ForgotLockScreenViewModel @Inject constructor(
                     hardLogoutAccount(session.userId)
                 }.joinAll()
                 globalDataStore.clearAppLockPasscode()
-                // it won't switch to any other account because there is none anymore, just required to clear-up after logout
-                accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
+                accountSwitch(SwitchAccountParam.Clear)
                 Either.Right(Result.Success)
             }
         }

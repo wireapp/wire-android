@@ -68,6 +68,7 @@ class AccountSwitchUseCase @Inject constructor(
         return when (params) {
             is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current.await())
             SwitchAccountParam.TryToSwitchToNextAccount -> getNextAccountIfPossibleAndSwitch(current.await())
+            SwitchAccountParam.Clear -> switch(null, current.await())
         }
     }
 
@@ -143,6 +144,7 @@ class AccountSwitchUseCase @Inject constructor(
 sealed class SwitchAccountParam {
     object TryToSwitchToNextAccount : SwitchAccountParam()
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
+    data object Clear : SwitchAccountParam()
 }
 
 sealed class SwitchAccountResult {

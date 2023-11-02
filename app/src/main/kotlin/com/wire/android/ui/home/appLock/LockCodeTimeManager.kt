@@ -94,7 +94,9 @@ class LockCodeTimeManager @Inject constructor(
         isLockedFlow.value = false
     }
 
-    fun isLocked(): Flow<Boolean> = isLockedFlow
+    fun isAppLocked(): Boolean = isLockedFlow.value
+
+    fun observeAppLock(): Flow<Boolean> = isLockedFlow
 
     companion object {
         private const val TAG = "LockCodeTimeManager"

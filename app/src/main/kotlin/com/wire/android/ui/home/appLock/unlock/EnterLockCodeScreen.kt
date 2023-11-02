@@ -81,16 +81,17 @@ fun EnterLockCodeScreen(
         scrollState = rememberScrollState(),
         onPasswordChanged = viewModel::onPasswordChanged,
         onContinue = viewModel::onContinue,
-        onDone = navigator::navigateBack,
         onForgotCodeClicked = { navigator.navigate(NavigationCommand(ForgotLockCodeScreenDestination)) }
     )
-
     BackHandler {
         if (navigator.navController.previousBackStackEntry?.destination() is AppUnlockWithBiometricsScreenDestination) {
             navigator.navigateBack()
         } else {
             navigator.finish()
         }
+    }
+    LaunchedEffect(viewModel.state.done) {
+        if (viewModel.state.done) navigator.navigateBack()
     }
 }
 
@@ -101,15 +102,8 @@ fun EnterLockCodeScreenContent(
     scrollState: ScrollState,
     onPasswordChanged: (TextFieldValue) -> Unit,
     onContinue: () -> Unit,
-    onDone: () -> Unit,
     onForgotCodeClicked: () -> Unit,
 ) {
-    LaunchedEffect(state.done) {
-        if (state.done) {
-            onDone()
-        }
-    }
-
     WireScaffold(
         snackbarHost = {}
     ) { internalPadding ->
@@ -223,7 +217,6 @@ fun PreviewEnterLockCodeScreen() {
             scrollState = rememberScrollState(),
             onPasswordChanged = {},
             onContinue = {},
-            onDone = {},
             onForgotCodeClicked = {}
         )
     }

@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -144,14 +145,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             isTeamAppLockEnabled = it.isEnabled,
                             shouldShowTeamAppLockDialog = isStatusChanged
                         )
-                    } ?: run {
-                        // to handle the case of first app install with team app lock enabled
-                        if (it.isEnabled && !globalDataStore.isAppTeamPasscodeSetFlow().first()) {
-                            featureFlagState = featureFlagState.copy(
-                                isTeamAppLockEnabled = true,
-                                shouldShowTeamAppLockDialog = true
-                            )
-                        }
                     }
                 }
         }

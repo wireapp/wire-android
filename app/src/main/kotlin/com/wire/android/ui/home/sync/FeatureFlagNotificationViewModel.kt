@@ -35,16 +35,13 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -228,7 +225,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         viewModelScope.launch {
             val currentSession = currentSessionUseCase()
             if (currentSessionUseCase() is CurrentSessionResult.Success) {
-                coreLogic.getSessionScope((currentSession as CurrentSessionResult.Success).accountInfo.userId).markTeamAppLockStatusAsNotified()
+                coreLogic.getSessionScope(
+                    (currentSession as CurrentSessionResult.Success).accountInfo.userId
+                ).markTeamAppLockStatusAsNotified()
             }
         }
     }

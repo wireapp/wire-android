@@ -249,20 +249,6 @@ class WireActivity : AppCompatActivity() {
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
         featureFlagNotificationViewModel.loadInitialSync()
         with(featureFlagNotificationViewModel.featureFlagState) {
-            if (showFileSharingDialog) {
-                FileRestrictionDialog(
-                    isFileSharingEnabled = isFileSharingEnabledState,
-                    hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
-                )
-            }
-
-            if (shouldShowGuestRoomLinkDialog) {
-                GuestRoomLinkFeatureFlagDialog(
-                    isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
-                    onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
-                )
-            }
-
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(
                     isTeamAppLockEnabled = isTeamAppLockEnabled,
@@ -290,63 +276,88 @@ class WireActivity : AppCompatActivity() {
                         }
                     }
                 )
-            }
+            } else {
+                if (showFileSharingDialog) {
+                    FileRestrictionDialog(
+                        isFileSharingEnabled = isFileSharingEnabledState,
+                        hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
+                    )
+                }
 
-            if (shouldShowSelfDeletingMessagesDialog) {
-                SelfDeletingMessagesDialog(
-                    areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
-                    enforcedTimeout = enforcedTimeoutDuration,
-                    hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
+                if (shouldShowGuestRoomLinkDialog) {
+                    GuestRoomLinkFeatureFlagDialog(
+                        isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
+                        onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+                    )
+                }
+
+
+
+                if (shouldShowSelfDeletingMessagesDialog) {
+                    SelfDeletingMessagesDialog(
+                        areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
+                        enforcedTimeout = enforcedTimeoutDuration,
+                        hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
+                    )
+                }
+
+                e2EIRequired?.let {
+                    E2EIRequiredDialog(
+                        result = e2EIRequired,
+                        getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
+                        snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+                    )
+                }
+
+                e2EISnoozeInfo?.let {
+                    E2EISnoozeDialog(
+                        timeLeft = e2EISnoozeInfo.timeLeft,
+                        dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+                    )
+                }
+
+                UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
+                JoinConversationDialog(
+                    viewModel.globalAppState.conversationJoinedDialog,
+                    navigate,
+                    viewModel::onJoinConversationFlowCompleted
                 )
-            }
-
-            e2EIRequired?.let {
-                E2EIRequiredDialog(
-                    result = e2EIRequired,
-                    getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
-                    snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
+                CustomBackendDialog(
+                    viewModel.globalAppState,
+                    viewModel::dismissCustomBackendDialog
+                ) {
+                    viewModel.customBackendDialogProceedButtonClicked {
+                        navigate(
+                            NavigationCommand(
+                                WelcomeScreenDestination
+                            )
+                        )
+                    }
+                }
+                MaxAccountDialog(
+                    shouldShow = viewModel.globalAppState.maxAccountDialog,
+                    onConfirm = {
+                        viewModel.dismissMaxAccountDialog()
+                        navigate(NavigationCommand(SelfUserProfileScreenDestination))
+                    },
+                    onDismiss = viewModel::dismissMaxAccountDialog
                 )
-            }
-
-            e2EISnoozeInfo?.let {
-                E2EISnoozeDialog(
-                    timeLeft = e2EISnoozeInfo.timeLeft,
-                    dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+                AccountLoggedOutDialog(
+                    viewModel.globalAppState.blockUserUI
+                ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
+                NewClientDialog(
+                    viewModel.globalAppState.newClientDialog,
+                    { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
+                    {
+                        viewModel.switchAccount(
+                            userId = it,
+                            actions = NavigationSwitchAccountActions(navigate),
+                            onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })
+                    },
+                    viewModel::dismissNewClientsDialog
                 )
             }
         }
-        UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
-        JoinConversationDialog(
-            viewModel.globalAppState.conversationJoinedDialog,
-            navigate,
-            viewModel::onJoinConversationFlowCompleted
-        )
-        CustomBackendDialog(
-            viewModel.globalAppState,
-            viewModel::dismissCustomBackendDialog
-        ) { viewModel.customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
-        MaxAccountDialog(
-            shouldShow = viewModel.globalAppState.maxAccountDialog,
-            onConfirm = {
-                viewModel.dismissMaxAccountDialog()
-                navigate(NavigationCommand(SelfUserProfileScreenDestination))
-            },
-            onDismiss = viewModel::dismissMaxAccountDialog
-        )
-        AccountLoggedOutDialog(
-            viewModel.globalAppState.blockUserUI
-        ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate)) }
-        NewClientDialog(
-            viewModel.globalAppState.newClientDialog,
-            { navigate(NavigationCommand(SelfDevicesScreenDestination)) },
-            {
-                viewModel.switchAccount(
-                    userId = it,
-                    actions = NavigationSwitchAccountActions(navigate),
-                    onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })
-            },
-            viewModel::dismissNewClientsDialog
-        )
     }
 
     private fun updateTheApp() {

@@ -42,7 +42,7 @@ import javax.inject.Singleton
 
 @Suppress("TooManyFunctions")
 @Singleton
-class GlobalDataStore @Inject constructor(@ApplicationContext val context: Context) {
+class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 
     companion object {
         private const val PREFERENCES_NAME = "global_data"

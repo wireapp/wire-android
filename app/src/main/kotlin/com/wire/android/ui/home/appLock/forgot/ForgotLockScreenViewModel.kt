@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.appLock.forgot
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -50,7 +52,6 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -127,7 +128,8 @@ class ForgotLockScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun validatePasswordIfNeeded(password: String): Either<CoreFailure, Result> =
+    @VisibleForTesting
+    internal suspend fun validatePasswordIfNeeded(password: String): Either<CoreFailure, Result> =
         when (val isPasswordRequiredResult = isPasswordRequired()) {
             is IsPasswordRequiredUseCase.Result.Failure -> {
                 appLogger.e("$TAG Failed to check if password is required when resetting passcode")
@@ -139,7 +141,8 @@ class ForgotLockScreenViewModel @Inject constructor(
             }
         }
 
-    private suspend fun deleteCurrentClient(password: String): Either<CoreFailure, Result> =
+    @VisibleForTesting
+    internal suspend fun deleteCurrentClient(password: String): Either<CoreFailure, Result> =
         observeCurrentClientId()
             .filterNotNull()
             .first()
@@ -154,20 +157,21 @@ class ForgotLockScreenViewModel @Inject constructor(
                 }
             }
 
-    private suspend fun hardLogoutAllAccounts(): Either<CoreFailure, Result> =
+    @VisibleForTesting
+    internal suspend fun hardLogoutAllAccounts(): Either<CoreFailure, Result> =
         when (val getAllSessionsResult = getSessions()) {
             is GetAllSessionsResult.Failure.Generic -> {
                 appLogger.e("$TAG Failed to get all sessions when resetting passcode")
                 Either.Left(getAllSessionsResult.genericFailure)
             }
-
-            is GetAllSessionsResult.Failure.NoSessionFound -> Either.Right(Result.Success)
+            is GetAllSessionsResult.Failure.NoSessionFound,
             is GetAllSessionsResult.Success -> {
                 observeEstablishedCalls().firstOrNull()?.let { establishedCalls ->
                     establishedCalls.forEach { endCall(it.conversationId) }
                 }
-                getAllSessionsResult.sessions.map { session ->
-                    viewModelScope.async {
+                val sessions = if (getAllSessionsResult is GetAllSessionsResult.Success) getAllSessionsResult.sessions else emptyList()
+                sessions.filterIsInstance<AccountInfo.Valid>().map { session ->
+                    viewModelScope.launch {
                         hardLogoutAccount(session.userId)
                     }
                 }.joinAll() // wait until all accounts are logged out
@@ -185,7 +189,7 @@ class ForgotLockScreenViewModel @Inject constructor(
         userDataStoreProvider.getOrCreate(userId).clear()
     }
 
-    private enum class Result { InvalidPassword, Success; }
+    internal enum class Result { InvalidPassword, Success; }
 
     private inline fun <T> Either<T, Result>.flatMapIfSuccess(block: () -> Either<T, Result>): Either<T, Result> =
         this.flatMap { if (it == Result.Success) block() else Either.Right(it) }

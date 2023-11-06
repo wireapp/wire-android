@@ -59,6 +59,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class ForgotLockScreenViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,

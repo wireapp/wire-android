@@ -20,7 +20,7 @@
   -->
 <resources>
     <string name="app_version">Версія програми</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="build_variant_name">Створити варіант</string>
     <string name="label_new">Новий</string>
     <string name="label_login">Логін</string>
     <string name="label_ok">OK</string>
@@ -49,19 +49,19 @@
     <string name="label_message_receive_failure">Помилка завантаження</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
-    <string name="label_system_message_self_user_knock">%s pinged</string>
-    <string name="label_system_message_other_user_knock">%s pinged</string>
+    <string name="label_system_message_self_user_knock">%s надіслали пінг</string>
+    <string name="label_system_message_other_user_knock">%s надіслав(-ла) пінг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
-    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s не отримає вашого повідомлення.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s отримає ваше повідомлення пізніше.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s отримає ваше повідомлення пізніше.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 participant from %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
         <item quantity="many">%1$d participants from %2$s</item>
         <item quantity="other">%1$d participants from %2$s</item>
     </plurals>
-    <string name="label_reset_session">Reset Session</string>
+    <string name="label_reset_session">Скидання сесії</string>
     <string name="label_reset_session_success">Session successfully reset</string>
     <string name="label_federated_membership">Федеративна система</string>
     <string name="label_update">Оновити</string>
@@ -71,19 +71,19 @@
     <string name="label_show">Показати</string>
     <string name="label_show_all">Розгорнути</string>
     <string name="label_show_less">Згорнути</string>
-    <string name="label_show_details">Show Details</string>
-    <string name="label_hide_details">Hide Details</string>
+    <string name="label_show_details">Показати деталі</string>
+    <string name="label_hide_details">Приховати деталі</string>
     <string name="label_message_status_edited_with_date">Відредаговано %s</string>
     <string name="label_on">УВІМКНУТИ</string>
     <string name="label_off">ВИМКНУТИ</string>
     <string name="label_value_copied">%s скопійовано</string>
     <string name="label_disable">Вимкнути</string>
-    <string name="folder_label_access">Access</string>
+    <string name="folder_label_access">Доступ</string>
     <string name="folder_label_protocol_details">Детальний опис протоколу (beta)</string>
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blocked</string>
     <string name="label_and">і</string>
-    <string name="label_retry">Retry</string>
+    <string name="label_retry">Повторити</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Логотип додатка</string>
     <string name="content_description_reveal_password">Показати пароль</string>
@@ -98,14 +98,15 @@
     <string name="content_description_add_to_favourite">Додати до вподобань</string>
     <string name="content_description_move_to_folder">Перемістити в папку</string>
     <string name="content_description_move_to_archive">Перемістити в архів</string>
-    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_unarchive">Розархівувати</string>
     <string name="content_description_block_the_user">Заблокувати</string>
     <string name="content_description_unblock_the_user">Розблокувати</string>
     <string name="content_description_leave_the_group">Покинути групу</string>
-    <string name="content_description_delete_the_group">Delete the group</string>
+    <string name="content_description_delete_the_group">Видалити групу</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <string name="content_description_conversation_search_icon">Search icon</string>
+    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
@@ -115,16 +116,16 @@
     <string name="content_description_conversation_mention_someone">Згадати когось</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
     <string name="content_description_back_button">Back button</string>
-    <string name="content_description_send_button">Send</string>
+    <string name="content_description_send_button">Надіслати</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
     <string name="content_description_close_button">Close button</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
-    <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
+    <string name="content_description_remove_devices_screen_remove_icon">Видалити пристрій</string>
     <string name="content_description_avatar_preview">Preview of profile picture</string>
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
-    <string name="content_description_take_a_picture">Take a picture</string>
+    <string name="content_description_take_a_picture">Зробити фото</string>
     <string name="content_description_right_arrow">Right arrow</string>
     <string name="content_description_left_arrow">Go back</string>
     <string name="content_description_mention_icon">Mention icon</string>
@@ -143,8 +144,8 @@
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>
-    <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
-    <string name="content_description_calling_flip_camera_off">Flip to back camera</string>
+    <string name="content_description_calling_flip_camera_on">Перемкнутись на передню камеру</string>
+    <string name="content_description_calling_flip_camera_off">Перемкнутись на задню камеру</string>
     <string name="content_description_calling_participant_muted">Participant muted</string>
     <string name="content_description_calling_mute_call">Mute call</string>
     <string name="content_description_calling_unmute_call">Unmute call</string>
@@ -192,11 +193,11 @@
     <string name="search_no_results">No matches found</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
+    <string name="whats_new_welcome_to_new_android_app_label">Ласкаво просимо до нового додатку Wire для Android!</string>
     <string name="whats_new_release_notes_group_title">Release Notes</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
-    <string name="settings_backups_group_title">Backups</string>
+    <string name="settings_backups_group_title">Резервні копії</string>
     <string name="settings_other_group_title">Other</string>
     <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
     <string name="settings_backup_create">Create a Backup</string>
@@ -292,6 +293,16 @@
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
+    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
+    <string name="item_subtitle_status_e2ei_certificate">Status</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
+    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
+    <string name="get_e2ei_certificate_button">Get Certificate</string>
+    <string name="update_e2ei_certificat_button">Update Certificate</string>
+    <string name="e2ei_certificat_status_valid">Valid</string>
+    <string name="e2ei_certificat_status_expired">Expired</string>
+    <string name="e2ei_certificat_status_revoked">Revoked</string>
+    <string name="e2ei_certificat_status_not_activated">Not activated</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -405,6 +416,7 @@
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
@@ -412,6 +424,7 @@
     <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
     <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
@@ -594,8 +607,12 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
+    <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -655,6 +672,10 @@
     <string name="last_message_self_user_left_conversation">left the conversation.</string>
     <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
     <string name="last_message_other_user_left_conversation">left the conversation.</string>
+    <string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
+    <string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
+    <string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
@@ -695,7 +716,12 @@
         <item quantity="many">%1$s and %2$d more are typing</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
     <string name="label_new_conversation">New Conversation</string>
@@ -828,6 +854,8 @@
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Accept</string>
     <string name="connection_label_ignore">Ignore</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
+    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -892,6 +920,13 @@
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
@@ -918,7 +953,7 @@
     <string name="settings_app_lock_title">Lock with passcode</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
@@ -984,7 +1019,7 @@
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>
-    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed, and you can encrypt it with a password.</string>
+    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.</string>
     <string name="backup_dialog_create_backup_now">Back Up Now</string>
     <string name="backup_dialog_create_backup_title">Creating Backup</string>
     <string name="backup_dialog_create_backup_subtitle">Saving conversations...</string>
@@ -1259,4 +1294,10 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
 </resources>

@@ -47,6 +47,7 @@ import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation

@@ -40,6 +40,8 @@ sealed class ConversationItem {
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
     abstract val isArchived: Boolean
+    abstract val mlsVerificationStatus: Conversation.VerificationStatus
+    abstract val proteusVerificationStatus: Conversation.VerificationStatus
 
     val isTeamConversation get() = teamId != null
 
@@ -56,6 +58,8 @@ sealed class ConversationItem {
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
         override val isArchived: Boolean,
+        override val mlsVerificationStatus: Conversation.VerificationStatus,
+        override val proteusVerificationStatus: Conversation.VerificationStatus
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -69,7 +73,9 @@ sealed class ConversationItem {
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
-        override val isArchived: Boolean
+        override val isArchived: Boolean,
+        override val mlsVerificationStatus: Conversation.VerificationStatus,
+        override val proteusVerificationStatus: Conversation.VerificationStatus
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -83,6 +89,8 @@ sealed class ConversationItem {
         override val isArchived: Boolean = false,
     ) : ConversationItem() {
         override val teamId: TeamId? = null
+        override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        override val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     }
 }
 
@@ -111,7 +119,9 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership,
-        unavailable = conversationInfo.isSenderUnavailable
+        unavailable = conversationInfo.isSenderUnavailable,
+        mlsVerificationStatus = mlsVerificationStatus,
+        proteusVerificationStatus = proteusVerificationStatus
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

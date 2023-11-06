@@ -58,16 +58,8 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                     style = MaterialTheme.wireTypography.title02
                 )
             }
-            val descriptionResource = when (connectionStatus) {
-                ConnectionState.PENDING, ConnectionState.IGNORED -> R.string.connection_label_accepting_request_description
-                ConnectionState.ACCEPTED, ConnectionState.BLOCKED -> null
-                else -> if (membership == Membership.None) {
-                    R.string.connection_label_member_not_conneted
-                } else {
-                    R.string.connection_label_member_not_belongs_to_team
-                }
-            }
-            descriptionResource?.let {
+
+            descriptionResourceForConnectionAndMembership(connectionStatus, membership)?.let {
                 Text(
                     text = stringResource(it),
                     textAlign = TextAlign.Center,
@@ -77,6 +69,20 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                 VerticalSpace.x24()
             }
         }
+    }
+}
+
+@Composable
+private fun descriptionResourceForConnectionAndMembership(
+    connectionStatus: ConnectionState,
+    membership: Membership
+) = when (connectionStatus) {
+    ConnectionState.PENDING, ConnectionState.IGNORED -> R.string.connection_label_accepting_request_description
+    ConnectionState.ACCEPTED, ConnectionState.BLOCKED -> null
+    else -> if (membership == Membership.None) {
+        R.string.connection_label_member_not_conneted
+    } else {
+        R.string.connection_label_member_not_belongs_to_team
     }
 }
 

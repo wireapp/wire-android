@@ -54,6 +54,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
@@ -299,7 +300,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val shouldArchive = !dialogState.isArchived
             requestInProgress = true
-            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(dialogState.conversationId, shouldArchive) }
+            val result = withContext(dispatchers.io()) {
+                updateConversationArchivedStatus(
+                    conversationId = dialogState.conversationId,
+                    shouldArchiveConversation = shouldArchive,
+                    onlyLocally = !dialogState.isMember
+                )
+            }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> {
@@ -379,9 +386,19 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
                     selfRole = Conversation.Member.Role.Member,
-                    isArchived = conversation.archived
+                    isArchived = conversation.archived,
+                    protocol = conversation.protocol,
+                    mlsVerificationStatus = conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = conversation.proteusVerificationStatus
                 )
             }
         )
     }
+
+    fun shouldShowSearchButton(conversationId: ConversationId?): Boolean =
+        conversationId != null && state.connectionState in listOf(
+            ConnectionState.ACCEPTED,
+            ConnectionState.BLOCKED,
+            ConnectionState.MISSING_LEGALHOLD_CONSENT
+        )
 }

@@ -29,7 +29,7 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHostState
@@ -40,7 +40,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -49,7 +48,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
@@ -67,9 +69,7 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -84,6 +84,7 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
@@ -93,12 +94,9 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -159,6 +157,14 @@ class WireActivity : AppCompatActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             var isLoaded by remember { mutableStateOf(false) }
 
+            LaunchedEffect(viewModel.globalAppState.themeOption) {
+                when (viewModel.globalAppState.themeOption) {
+                    ThemeOption.SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    ThemeOption.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    ThemeOption.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }
+            }
+
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
@@ -170,7 +176,6 @@ class WireActivity : AppCompatActivity() {
                     Column(modifier = Modifier.statusBarsPadding()) {
                         ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
-                        val scope = rememberCoroutineScope()
                         CommonTopAppBar(
                             connectivityUIState = commonTopAppBarViewModel.connectivityState,
                             onReturnToCallClick = { establishedCall ->
@@ -184,10 +189,9 @@ class WireActivity : AppCompatActivity() {
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        setUpNavigation(navigator.navController, onComplete, scope)
+                        setUpNavigation(navigator.navController, onComplete)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleAppLock()
                         handleDialogs(navigator::navigate)
                     }
                 }
@@ -199,17 +203,20 @@ class WireActivity : AppCompatActivity() {
     private fun setUpNavigation(
         navController: NavHostController,
         onComplete: () -> Unit,
-        scope: CoroutineScope
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
-        LaunchedEffect(scope) {
-            navigationCommands
-                .onSubscription { onComplete() }
-                .onEach { command ->
-                    currentKeyboardController?.hide()
-                    currentNavController.navigateToItem(command)
-                }.launchIn(scope)
+        LaunchedEffect(Unit) {
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    navigationCommands
+                        .onSubscription { onComplete() }
+                        .collectLatest {
+                            currentKeyboardController?.hide()
+                            currentNavController.navigateToItem(it)
+                        }
+                }
+            }
         }
 
         DisposableEffect(navController) {
@@ -235,29 +242,6 @@ class WireActivity : AppCompatActivity() {
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
-        }
-    }
-
-    @Composable
-    private fun handleAppLock() {
-        LaunchedEffect(Unit) {
-            lockCodeTimeManager.isLocked()
-                .filter { it }
-                .collectLatest {
-                    val canAuthenticateWithBiometrics = BiometricManager
-                        .from(this@WireActivity)
-                        .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-
-                    if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                        navigationCommands.emit(
-                            NavigationCommand(AppUnlockWithBiometricsScreenDestination)
-                        )
-                    } else {
-                        navigationCommands.emit(
-                            NavigationCommand(EnterLockCodeScreenDestination)
-                        )
-                    }
-                }
         }
     }
 
@@ -344,6 +328,20 @@ class WireActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        lifecycleScope.launch {
+            lockCodeTimeManager.observeAppLock()
+                // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .first().let {
+                    if (it) {
+                        startActivity(
+                            Intent(this@WireActivity, AppLockActivity::class.java)
+                        )
+                    }
+                }
+        }
+
         proximitySensorManager.registerListener()
     }
 

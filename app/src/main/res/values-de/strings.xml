@@ -96,7 +96,7 @@
     <string name="content_description_add_to_favourite">Zu Favoriten hinzufügen</string>
     <string name="content_description_move_to_folder">In Ordner verschieben</string>
     <string name="content_description_move_to_archive">Ins Archiv verschieben</string>
-    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_unarchive">Reaktivieren</string>
     <string name="content_description_block_the_user">Blockieren</string>
     <string name="content_description_unblock_the_user">Freigeben</string>
     <string name="content_description_leave_the_group">Gruppe verlassen</string>
@@ -171,6 +171,7 @@
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
@@ -188,8 +189,8 @@
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s new</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
+    <string name="whats_new_screen_title">Neue Funktionen</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
     <string name="whats_new_release_notes_group_title">Versionshinweise</string>
     <string name="whats_new_android_release_notes_label">Alle Android-Versionshinweise</string>
     <!-- Settings -->
@@ -503,7 +504,7 @@
     <string name="label_add_to_favourites">Zu Favoriten hinzufügen</string>
     <string name="label_move_to_folder">In Ordner verschieben</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
-    <string name="label_unarchive">Move out of Archive</string>
+    <string name="label_unarchive">Reaktivieren</string>
     <string name="label_clear_content">Verlauf löschen…</string>
     <string name="label_block">Blockieren</string>
     <string name="label_unblock">Freigeben</string>
@@ -589,7 +590,7 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
@@ -888,15 +889,22 @@
     <string name="settings_show_typing_indicator_title">Eingabeanzeige</string>
     <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
     <string name="settings_app_lock_title">Mit Kennwort sperren</string>
-    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Kennwort festlegen</string>
-    <string name="settings_set_lock_screen_description">Die App wird nach einer bestimmten Zeit der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie dieses Kennwort eingeben. Bitte merken Sie es sich unbedingt, da es keine Möglichkeit gibt, es wiederherzustellen.</string>
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Kennwort</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
     <string name="settings_enter_lock_screen_wrong_passcode_label">Falsches Kennwort</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>
     <string name="current_device_label">Aktuelles Gerät</string>
@@ -1201,4 +1209,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Passwort in Zwischenablage kopiert</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

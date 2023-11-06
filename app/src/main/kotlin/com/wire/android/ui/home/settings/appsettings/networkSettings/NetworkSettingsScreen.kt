@@ -38,7 +38,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.conversations.details.options.SwitchState
+import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.util.isWebsocketEnabledByDefault
 
 @RootNavGraph

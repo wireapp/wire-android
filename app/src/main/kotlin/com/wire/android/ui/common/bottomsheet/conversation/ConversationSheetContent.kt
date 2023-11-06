@@ -125,7 +125,10 @@ data class ConversationSheetContent(
     val conversationTypeDetail: ConversationTypeDetail,
     val selfRole: Conversation.Member.Role?,
     val isTeamConversation: Boolean,
-    val isArchived: Boolean
+    val isArchived: Boolean,
+    val protocol: Conversation.ProtocolInfo,
+    val mlsVerificationStatus: Conversation.VerificationStatus,
+    val proteusVerificationStatus: Conversation.VerificationStatus
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null

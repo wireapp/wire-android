@@ -147,7 +147,8 @@ class GroupConversationDetailsViewModelTest {
                 conversationId = conversationDetails.conversation.id,
                 isCreator = conversationDetails.isSelfUserCreator
             ),
-            isArchived = conversationDetails.conversation.archived
+            isArchived = conversationDetails.conversation.archived,
+            isMember = true
         )
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
@@ -167,7 +168,8 @@ class GroupConversationDetailsViewModelTest {
             arrangement.updateConversationArchivedStatus(
                 conversationId = viewModel.conversationId,
                 shouldArchiveConversation = !conversationDetails.conversation.archived,
-                archivedStatusTimestamp = archivingEventTimestamp
+                archivedStatusTimestamp = archivingEventTimestamp,
+                onlyLocally = false
             )
         }
     }
@@ -194,7 +196,8 @@ class GroupConversationDetailsViewModelTest {
                 conversationId = conversationDetails.conversation.id,
                 isCreator = conversationDetails.isSelfUserCreator
             ),
-            isArchived = conversationDetails.conversation.archived
+            isArchived = conversationDetails.conversation.archived,
+            isMember = true
         )
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
@@ -214,7 +217,8 @@ class GroupConversationDetailsViewModelTest {
             arrangement.updateConversationArchivedStatus(
                 conversationId = viewModel.conversationId,
                 shouldArchiveConversation = false,
-                archivedStatusTimestamp = archivingEventTimestamp
+                archivedStatusTimestamp = archivingEventTimestamp,
+                onlyLocally = false
             )
         }
     }
@@ -415,7 +419,10 @@ class GroupConversationDetailsViewModelTest {
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
             selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup(),
-            isArchived = false
+            isArchived = false,
+            protocol = Conversation.ProtocolInfo.Proteus,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)
@@ -585,7 +592,8 @@ class GroupConversationDetailsViewModelTest {
                 userMessageTimer = null,
                 archived = false,
                 archivedDateTime = null,
-                verificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
@@ -692,7 +700,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
-        coEvery { updateConversationArchivedStatus(any(), any()) } returns ArchiveStatusUpdateResult.Success
+        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
@@ -719,8 +727,8 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withUpdateArchivedStatus(result: ArchiveStatusUpdateResult) = apply {
-        coEvery { updateConversationArchivedStatus(any(), any()) } returns result
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns result
+        coEvery { updateConversationArchivedStatus(any(), any(), any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

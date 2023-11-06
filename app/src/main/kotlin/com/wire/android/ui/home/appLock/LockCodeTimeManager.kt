@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.appLock
 
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -51,6 +53,7 @@ class LockCodeTimeManager @Inject constructor(
         runBlocking {
             observeAppLockConfigUseCase().firstOrNull()?.let { appLockConfig ->
                 if (appLockConfig !is AppLockConfig.Disabled) {
+                    appLogger.i("$TAG app initially locked")
                     isLockedFlow.value = true
                 }
             }
@@ -62,16 +65,23 @@ class LockCodeTimeManager @Inject constructor(
                 observeAppLockConfigUseCase(),
                 currentScreenManager.isAppVisibleFlow(),
                 ::Pair
-            ).flatMapLatest { (appLockConfig, isInForeground) ->
+            )
+                .distinctUntilChanged()
+                .flatMapLatest { (appLockConfig, isInForeground) ->
                 when {
                     appLockConfig is AppLockConfig.Disabled -> flowOf(false)
 
                     !isInForeground && !isLockedFlow.value -> flow {
-                        delay(appLockConfig.timeoutInSeconds * 1000L)
+                        appLogger.i("$TAG lock is enabled and app in the background, lock count started")
+                        delay(appLockConfig.timeout.inWholeMilliseconds)
+                        appLogger.i("$TAG lock count ended, app state is locked")
                         emit(true)
                     }
 
-                    else -> emptyFlow()
+                    else -> {
+                        appLogger.i("$TAG no change to lock state, isInForeground: $isInForeground, isLocked: ${isLockedFlow.value}")
+                        emptyFlow()
+                    }
                 }
             }.collectLatest {
                 isLockedFlow.value = it
@@ -80,8 +90,15 @@ class LockCodeTimeManager @Inject constructor(
     }
 
     fun appUnlocked() {
+        appLogger.i("$TAG app unlocked")
         isLockedFlow.value = false
     }
 
-    fun isLocked(): Flow<Boolean> = isLockedFlow
+    fun isAppLocked(): Boolean = isLockedFlow.value
+
+    fun observeAppLock(): Flow<Boolean> = isLockedFlow
+
+    companion object {
+        private const val TAG = "LockCodeTimeManager"
+    }
 }

@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
@@ -40,6 +41,7 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -106,6 +108,7 @@ class WireActivityViewModel @Inject constructor(
     private val clearNewClientsForUser: ClearNewClientsForUserUseCase,
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
+    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -139,6 +142,17 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
+        observeAppThemeState()
+    }
+
+    private fun observeAppThemeState() {
+        viewModelScope.launch(dispatchers.io()) {
+            globalDataStore.selectedThemeOptionFlow()
+                .distinctUntilChanged()
+                .collect {
+                    globalAppState = globalAppState.copy(themeOption = it)
+                }
+        }
     }
 
     private fun observeSyncState() {
@@ -482,6 +496,7 @@ data class GlobalAppState(
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
+    val themeOption: ThemeOption = ThemeOption.SYSTEM
 )
 
 enum class InitialAppState {

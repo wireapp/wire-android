@@ -34,6 +34,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
@@ -54,6 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
+import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
@@ -86,7 +88,13 @@ fun DeviceDetailsScreen(
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,
-            onUpdateClientVerification = viewModel::onUpdateVerificationStatus
+            onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
+            enrollE2eiCertificate = viewModel::enrollE2eiCertificate,
+            onNavigateToE2eiCertificateDetailsScreen = {
+                navigator.navigate(
+                    NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
+                )
+            }
         )
     }
 }
@@ -96,10 +104,12 @@ fun DeviceDetailsContent(
     state: DeviceDetailsState,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
+    onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {},
     onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
+    enrollE2eiCertificate: () -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
@@ -151,7 +161,17 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-
+            item {
+                EndToEndIdentityCertificateItem(
+                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
+                    certificate = state.e2eiCertificate,
+                    isSelfClient = state.isSelfClient,
+                    enrollE2eiCertificate = enrollE2eiCertificate,
+                    updateE2eiCertificate = {},
+                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
+                )
+                Divider(color = colorsScheme().background)
+            }
             item {
                 FolderHeader(
                     name = stringResource(id = R.string.label_proteus_details).uppercase(),
@@ -244,7 +264,7 @@ private fun DeviceDetailsTopBar(
                     maxLines = 2
                 )
                 if (!isCurrentDevice && device.isVerifiedProteus) {
-                    ProteusVerifiedIcon()
+                    ProteusVerifiedIcon(Modifier.align(Alignment.CenterVertically))
                 }
             }
         }
@@ -366,7 +386,8 @@ private fun VerificationDescription(
                 text = stringResource(
                     id = R.string.label_client_verification_description,
                     userName ?: stringResource(id = R.string.unknown_user_name)
-                ), leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
+                ),
+                leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
             )
         }
 
@@ -382,7 +403,10 @@ private fun VerificationDescription(
                 leanMoreLink = stringResource(id = R.string.url_self_client_fingerprint_learn_more)
             )
         } else {
-            DescriptionText(text = stringResource(id = R.string.label_fingerprint_description), leanMoreLink = null)
+            DescriptionText(
+                text = stringResource(id = R.string.label_fingerprint_description),
+                leanMoreLink = null
+            )
         }
     }
 }
@@ -426,7 +450,11 @@ private fun DescriptionText(
 
         ClickableText(text = annotatedString, onClick = { offset ->
             leanMoreLink?.let {
-                annotatedString.getStringAnnotations(tag = "learn_more", start = offset, end = offset).firstOrNull()?.let {
+                annotatedString.getStringAnnotations(
+                    tag = "learn_more",
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.let {
                     CustomTabsHelper.launchUrl(context, it.item)
                 }
             }
@@ -492,6 +520,7 @@ fun PreviewDeviceDetailsScreen() {
             isCurrentDevice = false
         ),
         onPasswordChange = { },
+        enrollE2eiCertificate = { },
         onRemoveConfirm = { },
         onDialogDismiss = { },
         onErrorDialogDismiss = { }

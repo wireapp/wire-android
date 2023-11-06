@@ -98,7 +98,7 @@
     <string name="content_description_add_to_favourite">Добавить в избранное</string>
     <string name="content_description_move_to_folder">Переместить в папку</string>
     <string name="content_description_move_to_archive">Переместить в архив</string>
-    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_unarchive">Разархивировать</string>
     <string name="content_description_block_the_user">Заблокировать</string>
     <string name="content_description_unblock_the_user">Разблокировать</string>
     <string name="content_description_leave_the_group">Покинуть группу</string>
@@ -173,6 +173,7 @@
     <string name="content_description_record_audio_button_send">Отправить аудиосообщение</string>
     <string name="content_description_mls_certificate_valid">Все устройства всех участников имеют действующий сертификат MLS</string>
     <string name="content_description_proteus_certificate_valid">Все участники верифицированы (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Прокрутка вниз к последнему сообщению, кнопка</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Хранилище</string>
@@ -390,7 +391,7 @@
     <string name="asset_message_tap_to_download_text">Нажмите для загрузки</string>
     <string name="asset_message_upload_in_progress_text">Отправка…</string>
     <string name="asset_message_download_in_progress_text">Загрузка…</string>
-    <string name="asset_message_downloaded_internally_text">Tap to view</string>
+    <string name="asset_message_downloaded_internally_text">Нажать для просмотра</string>
     <string name="asset_message_saved_externally_text">Сохранено</string>
     <string name="asset_message_failed_download_text">Файл недоступен</string>
     <string name="asset_message_failed_upload_text">Загрузка файла не удалась</string>
@@ -504,7 +505,7 @@
     <string name="label_add_to_favourites">Добавить в избранное</string>
     <string name="label_move_to_folder">Переместить в папку</string>
     <string name="label_move_to_archive">Переместить в архив</string>
-    <string name="label_unarchive">Move out of Archive</string>
+    <string name="label_unarchive">Переместить из архива</string>
     <string name="label_clear_content">Очистить контент…</string>
     <string name="label_block">Заблокировать</string>
     <string name="label_unblock">Разблокировать</string>
@@ -580,10 +581,10 @@
     <string name="label_system_message_deactivated">дезактивирован</string>
     <string name="label_system_message_conversation_history_lost">Вы не использовали это устройство некоторое время. Некоторые сообщения могут не отображаться.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Групповой ключ MLS был обновлен без предварительного уведомления. Это могло произойти из-за потери сообщений между бэкэндами или из-за ошибки. Мы автоматически повторно подключились к беседе, но сообщения могли быть потеряны.</string>
-    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
-    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
-    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">Вы не обновили свое приложение вовремя. Некоторые сообщения могут не отображаться.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Миграция протокола шифрования была отменена.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Началась миграция протокола шифрования. Убедитесь, что все ваши клиенты Wire обновлены.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Миграция протокола шифрования завершена. Клиенты Wire, которые не были обновлены, перестанут получать сообщения.</string>
     <string name="label_system_message_receipt_mode_on">вкл</string>
     <string name="label_system_message_receipt_mode_off">выкл</string>
     <string name="label_system_message_conversation_started_by_self">**Вы** начали беседу</string>
@@ -592,7 +593,7 @@
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_degraded">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
+    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <!-- Last messages -->
@@ -745,7 +746,7 @@
     <string name="error_archiving_conversation">Не удалось архивировать беседу</string>
     <string name="error_unarchiving_conversation">Не удалось разархивировать беседу</string>
     <string name="dialog_archive_conversation_title">Архивировать беседу?</string>
-    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
+    <string name="dialog_archive_conversation_description">Эта беседа перемещается в архив. Вы по-прежнему будете получать новые сообщения, файлы и звонки, но без уведомлений. Разархивировать беседу можно в любое время.</string>
     <string name="dialog_archive_conversation_option">Архивировать</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Открыть беседу</string>
@@ -915,15 +916,22 @@
     <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
     <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <string name="settings_app_lock_title">Блокировка кодом доступа</string>
-    <string name="settings_app_lock_description">Заблокировать Wire через %1$s секунд работы в фоновом режиме. Разблокировка кодом доступа или биометрией.</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Установить код доступа</string>
-    <string name="settings_set_lock_screen_description">Приложение будет заблокировано спустя определенное время неактивности. Для его разблокировки, вам понадобится ввести код доступа. Убедитесь, что вы запомнили этот код, так как способа его восстановления не существует.</string>
+    <string name="settings_set_lock_screen_title">Установить код доступа к приложению</string>
+    <string name="settings_set_lock_screen_description">Приложение заблокируется спустя %1$s неактивности. Для его разблокировки необходимо будет ввести этот код.\n\nЗапомните этот код, поскольку восстановить его невозможно.</string>
     <string name="settings_set_lock_screen_passcode_label">Код доступа</string>
     <string name="settings_set_lock_screen_continue_button_label">Установить код доступа</string>
-    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
-    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="settings_enter_lock_screen_title">Введите код доступа для разблокировки Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Разблокировать</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Неверный код доступа</string>
+    <string name="password_validation_length">Не менее 8 символов</string>
+    <string name="password_validation_lowercase">Строчная буква</string>
+    <string name="password_validation_uppercase">Заглавная буква</string>
+    <string name="password_validation_digit">Цифра</string>
+    <string name="password_validation_special_character">Специальный символ</string>
+    <string name="turn_app_lock_off_dialog_title">Отключить блокировку приложения?</string>
+    <string name="turn_app_lock_off_dialog_description">Теперь не потребуется разблокировать Wire с помощью пароля или биометрии.</string>
+    <string name="label_turn_off">Отключить</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>
@@ -1248,4 +1256,8 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Пароль скопирован в буфер обмена</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Используйте как минимум 8 символов, включая одну строчную букву, одну заглавную букву, цифру и специальный символ.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Новый пароль сгенерирован</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Аутентификация биометрией</string>
+    <string name="biometrics_prompt_dialog_subtitle">Разблокировать Wire</string>
+    <string name="biometrics_use_passcode_button">Использовать код доступа</string>
 </resources>

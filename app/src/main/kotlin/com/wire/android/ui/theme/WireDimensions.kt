@@ -46,6 +46,8 @@ data class WireDimensions(
     val groupAvatarCornerRadius: Dp,
     val avatarConversationTopBarSize: Dp,
     val groupAvatarConversationTopBarCornerRadius: Dp,
+    val groupAvatarConversationDetailsTopBarSize: Dp,
+    val groupAvatarConversationDetailsCornerRadius: Dp,
     val avatarConversationTopBarClickablePadding: Dp,
     // Drawer Navigation
     val homeDrawerHorizontalPadding: Dp,
@@ -85,6 +87,7 @@ data class WireDimensions(
     val messageComposerPaddingEnd: Dp,
     val systemMessageIconSize: Dp,
     val systemMessageIconLargeSize: Dp,
+    val typingIndicatorHeight: Dp,
     // TextFields
     val textFieldMinHeight: Dp,
     val textFieldCornerSize: Dp,
@@ -184,7 +187,8 @@ data class WireDimensions(
     val initiatingCallHangUpButtonSize: Dp,
     val ongoingCallLabelHeight: Dp,
     // Message item
-    val messageItemBottomPadding: Dp,
+    val messageItemVerticalPadding: Dp,
+    val messageItemHorizontalPadding: Dp,
     // audio message
     val audioMessageHeight: Dp,
     // Conversation options
@@ -209,6 +213,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     groupAvatarCornerRadius = 10.dp,
     avatarConversationTopBarSize = 24.dp,
     groupAvatarConversationTopBarCornerRadius = 8.dp,
+    groupAvatarConversationDetailsTopBarSize = 64.dp,
+    groupAvatarConversationDetailsCornerRadius = 20.dp,
     avatarConversationTopBarClickablePadding = 2.dp,
     homeDrawerHorizontalPadding = 8.dp,
     homeDrawerBottomPadding = 16.dp,
@@ -236,7 +242,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageQuoteBorderRadius = 1.dp,
     messageQuoteIconSize = 10.dp,
     messageAssetBorderRadius = 10.dp,
-    messageComposerActiveInputMaxHeight = 168.dp,
+    messageComposerActiveInputMaxHeight = 128.dp,
     attachmentButtonSize = 40.dp,
     textFieldMinHeight = 48.dp,
     textFieldCornerSize = 16.dp,
@@ -324,11 +330,13 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultIncomingCallSheetPeekHeight = 280.dp,
     callingIncomingUserAvatarSize = 128.dp,
     initiatingCallHangUpButtonSize = 72.dp,
-    messageItemBottomPadding = 16.dp,
+    messageItemVerticalPadding = 8.dp,
+    messageItemHorizontalPadding = 12.dp,
     conversationOptionsItemMinHeight = 57.dp,
     ongoingCallLabelHeight = 28.dp,
     audioMessageHeight = 48.dp,
-    importedMediaAssetSize = 120.dp
+    importedMediaAssetSize = 120.dp,
+    typingIndicatorHeight = 24.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

@@ -105,7 +105,8 @@
     <string name="content_description_delete_the_group">Usu&#324; grup&#281;</string>
     <string name="content_description_conversation_phone_icon">Rozmowa g&#322;osowa</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Ikona wyszukiwania</string>
+    <string name="content_description_conversation_search_icon">Search icon</string>
+    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">W&#322;&#261;cz tryb bogatego tekstu</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
@@ -287,6 +288,16 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="remove_device_invalid_password">Nieprawid&#322;owe has&#322;o</string>
     <string name="remove_device_details_description">Usu&#324; to urz&#261;dzenie, je&#347;li przesta&#322;e&#347; z niego korzysta&#263;. Natychmiast zostaniesz wylogowany z tego urz&#261;dzenia.</string>
     <string name="remove_device_details_description_with_wipe">Usu&#324; swoje urz&#261;dzenie, je&#347;li przesta&#322;e&#347; z niego korzysta&#263;. Zgodnie z ustawieniami bezpiecze&#324;stwa Twojego zespo&#322;u historia rozm&#243;w zostanie r&#243;wnie&#380; usuni&#281;ta.</string>
+    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
+    <string name="item_subtitle_status_e2ei_certificate">Status</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
+    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
+    <string name="get_e2ei_certificate_button">Get Certificate</string>
+    <string name="update_e2ei_certificat_button">Update Certificate</string>
+    <string name="e2ei_certificat_status_valid">Valid</string>
+    <string name="e2ei_certificat_status_expired">Expired</string>
+    <string name="e2ei_certificat_status_revoked">Revoked</string>
+    <string name="e2ei_certificat_status_not_activated">Not activated</string>
     <!-- Register Device -->
     <string name="register_device_title">Dodaj to urz&#261;dzenie</string>
     <string name="register_device_text">Wpisz swoje has&#322;o, aby korzysta&#263; z Wire na tym urz&#261;dzeniu.</string>
@@ -403,6 +414,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="member_name_you_label_lowercase">ty</string>
     <string name="label_add_participants">Dodaj uczestnik&#243;w</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Szczeg&#243;&#322;y rozmowy</string>
     <string name="conversation_details_options_tab">OPCJE</string>
     <string name="conversation_details_participants_tab">UCZESTNICY</string>
@@ -411,6 +423,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="conversation_details_group_members">UCZESTNICY GRUPY (%d)</string>
     <string name="conversation_details_participants_info">Ta grupa ma %s uczestnik&#243;w.
 Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Poka&#380; wszystkich uczestnik&#243;w (%d)</string>
     <string name="conversation_details_group_participants_title">Uczestnicy grupy</string>
     <string name="conversation_details_group_participants_add">Dodaj uczestnik&#243;w</string>
@@ -513,8 +526,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Wszystko</string>
     <string name="muting_option_all_allowed_text">Otrzymuj powiadomienia z tej rozmowy o wszystkim (&#322;&#261;cznie z po&#322;&#261;czeniami audio i wideo)</string>
-    <string name="muting_option_only_mentions_title">Oznaczenia i odpowiedzi</string>
-    <string name="muting_option_only_mentions_text">Otrzymuj powiadomienia z tej rozmowy tylko wtedy, gdy kto&#347; Ci&#281; oznaczy lub odpowie</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nic</string>
     <string name="muting_option_all_muted_text">Nie otrzymuj &#380;adnych powiadomie&#324; z tej rozmowy</string>
     <!--Profile image-->
@@ -594,8 +607,12 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
+    <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>
@@ -655,6 +672,10 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="last_message_self_user_left_conversation">opu&#347;ci&#322;e&#347; rozmow&#281;.</string>
     <string name="last_message_other_user_joined_conversation">do&#322;&#261;czy&#322; do rozmowy.</string>
     <string name="last_message_other_user_left_conversation">opu&#347;ci&#322; rozmow&#281;.</string>
+    <string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
+    <string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
+    <string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d zaczepka</item>
@@ -695,7 +716,12 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
         <item quantity="many">%1$s and %2$d more are typing</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">KONTAKTY</string>
     <string name="label_new_group">Nowa grupa</string>
     <string name="label_new_conversation">Nowa rozmowa</string>
@@ -830,6 +856,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="connection_label_accepting_request_description">Je&#347;li zaakceptujesz jego/jej pro&#347;b&#281;, zostanie dodany(a) jako kontakt, a Ty b&#281;dziesz m&#243;g&#322; z nim/ni&#261; bezpo&#347;rednio porozmawia&#263;.</string>
     <string name="connection_label_accept">Zaakceptuj</string>
     <string name="connection_label_ignore">Zignoruj</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
+    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galeria multimedi&#243;w</string>
     <string name="media_gallery_on_image_downloaded">Zapisane do folderu Pobrane</string>
@@ -891,6 +919,13 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_keep_connection_to_websocket">Utrzymaj po&#322;&#261;czenie z Websocketem</string>
     <string name="settings_keep_connection_to_websocket_description">Popraw otrzymywanie powiadomie&#324; poprzez utrzymywanie sta&#322;ego po&#322;&#261;czenia z %1$s. Zast&#261;pi to us&#322;ugi powiadomie&#324;, je&#347;li us&#322;ugi Google nie s&#261; dost&#281;pne na Twoim urz&#261;dzeniu.</string>
     <string name="settings_service_is_running">us&#322;uga dzia&#322;a</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Dane konta</string>
     <string name="settings_myaccount_display_name">NAZWA PROFILU</string>
@@ -917,12 +952,13 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_app_lock_title">Lock with passcode</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
     <string name="password_validation_length">At least 8 characters</string>
     <string name="password_validation_lowercase">A lowercase character</string>
     <string name="password_validation_uppercase">An uppercase character</string>
@@ -931,6 +967,12 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
     <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
     <string name="label_turn_off">Turn Off</string>
+    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode. If you have forgotten your passcode, you can reset this device.</string>
+    <string name="settings_forgot_lock_screen_warning">By resetting your device, all local data and messages for this account will be permanently deleted.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to verify you want to delete all data on this device. After deleting this device, you can login with your account credentials again.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Twoje urz&#261;dzenia</string>
     <string name="current_device_label">Bie&#380;&#261;ce urz&#261;dzenie</string>
@@ -989,7 +1031,7 @@ URL serwera:
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Ustaw has&#322;o</string>
-    <string name="backup_dialog_create_backup_set_password_message">Kopia zapasowa b&#281;dzie skompresowana, a Ty mo&#380;esz j&#261; zaszyfrowa&#263; has&#322;em.</string>
+    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.</string>
     <string name="backup_dialog_create_backup_now">Utw&#243;rz kopi&#281; zapasow&#261; teraz</string>
     <string name="backup_dialog_create_backup_title">Tworzenie kopii zapasowej</string>
     <string name="backup_dialog_create_backup_subtitle">Zapisywanie rozm&#243;w...</string>
@@ -1265,4 +1307,10 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
 </resources>

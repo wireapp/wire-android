@@ -424,7 +424,6 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 @VisibleForTesting
 fun String.sanitizeFilename(): String = replace(Regex("[\u0000-\u001f\u007f\"*/:<>?\\\\|]"), "_")
 
-
 fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
     if (isAudioMimeType(mimeType)) {
         val retriever = MediaMetadataRetriever()

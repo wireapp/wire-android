@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -84,6 +85,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             observeTeamSettingsSelfDeletionStatus(userId)
                             setGuestRoomLinkFeatureFlag(userId)
                             setE2EIRequiredState(userId)
+                            observeCallEndedBecauseOfConversationDegraded(userId)
                         }
                 }
             }
@@ -162,6 +164,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
+    private fun observeCallEndedBecauseOfConversationDegraded(userId: UserId) = viewModelScope.launch {
+        coreLogic.getSessionScope(userId).calls.observeEndCallDialog().collect {
+            featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = true)
+        }
+    }
+
     fun dismissSelfDeletingMessagesDialog() {
         featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
         viewModelScope.launch {
@@ -202,5 +210,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun dismissSnoozeE2EIdRequiredDialog() {
         featureFlagState = featureFlagState.copy(e2EISnoozeInfo = null)
+    }
+
+    fun dismissCallEndedBecauseOfConversationDegraded() {
+        featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = false)
     }
 }

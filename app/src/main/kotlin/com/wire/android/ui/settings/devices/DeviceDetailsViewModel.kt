@@ -3,6 +3,7 @@ package com.wire.android.ui.settings.devices
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.wire.kalium.logic.feature.client.Result
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -100,8 +101,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getClientFingerPrint() {
         viewModelScope.launch {
             state = when (val result = fingerprintUseCase(userId, deviceId)) {
-                is ClientFingerprintUseCase.Result.Failure -> state.copy(fingerPrint = null)
-                is ClientFingerprintUseCase.Result.Success -> state.copy(fingerPrint = result.fingerprint.decodeToString())
+                is Result.Failure -> state.copy(fingerPrint = null)
+                is Result.Success -> state.copy(fingerPrint = result.fingerprint.decodeToString())
             }
         }
     }

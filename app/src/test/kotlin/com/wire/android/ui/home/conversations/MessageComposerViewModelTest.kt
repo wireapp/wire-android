@@ -33,7 +33,7 @@ import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -31,7 +31,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
 @Suppress("LongParameterList")
 @Composable

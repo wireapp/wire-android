@@ -416,6 +416,11 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
     return currentName
 }
 
+/**
+ * Removes disallowed characters and returns valid filename.
+ *
+ * Uses the same cases as in `isValidFatFilenameChar` and `isValidExtFilenameChar` from [android.os.FileUtils].
+ */
 @VisibleForTesting
 fun String.sanitizeFilename(): String = replace(Regex("[\u0000-\u001f\u007f\"*/:<>?\\\\|]"), "_")
 

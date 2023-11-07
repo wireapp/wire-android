@@ -55,7 +55,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED =
             booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
-        private val IS_APP_LOCKED_BY_USER = booleanPreferencesKey("is_app_locked_by_user")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val TEAM_APP_LOCK_PASSCODE = stringPreferencesKey("team_app_lock_passcode")
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
@@ -242,9 +241,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     ) {
         setAppLockPasscode(passcode, key)
     }
-
-    fun isAppLockedByUserFlow(): Flow<Boolean> =
-        getBooleanPreference(IS_APP_LOCKED_BY_USER, false)
 
     suspend fun setThemeOption(option: ThemeOption) {
         context.dataStore.edit { it[APP_THEME_OPTION] = option.toString() }

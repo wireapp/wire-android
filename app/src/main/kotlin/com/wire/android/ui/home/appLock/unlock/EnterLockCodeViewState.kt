@@ -15,11 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings
+package com.wire.android.ui.home.appLock.unlock
 
-import com.wire.android.feature.AppLockConfig
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
+import androidx.compose.ui.text.input.TextFieldValue
 
-data class SettingsState(
-    val appLockConfig: AppLockConfig = AppLockConfig.Disabled(DEFAULT_TIMEOUT),
+data class EnterLockCodeViewState(
+    val continueEnabled: Boolean = false,
+    val password: TextFieldValue = TextFieldValue(),
+    val isUnlockEnabled: Boolean = false,
+    val error: EnterLockCodeError = EnterLockCodeError.None,
+    val done: Boolean = false
 )
+
+sealed class EnterLockCodeError {
+    data object None : EnterLockCodeError()
+    data object InvalidValue : EnterLockCodeError()
+}

@@ -18,33 +18,59 @@
 package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combineTransform
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val currentSession: CurrentSessionUseCase
 ) {
 
-    operator fun invoke(): Flow<AppLockConfig> =
-        globalDataStore.isAppLockPasscodeSetFlow().map { // TODO: include checking if any logged account does not enforce app-lock
-            when {
-                it -> AppLockConfig.Enabled
-                else -> AppLockConfig.Disabled
+    operator fun invoke(): Flow<AppLockConfig> = channelFlow {
+        when (val currentSession = currentSession()) {
+            is CurrentSessionResult.Failure -> {
+                send(AppLockConfig.Disabled(DEFAULT_TIMEOUT))
+            }
+
+            is CurrentSessionResult.Success -> {
+                val userId = currentSession.accountInfo.userId
+                val appLockTeamFeatureConfigFlow =
+                    coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
+
+                appLockTeamFeatureConfigFlow().combineTransform(
+                    globalDataStore.isAppLockPasscodeSetFlow()
+                ) { isAppLockedByTeam, isAppLocked ->
+                    if (isAppLockedByTeam.isEnabled) {
+                        emit(AppLockConfig.EnforcedByTeam(isAppLockedByTeam.timeout))
+                    } else {
+                        if (isAppLocked) {
+                            emit(AppLockConfig.Enabled(isAppLockedByTeam.timeout))
+                        } else {
+                            emit(AppLockConfig.Disabled(isAppLockedByTeam.timeout))
+                        }
+                    }
+                }.collectLatest {
+                    send(it)
+                }
             }
         }
+    }
 }
 
 sealed class AppLockConfig(open val timeout: Duration = DEFAULT_TIMEOUT) {
-    data object Disabled : AppLockConfig()
-    data object Enabled : AppLockConfig()
+    data class Disabled(override val timeout: Duration) : AppLockConfig(timeout)
+    data class Enabled(override val timeout: Duration) : AppLockConfig(timeout)
     data class EnforcedByTeam(override val timeout: Duration) : AppLockConfig(timeout)
-
-    companion object {
-        val DEFAULT_TIMEOUT = 60.seconds
-    }
 }

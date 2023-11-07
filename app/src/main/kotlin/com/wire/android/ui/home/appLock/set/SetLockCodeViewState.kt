@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.set
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.feature.AppLockConfig
+import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import kotlin.time.Duration
 
@@ -26,6 +26,6 @@ data class SetLockCodeViewState(
     val continueEnabled: Boolean = false,
     val password: TextFieldValue = TextFieldValue(),
     val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
-    val timeout: Duration = AppLockConfig.DEFAULT_TIMEOUT,
+    val timeout: Duration = DEFAULT_TIMEOUT,
     val done: Boolean = false
 )

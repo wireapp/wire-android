@@ -37,6 +37,7 @@ import androidx.core.text.toSpannable
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.notification.NotificationConstants.getConversationNotificationId
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -51,7 +52,8 @@ class MessageNotificationManager
 @Inject constructor(
     private val context: Context,
     private val notificationManagerCompat: NotificationManagerCompat,
-    private val notificationManager: NotificationManager
+    private val notificationManager: NotificationManager,
+    private val lockCodeTimeManager: LockCodeTimeManager
 ) {
 
     fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
@@ -201,8 +203,9 @@ class MessageNotificationManager
                             }
 
                             is NotificationMessage.Comment -> {
+                                val isAppLocked = lockCodeTimeManager.isAppLocked()
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
 
                             is NotificationMessage.Knock -> {
@@ -211,13 +214,15 @@ class MessageNotificationManager
                             }
 
                             is NotificationMessage.Text -> {
+                                val isAppLocked = lockCodeTimeManager.isAppLocked()
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
 
                             is NotificationMessage.ObfuscatedMessage -> {
+                                val isAppLocked = lockCodeTimeManager.isAppLocked()
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
 
                             is NotificationMessage.ObfuscatedKnock -> {
@@ -226,8 +231,9 @@ class MessageNotificationManager
                             }
 
                             null -> {
+                                val isAppLocked = lockCodeTimeManager.isAppLocked()
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
                         }
                     }
@@ -470,7 +476,7 @@ class MessageNotificationManager
 
             val notification = setUpNotificationBuilder(context, userId).apply {
                 setContentIntent(messagePendingIntent(context, conversationId, userIdString))
-                addAction(getActionReply(context, conversationId, userIdString))
+                addAction(getActionReply(context, conversationId, userIdString, false))
 
                 setWhen(System.currentTimeMillis())
 

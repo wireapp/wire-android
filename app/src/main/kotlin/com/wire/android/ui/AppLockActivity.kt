@@ -21,10 +21,14 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
 import com.wire.android.ui.destinations.EnterLockCodeScreenDestination
 import com.wire.android.ui.destinations.SetLockCodeScreenDestination
@@ -37,8 +41,13 @@ class AppLockActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            WireTheme {
-                val navigator = rememberNavigator(this@AppLockActivity::finish)
+            val snackbarHostState = remember { SnackbarHostState() }
+            CompositionLocalProvider(
+                LocalSnackbarHostState provides snackbarHostState,
+                LocalActivity provides this
+            ) {
+                WireTheme {
+                    val navigator = rememberNavigator(this@AppLockActivity::finish)
 
                 val startDestination =
                     if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {
@@ -57,10 +66,11 @@ class AppLockActivity : AppCompatActivity() {
                         }
                     }
 
-                NavigationGraph(
-                    navigator = navigator,
-                    startDestination = startDestination
-                )
+                    NavigationGraph(
+                        navigator = navigator,
+                        startDestination = startDestination
+                    )
+                }
             }
         }
     }

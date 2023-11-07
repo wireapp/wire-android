@@ -15,17 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.forgot
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
-import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
-import kotlin.time.Duration
+import com.wire.kalium.logic.CoreFailure
 
-data class SetLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
-    val timeout: Duration = DEFAULT_TIMEOUT,
-    val done: Boolean = false
+data class ForgotLockCodeViewState(
+    val completed: Boolean = false,
+    val error: CoreFailure? = null,
+    val dialogState: ForgotLockCodeDialogState = ForgotLockCodeDialogState.Hidden,
 )
+
+sealed class ForgotLockCodeDialogState {
+    data object Hidden : ForgotLockCodeDialogState()
+    data class Visible(
+        val username: String,
+        val password: TextFieldValue = TextFieldValue(""),
+        val passwordValid: Boolean = true,
+        val resetDeviceEnabled: Boolean = true,
+        val loading: Boolean = false,
+    ) : ForgotLockCodeDialogState()
+}

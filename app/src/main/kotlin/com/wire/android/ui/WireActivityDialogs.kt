@@ -128,6 +128,27 @@ fun GuestRoomLinkFeatureFlagDialog(
 }
 
 @Composable
+fun TeamAppLockFeatureFlagDialog(
+    isTeamAppLockEnabled: Boolean,
+    onConfirm: () -> Unit,
+) {
+    val text: String =
+        stringResource(id = if (isTeamAppLockEnabled) R.string.team_app_lock_enabled
+        else R.string.team_app_lock_disabled)
+
+    WireDialog(
+        title = stringResource(id = R.string.team_settings_changed),
+        text = text,
+        onDismiss = {},
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onConfirm,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
+}
+
+@Composable
 fun UpdateAppDialog(shouldShow: Boolean, onUpdateClick: () -> Unit) {
     if (shouldShow) {
         WireDialog(

@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.appLock
 
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
@@ -44,6 +45,7 @@ class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
+    globalDataStore: GlobalDataStore
 ) {
 
     private val isLockedFlow = MutableStateFlow(false)
@@ -52,8 +54,10 @@ class LockCodeTimeManager @Inject constructor(
         // first, set initial value - if app lock is enabled then app needs to be locked right away
         runBlocking {
             observeAppLockConfigUseCase().firstOrNull()?.let { appLockConfig ->
-                if (appLockConfig !is AppLockConfig.Disabled) {
-                    appLogger.i("$TAG app initially locked")
+                // app could be locked by team but user still didn't set the passcode
+                val isTeamAppLockSet = appLockConfig is AppLockConfig.EnforcedByTeam &&
+                        globalDataStore.isAppTeamPasscodeSet()
+                if (appLockConfig is AppLockConfig.Enabled || isTeamAppLockSet) {
                     isLockedFlow.value = true
                 }
             }
@@ -74,8 +78,13 @@ class LockCodeTimeManager @Inject constructor(
                     !isInForeground && !isLockedFlow.value -> flow {
                         appLogger.i("$TAG lock is enabled and app in the background, lock count started")
                         delay(appLockConfig.timeout.inWholeMilliseconds)
-                        appLogger.i("$TAG lock count ended, app state is locked")
-                        emit(true)
+                        appLogger.i("$TAG lock count ended, app state should be locked if passcode is set")
+                        // app could be locked by team but user still didn't set the passcode
+                        val isTeamAppLockSet = appLockConfig is AppLockConfig.EnforcedByTeam
+                                && globalDataStore.isAppTeamPasscodeSet()
+                        if (appLockConfig is AppLockConfig.Enabled || isTeamAppLockSet) {
+                            emit(true)
+                        }
                     }
 
                     else -> {

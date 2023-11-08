@@ -107,5 +107,7 @@
     "default_backend_title": "wire-production",
     "cert_pinning_config": {},
     "is_password_protected_guest_link_enabled": false,
-    "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android"
+    "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android",
+    "team_app_lock": false,
+    "team_app_lock_timeout": 60
 }

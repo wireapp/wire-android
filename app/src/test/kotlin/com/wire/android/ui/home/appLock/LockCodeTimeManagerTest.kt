@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.appLock
 
 import app.cash.turbine.test
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
@@ -43,11 +44,16 @@ class LockCodeTimeManagerTest {
 
     private fun AppLockConfig.timeoutInMillis(): Long = this.timeout.inWholeMilliseconds
 
-    private fun testInitialStart(appLockConfig: AppLockConfig, expected: Boolean) =
+    private fun testInitialStart(
+        appLockConfig: AppLockConfig,
+        isTeamPasscodeSet: Boolean = false,
+        expected: Boolean
+    ) =
         runTest(dispatcher) {
             // given
             val (arrangement, manager) = Arrangement(dispatcher)
                 .withAppLockConfig(appLockConfig)
+            .withTeamPasscodeSet(isTeamPasscodeSet)
                 .withIsAppVisible(false)
                 .arrange()
             advanceUntilIdle()
@@ -60,11 +66,27 @@ class LockCodeTimeManagerTest {
 
     @Test
     fun givenLockEnabled_whenAppInitiallyOpened_thenLocked() =
-        testInitialStart(AppLockConfig.Enabled(DEFAULT_TIMEOUT), true)
+        testInitialStart(AppLockConfig.Enabled(DEFAULT_TIMEOUT), expected = true)
 
     @Test
     fun givenLockDisabled_whenAppInitiallyOpened_thenNotLocked() =
-        testInitialStart(AppLockConfig.Disabled(DEFAULT_TIMEOUT), false)
+        testInitialStart(AppLockConfig.Disabled(DEFAULT_TIMEOUT), expected = false)
+
+    @Test
+    fun givenLockForcedByTeamAndPasscodeSet_whenAppInitiallyOpened_thenAppIsLocked() =
+        testInitialStart(
+            appLockConfig = AppLockConfig.EnforcedByTeam(DEFAULT_TIMEOUT),
+            isTeamPasscodeSet = true,
+            expected = true
+        )
+
+    @Test
+    fun givenLockForcedByTeamAndPasscodeNotSet_whenAppInitiallyOpened_thenAppIsNotLocked() =
+        testInitialStart(
+            appLockConfig = AppLockConfig.EnforcedByTeam(DEFAULT_TIMEOUT),
+            isTeamPasscodeSet = false,
+            expected = false
+        )
 
     private fun testStop(appLockConfig: AppLockConfig, delayAfterStop: Long, expected: Boolean) =
         runTest(dispatcher) {
@@ -121,6 +143,7 @@ class LockCodeTimeManagerTest {
             val (arrangement, manager) = Arrangement(dispatcher)
                 .withAppLockConfig(AppLockConfig.Enabled(timeout = 1000.seconds))
                 .withIsAppVisible(true)
+                .withTeamPasscodeSet(true)
                 .arrange()
             manager.appUnlocked()
             advanceUntilIdle()
@@ -203,7 +226,7 @@ class LockCodeTimeManagerTest {
     @Test
     fun givenLockEnabledAndAppOpenedLocked_whenAppIsUnlocked_thenNotLocked() = runTest(dispatcher) {
         // given
-        val (arrangement, manager) = Arrangement(dispatcher)
+        val (_, manager) = Arrangement(dispatcher)
             .withAppLockConfig(AppLockConfig.Enabled(DEFAULT_TIMEOUT))
             .withIsAppVisible(true)
             .arrange()
@@ -215,6 +238,38 @@ class LockCodeTimeManagerTest {
         assertEquals(false, manager.observeAppLock().first())
     }
 
+    @Test
+    fun givenLockEnforcedByTeamAndPasscodeSet_whenAppIsUnlocked_thenNotLocked() =
+        runTest(dispatcher) {
+            // given
+            val (_, manager) = Arrangement(dispatcher)
+                .withAppLockConfig(AppLockConfig.EnforcedByTeam(DEFAULT_TIMEOUT))
+                .withTeamPasscodeSet(true)
+                .withIsAppVisible(true)
+                .arrange()
+            advanceUntilIdle()
+            // when
+            advanceTimeBy(AppLockConfig.Enabled(DEFAULT_TIMEOUT).timeoutInMillis() - 100L)
+            // then
+            assertEquals(true, manager.observeAppLock().first())
+        }
+
+    @Test
+    fun givenLockEnforcedByTeamAndNoPasscodeSet_whenAppIsUnlocked_thenNotLocked() =
+        runTest(dispatcher) {
+            // given
+            val (_, manager) = Arrangement(dispatcher)
+                .withAppLockConfig(AppLockConfig.EnforcedByTeam(DEFAULT_TIMEOUT))
+                .withTeamPasscodeSet(false)
+                .withIsAppVisible(true)
+                .arrange()
+            advanceUntilIdle()
+            // when
+            advanceTimeBy(AppLockConfig.Enabled(DEFAULT_TIMEOUT).timeoutInMillis() - 100L)
+            // then
+            assertEquals(false, manager.observeAppLock().first())
+        }
+
     class Arrangement(dispatcher: TestDispatcher) {
 
         @MockK
@@ -223,11 +278,15 @@ class LockCodeTimeManagerTest {
         @MockK
         private lateinit var observeAppLockConfigUseCase: ObserveAppLockConfigUseCase
 
+        @MockK
+        private lateinit var globalDataStore: GlobalDataStore
+
         private val lockCodeTimeManager by lazy {
             LockCodeTimeManager(
                 CoroutineScope(dispatcher),
                 currentScreenManager,
                 observeAppLockConfigUseCase,
+                globalDataStore
             )
         }
 
@@ -249,6 +308,10 @@ class LockCodeTimeManagerTest {
         fun withAppLockConfig(value: AppLockConfig): Arrangement = apply {
             appLockConfigStateFlow.value = value
             every { observeAppLockConfigUseCase() } returns appLockConfigStateFlow
+        }
+
+        fun withTeamPasscodeSet(value: Boolean): Arrangement = apply {
+            every { globalDataStore.isAppTeamPasscodeSet() } returns value
         }
     }
 }

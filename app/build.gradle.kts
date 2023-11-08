@@ -158,7 +158,6 @@ dependencies {
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)
-    testImplementation(libs.junit4) // Maybe migrate completely to Junit 5?
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.androidx.test.core)

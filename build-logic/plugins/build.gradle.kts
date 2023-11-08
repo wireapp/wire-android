@@ -32,6 +32,13 @@ tasks.withType<KotlinCompile>().configureEach {
     }
 }
 
+tasks.withType<Test> {
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = true
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "same_thread"
+    systemProperties["junit.jupiter.execution.parallel.mode.classes.default"] = "concurrent"
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+}
+
 dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)

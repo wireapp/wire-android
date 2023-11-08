@@ -23,6 +23,7 @@ import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
+import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
@@ -73,6 +74,7 @@ class DeviceDetailsViewModel @Inject constructor(
                         GetUserInfoResult.Failure -> {
                             /* no-op */
                         }
+
                         is GetUserInfoResult.Success -> state = state.copy(userName = result.otherUser.name)
                     }
                 }

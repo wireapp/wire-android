@@ -65,8 +65,8 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.time.Duration
 
 @Composable

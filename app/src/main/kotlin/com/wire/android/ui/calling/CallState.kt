@@ -23,9 +23,9 @@ package com.wire.android.ui.calling
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.call.CallStatus
 
 data class CallState(
     val conversationId: ConversationId,

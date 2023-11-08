@@ -20,11 +20,11 @@ package com.wire.android.feature
 import app.cash.turbine.test
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
-import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import io.mockk.MockKAnnotations

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.set
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -104,12 +104,14 @@ fun SetLockCodeScreenContent(
         }
     }
 
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPress,
-            elevation = dimensions().spacing0x,
-            title = stringResource(id = R.string.settings_set_lock_screen_title)
-        )
+    WireScaffold(
+        snackbarHost = {},
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = onBackPress,
+                elevation = dimensions().spacing0x,
+                title = stringResource(id = R.string.settings_set_lock_screen_title)
+            )
     }) { internalPadding ->
         Column(
             modifier = Modifier

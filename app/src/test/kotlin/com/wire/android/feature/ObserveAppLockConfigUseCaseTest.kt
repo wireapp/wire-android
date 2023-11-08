@@ -17,44 +17,125 @@
  */
 package com.wire.android.feature
 
+import app.cash.turbine.test
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.configuration.AppLockTeamConfig
+import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
+import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.seconds
 
 class ObserveAppLockConfigUseCaseTest {
 
-    // TODO: include checking if any logged account does not enforce app-lock
     @Test
-    fun givenPasscodeIsSet_whenObservingAppLockConfig_thenReturnEnabled() = runTest {
+    fun givenNoValidSession_whenObservingAppLock_thenSendDisabledStatus() = runTest {
         val (_, useCase) = Arrangement()
-            .withAppLockPasscodeSet(true)
+            .withNonValidSession()
             .arrange()
 
-        val result = useCase.invoke().firstOrNull()
+        val result = useCase.invoke()
 
-        assert(result is AppLockConfig.Enabled)
+        result.test {
+            val appLockStatus = awaitItem()
+
+            assertEquals(AppLockConfig.Disabled(timeout), appLockStatus)
+            awaitComplete()
+        }
     }
 
     @Test
-    fun givenPasscodeIsNotSet_whenObservingAppLockConfig_thenReturnDisabled() = runTest {
-        val (_, useCase) = Arrangement()
-            .withAppLockPasscodeSet(false)
-            .arrange()
+    fun givenValidSessionAndAppLockedByTeam_whenObservingAppLock_thenSendEnforcedByTeamStatus() =
+        runTest {
+            val (_, useCase) = Arrangement()
+                .withValidSession()
+                .withTeamAppLockEnabled()
+                .withAppLockedByCurrentUser()
+                .arrange()
 
-        val result = useCase.invoke().firstOrNull()
+            val result = useCase.invoke()
 
-        assert(result is AppLockConfig.Disabled)
-    }
+            result.test {
+                val appLockStatus = awaitItem()
+
+                assertEquals(AppLockConfig.EnforcedByTeam(timeout), appLockStatus)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun givenValidSessionAndAppLockedByUserOnly_whenObservingAppLock_thenSendEnabledStatus() =
+        runTest {
+            val (_, useCase) = Arrangement()
+                .withValidSession()
+                .withTeamAppLockDisabled()
+                .withAppLockedByCurrentUser()
+                .arrange()
+
+            val result = useCase.invoke()
+
+            result.test {
+                val appLockStatus = awaitItem()
+
+                assertEquals(AppLockConfig.Enabled(timeout), appLockStatus)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun givenValidSessionAndAppNotLockedByUserNorTeam_whenObservingAppLock_thenSendDisabledStatus() =
+        runTest {
+            val (_, useCase) = Arrangement()
+                .withValidSession()
+                .withTeamAppLockDisabled()
+                .withAppNonLockedByCurrentUser()
+                .arrange()
+
+            val result = useCase.invoke()
+
+            result.test {
+                val appLockStatus = awaitItem()
+
+                assertEquals(AppLockConfig.Disabled(timeout), appLockStatus)
+                awaitComplete()
+            }
+        }
 
     inner class Arrangement {
+
         @MockK
         lateinit var globalDataStore: GlobalDataStore
-        val useCase by lazy { ObserveAppLockConfigUseCase(globalDataStore) }
+
+        @MockK
+        lateinit var currentSession: CurrentSessionUseCase
+
+        @MockK
+        lateinit var coreLogic: CoreLogic
+
+        @MockK
+        lateinit var userSessionScope: UserSessionScope
+
+        @MockK
+        lateinit var appLockTeamFeatureConfigObserver: AppLockTeamFeatureConfigObserver
+
+        val useCase by lazy {
+            ObserveAppLockConfigUseCase(
+                globalDataStore = globalDataStore,
+                coreLogic = coreLogic,
+                currentSession = currentSession
+            )
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -65,5 +146,46 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun arrange() = this to useCase
+
+        fun withNonValidSession() = apply {
+            coEvery { currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
+        }
+
+        fun withValidSession() = apply {
+            coEvery { currentSession() } returns CurrentSessionResult.Success(accountInfo)
+        }
+
+        fun withTeamAppLockEnabled() = apply {
+            every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            every {
+                userSessionScope.appLockTeamFeatureConfigObserver
+            } returns appLockTeamFeatureConfigObserver
+            every {
+                appLockTeamFeatureConfigObserver.invoke()
+            } returns flowOf(AppLockTeamConfig(true, timeout, false))
+        }
+
+        fun withTeamAppLockDisabled() = apply {
+            every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            every {
+                userSessionScope.appLockTeamFeatureConfigObserver
+            } returns appLockTeamFeatureConfigObserver
+            every {
+                appLockTeamFeatureConfigObserver.invoke()
+            } returns flowOf(AppLockTeamConfig(false, timeout, false))
+        }
+
+        fun withAppLockedByCurrentUser() = apply {
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(true)
+        }
+
+        fun withAppNonLockedByCurrentUser() = apply {
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(false)
+        }
+    }
+
+    companion object {
+        private val accountInfo = AccountInfo.Valid(UserId("userId", "domain"))
+        private val timeout = 60.seconds
     }
 }

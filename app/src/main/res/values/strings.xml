@@ -910,6 +910,13 @@
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
@@ -941,7 +948,8 @@
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
     <string name="password_validation_length">At least 8 characters</string>
     <string name="password_validation_lowercase">A lowercase character</string>
     <string name="password_validation_uppercase">An uppercase character</string>
@@ -950,6 +958,14 @@
     <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
     <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
     <string name="label_turn_off">Turn Off</string>
+    <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
+    <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
+    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode. If you have forgotten your passcode, you can reset this device.</string>
+    <string name="settings_forgot_lock_screen_warning">By resetting your device, all local data and messages for this account will be permanently deleted.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to verify you want to delete all data on this device. After deleting this device, you can login with your account credentials again.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -1259,6 +1275,7 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
     <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>

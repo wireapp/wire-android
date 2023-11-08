@@ -15,18 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.theme
 
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+data class ThemeData(val option: ThemeOption, val selectedOption: ThemeOption)
 
-@HiltViewModel
-class AppUnlockWithBiometricsViewModel @Inject constructor(
-    private val lockCodeTimeManager: LockCodeTimeManager
-) : ViewModel() {
-
-    fun onAppUnlocked() {
-        lockCodeTimeManager.appUnlocked()
-    }
+enum class ThemeOption {
+    SYSTEM,
+    LIGHT,
+    DARK
 }

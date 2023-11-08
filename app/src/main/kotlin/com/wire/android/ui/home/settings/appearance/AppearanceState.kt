@@ -15,19 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.settings.appearance
 
-import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.theme.ThemeOption
 
-data class EnterLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val isUnlockEnabled: Boolean = false,
-    val error: EnterLockCodeError = EnterLockCodeError.None,
-    val done: Boolean = false
+data class AppearanceState(
+    val selectedThemeOption: ThemeOption = ThemeOption.SYSTEM,
 )
-
-sealed class EnterLockCodeError {
-    data object None : EnterLockCodeError()
-    data object InvalidValue : EnterLockCodeError()
-}

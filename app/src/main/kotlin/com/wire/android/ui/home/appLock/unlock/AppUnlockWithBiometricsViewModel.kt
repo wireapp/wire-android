@@ -15,11 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings
+package com.wire.android.ui.home.appLock.unlock
 
-import com.wire.android.feature.AppLockConfig
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
+import androidx.lifecycle.ViewModel
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-data class SettingsState(
-    val appLockConfig: AppLockConfig = AppLockConfig.Disabled(DEFAULT_TIMEOUT),
-)
+@HiltViewModel
+class AppUnlockWithBiometricsViewModel @Inject constructor(
+    private val lockCodeTimeManager: LockCodeTimeManager
+) : ViewModel() {
+
+    fun onAppUnlocked() {
+        lockCodeTimeManager.appUnlocked()
+    }
+}

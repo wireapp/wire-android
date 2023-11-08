@@ -22,7 +22,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.applock.AppLockTeamConfig
+import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -162,7 +162,7 @@ class ObserveAppLockConfigUseCaseTest {
             } returns appLockTeamFeatureConfigObserver
             every {
                 appLockTeamFeatureConfigObserver.invoke()
-            } returns flowOf(AppLockTeamConfig(true, timeout))
+            } returns flowOf(AppLockTeamConfig(true, timeout, false))
         }
 
         fun withTeamAppLockDisabled() = apply {
@@ -172,7 +172,7 @@ class ObserveAppLockConfigUseCaseTest {
             } returns appLockTeamFeatureConfigObserver
             every {
                 appLockTeamFeatureConfigObserver.invoke()
-            } returns flowOf(AppLockTeamConfig(false, timeout))
+            } returns flowOf(AppLockTeamConfig(false, timeout, false))
         }
 
         fun withAppLockedByCurrentUser() = apply {

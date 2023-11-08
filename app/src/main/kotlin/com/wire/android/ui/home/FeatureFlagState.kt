@@ -28,6 +28,8 @@ data class FeatureFlagState(
     val isFileSharingEnabledState: Boolean = true,
     val fileSharingRestrictedState: SharingRestrictedState? = null,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
+    val shouldShowTeamAppLockDialog: Boolean = false,
+    val isTeamAppLockEnabled: Boolean = false,
     val isGuestRoomLinkEnabled: Boolean = true,
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
     val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,

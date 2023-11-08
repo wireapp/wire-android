@@ -24,9 +24,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
+import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -40,6 +42,7 @@ class SetLockScreenViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
     private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
+    private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
     var state: SetLockCodeViewState by mutableStateOf(SetLockCodeViewState())
@@ -49,7 +52,10 @@ class SetLockScreenViewModel @Inject constructor(
         viewModelScope.launch {
             observeAppLockConfigUseCase()
                 .collectLatest {
-                    state = state.copy(timeout = it.timeout)
+                    state = state.copy(
+                        timeout = it.timeout,
+                        isAppLockByUser = it !is AppLockConfig.EnforcedByTeam
+                    )
                 }
         }
     }
@@ -75,7 +81,14 @@ class SetLockScreenViewModel @Inject constructor(
             if (it.isValid) {
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
-                        globalDataStore.setAppLockPasscode(state.password.text.sha256())
+                        with(globalDataStore) {
+                            if (state.isAppLockByUser) {
+                                setUserAppLock(state.password.text.sha256())
+                            } else {
+                                setTeamAppLock(state.password.text.sha256())
+                            }
+                            markTeamAppLockStatusAsNotified()
+                        }
                     }
                     withContext(dispatchers.main()) {
                         state = state.copy(done = true)

@@ -248,7 +248,7 @@ sealed class UIMessageContent {
 
     data class ImageMessage(
         val assetId: AssetId,
-        val asset: ImageAsset.PrivateAsset?,
+        val asset: ImageAsset.PrivateAsset,
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,

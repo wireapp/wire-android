@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetConversationMessagesFromSearchQueryUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
+import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfAssetMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
@@ -43,6 +44,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.components.ViewModelComponent
@@ -148,6 +150,11 @@ class MessageModule {
     @Provides
     fun provideGetPaginatedMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfMessagesByConversationUseCase =
         messageScope.getPaginatedFlowOfMessagesByConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPaginatedAssetMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfAssetMessagesByConversationUseCase =
+        messageScope.getPaginatedFlowOfAssetMessagesByConversation
 
     @ViewModelScoped
     @Provides

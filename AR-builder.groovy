@@ -540,7 +540,6 @@ pipeline {
                 }
             }
 
-            sh './gradlew jacocoReport'
             wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ✅ SUCCESS 🎉" + "\nLast 5 commits:\n```text\n$lastCommits\n```")
         }
 

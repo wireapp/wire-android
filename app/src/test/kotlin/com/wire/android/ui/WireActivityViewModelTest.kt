@@ -43,12 +43,12 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.auth.AccountInfo
-import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase

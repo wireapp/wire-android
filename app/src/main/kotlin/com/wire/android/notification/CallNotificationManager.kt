@@ -27,10 +27,10 @@ import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.Call
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -33,9 +33,9 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.to
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult

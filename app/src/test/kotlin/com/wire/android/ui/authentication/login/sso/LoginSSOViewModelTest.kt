@@ -39,11 +39,11 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AccountTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase

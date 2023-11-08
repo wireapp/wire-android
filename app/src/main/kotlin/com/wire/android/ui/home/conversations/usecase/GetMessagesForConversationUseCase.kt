@@ -55,7 +55,7 @@ class GetMessagesForConversationUseCase @Inject constructor(
         return getMessages(
             conversationId,
             pagingConfig = pagingConfig,
-            startingOffset = max(0, lastReadIndex - INITIAL_LOAD_SIZE)
+            startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE)
         ).map { pagingData ->
             pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))

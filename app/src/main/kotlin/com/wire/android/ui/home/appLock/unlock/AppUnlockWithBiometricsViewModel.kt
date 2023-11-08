@@ -15,18 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.unlock
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
-import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
-import kotlin.time.Duration
+import androidx.lifecycle.ViewModel
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-data class SetLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
-    val timeout: Duration = DEFAULT_TIMEOUT,
-    val isAppLockByUser: Boolean = true,
-    val done: Boolean = false
-)
+@HiltViewModel
+class AppUnlockWithBiometricsViewModel @Inject constructor(
+    private val lockCodeTimeManager: LockCodeTimeManager
+) : ViewModel() {
+
+    fun onAppUnlocked() {
+        lockCodeTimeManager.appUnlocked()
+    }
+}

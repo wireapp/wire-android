@@ -243,9 +243,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         setAppLockPasscode(passcode, key)
     }
 
-    fun isAppLockedByUserFlow(): Flow<Boolean> =
-        getBooleanPreference(IS_APP_LOCKED_BY_USER, false)
-
     suspend fun setThemeOption(option: ThemeOption) {
         context.dataStore.edit { it[APP_THEME_OPTION] = option.toString() }
     }

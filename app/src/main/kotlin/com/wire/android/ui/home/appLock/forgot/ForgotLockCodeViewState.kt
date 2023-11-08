@@ -15,19 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.forgot
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.kalium.logic.CoreFailure
 
-data class EnterLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val isUnlockEnabled: Boolean = false,
-    val error: EnterLockCodeError = EnterLockCodeError.None,
-    val done: Boolean = false
+data class ForgotLockCodeViewState(
+    val completed: Boolean = false,
+    val error: CoreFailure? = null,
+    val dialogState: ForgotLockCodeDialogState = ForgotLockCodeDialogState.Hidden,
 )
 
-sealed class EnterLockCodeError {
-    data object None : EnterLockCodeError()
-    data object InvalidValue : EnterLockCodeError()
+sealed class ForgotLockCodeDialogState {
+    data object Hidden : ForgotLockCodeDialogState()
+    data class Visible(
+        val username: String,
+        val password: TextFieldValue = TextFieldValue(""),
+        val passwordValid: Boolean = true,
+        val resetDeviceEnabled: Boolean = true,
+        val loading: Boolean = false,
+    ) : ForgotLockCodeDialogState()
 }

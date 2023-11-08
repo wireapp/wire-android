@@ -22,11 +22,11 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.notification.CallNotificationManager.Companion.DEBOUNCE_TIME
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.Call
-import com.wire.kalium.logic.feature.call.CallStatus
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
 import io.mockk.every

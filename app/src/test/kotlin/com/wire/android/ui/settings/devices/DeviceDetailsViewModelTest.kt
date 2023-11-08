@@ -17,6 +17,7 @@ import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
+import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
@@ -249,11 +250,11 @@ class DeviceDetailsViewModelTest {
             }
 
         fun withFingerprintSuccess() = apply {
-            coEvery { deviceFingerprint(any(), any()) } returns ClientFingerprintUseCase.Result.Success("fingerprint".encodeToByteArray())
+            coEvery { deviceFingerprint(any(), any()) } returns Result.Success("fingerprint".encodeToByteArray())
         }
 
         fun withFingerprintFailure() = apply {
-            coEvery { deviceFingerprint(any(), any()) } returns ClientFingerprintUseCase.Result.Failure(
+            coEvery { deviceFingerprint(any(), any()) } returns Result.Failure(
                 NetworkFailure.NoNetworkConnection(
                     IOException()
                 )

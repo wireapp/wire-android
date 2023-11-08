@@ -103,7 +103,8 @@
     <string name="content_description_delete_the_group">Ta bort gruppen</string>
     <string name="content_description_conversation_phone_icon">Starta ljudsamtal</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <string name="content_description_conversation_search_icon">Search icon</string>
+    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
@@ -287,9 +288,19 @@
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
-    <string name="remove_device_invalid_password">Invalid password</string>
+    <string name="remove_device_invalid_password">Ogiltigt lösenord</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
+    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
+    <string name="item_subtitle_status_e2ei_certificate">Status</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
+    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
+    <string name="get_e2ei_certificate_button">Get Certificate</string>
+    <string name="update_e2ei_certificat_button">Update Certificate</string>
+    <string name="e2ei_certificat_status_valid">Valid</string>
+    <string name="e2ei_certificat_status_expired">Expired</string>
+    <string name="e2ei_certificat_status_revoked">Revoked</string>
+    <string name="e2ei_certificat_status_not_activated">Not activated</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -323,7 +334,7 @@
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Har du redan ett konto? </string>
-    <string name="create_account_email_terms_dialog_title">Terms of Use</string>
+    <string name="create_account_email_terms_dialog_title">Användarvillkor</string>
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
@@ -336,7 +347,7 @@
     <string name="create_account_details_last_name_label">EFTERNAMN</string>
     <string name="create_account_details_team_name_placeholder">Team Awesome</string>
     <string name="create_account_details_team_name_label">NAMN PÅ TEAM</string>
-    <string name="create_account_details_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
+    <string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
     <string name="create_account_details_password_error">Ogiltigt lösenord</string>
     <string name="create_account_details_password_not_matching_error">Lösenorden matchar inte</string>
     <string name="create_account_details_confirm_password_label">BEKRÄFTA LÖSENORD</string>
@@ -399,10 +410,11 @@
     <string name="asset_download_dialog_open_text">Open</string>
     <string name="asset_download_dialog_save_text">Spara</string>
     <string name="member_name_deleted_label">Deleted account</string>
-    <string name="member_name_you_label_titlecase">You</string>
-    <string name="member_name_you_label_lowercase">you</string>
+    <string name="member_name_you_label_titlecase">Du</string>
+    <string name="member_name_you_label_lowercase">du</string>
     <string name="label_add_participants">Lägg till deltagare</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">DELTAGARE</string>
@@ -410,6 +422,7 @@
     <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
     <string name="conversation_details_group_members">GRUPPMEDLEMMAR (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
     <string name="conversation_details_group_participants_title">Gruppdeltagare</string>
     <string name="conversation_details_group_participants_add">Lägg till deltagare</string>
@@ -524,7 +537,7 @@
     <string name="profile_image_change_image_button_label">Change Picture…</string>
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
-    <string name="label_copy">Copy</string>
+    <string name="label_copy">Kopiera</string>
     <string name="label_share">Dela</string>
     <string name="label_edit">Redigera</string>
     <string name="label_delete">Radera</string>
@@ -590,8 +603,12 @@
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
+    <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -639,6 +656,10 @@
     <string name="last_message_self_user_left_conversation">left the conversation.</string>
     <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
     <string name="last_message_other_user_left_conversation">left the conversation.</string>
+    <string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
+    <string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
+    <string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
@@ -667,7 +688,12 @@
         <item quantity="one">%s is typing</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Sök</string>
+    <!-- Search Contact-->
     <string name="label_contacts">KONTAKTER</string>
     <string name="label_new_group">Ny grupp</string>
     <string name="label_new_conversation">Ny konversation</string>
@@ -682,9 +708,9 @@
     <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
-    <string name="error_unknown_message">Please try again</string>
-    <string name="error_server_miscommunication_title">Server error</string>
-    <string name="error_server_miscommunication_message">Please try again</string>
+    <string name="error_unknown_message">Försök igen</string>
+    <string name="error_server_miscommunication_title">Serverfel</string>
+    <string name="error_server_miscommunication_message">Försök igen</string>
     <string name="error_socket_title">Invalid information</string>
     <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
     <string name="error_no_network_title">Väntar på nätverk</string>
@@ -730,7 +756,7 @@
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_missed_call">Missed call</string>
     <string name="notification_knock">Pinged</string>
-    <string name="notification_reply">Reply: %1$s</string>
+    <string name="notification_reply">Svar: %1$s</string>
     <string name="notification_not_supported_issue">Feature not supported</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>
@@ -800,6 +826,8 @@
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Accept</string>
     <string name="connection_label_ignore">Ignorera</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
+    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -825,7 +853,7 @@
     <!--wire dropdown-->
     <string name="wire_dropdown_default_indicator">" (default)"</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
-    <string name="change">Change</string>
+    <string name="change">Ändra</string>
     <string name="allow_guests">Allow guests</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
@@ -859,11 +887,18 @@
     <string name="settings_your_account_label">Account Details</string>
     <string name="settings_app_settings_label">App Settings</string>
     <string name="settings_privacy_settings_label">Privacy Settings</string>
-    <string name="settings_network_settings_label">Network Settings</string>
+    <string name="settings_network_settings_label">Nätverksinställningar</string>
     <string name="settings_manage_devices_label">Hantera dina enheter</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
@@ -890,13 +925,14 @@
     <string name="settings_app_lock_title">Lock with passcode</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
-    <string name="password_validation_length">At least 8 characters</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
+    <string name="password_validation_length">Minst 8 tecken</string>
     <string name="password_validation_lowercase">A lowercase character</string>
     <string name="password_validation_uppercase">An uppercase character</string>
     <string name="password_validation_digit">A digit</string>
@@ -904,6 +940,14 @@
     <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
     <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
     <string name="label_turn_off">Turn Off</string>
+    <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
+    <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
+    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode. If you have forgotten your passcode, you can reset this device.</string>
+    <string name="settings_forgot_lock_screen_warning">By resetting your device, all local data and messages for this account will be permanently deleted.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to verify you want to delete all data on this device. After deleting this device, you can login with your account credentials again.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Dina enheter</string>
     <string name="current_device_label">Current Device</string>
@@ -950,13 +994,13 @@
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
-    <string name="label_textfield_optional_password">Password (optional)</string>
+    <string name="label_textfield_optional_password">Lösenord (valfritt)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
-    <string name="backup_dialog_create_backup_set_password_title">Set password</string>
-    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed, and you can encrypt it with a password.</string>
+    <string name="backup_dialog_create_backup_set_password_title">Ange lösenord</string>
+    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.</string>
     <string name="backup_dialog_create_backup_now">Säkerhetskopiera nu</string>
     <string name="backup_dialog_create_backup_title">Creating Backup</string>
     <string name="backup_dialog_create_backup_subtitle">Sparar konversationer...</string>
@@ -964,7 +1008,7 @@
     <string name="backup_dialog_create_error_subtitle">Backup could not be created. Please try again or contact Wire support.</string>
     <string name="backup_label_conversation_successfully_saved">Conversations successfully saved</string>
     <string name="backup_label_saving_conversations">Sparar konversationer</string>
-    <string name="backup_label_wrong_password">Wrong password</string>
+    <string name="backup_label_wrong_password">Felaktigt lösenord</string>
     <string name="backup_label_verify_input">Please verify your input and try again</string>
     <string name="backup_dialog_restoring_backup_title">Restoring backup...</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
@@ -973,7 +1017,7 @@
     <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Ange lösenord</string>
-    <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
+    <string name="backup_dialog_restore_backup_password_message">Denna säkerhetskopia är lösenordsskyddad.</string>
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="backup_dialog_create_backup_save">Spara fil</string>
     <string name="backup_dialog_create_backup_share">Dela fil</string>
@@ -1197,18 +1241,24 @@
     <string name="create_guest_link_without_password_title">Create link without password</string>
     <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">Du kan inte ändra lösenordet senare. Se till att kopiera och spara det.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
-    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
-    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">BEKRÄFTA LÖSENORD</string>
+    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Ange lösenord</string>
     <string name="generate_password_button_text">Generate Password</string>
     <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
     <string name="password_protected_link_banner_title">Link is password secured</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">Lösenord kopierades till urklipp</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
     <!--    biometrics-->
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
 </resources>

@@ -23,7 +23,7 @@ package com.wire.android.ui.home.conversations.details.options
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
 data class GroupConversationOptionsState(
     val conversationId: ConversationId,

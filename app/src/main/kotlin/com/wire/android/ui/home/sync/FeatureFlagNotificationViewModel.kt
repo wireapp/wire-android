@@ -39,11 +39,11 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,

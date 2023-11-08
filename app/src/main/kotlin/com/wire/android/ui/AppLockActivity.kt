@@ -49,36 +49,31 @@ class AppLockActivity : AppCompatActivity() {
                 WireTheme {
                     val navigator = rememberNavigator(this@AppLockActivity::finish)
 
-                val startDestination =
-                    if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {
-                        appLogger.i("appLock: requesting set team app lock")
-                        SetLockCodeScreenDestination
-                    } else {
-                        val canAuthenticateWithBiometrics = BiometricManager
-                            .from(this)
-                            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                        if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                            appLogger.i("appLock: requesting app Unlock with biometrics")
-                            AppUnlockWithBiometricsScreenDestination
+                    val startDestination =
+                        if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {
+                            appLogger.i("appLock: requesting set team app lock")
+                            SetLockCodeScreenDestination
                         } else {
-                            appLogger.i("appLock: requesting app Unlock with passcode")
-                            EnterLockCodeScreenDestination
+                            val canAuthenticateWithBiometrics = BiometricManager
+                                .from(this)
+                                .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                            if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
+                                appLogger.i("appLock: requesting app Unlock with biometrics")
+                                AppUnlockWithBiometricsScreenDestination
+                            } else {
+                                appLogger.i("appLock: requesting app Unlock with passcode")
+                                EnterLockCodeScreenDestination
+                            }
                         }
-                    }
 
-                NavigationGraph(
-                    navigator = navigator,
-                    startDestination = startDestination
-                )
+                    NavigationGraph(
+                        navigator = navigator,
+                        startDestination = startDestination
+                    )
+                }
             }
         }
     }
-
-    companion object {
-        const val SET_TEAM_APP_LOCK = "set_team_app_lock"
-    }
-}
-
     companion object {
         const val SET_TEAM_APP_LOCK = "set_team_app_lock"
     }

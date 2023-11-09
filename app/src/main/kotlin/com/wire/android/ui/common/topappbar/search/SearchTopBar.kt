@@ -73,6 +73,7 @@ fun SearchTopBar(
     isSearchActive: Boolean,
     searchBarHint: String,
     searchQuery: TextFieldValue = TextFieldValue(""),
+    isLoading: Boolean = false,
     onSearchQueryChanged: (TextFieldValue) -> Unit,
     onCloseSearchClicked: (() -> Unit)? = null,
     onActiveChanged: (isActive: Boolean) -> Unit = {},
@@ -112,6 +113,7 @@ fun SearchTopBar(
             placeholderText = searchBarHint,
             text = searchQuery,
             onTextTyped = onSearchQueryChanged,
+            isLoading = isLoading,
             leadingIcon = {
                 AnimatedContent(!isSearchActive, label = "") { isVisible ->
                     if (isVisible) {

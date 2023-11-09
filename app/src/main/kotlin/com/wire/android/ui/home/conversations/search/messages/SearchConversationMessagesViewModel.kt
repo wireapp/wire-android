@@ -67,13 +67,18 @@ class SearchConversationMessagesViewModel @Inject constructor(
             mutableSearchQueryFlow
                 .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
                 .collectLatest { searchTerm ->
+                    searchConversationMessagesState = searchConversationMessagesState.copy(
+                        isLoading = true
+                    )
+
                     getSearchMessagesForConversation(
                         searchTerm = searchTerm,
                         conversationId = conversationId
                     ).onSuccess { uiMessages ->
                         searchConversationMessagesState = searchConversationMessagesState.copy(
                             searchResult = uiMessages.toPersistentList(),
-                            isEmptyResult = uiMessages.isEmpty()
+                            isEmptyResult = uiMessages.isEmpty(),
+                            isLoading = false
                         )
                     }
                 }

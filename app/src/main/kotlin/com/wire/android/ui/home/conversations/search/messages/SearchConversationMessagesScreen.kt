@@ -57,6 +57,7 @@ fun SearchConversationMessagesScreen(
                     onSearchQueryChanged = searchConversationMessagesViewModel::searchQueryChanged,
                     modifier = Modifier.padding(top = dimensions().spacing24x),
                     onCloseSearchClicked = navigator::navigateBack,
+                    isLoading = isLoading
                 )
             },
             content = {
@@ -64,6 +65,7 @@ fun SearchConversationMessagesScreen(
                     searchQuery = searchQuery.text,
                     noneSearchSucceed = isEmptyResult,
                     searchResult = searchResult,
+                    isLoading = isLoading,
                     onMessageClick = { messageId ->
                         navigator.navigate(
                             NavigationCommand(
@@ -91,12 +93,13 @@ fun SearchConversationMessagesResultContent(
     searchQuery: String,
     noneSearchSucceed: Boolean,
     searchResult: List<UIMessage>,
+    isLoading: Boolean,
     onMessageClick: (messageId: String) -> Unit
 ) {
     if (searchQuery.isEmpty()) {
         SearchConversationMessagesEmptyScreen()
     } else {
-        if (noneSearchSucceed) {
+        if (noneSearchSucceed && !isLoading) {
             SearchConversationMessagesNoResultsScreen()
         } else {
             SearchConversationMessagesResultsScreen(

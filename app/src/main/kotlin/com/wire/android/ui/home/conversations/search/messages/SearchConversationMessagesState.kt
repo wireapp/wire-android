@@ -27,5 +27,6 @@ data class SearchConversationMessagesState(
     val conversationId: ConversationId,
     val searchQuery: TextFieldValue = TextFieldValue(""),
     val searchResult: ImmutableList<UIMessage> = persistentListOf(),
-    val isEmptyResult: Boolean = false
+    val isEmptyResult: Boolean = false,
+    val isLoading: Boolean = false
 )

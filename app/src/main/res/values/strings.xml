@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -17,7 +18,6 @@
   ~
   ~
   -->
-
 <resources>
     <string name="app_version">App version</string>
     <string name="build_variant_name">Build variant</string>
@@ -50,7 +50,8 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
-    <string name="label_message_knock">%s pinged</string>
+    <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
@@ -96,13 +97,15 @@
     <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
+    <string name="content_description_unarchive">Unarchive</string>
     <string name="content_description_block_the_user">Block</string>
     <string name="content_description_unblock_the_user">Unblock</string>
     <string name="content_description_leave_the_group">Leave the group</string>
     <string name="content_description_delete_the_group">Delete the group</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <string name="content_description_conversation_search_icon">Search icon</string>
+    <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
@@ -170,7 +173,7 @@
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
-
+    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
     <!-- Non translatable strings-->
     <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -186,13 +189,14 @@
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
     <string name="app_settings_screen_title">App Settings</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
-    <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
     <string name="support_screen_title">Support</string>
@@ -200,8 +204,8 @@
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s New</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
+    <string name="whats_new_screen_title">What\'s new</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
     <string name="whats_new_release_notes_group_title">Release Notes</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
@@ -283,7 +287,6 @@
     </string>
     <string name="conversation_history_wipe_explanation">According to your team\'s security
         settings, your conversation history has also been deleted.</string>
-
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
     <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
@@ -302,6 +305,18 @@
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
+
+    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
+    <string name="item_subtitle_status_e2ei_certificate">Status</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
+    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
+    <string name="get_e2ei_certificate_button">Get Certificate</string>
+    <string name="update_e2ei_certificat_button">Update Certificate</string>
+    <string name="e2ei_certificat_status_valid">Valid</string>
+    <string name="e2ei_certificat_status_expired">Expired</string>
+    <string name="e2ei_certificat_status_revoked">Revoked</string>
+    <string name="e2ei_certificat_status_not_activated">Not activated</string>
+
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -401,7 +416,7 @@
     <string name="asset_message_tap_to_download_text">Tap to download</string>
     <string name="asset_message_upload_in_progress_text">Uploading…</string>
     <string name="asset_message_download_in_progress_text">Downloading…</string>
-    <string name="asset_message_downloaded_internally_text">Downloaded</string>
+    <string name="asset_message_downloaded_internally_text">Tap to view</string>
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
@@ -415,6 +430,7 @@
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
@@ -422,6 +438,7 @@
     <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
     <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
+    <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
@@ -447,13 +464,11 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
     <string name="import_media_send_button_title">Send</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
-
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
@@ -517,6 +532,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
@@ -525,8 +541,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
-    <string name="muting_option_only_mentions_title">Mentions and replies</string>
-    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
+    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
+    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nothing</string>
     <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
     <!--Profile image-->
@@ -589,6 +605,10 @@
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -597,7 +617,13 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
+    <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -612,7 +638,6 @@
         <item quantity="one">1 person was added to the conversation</item>
         <item quantity="other">%1$d people were added to the conversation</item>
     </plurals>
-
     <plurals name="last_message_self_removed_users">
         <item quantity="one">You removed 1 person from the conversation</item>
         <item quantity="other">You removed %1$d people from the conversation</item>
@@ -646,6 +671,10 @@
     <string name="last_message_self_user_left_conversation">left the conversation.</string>
     <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
     <string name="last_message_other_user_left_conversation">left the conversation.</string>
+    <string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
+    <string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
+    <string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
@@ -669,7 +698,17 @@
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
-    <!--Search Contact-->
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
+    <!-- Search Messages -->
+    <string name="label_search_messages">Search messages</string>
+    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
+    <string name="label_search_button">Search</string>
+    <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
     <string name="label_new_conversation">New Conversation</string>
@@ -714,10 +753,17 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
     <string name="error_archiving_conversation">Conversation could not be archived</string>
+    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
+    <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>
     <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>
@@ -774,7 +820,6 @@
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
-
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
@@ -799,6 +844,8 @@
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Accept</string>
     <string name="connection_label_ignore">Ignore</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
+    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -863,6 +910,13 @@
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">PROFILE NAME</string>
@@ -887,12 +941,31 @@
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
-    <string name="settings_app_lock_description">Lock Wire after %1$s seconds in the background. Unlock with passcode or biometrics.</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Set a passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after a certain time of inactivity. To unlock the app you need to enter this passcode. Make sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
+    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
+    <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
+    <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
+    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode. If you have forgotten your passcode, you can reset this device.</string>
+    <string name="settings_forgot_lock_screen_warning">By resetting your device, all local data and messages for this account will be permanently deleted.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to verify you want to delete all data on this device. After deleting this device, you can login with your account credentials again.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -919,6 +992,8 @@
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_proteus_option_title">Proteus Options</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
+    <string name="label_debug_tools_title" translatable="false">Debug Tools</string>
+    <string name="label_disable_event_processing" translatable="false">Disable event processing</string>
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
@@ -945,7 +1020,7 @@
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>
-    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed, and you can encrypt it with a password.</string>
+    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.</string>
     <string name="backup_dialog_create_backup_now">Back Up Now</string>
     <string name="backup_dialog_create_backup_title">Creating Backup</string>
     <string name="backup_dialog_create_backup_subtitle">Saving conversations...</string>
@@ -1005,7 +1080,6 @@
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
     <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
-
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
@@ -1014,21 +1088,17 @@
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
-
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
-
     <!-- visit link -->
     <string name="label_visit_link_title">Visit Link</string>
     <string name="visit_link_dialog_body">This will take you to %s</string>
-
     <!-- invalid link -->
     <string name="label_invalid_link_title">Invalid Link</string>
     <string name="invalid_link_dialog_body">Link could not be opened</string>
-
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
@@ -1044,11 +1114,9 @@
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
     <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
-
     <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
     <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
-
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Your account was used on</string>
     <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
@@ -1076,7 +1144,6 @@
     <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
     <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
     <string name="create_account_handle_title">Your User Name</string>
-
     <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
@@ -1085,7 +1152,6 @@
     <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
     <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
-
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
@@ -1096,7 +1162,6 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
-
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="other">%1$d weeks left</item>
@@ -1147,7 +1212,6 @@
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
-
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
@@ -1172,7 +1236,6 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
-
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1186,11 +1249,9 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-
     <string name="permission_dialog_title">App permissions</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
     <string name="label_not_now">Not Now</string>
-
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Enter password</string>
@@ -1210,5 +1271,17 @@
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
 
+    <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
+    <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
 </resources>

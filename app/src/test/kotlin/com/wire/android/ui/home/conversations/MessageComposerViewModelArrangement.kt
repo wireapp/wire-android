@@ -47,6 +47,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -64,6 +65,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -73,7 +75,6 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -177,6 +178,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
 
+    @MockK
+    lateinit var sendTypingEvent: SendTypingEventUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -201,7 +205,8 @@ internal class MessageComposerViewModelArrangement {
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
-            retryFailedMessage = retryFailedMessageUseCase
+            retryFailedMessage = retryFailedMessageUseCase,
+            sendTypingEvent = sendTypingEvent
         )
     }
 
@@ -237,6 +242,38 @@ internal class MessageComposerViewModelArrangement {
                 any()
             )
         } returns ScheduleNewAssetMessageResult.Success("some-message-id")
+    }
+
+    fun withSuccessfulSendTextMessage() = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendEditTextMessage() = apply {
+        coEvery {
+            sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendTypingEvent() = apply {
+        coEvery {
+            sendTypingEvent(
+                any(),
+                any()
+            )
+        } returns Unit
     }
 
     fun withFailureOnDeletingMessages() = apply {

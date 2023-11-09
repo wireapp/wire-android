@@ -20,16 +20,31 @@
 
 package com.wire.android.ui.home.conversations
 
+import SwipeableSnackbar
+import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +55,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
@@ -61,19 +78,23 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
@@ -94,6 +115,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -104,18 +126,19 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -151,6 +174,7 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
+    conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
@@ -176,6 +200,15 @@ fun ConversationScreen(
         }
     }
     val context = LocalContext.current
+
+    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
+        navigator.navigate(
+            NavigationCommand(
+                ConversationScreenDestination(migratedConversationId),
+                BackStackMode.REMOVE_CURRENT
+            )
+        )
+    }
 
     with(conversationCallViewModel) {
         if (conversationCallViewState.shouldShowJoinAnywayDialog) {
@@ -317,10 +350,7 @@ fun ConversationScreen(
                 }
             }
         },
-        onBackButtonClick = {
-            focusManager.clearFocus(true)
-            navigator.navigateBack()
-        },
+        onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
@@ -347,7 +377,9 @@ fun ConversationScreen(
                 }
             }
         },
+        onTypingEvent = messageComposerViewModel::sendTypingEvent
     )
+    BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
         actions = messageComposerViewModel.deleteMessageHelper
@@ -425,6 +457,16 @@ fun ConversationScreen(
             }
         }
     }
+}
+
+private fun conversationScreenOnBackButtonClick(
+    messageComposerViewModel: MessageComposerViewModel,
+    focusManager: FocusManager,
+    navigator: Navigator
+) {
+    messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
+    focusManager.clearFocus(true)
+    navigator.navigateBack()
 }
 
 @Suppress("LongParameterList")
@@ -506,6 +548,7 @@ private fun ConversationScreen(
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
+    onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -570,9 +613,15 @@ private fun ConversationScreen(
             }
         },
         snackbarHost = {
-            SwipeDismissSnackbarHost(
+            SnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth().imePadding()
+                snackbar = { data ->
+                    SwipeableSnackbar(
+                        hostState = snackbarHostState,
+                        data = data,
+                        onDismiss = { data.dismiss() }
+                    )
+                }
             )
         },
         content = { internalPadding ->
@@ -603,7 +652,8 @@ private fun ConversationScreen(
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    onTypingEvent = onTypingEvent
                 )
             }
         }
@@ -646,6 +696,7 @@ private fun ConversationScreenContent(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
+    onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -683,8 +734,8 @@ private fun ConversationScreenContent(
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         tempWritableVideoUri = tempWritableVideoUri,
-        tempWritableImageUri = tempWritableImageUri
-
+        tempWritableImageUri = tempWritableImageUri,
+        onTypingEvent = onTypingEvent
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented
@@ -737,6 +788,7 @@ private fun SnackBarMessage(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
@@ -781,59 +833,103 @@ fun MessageList(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        reverseLayout = true,
+    Box(
+        contentAlignment = Alignment.BottomEnd,
         modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-    ) {
-        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
-            uiMessage.header.messageId
-        }) { index, message ->
-            if (message == null) {
-                // We can draw a placeholder here, as we fetch the next page of messages
-                return@itemsIndexed
-            }
-            val showAuthor by remember {
-                mutableStateOf(
-                    AuthorHeaderHelper.shouldShowHeader(
-                        index,
-                        lazyPagingMessages.itemSnapshotList.items,
-                        message
-                    )
-                )
-            }
+            .fillMaxSize()
+            .background(color = colorsScheme().backgroundVariant),
+        content = {
+            LazyColumn(
+                state = lazyListState,
+                reverseLayout = true,
+                // calculating bottom padding to have space for [UsersTypingIndicator]
+                contentPadding = PaddingValues(
+                    bottom = dimensions().typingIndicatorHeight - dimensions().messageItemVerticalPadding
+                ),
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
+                    uiMessage.header.messageId
+                }) { index, message ->
+                    if (message == null) {
+                        // We can draw a placeholder here, as we fetch the next page of messages
+                        return@itemsIndexed
+                    }
+                    val showAuthor by remember {
+                        mutableStateOf(
+                            AuthorHeaderHelper.shouldShowHeader(
+                                index,
+                                lazyPagingMessages.itemSnapshotList.items,
+                                message
+                            )
+                        )
+                    }
 
-            when (message) {
-                is UIMessage.Regular -> {
-                    MessageItem(
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        showAuthor = showAuthor,
-                        audioMessagesState = audioMessagesState,
-                        onAudioClick = onAudioItemClicked,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
-                        onAssetMessageClicked = onAssetItemClicked,
-                        onImageMessageClicked = onImageFullScreenMode,
-                        onOpenProfile = onOpenProfile,
-                        onReactionClicked = onReactionClicked,
-                        onResetSessionClicked = onResetSessionClicked,
-                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onLinkClick = onLinkClick
-                    )
+                    when (message) {
+                        is UIMessage.Regular -> {
+                            MessageItem(
+                                message = message,
+                                conversationDetailsData = conversationDetailsData,
+                                showAuthor = showAuthor,
+                                audioMessagesState = audioMessagesState,
+                                onAudioClick = onAudioItemClicked,
+                                onChangeAudioPosition = onChangeAudioPosition,
+                                onLongClicked = onShowEditingOption,
+                                onAssetMessageClicked = onAssetItemClicked,
+                                onImageMessageClicked = onImageFullScreenMode,
+                                onOpenProfile = onOpenProfile,
+                                onReactionClicked = onReactionClicked,
+                                onResetSessionClicked = onResetSessionClicked,
+                                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                                onLinkClick = onLinkClick
+                            )
+                        }
+
+                        is UIMessage.System -> SystemMessageItem(
+                            message = message,
+                            onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                            onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                            onSelfDeletingMessageRead = onSelfDeletingMessageRead
+                        )
+                    }
                 }
-
-                is UIMessage.System -> SystemMessageItem(
-                    message = message,
-                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                    onSelfDeletingMessageRead = onSelfDeletingMessageRead
-                )
             }
+            JumpToLastMessageButton(lazyListState = lazyListState)
+        })
+}
+
+@Composable
+fun JumpToLastMessageButton(
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    lazyListState: LazyListState
+) {
+    AnimatedVisibility(
+        visible = lazyListState.firstVisibleItemIndex > 0,
+        enter = expandIn { it },
+        exit = shrinkOut { it }
+    ) {
+        SmallFloatingActionButton(
+            onClick = { coroutineScope.launch { lazyListState.animateScrollToItem(0) } },
+            containerColor = MaterialTheme.wireColorScheme.scrollToBottomButtonColor,
+            contentColor = MaterialTheme.wireColorScheme.onScrollToBottomButtonColor,
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(dimensions().spacing0x),
+            modifier = Modifier
+                .padding(
+                    PaddingValues(
+                        bottom = dimensions().typingIndicatorHeight + dimensions().spacing8x,
+                        end = dimensions().spacing16x
+                    )
+                )
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = stringResource(id = R.string.content_description_jump_to_last_message),
+                Modifier.size(dimensions().spacing32x)
+            )
         }
     }
 }
@@ -890,6 +986,7 @@ fun PreviewConversationScreen() {
         onClearMentionSearchResult = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
-        onLinkClick = { _ -> }
+        onLinkClick = { _ -> },
+        onTypingEvent = {}
     )
 }

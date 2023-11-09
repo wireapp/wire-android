@@ -41,7 +41,7 @@ fun ConversationSheetContent(
     onMutingConversationStatusChange: () -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: (DialogState) -> Unit,
+    updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
@@ -61,7 +61,7 @@ fun ConversationSheetContent(
 //
 //                addConversationToFavourites = addConversationToFavourites,
 //                moveConversationToFolder = moveConversationToFolder,
-                moveConversationToArchive = moveConversationToArchive,
+                updateConversationArchiveStatus = updateConversationArchiveStatus,
                 clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
                 unblockUserClick = unblockUser,
@@ -124,7 +124,11 @@ data class ConversationSheetContent(
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
     val selfRole: Conversation.Member.Role?,
-    val isTeamConversation: Boolean
+    val isTeamConversation: Boolean,
+    val isArchived: Boolean,
+    val protocol: Conversation.ProtocolInfo,
+    val mlsVerificationStatus: Conversation.VerificationStatus,
+    val proteusVerificationStatus: Conversation.VerificationStatus
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null

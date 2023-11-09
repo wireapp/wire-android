@@ -29,9 +29,9 @@ import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
@@ -59,7 +59,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                 )
             val isDataComplete = isDataComplete(serverConfig, activeAccount)
             val ssoId = activeAccount.ssoId?.let { ssoId -> mapper.fromScalaSsoID(ssoId) }
-            val authTokensEither: Either<CoreFailure, AuthTokens> = if (isDataComplete) {
+            val accountTokensEither: Either<CoreFailure, AccountTokens> = if (isDataComplete) {
                 // when the data is complete it means the user has a domain and an access token
                 // which make the following double bang operator safe
                 val domain = if (!activeAccount.domain.isNullOrBlank()) {
@@ -70,7 +70,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
 
                 val userId = UserId(activeAccount.id, domain)
                 Either.Right(
-                    AuthTokens(
+                    AccountTokens(
                         userId = userId,
                         accessToken = activeAccount.accessToken?.token!!,
                         tokenType = activeAccount.accessToken.tokenType,
@@ -85,7 +85,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                 )
             }
 
-            val accountResult = authTokensEither.flatMap { authTokens ->
+            val accountResult = accountTokensEither.flatMap { authTokens ->
                 val addAccountResult = coreLogic.globalScope {
                     addAuthenticatedAccount(
                         serverConfigId = serverConfig.id,
@@ -117,13 +117,13 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     private suspend fun handleMissingData(
         serverConfig: ServerConfig,
         refreshToken: String,
-    ): Either<CoreFailure, AuthTokens> = coreLogic.authenticationScope(serverConfig) {
+    ): Either<CoreFailure, AccountTokens> = coreLogic.authenticationScope(serverConfig) {
         ssoLoginScope.getLoginSession(refreshToken)
     }.let {
         when (it) {
             is SSOLoginSessionResult.Failure.Generic -> Either.Left(it.genericFailure)
             SSOLoginSessionResult.Failure.InvalidCookie -> Either.Left(MigrationFailure.InvalidRefreshToken)
-            is SSOLoginSessionResult.Success -> Either.Right(it.authTokens)
+            is SSOLoginSessionResult.Success -> Either.Right(it.accountTokens)
         }
     }
 

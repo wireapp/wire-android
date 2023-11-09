@@ -97,7 +97,6 @@ class MigrationManager @Inject constructor(
             .getDatabasePath(ScalaDBNameProvider.globalDB())
             .let { it.isFile && it.exists() }
     }
-
     suspend fun shouldMigrate(): Boolean = when {
         // already migrated
         globalDataStore.isMigrationCompleted() -> false

@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,17 +32,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.feature.AppLockConfig
-import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.conversations.details.options.SwitchState
+import com.wire.android.ui.home.settings.SwitchState
 
 @RootNavGraph
 @Destination
@@ -60,18 +54,7 @@ fun PrivacySettingsConfigScreen(
             setTypingIndicatorState = ::setTypingIndicatorState,
             screenshotCensoringConfig = state.screenshotCensoringConfig,
             setScreenshotCensoringConfig = ::setScreenshotCensoringConfig,
-            appLockConfig = state.appLockConfig,
             onBackPressed = navigator::navigateBack,
-            disableAppLock = viewModel::disableAppLock,
-            enableAppLock = {
-                // navigate to set app lock screen
-                navigator.navigate(
-                    NavigationCommand(
-                        SetLockCodeScreenDestination,
-                        backStackMode = BackStackMode.NONE
-                    )
-                )
-            }
         )
     }
 }
@@ -84,10 +67,7 @@ fun PrivacySettingsScreenContent(
     setTypingIndicatorState: (Boolean) -> Unit,
     screenshotCensoringConfig: ScreenshotCensoringConfig,
     setScreenshotCensoringConfig: (Boolean) -> Unit,
-    appLockConfig: AppLockConfig,
     onBackPressed: () -> Unit,
-    disableAppLock: () -> Unit,
-    enableAppLock: () -> Unit
 ) {
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -131,58 +111,10 @@ fun PrivacySettingsScreenContent(
                 title = stringResource(R.string.settings_show_typing_indicator_title),
                 switchState = SwitchState.Enabled(value = isTypingIndicatorEnabled, onCheckedChange = setTypingIndicatorState),
                 arrowType = ArrowType.NONE,
-                subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
-            )
-
-            AppLockItem(
-                state = appLockConfig,
-                disableAppLock = disableAppLock,
-                enableAppLock = enableAppLock
+                subtitle = stringResource(id = R.string.settings_show_typing_indicator_description)
             )
         }
     }
-}
-
-@Composable
-fun AppLockItem(
-    state: AppLockConfig,
-    disableAppLock: () -> Unit,
-    enableAppLock: () -> Unit,
-) {
-    val onCLick = remember(state) {
-        when (state) {
-            is AppLockConfig.EnforcedByTeam -> {
-                // do nothing, onClick is disabled anyway
-                {}
-            }
-
-            is AppLockConfig.Enabled -> {
-                // app-lock is not enforced by any of logged accounts, call function to disable the app-lock
-                disableAppLock
-            }
-
-            is AppLockConfig.Disabled -> {
-                // navigate to set app lock screen
-                enableAppLock
-            }
-        }
-    }
-    GroupConversationOptionsItem(
-        title = stringResource(id = R.string.settings_app_lock_title),
-        switchState = when (state) {
-            is AppLockConfig.EnforcedByTeam -> SwitchState.Disabled(value = true)
-            else -> SwitchState.Enabled(
-                value = state is AppLockConfig.Enabled,
-                onCheckedChange = null
-            )
-        },
-        arrowType = ArrowType.NONE,
-        subtitle = stringResource(id = R.string.settings_app_lock_description, state.timeoutInSeconds),
-        clickable = Clickable(
-            enabled = state !is AppLockConfig.EnforcedByTeam,
-            onClick = onCLick
-        )
-    )
 }
 
 @Composable
@@ -195,9 +127,6 @@ fun PreviewSendReadReceipts() {
         setTypingIndicatorState = {},
         screenshotCensoringConfig = ScreenshotCensoringConfig.DISABLED,
         setScreenshotCensoringConfig = {},
-        appLockConfig = AppLockConfig.Disabled,
         onBackPressed = {},
-        disableAppLock = {},
-        enableAppLock = {}
     )
 }

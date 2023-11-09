@@ -37,7 +37,6 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -241,6 +240,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideDisableEventProcessing(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).debug.disableEventProcessing
+
+    @ViewModelScoped
+    @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().session.currentSessionFlow
 
@@ -316,14 +320,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateConversationMemberRoleUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): UpdateConversationMemberRoleUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
-
-    @ViewModelScoped
-    @Provides
     fun provideBlockUserUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -354,21 +350,21 @@ class UseCaseModule {
     fun provideCreateBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) = coreLogic.getSessionScope(currentAccount).createBackup
+    ) = coreLogic.getSessionScope(currentAccount).backup.create
 
     @ViewModelScoped
     @Provides
     fun provideVerifyBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) = coreLogic.getSessionScope(currentAccount).verifyBackupUseCase
+    ) = coreLogic.getSessionScope(currentAccount).backup.verify
 
     @ViewModelScoped
     @Provides
     fun provideRestoreBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ) = coreLogic.getSessionScope(currentAccount).restoreBackup
+    ) = coreLogic.getSessionScope(currentAccount).backup.restore
 
     @ViewModelScoped
     @Provides
@@ -440,6 +436,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideMarkTeamAppLockStatusAsNotifiedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).markTeamAppLockStatusAsNotified
+
+    @ViewModelScoped
+    @Provides
     fun provideGetOtherUserSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -472,10 +473,5 @@ class UseCaseModule {
     ): ObserveScreenshotCensoringConfigUseCase =
         coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
 
-    @ViewModelScoped
-    @Provides
-    fun provideGetConversationVerificationStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) = coreLogic.getSessionScope(currentAccount).getConversationVerificationStatus
+
 }

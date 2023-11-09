@@ -82,6 +82,7 @@ sealed class HomeDestination(
     data object Archive : HomeDestination(
         title = R.string.archive_screen_title,
         icon = R.drawable.ic_archive,
+        isSearchable = true,
         direction = ArchiveScreenDestination
     )
 
@@ -111,7 +112,7 @@ sealed class HomeDestination(
 
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
         fun fromRoute(fullRoute: String): HomeDestination? =
-            values().find { it.direction.route.getPrimaryRoute() == fullRoute.getPrimaryRoute() }
+            values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
         fun values(): Array<HomeDestination> =
             arrayOf(Conversations, Calls, Mentions, Settings, Vault, Archive, Support, WhatsNew)
     }

@@ -68,7 +68,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.waz.avs.VideoPreview
+import com.waz.avs.CameraPreviewBuilder
 import com.waz.avs.VideoRenderer
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
@@ -214,11 +214,12 @@ private fun CameraPreview(
 ) {
     if (isCameraOn) {
         val context = LocalContext.current
+        val backgroundColor = colorsScheme().callingParticipantTileBackgroundColor.value.toInt()
         val videoPreview = remember {
-            VideoPreview(context).apply {
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                setShouldFill(false)
-            }
+            CameraPreviewBuilder(context)
+                .setBackgroundColor(backgroundColor)
+                .shouldFill(false)
+                .build()
         }
         AndroidView(
             factory = {

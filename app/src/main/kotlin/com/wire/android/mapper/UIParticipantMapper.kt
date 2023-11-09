@@ -24,6 +24,7 @@ import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.UserSummary
 import com.wire.kalium.logic.data.message.reaction.MessageReaction
 import com.wire.kalium.logic.data.message.receipt.DetailedReceipt
 import com.wire.kalium.logic.data.user.OtherUser
@@ -54,7 +55,9 @@ class UIParticipantMapper @Inject constructor(
             unavailable = unavailable,
             isDeleted = (user is OtherUser && user.deleted),
             botService = (user as? OtherUser)?.botService,
-            isDefederated = (user is OtherUser && user.defederated)
+            isDefederated = (user is OtherUser && user.defederated),
+            isProteusVerified = (user is OtherUser && user.isProteusVerified),
+            supportedProtocolList = supportedProtocols.orEmpty().toList()
         )
     }
 
@@ -63,16 +66,35 @@ class UIParticipantMapper @Inject constructor(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
             handle = userSummary.userHandle.orEmpty(),
-            avatarData = previewAsset(wireSessionImageLoader),
+            avatarData = userSummary.previewAsset(wireSessionImageLoader),
             membership = userTypeMapper.toMembership(userSummary.userType),
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
             isSelf = isSelfUser,
-            isDefederated = false
+            isDefederated = false,
+            isProteusVerified = false,
+            supportedProtocolList = listOf()
         )
     }
 
     fun toUIParticipant(detailedReceipt: DetailedReceipt): UIParticipant = with(detailedReceipt) {
+        return UIParticipant(
+            id = userSummary.userId,
+            name = userSummary.userName.orEmpty(),
+            handle = userSummary.userHandle.orEmpty(),
+            avatarData = userSummary.previewAsset(wireSessionImageLoader),
+            membership = userTypeMapper.toMembership(userSummary.userType),
+            unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
+            isDeleted = userSummary.isUserDeleted,
+            isSelf = false,
+            readReceiptDate = date,
+            isDefederated = false,
+            isProteusVerified = false,
+            supportedProtocolList = listOf()
+        )
+    }
+
+    fun toUIParticipant(userSummary: UserSummary): UIParticipant = with(userSummary) {
         return UIParticipant(
             id = userSummary.userId,
             name = userSummary.userName.orEmpty(),
@@ -82,7 +104,6 @@ class UIParticipantMapper @Inject constructor(
             unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
             isDeleted = userSummary.isUserDeleted,
             isSelf = false,
-            readReceiptDate = date,
             isDefederated = false
         )
     }

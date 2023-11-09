@@ -41,6 +41,8 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -48,8 +50,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -119,7 +119,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
         searchQueryFlow.mapLatest { searchQuery ->
-            val conversations = observeConversationListDetails(includeArchived = false).first()
+            val conversations = observeConversationListDetails(fromArchive = false).first()
                 .mapNotNull { conversationDetails ->
                     conversationDetails.toConversationItem(
                         wireSessionImageLoader,
@@ -191,7 +191,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 isSelfUserCreator = isSelfUserCreator,
                 isSelfUserMember = isSelfUserMember,
                 teamId = conversation.teamId,
-                selfMemberRole = selfRole
+                selfMemberRole = selfRole,
+                isArchived = conversation.archived,
+                mlsVerificationStatus = conversation.mlsVerificationStatus,
+                proteusVerificationStatus = conversation.proteusVerificationStatus
             )
         }
 
@@ -226,7 +229,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 ),
                 userId = otherUser.id,
                 blockingState = otherUser.BlockState,
-                teamId = otherUser.teamId
+                teamId = otherUser.teamId,
+                isArchived = conversation.archived,
+                mlsVerificationStatus = conversation.mlsVerificationStatus,
+                proteusVerificationStatus = conversation.proteusVerificationStatus
             )
         }
 

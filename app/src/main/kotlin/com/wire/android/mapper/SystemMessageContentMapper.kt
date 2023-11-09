@@ -60,12 +60,17 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
         is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
         is MessageContent.HistoryLost -> mapConversationHistoryLost()
+        is MessageContent.HistoryLostProtocolChanged -> mapConversationHistoryListProtocolChanged()
         is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
         is MessageContent.ConversationCreated -> mapConversationCreated(message.senderUserId, message.date, members)
         is MessageContent.MLSWrongEpochWarning -> mapMLSWrongEpochWarning()
         is MessageContent.ConversationDegradedMLS -> mapConversationDegraded(Conversation.Protocol.MLS)
         is MessageContent.ConversationDegradedProteus -> mapConversationDegraded(Conversation.Protocol.PROTEUS)
+        is MessageContent.ConversationVerifiedMLS -> mapConversationVerified(Conversation.Protocol.MLS)
+        is MessageContent.ConversationVerifiedProteus -> mapConversationVerified(Conversation.Protocol.PROTEUS)
         is MessageContent.FederationStopped -> mapFederationMessage(content)
+        is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
+        is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -79,6 +84,10 @@ class SystemMessageContentMapper @Inject constructor(
             isAuthorSelfUser = sender is SelfUser,
             date.formatFullDateShortTime().orDefault(date).toUpperCase()
         )
+    }
+
+    private fun mapConversationCreatedUnverifiedWarning(): UIMessageContent.SystemMessage {
+        return UIMessageContent.SystemMessage.ConversationMessageCreatedUnverifiedWarning
     }
 
     private fun mapConversationTimerChanged(
@@ -104,6 +113,12 @@ class SystemMessageContentMapper @Inject constructor(
                 isAuthorSelfUser = sender is SelfUser
             )
         }
+    }
+
+    private fun mapConversationProtocolChanged(
+        content: MessageContent.ConversationProtocolChanged
+    ): UIMessageContent.SystemMessage {
+        return UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
     }
 
     private fun mapResetSession(
@@ -234,10 +249,20 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.FederationStopped.Removed -> UIMessageContent.SystemMessage.FederationStopped(listOf(content.domain))
     }
 
-    private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
-    private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.MLSWrongEpochWarning()
+    private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.HistoryLost
+
+    private fun mapMLSWrongEpochWarning(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.MLSWrongEpochWarning()
+
+    private fun mapConversationHistoryListProtocolChanged(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.HistoryLostProtocolChanged
+
     private fun mapConversationDegraded(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
         UIMessageContent.SystemMessage.ConversationDegraded(protocol)
+
+    private fun mapConversationVerified(protocol: Conversation.Protocol): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationVerified(protocol)
 
     fun mapMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
         is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)

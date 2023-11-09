@@ -144,7 +144,7 @@ internal class OtherUserProfileViewModelArrangement {
             )
         )
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
-        coEvery { updateConversationArchivedStatus(any(), any()) } returns ArchiveStatusUpdateResult.Success
+        coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         every { userTypeMapper.toMembership(any()) } returns Membership.None
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)

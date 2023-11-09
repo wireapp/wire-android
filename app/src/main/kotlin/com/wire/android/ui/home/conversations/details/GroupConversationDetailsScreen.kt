@@ -21,9 +21,14 @@
 package com.wire.android.ui.home.conversations.details
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -32,6 +37,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -44,10 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -60,7 +69,10 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.CollapsingTopBarScaffold
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -68,10 +80,13 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
@@ -79,6 +94,7 @@ import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
 import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
@@ -92,11 +108,12 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
-import kotlinx.coroutines.flow.FlowCollector
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -115,6 +132,16 @@ fun GroupConversationDetailsScreen(
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
     val showSnackbarMessage: (UIText) -> Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }
+
+    val onSearchConversationMessagesClick: () -> Unit = {
+        navigator.navigate(
+            NavigationCommand(
+                SearchConversationMessagesScreenDestination(
+                    conversationId = viewModel.conversationId
+                )
+            )
+        )
+    }
 
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
@@ -195,7 +222,8 @@ fun GroupConversationDetailsScreen(
         onEditGroupName = {
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
-        isLoading = viewModel.requestInProgress
+        isLoading = viewModel.requestInProgress,
+        onSearchConversationMessagesClick = onSearchConversationMessagesClick
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -220,11 +248,7 @@ fun GroupConversationDetailsScreen(
     }
 }
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     conversationSheetContent: ConversationSheetContent?,
@@ -239,14 +263,15 @@ private fun GroupConversationDetailsContent(
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    isLoading: Boolean
+    isLoading: Boolean,
+    onSearchConversationMessagesClick: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
-    val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
+    val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.values().size })
+    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.entries.size })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
@@ -268,79 +293,111 @@ private fun GroupConversationDetailsContent(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
+    val archiveConversationDialogState = rememberVisibilityState<DialogState>()
 
     LaunchedEffect(conversationSheetState.conversationSheetContent) {
         // on each closing BottomSheet we revert BSContent to Home.
         // So in case if user opened BS, went to MuteStatus BS and closed it by clicking outside of BS,
         // then opens BS again - Home BS suppose to be opened, not MuteStatus BS
-        snapshotFlow { sheetState.isVisible }.collect(FlowCollector { isVisible ->
+        snapshotFlow { sheetState.isVisible }.collect { isVisible ->
             if (!isVisible) conversationSheetState.toHome()
-        })
+        }
     }
 
     if (!isLoading) {
         deleteGroupDialogState.dismiss()
         leaveGroupDialogState.dismiss()
         clearConversationDialogState.dismiss()
+        archiveConversationDialogState.dismiss()
     }
-    WireScaffold(
-        topBar = {
+
+    CollapsingTopBarScaffold(
+        topBarHeader = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
-                title = stringResource(R.string.conversation_details_title),
+                titleContent = {
+                    WireTopAppBarTitle(
+                        title = stringResource(R.string.conversation_details_title),
+                        style = MaterialTheme.wireTypography.title01,
+                        maxLines = 2
+                    )
+                    VerificationInfo(conversationSheetContent)
+                },
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
                 actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
-            ) {
-                WireTabRow(
-                    tabs = GroupConversationDetailsTabItem.values().toList(),
-                    selectedTabIndex = currentTabState,
-                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                    divider = {} // no divider
+            )
+        },
+        topBarCollapsing = {
+            conversationSheetState.conversationSheetContent?.let {
+                GroupConversationDetailsTopBarCollapsing(
+                    title = it.title,
+                    conversationId = it.conversationId,
+                    totalParticipants = groupParticipantsState.data.allCount,
+                    isLoading = isLoading,
+                    onSearchConversationMessagesClick = onSearchConversationMessagesClick
                 )
             }
         },
-        modifier = Modifier.fillMaxHeight(),
-    ) { internalPadding ->
-        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
-
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(internalPadding)
-            ) { pageIndex ->
-                when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        lazyListState = lazyListStates[pageIndex],
-                        onEditGuestAccess = onEditGuestAccess,
-                        onEditSelfDeletingMessages = onEditSelfDeletingMessages,
-                        onEditGroupName = onEditGroupName
-                    )
-
-                    GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
-                        groupParticipantsState = groupParticipantsState,
-                        openFullListPressed = openFullListPressed,
-                        onAddParticipantsPressed = onAddParticipantsPressed,
-                        onProfilePressed = onProfilePressed,
-                        lazyListState = lazyListStates[pageIndex]
+        topBarFooter = {
+            AnimatedVisibility(
+                visible = conversationSheetState.conversationSheetContent != null,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Surface(
+                    shadowElevation = elevationState,
+                    color = MaterialTheme.wireColorScheme.background
+                ) {
+                    WireTabRow(
+                        tabs = GroupConversationDetailsTabItem.entries,
+                        selectedTabIndex = currentTabState,
+                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                        modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                        divider = {} // no divider
                     )
                 }
             }
+        },
+        content = {
+            var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+            val keyboardController = LocalSoftwareKeyboardController.current
+            val focusManager = LocalFocusManager.current
 
-            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                    focusedTabIndex = pagerState.currentPage
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) { pageIndex ->
+                    when (GroupConversationDetailsTabItem.entries[pageIndex]) {
+                        GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                            lazyListState = lazyListStates[pageIndex],
+                            onEditGuestAccess = onEditGuestAccess,
+                            onEditSelfDeletingMessages = onEditSelfDeletingMessages,
+                            onEditGroupName = onEditGroupName
+                        )
+
+                        GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
+                            groupParticipantsState = groupParticipantsState,
+                            openFullListPressed = openFullListPressed,
+                            onAddParticipantsPressed = onAddParticipantsPressed,
+                            onProfilePressed = onProfilePressed,
+                            lazyListState = lazyListStates[pageIndex]
+                        )
+                    }
+                }
+
+                LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                    if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        focusedTabIndex = pagerState.currentPage
+                    }
                 }
             }
         }
-    }
+    )
 
     WireModalSheetLayout(
         sheetState = sheetState,
@@ -353,18 +410,20 @@ private fun GroupConversationDetailsContent(
                     conversationSheetContent?.let {
                         bottomSheetEventsHandler.onMutingConversationStatusChange(
                             conversationSheetState.conversationId,
-                            it.mutingConversationState,
+                            conversationSheetState.conversationSheetContent!!.mutingConversationState,
                             closeBottomSheetAndShowSnackbarMessage
                         )
                     }
                 },
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
-                moveConversationToArchive = {
-                    conversationSheetContent?.let {
-                        bottomSheetEventsHandler.onMoveConversationToArchive(
-                            conversationId = it.conversationId,
-                            shouldArchive = true,
+                updateConversationArchiveStatus = {
+                    // Only show the confirmation dialog if the conversation is not archived
+                    if (!it.isArchived) {
+                        archiveConversationDialogState.show(it)
+                    } else {
+                        bottomSheetEventsHandler.updateConversationArchiveStatus(
+                            dialogState = it,
                             onMessage = closeBottomSheetAndShowSnackbarMessage
                         )
                     }
@@ -394,9 +453,69 @@ private fun GroupConversationDetailsContent(
         dialogState = clearConversationDialogState,
         isLoading = isLoading,
         onClearConversationContent = {
-            bottomSheetEventsHandler.onClearConversationContent(it, closeBottomSheetAndShowSnackbarMessage)
+            bottomSheetEventsHandler.onClearConversationContent(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
         }
     )
+
+    ArchiveConversationDialog(
+        dialogState = archiveConversationDialogState,
+        onArchiveButtonClicked = {
+            bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
+        }
+    )
+}
+
+@Composable
+private fun VerificationInfo(conversationSheetContent: ConversationSheetContent?) {
+    if (conversationSheetContent == null) return
+
+    val isProteusVerified = conversationSheetContent.proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isMlsVerified = conversationSheetContent.mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED
+    val isProteusProtocol = conversationSheetContent.protocol == Conversation.ProtocolInfo.Proteus
+
+    if (isProteusVerified && (isProteusProtocol || !isMlsVerified)) {
+        ProteusVerifiedLabel()
+    } else if (isMlsVerified) {
+        MLSVerifiedLabel()
+    }
+}
+
+@Composable
+private fun MLSVerifiedLabel() {
+    VerifiedLabel(
+        stringResource(id = R.string.label_conversations_details_verified_mls).uppercase(),
+        MaterialTheme.wireColorScheme.mlsVerificationTextColor
+    ) { MLSVerifiedIcon() }
+}
+
+@Composable
+private fun ProteusVerifiedLabel() {
+    VerifiedLabel(
+        stringResource(id = R.string.label_conversations_details_verified_proteus).uppercase(),
+        MaterialTheme.wireColorScheme.primary
+    ) { ProteusVerifiedIcon() }
+}
+
+@Composable
+private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope.() -> Unit = {}) {
+    Row(
+        modifier = Modifier
+            .padding(top = dimensions().spacing4x)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            modifier = Modifier.padding(
+                start = dimensions().spacing6x,
+                end = dimensions().spacing6x
+            ),
+            text = text,
+            style = MaterialTheme.wireTypography.label01,
+            color = color,
+            overflow = TextOverflow.Ellipsis
+        )
+        icon()
+    }
 }
 
 enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {
@@ -421,7 +540,8 @@ fun PreviewGroupConversationDetails() {
             isLoading = false,
             onEditGroupName = {},
             onEditSelfDeletingMessages = {},
-            onEditGuestAccess = {}
+            onEditGuestAccess = {},
+            onSearchConversationMessagesClick = {}
         )
     }
 }

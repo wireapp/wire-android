@@ -21,9 +21,7 @@
 package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -49,7 +47,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -57,6 +54,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
@@ -185,7 +183,7 @@ private fun DeviceItemTexts(
         )
         if (shouldShowVerifyLabel) {
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
-            VerifyLabel(device.isVerified, Modifier.wrapContentWidth())
+            if (device.isVerifiedProteus) ProteusVerifiedIcon(Modifier.wrapContentWidth().align(Alignment.CenterVertically))
         }
     }
 
@@ -249,35 +247,12 @@ private fun DeviceItemTexts(
     )
 }
 
-@Composable
-fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.border(
-            width = MaterialTheme.wireDimensions.spacing1x,
-            shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
-            color = if (isVerified) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.secondaryText,
-        )
-    ) {
-        Text(
-            text = stringResource(id = if (isVerified) R.string.label_client_verified else R.string.label_client_unverified),
-            color = if (isVerified) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.secondaryText,
-            style = MaterialTheme.wireTypography.label03,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)
-        )
-    }
-}
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewDeviceItem() {
     WireTheme {
         DeviceItem(
-            device = Device(name = UIText.DynamicString("name")),
+            device = Device(name = UIText.DynamicString("name"), isVerifiedProteus = true),
             placeholder = false,
             shouldShowVerifyLabel = true,
             background = null,

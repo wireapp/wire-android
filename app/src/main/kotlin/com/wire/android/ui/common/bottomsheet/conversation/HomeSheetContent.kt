@@ -23,8 +23,8 @@ package com.wire.android.ui.common.bottomsheet.conversation
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +60,7 @@ internal fun ConversationMainSheetContent(
 // TODO(profile): enable when implemented
 //    addConversationToFavourites: () -> Unit,
 //    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: (DialogState) -> Unit,
+    updateConversationArchiveStatus: (DialogState) -> Unit,
     clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
@@ -92,7 +92,7 @@ internal fun ConversationMainSheetContent(
             customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            if (conversationSheetContent.canEditNotifications()) {
+            if (conversationSheetContent.canEditNotifications() && !conversationSheetContent.isArchived) {
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
@@ -139,17 +139,25 @@ internal fun ConversationMainSheetContent(
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_archive,
-                            contentDescription = stringResource(R.string.content_description_move_to_archive),
+                            contentDescription = stringResource(
+                                if (conversationSheetContent.isArchived) R.string.content_description_unarchive
+                                else R.string.content_description_move_to_archive
+                            ),
                         )
                     },
-                    title = stringResource(R.string.label_move_to_archive),
+                    title = stringResource(
+                        if (!conversationSheetContent.isArchived) R.string.label_move_to_archive
+                        else R.string.label_unarchive
+                    ),
                     onItemClick = {
                         with(conversationSheetContent) {
-                            moveConversationToArchive(
+                            updateConversationArchiveStatus(
                                 DialogState(
-                                    conversationId,
-                                    title,
-                                    conversationTypeDetail
+                                    conversationId = conversationId,
+                                    conversationName = title,
+                                    conversationTypeDetail = conversationTypeDetail,
+                                    isArchived = isArchived,
+                                    isMember = conversationSheetContent.selfRole != null
                                 )
                             )
                         }
@@ -167,9 +175,11 @@ internal fun ConversationMainSheetContent(
                     onItemClick = {
                         clearConversationContent(
                             DialogState(
-                                conversationSheetContent.conversationId,
-                                conversationSheetContent.title,
-                                conversationSheetContent.conversationTypeDetail
+                                conversationId = conversationSheetContent.conversationId,
+                                conversationName = conversationSheetContent.title,
+                                conversationTypeDetail = conversationSheetContent.conversationTypeDetail,
+                                isArchived = conversationSheetContent.isArchived,
+                                isMember = conversationSheetContent.selfRole != null
                             )
                         )
                     }

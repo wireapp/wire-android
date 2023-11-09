@@ -71,6 +71,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
@@ -100,6 +101,7 @@ internal fun WireTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderAlignment: Alignment.Horizontal = Alignment.Start,
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -162,6 +164,7 @@ internal fun WireTextField(
                     placeholderText,
                     state,
                     placeholderTextStyle,
+                    placeholderAlignment,
                     inputMinHeight,
                     colors,
                     shouldDetectTaps,
@@ -227,6 +230,7 @@ private fun InnerText(
     placeholderText: String? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
+    placeholderAlignment: Alignment.Horizontal = Alignment.Start,
     inputMinHeight: Dp = 48.dp,
     colors: WireTextFieldColors = wireTextFieldColors(),
     shouldDetectTaps: Boolean = false,
@@ -254,26 +258,27 @@ private fun InnerText(
                 Tint(contentColor = colors.iconColor(state).value, content = leadingIcon)
             }
         }
-        Box(Modifier.weight(1f)) {
-            val padding = Modifier.padding(
-                start = if (leadingIcon == null) 16.dp else 0.dp,
-                end = if (trailingOrStateIcon == null) 16.dp else 0.dp,
-                top = 2.dp, bottom = 2.dp
-            )
+
+        Box(
+            Modifier
+                .weight(1f)
+                .padding(
+                    start = if (leadingIcon == null) 16.dp else 0.dp,
+                    end = if (trailingOrStateIcon == null) 16.dp else 0.dp,
+                    top = 2.dp, bottom = 2.dp
+                )
+        ) {
             if (value.text.isEmpty() && placeholderText != null) {
                 Text(
                     text = placeholderText,
                     style = placeholderTextStyle,
                     color = colors.placeholderColor(state).value,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .then(padding)
+                        .align(placeholderAlignment.toAlignment())
                 )
             }
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(padding),
+                modifier = Modifier.fillMaxWidth(),
                 propagateMinConstraints = true
             ) {
                 innerTextField()
@@ -285,6 +290,10 @@ private fun InnerText(
             }
         }
     }
+}
+
+private fun Alignment.Horizontal.toAlignment(): Alignment = Alignment { size, space, layoutDirection ->
+    IntOffset(this@toAlignment.align(size.width, space.width, layoutDirection), 0)
 }
 
 @Preview(name = "Default WireTextField")

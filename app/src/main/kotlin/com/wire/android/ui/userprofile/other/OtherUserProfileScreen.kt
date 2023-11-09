@@ -75,11 +75,13 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -87,10 +89,10 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
+import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -127,6 +129,21 @@ fun OtherUserProfileScreen(
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
 
+    val conversationId = viewModel.state.conversationId
+        ?: viewModel.state.conversationSheetContent?.conversationId
+    val shouldShowSearchButton = viewModel.shouldShowSearchButton(conversationId = conversationId)
+    val onSearchConversationMessagesClick: () -> Unit = {
+        conversationId?.let {
+            navigator.navigate(
+                NavigationCommand(
+                    SearchConversationMessagesScreenDestination(
+                        conversationId = it
+                    )
+                )
+            )
+        }
+    }
+
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
@@ -142,6 +159,8 @@ fun OtherUserProfileScreen(
         },
         onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
         onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
+        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+        shouldShowSearchButton = shouldShowSearchButton,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
     )
@@ -174,6 +193,8 @@ fun OtherProfileScreenContent(
     onIgnoreConnectionRequest: (String) -> Unit = { },
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
+    onSearchConversationMessagesClick: () -> Unit,
+    shouldShowSearchButton: Boolean,
     navigateBack: () -> Unit = {}
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
@@ -181,6 +202,7 @@ fun OtherProfileScreenContent(
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
+    val archivingConversationDialogState = rememberVisibilityState<DialogState>()
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
     val bottomSheetState = remember { OtherUserBottomSheetState() }
     bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
@@ -234,6 +256,7 @@ fun OtherProfileScreenContent(
         unblockUserDialogState.dismiss()
         removeMemberDialogState.dismiss()
         clearConversationDialogState.dismiss()
+        archivingConversationDialogState.dismiss()
     }
 
     CollapsingTopBarScaffold(
@@ -246,7 +269,13 @@ fun OtherProfileScreenContent(
                 openConversationBottomSheet = openConversationBottomSheet
             )
         },
-        topBarCollapsing = { TopBarCollapsing(state) },
+        topBarCollapsing = {
+            TopBarCollapsing(
+                state = state,
+                onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                shouldShowSearchButton = shouldShowSearchButton
+            )
+        },
         topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
         content = {
             Content(
@@ -283,6 +312,7 @@ fun OtherProfileScreenContent(
                 blockUser = blockUserDialogState::show,
                 unblockUser = unblockUserDialogState::show,
                 clearContent = clearConversationDialogState::show,
+                archivingStatusState = archivingConversationDialogState::show,
                 closeBottomSheet = closeBottomSheet,
             )
         }
@@ -309,6 +339,10 @@ fun OtherProfileScreenContent(
         onClearConversationContent = {
             bottomSheetEventsHandler.onClearConversationContent(it)
         }
+    )
+    ArchiveConversationDialog(
+        dialogState = archivingConversationDialogState,
+        onArchiveButtonClicked = bottomSheetEventsHandler::onMoveConversationToArchive
     )
 }
 
@@ -337,8 +371,15 @@ private fun TopBarHeader(
 }
 
 @Composable
-private fun TopBarCollapsing(state: OtherUserProfileState) {
-    Crossfade(targetState = state, label = "OtherUserProfileScreenTopBarCollapsing") { targetState ->
+private fun TopBarCollapsing(
+    state: OtherUserProfileState,
+    onSearchConversationMessagesClick: () -> Unit,
+    shouldShowSearchButton: Boolean
+) {
+    Crossfade(
+        targetState = state,
+        label = "OtherUserProfileScreenTopBarCollapsing"
+    ) { targetState ->
         UserProfileInfo(
             userId = targetState.userId,
             isLoading = targetState.isAvatarLoading,
@@ -349,7 +390,10 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
             membership = targetState.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = targetState.connectionState
+            connection = targetState.connectionState,
+            isProteusVerified = targetState.isProteusVerified,
+            onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+            shouldShowSearchButton = shouldShowSearchButton
         )
     }
 }
@@ -403,6 +447,7 @@ private fun Content(
         Column {
             if (!state.isDataLoading) {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
+                OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }
             when {
                 state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
@@ -496,13 +541,17 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 fun PreviewOtherProfileScreenContent() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
-            NavigationIconType.Back,
-            false,
-            rememberWireModalSheetState(),
-            {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileBottomSheetEventsHandler.PREVIEW
+            scope = rememberCoroutineScope(),
+            state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
+            navigationIconType = NavigationIconType.Back,
+            requestInProgress = false,
+            sheetState = rememberWireModalSheetState(),
+            openBottomSheet = {},
+            closeBottomSheet = {},
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            onSearchConversationMessagesClick = {},
+            shouldShowSearchButton = false
         )
     }
 }
@@ -513,13 +562,17 @@ fun PreviewOtherProfileScreenContent() {
 fun PreviewOtherProfileScreenContentNotConnected() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
-            NavigationIconType.Back,
-            false,
-            rememberWireModalSheetState(),
-            {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            scope = rememberCoroutineScope(),
+            state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
+            navigationIconType = NavigationIconType.Back,
+            requestInProgress = false,
+            sheetState = rememberWireModalSheetState(),
+            openBottomSheet = {},
+            closeBottomSheet = {},
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            onSearchConversationMessagesClick = {},
+            shouldShowSearchButton = false
         )
     }
 }

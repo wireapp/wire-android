@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
@@ -40,6 +41,7 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -48,6 +50,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -56,7 +59,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.IsUserLoggedInUseCase
 import com.wire.kalium.logic.feature.user.UpdateLoggedInUsersCountUseCase
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -76,6 +78,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -112,6 +115,7 @@ class WireActivityViewModel @Inject constructor(
     private val isUserLoggedIn: IsUserLoggedInUseCase,
     private val updateLoggedInUsersCount: UpdateLoggedInUsersCountUseCase,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
+    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -148,6 +152,7 @@ class WireActivityViewModel @Inject constructor(
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
+        observeAppThemeState()
         observeAccounts()
     }
 
@@ -156,6 +161,16 @@ class WireActivityViewModel @Inject constructor(
             observeValidAccounts().distinctUntilChanged().collectLatest {
                 updateLoggedInUsersCount(it.size)
             }
+        }
+    }
+
+    private fun observeAppThemeState() {
+        viewModelScope.launch(dispatchers.io()) {
+            globalDataStore.selectedThemeOptionFlow()
+                .distinctUntilChanged()
+                .collect {
+                    globalAppState = globalAppState.copy(themeOption = it)
+                }
         }
     }
 
@@ -509,6 +524,7 @@ data class GlobalAppState(
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
+    val themeOption: ThemeOption = ThemeOption.SYSTEM
 )
 
 enum class InitialAppState {

@@ -26,12 +26,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,10 +40,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -51,6 +53,7 @@ import com.wire.android.ui.theme.wireTypography
 fun AttachmentButton(
     text: String = "",
     @DrawableRes icon: Int,
+    labelStyle: TextStyle,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -78,19 +81,22 @@ fun AttachmentButton(
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onPrimaryButtonEnabled)
             )
         }
+        VerticalSpace.x4()
+        Spacer(modifier = Modifier.weight(1F))
         Text(
             text = text,
             maxLines = 2,
             textAlign = TextAlign.Center,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.wireTypography.button03,
+            style = labelStyle,
             color = MaterialTheme.wireColorScheme.onBackground,
         )
+        Spacer(modifier = Modifier.weight(1F))
     }
 }
 
+// This composable has not fixed height to adapt to GridView in [AttachmentOptionsComponent]
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {
-    AttachmentButton("Share Location", R.drawable.ic_location) { }
+    AttachmentButton("Share Location", R.drawable.ic_location, MaterialTheme.wireTypography.button03) { }
 }

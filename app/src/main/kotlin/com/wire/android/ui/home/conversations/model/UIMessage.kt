@@ -193,6 +193,8 @@ sealed class UILastMessageContent {
     data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
+
+    data class VerificationChanged(@StringRes val textResId: Int) : UILastMessageContent()
 }
 
 sealed class UIMessageContent {
@@ -273,9 +275,9 @@ sealed class UIMessageContent {
         @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {
 
-        data class Knock(val author: UIText) : SystemMessage(
+        data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
-            R.string.label_message_knock
+            if (isSelfTriggered) R.string.label_system_message_self_user_knock else R.string.label_system_message_other_user_knock
         )
 
         data class MemberAdded(
@@ -403,11 +405,33 @@ sealed class UIMessageContent {
             }
         )
 
-        class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
         class MLSWrongEpochWarning : SystemMessage(
             iconResId = R.drawable.ic_info,
             stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
             isSmallIcon = true
+        )
+
+        data class ConversationProtocolChanged(
+            val protocol: Conversation.Protocol
+        ) : SystemMessage(
+            R.drawable.ic_info,
+            when (protocol) {
+                Conversation.Protocol.PROTEUS -> R.string.label_system_message_conversation_protocol_changed_proteus
+                Conversation.Protocol.MIXED -> R.string.label_system_message_conversation_protocol_changed_mixed
+                Conversation.Protocol.MLS -> R.string.label_system_message_conversation_protocol_changed_mls
+            }
+        )
+
+        object HistoryLost : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_history_lost,
+            true
+        )
+
+        object HistoryLostProtocolChanged : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_history_lost_protocol_changed,
+            true
         )
 
         data class ConversationMessageCreated(
@@ -446,7 +470,20 @@ sealed class UIMessageContent {
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
             if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_shield_holo,
-            R.string.label_system_message_conversation_degraded
+            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
+            else R.string.label_system_message_conversation_degraded_proteus
+        )
+
+        data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
+            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+            else R.drawable.ic_certificate_valid_proteus,
+            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+            else R.string.label_system_message_conversation_verified_proteus
+        )
+
+        data object ConversationMessageCreatedUnverifiedWarning : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_started_sensitive_information
         )
     }
 }

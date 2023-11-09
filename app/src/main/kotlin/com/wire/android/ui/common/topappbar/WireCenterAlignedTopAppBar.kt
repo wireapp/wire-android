@@ -39,12 +39,41 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireCenterAlignedTopAppBar(
     title: String,
     titleStyle: TextStyle = MaterialTheme.wireTypography.title01,
     maxLines: Int = 2,
+    subtitleContent: @Composable ColumnScope.() -> Unit = {},
+    onNavigationPressed: () -> Unit = {},
+    navigationIconType: NavigationIconType? = NavigationIconType.Back,
+    elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
+    actions: @Composable RowScope.() -> Unit = {},
+    modifier: Modifier = Modifier,
+    bottomContent: @Composable ColumnScope.() -> Unit = {}
+) {
+    WireCenterAlignedTopAppBar(
+        titleContent = {
+            WireTopAppBarTitle(
+                title = title,
+                style = titleStyle,
+                maxLines = maxLines
+            )
+        },
+        subtitleContent = subtitleContent,
+        onNavigationPressed = onNavigationPressed,
+        navigationIconType = navigationIconType,
+        elevation = elevation,
+        actions = actions,
+        modifier = modifier,
+        bottomContent = bottomContent
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WireCenterAlignedTopAppBar(
+    titleContent: @Composable ColumnScope.() -> Unit,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back,
@@ -62,11 +91,7 @@ fun WireCenterAlignedTopAppBar(
             CenterAlignedTopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        WireTopAppBarTitle(
-                            title = title,
-                            style = titleStyle,
-                            maxLines = maxLines
-                        )
+                        titleContent()
                         subtitleContent()
                     }
                 },

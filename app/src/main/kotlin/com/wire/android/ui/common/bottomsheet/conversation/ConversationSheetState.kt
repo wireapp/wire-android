@@ -75,10 +75,15 @@ fun rememberConversationSheetState(
                         isCreator = isSelfUserCreator
                     ),
                     isTeamConversation = teamId != null,
-                    selfRole = selfMemberRole
+                    selfRole = selfMemberRole,
+                    isArchived = conversationItem.isArchived,
+                    protocol = Conversation.ProtocolInfo.Proteus,
+                    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
                 )
             }
         }
+
         is ConversationItem.PrivateConversation -> {
             with(conversationItem) {
                 ConversationSheetContent(
@@ -93,10 +98,15 @@ fun rememberConversationSheetState(
                         blockingState
                     ),
                     isTeamConversation = isTeamConversation,
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversationItem.isArchived,
+                    protocol = Conversation.ProtocolInfo.Proteus,
+                    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
                 )
             }
         }
+
         is ConversationItem.ConnectionConversation -> {
             with(conversationItem) {
                 ConversationSheetContent(
@@ -107,7 +117,11 @@ fun rememberConversationSheetState(
                         userAvatarData.asset
                     ),
                     isTeamConversation = isTeamConversation,
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversationItem.isArchived,
+                    protocol = Conversation.ProtocolInfo.Proteus,
+                    mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
                 )
             }
         }

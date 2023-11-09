@@ -39,8 +39,8 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.snackbar.collectAndShowSnackbar
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId

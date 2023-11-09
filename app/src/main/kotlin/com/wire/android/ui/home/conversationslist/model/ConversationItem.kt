@@ -39,21 +39,27 @@ sealed class ConversationItem {
     abstract val lastMessageContent: UILastMessageContent?
     abstract val badgeEventType: BadgeEventType
     abstract val teamId: TeamId?
+    abstract val isArchived: Boolean
+    abstract val mlsVerificationStatus: Conversation.VerificationStatus
+    abstract val proteusVerificationStatus: Conversation.VerificationStatus
 
     val isTeamConversation get() = teamId != null
 
     data class GroupConversation(
         val groupName: String,
+        val hasOnGoingCall: Boolean = false,
+        val isSelfUserCreator: Boolean = false,
+        val selfMemberRole: Conversation.Member.Role?,
+        val isSelfUserMember: Boolean = true,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val teamId: TeamId?,
-        val hasOnGoingCall: Boolean = false,
-        val isSelfUserCreator: Boolean = false,
-        val selfMemberRole: Conversation.Member.Role?,
-        val isSelfUserMember: Boolean = true,
+        override val isArchived: Boolean,
+        override val mlsVerificationStatus: Conversation.VerificationStatus,
+        override val proteusVerificationStatus: Conversation.VerificationStatus
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -66,7 +72,10 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
-        override val teamId: TeamId?
+        override val teamId: TeamId?,
+        override val isArchived: Boolean,
+        override val mlsVerificationStatus: Conversation.VerificationStatus,
+        override val proteusVerificationStatus: Conversation.VerificationStatus
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -77,8 +86,11 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
+        override val isArchived: Boolean = false,
     ) : ConversationItem() {
         override val teamId: TeamId? = null
+        override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        override val proteusVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
     }
 }
 
@@ -107,7 +119,9 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership,
-        unavailable = conversationInfo.isSenderUnavailable
+        unavailable = conversationInfo.isSenderUnavailable,
+        mlsVerificationStatus = mlsVerificationStatus,
+        proteusVerificationStatus = proteusVerificationStatus
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

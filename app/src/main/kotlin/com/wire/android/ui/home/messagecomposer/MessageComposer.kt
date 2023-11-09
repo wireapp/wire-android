@@ -63,9 +63,10 @@ import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
 @Composable
@@ -78,7 +79,8 @@ fun MessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?
+    tempWritableImageUri: Uri?,
+    onTypingEvent: (TypingIndicatorMode) -> Unit
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -132,7 +134,8 @@ fun MessageComposer(
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     tempWritableVideoUri = tempWritableVideoUri,
-                    tempWritableImageUri = tempWritableImageUri
+                    tempWritableImageUri = tempWritableImageUri,
+                    onTypingEvent = onTypingEvent
                 )
             }
         }
@@ -221,6 +224,7 @@ fun MessageComposerPreview() {
         onClearMentionSearchResult = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
-        tempWritableImageUri = null
+        tempWritableImageUri = null,
+        onTypingEvent = { }
     )
 }

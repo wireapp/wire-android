@@ -30,8 +30,8 @@ import androidx.compose.ui.platform.LocalDensity
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 
 @Suppress("LongParameterList")
 @Composable
@@ -138,7 +138,6 @@ class MessageComposerStateHolder(
     fun showAdditionalOptionsMenu() {
         messageCompositionInputStateHolder.showOptions()
         additionalOptionStateHolder.showAdditionalOptionsMenu()
-        messageCompositionInputStateHolder.clearFocus()
     }
 
     fun clearMessage() {

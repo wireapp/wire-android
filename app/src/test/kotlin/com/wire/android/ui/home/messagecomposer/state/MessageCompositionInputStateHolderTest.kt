@@ -4,7 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -69,7 +69,12 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset increases and is bigger than previous and options height, options height is updated`() {
         // When
-        state.handleOffsetChange(50.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            50.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.optionsHeight shouldBeEqualTo 50.dp
@@ -82,7 +87,12 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
-        state.handleOffsetChange(20.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            20.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.optionsHeight shouldBeEqualTo 20.dp
@@ -94,7 +104,12 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
-        state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            0.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.optionsVisible shouldBeEqualTo false
@@ -107,7 +122,12 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(keyboardHeight = 30.dp)
 
         // When
-        state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            30.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.subOptionsVisible shouldBeEqualTo false
@@ -119,7 +139,12 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(keyboardHeight = 20.dp)
 
         // When
-        state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            30.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.keyboardHeight shouldBeEqualTo 30.dp
@@ -131,7 +156,12 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp, keyboardHeight = 20.dp)
 
         // When
-        state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            30.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.keyboardHeight shouldBeEqualTo 30.dp
@@ -149,7 +179,12 @@ class MessageCompositionInputStateHolderTest {
         )
 
         // When
-        state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            30.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.optionsHeight shouldBeEqualTo 10.dp
@@ -166,7 +201,12 @@ class MessageCompositionInputStateHolderTest {
         )
 
         // When
-        state.handleOffsetChange(30.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            30.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.optionsHeight shouldBeEqualTo 30.dp
@@ -178,11 +218,44 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp)
 
         // When
-        state.handleOffsetChange(40.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            40.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.keyboardHeight shouldBeEqualTo 40.dp
         state.optionsHeight shouldBeEqualTo 0.dp
+    }
+
+    @Test
+    fun `given first keyboard appear when source equals target, then initialKeyboardHeight is set`() {
+        // Given
+        val imeValue = 50.dp
+        state.updateValuesForTesting(initialKeyboardHeight = 0.dp)
+
+        // When
+        state.handleOffsetChange(20.dp, NAVIGATION_BAR_HEIGHT, source = imeValue, target = imeValue)
+
+        // Then
+        state.initialKeyboardHeight shouldBeEqualTo imeValue
+    }
+
+    @Test
+    fun `given extended keyboard height when attachment button is clicked, then keyboardHeight is set to initialKeyboardHeight`() {
+        // Given
+        val initialKeyboardHeight = 10.dp
+        state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp, initialKeyboardHeight = initialKeyboardHeight)
+
+        // When
+        state.showOptions()
+        state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
+
+        // Then
+        state.keyboardHeight shouldBeEqualTo 20.dp
+        state.optionsHeight shouldBeEqualTo initialKeyboardHeight
     }
 
     @Test
@@ -191,7 +264,12 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
-        state.handleOffsetChange(10.dp, NAVIGATION_BAR_HEIGHT)
+        state.handleOffsetChange(
+            10.dp,
+            NAVIGATION_BAR_HEIGHT,
+            SOURCE,
+            TARGET
+        )
 
         // Then
         state.optionsHeight shouldBeEqualTo 10.dp
@@ -202,5 +280,7 @@ class MessageCompositionInputStateHolderTest {
     companion object {
         // I set it 0 to make tests more straight forward
         val NAVIGATION_BAR_HEIGHT = 0.dp
+        val SOURCE = 0.dp
+        val TARGET = 50.dp
     }
 }

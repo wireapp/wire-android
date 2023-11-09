@@ -22,7 +22,10 @@ import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
+import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -30,6 +33,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -40,7 +44,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val fingerprintUseCase: ClientFingerprintUseCase,
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
-    private val observeUserInfo: ObserveUserInfoUseCase
+    private val observeUserInfo: ObserveUserInfoUseCase,
+    private val e2eiCertificate: GetE2eiCertificateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
@@ -54,6 +59,7 @@ class DeviceDetailsViewModel @Inject constructor(
         observeDeviceDetails()
         getClientFingerPrint()
         observeUserName()
+        getE2eiCertificate()
     }
 
     private val isSelfClient: Boolean
@@ -67,6 +73,7 @@ class DeviceDetailsViewModel @Inject constructor(
                         GetUserInfoResult.Failure -> {
                             /* no-op */
                         }
+
                         is GetUserInfoResult.Success -> state = state.copy(userName = result.otherUser.name)
                     }
                 }
@@ -74,11 +81,29 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun getE2eiCertificate() {
+        viewModelScope.launch {
+            val certificate = e2eiCertificate(deviceId)
+            state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+                state.copy(
+                    isE2eiCertificateActivated = true,
+                    e2eiCertificate = certificate.certificate
+                )
+            } else {
+                state.copy(isE2eiCertificateActivated = false)
+            }
+        }
+    }
+
+    fun enrollE2eiCertificate() {
+        // TODO invoke correspondent use case
+    }
+
     private fun getClientFingerPrint() {
         viewModelScope.launch {
             state = when (val result = fingerprintUseCase(userId, deviceId)) {
-                is ClientFingerprintUseCase.Result.Failure -> state.copy(fingerPrint = null)
-                is ClientFingerprintUseCase.Result.Success -> state.copy(fingerPrint = result.fingerprint.decodeToString())
+                is Result.Failure -> state.copy(fingerPrint = null)
+                is Result.Success -> state.copy(fingerPrint = result.fingerprint.decodeToString())
             }
         }
     }

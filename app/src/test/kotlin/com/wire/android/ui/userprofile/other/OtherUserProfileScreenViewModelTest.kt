@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -193,7 +194,7 @@ class OtherUserProfileScreenViewModelTest {
     @Test
     fun `given not connected user, then direct conversation is not found`() = runTest {
         // given
-        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM)
             )
@@ -222,7 +223,9 @@ class OtherUserProfileScreenViewModelTest {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             botService = null,
             deleted = false,
-            defederated = false
+            defederated = false,
+            isProteusVerified = false,
+            supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
         val TEAM = Team("some_id", "name", "icon")
         val CONVERSATION = Conversation(
@@ -243,7 +246,9 @@ class OtherUserProfileScreenViewModelTest {
             messageTimer = null,
             userMessageTimer = null,
             archived = false,
-            archivedDateTime = null
+            archivedDateTime = null,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

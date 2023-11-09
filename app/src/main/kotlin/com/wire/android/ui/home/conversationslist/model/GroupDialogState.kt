@@ -31,5 +31,7 @@ data class GroupDialogState(
 data class DialogState(
     val conversationId: ConversationId,
     val conversationName: String,
-    val conversationTypeDetail: ConversationTypeDetail
+    val conversationTypeDetail: ConversationTypeDetail,
+    val isArchived: Boolean,
+    val isMember: Boolean
 )

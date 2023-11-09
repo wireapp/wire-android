@@ -25,10 +25,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
-import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
@@ -77,10 +75,10 @@ class UserDebugViewModel
         }
         if (isEnabled) {
             logFileWriter.start()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
         } else {
             logFileWriter.stop()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
         }
     }
 

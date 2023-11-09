@@ -28,7 +28,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

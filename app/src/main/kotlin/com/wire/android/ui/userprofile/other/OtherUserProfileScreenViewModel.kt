@@ -54,6 +54,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
@@ -295,18 +296,29 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
-    override fun onMoveConversationToArchive(conversationId: ConversationId, shouldArchiveConversation: Boolean) {
+    override fun onMoveConversationToArchive(dialogState: DialogState) {
         viewModelScope.launch {
+            val shouldArchive = !dialogState.isArchived
             requestInProgress = true
-            val result = withContext(dispatchers.io()) { updateConversationArchivedStatus(conversationId, shouldArchiveConversation) }
+            val result = withContext(dispatchers.io()) {
+                updateConversationArchivedStatus(
+                    conversationId = dialogState.conversationId,
+                    shouldArchiveConversation = shouldArchive,
+                    onlyLocally = !dialogState.isMember
+                )
+            }
             requestInProgress = false
             when (result) {
                 ArchiveStatusUpdateResult.Failure -> {
-                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationError)
+                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationError(shouldArchive))
                 }
 
                 ArchiveStatusUpdateResult.Success -> {
-                    closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ArchiveConversationSuccess)
+                    closeBottomSheetAndShowInfoMessage(
+                        OtherUserProfileInfoMessageType.ArchiveConversationSuccess(
+                            shouldArchive
+                        )
+                    )
                 }
             }
         }
@@ -361,6 +373,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             groupState = groupInfo,
             botService = otherUser.botService,
             blockingState = otherUser.BlockState,
+            isProteusVerified = otherUser.isProteusVerified,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),
@@ -372,9 +385,20 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         otherUser.BlockState
                     ),
                     isTeamConversation = conversation.isTeamGroup(),
-                    selfRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member,
+                    isArchived = conversation.archived,
+                    protocol = conversation.protocol,
+                    mlsVerificationStatus = conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = conversation.proteusVerificationStatus
                 )
             }
         )
     }
+
+    fun shouldShowSearchButton(conversationId: ConversationId?): Boolean =
+        conversationId != null && state.connectionState in listOf(
+            ConnectionState.ACCEPTED,
+            ConnectionState.BLOCKED,
+            ConnectionState.MISSING_LEGALHOLD_CONSENT
+        )
 }

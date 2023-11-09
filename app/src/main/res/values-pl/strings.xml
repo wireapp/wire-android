@@ -49,7 +49,8 @@
     <string name="label_message_receive_failure">B&#322;&#261;d Pobierania</string>
     <string name="label_message_decryption_failure_message">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; odszyfrowana.</string>
     <string name="label_message_decryption_failure_informative_message">Spr&#243;buj zresetowa&#263; sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania.</string>
-    <string name="label_message_knock">%s zaczepi&#322;(a)</string>
+    <string name="label_system_message_self_user_knock">%s pinged</string>
+    <string name="label_system_message_other_user_knock">%s pinged</string>
     <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
@@ -97,6 +98,7 @@
     <string name="content_description_add_to_favourite">Dodaj do ulubionych</string>
     <string name="content_description_move_to_folder">Przenie&#347; do folderu</string>
     <string name="content_description_move_to_archive">Przenie&#347; do archiwum</string>
+    <string name="content_description_unarchive">Unarchive</string>
     <string name="content_description_block_the_user">Zablokuj u&#380;ytkownika</string>
     <string name="content_description_unblock_the_user">Odblokuj u&#380;ytkownika</string>
     <string name="content_description_leave_the_group">Opu&#347;&#263; grup&#281;</string>
@@ -171,10 +173,13 @@
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Skrytka</string>
     <string name="archive_screen_title">Archiwum</string>
+    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
     <string name="user_profile_screen_title">Profil U&#380;ytkownika</string>
     <string name="settings_screen_title">Ustawienia</string>
     <string name="app_settings_screen_title">Ustawienia Aplikacji</string>
@@ -186,8 +191,8 @@
     <string name="search_bar_conversations_hint">Szukaj rozm&#243;w</string>
     <string name="search_no_results">Brak wynik&#243;w</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s New</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s new Android App!</string>
+    <string name="whats_new_screen_title">What\'s new</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
     <string name="whats_new_release_notes_group_title">Release Notes</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
@@ -386,7 +391,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="asset_message_tap_to_download_text">Kliknij, aby pobra&#263;</string>
     <string name="asset_message_upload_in_progress_text">&#321;adowanie...</string>
     <string name="asset_message_download_in_progress_text">Pobieranie...</string>
-    <string name="asset_message_downloaded_internally_text">Pobrane</string>
+    <string name="asset_message_downloaded_internally_text">Tap to view</string>
     <string name="asset_message_saved_externally_text">Zapisane</string>
     <string name="asset_message_failed_download_text">Plik jest niedost&#281;pny</string>
     <string name="asset_message_failed_upload_text">&#321;adowanie pliku nie powiod&#322;o si&#281;</string>
@@ -499,6 +504,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_add_to_favourites">Dodaj do ulubionych</string>
     <string name="label_move_to_folder">Przenie&#347; do folderu</string>
     <string name="label_move_to_archive">Przenie&#347; do archiwum</string>
+    <string name="label_unarchive">Move out of Archive</string>
     <string name="label_clear_content">Wyczy&#347;&#263; tre&#347;&#263;...</string>
     <string name="label_block">Zablokuj</string>
     <string name="label_unblock">Odblokuj</string>
@@ -575,6 +581,10 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">Nie korzysta&#322;e&#347;(a&#347;) z tego urz&#261;dzenia przez jaki&#347; czas. Niekt&#243;re wiadomo&#347;ci mog&#261; nie by&#263; widoczne.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
     <string name="label_system_message_receipt_mode_on">w&#322;&#261;czone</string>
     <string name="label_system_message_receipt_mode_off">wy&#322;&#261;czone</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -583,7 +593,9 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_degraded">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
+    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>
@@ -676,6 +688,13 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s is typing</item>
+        <item quantity="few">%1$s and %2$d more are typing</item>
+        <item quantity="many">%1$s and %2$d more are typing</item>
+        <item quantity="other">%1$s and %2$d more are typing</item>
+    </plurals>
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTY</string>
     <string name="label_new_group">Nowa grupa</string>
@@ -721,6 +740,14 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="error_unblocking_user">Nie mo&#380;na odblokowa&#263; u&#380;ytkownika.</string>
     <string name="delete_group_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania rozmowy.</string>
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
+    <!-- Archiving -->
+    <string name="success_archiving_conversation">Conversation was archived</string>
+    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
+    <string name="error_archiving_conversation">Conversation could not be archived</string>
+    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
+    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
+    <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Otw&#243;rz konwersacj&#281;</string>
     <string name="email_label">E-mail</string>
@@ -887,6 +914,23 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
+    <string name="settings_app_lock_title">Lock with passcode</string>
+    <!--Privacy Settings, App lock -->
+    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_passcode_label">Passcode</string>
+    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
+    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="password_validation_length">At least 8 characters</string>
+    <string name="password_validation_lowercase">A lowercase character</string>
+    <string name="password_validation_uppercase">An uppercase character</string>
+    <string name="password_validation_digit">A digit</string>
+    <string name="password_validation_special_character">A special character</string>
+    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
+    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="label_turn_off">Turn Off</string>
     <!--Devices -->
     <string name="devices_title">Twoje urz&#261;dzenia</string>
     <string name="current_device_label">Bie&#380;&#261;ce urz&#261;dzenie</string>
@@ -1217,4 +1261,8 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
+    <string name="biometrics_use_passcode_button">Use passcode</string>
 </resources>

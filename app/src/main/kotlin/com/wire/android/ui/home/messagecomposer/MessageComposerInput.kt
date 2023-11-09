@@ -22,16 +22,16 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,12 +43,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -58,6 +59,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
+import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
@@ -65,9 +67,11 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun ActiveMessageComposerInput(
+    conversationId: ConversationId,
     messageComposition: MessageComposition,
     isTextExpanded: Boolean,
     inputType: MessageCompositionType,
@@ -88,7 +92,6 @@ fun ActiveMessageComposerInput(
 ) {
     Column(
         modifier = modifier
-            .wrapContentSize()
             .background(inputType.backgroundColor())
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
@@ -107,63 +110,62 @@ fun ActiveMessageComposerInput(
                 )
             }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            val stretchToMaxParentConstraintHeightOrWithInBoundary = if (isTextExpanded) {
-                Modifier.fillMaxHeight()
-            } else {
-                Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-            }.weight(1f)
 
-            if (!showOptions) {
-                AdditionalOptionButton(
-                    isSelected = false,
-                    onClick = {
-                        onPlusClick()
-                    },
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
+        val stretchToMaxParentConstraintHeightOrWithInBoundary = if (isTextExpanded) {
+            Modifier.weight(1F)
+        } else {
+            Modifier
+                .heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                .weight(1F)
+        }
+
+        if (isTextExpanded) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F)
+            ) {
+                InputContent(
+                    conversationId = conversationId,
+                    messageComposition = messageComposition,
+                    isTextExpanded = true,
+                    inputType = inputType,
+                    inputFocused = inputFocused,
+                    onMessageTextChanged = onMessageTextChanged,
+                    onSendButtonClicked = onSendButtonClicked,
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    onInputFocusedChanged = onInputFocusedChanged,
+                    onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+                    onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+                    showOptions = showOptions,
+                    onPlusClick = onPlusClick,
+                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary,
                 )
             }
-
-            MessageComposerTextInput(
-                inputFocused = inputFocused,
-                colors = inputType.inputTextColor(),
-                messageText = messageComposition.messageTextFieldValue,
-                placeHolderText = inputType.labelText(),
-                onMessageTextChanged = onMessageTextChanged,
-                singleLine = false,
-                onFocusChanged = onInputFocusedChanged,
-                onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-                onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-                modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
-            )
-
-            if (showOptions) {
-                Row(Modifier.wrapContentSize()) {
-                    if (inputType is MessageCompositionType.Composing) {
-                        when (val messageType = inputType.messageType.value) {
-                            is MessageType.Normal -> {
-                                MessageSendActions(
-                                    onSendButtonClicked = onSendButtonClicked,
-                                    sendButtonEnabled = inputType.isSendButtonEnabled
-                                )
-                            }
-
-                            is MessageType.SelfDeleting -> {
-                                SelfDeletingActions(
-                                    onSendButtonClicked = onSendButtonClicked,
-                                    sendButtonEnabled = inputType.isSendButtonEnabled,
-                                    selfDeletionTimer = messageType.selfDeletionTimer,
-                                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
-                                )
-                            }
-                        }
-                    }
-                }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                InputContent(
+                    conversationId = conversationId,
+                    messageComposition = messageComposition,
+                    isTextExpanded = false,
+                    inputType = inputType,
+                    inputFocused = inputFocused,
+                    onMessageTextChanged = onMessageTextChanged,
+                    onSendButtonClicked = onSendButtonClicked,
+                    onChangeSelfDeletionClicked,
+                    onInputFocusedChanged = onInputFocusedChanged,
+                    onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+                    onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+                    showOptions = showOptions,
+                    onPlusClick = onPlusClick,
+                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
+                )
             }
         }
         when (inputType) {
@@ -180,6 +182,78 @@ fun ActiveMessageComposerInput(
     }
 }
 
+// flexible composable to adapt when [MessageComposerTextInput] is expanded or collapsed
+@Composable
+private fun InputContent(
+    conversationId: ConversationId,
+    messageComposition: MessageComposition,
+    isTextExpanded: Boolean,
+    inputType: MessageCompositionType,
+    inputFocused: Boolean,
+    onMessageTextChanged: (TextFieldValue) -> Unit,
+    onSendButtonClicked: () -> Unit,
+    onChangeSelfDeletionClicked: () -> Unit,
+    onInputFocusedChanged: (Boolean) -> Unit,
+    onSelectedLineIndexChanged: (Int) -> Unit,
+    onLineBottomYCoordinateChanged: (Float) -> Unit,
+    showOptions: Boolean,
+    onPlusClick: () -> Unit,
+    modifier: Modifier,
+) {
+    if (!showOptions) {
+        AdditionalOptionButton(
+            isSelected = false,
+            onClick = {
+                onPlusClick()
+            },
+            modifier = Modifier.padding(start = dimensions().spacing8x)
+        )
+    }
+
+    MessageComposerTextInput(
+        inputFocused = inputFocused,
+        colors = inputType.inputTextColor(),
+        messageText = messageComposition.messageTextFieldValue,
+        placeHolderText = inputType.labelText(),
+        onMessageTextChanged = onMessageTextChanged,
+        singleLine = false,
+        onFocusChanged = onInputFocusedChanged,
+        onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+        modifier = modifier
+    )
+
+    Box(contentAlignment = Alignment.BottomEnd, modifier = if (isTextExpanded) Modifier.fillMaxWidth() else Modifier) {
+        if (isTextExpanded) {
+            Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                UsersTypingIndicatorForConversation(conversationId = conversationId)
+            }
+        }
+        if (showOptions) {
+            if (inputType is MessageCompositionType.Composing) {
+                when (val messageType = inputType.messageType.value) {
+                    is MessageType.Normal -> {
+                        MessageSendActions(
+                            onSendButtonClicked = onSendButtonClicked,
+                            sendButtonEnabled = inputType.isSendButtonEnabled
+                        )
+                    }
+
+                    is MessageType.SelfDeleting -> {
+                        SelfDeletingActions(
+                            onSendButtonClicked = onSendButtonClicked,
+                            sendButtonEnabled = inputType.isSendButtonEnabled,
+                            selfDeletionTimer = messageType.selfDeletionTimer,
+                            onChangeSelfDeletionClicked = onChangeSelfDeletionClicked
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MessageComposerTextInput(
     inputFocused: Boolean,
@@ -193,14 +267,27 @@ private fun MessageComposerTextInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    var isReadOnly by remember { mutableStateOf(false) }
 
-    var focused by remember(inputFocused) { mutableStateOf(inputFocused) }
+    LaunchedEffect(inputFocused) {
+        if (inputFocused) {
+            isReadOnly = false
+            keyboardController?.show()
+            focusRequester.requestFocus()
+        } else {
+            isReadOnly = true
+            keyboardController?.hide()
+        }
+    }
 
-    LaunchedEffect(focused) {
-        if (focused) focusRequester.requestFocus()
-        else focusManager.clearFocus()
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            onFocusChanged(true)
+        }
     }
 
     WireTextField(
@@ -212,13 +299,15 @@ private fun MessageComposerTextInput(
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
         placeholderText = " $placeHolderText",
-        modifier = modifier.then(
-            Modifier
-                .onFocusChanged { focusState ->
+        readOnly = isReadOnly,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
                     onFocusChanged(focusState.isFocused)
                 }
-                .focusRequester(focusRequester)
-        ),
+            },
+        interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )

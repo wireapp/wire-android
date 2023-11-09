@@ -20,11 +20,11 @@
 
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,6 +48,8 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
+import com.wire.android.ui.common.MLSVerifiedIcon
+import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
@@ -63,11 +65,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.ConversationVerificationStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import com.wire.kalium.logic.feature.conversation.ConversationProtocol
 
 @Composable
 fun ConversationScreenTopAppBar(
@@ -134,20 +135,11 @@ private fun ConversationScreenTopAppBarContent(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (conversationInfoViewState.verificationStatus?.status == ConversationVerificationStatus.VERIFIED) {
-                    val (iconId, contentDescriptionId) = when (conversationInfoViewState.verificationStatus.protocol) {
-                        ConversationProtocol.MLS ->
-                            R.drawable.ic_certificate_valid_mls to R.string.content_description_mls_certificate_valid
-
-                        ConversationProtocol.PROTEUS ->
-                            R.drawable.ic_certificate_valid_proteus to R.string.content_description_proteus_certificate_valid
-                    }
-                    Image(
-                        modifier = Modifier.padding(start = dimensions().spacing4x),
-                        painter = painterResource(id = iconId),
-                        contentDescription = stringResource(contentDescriptionId)
-                    )
-                }
+                VerificationIcons(
+                    conversationInfoViewState.protocolInfo,
+                    conversationInfoViewState.mlsVerificationStatus,
+                    conversationInfoViewState.proteusVerificationStatus
+                )
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -192,6 +184,32 @@ private fun ConversationScreenTopAppBarContent(
             navigationIconContentColor = MaterialTheme.colorScheme.onBackground
         )
     )
+}
+
+@Composable
+private fun RowScope.VerificationIcons(
+    protocolInfo: Conversation.ProtocolInfo?,
+    mlsVerificationStatus: Conversation.VerificationStatus?,
+    proteusVerificationStatus: Conversation.VerificationStatus?
+) {
+    val mlsIcon: @Composable () -> Unit = {
+        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+            MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
+        }
+    }
+    val proteusIcon: @Composable () -> Unit = {
+        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+            ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
+        }
+    }
+
+    if (protocolInfo is Conversation.ProtocolInfo.Proteus) {
+        proteusIcon()
+        mlsIcon()
+    } else {
+        mlsIcon()
+        proteusIcon()
+    }
 }
 
 @Composable
@@ -361,6 +379,33 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = true,
+        onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
+        isInteractionEnabled = true,
+        isSearchEnabled = false
+    )
+}
+
+@Preview("Topbar with a short conversation title and verified")
+@Composable
+fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
+    val conversationId = QualifiedID("", "")
+    ConversationScreenTopAppBarContent(
+        ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId),
+            protocolInfo = Conversation.ProtocolInfo.Proteus,
+            proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+            mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
         onJoinCallButtonClick = {},
         onPermanentPermissionDecline = {},
         isInteractionEnabled = true,

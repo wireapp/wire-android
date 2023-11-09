@@ -403,8 +403,7 @@ private fun ImportMediaContent(
                     onSearchQueryChanged(it)
                     searchBarState.searchQueryChanged(it)
                 },
-                onInputClicked = searchBarState::openSearch,
-                onCloseSearchClicked = searchBarState::closeSearch
+                onActiveChanged = searchBarState::searchActiveChanged,
             )
         }
         ConversationList(
@@ -420,7 +419,6 @@ private fun ImportMediaContent(
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
-            onOpenConversationNotificationsSettings = {},
             onJoinCall = {},
             onPermanentPermissionDecline = {}
         )

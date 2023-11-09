@@ -196,6 +196,18 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(null, viewModel.featureFlagState.e2EISnoozeInfo)
     }
 
+    @Test
+    fun givenOngoingCallEnded_thenShowDialog() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withEndCallDialog()
+            .arrange()
+
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
+    }
+
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -236,6 +248,7 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
         }
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {
@@ -256,6 +269,10 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withE2EIRequiredSettings(result: E2EIRequiredResult) = apply {
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired() } returns flowOf(result)
+        }
+
+        fun withEndCallDialog() = apply {
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf(Unit)
         }
 
         fun arrange() = this to viewModel

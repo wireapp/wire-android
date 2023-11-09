@@ -355,6 +355,11 @@ class WireActivity : AppCompatActivity() {
                     viewModel::dismissNewClientsDialog
                 )
             }
+            if (showCallEndedBecauseOfConversationDegraded) {
+                GuestCallWasEndedBecauseOfVerificationDegradedDialog(
+                    featureFlagNotificationViewModel::dismissCallEndedBecauseOfConversationDegraded
+                )
+            }
         }
     }
 

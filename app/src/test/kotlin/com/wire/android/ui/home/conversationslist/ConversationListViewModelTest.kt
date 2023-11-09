@@ -17,6 +17,7 @@
  *
  *
  */
+@file:Suppress("MaxLineLength", "MaximumLineLength")
 
 package com.wire.android.ui.home.conversationslist
 

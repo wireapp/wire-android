@@ -89,7 +89,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -628,9 +627,11 @@ private fun ConversationDetails.toConversationItem(
 }
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
-    if (connectionState == ConnectionState.SENT)
+    if (connectionState == ConnectionState.SENT) {
         BadgeEventType.SentConnectRequest
-    else BadgeEventType.ReceivedConnectionRequest
+    } else {
+        BadgeEventType.ReceivedConnectionRequest
+    }
 
 fun parsePrivateConversationEventType(
     connectionState: ConnectionState,

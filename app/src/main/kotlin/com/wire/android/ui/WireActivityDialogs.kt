@@ -246,6 +246,20 @@ fun AccountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?, navigateAway:
 }
 
 @Composable
+fun GuestCallWasEndedBecauseOfVerificationDegradedDialog(onDismiss: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = R.string.call_ended_because_of_verification_title),
+        text = stringResource(id = R.string.call_ended_because_of_verification_message),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
+}
+
+@Composable
 private fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
     appLogger.e("AccountLongedOutDialog: $reason")
     val (@StringRes title: Int, text: String) = when (reason) {

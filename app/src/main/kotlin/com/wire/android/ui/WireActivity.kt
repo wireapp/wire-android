@@ -314,6 +314,11 @@ class WireActivity : AppCompatActivity() {
                     dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
                 )
             }
+            if (showCallEndedBecauseOfConversationDegraded) {
+                GuestCallWasEndedBecauseOfVerificationDegradedDialog(
+                    featureFlagNotificationViewModel::dismissCallEndedBecauseOfConversationDegraded
+                )
+            }
         }
         UpdateAppDialog(viewModel.globalAppState.updateAppDialog, ::updateTheApp)
         JoinConversationDialog(

@@ -173,7 +173,9 @@ class ConversationListViewModel @Inject constructor(
         }
         viewModelScope.launch {
             searchQueryFlow.flatMapLatest { searchQuery ->
-                observeConversationListDetails(fromArchive = searchQuery.source == ConversationsSource.ARCHIVE)
+                observeConversationListDetails(
+                    fromArchive = searchQuery.source == ConversationsSource.ARCHIVE
+                )
                     .map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
@@ -223,12 +225,26 @@ class ConversationListViewModel @Inject constructor(
 
     // Mateusz : First iteration, just filter stuff
     // next iteration : SQL- query ?
-    private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
+    private fun searchConversation(
+        conversationDetails: List<ConversationItem>,
+        searchQuery: String
+    ): List<ConversationItem> {
         val matchingConversations = conversationDetails.filter { details ->
             when (details) {
-                is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
-                is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
-                is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
+                is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(
+                    searchQuery,
+                    true
+                )
+
+                is ConversationItem.GroupConversation -> details.groupName.contains(
+                    searchQuery,
+                    true
+                )
+
+                is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(
+                    searchQuery,
+                    true
+                )
             }
         }
         return matchingConversations
@@ -246,7 +262,10 @@ class ConversationListViewModel @Inject constructor(
         return when (source) {
             ConversationsSource.ARCHIVE -> {
                 buildMap {
-                    if (this@withFolders.isNotEmpty()) put(ConversationFolder.WithoutHeader, this@withFolders)
+                    if (this@withFolders.isNotEmpty()) put(
+                        ConversationFolder.WithoutHeader,
+                        this@withFolders
+                    )
                 }
             }
 
@@ -266,12 +285,13 @@ class ConversationListViewModel @Inject constructor(
                             BadgeEventType.UnreadReply -> true
                         }
 
-                        MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
-                            BadgeEventType.UnreadReply -> true
-                            BadgeEventType.UnreadMention -> true
-                            BadgeEventType.ReceivedConnectionRequest -> true
-                            else -> false
-                        }
+                        MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
+                            when (it.badgeEventType) {
+                                BadgeEventType.UnreadReply -> true
+                                BadgeEventType.UnreadMention -> true
+                                BadgeEventType.ReceivedConnectionRequest -> true
+                                else -> false
+                            }
 
                         MutedConversationStatus.AllMuted -> false
                     } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
@@ -280,20 +300,39 @@ class ConversationListViewModel @Inject constructor(
                 val remainingConversations = this - unreadConversations.toSet()
 
                 buildMap {
-                    if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
-                    if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                    if (unreadConversations.isNotEmpty()) put(
+                        ConversationFolder.Predefined.NewActivities,
+                        unreadConversations
+                    )
+                    if (remainingConversations.isNotEmpty()) put(
+                        ConversationFolder.Predefined.Conversations,
+                        remainingConversations
+                    )
                 }
             }
         }
     }
 
-    fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
+    fun muteConversation(
+        conversationId: ConversationId?,
+        mutedConversationStatus: MutedConversationStatus
+    ) {
         conversationId?.let {
             viewModelScope.launch {
-                when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> homeSnackBarState.emit(HomeSnackbarState.MutingOperationError)
+                when (updateConversationMutedStatus(
+                    conversationId,
+                    mutedConversationStatus,
+                    Date().time
+                )) {
+                    ConversationUpdateStatusResult.Failure -> homeSnackBarState.emit(
+                        HomeSnackbarState.MutingOperationError
+                    )
+
                     ConversationUpdateStatusResult.Success ->
-                        appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
+                        appLogger.d(
+                            "MutedStatus changed for conversation: " +
+                                    "$conversationId to $mutedConversationStatus"
+                        )
                 }
             }
         }
@@ -311,23 +350,25 @@ class ConversationListViewModel @Inject constructor(
 
     fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         this.conversationId = conversationId
-            if (conversationListCallState.hasEstablishedCall) {
-                showJoinCallAnywayDialog()
-            } else {
-                dismissJoinCallAnywayDialog()
-                viewModelScope.launch {
-                    answerCall(conversationId = conversationId)
-                }
-                onJoined(conversationId)
+        if (conversationListCallState.hasEstablishedCall) {
+            showJoinCallAnywayDialog()
+        } else {
+            dismissJoinCallAnywayDialog()
+            viewModelScope.launch {
+                answerCall(conversationId = conversationId)
             }
+            onJoined(conversationId)
+        }
     }
 
     private fun showJoinCallAnywayDialog() {
-        conversationListCallState = conversationListCallState.copy(shouldShowJoinAnywayDialog = true)
+        conversationListCallState =
+            conversationListCallState.copy(shouldShowJoinAnywayDialog = true)
     }
 
     fun dismissJoinCallAnywayDialog() {
-        conversationListCallState = conversationListCallState.copy(shouldShowJoinAnywayDialog = false)
+        conversationListCallState =
+            conversationListCallState.copy(shouldShowJoinAnywayDialog = false)
     }
 
     fun blockUser(blockUserState: BlockUserDialogState) {
@@ -340,7 +381,10 @@ class ConversationListViewModel @Inject constructor(
                 }
 
                 is BlockUserResult.Failure -> {
-                    appLogger.d("Error while blocking user ${blockUserState.userId} ; Error ${result.coreFailure}")
+                    appLogger.d(
+                        "Error while blocking user ${blockUserState.userId} ;" +
+                                " Error ${result.coreFailure}"
+                    )
                     HomeSnackbarState.BlockingUserOperationError
                 }
             }
@@ -359,7 +403,10 @@ class ConversationListViewModel @Inject constructor(
                 }
 
                 is UnblockUserResult.Failure -> {
-                    appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
+                    appLogger.e(
+                        "Error while unblocking user $userId ;" +
+                            " Error ${result.coreFailure}"
+                    )
                     homeSnackBarState.emit(HomeSnackbarState.UnblockingUserOperationError)
                 }
             }
@@ -419,7 +466,10 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToFolder(id: String = "") {
     }
 
-    fun moveConversationToArchive(dialogState: DialogState, timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()) =
+    fun moveConversationToArchive(
+        dialogState: DialogState,
+        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
+    ) =
         with(dialogState) {
             viewModelScope.launch {
                 val isArchiving = !isArchived
@@ -434,11 +484,19 @@ class ConversationListViewModel @Inject constructor(
                 requestInProgress = false
                 when (result) {
                     is ArchiveStatusUpdateResult.Failure -> {
-                        homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusError(isArchiving))
+                        homeSnackBarState.emit(
+                            HomeSnackbarState.UpdateArchivingStatusError(
+                                isArchiving
+                            )
+                        )
                     }
 
                     is ArchiveStatusUpdateResult.Success -> {
-                        homeSnackBarState.emit(HomeSnackbarState.UpdateArchivingStatusSuccess(isArchiving))
+                        homeSnackBarState.emit(
+                            HomeSnackbarState.UpdateArchivingStatusSuccess(
+                                isArchiving
+                            )
+                        )
                     }
                 }
             }
@@ -570,9 +628,15 @@ private fun ConversationDetails.toConversationItem(
 }
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
-    if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
+    if (connectionState == ConnectionState.SENT)
+        BadgeEventType.SentConnectRequest
+    else BadgeEventType.ReceivedConnectionRequest
 
-fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
+fun parsePrivateConversationEventType(
+    connectionState: ConnectionState,
+    isDeleted: Boolean,
+    eventType: BadgeEventType
+) =
     if (connectionState == ConnectionState.BLOCKED) {
         BadgeEventType.Blocked
     } else if (isDeleted) {

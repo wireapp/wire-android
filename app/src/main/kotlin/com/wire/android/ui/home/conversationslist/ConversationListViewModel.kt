@@ -86,8 +86,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -118,6 +120,7 @@ class ConversationListViewModel @Inject constructor(
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
+    var conversationListCallState by mutableStateOf(ConversationListCallState())
 
     val homeSnackBarState = MutableSharedFlow<HomeSnackbarState>()
 
@@ -148,17 +151,19 @@ class ConversationListViewModel @Inject constructor(
     var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
 
-    private fun observeEstablishedCall() = viewModelScope.launch {
+    private suspend fun observeEstablishedCall() {
         observeEstablishedCalls()
             .distinctUntilChanged()
-            .collect {
+            .collectLatest {
                 val hasEstablishedCall = it.isNotEmpty()
+                conversationListCallState = conversationListCallState.copy(
+                    hasEstablishedCall = hasEstablishedCall
+                )
                 establishedCallConversationId = if (it.isNotEmpty()) {
                     it.first().conversationId
                 } else {
                     null
                 }
-                conversationListState = conversationListState.copy(hasEstablishedCall = hasEstablishedCall)
             }
     }
 
@@ -205,11 +210,15 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun showCallingPermissionDialog() {
-        conversationListState = conversationListState.copy(shouldShowCallingPermissionDialog = true)
+        conversationListCallState = conversationListCallState.copy(
+            shouldShowCallingPermissionDialog = true
+        )
     }
 
     fun dismissCallingPermissionDialog() {
-        conversationListState = conversationListState.copy(shouldShowCallingPermissionDialog = false)
+        conversationListCallState = conversationListCallState.copy(
+            shouldShowCallingPermissionDialog = false
+        )
     }
 
     // Mateusz : First iteration, just filter stuff
@@ -302,23 +311,23 @@ class ConversationListViewModel @Inject constructor(
 
     fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         this.conversationId = conversationId
-        viewModelScope.launch {
-            if (conversationListState.hasEstablishedCall) {
+            if (conversationListCallState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
             } else {
                 dismissJoinCallAnywayDialog()
-                answerCall(conversationId = conversationId)
+                viewModelScope.launch {
+                    answerCall(conversationId = conversationId)
+                }
                 onJoined(conversationId)
             }
-        }
     }
 
     private fun showJoinCallAnywayDialog() {
-        conversationListState = conversationListState.copy(shouldShowJoinAnywayDialog = true)
+        conversationListCallState = conversationListCallState.copy(shouldShowJoinAnywayDialog = true)
     }
 
     fun dismissJoinCallAnywayDialog() {
-        conversationListState = conversationListState.copy(shouldShowJoinAnywayDialog = false)
+        conversationListCallState = conversationListCallState.copy(shouldShowJoinAnywayDialog = false)
     }
 
     fun blockUser(blockUserState: BlockUserDialogState) {

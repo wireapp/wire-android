@@ -15,19 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.unlock
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.ViewModel
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-data class EnterLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val isUnlockEnabled: Boolean = false,
-    val error: EnterLockCodeError = EnterLockCodeError.None,
-    val done: Boolean = false
-)
+@HiltViewModel
+class AppUnlockWithBiometricsViewModel @Inject constructor(
+    private val lockCodeTimeManager: LockCodeTimeManager
+) : ViewModel() {
 
-sealed class EnterLockCodeError {
-    data object None : EnterLockCodeError()
-    data object InvalidValue : EnterLockCodeError()
+    fun onAppUnlocked() {
+        lockCodeTimeManager.appUnlocked()
+    }
 }

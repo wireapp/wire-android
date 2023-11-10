@@ -15,10 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.unlock
 
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -40,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -53,15 +51,17 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
+import com.wire.android.ui.destinations.ForgotLockCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -77,41 +77,34 @@ fun EnterLockCodeScreen(
     navigator: Navigator
 ) {
     EnterLockCodeScreenContent(
-        navigator = navigator,
         state = viewModel.state,
         scrollState = rememberScrollState(),
         onPasswordChanged = viewModel::onPasswordChanged,
-        onContinue = viewModel::onContinue
+        onContinue = viewModel::onContinue,
+        onForgotCodeClicked = { navigator.navigate(NavigationCommand(ForgotLockCodeScreenDestination)) }
     )
+    BackHandler {
+        if (navigator.navController.previousBackStackEntry?.destination() is AppUnlockWithBiometricsScreenDestination) {
+            navigator.navigateBack()
+        } else {
+            navigator.finish()
+        }
+    }
+    LaunchedEffect(viewModel.state.done) {
+        if (viewModel.state.done) navigator.navigateBack()
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterLockCodeScreenContent(
-    navigator: Navigator,
     state: EnterLockCodeViewState,
     scrollState: ScrollState,
     onPasswordChanged: (TextFieldValue) -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    onForgotCodeClicked: () -> Unit,
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(state.done) {
-        if (state.done) {
-            navigator.navigateBack()
-        }
-    }
-
-    BackHandler {
-        if (navigator.navController.previousBackStackEntry?.destination() is AppUnlockWithBiometricsScreenDestination) {
-            navigator.navigateBack()
-        } else {
-            (context as AppCompatActivity).finishAffinity()
-        }
-    }
-
-    WireScaffold(
-        snackbarHost = {}
-    ) { internalPadding ->
+    WireScaffold { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -164,6 +157,13 @@ fun EnterLockCodeScreenContent(
                         Locale.getDefault()
                     )
                 )
+
+                WireTertiaryButton(
+                    text = stringResource(id = R.string.settings_enter_lock_screen_forgot_passcode_label),
+                    onClick = onForgotCodeClicked,
+                    modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)
+                )
+
                 Spacer(modifier = Modifier.weight(1f))
             }
 
@@ -211,11 +211,11 @@ private fun ContinueButton(
 fun PreviewEnterLockCodeScreen() {
     WireTheme(isPreview = true) {
         EnterLockCodeScreenContent(
-            navigator = rememberNavigator {},
             state = EnterLockCodeViewState(),
             scrollState = rememberScrollState(),
             onPasswordChanged = {},
-            onContinue = {}
+            onContinue = {},
+            onForgotCodeClicked = {}
         )
     }
 }

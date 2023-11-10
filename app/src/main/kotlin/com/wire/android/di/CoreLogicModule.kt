@@ -393,6 +393,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideMarkTeamAppLockStatusAsNotifiedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).markTeamAppLockStatusAsNotified
+
+    @ViewModelScoped
+    @Provides
     fun provideGetOtherUserSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

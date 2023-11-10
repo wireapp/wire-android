@@ -307,7 +307,6 @@
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
-
     <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
     <string name="item_subtitle_status_e2ei_certificate">Status</string>
     <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
@@ -318,7 +317,6 @@
     <string name="e2ei_certificat_status_expired">Expired</string>
     <string name="e2ei_certificat_status_revoked">Revoked</string>
     <string name="e2ei_certificat_status_not_activated">Not activated</string>
-
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -483,11 +481,11 @@
     <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Attach File</string>
-    <string name="attachment_share_image">Attach Picture</string>
-    <string name="attachment_take_photo">Take Photo</string>
-    <string name="attachment_record_video">Record Video</string>
-    <string name="attachment_voice_message">Audio Message</string>
+    <string name="attachment_share_file">File</string>
+    <string name="attachment_share_image">Gallery</string>
+    <string name="attachment_take_photo">Camera</string>
+    <string name="attachment_record_video">Video</string>
+    <string name="attachment_voice_message">Audio</string>
     <string name="attachment_share_location">Share Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
@@ -534,7 +532,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
-    <string name="label_unarchive">Move out of Archive</string>
+    <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
@@ -950,7 +948,8 @@
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
     <string name="password_validation_length">At least 8 characters</string>
     <string name="password_validation_lowercase">A lowercase character</string>
     <string name="password_validation_uppercase">An uppercase character</string>
@@ -959,6 +958,14 @@
     <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
     <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
     <string name="label_turn_off">Turn Off</string>
+    <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
+    <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
+    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode. If you have forgotten your passcode, you can reset this device.</string>
+    <string name="settings_forgot_lock_screen_warning">By resetting your device, all local data and messages for this account will be permanently deleted.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to verify you want to delete all data on this device. After deleting this device, you can login with your account credentials again.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
@@ -1275,4 +1282,6 @@
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
     <string name="e2ei_certificate_details_download">Download</string>
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
+    <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
+    <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
 </resources>

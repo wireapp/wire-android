@@ -61,9 +61,11 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -83,7 +85,7 @@ fun WireDialog(
     title: String,
     text: String,
     onDismiss: () -> Unit,
-    optionButton1Properties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
@@ -92,6 +94,7 @@ fun WireDialog(
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
+    titleLoading: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     WireDialog(
@@ -105,6 +108,7 @@ fun WireDialog(
         shape = shape,
         contentPadding = contentPadding,
         title = title,
+        titleLoading = titleLoading,
         text = buildAnnotatedString {
             val style = SpanStyle(
                 color = colorsScheme().onBackground,
@@ -120,13 +124,12 @@ fun WireDialog(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WireDialog(
     title: String,
     text: AnnotatedString? = null,
     onDismiss: () -> Unit,
-    optionButton1Properties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
@@ -135,6 +138,7 @@ fun WireDialog(
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     centerContent: Boolean = false,
+    titleLoading: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
@@ -150,6 +154,7 @@ fun WireDialog(
             shape = shape,
             contentPadding = contentPadding,
             title = title,
+            titleLoading = titleLoading,
             text = text,
             centerContent = centerContent,
             content = content
@@ -160,8 +165,9 @@ fun WireDialog(
 @Composable
 private fun WireDialogContent(
     title: String,
+    titleLoading: Boolean = false,
     text: AnnotatedString? = null,
-    optionButton1Properties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
@@ -185,16 +191,24 @@ private fun WireDialogContent(
                 .padding(contentPadding),
             horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.wireTypography.title02,
-                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.wireTypography.title02,
+                    modifier = Modifier.weight(1f)
+                )
+                if (titleLoading) {
+                    WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
+                }
+            }
             text?.let {
                 ClickableText(
                     text = text,
                     style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
+                    modifier = Modifier.padding(
+                        top = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                        bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                    ),
                     onClick = { offset ->
                         text.getStringAnnotations(
                             tag = MarkdownConstants.TAG_URL,
@@ -210,29 +224,31 @@ private fun WireDialogContent(
                 }
             }
 
+            val containsAnyButton = dismissButtonProperties != null || optionButton1Properties != null || optionButton2Properties != null
+            val dialogButtonsSpacing = if (containsAnyButton) dimensions().dialogButtonsSpacing else dimensions().spacing0x
             if (buttonsHorizontalAlignment) {
-                Row(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
+                Row(Modifier.padding(top = dialogButtonsSpacing)) {
                     dismissButtonProperties.getButton(Modifier.weight(1f))
                     if (dismissButtonProperties != null) {
-                        Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                        Spacer(Modifier.width(dialogButtonsSpacing))
                     }
                     optionButton1Properties.getButton(Modifier.weight(1f))
                     if (optionButton2Properties != null) {
-                        Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                        Spacer(Modifier.width(dialogButtonsSpacing))
                     }
                     optionButton2Properties.getButton(Modifier.weight(1f))
                 }
             } else {
-                Column(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
+                Column(Modifier.padding(top = dialogButtonsSpacing)) {
                     optionButton1Properties.getButton()
 
                     if (optionButton2Properties != null) {
-                        Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                        Spacer(Modifier.height(dialogButtonsSpacing))
                     }
                     optionButton2Properties.getButton()
 
                     if (dismissButtonProperties != null) {
-                        Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
+                        Spacer(Modifier.height(dialogButtonsSpacing))
                     }
                     dismissButtonProperties.getButton()
                 }

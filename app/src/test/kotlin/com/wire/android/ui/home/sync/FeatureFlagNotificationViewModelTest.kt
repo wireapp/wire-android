@@ -1,14 +1,15 @@
 package com.wire.android.ui.home.sync
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
@@ -195,12 +196,25 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(null, viewModel.featureFlagState.e2EISnoozeInfo)
     }
 
+    @Test
+    fun givenOngoingCallEnded_thenShowDialog() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withEndCallDialog()
+            .arrange()
+
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
+    }
+
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).appLockTeamFeatureConfigObserver() } returns flowOf()
         }
 
         @MockK
@@ -218,9 +232,13 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var markE2EIRequiredAsNotified: MarkEnablingE2EIAsNotifiedUseCase
 
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
-            currentSessionUseCase = currentSession
+            currentSessionUseCase = currentSession,
+            globalDataStore = globalDataStore
         )
 
         init {
@@ -230,6 +248,7 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
         }
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {
@@ -250,6 +269,10 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withE2EIRequiredSettings(result: E2EIRequiredResult) = apply {
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired() } returns flowOf(result)
+        }
+
+        fun withEndCallDialog() = apply {
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf(Unit)
         }
 
         fun arrange() = this to viewModel

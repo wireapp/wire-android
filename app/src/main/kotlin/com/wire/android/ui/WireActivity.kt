@@ -123,14 +123,18 @@ class WireActivity : AppCompatActivity() {
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
-        super.onCreate(savedInstanceState)
-        proximitySensorManager.initialize()
-        lifecycle.addObserver(currentScreenManager)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+    // This flag is used to keep the splash screen open until the first screen is drawn.
+    private var shouldKeepSplashOpen = true
 
-        viewModel.observePersistentConnectionStatus()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // We need to keep the splash screen open until the first screen is drawn.
+        // Otherwise a white screen is displayed.
+        // It's an API limitation, at some point we may need to remove it
+        installSplashScreen().setKeepOnScreenCondition {
+            shouldKeepSplashOpen
+        }
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val startDestination = when (viewModel.initialAppState) {
             InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
@@ -138,8 +142,12 @@ class WireActivity : AppCompatActivity() {
             InitialAppState.LOGGED_IN -> HomeScreenDestination
         }
         setComposableContent(startDestination) {
+            shouldKeepSplashOpen = false
             handleDeepLink(intent, savedInstanceState)
         }
+        lifecycle.addObserver(currentScreenManager)
+        proximitySensorManager.initialize()
+        viewModel.observePersistentConnectionStatus()
     }
 
     override fun onNewIntent(intent: Intent?) {

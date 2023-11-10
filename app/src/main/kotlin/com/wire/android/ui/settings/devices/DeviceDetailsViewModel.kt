@@ -135,16 +135,14 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun removeDevice(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            val isPasswordRequired: Boolean =
-                when (val passwordRequiredResult = isPasswordRequired()) {
-                    is IsPasswordRequiredUseCase.Result.Failure -> {
-                        state =
-                            state.copy(error = RemoveDeviceError.GenericError(passwordRequiredResult.cause))
-                        return@launch
-                    }
-
-                    is IsPasswordRequiredUseCase.Result.Success -> passwordRequiredResult.value
+            val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
+                is IsPasswordRequiredUseCase.Result.Failure -> {
+                    state = state.copy(error = RemoveDeviceError.GenericError(passwordRequiredResult.cause))
+                    return@launch
                 }
+
+                is IsPasswordRequiredUseCase.Result.Success -> passwordRequiredResult.value
+            }
             when (isPasswordRequired) {
                 true -> showDeleteClientDialog(state.device)
                 false -> deleteDevice(null, onSuccess)

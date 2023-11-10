@@ -479,7 +479,6 @@ fun previewNewClientDialog() {
 @Composable
 fun previewTestDialog() {
     WireTheme {
-        val scopedViewModelContainer: ScopedViewModelContainer = viewModel()
         FileRestrictionDialog(true) {}
     }
 }

@@ -49,7 +49,7 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
  * Custom implementation of [hiltViewModelScoped] that takes proper scoped serializable arguments that implement [ScopedArgs]
  * and provides them into scoped [ViewModel] converting it automatically to [Bundle] using [Bundlizer].
  *
- * [ViewModel] needs to implement an interface annotated with [com.wire.android.ui.scoped.preview.ViewModelScopedPreview] and with default
+ * [ViewModel] needs to implement an interface annotated with [ViewModelScopedPreview] and with default
  * implementations.
  *
  * Proper key will be taken from the [ScopedArgs.key] property.

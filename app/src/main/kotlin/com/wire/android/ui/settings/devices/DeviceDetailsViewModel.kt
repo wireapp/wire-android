@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.navigation.SavedStateViewModel
@@ -74,7 +75,8 @@ class DeviceDetailsViewModel @Inject constructor(
                             /* no-op */
                         }
 
-                        is GetUserInfoResult.Success -> state = state.copy(userName = result.otherUser.name)
+                        is GetUserInfoResult.Success -> state =
+                            state.copy(userName = result.otherUser.name)
                     }
                 }
             }
@@ -82,15 +84,17 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getE2eiCertificate() {
-        viewModelScope.launch {
-            val certificate = e2eiCertificate(deviceId)
-            state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
-                state.copy(
-                    isE2eiCertificateActivated = true,
-                    e2eiCertificate = certificate.certificate
-                )
-            } else {
-                state.copy(isE2eiCertificateActivated = false)
+        if (BuildConfig.DEBUG) {
+            viewModelScope.launch {
+                val certificate = e2eiCertificate(deviceId)
+                state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+                    state.copy(
+                        isE2eiCertificateActivated = true,
+                        e2eiCertificate = certificate.certificate
+                    )
+                } else {
+                    state.copy(isE2eiCertificateActivated = false)
+                }
             }
         }
     }
@@ -131,14 +135,16 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun removeDevice(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
-                is IsPasswordRequiredUseCase.Result.Failure -> {
-                    state = state.copy(error = RemoveDeviceError.GenericError(passwordRequiredResult.cause))
-                    return@launch
-                }
+            val isPasswordRequired: Boolean =
+                when (val passwordRequiredResult = isPasswordRequired()) {
+                    is IsPasswordRequiredUseCase.Result.Failure -> {
+                        state =
+                            state.copy(error = RemoveDeviceError.GenericError(passwordRequiredResult.cause))
+                        return@launch
+                    }
 
-                is IsPasswordRequiredUseCase.Result.Success -> passwordRequiredResult.value
-            }
+                    is IsPasswordRequiredUseCase.Result.Success -> passwordRequiredResult.value
+                }
             when (isPasswordRequired) {
                 true -> showDeleteClientDialog(state.device)
                 false -> deleteDevice(null, onSuccess)
@@ -176,7 +182,10 @@ class DeviceDetailsViewModel @Inject constructor(
                 state
             } else {
                 state.copy(
-                    removeDeviceDialogState = it.copy(password = newText, removeEnabled = newText.text.isNotEmpty()),
+                    removeDeviceDialogState = it.copy(
+                        password = newText,
+                        removeEnabled = newText.text.isNotEmpty()
+                    ),
                     error = RemoveDeviceError.None
                 )
             }

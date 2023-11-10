@@ -67,7 +67,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
@@ -849,12 +850,15 @@ fun MessageList(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
-                    uiMessage.header.messageId
-                }) { index, message ->
+                items(
+                    count = lazyPagingMessages.itemCount,
+                    key = lazyPagingMessages.itemKey { it.header.messageId },
+                    contentType = lazyPagingMessages.itemContentType { it }
+                ) { index ->
+                    val message: UIMessage? = lazyPagingMessages[index]
                     if (message == null) {
                         // We can draw a placeholder here, as we fetch the next page of messages
-                        return@itemsIndexed
+                        return@items
                     }
                     val showAuthor by remember {
                         mutableStateOf(

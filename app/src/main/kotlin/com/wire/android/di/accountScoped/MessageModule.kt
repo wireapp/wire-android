@@ -32,6 +32,7 @@ import com.wire.kalium.logic.feature.message.GetConversationMessagesFromSearchQu
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
+import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
@@ -153,4 +154,9 @@ class MessageModule {
     @Provides
     fun provideGetConversationMessagesFromSearchQueryUseCase(messageScope: MessageScope): GetConversationMessagesFromSearchQueryUseCase =
         messageScope.getConversationMessagesFromSearchQuery
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetSearchedConversationMessagePositionUseCase(messageScope: MessageScope): GetSearchedConversationMessagePositionUseCase =
+        messageScope.getSearchedConversationMessagePosition
 }

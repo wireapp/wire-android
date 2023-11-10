@@ -19,11 +19,14 @@ package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 data class SearchConversationMessagesState(
+    val conversationId: ConversationId,
     val searchQuery: TextFieldValue = TextFieldValue(""),
     val searchResult: ImmutableList<UIMessage> = persistentListOf(),
-    val isEmptyResult: Boolean = false
+    val isEmptyResult: Boolean = false,
+    val isLoading: Boolean = false
 )

@@ -58,9 +58,9 @@ import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.e2ei.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.e2ei.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.functional.onSuccess
@@ -96,7 +96,7 @@ class DebugDataOptionsViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
+    private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
     private val enrollE2EI: EnrollE2EIUseCase
 ) : ViewModel() {
 
@@ -128,9 +128,17 @@ class DebugDataOptionsViewModel
         }
     }
 
+    var enrollmentResult: E2EIEnrollmentResult.Initialized? = null
     fun enrollE2EICertificate(context: Context) {
-        val oAuth = OAuthUseCase(context)
-        oAuth.launch(context.getActivity()!!.activityResultRegistry, ::oAuthResultHandler)
+        viewModelScope.launch {
+            enrollE2EI.initialEnrollment().onSuccess {
+                if (it is E2EIEnrollmentResult.Initialized) {
+                    enrollmentResult = it
+                    val oAuth = OAuthUseCase(context, it.target)
+                    oAuth.launch(context.getActivity()!!.activityResultRegistry, ::oAuthResultHandler)
+                }
+            }
+        }
     }
 
     fun dismissCertificateDialog() {
@@ -143,8 +151,11 @@ class DebugDataOptionsViewModel
         viewModelScope.launch {
             when (oAuthResult) {
                 is OAuthUseCase.OAuthResult.Success -> {
-                    enrollE2EI.invoke(oAuthResult.idToken).onSuccess {
-                        if (it is E2EIEnrollmentResult.Success) {
+                    enrollE2EI.finalizeEnrollment(
+                        oAuthResult.idToken,
+                        enrollmentResult!!
+                    ).onSuccess {
+                        if (it is E2EIEnrollmentResult.Finalized) {
                             state = state.copy(
                                 certificate = it.certificate, showCertificate = true
                             )
@@ -244,7 +255,7 @@ fun DebugDataOptions(
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
         onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) },
-        onDisableEventProcessingChange = viewModel::disableEventProcessing
+        onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         dismissCertificateDialog = viewModel::dismissCertificateDialog
     )

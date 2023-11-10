@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,18 +33,22 @@ import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationResponse
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
+import net.openid.appauth.ClientAuthentication
+import net.openid.appauth.ClientSecretBasic
 import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.browser.BrowserAllowList
 import net.openid.appauth.browser.VersionedBrowserMatcher
 import java.security.MessageDigest
 import java.security.SecureRandom
 
-class OAuthUseCase(context: Context) {
+class OAuthUseCase(context: Context, authUrl: String) {
     private var authState: AuthState = AuthState()
     private var authorizationService: AuthorizationService
     private var authServiceConfig: AuthorizationServiceConfiguration = AuthorizationServiceConfiguration(
-        Uri.parse(URL_AUTHORIZATION), Uri.parse(URL_TOKEN_EXCHANGE), null, Uri.parse(URL_LOGOUT)
+        Uri.parse(authUrl + URL_AUTHORIZATION), Uri.parse(authUrl + URL_TOKEN_EXCHANGE), null, Uri.parse(URL_LOGOUT)
     )
+    val openIdConfigurationUrl = "https://idp.hogwash.work:5556/dex/.well-known/openid-configuration"
+
     private var appAuthConfiguration: AppAuthConfiguration = AppAuthConfiguration.Builder().setBrowserMatcher(
         BrowserAllowList(
             VersionedBrowserMatcher.CHROME_CUSTOM_TAB, VersionedBrowserMatcher.SAMSUNG_CUSTOM_TAB
@@ -52,6 +57,7 @@ class OAuthUseCase(context: Context) {
 
     init {
         authorizationService = AuthorizationService(context, appAuthConfiguration)
+
     }
 
     private fun getAuthorizationRequestIntent(): Intent =
@@ -63,6 +69,23 @@ class OAuthUseCase(context: Context) {
         ) { result ->
             handleActivityResult(result, resultHandler)
         }
+//        AuthorizationServiceConfiguration.fetchFromUrl(
+//            Uri.parse(openIdConfigurationUrl)
+//        ) { configuration, ex ->
+//            if (ex == null) {
+//                // Configuration fetched successfully, you can now use it
+//                // for your OAuth 2.0 authorization flows
+//                val authorizationEndpoint = configuration?.authorizationEndpoint.toString()
+//                val tokenEndpoint = configuration?.tokenEndpoint.toString()
+//
+//                // Now you can proceed with the authorization process
+//                authServiceConfig = configuration!!
+//            } else {
+//                // Handle the error if configuration fetching failed
+//                // Examine the 'ex' parameter for details about the error
+//            }
+//        }
+
         resultLauncher.launch(getAuthorizationRequestIntent())
     }
 
@@ -76,19 +99,23 @@ class OAuthUseCase(context: Context) {
 
     private fun handleAuthorizationResponse(intent: Intent, resultHandler: (OAuthResult) -> Unit) {
         val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
+        val clientAuth: ClientAuthentication = ClientSecretBasic("dUpVSGx2dVdFdGQ0dmsxWGhDalQ0SldU")
+
         val error = AuthorizationException.fromIntent(intent)
 
         authState = AuthState(authorizationResponse, error)
 
         val tokenExchangeRequest = authorizationResponse?.createTokenExchangeRequest()
         tokenExchangeRequest?.let { request ->
-            authorizationService.performTokenRequest(request) { response, exception ->
+
+            authorizationService.performTokenRequest(request, clientAuth) { response, exception ->
                 if (exception != null) {
                     authState = AuthState()
                     resultHandler(OAuthResult.Failed(exception.toString()))
                 } else {
                     if (response != null) {
                         authState.update(response, exception)
+                        Log.e("idToken", response.idToken.toString())
                         resultHandler(OAuthResult.Success(response.idToken.toString()))
                     } else {
                         resultHandler(OAuthResult.Failed.EmptyResponse)
@@ -139,14 +166,14 @@ class OAuthUseCase(context: Context) {
         const val SCOPE_EMAIL = "email"
         const val SCOPE_OPENID = "openid"
 
-        const val CLIENT_ID = "338888153072-4fep6tn6k16tmcbhg4nt4lr65pv3avgi.apps.googleusercontent.com"
+        const val CLIENT_ID = "wireapp"
         const val CODE_VERIFIER_CHALLENGE_METHOD = "S256"
         const val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
         val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM)
         const val ENCODING = Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
 
-        const val URL_AUTHORIZATION = "https://accounts.google.com/o/oauth2/auth"
-        const val URL_TOKEN_EXCHANGE = "https://oauth2.googleapis.com/token"
+        const val URL_AUTHORIZATION = "/auth"
+        const val URL_TOKEN_EXCHANGE = "/token"
         const val URL_AUTH_REDIRECT = "com.wire.android.internal.debug:/oauth2redirect"
         const val URL_LOGOUT = "https://accounts.google.com/o/oauth2/revoke?token="
     }

@@ -305,7 +305,6 @@
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
-
     <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
     <string name="item_subtitle_status_e2ei_certificate">Status</string>
     <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
@@ -316,7 +315,6 @@
     <string name="e2ei_certificat_status_expired">Expired</string>
     <string name="e2ei_certificat_status_revoked">Revoked</string>
     <string name="e2ei_certificat_status_not_activated">Not activated</string>
-
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -481,11 +479,11 @@
     <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Attach File</string>
-    <string name="attachment_share_image">Attach Picture</string>
-    <string name="attachment_take_photo">Take Photo</string>
-    <string name="attachment_record_video">Record Video</string>
-    <string name="attachment_voice_message">Audio Message</string>
+    <string name="attachment_share_file">File</string>
+    <string name="attachment_share_image">Gallery</string>
+    <string name="attachment_take_photo">Camera</string>
+    <string name="attachment_record_video">Video</string>
+    <string name="attachment_voice_message">Audio</string>
     <string name="attachment_share_location">Share Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
@@ -532,7 +530,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
-    <string name="label_unarchive">Move out of Archive</string>
+    <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_unblock">Unblock</string>
@@ -1281,4 +1279,6 @@
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
     <string name="e2ei_certificate_details_download">Download</string>
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
+    <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
+    <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
 </resources>

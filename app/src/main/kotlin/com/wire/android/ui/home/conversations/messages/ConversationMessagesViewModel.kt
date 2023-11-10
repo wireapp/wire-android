@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -127,7 +126,6 @@ class ConversationMessagesViewModel @Inject constructor(
 
         val paginatedMessagesFlow = getMessageForConversation(conversationId, lastReadIndex)
             .flowOn(dispatchers.io())
-            .cachedIn(this)
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,

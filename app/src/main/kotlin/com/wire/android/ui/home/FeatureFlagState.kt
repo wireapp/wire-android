@@ -28,12 +28,15 @@ data class FeatureFlagState(
     val isFileSharingEnabledState: Boolean = true,
     val fileSharingRestrictedState: SharingRestrictedState? = null,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
+    val shouldShowTeamAppLockDialog: Boolean = false,
+    val isTeamAppLockEnabled: Boolean = false,
     val isGuestRoomLinkEnabled: Boolean = true,
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
     val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
     val areSelfDeletedMessagesEnabled: Boolean = true,
     val e2EIRequired: E2EIRequired? = null,
-    val e2EISnoozeInfo: E2EISnooze? = null
+    val e2EISnoozeInfo: E2EISnooze? = null,
+    val showCallEndedBecauseOfConversationDegraded: Boolean = false
 ) {
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM

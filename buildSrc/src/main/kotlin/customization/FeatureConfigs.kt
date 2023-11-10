@@ -48,6 +48,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
     ENABLE_BLACKLIST("enable_blacklist", ConfigType.BOOLEAN),
     WEBSOCKET_ENABLED_BY_DEFAULT("websocket_enabled_by_default", ConfigType.BOOLEAN),
+    TEAM_APP_LOCK("team_app_lock", ConfigType.BOOLEAN),
+    TEAM_APP_LOCK_TIMEOUT("team_app_lock_timeout", ConfigType.INT),
 
     /**
      * Security/Cryptography stuff

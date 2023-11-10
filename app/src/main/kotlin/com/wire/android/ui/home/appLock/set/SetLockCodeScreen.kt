@@ -104,12 +104,14 @@ fun SetLockCodeScreenContent(
         }
     }
 
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPress,
-            elevation = dimensions().spacing0x,
-            title = stringResource(id = R.string.settings_set_lock_screen_title)
-        )
+    WireScaffold(
+        snackbarHost = {},
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = onBackPress,
+                elevation = dimensions().spacing0x,
+                title = stringResource(id = R.string.settings_set_lock_screen_title)
+            )
     }) { internalPadding ->
         Column(
             modifier = Modifier

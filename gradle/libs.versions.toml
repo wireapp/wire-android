@@ -13,6 +13,7 @@ ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
 google-gms = "4.4.0"
+google-services-maps = "18.2.0"
 android-gradlePlugin = "8.1.2"
 desugaring = "2.0.3"
 firebaseBOM = "32.2.3"
@@ -109,6 +110,7 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
 hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
+googleGms-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "google-services-maps" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
@@ -171,6 +173,7 @@ compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-maps = { module = "com.google.maps.android:maps-compose" }
 
 # Compose other
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }

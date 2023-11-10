@@ -65,6 +65,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-util")
 
     // Application dependencies
+    implementation(libs.googleGms.maps)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core)
     implementation(libs.androidx.browser)
@@ -115,6 +116,7 @@ dependencies {
     implementation(libs.compose.constraintLayout)
     implementation(libs.compose.runtime.liveData)
     implementation(libs.compose.destinations.core)
+    implementation(libs.compose.maps)
     ksp(libs.compose.destinations.ksp)
 
     // Accompanist

@@ -19,6 +19,7 @@ package com.wire.android.di
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -47,14 +48,21 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
 /**
  * Custom implementation of [hiltViewModelScoped] that takes proper scoped serializable arguments that implement [ScopedArgs]
  * and provides them into scoped [ViewModel] converting it automatically to [Bundle] using [Bundlizer].
+ *
+ * [ViewModel] needs to implement an interface annotated with [com.wire.android.ui.scoped.preview.ViewModelScopedPreview] and with default
+ * implementations.
+ *
  * Proper key will be taken from the [ScopedArgs.key] property.
  *
  * @param arguments The arguments that will be provided to the [ViewModel], must implement [ScopedArgs] and be serializable
  */
 @OptIn(InternalSerializationApi::class)
+@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
-inline fun <reified T : ViewModel, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): T =
-    hiltViewModelScoped(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
+inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as S }
+    else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
+}
 
 /**
  * Creates a [Bundle] with all key-values from the given [SavedStateHandle].
@@ -69,3 +77,7 @@ fun SavedStateHandle.toBundle(): Bundle = bundleOf(*(keys().map { it to get<Any>
 interface ScopedArgs {
     val key: Any?
 }
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+annotation class ViewModelScopedPreview

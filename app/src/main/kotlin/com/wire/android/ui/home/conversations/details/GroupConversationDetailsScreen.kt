@@ -526,7 +526,7 @@ enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: I
 @Preview
 @Composable
 fun PreviewGroupConversationDetails() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         GroupConversationDetailsContent(
             conversationSheetContent = null,
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,

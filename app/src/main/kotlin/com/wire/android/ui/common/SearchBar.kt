@@ -25,7 +25,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -38,9 +40,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -56,6 +58,7 @@ fun SearchBarInput(
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
 
@@ -67,13 +70,30 @@ fun SearchBarInput(
             leadingIcon()
         },
         trailingIcon = {
-            Box(modifier = Modifier.size(40.dp)) {
+            Box(
+                modifier = Modifier
+                    .width(dimensions().spacing64x)
+                    .height(dimensions().spacing40x),
+                contentAlignment = Alignment.CenterEnd
+            ) {
                 AnimatedVisibility(
                     visible = text.text.isNotBlank(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    IconButton(onClick = {
+                    if (isLoading) {
+                        WireCircularProgressIndicator(
+                            modifier = Modifier.padding(
+                                top = dimensions().spacing12x,
+                                bottom = dimensions().spacing12x,
+                                end = dimensions().spacing32x
+                            ),
+                            progressColor = MaterialTheme.wireColorScheme.onSurface
+                        )
+                    }
+                    IconButton(
+                        modifier = Modifier.padding(start = dimensions().spacing12x),
+                        onClick = {
                         onTextTyped(TextFieldValue(""))
                     }) {
                         Icon(

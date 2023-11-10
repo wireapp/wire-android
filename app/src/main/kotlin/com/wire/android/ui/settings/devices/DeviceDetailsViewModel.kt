@@ -60,7 +60,9 @@ class DeviceDetailsViewModel @Inject constructor(
         observeDeviceDetails()
         getClientFingerPrint()
         observeUserName()
-        getE2eiCertificate()
+        if (BuildConfig.DEBUG) {
+            getE2eiCertificate()
+        }
     }
 
     private val isSelfClient: Boolean
@@ -84,17 +86,15 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getE2eiCertificate() {
-        if (BuildConfig.DEBUG) {
-            viewModelScope.launch {
-                val certificate = e2eiCertificate(deviceId)
-                state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
-                    state.copy(
-                        isE2eiCertificateActivated = true,
-                        e2eiCertificate = certificate.certificate
-                    )
-                } else {
-                    state.copy(isE2eiCertificateActivated = false)
-                }
+        viewModelScope.launch {
+            val certificate = e2eiCertificate(deviceId)
+            state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+                state.copy(
+                    isE2eiCertificateActivated = true,
+                    e2eiCertificate = certificate.certificate
+                )
+            } else {
+                state.copy(isE2eiCertificateActivated = false)
             }
         }
     }

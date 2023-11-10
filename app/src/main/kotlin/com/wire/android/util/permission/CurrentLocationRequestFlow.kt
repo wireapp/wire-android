@@ -20,7 +20,10 @@
 
 package com.wire.android.util.permission
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
+import android.location.LocationManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,34 +34,54 @@ import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun rememberCurrentLocationFlow(
-    onLocationPicked: () -> Unit, // TODO: this will change accordingly to maps intent
+    onPermissionAllowed: (Location?) -> Unit,
     onPermissionDenied: () -> Unit
 ): CurrentLocationRequestFlow {
     val context = LocalContext.current
 
-    val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                // TODO: launch map location picker using openstreetmap? (have in mind f-droid aka. no gms)
+    val requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allPermissionGranted = permissions.all { it.value }
+            if (allPermissionGranted) {
+                onPermissionAllowed(getCurrentLocation(context))
             } else {
                 onPermissionDenied()
             }
         }
 
     return remember {
-        CurrentLocationRequestFlow(context, requestPermissionLauncher)
+        CurrentLocationRequestFlow(context, onPermissionAllowed, requestPermissionLauncher)
     }
 }
 
 class CurrentLocationRequestFlow(
     private val context: Context,
-    private val locationPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
+    private val onPermissionAllowed: (Location?) -> Unit,
+    private val locationPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
 ) {
     fun launch() {
-        if (context.checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-            // TODO: launch map location picker using openstreetmap? (have in mind f-droid aka. no gms)
+        if (checkLocationPermissions(context)) {
+            val location = getCurrentLocation(context)
+            onPermissionAllowed(location)
         } else {
-            locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            locationPermissionLauncher.launch(getLocationPermissions())
         }
     }
+}
+
+private fun getLocationPermissions() =
+    arrayOf(
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+private fun checkLocationPermissions(
+    context: Context
+): Boolean = context.checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) &&
+        context.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+@SuppressLint("MissingPermission")
+private fun getCurrentLocation(context: Context): Location? {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 }

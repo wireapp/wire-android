@@ -43,6 +43,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -205,8 +206,10 @@ private fun CaptureVideoFlow(
 @Composable
 private fun ShareCurrentLocationFlow() =
     rememberCurrentLocationFlow(
-        onLocationPicked = { /*TODO*/ },
-        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+        onPermissionAllowed = {
+            appLogger.d("Current Location is: ${it.let { location -> location?.latitude to location?.longitude }} }}")
+        },
+        onPermissionDenied = { appLogger.w("Location permissions not granted") }
     )
 
 @Composable

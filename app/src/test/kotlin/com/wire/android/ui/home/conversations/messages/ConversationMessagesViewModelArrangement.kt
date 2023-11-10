@@ -135,7 +135,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
         coEvery {
-            getSearchedConversationMessagePosition(any(),any())
+            getSearchedConversationMessagePosition(any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
     }
 

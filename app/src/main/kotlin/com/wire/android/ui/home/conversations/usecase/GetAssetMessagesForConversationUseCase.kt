@@ -23,13 +23,15 @@ package com.wire.android.ui.home.conversations.usecase
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.flatMap
+import com.wire.android.appLogger
+import com.wire.android.mapper.AssetMapper
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfAssetMessagesByConversationUseCase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -42,11 +44,11 @@ class GetAssetMessagesForConversationUseCase @Inject constructor(
     private val getMessages: GetPaginatedFlowOfAssetMessagesByConversationUseCase,
     private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
     private val messageMapper: MessageMapper,
+    private val assetMapper: AssetMapper,
     private val dispatchers: DispatcherProvider,
 ) {
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(conversationId: ConversationId, lastReadIndex: Int): Flow<PagingData<UIMessageContent>> {
+    suspend operator fun invoke(conversationId: ConversationId, lastReadIndex: Int): Flow<PagingData<UIAsset>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
@@ -59,7 +61,12 @@ class GetAssetMessagesForConversationUseCase @Inject constructor(
             pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
                     .mapLatest { usersList ->
-                        messageMapper.toUIMessage(usersList, messageItem)?.messageContent.let { listOf(it) }.mapNotNull { it }
+                        val uiMessage = assetMapper.toUIAsset(usersList, messageItem)
+                        if(uiMessage != null) {
+                            listOf(uiMessage)
+                        } else {
+                            listOf()
+                        }
                     }
                     .first()
             }

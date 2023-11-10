@@ -37,13 +37,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
@@ -186,17 +189,74 @@ fun MessageImage(
         when {
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
-                ImageMessageInProgress(imgParams, downloadStatus == DOWNLOAD_IN_PROGRESS)
+                ImageMessageInProgress(
+                    imgParams.normalizedWidth, imgParams.normalizedHeight,
+                    downloadStatus == DOWNLOAD_IN_PROGRESS
+                )
             }
 
             asset != null -> {
                 if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
-                else DisplayableImageMessage(asset, imgParams)
+                else DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             }
 
             // Show error placeholder
             uploadStatus == FAILED_UPLOAD || downloadStatus == FAILED_DOWNLOAD -> {
-                ImageMessageFailed(imgParams, downloadStatus == FAILED_DOWNLOAD)
+                ImageMessageFailed(
+                    imgParams.normalizedWidth, imgParams.normalizedHeight,
+                    downloadStatus == FAILED_DOWNLOAD
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MediaAssetImage(
+    asset: ImageAsset?,
+    width: Dp,
+    height: Dp,
+    downloadStatus: Message.DownloadStatus,
+    onImageClick: Clickable,
+) {
+    Box(
+        Modifier
+            .padding(top = MaterialTheme.wireDimensions.spacing2x)
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+            .background(
+                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .wrapContentSize()
+            .clickable(onImageClick)
+    ) {
+        when {
+            // Trying to upload the asset
+            downloadStatus == DOWNLOAD_IN_PROGRESS -> {
+                ImageMessageInProgress(
+                    width = width,
+                    height = height,
+                    isDownloading = true,
+                    showText = false
+                )
+            }
+
+            asset != null -> {
+                DisplayableImageMessage(asset, width, height)
+            }
+
+            // Show error placeholder
+            downloadStatus == FAILED_DOWNLOAD -> {
+                ImageMessageFailed(
+                    width = width,
+                    height = height,
+                    isDownloadFailure = true,
+                    showText = false
+                )
             }
         }
     }

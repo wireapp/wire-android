@@ -24,11 +24,11 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.session.SessionRepository
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import com.wire.kalium.logic.sync.SyncManager

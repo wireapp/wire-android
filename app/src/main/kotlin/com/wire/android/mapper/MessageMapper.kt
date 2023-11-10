@@ -134,8 +134,6 @@ class MessageMapper @Inject constructor(
         }
     }
 
-    private fun isHeart(it: String) = it == "❤️" || it == "❤"
-
     private fun provideMessageHeader(sender: User?, message: Message.Standalone): MessageHeader = MessageHeader(
         username = sender?.name?.let { UIText.DynamicString(it) }
             ?: UIText.StringResource(R.string.username_unavailable_label),

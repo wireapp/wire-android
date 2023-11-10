@@ -49,9 +49,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
 
 @RootNavGraph
 @Destination(
@@ -74,7 +76,7 @@ private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
 ) {
-    val lazyPagingMessages: LazyPagingItems<UIMessageContent> = state.messages.collectAsLazyPagingItems()
+    val lazyPagingMessages: LazyPagingItems<UIAsset> = state.messages.collectAsLazyPagingItems()
 
     WireScaffold(
         topBar = {
@@ -96,7 +98,7 @@ private fun Content(
 
 @Composable
 fun AssetList(
-    lazyPagingMessages: LazyPagingItems<UIMessageContent>,
+    lazyPagingMessages: LazyPagingItems<UIAsset>,
     modifier: Modifier,
 //    lazyListState: LazyListState,
 //    audioMessagesState: Map<String, AudioState>,
@@ -109,10 +111,10 @@ fun AssetList(
 //    onLinkClick: (String) -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val horizontalPadding = dimensions().spacing12x * 2 // Adjust if you have different padding
-    val spaceBetweenItems = dimensions().spacing2x * (4 - 1) // For 4 columns, there are 3 spaces between items
+    val horizontalPadding = dimensions().spacing12x * 2
+    val spaceBetweenItems = dimensions().spacing2x * (COLUMN_COUNT - 1) // For 4 columns, there are 3 spaces between items
     val totalPadding = horizontalPadding + spaceBetweenItems
-    val imageSize = (screenWidth - totalPadding) / 4
+    val imageSize = (screenWidth - totalPadding) / COLUMN_COUNT
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -129,12 +131,15 @@ fun AssetList(
 //                    .fillMaxSize()
 //            ) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                modifier = Modifier.padding(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x)
+                columns = GridCells.Fixed(COLUMN_COUNT),
+                modifier = Modifier.padding(
+                    horizontal = dimensions().spacing12x,
+                    vertical = dimensions().spacing8x
+                )
             ) {
 
-                items(lazyPagingMessages.itemCount) { index ->
-                    val content = lazyPagingMessages[index]
+                items(lazyPagingMessages.itemCount, key = { index -> lazyPagingMessages[index]?.imageMessage?.assetId?.toString() ?: "asset$index" }) { index ->
+                    val content = lazyPagingMessages[index] ?: return@items
                     val currentOnImageClick = remember(content) {
                         Clickable(enabled = true, onClick = {
 //                            onImageMessageClicked(
@@ -145,46 +150,47 @@ fun AssetList(
 //                            onLongClicked(message)
                         })
                     }
-                    when (content) {
-                        is UIMessageContent.ImageMessage -> {
+//                    when (content) {
+//                        is UIMessageContent.ImageMessage -> {
                             Box(
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .padding(all = dimensions().spacing2x)
                             ) {
-
-                                MessageImage(
-                                    asset = content.asset,
-                                    imgParams = CustomImageMessageParams(imageSize, imageSize),
-                                    uploadStatus = content.uploadStatus,
-                                    downloadStatus = content.downloadStatus,
+                                MediaAssetImage(
+                                    asset = content.imageMessage.asset,
+                                    width = imageSize,
+                                    height = imageSize,
+                                    downloadStatus = content.imageMessage.downloadStatus,
                                     onImageClick = currentOnImageClick
                                 )
                             }
-                        }
+//                        }
 
-                        is UIMessageContent.AssetMessage -> {
-                            Box(
-                                modifier = Modifier
-                                    .height(dimensions().spacing80x)
-                                    .padding(all = dimensions().spacing2x)
-                            ) {
-                                MessageGenericAsset(
-                                    assetName = content.assetName,
-                                    assetExtension = content.assetExtension,
-                                    assetSizeInBytes = content.assetSizeInBytes,
-                                    assetUploadStatus = content.uploadStatus,
-                                    assetDownloadStatus = content.downloadStatus,
-                                    onAssetClick = currentOnImageClick
-                                )
-                            }
-                        }
+//                        is UIMessageContent.AssetMessage -> {
+//                            Box(
+//                                modifier = Modifier
+//                                    .height(dimensions().spacing80x)
+//                                    .padding(all = dimensions().spacing2x)
+//                            ) {
+//                                MessageGenericAsset(
+//                                    assetName = content.assetName,
+//                                    assetExtension = content.assetExtension,
+//                                    assetSizeInBytes = content.assetSizeInBytes,
+//                                    assetUploadStatus = content.uploadStatus,
+//                                    assetDownloadStatus = content.downloadStatus,
+//                                    onAssetClick = currentOnImageClick
+//                                )
+//                            }
+//                        }
 
-                        else -> {
-                            appLogger.d("KBX $content")
-                        }
-                    }
+//                        else -> {
+//                            appLogger.d("KBX $content")
+//                        }
+//                    }
                 }
             }
         })
 }
+
+private const val COLUMN_COUNT = 4

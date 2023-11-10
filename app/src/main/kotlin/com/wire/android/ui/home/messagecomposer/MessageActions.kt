@@ -47,7 +47,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
 @Composable
 fun MessageSendActions(

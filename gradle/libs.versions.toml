@@ -52,7 +52,7 @@ hilt-work = "1.0.0"
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
 material = "1.9.0"
-coil = "2.4.0"
+coil = "2.5.0"
 commonmark = "0.21.0"
 
 # RSS
@@ -76,7 +76,7 @@ androidx-test-core = "1.5.0"
 androidx-test-extensions = "1.1.5"
 androidx-test-orchestrator = "1.4.2"
 androidx-test-rules = "1.4.0"
-androidx-test-runner = "1.4.0"
+androidx-test-runner = "1.5.2"
 androidx-test-uiAutomator = "2.2.0"
 androidx-text-archCore = "2.1.0"
 junit4 = "4.13.2"

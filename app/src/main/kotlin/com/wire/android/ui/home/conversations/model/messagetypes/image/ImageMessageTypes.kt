@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.dimensions
@@ -51,19 +52,21 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun DisplayableImageMessage(
     imageData: ImageAsset,
-    imgParams: ImageMessageParams,
+    width: Dp,
+    height: Dp,
     modifier: Modifier = Modifier
 ) {
     Image(
         painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
         modifier = modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
+            .width(width)
+            .height(height),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )
 }
+
 @Composable
 fun ImportedImageMessage(
     imageData: ImageAsset,
@@ -85,45 +88,47 @@ fun ImportedImageMessage(
 }
 
 @Composable
-fun ImageMessageInProgress(imgParams: ImageMessageParams, isDownloading: Boolean) {
+fun ImageMessageInProgress(width: Dp, height: Dp, isDownloading: Boolean, showText: Boolean = true) {
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .align(Alignment.Center)
-                .width(imgParams.normalizedWidth)
-                .height(imgParams.normalizedHeight)
+                .width(width)
+                .height(height)
                 .padding(MaterialTheme.wireDimensions.spacing8x)
         ) {
             WireCircularProgressIndicator(
                 progressColor = MaterialTheme.wireColorScheme.primary,
                 size = MaterialTheme.wireDimensions.spacing24x
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
-            Text(
-                text = stringResource(
-                    id = if (isDownloading) R.string.asset_message_download_in_progress_text
-                    else R.string.asset_message_upload_in_progress_text
-                ),
-                style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
+            if (showText) {
+                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
+                Text(
+                    text = stringResource(
+                        id = if (isDownloading) R.string.asset_message_download_in_progress_text
+                        else R.string.asset_message_upload_in_progress_text
+                    ),
+                    style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ImageMessageFailed(imgParams: ImageMessageParams, isDownloadFailure: Boolean) {
+fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, showText: Boolean = true) {
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .align(Alignment.Center)
-                .width(imgParams.normalizedWidth)
-                .height(imgParams.normalizedHeight)
+                .width(width)
+                .height(height)
                 .padding(MaterialTheme.wireDimensions.spacing8x)
         ) {
             Image(
@@ -136,15 +141,17 @@ fun ImageMessageFailed(imgParams: ImageMessageParams, isDownloadFailure: Boolean
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
-            Text(
-                text = stringResource(
-                    id = if (isDownloadFailure) R.string.error_downloading_image_message
-                    else R.string.error_uploading_image_message
-                ),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.error)
-            )
+            if (showText) {
+                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
+                Text(
+                    text = stringResource(
+                        id = if (isDownloadFailure) R.string.error_downloading_image_message
+                        else R.string.error_uploading_image_message
+                    ),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.error)
+                )
+            }
         }
     }
 }

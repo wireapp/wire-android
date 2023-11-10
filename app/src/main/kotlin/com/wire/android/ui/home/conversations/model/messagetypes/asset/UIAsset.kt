@@ -15,19 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.conversations.model.messagetypes.asset
 
-import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.home.conversations.model.MessageTime
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.util.ui.UIText
 
-data class EnterLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
-    val isUnlockEnabled: Boolean = false,
-    val error: EnterLockCodeError = EnterLockCodeError.None,
-    val done: Boolean = false
-)
-
-sealed class EnterLockCodeError {
-    data object None : EnterLockCodeError()
-    data object InvalidValue : EnterLockCodeError()
-}
+data class UIAsset(
+    val imageMessage: UIMessageContent.ImageMessage,
+    val time: MessageTime,
+    val username: UIText,
+    )

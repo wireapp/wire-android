@@ -24,11 +24,12 @@ import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 data class ConversationAssetMessagesViewState(
-    val messages: Flow<PagingData<UIMessageContent>> = emptyFlow(),
+    val messages: Flow<PagingData<UIAsset>> = emptyFlow(),
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val audioMessagesState: Map<String, AudioState> = emptyMap()
 )

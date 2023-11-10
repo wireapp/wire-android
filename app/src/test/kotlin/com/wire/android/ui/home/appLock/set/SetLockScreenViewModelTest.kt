@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.appLock
+package com.wire.android.ui.home.appLock.set
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
@@ -24,6 +24,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl
+import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import io.mockk.MockKAnnotations
@@ -67,17 +68,24 @@ class SetLockScreenViewModelTest {
     }
 
     private class Arrangement {
+
         @MockK
         lateinit var validatePassword: ValidatePasswordUseCase
+
         @MockK
         lateinit var globalDataStore: GlobalDataStore
+
         @MockK
-        private lateinit var observeAppLockConfigUseCase: ObserveAppLockConfigUseCase
+        private lateinit var observeAppLockConfig: ObserveAppLockConfigUseCase
+
+        @MockK
+        private lateinit var markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { globalDataStore.setAppLockPasscode(any()) } returns Unit
-            coEvery { observeAppLockConfigUseCase() } returns flowOf(
+            coEvery { globalDataStore.setUserAppLock(any()) } returns Unit
+            coEvery { globalDataStore.setTeamAppLock(any()) } returns Unit
+            coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(AppLockTeamFeatureConfigObserverImpl.DEFAULT_TIMEOUT)
             )
         }
@@ -94,7 +102,8 @@ class SetLockScreenViewModelTest {
             validatePassword,
             globalDataStore,
             TestDispatcherProvider(),
-            observeAppLockConfigUseCase
+            observeAppLockConfig,
+            markTeamAppLockStatusAsNotified
         )
 
         fun arrange() = this to viewModel

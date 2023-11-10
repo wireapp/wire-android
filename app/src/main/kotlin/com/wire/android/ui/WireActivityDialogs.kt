@@ -26,8 +26,6 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sebaslogen.resaca.ScopedViewModelContainer
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger

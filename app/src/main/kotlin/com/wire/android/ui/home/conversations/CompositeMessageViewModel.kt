@@ -38,7 +38,7 @@ import javax.inject.Inject
 @ViewModelScopedPreview
 interface CompositeMessageViewModel {
     val pendingButtonId: MessageButtonId?
-        get() =  null
+        get() = null
     fun sendButtonActionMessage(buttonId: String) {}
 }
 

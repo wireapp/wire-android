@@ -33,7 +33,8 @@ data class ConversationMessagesViewState(
     val firstUnreadInstant: Instant? = null,
     val firstuUnreadEventIndex: Int = 0,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val audioMessagesState: Map<String, AudioState> = emptyMap()
+    val audioMessagesState: Map<String, AudioState> = emptyMap(),
+    val searchedMessageId: String? = null
 )
 
 sealed class DownloadedAssetDialogVisibilityState {

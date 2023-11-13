@@ -115,19 +115,18 @@ fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
 private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedDataPath: Path, fileSize: Long): Uri? {
     val resolver = contentResolver
     val mimeType = Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder)
+    val downloadsDir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
+    // we need to find the next available name with copy counter by ourselves before copying
+    val availableAssetName = findFirstUniqueName(downloadsDir, assetName.ifEmpty { ATTACHMENT_FILENAME })
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
-            // ContentResolver modifies the name if another file with the given name already exists, so we don't have to worry about it
-            put(DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
+            put(DISPLAY_NAME, availableAssetName)
             put(MIME_TYPE, mimeType)
             put(SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
         val authority = getProviderAuthority()
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
-        // we need to find the next available name with copy counter by ourselves before copying
-        val availableAssetName = findFirstUniqueName(downloadsDir, assetName.ifEmpty { ATTACHMENT_FILENAME })
         val destinationFile = File(downloadsDir, availableAssetName)
         val uri = FileProvider.getUriForFile(this, authority, destinationFile)
         if (mimeType?.isNotEmpty() == true) {
@@ -409,13 +408,21 @@ fun Context.getProviderAuthority() = "$packageName.provider"
 
 @VisibleForTesting
 fun findFirstUniqueName(dir: File, desiredName: String): String {
-    var currentName: String = desiredName
+    var currentName: String = desiredName.sanitizeFilename()
     while (File(dir, currentName).exists()) {
         val (nameWithoutCopyCounter, copyCounter, extension) = currentName.splitFileExtensionAndCopyCounter()
-        currentName = buildFileName(nameWithoutCopyCounter, extension, copyCounter + 1)
+        currentName = buildFileName(nameWithoutCopyCounter, extension, copyCounter + 1).sanitizeFilename()
     }
     return currentName
 }
+
+/**
+ * Removes disallowed characters and returns valid filename.
+ *
+ * Uses the same cases as in `isValidFatFilenameChar` and `isValidExtFilenameChar` from [android.os.FileUtils].
+ */
+@VisibleForTesting
+fun String.sanitizeFilename(): String = replace(Regex("[\u0000-\u001f\u007f\"*/:<>?\\\\|]"), "_")
 
 fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
     if (isAudioMimeType(mimeType)) {

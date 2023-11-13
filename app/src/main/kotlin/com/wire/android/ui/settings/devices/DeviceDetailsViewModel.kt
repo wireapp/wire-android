@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.navigation.SavedStateViewModel
@@ -59,7 +60,9 @@ class DeviceDetailsViewModel @Inject constructor(
         observeDeviceDetails()
         getClientFingerPrint()
         observeUserName()
-        getE2eiCertificate()
+        if (BuildConfig.DEBUG) {
+            getE2eiCertificate()
+        }
     }
 
     private val isSelfClient: Boolean
@@ -74,7 +77,8 @@ class DeviceDetailsViewModel @Inject constructor(
                             /* no-op */
                         }
 
-                        is GetUserInfoResult.Success -> state = state.copy(userName = result.otherUser.name)
+                        is GetUserInfoResult.Success -> state =
+                            state.copy(userName = result.otherUser.name)
                     }
                 }
             }
@@ -176,7 +180,10 @@ class DeviceDetailsViewModel @Inject constructor(
                 state
             } else {
                 state.copy(
-                    removeDeviceDialogState = it.copy(password = newText, removeEnabled = newText.text.isNotEmpty()),
+                    removeDeviceDialogState = it.copy(
+                        password = newText,
+                        removeEnabled = newText.text.isNotEmpty()
+                    ),
                     error = RemoveDeviceError.None
                 )
             }

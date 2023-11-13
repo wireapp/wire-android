@@ -107,6 +107,7 @@ fun MessageItem(
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
+    onMessageClick: (messageId: String) -> Unit = {},
     defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true
@@ -147,7 +148,7 @@ fun MessageItem(
                     .fillMaxWidth()
                     .combinedClickable(
                         enabled = message.isAvailable,
-                        onClick = { }, // TODO: implement some action onClick
+                        onClick = { onMessageClick(message.header.messageId) },
                         onLongClick = remember(message) { { onLongClicked(message) } }
                     )
                     .padding(

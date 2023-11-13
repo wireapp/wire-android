@@ -42,6 +42,6 @@ fun LegalHoldInfoMessageDialog(
 @PreviewMultipleThemes
 fun PreviewLegalHoldInfoMessageDialog() {
     WireTheme {
-        LegalHoldInfoMessageDialog("username", {}, {})
+        LegalHoldInfoMessageDialog("conversation name", {}, {})
     }
 }

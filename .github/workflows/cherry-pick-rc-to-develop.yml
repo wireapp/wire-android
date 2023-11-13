@@ -30,7 +30,6 @@ on:
             - closed
 
 env:
-
     TARGET_BRANCH: develop
     SUBMODULE_NAME: kalium
 
@@ -119,7 +118,8 @@ jobs:
                   OUTPUT=$(git cherry-pick ${{ env.cherryPickCommit }} || true)
                   
                   # Handle conflicts
-                  CONFLICTED_FILES=$(git diff --name-only --diff-filter=U)
+                  CONFLICTED_FILES=$(git diff --name-only --diff-filter=U | awk 'ORS="\\\\n"' | sed 's/\\\\n$/\\n/')
+                  echo "Captured conflicted files: $CONFLICTED_FILES"
                   if [[ "$OUTPUT" == *"CONFLICT"* ]]; then
                       # Commit the remaining conflicts
                       git commit -am "Commit with unresolved merge conflicts outside of ${{ env.SUBMODULE_NAME }}"
@@ -139,5 +139,6 @@ jobs:
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BRANCH: ${{ env.newBranchName }}
                   PR_ASSIGNEE: ${{ github.event.pull_request.user.login }}
-                  PR_BODY: "${{ format('Cherry pick from the original PR: \n- #{0}\n\n---- \n\n ⚠️ Conflicts during cherry-pick:\n{1}\n\n{2}', github.event.pull_request.number, env.conflictedFiles, github.event.pull_request.body) }}"
-              run: gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base ${{ env.TARGET_BRANCH }} --head "$PR_BRANCH" --label "cherry-pick" --assignee "$PR_ASSIGNEE"
+              run: |
+                  PR_BODY=$(echo -e "Cherry pick from the original PR: \n- #${{ github.event.pull_request.number }}\n\n---- \n\n ⚠️ Conflicts during cherry-pick:\n${{ env.conflictedFiles }}\n\n${{ github.event.pull_request.body }}")
+                  gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base ${{ env.TARGET_BRANCH }} --head "$PR_BRANCH" --label "cherry-pick" --assignee "$PR_ASSIGNEE"

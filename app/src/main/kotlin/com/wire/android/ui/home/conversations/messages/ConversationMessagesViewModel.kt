@@ -56,6 +56,7 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -85,13 +86,19 @@ class ConversationMessagesViewModel @Inject constructor(
     private val resetSession: ResetSessionUseCase,
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
     private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
-    private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase
+    private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
+    private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
 
-    var conversationViewState by mutableStateOf(ConversationMessagesViewState())
+    var conversationViewState by mutableStateOf(
+        ConversationMessagesViewState(
+            searchedMessageId = searchedMessageIdNavArgs
+        )
+    )
         private set
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
@@ -120,7 +127,19 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
-        val lastReadIndex = when (val result = getConversationUnreadEventsCount(conversationId)) {
+        val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
+            conversationViewState = conversationViewState.copy(
+                searchedMessageId = null
+            )
+
+            when (val result = getSearchedConversationMessagePosition(
+                conversationId = conversationId,
+                messageId = messageId
+            )) {
+                is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
+                is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+            }
+        } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
             is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
             is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
         }

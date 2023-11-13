@@ -50,11 +50,12 @@ class GetMessagesForConversationUseCase @Inject constructor(
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
-            initialLoadSize = max(INITIAL_LOAD_SIZE, lastReadIndex + PREFETCH_DISTANCE)
+            initialLoadSize = INITIAL_LOAD_SIZE
         )
         return getMessages(
             conversationId,
-            pagingConfig = pagingConfig
+            pagingConfig = pagingConfig,
+            startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE)
         ).map { pagingData ->
             pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))

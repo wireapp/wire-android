@@ -91,6 +91,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             setGuestRoomLinkFeatureFlag(userId)
                             setE2EIRequiredState(userId)
                             setTeamAppLockFeatureFlag(userId)
+                            observeCallEndedBecauseOfConversationDegraded(userId)
                         }
                 }
             }
@@ -192,6 +193,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
+    private fun observeCallEndedBecauseOfConversationDegraded(userId: UserId) = viewModelScope.launch {
+        coreLogic.getSessionScope(userId).calls.observeEndCallDialog().collect {
+            featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = true)
+        }
+    }
+
     fun dismissSelfDeletingMessagesDialog() {
         featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
         viewModelScope.launch {
@@ -259,5 +266,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun dismissSnoozeE2EIdRequiredDialog() {
         featureFlagState = featureFlagState.copy(e2EISnoozeInfo = null)
+    }
+
+    fun dismissCallEndedBecauseOfConversationDegraded() {
+        featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = false)
     }
 }

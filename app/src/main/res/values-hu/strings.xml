@@ -24,7 +24,7 @@
     <string name="label_new">Új</string>
     <string name="label_login">Bejelentkezés</string>
     <string name="label_ok">OK</string>
-    <string name="label_open">Open</string>
+    <string name="label_open">Megnyitás</string>
     <string name="label_cancel">Mégsem</string>
     <string name="label_confirm">Megerősít</string>
     <string name="label_continue">Folytatás</string>
@@ -49,12 +49,12 @@
     <string name="label_message_receive_failure">Letöltési hiba</string>
     <string name="label_message_decryption_failure_message">Az üzenetet nem sikerült dekódolni.</string>
     <string name="label_message_decryption_failure_informative_message">Próbálja meg újraindítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
-    <string name="label_system_message_self_user_knock">%s pinged</string>
-    <string name="label_system_message_other_user_knock">%s pinged</string>
+    <string name="label_system_message_self_user_knock">%s kopogott</string>
+    <string name="label_system_message_other_user_knock">%s kopogott</string>
     <string name="label_message_partial_delivery_participants_count">%1$d résztvevők nem kapták meg az Ön üzenetét.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s nem fogja megkapni az Ön üzenetét.</string>
-    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
-    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s később fogja megkapni az Ön üzenetét.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s később fogja megkapni az Ön üzenetét.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
         <item quantity="one">1 résztvevő a(z) %2$s kiszolgálóról</item>
         <item quantity="other">%1$d résztvevő a %2$s kiszolgálóról</item>
@@ -96,14 +96,15 @@
     <string name="content_description_add_to_favourite">Hozzáadás a kedvencekhez</string>
     <string name="content_description_move_to_folder">Áthelyezés mappába</string>
     <string name="content_description_move_to_archive">Áthelyezés az archívumba</string>
-    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_unarchive">Archiválás visszavonása</string>
     <string name="content_description_block_the_user">Tiltás</string>
     <string name="content_description_unblock_the_user">Tiltás feloldása</string>
     <string name="content_description_leave_the_group">Kilépés a csoportból</string>
     <string name="content_description_delete_the_group">Csoport törlése</string>
     <string name="content_description_conversation_phone_icon">Hívás indítása</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Beszélgetés keresése ikon</string>
+    <string name="content_description_conversation_search_icon">Keresés ikon</string>
+    <string name="content_description_conversation_search_input">Keresőmező</string>
     <string name="content_description_conversation_enable_rich_text_mode">Formázott szöveg engedélyezése gomb</string>
     <string name="content_description_conversation_rich_text_header">Szövegformázás Címsor</string>
     <string name="content_description_conversation_rich_text_bold">Szövegformázás Félkövér</string>
@@ -166,18 +167,18 @@
     <string name="content_description_message_error_status">Üzenet hiba állapot</string>
     <string name="content_description_message_delivered_status">Üzenet kézbesítve állapot</string>
     <string name="content_description_message_read_status">Üzenet olvasva állapot</string>
-    <string name="content_description_record_audio_button_start">Record Audio</string>
-    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
-    <string name="content_description_record_audio_button_send">Send Audio Message</string>
-    <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
-    <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_record_audio_button_start">Hang felvétele</string>
+    <string name="content_description_record_audio_button_stop">Hangfelvétel leállítása</string>
+    <string name="content_description_record_audio_button_send">Hangüzenet küldése</string>
+    <string name="content_description_mls_certificate_valid">Minden résztvevő összes készülékének van érvényes MLS tanúsítványa</string>
+    <string name="content_description_proteus_certificate_valid">Minden résztvevő ellenőrzött (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Ugorjon a legutolsó üzenethez gomb</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Széf</string>
     <string name="archive_screen_title">Archívum</string>
-    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
-    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
+    <string name="archive_screen_empty_state_title">Még semmi nincs archiválva 👻</string>
+    <string name="archive_screen_empty_state_description">A beszélgetéslista áttekinthetősége érdekében helyezze ide a nem aktív beszélgetéseket. Bármikor előveheti őket később.</string>
     <string name="user_profile_screen_title">Felhasználói profil</string>
     <string name="settings_screen_title">Beállítások</string>
     <string name="app_settings_screen_title">Alkalmazás beállításai</string>
@@ -189,10 +190,10 @@
     <string name="search_bar_conversations_hint">Beszélgetés keresése</string>
     <string name="search_no_results">Nincs találat</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s new</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
-    <string name="whats_new_release_notes_group_title">Release Notes</string>
-    <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
+    <string name="whats_new_screen_title">Újdonságok</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Üdvözöljük a Wire új androidos alkalmazásában!</string>
+    <string name="whats_new_release_notes_group_title">Kiadási megjegyzések</string>
+    <string name="whats_new_android_release_notes_label">Az összes androidos kiadási megjegyzés</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Biztonsági másolatok</string>
     <string name="settings_other_group_title">Egyéb</string>
@@ -282,14 +283,24 @@
         egy másik készülékét.
     </string>
     <string name="remove_device_label">ESZKÖZEI</string>
-    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nHozzáadva: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nHozzáadva: %2$s\nAktív: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
-    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
+    <string name="remove_device_mls_thumbprint_label">MLS ujjlenyomat: %1$s</string>
     <string name="remove_device_dialog_title">Eltávolítja a következő eszközt?</string>
     <string name="remove_device_invalid_password">Érvénytelen jelszó</string>
     <string name="remove_device_details_description">Távolítsa el ezt az eszközt, ha már nem használja. Ezzel együtt azonnal ki is jelentkezik erről az eszközről.</string>
     <string name="remove_device_details_description_with_wipe">Távolítsa el ezt az eszközt, ha már nem használja. A csapata biztonsági beállításainak megfelelően, beszélgetési előzményei szintén törlésre kerültek.</string>
+    <string name="item_title_e2ei_certificate">Végpontok közötti azonosító tanúsítvány</string>
+    <string name="item_subtitle_status_e2ei_certificate">Állapot</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Sorozatszám</string>
+    <string name="show_e2ei_certificate_details_button">Mutassa a tanúsítvány részleteit</string>
+    <string name="get_e2ei_certificate_button">Tanúsítvány beszerzése</string>
+    <string name="update_e2ei_certificat_button">Tanúsítvány frissítése</string>
+    <string name="e2ei_certificat_status_valid">Érvényes</string>
+    <string name="e2ei_certificat_status_expired">Lejárt</string>
+    <string name="e2ei_certificat_status_revoked">Visszavont</string>
+    <string name="e2ei_certificat_status_not_activated">Nem aktivált</string>
     <!-- Register Device -->
     <string name="register_device_title">Ezen eszköz hozzáadása</string>
     <string name="register_device_text">Adja meg jelszavát a Wire ezen eszközön történő használatához.</string>
@@ -382,14 +393,14 @@
     <string name="empty_group_name_error">Adja meg a csoport nevét</string>
     <string name="group_name_exceeded_limit_error">A csoport neve nem lehet 64 karakternél hosszabb
     </string>
-    <string name="group_can_not_be_created_title">Group can’t be created</string>
-    <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
-    <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
-    <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
+    <string name="group_can_not_be_created_title">A csoportot nem lehet létrehozni</string>
+    <string name="group_can_not_be_created_federation_conflict_description">Felhasználók a(z) %1$s és a(z) %2$s kiszolgálóról nem csatlakoztathatók egyazon csoportos beszélgetésbe.\n\nA csoport létrehozásához távolítsa el az érintett résztvevőket.</string>
+    <string name="group_can_not_be_created_edit_participiant_list">Résztvevők listájának szerkesztése</string>
+    <string name="group_can_not_be_created_discard_group_creation">Csoport létrehozásának elvetése</string>
     <string name="asset_message_tap_to_download_text">Érintse meg a letöltéshez</string>
     <string name="asset_message_upload_in_progress_text">Feltöltés…</string>
     <string name="asset_message_download_in_progress_text">Letöltés…</string>
-    <string name="asset_message_downloaded_internally_text">Tap to view</string>
+    <string name="asset_message_downloaded_internally_text">Koppintson a megtekintéshez</string>
     <string name="asset_message_saved_externally_text">Mentve</string>
     <string name="asset_message_failed_download_text">A fájl nem elérhető</string>
     <string name="asset_message_failed_upload_text">A fájl feltöltése nem sikerült</string>
@@ -403,6 +414,7 @@
     <string name="member_name_you_label_lowercase">ön</string>
     <string name="label_add_participants">Résztvevők hozzáadása</string>
     <string name="username_unavailable_label">A név nem elérhető</string>
+    <string name="group_unavailable_label">A csoportnév nem elérhető</string>
     <string name="conversation_details_title">Beszélgetés részletei</string>
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
@@ -410,6 +422,7 @@
     <string name="conversation_details_group_admins">CSOPORTADMINISZTRÁTOROK (%d)</string>
     <string name="conversation_details_group_members">CSOPORTTAGOK (%d)</string>
     <string name="conversation_details_participants_info">A csoportnak %s résztvevője van.\nAkár 500 fő is csatlakozhat egy csoportos beszélgetéshez.</string>
+    <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
     <string name="conversation_details_group_participants_title">Csoport résztvevői</string>
     <string name="conversation_details_group_participants_add">Résztvevők hozzáadása</string>
@@ -503,7 +516,7 @@
     <string name="label_add_to_favourites">Hozzáadás a kedvencekhez</string>
     <string name="label_move_to_folder">Áthelyezés mappába</string>
     <string name="label_move_to_archive">Áthelyezés az archívumba</string>
-    <string name="label_unarchive">Move out of Archive</string>
+    <string name="label_unarchive">Elővétel az archívumból</string>
     <string name="label_clear_content">Tartalom törlése…</string>
     <string name="label_block">Tiltás</string>
     <string name="label_unblock">Tiltás feloldása</string>
@@ -512,8 +525,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Minden</string>
     <string name="muting_option_all_allowed_text">Értesítsen ezen beszélgetéssel kapcsolatban mindenről (hang- és videóhívásokat is beleértve)</string>
-    <string name="muting_option_only_mentions_title">Említések és válaszok</string>
-    <string name="muting_option_only_mentions_text">Ezen beszélgetéssel kapcsolatban csak akkor értesítse, ha valaki említi Önt, vagy Önnek válaszol</string>
+    <string name="muting_option_only_mentions_title">Hívások, említések és válaszok</string>
+    <string name="muting_option_only_mentions_text">Ezen beszélgetéssel kapcsolatban csak akkor értesítse, ha valaki hívja vagy említi Önt, vagy Önnek válaszol</string>
     <string name="muting_option_all_muted_title">Semmi</string>
     <string name="muting_option_all_muted_text">Ezen beszélgetéssel kapcsolatban egyáltalán ne értesítsen</string>
     <!--Profile image-->
@@ -549,10 +562,10 @@
     <string name="label_system_message_removed_by_self">%1$s eltávolította %2$s személyt a beszélgetésből</string>
     <string name="label_system_message_added_by_other">%1$s hozzáadta %2$s személyt a beszélgetéshez</string>
     <string name="label_system_message_removed_by_other">%1$s eltávolította %2$s személyt a beszélgetésből</string>
-    <string name="label_system_message_federation_one_member_removed">%1$s was removed from the conversation</string>
-    <string name="label_system_message_federation_many_member_removed">%1$s were removed from the conversation</string>
-    <string name="label_system_message_federation_removed">**Your backend** stopped federating with %1$s.</string>
-    <string name="label_system_message_federation_conection_removed">The backends %1$s and %2$s stopped federating.</string>
+    <string name="label_system_message_federation_one_member_removed">%1$s el lett távolítva a beszélgetésből</string>
+    <string name="label_system_message_federation_many_member_removed">%1$s el lett távolítva a beszélgetésből</string>
+    <string name="label_system_message_federation_removed">**Az Ön kiszolgálója** már nincs szövetségben ezzel: %1$s.</string>
+    <string name="label_system_message_federation_conection_removed">A(z) %1$s és a(z) %2$s kiszolgálók már nincsenek szövetségben.</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s kilépett a beszélgetésből</string>
     <string name="label_system_message_left_the_conversation_by_other">%1$s kilépett a beszélgetésből</string>
     <string name="label_system_message_other_called">%1$s hívást indított</string>
@@ -577,21 +590,25 @@
     <string name="label_system_message_deactivated">deaktivált</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Az MLS csoportkulcs tudtunkon kívül frissült. Ezt a kiszolgálók közötti üzenetvesztés vagy programhiba okozhatta. Automatikusan újracsatlakoztunk a beszélgetéshez, de Önnek elveszhettek üzenetei.</string>
-    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
-    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
-    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">Ön nem frissítette idejében az applikációt. Néhány üzenet hiányozhat innen.</string>
+    <string name="label_system_message_conversation_protocol_changed_proteus">A titkosítási eljárás megváltoztatása törölve.</string>
+    <string name="label_system_message_conversation_protocol_changed_mixed">A titkosítási eljárás megváltoztatása elkezdődött. Gondoskodjon összes Wire-kliense frissítéséről.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">A titkosítási eljárás megváltoztatása befejeződött. A nem frissített Wire-kliensek többé nem fogadnak üzeneteket.</string>
     <string name="label_system_message_receipt_mode_on">be</string>
     <string name="label_system_message_receipt_mode_off">ki</string>
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_by_other">%1$s indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_with_members">%1$s résztvevővel</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
-    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
+    <string name="label_system_message_conversation_failed_add_many_members_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
+    <string name="label_system_message_conversation_failed_add_one_member_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
+    <string name="label_system_message_conversation_degraded_mls">Ez a beszélgetés többé nem ellenőrzött, mivel valaki legalább egy eszközt érvényes végpontok közötti azonosító tanúsítvány nélkül használ.</string>
+    <string name="label_system_message_conversation_degraded_proteus">Ez a beszélgetés többé nem ellenőrzött, mivel valaki legalább egy eszközt érvényes végpontok közötti azonosító tanúsítvány nélkül használ.</string>
+    <string name="label_system_message_conversation_verified_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
+    <string name="label_system_message_conversation_verified_proteus">Minden ujjlenyomat ellenőrizve (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">A Wire-ben a kommunikáció mindig titkos a végpontok között. Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a csoport résztvevői számára hozzáférhető.\n**Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.**</string>
+    <string name="label_conversations_details_verified_proteus">Ellenőrzött (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Ellenőrzött (végpontok közötti azonosítás)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Hozzáadott 1 személyt a beszélgetéshez</item>
@@ -639,6 +656,10 @@
     <string name="last_message_self_user_left_conversation">kilépett a beszélgetésből.</string>
     <string name="last_message_other_user_joined_conversation">csatlakozott a beszélgetéshez.</string>
     <string name="last_message_other_user_left_conversation">kilépett a beszélgetésből.</string>
+    <string name="last_message_verified_conversation_proteus">Minden eszköz ujjlenyomata ellenőrizve (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
+    <string name="last_message_conversations_verification_degraded_mls">A beszélgetés többé nem ellenőrzött</string>
+    <string name="last_message_conversations_verification_degraded_proteus">A beszélgetés többé nem ellenőrzött</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d kopogás</item>
@@ -664,10 +685,15 @@
     <string name="ephemeral_group_event_message">"Valaki egy üzenetet küldött"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
-        <item quantity="one">%s is typing</item>
-        <item quantity="other">%1$s and %2$d more are typing</item>
+        <item quantity="one">%s gépel</item>
+        <item quantity="other">%1$s és %2$d gépel</item>
     </plurals>
-    <!--Search Contact-->
+    <!-- Search Messages -->
+    <string name="label_search_messages">Üzenetek keresése</string>
+    <string name="label_search_messages_empty_title">Üzenetek keresése ebben a beszélgetésben.</string>
+    <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
+    <string name="label_search_button">Keresés</string>
+    <!-- Search Contact-->
     <string name="label_contacts">NÉVJEGYEK</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_new_conversation">Új beszélgetés</string>
@@ -679,7 +705,7 @@
     <string name="label_general_error">Valami hiba történt</string>
     <string name="label_add_member_people">Partner</string>
     <string name="label_add_member_services">Szolgáltatások</string>
-    <string name="label_empty_contacts_list">Search for people by their name or username to start a conversation 🔍</string>
+    <string name="label_empty_contacts_list">Keressen személyeket nevük vagy felhasználónevük alapján beszélgetés indításához 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Valami hiba történt</string>
     <string name="error_unknown_message">Kérjük, próbálja újra</string>
@@ -713,11 +739,11 @@
     <string name="delete_group_conversation_error">Hiba történt a beszélgetés törlése során</string>
     <string name="error_limit_number_assets_imported_exceeded">Egyszerre legfeljebb 20 fájlt küldhet</string>
     <!-- Archiving -->
-    <string name="success_archiving_conversation">Conversation was archived</string>
-    <string name="success_unarchiving_conversation">Conversation was unarchived</string>
-    <string name="error_archiving_conversation">Conversation could not be archived</string>
-    <string name="error_unarchiving_conversation">Conversation could not be unarchived</string>
-    <string name="dialog_archive_conversation_title">Archive conversation?</string>
+    <string name="success_archiving_conversation">A beszélgetés archiválva lett</string>
+    <string name="success_unarchiving_conversation">A beszélgetés elő lett véve az archívumból</string>
+    <string name="error_archiving_conversation">A beszélgetést nem sikerült archíválni</string>
+    <string name="error_unarchiving_conversation">A beszélgetést nem sikerült elővenni az archívumból</string>
+    <string name="dialog_archive_conversation_title">Archiválja a beszélgetést?</string>
     <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
@@ -800,6 +826,8 @@
     <string name="connection_label_accepting_request_description">Ha jóváhagyja a kérelmét, bekerül a partnerek közé, és közvetlenül tudnak kommunikálni egymással.</string>
     <string name="connection_label_accept">Elfogadás</string>
     <string name="connection_label_ignore">Elutasítás</string>
+    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
+    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Média galéria</string>
     <string name="media_gallery_on_image_downloaded">Mentve a Letöltések mappába</string>
@@ -864,6 +892,13 @@
     <string name="settings_keep_connection_to_websocket">Tartsa fenn a kapcsolatot a Websockettel</string>
     <string name="settings_keep_connection_to_websocket_description">Javítson az értesítések fogadásán a(z) %1$s szolgáltatáshoz való állandó kapcsolattal. Ez helyettesíti az értesítési szolgáltatásokat, ha a Google-szolgáltatások nem elérhetők az eszközén.</string>
     <string name="settings_service_is_running">szolgáltatás fut</string>
+    <!--Settings, Appearance -->
+    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_theme_label">Theme</string>
+    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
+    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
+    <string name="settings_appearance_theme_option_light">Light mode</string>
+    <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Fiók adatok</string>
     <string name="settings_myaccount_display_name">PROFILNÉV</string>
@@ -890,12 +925,13 @@
     <string name="settings_app_lock_title">Lock with passcode</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
     <string name="settings_set_lock_screen_passcode_label">Passcode</string>
     <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
     <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
     <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Wrong passcode</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
     <string name="password_validation_length">At least 8 characters</string>
     <string name="password_validation_lowercase">A lowercase character</string>
     <string name="password_validation_uppercase">An uppercase character</string>
@@ -904,6 +940,14 @@
     <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
     <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
     <string name="label_turn_off">Turn Off</string>
+    <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
+    <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
+    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
+    <string name="settings_forgot_lock_screen_description">The data stored on this device can only be accessed with your app lock passcode. If you have forgotten your passcode, you can reset this device.</string>
+    <string name="settings_forgot_lock_screen_warning">By resetting your device, all local data and messages for this account will be permanently deleted.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to verify you want to delete all data on this device. After deleting this device, you can login with your account credentials again.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Saját eszközei</string>
     <string name="current_device_label">Ez az eszköz</string>
@@ -956,7 +1000,7 @@
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Jelszó beállítása</string>
-    <string name="backup_dialog_create_backup_set_password_message">A mentés tömörítve lesz, és jelszóval titkosíthatja.</string>
+    <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.</string>
     <string name="backup_dialog_create_backup_now">Mentés most</string>
     <string name="backup_dialog_create_backup_title">Mentés létrehozása</string>
     <string name="backup_dialog_create_backup_subtitle">Beszélgetések mentése...</string>
@@ -1212,4 +1256,12 @@ Kérjük, próbálja meg újra.</string>
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_download">Download</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
+    <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
+    <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
 </resources>

@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -100,6 +101,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var clearUsersTypingEvents: ClearUsersTypingEventsUseCase
 
+    @MockK
+    lateinit var getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -114,7 +118,8 @@ class ConversationMessagesViewModelArrangement {
             resetSession,
             conversationAudioMessagePlayer,
             getConversationUnreadEventsCount,
-            clearUsersTypingEvents
+            clearUsersTypingEvents,
+            getSearchedConversationMessagePosition
         )
     }
 
@@ -129,6 +134,9 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
+        coEvery {
+            getSearchedConversationMessagePosition(any(), any())
+        } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
     }
 
     fun withSuccessfulOpenAssetMessage(

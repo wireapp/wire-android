@@ -56,7 +56,8 @@ class GetAssetMessagesForConversationUseCase @Inject constructor(
         )
         return getMessages(
             conversationId,
-            pagingConfig = pagingConfig
+            pagingConfig = pagingConfig,
+            startingOffset = 0
         ).map { pagingData ->
             pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))

@@ -106,7 +106,8 @@ pipeline {
                     steps {
                         withCredentials([
                                 string(credentialsId: 'GITHUB_PACKAGES_USER', variable: 'GITHUB_USER'),
-                                string(credentialsId: 'GITHUB_PACKAGES_TOKEN', variable: 'GITHUB_TOKEN')
+                                string(credentialsId: 'GITHUB_PACKAGES_TOKEN', variable: 'GITHUB_TOKEN'),
+                                string(credentialsId: 'MAPS_API_KEY', variable: 'GOOGLE_MAPS_API_KEY')
                         ]) {
                             sh '''FILE=/${propertiesFile}
                           if test -f "$FILE"; then
@@ -117,6 +118,7 @@ pipeline {
                           echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
                           echo "github.package_registry.user="$GITHUB_USER >> ${propertiesFile}
                           echo "github.package_registry.token="$GITHUB_TOKEN >> ${propertiesFile}
+                          echo "maps.apiKey="$GOOGLE_MAPS_API_KEY >> ${propertiesFile}
                        '''
                         }
                     }

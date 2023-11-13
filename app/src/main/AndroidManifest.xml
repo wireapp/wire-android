@@ -77,6 +77,10 @@
             android:theme="@style/AppTheme.SplashScreen"
             tools:replace="android:allowBackup,android:supportsRtl">
 
+        <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="${mapsKey}" />
+
         <activity
                 android:name=".ui.AppLockActivity"
                 android:exported="true"

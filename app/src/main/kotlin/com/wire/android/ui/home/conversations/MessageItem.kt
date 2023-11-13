@@ -65,6 +65,7 @@ import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
+import com.wire.android.ui.home.conversations.model.MapStaticImage
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -474,14 +475,7 @@ private fun MessageContent(
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
             Column {
-                MessageImage(
-                    asset = messageContent.asset,
-                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    uploadStatus = messageContent.uploadStatus,
-                    downloadStatus = messageContent.downloadStatus,
-                    onImageClick = onImageClick
-                )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
+                MapStaticImage()
             }
         }
 

@@ -21,7 +21,10 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.os.Bundle
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
@@ -34,11 +37,24 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.ktx.awaitMap
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -65,6 +81,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PRO
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
+import kotlinx.coroutines.launch
 import org.commonmark.Extension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
@@ -261,3 +278,69 @@ fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<Displa
         Pair(listOf(), uiText.asString(resources))
     }
 }
+
+@Composable
+fun MapStaticImage(location: LatLng = LatLng(52.5200066, 13.404954)) {
+    Column(
+        modifier = Modifier
+            .wrapContentSize()
+    ) {
+        val map = rememberMapViewWithLifecycle()
+        val mapBitmap: MutableState<Bitmap?> = remember { mutableStateOf(null) }
+        val coroutineScope = rememberCoroutineScope()
+
+        if (mapBitmap.value != null) {
+            Image(
+                bitmap = mapBitmap.value!!.asImageBitmap(),
+                contentDescription = "Map snapshot",
+            )
+        } else {
+            AndroidView({ map }) { mapView ->
+                coroutineScope.launch {
+                    val googleMap = mapView.awaitMap()
+//                    val zoom = calculateZoom()
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 10f))
+//                    googleMap.addMarker { position(location) }
+                    googleMap.snapshot {
+                        mapBitmap.value = it
+                    }
+                }
+            }
+        }
+        DisposableEffect(location) {
+            mapBitmap.value = null
+            onDispose { mapBitmap.value = null }
+        }
+    }
+}
+
+@Composable
+fun rememberMapViewWithLifecycle(): MapView {
+    val context = LocalContext.current
+    val mapView = remember { MapView(context) }
+
+    // Makes MapView follow the lifecycle of this composable
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle, mapView) {
+        val lifecycleObserver = getMapLifecycleObserver(mapView)
+        lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+
+    return mapView
+}
+
+private fun getMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
+    LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> mapView.onCreate(Bundle())
+            Lifecycle.Event.ON_START -> mapView.onStart()
+            Lifecycle.Event.ON_RESUME -> mapView.onResume()
+            Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+            Lifecycle.Event.ON_STOP -> mapView.onStop()
+            Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+            else -> throw IllegalStateException()
+        }
+    }

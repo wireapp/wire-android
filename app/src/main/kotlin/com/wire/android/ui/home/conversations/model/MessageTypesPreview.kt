@@ -588,3 +588,11 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
         )
     }
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewLocationMessage() {
+    WireTheme {
+        MapStaticImage()
+    }
+}

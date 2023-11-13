@@ -145,6 +145,7 @@ class WireActivity : AppCompatActivity() {
             InitialAppState.LOGGED_IN -> HomeScreenDestination
         }
         setComposableContent(startDestination) {
+            shouldKeepSplashOpen = false
             handleDeepLink(intent, savedInstanceState)
         }
     }

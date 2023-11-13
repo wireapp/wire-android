@@ -44,8 +44,8 @@ fun LegalHoldInfoDialog(
     action: Pair<String, () -> Unit>? = null,
     bottomDescriptionText: String? = null,
 ) {
-    val text = stringResource(id = R.string.legal_hold_subject_dialog_description_group).let {
-        if (isConversation) it + "\n\n" + stringResource(id = R.string.legal_hold_subject_dialog_description)
+    val text = stringResource(id = R.string.legal_hold_subject_dialog_description).let {
+        if (isConversation) stringResource(id = R.string.legal_hold_subject_dialog_description_group) + "\n\n" +it
         else it
     }
     WireDialog(
@@ -70,6 +70,7 @@ fun LegalHoldInfoDialog(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.dialogTextsSpacing),
             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
         ) {
+            LearnMoreAboutLegalHoldButton()
             if (!bottomDescriptionText.isNullOrEmpty()) {
                 Text(
                     text = bottomDescriptionText,
@@ -77,7 +78,6 @@ fun LegalHoldInfoDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            LearnMoreAboutLegalHoldButton()
         }
     }
 }
@@ -86,6 +86,6 @@ fun LegalHoldInfoDialog(
 @PreviewMultipleThemes
 fun PreviewLegalHoldInfoDialog() {
     WireTheme {
-        LegalHoldInfoDialog("username", true, "cancel", {}, Pair("send anyway", {}), "send anyway?")
+        LegalHoldInfoDialog("username", true, "cancel", {}, Pair("send anyway", {}), "Send anyway?")
     }
 }

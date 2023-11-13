@@ -472,6 +472,4 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): ObserveScreenshotCensoringConfigUseCase =
         coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
-
-
 }

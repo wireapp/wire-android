@@ -23,13 +23,13 @@ package com.wire.android.util.permission
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
-import android.location.LocationManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.location.LocationServices
 import com.wire.android.util.extension.checkPermission
 
 @Composable
@@ -43,7 +43,7 @@ fun rememberCurrentLocationFlow(
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val allPermissionGranted = permissions.all { it.value }
             if (allPermissionGranted) {
-                onPermissionAllowed(getCurrentLocation(context))
+                getCurrentLocation(onPermissionAllowed, context)
             } else {
                 onPermissionDenied()
             }
@@ -61,8 +61,7 @@ class CurrentLocationRequestFlow(
 ) {
     fun launch() {
         if (checkLocationPermissions(context)) {
-            val location = getCurrentLocation(context)
-            onPermissionAllowed(location)
+            getCurrentLocation(onPermissionAllowed, context)
         } else {
             locationPermissionLauncher.launch(getLocationPermissions())
         }
@@ -81,7 +80,11 @@ private fun checkLocationPermissions(
         context.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
 @SuppressLint("MissingPermission")
-private fun getCurrentLocation(context: Context): Location? {
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    return locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+private fun getCurrentLocation(onPermissionAllowed: (Location?) -> Unit, context: Context) {
+    val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+    locationProvider.lastLocation.addOnSuccessListener {
+        // todo(ym): for this to work we need to update the last known location with `locationProvider.requestLocationUpdates`
+        // todo(ym): we might ask for location permissions at the start ? also this needs to show a embedded map ui.
+        onPermissionAllowed(it)
+    }
 }

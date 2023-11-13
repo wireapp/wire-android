@@ -30,7 +30,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
-    searchResult: List<UIMessage>
+    searchResult: List<UIMessage>,
+    onMessageClick: (messageId: String) -> Unit
 ) {
     LazyColumn {
         items(searchResult) { message ->
@@ -51,7 +52,8 @@ fun SearchConversationMessagesResultsScreen(
                         onSelfDeletingMessageRead = { },
                         defaultBackgroundColor = colorsScheme().backgroundVariant,
                         shouldDisplayMessageStatus = false,
-                        shouldDisplayFooter = false
+                        shouldDisplayFooter = false,
+                        onMessageClick = onMessageClick
                     )
                 }
                 is UIMessage.System -> { }
@@ -68,7 +70,8 @@ fun previewSearchConversationMessagesResultsScreen() {
             searchResult = listOf(
                 mockMessageWithText,
                 mockMessageWithText,
-            )
+            ),
+            onMessageClick = {}
         )
     }
 }

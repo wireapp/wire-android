@@ -60,4 +60,13 @@ class FileUtilTest {
         val result = findFirstUniqueName(tempDir, desired)
         assertEquals(expected, result)
     }
+
+    @Test
+    fun `given file with invalid filename when finding unique name in directory then return name without disallowed characters`() {
+        val desired = "\u0020ab\u0008cd\u0000ef\u001fgh\u007Fij*kl/mn:op<qr>st?uv\\wx|yz.jpg"
+        val expected = "\u0020ab_cd_ef_gh_ij_kl_mn_op_qr_st_uv_wx_yz.jpg"
+
+        val result = desired.sanitizeFilename()
+        assertEquals(expected, result)
+    }
 }

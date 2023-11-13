@@ -45,7 +45,7 @@ fun LegalHoldInfoDialog(
     bottomDescriptionText: String? = null,
 ) {
     val text = stringResource(id = R.string.legal_hold_subject_dialog_description).let {
-        if (isConversation) stringResource(id = R.string.legal_hold_subject_dialog_description_group) + "\n\n" +it
+        if (isConversation) stringResource(id = R.string.legal_hold_subject_dialog_description_group) + "\n\n" + it
         else it
     }
     WireDialog(

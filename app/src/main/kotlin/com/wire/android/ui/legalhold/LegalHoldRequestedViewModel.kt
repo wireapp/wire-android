@@ -33,13 +33,13 @@ import javax.inject.Inject
 class LegalHoldRequestedViewModel @Inject constructor(
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val validatePassword: ValidatePasswordUseCase,
-    ) : ViewModel() {
+) : ViewModel() {
 
     var state: LegalHoldRequestedState by mutableStateOf(LegalHoldRequestedState())
         private set
 
     init {
-        state = state.copy(legalHoldDeviceFingerprint = "0123456789ABCDEF")// TODO get fingerprint
+        state = state.copy(legalHoldDeviceFingerprint = "0123456789ABCDEF") // TODO get fingerprint
         viewModelScope.launch {
             isPasswordRequired().let {
                 state = state.copy(requiresPassword = (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true)

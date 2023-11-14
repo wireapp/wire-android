@@ -56,6 +56,7 @@ object FeatureVisibilityFlags {
     const val ConversationSearchIcon = false
     const val UserProfileEditIcon = false
     const val MessageEditIcon = true
+    const val SearchConversationMessages = false
 }
 
 

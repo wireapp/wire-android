@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.legalhold
+package com.wire.android.ui.legalhold.dialog.subject
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -24,24 +24,21 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LegalHoldInfoMessageDialog(
+fun LegalHoldSubjectProfileDialog(
     userName: String,
     dialogDismissed: () -> Unit,
-    sendAnywayClicked: () -> Unit,
 ) {
-    LegalHoldInfoDialog(
+    LegalHoldSubjectBaseDialog(
         name = userName,
-        isConversation = true,
-        cancelText = stringResource(id = R.string.label_cancel),
-        dialogDismissed = dialogDismissed,
-        action = stringResource(id = R.string.legal_hold_subject_dialog_send_anyway_button) to sendAnywayClicked,
-    )
+        isConversation = false,
+        cancelText = stringResource(id = R.string.label_close),
+        dialogDismissed = dialogDismissed)
 }
 
 @Composable
 @PreviewMultipleThemes
-fun PreviewLegalHoldInfoMessageDialog() {
+fun PreviewLegalHoldSubjectProfileDialog() {
     WireTheme {
-        LegalHoldInfoMessageDialog("conversation name", {}, {})
+        LegalHoldSubjectProfileDialog("username", {})
     }
 }

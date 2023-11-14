@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.legalhold
+package com.wire.android.ui.legalhold.dialog.requested
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

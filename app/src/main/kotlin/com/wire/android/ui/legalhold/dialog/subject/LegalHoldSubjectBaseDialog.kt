@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.legalhold
+package com.wire.android.ui.legalhold.dialog.subject
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,13 +30,14 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.legalhold.dialog.common.LearnMoreAboutLegalHoldButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LegalHoldInfoDialog(
+fun LegalHoldSubjectBaseDialog(
     name: String,
     isConversation: Boolean,
     cancelText: String,
@@ -84,8 +85,8 @@ fun LegalHoldInfoDialog(
 
 @Composable
 @PreviewMultipleThemes
-fun PreviewLegalHoldInfoDialog() {
+fun PreviewLegalHoldSubjectBaseDialog() {
     WireTheme {
-        LegalHoldInfoDialog("username", true, "cancel", {}, Pair("send anyway", {}), "Send anyway?")
+        LegalHoldSubjectBaseDialog("username", true, "cancel", {}, Pair("send anyway", {}), "Send anyway?")
     }
 }

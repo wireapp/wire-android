@@ -27,10 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
-import com.wire.android.model.ActionableState
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -38,9 +36,11 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -53,9 +53,11 @@ fun ConnectionActionButton(
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
-        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonArgs>(ConnectionActionButtonArgs(userId, userName))
-            .also { LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage) }
+        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonViewModel, ConnectionActionButtonArgs>(
+            ConnectionActionButtonArgs(userId, userName)
+        ),
 ) {
+    LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
 
     UnblockUserDialogContent(
@@ -166,67 +168,73 @@ fun ConnectionActionButton(
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonPending() {
-    ConnectionActionButton(
-        userId = UserId("value", "domain"),
-        userName = "Username",
-        connectionStatus = ConnectionState.PENDING,
-        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
-    )
+    WireTheme {
+        ConnectionActionButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            connectionStatus = ConnectionState.PENDING,
+        )
+    }
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonNotConnected() {
-    ConnectionActionButton(
-        userId = UserId("value", "domain"),
-        userName = "Username",
-        connectionStatus = ConnectionState.NOT_CONNECTED,
-        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
-    )
+    WireTheme {
+        ConnectionActionButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            connectionStatus = ConnectionState.NOT_CONNECTED,
+        )
+    }
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonBlocked() {
-    ConnectionActionButton(
-        userId = UserId("value", "domain"),
-        userName = "Username",
-        connectionStatus = ConnectionState.BLOCKED,
-        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
-    )
+    WireTheme {
+        ConnectionActionButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            connectionStatus = ConnectionState.BLOCKED,
+        )
+    }
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonCanceled() {
-    ConnectionActionButton(
-        userId = UserId("value", "domain"),
-        userName = "Username",
-        connectionStatus = ConnectionState.CANCELLED,
-        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
-    )
+    WireTheme {
+        ConnectionActionButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            connectionStatus = ConnectionState.CANCELLED,
+        )
+    }
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonAccepted() {
-    ConnectionActionButton(
-        userId = UserId("value", "domain"),
-        userName = "Username",
-        connectionStatus = ConnectionState.ACCEPTED,
-        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
-    )
+    WireTheme {
+        ConnectionActionButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            connectionStatus = ConnectionState.ACCEPTED,
+        )
+    }
 }
 
 @Composable
-@Preview
+@PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonSent() {
-    ConnectionActionButton(
-        userId = UserId("value", "domain"),
-        userName = "Username",
-        connectionStatus = ConnectionState.SENT,
-        viewModel = ConnectionActionButtonPreviewModel(ActionableState())
-    )
+    WireTheme {
+        ConnectionActionButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            connectionStatus = ConnectionState.SENT,
+        )
+    }
 }

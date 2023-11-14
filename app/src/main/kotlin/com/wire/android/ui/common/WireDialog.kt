@@ -280,7 +280,7 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
 @Composable
 fun PreviewWireDialog() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
-    WireTheme(isPreview = true) {
+    WireTheme {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxWidth()
@@ -323,7 +323,7 @@ fun PreviewWireDialog() {
 @Composable
 fun PreviewWireDialogWith2OptionButtons() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
-    WireTheme(isPreview = true) {
+    WireTheme {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxWidth()

@@ -59,5 +59,4 @@ object FeatureVisibilityFlags {
     const val SearchConversationMessages = false
 }
 
-
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

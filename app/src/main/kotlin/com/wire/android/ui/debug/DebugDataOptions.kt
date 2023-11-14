@@ -38,7 +38,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
-import com.wire.android.feature.OAuthUseCase
+import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
@@ -53,17 +53,16 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.getActivity
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.functional.onSuccess
+import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -97,7 +96,7 @@ class DebugDataOptionsViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
-    private val enrollE2EI: EnrollE2EIUseCase
+    private val e2eiCertificateUseCase: GetE2EICertificateUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -128,16 +127,19 @@ class DebugDataOptionsViewModel
         }
     }
 
-    var enrollmentResult: E2EIEnrollmentResult.Initialized? = null
     fun enrollE2EICertificate(context: Context) {
-        viewModelScope.launch {
-            enrollE2EI.initialEnrollment().onSuccess {
-                if (it is E2EIEnrollmentResult.Initialized) {
-                    enrollmentResult = it
-                    val oAuth = OAuthUseCase(context, it.target)
-                    oAuth.launch(context.getActivity()!!.activityResultRegistry, ::oAuthResultHandler)
+        e2eiCertificateUseCase(context) { result ->
+            result.fold({
+                state = state.copy(
+                    certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true
+                )
+            }, {
+                if (it is E2EIEnrollmentResult.Finalized) {
+                    state = state.copy(
+                        certificate = it.certificate, showCertificate = true
+                    )
                 }
-            }
+            })
         }
     }
 
@@ -145,31 +147,6 @@ class DebugDataOptionsViewModel
         state = state.copy(
             showCertificate = false,
         )
-    }
-
-    private fun oAuthResultHandler(oAuthResult: OAuthUseCase.OAuthResult) {
-        viewModelScope.launch {
-            when (oAuthResult) {
-                is OAuthUseCase.OAuthResult.Success -> {
-                    enrollE2EI.finalizeEnrollment(
-                        oAuthResult.idToken,
-                        enrollmentResult!!
-                    ).onSuccess {
-                        if (it is E2EIEnrollmentResult.Finalized) {
-                            state = state.copy(
-                                certificate = it.certificate, showCertificate = true
-                            )
-                        }
-                    }
-                }
-
-                is OAuthUseCase.OAuthResult.Failed -> {
-                    state = state.copy(
-                        certificate = oAuthResult.reason, showCertificate = true
-                    )
-                }
-            }
-        }
     }
 
     fun forceUpdateApiVersions() {

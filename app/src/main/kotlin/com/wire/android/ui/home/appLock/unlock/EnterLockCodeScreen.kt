@@ -209,7 +209,7 @@ private fun ContinueButton(
 @Composable
 @PreviewMultipleThemes
 fun PreviewEnterLockCodeScreen() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         EnterLockCodeScreenContent(
             state = EnterLockCodeViewState(),
             scrollState = rememberScrollState(),

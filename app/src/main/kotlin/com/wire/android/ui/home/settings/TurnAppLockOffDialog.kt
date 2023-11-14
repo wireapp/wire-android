@@ -62,7 +62,7 @@ fun TurnAppLockOffDialog(
 @PreviewMultipleThemes
 @Composable
 fun PreviewTurnAppLockOffDialog() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         TurnAppLockOffDialog(VisibilityState(isVisible = true)) {}
     }
 }

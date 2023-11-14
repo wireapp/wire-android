@@ -300,7 +300,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 fun PreviewLoginEmailScreen() {
     val scope = rememberCoroutineScope()
-    WireTheme(isPreview = true) {
+    WireTheme {
         LoginEmailContent(
             scrollState = rememberScrollState(),
             loginState = LoginState(),

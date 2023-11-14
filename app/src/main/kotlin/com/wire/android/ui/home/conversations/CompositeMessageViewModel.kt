@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.scopedArgs
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.ui.navArgs
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
@@ -34,11 +35,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ViewModelScopedPreview
+interface CompositeMessageViewModel {
+    val pendingButtonId: MessageButtonId?
+        get() = null
+    fun sendButtonActionMessage(buttonId: String) {}
+}
+
 @HiltViewModel
-class CompositeMessageViewModel @Inject constructor(
+class CompositeMessageViewModelImpl @Inject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : CompositeMessageViewModel, ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -46,11 +54,11 @@ class CompositeMessageViewModel @Inject constructor(
     private val scopedArgs: CompositeMessageArgs = savedStateHandle.scopedArgs()
     private val messageId: String = scopedArgs.messageId
 
-    var pendingButtonId: MessageButtonId? by mutableStateOf(null)
+    override var pendingButtonId: MessageButtonId? by mutableStateOf(null)
         @VisibleForTesting
         set
 
-    fun sendButtonActionMessage(buttonId: String) {
+    override fun sendButtonActionMessage(buttonId: String) {
         if (pendingButtonId != null) return
 
         pendingButtonId = buttonId

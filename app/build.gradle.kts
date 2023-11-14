@@ -198,4 +198,7 @@ dependencies {
     internalImplementation(libs.dataDog.compose)
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
+
+    implementation(project(":ksp"))
+    ksp(project(":ksp"))
 }

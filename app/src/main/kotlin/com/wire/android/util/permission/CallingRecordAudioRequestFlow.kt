@@ -48,9 +48,7 @@ fun rememberCallingRecordAudioBluetoothRequestFlow(
                 onAudioBluetoothPermissionGranted()
             } else {
                 context.getActivity()?.let {
-                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO) ||
-                        it.shouldShowRequestPermissionRationale(android.Manifest.permission.BLUETOOTH_CONNECT)
-                    ) {
+                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
                         onAudioBluetoothPermissionDenied()
                     } else {
                         onAudioBluetoothPermissionPermanentlyDenied()
@@ -71,7 +69,6 @@ class CallingAudioRequestFlow(
 ) {
     fun launch() {
         val audioPermissionEnabled = context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
-        val bluetoothPermissionEnabled = context.checkPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
 
         val neededPermissions = mutableListOf(
             android.Manifest.permission.RECORD_AUDIO
@@ -80,7 +77,7 @@ class CallingAudioRequestFlow(
         val permissionsEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             neededPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
 
-            audioPermissionEnabled && bluetoothPermissionEnabled
+            audioPermissionEnabled
         } else {
             audioPermissionEnabled
         }

@@ -90,7 +90,7 @@ fun ConversationRouterHomeBridge(
     }
 
     MicrophoneBTPermissionsDeniedDialog(
-        shouldShow = viewModel.conversationListState.shouldShowCallingPermissionDialog,
+        shouldShow = viewModel.conversationListCallState.shouldShowCallingPermissionDialog,
         onDismiss = viewModel::dismissCallingPermissionDialog,
         onOpenSettings = {
             context.openAppInfoScreen()

@@ -51,9 +51,14 @@ class SearchConversationMessagesViewModel @Inject constructor(
     var searchConversationMessagesState by savedStateHandle.saveable(
         stateSaver = Saver<SearchConversationMessagesState, String>(
             save = { it.searchQuery.text },
-            restore = { SearchConversationMessagesState(searchQuery = TextFieldValue(it)) }
+            restore = {
+                SearchConversationMessagesState(
+                    conversationId = conversationId,
+                    searchQuery = TextFieldValue(it)
+                )
+            }
         )
-    ) { mutableStateOf(SearchConversationMessagesState()) }
+    ) { mutableStateOf(SearchConversationMessagesState(conversationId)) }
 
     private val mutableSearchQueryFlow = MutableStateFlow(searchConversationMessagesState.searchQuery.text)
 
@@ -62,13 +67,18 @@ class SearchConversationMessagesViewModel @Inject constructor(
             mutableSearchQueryFlow
                 .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
                 .collectLatest { searchTerm ->
+                    searchConversationMessagesState = searchConversationMessagesState.copy(
+                        isLoading = true
+                    )
+
                     getSearchMessagesForConversation(
                         searchTerm = searchTerm,
                         conversationId = conversationId
                     ).onSuccess { uiMessages ->
                         searchConversationMessagesState = searchConversationMessagesState.copy(
                             searchResult = uiMessages.toPersistentList(),
-                            isEmptyResult = uiMessages.isEmpty()
+                            isEmptyResult = uiMessages.isEmpty(),
+                            isLoading = false
                         )
                     }
                 }

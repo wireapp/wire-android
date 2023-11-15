@@ -1281,4 +1281,14 @@
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
     <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
     <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+
+    <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_messaging_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to send the message?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Send Anyway</string>
+
+    <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
 </resources>

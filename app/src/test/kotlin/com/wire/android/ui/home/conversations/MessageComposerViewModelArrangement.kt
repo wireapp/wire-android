@@ -65,7 +65,9 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -107,6 +109,8 @@ internal class MessageComposerViewModelArrangement {
         coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
+        coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
+        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
     }
 
     @MockK
@@ -181,6 +185,12 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var sendTypingEvent: SendTypingEventUseCase
 
+    @MockK
+    lateinit var setUserInformedAboutVerificationUseCase: SetUserInformedAboutVerificationUseCase
+
+    @MockK
+    lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -206,7 +216,9 @@ internal class MessageComposerViewModelArrangement {
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             retryFailedMessage = retryFailedMessageUseCase,
-            sendTypingEvent = sendTypingEvent
+            sendTypingEvent = sendTypingEvent,
+            setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
+            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase
         )
     }
 
@@ -300,6 +312,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withPersistSelfDeletionStatus() = apply {
         coEvery { persistSelfDeletionStatus(any(), any()) } returns Unit
+    }
+
+    fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {
+        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(flag)
     }
 
     fun arrange() = this to viewModel

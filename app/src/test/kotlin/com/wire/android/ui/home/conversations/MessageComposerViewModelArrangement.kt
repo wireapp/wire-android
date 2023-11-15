@@ -110,7 +110,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
-        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
+        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
     }
 
     @MockK

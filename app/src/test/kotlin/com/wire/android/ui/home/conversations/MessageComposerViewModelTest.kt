@@ -657,7 +657,7 @@ class MessageComposerViewModelTest {
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
             val (arrangement, viewModel) = MessageComposerViewModelArrangement()
                 .withSuccessfulViewModelInit()
-                .withInformAboutVerificationBeforeMessagingFlag(true)
+                .withInformAboutVerificationBeforeMessagingFlag(false)
                 .arrange()
 
             // when

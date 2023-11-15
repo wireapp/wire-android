@@ -56,7 +56,6 @@ object QueryMatchExtractor {
         }
     }
 
-
     private fun isIndexFound(index: Int): Boolean {
         return index != -1
     }

@@ -14,8 +14,8 @@ ktx-serialization = "1.5.1"
 # Android Core / Architecture
 google-gms = "4.4.0"
 android-gradlePlugin = "8.1.2"
-desugaring = "2.0.3"
-firebaseBOM = "32.2.3"
+desugaring = "2.0.4"
+firebaseBOM = "32.5.0"
 fragment = "1.5.6"
 resaca = "2.4.6"
 bundlizer = "0.7.0"
@@ -45,13 +45,13 @@ compose-navigation = "2.7.3" # adjusted to work with compose-destinations "1.9.5
 compose-destinations = "1.9.54"
 
 # Hilt
-hilt = "2.48"
-hilt-composeNavigation = "1.0.0"
-hilt-work = "1.0.0"
+hilt = "2.48.1"
+hilt-composeNavigation = "1.1.0"
+hilt-work = "1.1.0"
 
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
-material = "1.9.0"
+material = "1.10.0"
 coil = "2.5.0"
 commonmark = "0.21.0"
 
@@ -83,7 +83,7 @@ junit4 = "4.13.2"
 junit5 = "5.10.0"
 kluent = "1.73"
 mockk = "1.13.5"
-okio = "3.5.0"
+okio = "3.6.0"
 turbine = "1.0.0"
 
 [plugins]
@@ -114,6 +114,8 @@ aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:abo
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
+
+ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 
 # android dependencies
 

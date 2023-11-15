@@ -68,6 +68,6 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
         }
 
     private companion object {
-        const val MINIMUM_CHARACTERS_TO_SEARCH = 2
+        const val MINIMUM_CHARACTERS_TO_SEARCH = 1
     }
 }

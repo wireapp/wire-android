@@ -30,6 +30,7 @@ import com.wire.android.di.scopedArgs
 import com.wire.android.model.ActionableState
 import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
@@ -48,20 +49,23 @@ import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@ViewModelScopedPreview
 interface ConnectionActionButtonViewModel {
-
-    fun actionableState(): ActionableState
-    fun onSendConnectionRequest()
-    fun onCancelConnectionRequest()
-    fun onAcceptConnectionRequest()
-    fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit)
-    fun onUnblockUser()
-    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit)
+    val infoMessage: SharedFlow<UIText>
+        get() = MutableSharedFlow()
+    fun actionableState(): ActionableState = ActionableState()
+    fun onSendConnectionRequest() {}
+    fun onCancelConnectionRequest() {}
+    fun onAcceptConnectionRequest() {}
+    fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
+    fun onUnblockUser() {}
+    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -84,7 +88,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
     private var state: ActionableState by mutableStateOf(ActionableState())
 
     private val _infoMessage = MutableSharedFlow<UIText>()
-    val infoMessage = _infoMessage.asSharedFlow()
+    override val infoMessage = _infoMessage.asSharedFlow()
 
     override fun actionableState(): ActionableState = state
 
@@ -200,15 +204,4 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             }
         }
     }
-}
-
-@Suppress("EmptyFunctionBlock")
-class ConnectionActionButtonPreviewModel(private val state: ActionableState) : ConnectionActionButtonViewModel {
-    override fun actionableState(): ActionableState = state
-    override fun onSendConnectionRequest() {}
-    override fun onCancelConnectionRequest() {}
-    override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
-    override fun onUnblockUser() {}
-    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
 }

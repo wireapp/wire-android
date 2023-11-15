@@ -106,6 +106,6 @@ fun ReactionOption(
 
 @PreviewMultipleThemes
 @Composable
-private fun BasePreview() = WireTheme(isPreview = true) {
+private fun BasePreview() = WireTheme {
     ReactionOption(onReactionClick = {})
 }

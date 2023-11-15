@@ -44,4 +44,23 @@ object AuthorHeaderHelper {
         }
         return showHeader
     }
+
+    internal fun shouldHaveSmallBottomPadding(index: Int, messages: List<UIMessage>, currentMessage: UIMessage): Boolean {
+        var shouldHaveSmallBottomPadding = false
+        if (index > 0) {
+            val previousIndex = index - 1
+            val previousUiMessage = messages[previousIndex]
+            if (currentMessage.header.userId == previousUiMessage.header.userId
+                && currentMessage is UIMessage.Regular
+                && previousUiMessage is UIMessage.Regular
+            ) {
+                val difference = DateTimeUtil.calculateMillisDifference(
+                    currentMessage.header.messageTime.utcISO,
+                    previousUiMessage.header.messageTime.utcISO
+                )
+                shouldHaveSmallBottomPadding = difference < AGGREGATION_TIME_WINDOW
+            }
+        }
+        return shouldHaveSmallBottomPadding
+    }
 }

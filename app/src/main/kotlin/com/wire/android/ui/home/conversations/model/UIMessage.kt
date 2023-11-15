@@ -270,7 +270,7 @@ sealed class UIMessageContent {
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
-        val isSmallIcon: Boolean = true,
+        val isSmallIcon: Boolean = false,
         val additionalContent: String = "",
         @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {

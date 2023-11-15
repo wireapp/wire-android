@@ -393,7 +393,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Preview
 @Composable
 fun PreviewWelcomeScreen() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         WelcomeContent(
             isThereActiveSession = false,
             maxAccountsReached = false,

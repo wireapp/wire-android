@@ -110,7 +110,7 @@ private fun GroupConversationAllParticipantsContent(
 @Preview
 @Composable
 fun PreviewGroupConversationAllParticipants() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         GroupConversationAllParticipantsContent({}, {}, GroupConversationParticipantsState.PREVIEW)
     }
 }

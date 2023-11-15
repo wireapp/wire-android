@@ -203,7 +203,7 @@ private fun ContinueButton(
 @Composable
 @PreviewMultipleThemes
 fun PreviewForgotLockCodeScreen() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         ForgotLockCodeScreenContent(rememberScrollState(), {})
     }
 }

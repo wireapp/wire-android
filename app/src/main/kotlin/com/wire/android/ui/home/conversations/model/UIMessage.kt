@@ -355,13 +355,17 @@ sealed class UIMessageContent {
         }
 
         data class RenamedConversation(val author: UIText, val content: MessageContent.ConversationRenamed) :
-            SystemMessage(R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation, true, content.conversationName)
+            SystemMessage(
+                R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation,
+                false,
+                content.conversationName
+            )
 
         data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
-            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
+            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, false, content.userName)
 
         data class CryptoSessionReset(val author: UIText) :
-            SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset, true)
+            SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset)
 
         data class NewConversationReceiptMode(
             val receiptMode: UIText
@@ -407,8 +411,7 @@ sealed class UIMessageContent {
 
         class MLSWrongEpochWarning : SystemMessage(
             iconResId = R.drawable.ic_info,
-            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
-            isSmallIcon = true
+            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled
         )
 
         data class ConversationProtocolChanged(
@@ -424,14 +427,12 @@ sealed class UIMessageContent {
 
         object HistoryLost : SystemMessage(
             R.drawable.ic_info,
-            R.string.label_system_message_conversation_history_lost,
-            true
+            R.string.label_system_message_conversation_history_lost
         )
 
         object HistoryLostProtocolChanged : SystemMessage(
             R.drawable.ic_info,
-            R.string.label_system_message_conversation_history_lost_protocol_changed,
-            true
+            R.string.label_system_message_conversation_history_lost_protocol_changed
         )
 
         data class ConversationMessageCreated(

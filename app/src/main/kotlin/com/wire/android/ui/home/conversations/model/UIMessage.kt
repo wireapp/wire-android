@@ -270,7 +270,7 @@ sealed class UIMessageContent {
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
-        val isSmallIcon: Boolean = false,
+        val isSmallIcon: Boolean = true,
         val additionalContent: String = "",
         @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {
@@ -362,7 +362,7 @@ sealed class UIMessageContent {
             )
 
         data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
-            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, false, content.userName)
+            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
 
         data class CryptoSessionReset(val author: UIText) :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset)

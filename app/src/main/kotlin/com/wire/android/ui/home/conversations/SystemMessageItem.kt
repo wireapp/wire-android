@@ -117,7 +117,12 @@ fun SystemMessageItem(
                             + (dimensions().avatarStatusBorderSize * 2)
                             + (dimensions().avatarClickablePadding * 2)
                 )
-                .padding(end = fullAvatarOuterPadding, top = fullAvatarOuterPadding),
+                .padding(
+                    end = fullAvatarOuterPadding,
+                    // because for now only end call icon is large and have vertical empty space
+                    // we need to disable padding for it
+                    top = if (message.messageContent.isSmallIcon) fullAvatarOuterPadding else dimensions().spacing0x
+                ),
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {

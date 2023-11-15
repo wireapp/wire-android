@@ -25,6 +25,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,6 +96,7 @@ fun MessageItem(
     conversationDetailsData: ConversationDetailsData,
     searchQuery: String = "",
     showAuthor: Boolean = true,
+    useSmallBottomPadding: Boolean = false,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
@@ -148,13 +151,15 @@ fun MessageItem(
                     .fillMaxWidth()
                     .combinedClickable(
                         enabled = message.isAvailable,
+                        interactionSource = MutableInteractionSource(),
+                        indication = rememberRipple(bounded = true),
                         onClick = { onMessageClick(message.header.messageId) },
                         onLongClick = remember(message) { { onLongClicked(message) } }
                     )
                     .padding(
                         end = dimensions().messageItemHorizontalPadding,
-                        top = dimensions().messageItemVerticalPadding - fullAvatarOuterPadding,
-                        bottom = dimensions().messageItemVerticalPadding
+                        top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
+                        bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
                     )
             ) {
                 val isProfileRedirectEnabled =
@@ -162,7 +167,6 @@ fun MessageItem(
                             !(header.isSenderDeleted || header.isSenderUnavailable)
 
                 Box(
-                    modifier = Modifier.width(dimensions().spacing56x),
                     contentAlignment = Alignment.TopStart
                 ) {
                     if (showAuthor) {
@@ -189,8 +193,8 @@ fun MessageItem(
                 }
                 Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
                 Column {
-                    Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     if (showAuthor) {
+                        Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
@@ -416,7 +420,6 @@ private fun MessageFooter(
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
-            modifier = Modifier.padding(top = dimensions().spacing4x)
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }

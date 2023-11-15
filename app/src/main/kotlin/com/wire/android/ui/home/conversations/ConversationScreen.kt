@@ -845,7 +845,7 @@ fun MessageList(
                 reverseLayout = true,
                 // calculating bottom padding to have space for [UsersTypingIndicator]
                 contentPadding = PaddingValues(
-                    bottom = dimensions().typingIndicatorHeight - dimensions().messageItemVerticalPadding
+                    bottom = dimensions().typingIndicatorHeight - dimensions().messageItemBottomPadding
                 ),
                 modifier = Modifier
                     .fillMaxSize()
@@ -870,12 +870,23 @@ fun MessageList(
                         )
                     }
 
+                    val useSmallBottomPadding by remember {
+                        mutableStateOf(
+                            AuthorHeaderHelper.shouldHaveSmallBottomPadding(
+                                index,
+                                lazyPagingMessages.itemSnapshotList.items,
+                                message
+                            )
+                        )
+                    }
+
                     when (message) {
                         is UIMessage.Regular -> {
                             MessageItem(
                                 message = message,
                                 conversationDetailsData = conversationDetailsData,
                                 showAuthor = showAuthor,
+                                useSmallBottomPadding = useSmallBottomPadding,
                                 audioMessagesState = audioMessagesState,
                                 onAudioClick = onAudioItemClicked,
                                 onChangeAudioPosition = onChangeAudioPosition,

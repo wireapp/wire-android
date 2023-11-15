@@ -216,7 +216,8 @@
 
                 <data
                         android:path="/oauth2redirect"
-                        android:scheme="com.wire.android.internal.debug" />
+                        android:host="e2ei"
+                        android:scheme="wire" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -226,7 +227,8 @@
 
                 <data
                         android:path="/logout"
-                        android:scheme="com.wire.android.internal.debug" />
+                        android:host="e2ei"
+                        android:scheme="wire" />
             </intent-filter>
         </activity>
 

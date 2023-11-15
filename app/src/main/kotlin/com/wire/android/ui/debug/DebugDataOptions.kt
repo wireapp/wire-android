@@ -297,37 +297,41 @@ fun DebugDataOptionsContent(
                     onClick = { onCopyText(state.debugId) }
                 )
             )
-            GetE2EICertificateSwitch(
-                enrollE2EI = enrollE2EICertificate
-            )
-            if (state.showCertificate) {
-                WireDialog(
-                    title = "E2EI Certificate in PEM format",
-                    text = state.certificate,
-                    onDismiss = {
-                        dismissCertificateDialog()
-                    },
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = {
+            if (BuildConfig.DEBUG) {
+                GetE2EICertificateSwitch(
+                    enrollE2EI = enrollE2EICertificate
+                )
+
+                if (state.showCertificate) {
+                    WireDialog(
+                        title = "E2EI Certificate in PEM format",
+                        text = state.certificate,
+                        onDismiss = {
                             dismissCertificateDialog()
                         },
-                        text = "OK",
-                        type = WireDialogButtonType.Primary,
+                        optionButton1Properties = WireDialogButtonProperties(
+                            onClick = {
+                                dismissCertificateDialog()
+                            },
+                            text = "OK",
+                            type = WireDialogButtonType.Primary,
+                        )
                     )
-                )
+                }
             }
             ProteusOptions(
                 isEncryptedStorageEnabled = state.isEncryptedProteusStorageEnabled,
                 onEncryptedStorageEnabledChange = onEnableEncryptedProteusStorageChange
             )
-
-            MLSOptions(
-                keyPackagesCount = state.keyPackagesCount,
-                mlsClientId = state.mslClientId,
-                mlsErrorMessage = state.mlsErrorMessage,
-                restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
-                onCopyText = onCopyText
-            )
+            if (BuildConfig.DEBUG) {
+                MLSOptions(
+                    keyPackagesCount = state.keyPackagesCount,
+                    mlsClientId = state.mslClientId,
+                    mlsErrorMessage = state.mlsErrorMessage,
+                    restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
+                    onCopyText = onCopyText
+                )
+            }
 
             DebugToolsOptions(
                 isEventProcessingEnabled = state.isEventProcessingDisabled,

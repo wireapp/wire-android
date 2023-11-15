@@ -26,6 +26,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.appLogger
+import com.wire.android.util.deeplink.DeepLinkProcessor
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
@@ -150,7 +151,7 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
     }
 
     private fun getAuthorizationRequest() = AuthorizationRequest.Builder(
-        authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, Uri.parse(URL_AUTH_REDIRECT)
+        authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, URL_AUTH_REDIRECT
     ).setCodeVerifier().setScopes(SCOPE_OPENID, SCOPE_EMAIL, SCOPE_PROFILE).build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
@@ -197,7 +198,10 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
         const val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
         val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM)
         const val ENCODING = Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
-        const val URL_AUTH_REDIRECT = "com.wire.android.internal.debug:/oauth2redirect"
+        val URL_AUTH_REDIRECT: Uri = Uri.Builder().scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.E2EI_DEEPLINK_HOST)
+            .appendPath(DeepLinkProcessor.E2EI_DEEPLINK_OAUTH_REDIRECT_PATH).build()
+
         const val IDP_CONFIGURATION_PATH = "/.well-known/openid-configuration"
     }
 }

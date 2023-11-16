@@ -49,16 +49,16 @@
     <string name="label_message_receive_failure">Greška pri preuzimanju</string>
     <string name="label_message_decryption_failure_message">Poruka se ne može dešifrirati.</string>
     <string name="label_message_decryption_failure_informative_message">Pokušajte resetirati sesiju zbog generiranja novih ključeva za enkripciju.</string>
-    <string name="label_system_message_self_user_knock">%s pinged</string>
-    <string name="label_system_message_other_user_knock">%s pinged</string>
-    <string name="label_message_partial_delivery_participants_count">%1$d participants didn\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s won\'t get your message.</string>
-    <string name="label_message_partial_delivery_participants_one_deliver_later">%s will get your message later.</string>
-    <string name="label_message_partial_delivery_participants_many_deliver_later">%s will get your message later.</string>
+    <string name="label_system_message_self_user_knock">%s pingao/la</string>
+    <string name="label_system_message_other_user_knock">%s pingao/la</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d sudionici nisu primili vašu poruku.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s neće dobiti tvoju poruku.</string>
+    <string name="label_message_partial_delivery_participants_one_deliver_later">%s će dobiti tvoju poruku kasnije.</string>
+    <string name="label_message_partial_delivery_participants_many_deliver_later">%s će dobiti tvoju poruku kasnije.</string>
     <plurals name="label_message_partial_delivery_x_participants_from_backend">
-        <item quantity="one">1 participant from %2$s</item>
+        <item quantity="one">1 sudionik iz %2$s</item>
         <item quantity="few">%1$d participants from %2$s</item>
-        <item quantity="other">%1$d participants from %2$s</item>
+        <item quantity="other">%1$d sudionika iz %2$s</item>
     </plurals>
     <string name="label_reset_session">Resetiraj sesiju</string>
     <string name="label_reset_session_success">Sesija je uspješno resetirana</string>
@@ -87,49 +87,49 @@
     <string name="content_description_app_logo">Logotip aplikacije</string>
     <string name="content_description_reveal_password">Prikaži lozinku</string>
     <string name="content_description_hide_password">Sakrij lozinku</string>
-    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_search_back">Ikona za povratak</string>
     <string name="content_description_clear_content">Izbriši sadržaj</string>
     <string name="content_description_user_avatar">Slika profila</string>
     <string name="content_description_muted_conversation">Utišan razgovor</string>
-    <string name="content_description_check">Check mark</string>
+    <string name="content_description_check">Oznaka kvačice</string>
     <string name="content_description_download_icon">Ikona za preuzimanje</string>
     <string name="content_description_open_asset_icon">Otvori ikonu</string>
     <string name="content_description_add_to_favourite">Dodaj u Favorite</string>
     <string name="content_description_move_to_folder">Premjesti u mapu</string>
     <string name="content_description_move_to_archive">Premjesti u arhivu</string>
-    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_unarchive">Ukloni iz arhive</string>
     <string name="content_description_block_the_user">Blokiraj</string>
     <string name="content_description_unblock_the_user">Odblokiraj</string>
     <string name="content_description_leave_the_group">Napusti grupu</string>
     <string name="content_description_delete_the_group">Izbriši grupu</string>
     <string name="content_description_conversation_phone_icon">Pokreni audio poziv</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Search icon</string>
-    <string name="content_description_conversation_search_input">Search input</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
-    <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
-    <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
-    <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
+    <string name="content_description_conversation_search_icon">Ikona pretraživanja</string>
+    <string name="content_description_conversation_search_input">Unos pretraživanja</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Gumb za prikaz obogaćenog teksta</string>
+    <string name="content_description_conversation_rich_text_header">Zaglavlje teksta</string>
+    <string name="content_description_conversation_rich_text_bold">Podebljanje teksta</string>
+    <string name="content_description_conversation_rich_text_italic">Kurziv teksta</string>
     <string name="content_description_conversation_send_emoticon">Pošalji emoji</string>
     <string name="content_description_conversation_send_gif">Gumb za slanje GIF-a</string>
     <string name="content_description_conversation_mention_someone">Obavijesti nekoga</string>
     <string name="content_description_new_conversation">Započni novi razgovor</string>
     <string name="content_description_back_button">Tipka natrag</string>
     <string name="content_description_send_button">Pošalji</string>
-    <string name="content_description_timed_message_button">Self-deleting messages, button</string>
+    <string name="content_description_timed_message_button">Samobrisanje poruka, gumb</string>
     <string name="content_description_close_button">Gumb za zatvaranje</string>
     <string name="content_description_menu_button">Glavna navigacija</string>
-    <string name="content_description_drop_down_icon">Drop down arrow</string>
-    <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
+    <string name="content_description_drop_down_icon">Padajući izbornik strelica</string>
+    <string name="content_description_remove_devices_screen_device_item_icon">Stavka uređaja</string>
     <string name="content_description_remove_devices_screen_remove_icon">Ukloni uređaj</string>
     <string name="content_description_avatar_preview">Pregled profilne slike</string>
     <string name="content_description_choose_from_gallery">Izaberi iz galerije</string>
-    <string name="content_description_take_a_picture">Take a picture</string>
+    <string name="content_description_take_a_picture">Uslikaj</string>
     <string name="content_description_right_arrow">Desna strelica</string>
     <string name="content_description_left_arrow">Povratak</string>
     <string name="content_description_mention_icon">Ikona obavijesti</string>
     <string name="content_description_attachment_item">Priloži novu stavku razgovoru</string>
-    <string name="content_description_open_message_details">Open Message Details</string>
+    <string name="content_description_open_message_details">Otvori detalje o poruci</string>
     <string name="content_description_copy_the_message">Kopiraj poruku</string>
     <string name="content_description_share_the_file">Podijelite odabranu datoteku s drugom aplikacijom</string>
     <string name="content_description_delete_the_message">Izbriši poruku</string>
@@ -137,9 +137,9 @@
     <string name="content_description_more_options">Više opcija</string>
     <string name="content_description_add_contact">Dodaj kontakt</string>
     <string name="content_description_image_message">Slikovna poruka</string>
-    <string name="content_description_file_message">File message</string>
+    <string name="content_description_file_message">Poruka s datotekom</string>
     <string name="content_description_ping_everyone">Ping</string>
-    <string name="content_description_self_deleting_message_timer">Set timer for self-deleting messages</string>
+    <string name="content_description_self_deleting_message_timer">Postavite mjerač za poruke koje se same brišu</string>
     <string name="content_description_calling_hang_up_call">Prekini poziv</string>
     <string name="content_description_calling_accept_call">Prihvati poziv</string>
     <string name="content_description_calling_decline_call">Odbij poziv</string>
@@ -152,8 +152,8 @@
     <string name="content_description_calling_turn_camera_off">Isključi kameru</string>
     <string name="content_description_calling_turn_speaker_on">Uključi zvučnik</string>
     <string name="content_description_calling_turn_speaker_off">Isključi zvučnik</string>
-    <string name="content_description_show_more_options">Show more options</string>
-    <string name="content_description_reply_to_messge">Reply to the message</string>
+    <string name="content_description_show_more_options">Pokaži više mogućnosti</string>
+    <string name="content_description_reply_to_messge">Odgovori na poruku</string>
     <string name="content_description_reply_cancel">Otkaži odgovor na poruku</string>
     <string name="content_description_ping_message">Ping poruka</string>
     <string name="content_description_copy">Kopiraj</string>
@@ -161,33 +161,33 @@
     <string name="content_description_calling_call_muted">Isključen zvuk poziva</string>
     <string name="content_description_calling_call_unmuted">Uključen zvuk poziva</string>
     <string name="content_description_calling_call_paused_camera">Pauzirana Kamera</string>
-    <string name="content_description_more_emojis">More emojis</string>
-    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
-    <string name="content_description_message_sending_status">Message sending status</string>
-    <string name="content_description_message_sent_status">Message sent status</string>
-    <string name="content_description_message_error_status">Message error status</string>
-    <string name="content_description_message_delivered_status">Message delivered status</string>
-    <string name="content_description_message_read_status">Message read status</string>
-    <string name="content_description_record_audio_button_start">Record Audio</string>
-    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
+    <string name="content_description_more_emojis">Više emoji-a</string>
+    <string name="content_description_self_deletion_selector_button">Uključi/isključi način samostalnog brisanja, gumb</string>
+    <string name="content_description_message_sending_status">Status slanja poruke</string>
+    <string name="content_description_message_sent_status">Status poslane poruke</string>
+    <string name="content_description_message_error_status">Status greške u poruci</string>
+    <string name="content_description_message_delivered_status">Status isporučene poruke</string>
+    <string name="content_description_message_read_status">Status pročitane poruke</string>
+    <string name="content_description_record_audio_button_start">Snimanje zvuka</string>
+    <string name="content_description_record_audio_button_stop">Zaustavi snimanje zvuka</string>
     <string name="content_description_record_audio_button_send">Pošalji glasovnu poruku</string>
-    <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
-    <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_mls_certificate_valid">Svi uređaji svih sudionika posjeduju valjani MLS certifikat</string>
+    <string name="content_description_proteus_certificate_valid">Svi sudionici su verificirani (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Skočite do posljednje poruke, gumb</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Trezor</string>
     <string name="archive_screen_title">Arhiva</string>
-    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
+    <string name="archive_screen_empty_state_title">Još ništa nije arhivirano 👻</string>
     <string name="archive_screen_empty_state_description">Kako bi vaš popis razgovora bio uredan, premjestite nekorištene razgovore ovdje. Kasnije ih uvijek možete dearhivirati.</string>
     <string name="user_profile_screen_title">Korisnički profil</string>
     <string name="settings_screen_title">Postavke</string>
     <string name="app_settings_screen_title">Postavke aplikacije</string>
     <string name="give_feedback_screen_title">Daj povratnu informaciju</string>
     <string name="report_bug_screen_title">Prijavi grešku</string>
-    <string name="debug_settings_screen_title">Debug Settings</string>
+    <string name="debug_settings_screen_title">Postavke za uklanjanje pogrešaka</string>
     <string name="support_screen_title">Podrška</string>
-    <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
+    <string name="backup_and_restore_screen_title">Sigurnosna kopija &amp; Vračanje Razgovora</string>
     <string name="search_bar_conversations_hint">Pretraži razgovore</string>
     <string name="search_no_results">Nije pronađen nijedan rezultat</string>
     <!--Whats New -->
@@ -196,37 +196,37 @@
     <string name="whats_new_release_notes_group_title">Napomene o izdanoj verziji</string>
     <string name="whats_new_android_release_notes_label">Sve napomene o Android verziji</string>
     <!-- Settings -->
-    <string name="settings_backups_group_title">Backups</string>
+    <string name="settings_backups_group_title">Sig. kopije</string>
     <string name="settings_other_group_title">Ostalo</string>
     <string name="settings_backup_info">Stvorite sigurnosnu kopiju kako biste sačuvali povijest razgovora. Ovu opciju možete koristiti za vraćanje povijesti u slučaju da izgubite uređaj ili prijeđete na novi.\n\nOdaberite snažnu lozinku kako bi ste zaštitili datoteku sigurnosne kopije.</string>
-    <string name="settings_backup_create">Create a Backup</string>
-    <string name="settings_backup_restore">Restore from Backup</string>
+    <string name="settings_backup_create">Kreiraj sigurnosnu kopiju</string>
+    <string name="settings_backup_restore">Učitaj podatke iz sigurnosne kopije</string>
     <!-- Welcome -->
     <string name="welcome_footer_text">Želite razgovarati s obitelji i prijateljima?</string>
     <string name="welcome_footer_link">Stvorite privatni račun besplatno</string>
     <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
     <string name="welcome_screen_carousel_item_message_1">Dobrodošli u Wire, najsigurniju platformu za suradnju!</string>
     <string name="welcome_screen_carousel_item_message_2">Apsolutno povjerenje da su vaši podaci\u00A0sigurni</string>
-    <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
+    <string name="welcome_screen_carousel_item_message_3">Šifrirani zvuk &amp; videokonferencije od\u00A0do 50\u00A0sudionika</string>
     <string name="welcome_screen_carousel_item_message_4">Sigurno dijeljenje datoteka s timovima i\u00A0klijentima</string>
     <string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
-    <string name="welcome_button_create_team">Create a Team</string>
-    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-    <string name="server_details_dialog_title">On-premises Backend</string>
+    <string name="welcome_button_create_team">Stvorite tim</string>
+    <string name="server_details_dialog_body">Backend ime:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_title">Lokalni Backend</string>
     <string name="welcome_migration_dialog_title">Dobro došli u našu novu Android aplikaciju 👋</string>
-    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
-    <string name="welcome_migration_dialog_continue">Start Using Wire</string>
+    <string name="welcome_migration_dialog_content">Obnovili smo aplikaciju kako bismo je učinili upotrebljivijom za sve.\n\nSaznajte više o redizajnu Wire-a—nove opcije s poboljšanom pristupačnosti, uz jednako jaku sigurnost.</string>
+    <string name="welcome_migration_dialog_continue">Počnite koristiti Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Potrebno ažuriranje</string>
-    <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
+    <string name="api_versioning_client_update_required_message">Propuštate nove značajke. Ažurirajte Wire na najnoviju verziju da biste nastavili koristiti aplikaciju s ovim računom.</string>
     <string name="api_versioning_server_version_not_supported_title">Nepodržana verzija server-a</string>
-    <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <string name="api_versioning_server_version_not_supported_message">Vaš Wire serve se treba ažurirati. Obavijestite svog administratora sustava.</string>
     <!-- Migration -->
     <string name="migration_title">Podešavanje Wire-a</string>
-    <string name="migration_message">Please wait while we set up the app for you</string>
-    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_accounts_message">Migrating your accounts...</string>
-    <string name="migration_messages_message">Migrating your messages...</string>
+    <string name="migration_message">Molimo pričekajte dok ne postavimo aplikaciju za vas</string>
+    <string name="migration_message_unknown">Molimo pričekajte dok migriramo podatke za vas</string>
+    <string name="migration_accounts_message">Migracija vaših računa...</string>
+    <string name="migration_messages_message">Migracija vaših poruka...</string>
     <string name="migration_title_step">Korak %1$d/%2$d</string>
     <string name="migration_title_almost_done">Još samo malo!</string>
     <string name="migration_title_updated">Podešavanje Wire-a</string>
@@ -239,41 +239,41 @@
     <!-- Login -->
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
-    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
+    <string name="login_user_identifier_placeholder">marta@primjer.hr ili marta.horvat</string>
+    <string name="login_user_identifier_label">EMAIL ILI KORISNIČKO IME</string>
+    <string name="login_proxy_identifier_label">PROXY EMAIL ILI KORISNIČKO IME</string>
     <string name="login_error_invalid_credentials_title">Nevažeća informacija</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
-        Please verify your details and try again.
+    <string name="login_error_invalid_credentials_message">Ovi detalji računa nisu ispravni.
+        Molimo provjerite svoje podatke i pokušajte ponovo.
     </string>
-    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
-        verify and try again.
+    <string name="login_error_invalid_user_identifier">Ova adresa e-pošte ili korisničko ime nije važeća. Molimo
+         potvrdite i pokušajte ponovo.
     </string>
-    <string name="login_error_user_already_logged_in_title">Account in use</string>
-    <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
+    <string name="login_error_user_already_logged_in_title">Račun je već u upotrebi</string>
+    <string name="login_error_user_already_logged_in_message">S ovim podacima računa na ovom uređaju, već ste prijavljeni.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
+    <string name="login_sso_error_invalid_cookie_message">Sesija nije valjana ili je istekla! Pokušajte se ponovno prijaviti.</string>
     <string name="login_password_placeholder">Lozinka</string>
     <string name="login_password_label">LOZINKA</string>
     <string name="login_tab_email">EMAIL</string>
     <string name="login_tab_sso">SSO PRIJAVA</string>
-    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
-    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
-    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
+    <string name="login_sso_code_label">SSO KOD ILI EMAIL</string>
+    <string name="login_error_invalid_sso_code">Molimo, unesite ispravan kod za jedinstvenu prijavu.</string>
+    <string name="login_error_invalid_sso_code_format">Unesite važeći kod za jedinstvenu prijavu</string>
     <string name="deleted_user_error_title">Obrisan kontakt</string>
     <string name="deleted_user_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
     <string name="removed_client_error_title">Uklonjen uređaj</string>
     <string name="removed_client_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
-    <string name="session_expired_error_title">Session expired</string>
-    <string name="session_expired_error_message">The application did not communicate with the server
-        for a long period of time, or your session has been remotely invalidated.
+    <string name="session_expired_error_title">Sesija je istekla</string>
+    <string name="session_expired_error_message">Aplikacija nije komunicirala s poslužiteljem
+         dulje vrijeme ili je vaša sesija daljinski poništena.
     </string>
-    <string name="conversation_history_wipe_explanation">According to your team\'s security
-        settings, your conversation history has also been deleted.</string>
+    <string name="conversation_history_wipe_explanation">Prema postavkama sigurnosti
+         vašeg tima, vaša povijest razgovora također je izbrisana.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verify your account</string>
-    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
-    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="second_factor_authentication_title">Potvrdite svoj račun</string>
+    <string name="second_factor_authentication_instructions_label">Unesite verifikacijski kod koji smo poslali na %1$s</string>
+    <string name="second_factor_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Pokušajte ponovno ili zatražite drugi kôd</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Ukloni uređaj</string>
     <string name="remove_device_message">Uklonite jedan od Vaših ostalih uređaja kako bi ste počeli koristiti Wire na ovom.    </string>
@@ -283,19 +283,19 @@
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
-    <string name="remove_device_invalid_password">Invalid password</string>
-    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
+    <string name="remove_device_invalid_password">Neispravna lozinka</string>
+    <string name="remove_device_details_description">Uklonite ovaj uređaj ako ste ga prestali koristiti. Odmah ćete biti automatski odjavljeni.</string>
     <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
     <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
     <string name="item_subtitle_status_e2ei_certificate">Status</string>
-    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
-    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
-    <string name="get_e2ei_certificate_button">Get Certificate</string>
-    <string name="update_e2ei_certificat_button">Update Certificate</string>
-    <string name="e2ei_certificat_status_valid">Valid</string>
-    <string name="e2ei_certificat_status_expired">Expired</string>
-    <string name="e2ei_certificat_status_revoked">Revoked</string>
-    <string name="e2ei_certificat_status_not_activated">Not activated</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Serijski Broj</string>
+    <string name="show_e2ei_certificate_details_button">Prikaži pojedinosti certifikata</string>
+    <string name="get_e2ei_certificate_button">Prikaži certifikat</string>
+    <string name="update_e2ei_certificat_button">Ažuriraj Certifikat</string>
+    <string name="e2ei_certificat_status_valid">Vrijedi</string>
+    <string name="e2ei_certificat_status_expired">Istekao</string>
+    <string name="e2ei_certificat_status_revoked">Opozvano</string>
+    <string name="e2ei_certificat_status_not_activated">Nije aktiviran</string>
     <!-- Register Device -->
     <string name="register_device_title">Dodaj ovaj uređaj</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -312,40 +312,40 @@
     <string name="label_quote_original_message_is_a_picture">Slika</string>
     <string name="label_quote_original_message_date">Originalna poruka od %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Create a Personal Account</string>
-    <string name="create_personal_account_summary_title">Personal Account Created</string>
-    <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
+    <string name="create_personal_account_title">Stvorite osobni račun</string>
+    <string name="create_personal_account_summary_title">Osobni račun kreiran</string>
+    <string name="create_personal_account_text">Sigurno razgovarajte s prijateljima i obitelji koristeći Wireov javni poslužitelj.</string>
     <string name="create_personal_account_email_text">Unesite svoj email kako biste počeli koristiti najsigurniju platformu za suradnju.</string>
     <string name="create_personal_account_details_text">Unesite osobne podatke:</string>
-    <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
-    <string name="create_team_title">Create a Team</string>
-    <string name="create_team_summary_title">Team Created</string>
+    <string name="create_personal_account_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
+    <string name="create_team_title">Stvorite tim</string>
+    <string name="create_team_summary_title">Tim Kreiran</string>
     <string name="create_team_content_title">Wire for Free</string>
     <string name="create_team_text">Slanje poruka za male organizacije ili konzultantske tvrtke za jednu osobu.\n</string>
     <string name="create_team_learn_more">Saznajte više o planovima i cijenama</string>
     <string name="create_team_email_text">Unesite svoj email kako biste stvorili svoj tim:</string>
-    <string name="create_team_details_text">Enter your email to create your team:</string>
+    <string name="create_team_details_text">Unesite svoj email kako biste stvorili svoj tim:</string>
     <string name="create_team_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
-    <string name="create_account_email_placeholder">jane@example.com</string>
+    <string name="create_account_email_placeholder">vašeIme@primjer.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Imate već korisnički račun? </string>
     <string name="create_account_email_terms_dialog_title">Uvjeti korištenja</string>
-    <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
-    <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
-    <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
-    <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
-    <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
-    <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
+    <string name="create_account_email_terms_dialog_text">Klikom na nastavak slažete se s našim Uvjetima korištenja i Politikom privatnosti.</string>
+    <string name="create_account_email_terms_dialog_view_policy">Pogledajte Uvjete kotištenja i Pravila privatnosti</string>
+    <string name="create_account_email_already_in_use_error">Ova e-mail adresa se već koristi.</string>
+    <string name="create_account_email_blacklisted_error">Vaša je e-pošta identificirana kao nepouzdana, na primjer, zbog odbijanja od strane filtra neželjene pošte.</string>
+    <string name="create_account_email_invalid_error">Unesite važeći format svoje e-pošte.</string>
+    <string name="create_account_email_domain_blocked_error">Ne možete stvoriti ovaj račun jer je vaša e-mail domena blokirana.</string>
     <string name="create_account_details_first_name_placeholder">Ivana</string>
     <string name="create_account_details_first_name_label">IME</string>
     <string name="create_account_details_last_name_placeholder">Ivanović</string>
     <string name="create_account_details_last_name_label">PREZIME</string>
-    <string name="create_account_details_team_name_placeholder">Team Awesome</string>
+    <string name="create_account_details_team_name_placeholder">Tim Vatreni</string>
     <string name="create_account_details_team_name_label">NAZIV TIMA</string>
-    <string name="create_account_details_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
-    <string name="create_account_details_password_error">Invalid password</string>
-    <string name="create_account_details_password_not_matching_error">Passwords do not match</string>
-    <string name="create_account_details_confirm_password_label">CONFIRM PASSWORD</string>
+    <string name="create_account_details_password_description">Koristite najmanje 8 znakova, s jednim malim slovom, jednim velikim slovom, brojem i posebnim znakom.</string>
+    <string name="create_account_details_password_error">Neispravna lozinka</string>
+    <string name="create_account_details_password_not_matching_error">Lozinke se ne podudaraju</string>
+    <string name="create_account_details_confirm_password_label">POTVRDI LOZINKU</string>
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="create_account_code_resend">Resend code</string>
     <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
@@ -388,7 +388,7 @@
     <string name="empty_group_name_error">Unesite naziv grupe</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
-    <string name="group_can_not_be_created_title">Group can’t be created</string>
+    <string name="group_can_not_be_created_title">Grupa ne može biti kreirana</string>
     <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
     <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
@@ -429,7 +429,7 @@
     <string name="conversation_options_guests_label">Gosti</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
-    <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
+    <string name="conversation_options_guest_not_editable_description">Ne možete onemogućiti opciju gosta u ovom razgovoru jer ju je kreirao netko iz drugog tima.</string>
     <string name="conversation_options_services_label">Services</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
@@ -807,15 +807,15 @@
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <string name="calling_screen_connecting_until_call_established">Connecting…</string>
-    <string name="calling_confirm_start_call_title_dialog">Start a call</string>
-    <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
-    <string name="calling_confirm_start_call_action_dialog">Call</string>
+    <string name="calling_confirm_start_call_title_dialog">Započni poziv</string>
+    <string name="calling_confirm_start_call_description_dialog">Jeste li sigurni da želite nazvati %1$s ljudi?</string>
+    <string name="calling_confirm_start_call_action_dialog">Poziv</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
-    <string name="connection_label_connect">Connect</string>
+    <string name="connection_label_connect">Povežite se</string>
     <string name="connection_label_cancel_request">Poništi zahtjev</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
@@ -828,17 +828,17 @@
     <string name="connection_request_accept_error">Connection request could not be accepted</string>
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
     <string name="connection_request_cancel_error">Zahtjev za povezivanje nije mogao biti poništen</string>
-    <string name="connection_pending_message">Wants to connect</string>
+    <string name="connection_pending_message">Želi se povezati</string>
     <string name="connection_pending_label">pending</string>
     <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
-    <string name="connection_label_accept">Accept</string>
-    <string name="connection_label_ignore">Ignore</string>
+    <string name="connection_label_accept">Prihvati</string>
+    <string name="connection_label_ignore">Ignoriraj</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Gallery -->
-    <string name="media_gallery_default_title_name">Media Gallery</string>
-    <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
+    <string name="media_gallery_default_title_name">Galerija medija</string>
+    <string name="media_gallery_on_image_downloaded">Spremi u Download mapu</string>
     <string name="media_gallery_on_image_download_error">There was an error when saving the image to
         Downloads folder. Please check your Internet connection and try again
     </string>
@@ -847,9 +847,9 @@
     <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
         admin and provide this code:\n%d\"
     </string>
-    <string name="asset_download_dialog_default_title">Download file</string>
-    <string name="empty_group_label">Unnamed conversation</string>
-    <string name="label_show_more">Show More</string>
+    <string name="asset_download_dialog_default_title">Preuzmite datoteku</string>
+    <string name="empty_group_label">Neimenovani razgovor</string>
+    <string name="label_show_more">Prikaži više</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Receiving images is prohibited</string>
     <string name="prohibited_videos_message">Receiving videos is prohibited</string>
@@ -860,9 +860,9 @@
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
     <!--wire dropdown-->
     <string name="wire_dropdown_default_indicator">" (default)"</string>
-    <string name="wire_dropdown_placeholder">Select an Item</string>
-    <string name="change">Change</string>
-    <string name="allow_guests">Allow guests</string>
+    <string name="wire_dropdown_placeholder">Izaberi stavku</string>
+    <string name="change">Promijeni</string>
+    <string name="allow_guests">Dopustite goste</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
     <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
@@ -914,7 +914,7 @@
     <string name="settings_myaccount_email">EMAIL</string>
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
-    <string name="settings_myaccount_reset_password">Reset Password</string>
+    <string name="settings_myaccount_reset_password">Resetiraj lozinku</string>
     <!--Settings, My Account > Display name -->
     <string name="settings_myaccount_display_name_title">Your profile name</string>
     <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
@@ -994,7 +994,7 @@
     <string name="label_client_device_id">Proteus ID</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
-    <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="conversation_empty_list_description">Povežite se s drugima ili stvorite novu grupu da biste započeli suradnju!</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>
@@ -1002,18 +1002,18 @@
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
-    <string name="label_textfield_optional_password">Password (optional)</string>
+    <string name="label_textfield_optional_password">Lozinka (opcionalno)</string>
     <string name="label_proteus_details">Proteus Device Details</string>
     <string name="label_mls_signature">MLS with %1$s Signature</string>
     <string name="label_mls_thumbprint">MLS Thumbprint</string>
     <!--create and restore backup-->
-    <string name="backup_dialog_create_backup_set_password_title">Set password</string>
+    <string name="backup_dialog_create_backup_set_password_title">Postavi lozinku</string>
     <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.</string>
     <string name="backup_dialog_create_backup_now">Izradi sigurnosnu kopiju sada</string>
     <string name="backup_dialog_create_backup_title">Creating Backup</string>
     <string name="backup_dialog_create_backup_subtitle">Saving conversations...</string>
     <string name="backup_dialog_create_error_title">Something went wrong</string>
-    <string name="backup_dialog_create_error_subtitle">Backup could not be created. Please try again or contact Wire support.</string>
+    <string name="backup_dialog_create_error_subtitle">Sigurnosna kopija nije uspješno kreirana. Molimo pokušajte ponovno ili kontaktirajte Wire podršku.</string>
     <string name="backup_label_conversation_successfully_saved">Conversations successfully saved</string>
     <string name="backup_label_saving_conversations">Saving conversations</string>
     <string name="backup_label_wrong_password">Wrong password</string>
@@ -1030,7 +1030,7 @@
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
-    <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
+    <string name="backup_dialog_restore_incompatible_version_error_message">Ova sigurnosna kopija je izrađena od novije ili starije verzije Wirea i kao takva nemože se obnovit ovdje.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Wrong backup file</string>
     <string name="backup_dialog_restore_wrong_user_error_message">You cannot restore history from a different account.</string>
     <string name="backup_dialog_restore_general_error_title">Something Went Wrong</string>
@@ -1090,7 +1090,7 @@
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
-    <string name="guest_link_button_create_link">Create Link</string>
+    <string name="guest_link_button_create_link">Stvorite poveznicu</string>
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_share_link">Share Link</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
@@ -1264,7 +1264,7 @@
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
     <string name="generate_password_button_text">Generate Password</string>
-    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
+    <string name="password_protected_link_banner_description">Osobe koje se žele pridružiti razgovoru putem veze za goste moraju prvo unijeti ovu lozinku.\nZaboravili ste lozinku? Opozovite vezu i stvorite novu.</string>
     <string name="password_protected_link_banner_title">Link is password secured</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
@@ -1281,4 +1281,19 @@
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
     <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
     <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Legal hold requested</string>
+    <string name="legal_hold_requested_dialog_description_device">All future messages will be recorded by the device with fingerprint:</string>
+    <string name="legal_hold_requested_dialog_description_includes">This includes deleted, edited and self-deleting messages in all conversations.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Enter your password to confirm.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Accept</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
+    <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
+    <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
 </resources>

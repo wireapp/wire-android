@@ -971,10 +971,10 @@
     <string name="team_app_lock_enabled">Блокировка приложения теперь обязательна. Wire блокируется спустя определенное время бездействия. Для разблокировки приложения необходимо ввести код доступа или использовать биометрическую аутентификацию.</string>
     <string name="team_app_lock_disabled">Блокировка приложений больше не является обязательной. Wire больше не будет блокироваться после определенного времени бездействия.</string>
     <string name="settings_forgot_lock_screen_title">Забыли код доступа к приложению?</string>
-    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа. Если вы забыли свой код доступа, вы можете сбросить настройки этого клиента.</string>
-    <string name="settings_forgot_lock_screen_warning">При сбросе настроек вашего устройства все локальные данные и сообщения этого аккаунта будут удалены навсегда.</string>
+    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа приложения. Если вы забудете свой код доступа, вы можете удалить это устройство.</string>
+    <string name="settings_forgot_lock_screen_warning">При удалении устройства вы навсегда теряете все локальные данные и сообщения всех аккаунтов на этом устройстве.</string>
     <string name="settings_forgot_lock_screen_reset_device">Удалить устройство</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль для аккаунта %s, чтобы подтвердить, что вы хотите удалить все данные на этом устройстве. После удаления этого устройства можно будет снова авторизоваться с помощью ваших учетных данных.</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль от аккаунта %s для подтверждения удаления всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Пожалуйста, подождите...</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
@@ -1312,4 +1312,19 @@
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Сертификат скопирован в буфер обмена</string>
     <string name="call_ended_because_of_verification_title">Беседа больше не является верифицированной</string>
     <string name="call_ended_because_of_verification_message">Вызов был прерван, поскольку как минимум один из участников больше не является верифицированным контактом.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Legal hold requested</string>
+    <string name="legal_hold_requested_dialog_description_device">All future messages will be recorded by the device with fingerprint:</string>
+    <string name="legal_hold_requested_dialog_description_includes">This includes deleted, edited and self-deleting messages in all conversations.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Enter your password to confirm.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Accept</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
+    <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
+    <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
 </resources>

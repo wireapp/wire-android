@@ -93,6 +93,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun MessageItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
+    searchQuery: String = "",
     showAuthor: Boolean = true,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
@@ -247,6 +248,7 @@ fun MessageItem(
                                     MessageContent(
                                         message = message,
                                         messageContent = messageContent,
+                                        searchQuery = searchQuery,
                                         audioMessagesState = audioMessagesState,
                                         onAudioClick = onAudioClick,
                                         onChangeAudioPosition = onChangeAudioPosition,
@@ -475,6 +477,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
+    searchQuery: String,
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -511,6 +514,7 @@ private fun MessageContent(
                 }
                 MessageBody(
                     messageBody = messageContent.messageBody,
+                    searchQuery = searchQuery,
                     isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,

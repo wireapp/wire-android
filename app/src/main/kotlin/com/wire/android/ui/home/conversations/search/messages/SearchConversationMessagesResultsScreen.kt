@@ -31,6 +31,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun SearchConversationMessagesResultsScreen(
     searchResult: List<UIMessage>,
+    searchQuery: String = "",
     onMessageClick: (messageId: String) -> Unit
 ) {
     LazyColumn {
@@ -40,6 +41,7 @@ fun SearchConversationMessagesResultsScreen(
                     MessageItem(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None,
+                        searchQuery = searchQuery,
                         audioMessagesState = mapOf(),
                         onLongClicked = { },
                         onAssetMessageClicked = { },

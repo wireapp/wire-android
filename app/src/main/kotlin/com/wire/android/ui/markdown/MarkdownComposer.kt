@@ -31,6 +31,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.ui.common.LinkSpannableString
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
+import com.wire.android.util.MatchQueryResult
+import com.wire.android.util.QueryMatchExtractor
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
@@ -215,6 +217,7 @@ fun appendLinksAndMentions(
 
     val stringBuilder = StringBuilder(string)
     val updatedMentions = nodeData.mentions.toMutableList()
+    var highlightIndexes = emptyList<MatchQueryResult>()
 
     // get mentions from text, remove mention marks and update position of mentions
     val mentionList: List<MessageMention> = if (stringBuilder.contains(MENTION_MARK) && updatedMentions.isNotEmpty()) {
@@ -239,6 +242,13 @@ fun appendLinksAndMentions(
         }
     } else {
         listOf()
+    }
+
+    if (nodeData.searchQuery.isNotBlank()) {
+        highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
+            matchText = nodeData.searchQuery,
+            text = stringBuilder.toString()
+        )
     }
 
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
@@ -269,27 +279,42 @@ fun appendLinksAndMentions(
             }
 
             if (mentionList.isNotEmpty()) {
-                mentionList.forEach {
-                    if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
+                mentionList.forEach { mention ->
+                    if (mention.length <= 0 || mention.start >= length || mention.start + mention.length > length) {
                         return@forEach
                     }
                     addStyle(
                         style = SpanStyle(
                             fontWeight = nodeData.typography.body02.fontWeight,
                             color = onPrimaryVariant,
-                            background = if (it.isSelfMention) primaryVariant else Color.Unspecified
+                            background = if (mention.isSelfMention) primaryVariant else Color.Unspecified
                         ),
-                        start = it.start,
-                        end = it.start + it.length
+                        start = mention.start,
+                        end = mention.start + mention.length
                     )
                     addStringAnnotation(
                         tag = MarkdownConstants.TAG_MENTION,
-                        annotation = it.userId.toString(),
-                        start = it.start,
-                        end = it.start + it.length
+                        annotation = mention.userId.toString(),
+                        start = mention.start,
+                        end = mention.start + mention.length
                     )
                 }
             }
+
+            highlightIndexes
+                .forEach { highLightIndex ->
+                    if (highLightIndex.endIndex <= length) {
+                        addStyle(
+                            style = SpanStyle(
+                                background = nodeData.colorScheme.highLight.copy(alpha = 0.5f),
+                                fontFamily = nodeData.typography.body02.fontFamily,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            start = highLightIndex.startIndex,
+                            end = highLightIndex.endIndex
+                        )
+                    }
+                }
         }
     }
     annotatedString.append(append)

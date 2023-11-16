@@ -35,40 +35,42 @@ class LegalHoldRequestedViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
 ) : ViewModel() {
 
-    var state: LegalHoldRequestedState by mutableStateOf(LegalHoldRequestedState())
+    var state: LegalHoldRequestedState by mutableStateOf(LegalHoldRequestedState.Hidden)
         private set
+    // TODO: get legal hold status of current account
 
-    init {
-        state = state.copy(legalHoldDeviceFingerprint = "0123456789ABCDEF") // TODO get fingerprint
-        viewModelScope.launch {
-            isPasswordRequired().let {
-                state = state.copy(requiresPassword = (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true)
-            }
-        }
+    private fun LegalHoldRequestedState.ifVisible(action: (LegalHoldRequestedState.Visible) -> Unit) {
+        if (this is LegalHoldRequestedState.Visible) action(this)
     }
 
     fun passwordChanged(password: TextFieldValue) {
-        state = state.copy(password = password)
-        validatePassword(password.text).let {
-            state = state.copy(acceptEnabled = it.isValid)
+        state.ifVisible {
+            state = it.copy(password = password, acceptEnabled = validatePassword(password.text).isValid)
         }
     }
 
     fun notNowClicked() {
-        // TODO
+        state = LegalHoldRequestedState.Hidden
+    }
+
+    fun show() {
+        viewModelScope.launch {
+            val isPasswordRequired = isPasswordRequired().let { (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true }
+            state = LegalHoldRequestedState.Visible(
+                requiresPassword = isPasswordRequired,
+                legalHoldDeviceFingerprint = "0123456789ABCDEF" // TODO: get legal hold client fingerprint
+            )
+        }
     }
 
     fun acceptClicked() {
-        state = state.copy(acceptEnabled = false, loading = true)
-        // the accept button is enabled if the password is valid, this check is for safety only
-        validatePassword(state.password.text).let {
-            if (!it.isValid) {
-                state = state.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
-            }
-            if (it.isValid) {
-                viewModelScope.launch {
-                    // TODO
-                    state = state.copy(loading = false, done = true)
+        state.ifVisible {
+            state = it.copy(acceptEnabled = false, loading = true)
+            // the accept button is enabled if the password is valid, this check is for safety only
+            validatePassword(it.password.text).let { validatePasswordResult ->
+                when (validatePasswordResult.isValid) {
+                    false -> state = it.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
+                    true -> state = LegalHoldRequestedState.Hidden // TODO: accept legal hold
                 }
             }
         }

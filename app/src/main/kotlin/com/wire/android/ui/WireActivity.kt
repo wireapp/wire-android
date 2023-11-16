@@ -84,6 +84,9 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
@@ -120,6 +123,7 @@ class WireActivity : AppCompatActivity() {
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
 
@@ -186,10 +190,11 @@ class WireActivity : AppCompatActivity() {
                         ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         CommonTopAppBar(
-                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
+                            commonTopAppBarState = commonTopAppBarViewModel.state,
                             onReturnToCallClick = { establishedCall ->
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
-                            }
+                            },
+                            onPendingClicked = legalHoldRequestedViewModel::show,
                         )
                         NavigationGraph(
                             navigator = navigator,
@@ -286,6 +291,14 @@ class WireActivity : AppCompatActivity() {
                     }
                 )
             } else {
+                if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
+                    LegalHoldRequestedDialog(
+                        state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
+                        passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+                        notNowClicked = legalHoldRequestedViewModel::notNowClicked,
+                        acceptClicked = legalHoldRequestedViewModel::acceptClicked,
+                    )
+                }
                 if (showFileSharingDialog) {
                     FileRestrictionDialog(
                         isFileSharingEnabled = isFileSharingEnabledState,

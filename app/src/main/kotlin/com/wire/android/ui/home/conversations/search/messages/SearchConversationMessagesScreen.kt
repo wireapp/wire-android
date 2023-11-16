@@ -104,6 +104,7 @@ fun SearchConversationMessagesResultContent(
         } else {
             SearchConversationMessagesResultsScreen(
                 searchResult = searchResult,
+                searchQuery = searchQuery,
                 onMessageClick = onMessageClick
             )
         }

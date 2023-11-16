@@ -23,14 +23,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ViewModelScopedPreview
 interface IsFileSharingEnabledViewModel {
-    fun isFileSharingEnabled(): Boolean
+    fun isFileSharingEnabled(): Boolean = true
 }
 
 @HiltViewModel
@@ -54,9 +56,4 @@ class IsFileSharingEnabledViewModelImpl @Inject constructor(
             FileSharingStatus.Value.EnabledAll -> true
         }
     }
-}
-
-@Suppress("EmptyFunctionBlock")
-class IsFileSharingEnabledPreviewModel(private val isFileSharingEnabled: Boolean) : IsFileSharingEnabledViewModel {
-    override fun isFileSharingEnabled(): Boolean = isFileSharingEnabled
 }

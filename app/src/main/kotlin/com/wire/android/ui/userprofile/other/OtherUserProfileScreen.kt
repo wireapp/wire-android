@@ -539,7 +539,7 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 @Composable
 @Preview(name = "Connected")
 fun PreviewOtherProfileScreenContent() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         OtherProfileScreenContent(
             scope = rememberCoroutineScope(),
             state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
@@ -560,7 +560,7 @@ fun PreviewOtherProfileScreenContent() {
 @Composable
 @Preview(name = "Not Connected")
 fun PreviewOtherProfileScreenContentNotConnected() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         OtherProfileScreenContent(
             scope = rememberCoroutineScope(),
             state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),

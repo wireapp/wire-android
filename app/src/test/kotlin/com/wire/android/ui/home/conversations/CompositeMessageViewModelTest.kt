@@ -98,7 +98,7 @@ class CompositeMessageViewModelTest {
             every { savedStateHandle.scopedArgs<CompositeMessageArgs>() } returns CompositeMessageArgs(MESSAGE_ID)
         }
 
-        private val viewModel = CompositeMessageViewModel(sendButtonActionMessage, savedStateHandle)
+        private val viewModel = CompositeMessageViewModelImpl(sendButtonActionMessage, savedStateHandle)
 
         fun withButtonActionMessage(
             result: SendButtonActionMessageUseCase.Result

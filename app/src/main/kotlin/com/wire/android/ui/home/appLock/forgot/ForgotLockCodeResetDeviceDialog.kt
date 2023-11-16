@@ -123,7 +123,7 @@ fun ForgotLockCodeResettingDeviceDialog() {
 @PreviewMultipleThemes
 @Composable
 fun PreviewForgotLockCodeResetDeviceDialog() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         ForgotLockCodeResetDeviceDialog("Username", true, true, {}, {}, {})
     }
 }
@@ -131,7 +131,7 @@ fun PreviewForgotLockCodeResetDeviceDialog() {
 @PreviewMultipleThemes
 @Composable
 fun PreviewForgotLockCodeResettingDeviceDialog() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         ForgotLockCodeResettingDeviceDialog()
     }
 }

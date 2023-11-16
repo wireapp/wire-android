@@ -260,7 +260,7 @@ fun PreviewPasswordVerificationGroup() {
 @Composable
 @PreviewMultipleThemes
 fun PreviewSetLockCodeScreen() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         SetLockCodeScreenContent(
             navigator = rememberNavigator {},
             state = SetLockCodeViewState(),

@@ -95,6 +95,92 @@ class SearchConversationMessagesViewModelTest {
             }
         }
 
+    @Test
+    fun `given search term with empty space at start and at end, when searching for messages, then specific messages are returned`() =
+        runTest() {
+            // given
+            val searchTerm = "message"
+            val messages = listOf(
+                mockMessageWithText.copy(
+                    messageContent = UIMessageContent.TextMessage(
+                        messageBody = MessageBody(
+                            UIText.DynamicString(" message1 ")
+                        )
+                    )
+                ),
+                mockMessageWithText.copy(
+                    messageContent = UIMessageContent.TextMessage(
+                        messageBody = MessageBody(
+                            UIText.DynamicString(" message2 ")
+                        )
+                    )
+                )
+            )
+
+            val (arrangement, viewModel) = SearchConversationMessagesViewModelArrangement()
+                .withSuccessSearch(searchTerm, messages)
+                .arrange()
+
+            // when
+            viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+            advanceUntilIdle()
+
+            // then
+            assertEquals(
+                TextFieldValue(searchTerm.trim()),
+                viewModel.searchConversationMessagesState.searchQuery
+            )
+            coVerify(exactly = 1) {
+                arrangement.getSearchMessagesForConversation(
+                    searchTerm,
+                    arrangement.conversationId
+                )
+            }
+        }
+
+    @Test
+    fun `given blank search term, when searching for messages, then search is not triggered`() =
+        runTest() {
+            // given
+            val searchTerm = " "
+            val messages = listOf(
+                mockMessageWithText.copy(
+                    messageContent = UIMessageContent.TextMessage(
+                        messageBody = MessageBody(
+                            UIText.DynamicString("  message1")
+                        )
+                    )
+                ),
+                mockMessageWithText.copy(
+                    messageContent = UIMessageContent.TextMessage(
+                        messageBody = MessageBody(
+                            UIText.DynamicString("  message2")
+                        )
+                    )
+                )
+            )
+
+            val (arrangement, viewModel) = SearchConversationMessagesViewModelArrangement()
+                .withSuccessSearch(searchTerm.trim(), messages)
+                .arrange()
+
+            // when
+            viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+            advanceUntilIdle()
+
+            // then
+            assertEquals(
+                TextFieldValue(searchTerm),
+                viewModel.searchConversationMessagesState.searchQuery
+            )
+            coVerify(exactly = 0) {
+                arrangement.getSearchMessagesForConversation(
+                    searchTerm,
+                    arrangement.conversationId
+                )
+            }
+        }
+
     class SearchConversationMessagesViewModelArrangement {
         val conversationId: ConversationId = ConversationId(
             value = "some-dummy-value",

@@ -354,7 +354,7 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Preview
 @Composable
 private fun PreviewLoginScreen() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         MainLoginContent({}, {}, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

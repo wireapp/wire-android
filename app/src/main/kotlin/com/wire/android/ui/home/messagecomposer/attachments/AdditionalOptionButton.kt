@@ -25,11 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalInspectionMode
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
 
@@ -50,14 +50,12 @@ import kotlinx.coroutines.delay
 fun AdditionalOptionButton(
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: IsFileSharingEnabledViewModel =
+        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel, IsFileSharingEnabledArgs>(
+            IsFileSharingEnabledArgs
+        )
 ) {
-    val viewModel = if (LocalInspectionMode.current) {
-        IsFileSharingEnabledPreviewModel(true)
-    } else {
-        hiltViewModelScoped<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledArgs>(IsFileSharingEnabledArgs)
-    }
-
     var enableAgain by remember { mutableStateOf(true) }
     LaunchedEffect(enableAgain, block = {
         if (enableAgain) return@LaunchedEffect
@@ -86,11 +84,15 @@ private const val BUTTON_CLICK_DELAY_MILLIS = 400L
 @PreviewMultipleThemes
 @Composable
 fun PreviewAdditionalOptionButtonUnSelected() {
-    AdditionalOptionButton(isSelected = false, onClick = {})
+    WireTheme {
+        AdditionalOptionButton(isSelected = false, onClick = {})
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewAdditionalOptionButtonSelected() {
-    AdditionalOptionButton(isSelected = true, onClick = {})
+    WireTheme {
+        AdditionalOptionButton(isSelected = true, onClick = {})
+    }
 }

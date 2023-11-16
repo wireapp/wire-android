@@ -55,7 +55,7 @@ fun SearchConversationMessagesResultsScreen(
                         defaultBackgroundColor = colorsScheme().backgroundVariant,
                         shouldDisplayMessageStatus = false,
                         shouldDisplayFooter = false,
-                        isSearchActive = true,
+                        isContentClickable = true,
                         onMessageClick = onMessageClick
                     )
                 }

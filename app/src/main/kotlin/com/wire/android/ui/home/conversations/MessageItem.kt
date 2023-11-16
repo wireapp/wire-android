@@ -108,7 +108,7 @@ fun MessageItem(
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
-    isSearchActive: Boolean = false,
+    isContentClickable: Boolean = false,
     onMessageClick: (messageId: String) -> Unit = {},
     defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
@@ -144,7 +144,7 @@ fun MessageItem(
 
         Box(
             backgroundColorModifier
-                .clickable(enabled = isSearchActive, onClick = {
+                .clickable(enabled = isContentClickable, onClick = {
                     onMessageClick(message.header.messageId)
                 })
         ) {
@@ -154,7 +154,7 @@ fun MessageItem(
                 Modifier
                     .fillMaxWidth()
                     .apply {
-                        if (!isSearchActive) {
+                        if (!isContentClickable) {
                             combinedClickable(
                                 enabled = message.isAvailable,
                                 onClick = { },
@@ -185,7 +185,7 @@ fun MessageItem(
                         // because avatar takes start padding we don't need to add padding to message item
                         UserProfileAvatar(
                             avatarData = message.userAvatarData,
-                            clickable = if (isSearchActive) null else avatarClickable
+                            clickable = if (isContentClickable) null else avatarClickable
                         )
                     } else {
                         // imitating width of space that avatar takes
@@ -227,7 +227,7 @@ fun MessageItem(
                             }
 
                             val currentOnImageClick = remember(message) {
-                                Clickable(enabled = isAvailable && !isSearchActive, onClick = {
+                                Clickable(enabled = isAvailable && !isContentClickable, onClick = {
                                     onImageMessageClicked(
                                         message,
                                         source == MessageSource.Self
@@ -236,7 +236,7 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick: (() -> Unit)? = if (isSearchActive) null else remember(message) {
+                            val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
                                 if (isAvailable) {
                                     { onLongClicked(message) }
                                 } else {
@@ -257,7 +257,7 @@ fun MessageItem(
                                         onLongClick = onLongClick,
                                         onOpenProfile = onOpenProfile,
                                         onLinkClick = onLinkClick,
-                                        clickable = !isSearchActive
+                                        clickable = !isContentClickable
                                     )
                                 }
                                 if (isMyMessage && shouldDisplayMessageStatus) {

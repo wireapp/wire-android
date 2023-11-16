@@ -26,6 +26,8 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 data class GroupMetadataState(
     val originalGroupName: String = "",
     val groupName: TextFieldValue = TextFieldValue(""),
+    // TODO: this is var because the screen is changing it
+    // this should be changed to val and only the view Model is allowed to change it
     var groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,

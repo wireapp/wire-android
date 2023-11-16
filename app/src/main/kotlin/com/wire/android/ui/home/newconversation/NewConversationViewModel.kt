@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -75,7 +76,8 @@ class NewConversationViewModel @Inject constructor(
 
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState(
-            mlsEnabled = isMLSEnabled(),
+            // TODO: remove the runBlocking
+            mlsEnabled = runBlocking { isMLSEnabled() },
         )
     )
 

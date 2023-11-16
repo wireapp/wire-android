@@ -56,7 +56,7 @@ fun LegalHoldSubjectBanner(
             .border(
                 width = dimensions().spacing1x,
                 shape = RoundedCornerShape(dimensions().spacing12x),
-                color = colorsScheme().errorOutline
+                color = colorsScheme().error
             )
             .clickable(onClick = onClick)
             .heightIn(min = 26.dp)

@@ -93,7 +93,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                                 connectivityFlow(userId)
                             ) { activeCall, currentScreen, connectivity ->
                                 mapToConnectivityUIState(currentScreen, connectivity, activeCall) to
-                                        mapToLegalHoldUIState(currentScreen, LegalHoldStatus.PENDING) // TODO: get proper legalHoldStatus
+                                        mapToLegalHoldUIState(currentScreen, LegalHoldStatus.NO_CONSENT) // TODO: get legalHoldStatus
                             }
                         }
                     }

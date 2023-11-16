@@ -35,13 +35,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
-import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs

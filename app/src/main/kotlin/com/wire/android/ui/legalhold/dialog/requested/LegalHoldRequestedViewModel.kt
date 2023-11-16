@@ -68,9 +68,9 @@ class LegalHoldRequestedViewModel @Inject constructor(
             state = it.copy(acceptEnabled = false, loading = true)
             // the accept button is enabled if the password is valid, this check is for safety only
             validatePassword(it.password.text).let { validatePasswordResult ->
-                when (validatePasswordResult.isValid) {
-                    false -> state = it.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
-                    true -> state = LegalHoldRequestedState.Hidden // TODO: accept legal hold
+                state = when (validatePasswordResult.isValid) {
+                    false -> it.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
+                    true -> LegalHoldRequestedState.Hidden // TODO: accept legal hold
                 }
             }
         }

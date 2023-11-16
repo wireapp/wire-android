@@ -259,6 +259,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("ComplexMethod")
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
         featureFlagNotificationViewModel.loadInitialSync()

@@ -119,9 +119,12 @@ private fun ConnectivityStatusBar(
             verticalArrangement = Arrangement.Center
         ) {
             when (connectivityInfo) {
-                is ConnectivityUIState.EstablishedCall -> OngoingCallContent(connectivityInfo.isMuted)
-                ConnectivityUIState.Connecting -> StatusLabel(R.string.connectivity_status_bar_connecting, MaterialTheme.wireColorScheme.onPrimary)
-                ConnectivityUIState.WaitingConnection -> StatusLabel(R.string.connectivity_status_bar_waiting_for_network, MaterialTheme.wireColorScheme.onPrimary)
+                is ConnectivityUIState.EstablishedCall ->
+                    OngoingCallContent(connectivityInfo.isMuted)
+                ConnectivityUIState.Connecting ->
+                    StatusLabel(R.string.connectivity_status_bar_connecting, MaterialTheme.wireColorScheme.onPrimary)
+                ConnectivityUIState.WaitingConnection ->
+                    StatusLabel(R.string.connectivity_status_bar_waiting_for_network, MaterialTheme.wireColorScheme.onPrimary)
                 ConnectivityUIState.None -> {}
             }
         }
@@ -215,7 +218,7 @@ fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldPending() =
 @PreviewMultipleThemes
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldActive() =
-    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false),LegalHoldUIState.Active)
+    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.Active)
 
 @PreviewMultipleThemes
 @Composable

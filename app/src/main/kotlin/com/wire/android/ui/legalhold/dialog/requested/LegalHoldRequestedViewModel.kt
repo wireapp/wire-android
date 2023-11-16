@@ -23,7 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -31,8 +35,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LegalHoldRequestedViewModel @Inject constructor(
-    private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val validatePassword: ValidatePasswordUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
     var state: LegalHoldRequestedState by mutableStateOf(LegalHoldRequestedState.Hidden)
@@ -53,13 +57,25 @@ class LegalHoldRequestedViewModel @Inject constructor(
         state = LegalHoldRequestedState.Hidden
     }
 
+    private suspend fun checkIfPasswordRequired(action: (Boolean) -> Unit) {
+        when (val currentSessionResult = coreLogic.getGlobalScope().session.currentSession()) {
+            CurrentSessionResult.Failure.SessionNotFound -> appLogger.e("$TAG: Session not found")
+            is CurrentSessionResult.Failure.Generic -> appLogger.e("$TAG: Failed to get current session")
+            is CurrentSessionResult.Success -> action(
+                coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).users.isPasswordRequired()
+                    .let { (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true }
+            )
+        }
+    }
+
     fun show() {
         viewModelScope.launch {
-            val isPasswordRequired = isPasswordRequired().let { (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true }
-            state = LegalHoldRequestedState.Visible(
-                requiresPassword = isPasswordRequired,
-                legalHoldDeviceFingerprint = "0123456789ABCDEF" // TODO: get legal hold client fingerprint
-            )
+            checkIfPasswordRequired { isPasswordRequired ->
+                state = LegalHoldRequestedState.Visible(
+                    requiresPassword = isPasswordRequired,
+                    legalHoldDeviceFingerprint = "0123456789ABCDEF" // TODO: get legal hold client fingerprint
+                )
+            }
         }
     }
 
@@ -74,5 +90,9 @@ class LegalHoldRequestedViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "LegalHoldRequestedViewModel"
     }
 }

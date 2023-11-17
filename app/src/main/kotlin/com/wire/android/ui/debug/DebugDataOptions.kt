@@ -304,7 +304,7 @@ fun DebugDataOptionsContent(
 
                 if (state.showCertificate) {
                     WireDialog(
-                        title = "E2EI Certificate in PEM format",
+                        title = stringResource(R.string.end_to_end_identity_ceritifcate),
                         text = state.certificate,
                         onDismiss = {
                             dismissCertificateDialog()
@@ -313,7 +313,7 @@ fun DebugDataOptionsContent(
                             onClick = {
                                 dismissCertificateDialog()
                             },
-                            text = "OK",
+                            text = stringResource(R.string.label_ok),
                             type = WireDialogButtonType.Primary,
                         )
                     )

@@ -286,7 +286,7 @@ class MessageComposerViewModelTest {
             )
 
             // When
-            viewModel.sendMessage(mockedMessageBundle)
+            viewModel.trySendMessage(mockedMessageBundle)
 
             // Then
             coVerify(inverse = true) {
@@ -327,7 +327,7 @@ class MessageComposerViewModelTest {
             )
 
             // When
-            viewModel.sendMessage(mockedMessageBundle)
+            viewModel.trySendMessage(mockedMessageBundle)
 
             // Then
             coVerify(inverse = true) {
@@ -369,7 +369,7 @@ class MessageComposerViewModelTest {
             )
 
             // When
-            viewModel.sendMessage(mockedMessageBundle)
+            viewModel.trySendMessage(mockedMessageBundle)
 
             // Then
             coVerify(inverse = true) {
@@ -414,7 +414,7 @@ class MessageComposerViewModelTest {
 
             // When
             viewModel.infoMessage.test {
-                viewModel.sendMessage(mockedMessageBundle)
+                viewModel.trySendMessage(mockedMessageBundle)
 
                 // Then
                 coVerify(inverse = true) {
@@ -479,7 +479,7 @@ class MessageComposerViewModelTest {
                 .arrange()
 
             // When
-            viewModel.sendMessage(
+            viewModel.trySendMessage(
                 messageBundle = Ping
             )
 
@@ -583,7 +583,7 @@ class MessageComposerViewModelTest {
             .arrange()
 
         // when
-        viewModel.sendMessage(ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList()))
+        viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList()))
 
         // then
         coVerify(exactly = 1) {
@@ -611,7 +611,7 @@ class MessageComposerViewModelTest {
             .arrange()
 
         // when
-        viewModel.sendMessage(ComposableMessageBundle.EditMessageBundle("mocked-text-message", "new-mocked-text-message", emptyList()))
+        viewModel.trySendMessage(ComposableMessageBundle.EditMessageBundle("mocked-text-message", "new-mocked-text-message", emptyList()))
 
         // then
         coVerify(exactly = 1) {
@@ -649,4 +649,32 @@ class MessageComposerViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `given that user need to be informed about verification, when invoked sending, then message is not sent and dialog shown`() =
+        runTest {
+            // given
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withInformAboutVerificationBeforeMessagingFlag(false)
+                .arrange()
+
+            // when
+            viewModel.trySendMessage(messageBundle)
+
+            // then
+            coVerify(exactly = 0) {
+                arrangement.sendTextMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            assertEquals(
+                SureAboutMessagingDialogState.ConversationVerificationDegraded(messageBundle),
+                viewModel.sureAboutMessagingDialogState
+            )
+        }
 }

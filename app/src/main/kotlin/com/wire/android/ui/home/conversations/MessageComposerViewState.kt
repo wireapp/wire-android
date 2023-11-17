@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -46,4 +47,9 @@ sealed class VisitLinkDialogState {
 sealed class InvalidLinkDialogState {
     object Hidden : InvalidLinkDialogState()
     object Visible : InvalidLinkDialogState()
+}
+
+sealed class SureAboutMessagingDialogState {
+    object None : SureAboutMessagingDialogState()
+    data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : SureAboutMessagingDialogState()
 }

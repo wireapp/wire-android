@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("MultiLineIfElse")
+
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box

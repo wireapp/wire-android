@@ -60,6 +60,7 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
@@ -69,6 +70,7 @@ import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -127,10 +129,6 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
-            conversationViewState = conversationViewState.copy(
-                searchedMessageId = null
-            )
-
             when (val result = getSearchedConversationMessagePosition(
                 conversationId = conversationId,
                 messageId = messageId
@@ -150,6 +148,18 @@ class ConversationMessagesViewModel @Inject constructor(
             messages = paginatedMessagesFlow,
             firstuUnreadEventIndex = max(lastReadIndex - 1, 0)
         )
+
+        handleSelectedSearchedMessageHighlighting()
+    }
+
+    private suspend fun handleSelectedSearchedMessageHighlighting() {
+        viewModelScope.launch {
+            delay(3.seconds)
+            conversationViewState = conversationViewState.copy(
+                searchedMessageId = null
+            )
+        }
+
     }
 
     private fun loadLastMessageInstant() = viewModelScope.launch {

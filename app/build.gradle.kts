@@ -188,6 +188,9 @@ dependencies {
     // Development dependencies
     debugImplementation(libs.leakCanary)
 
+    // oauth dependencies
+    implementation(libs.openIdAppOauth)
+
     // Internal, dev, beta and staging only tracking & logging
     devImplementation(libs.dataDog.core)
     internalImplementation(libs.dataDog.core)

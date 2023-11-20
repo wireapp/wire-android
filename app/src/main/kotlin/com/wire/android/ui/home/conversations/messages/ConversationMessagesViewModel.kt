@@ -159,7 +159,6 @@ class ConversationMessagesViewModel @Inject constructor(
                 searchedMessageId = null
             )
         }
-
     }
 
     private fun loadLastMessageInstant() = viewModelScope.launch {

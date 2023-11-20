@@ -38,7 +38,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -53,22 +52,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@Composable
-fun LegalHoldRequestedDialog(
-    viewModel: LegalHoldRequestedViewModel = hiltViewModel()
-) {
-    LegalHoldRequestedDialogContent(
-        state = viewModel.state,
-        passwordChanged = viewModel::passwordChanged,
-        notNowClicked = viewModel::notNowClicked,
-        acceptClicked = viewModel::acceptClicked,
-    )
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LegalHoldRequestedDialogContent(
-    state: LegalHoldRequestedState,
+fun LegalHoldRequestedDialog(
+    state: LegalHoldRequestedState.Visible,
     passwordChanged: (TextFieldValue) -> Unit,
     notNowClicked: () -> Unit,
     acceptClicked: () -> Unit,
@@ -153,8 +140,8 @@ fun LegalHoldRequestedDialogContent(
 @PreviewMultipleThemes
 fun PreviewLegalHoldRequestedDialogWithPassword() {
     WireTheme {
-        LegalHoldRequestedDialogContent(
-            LegalHoldRequestedState(legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = true), {}, {}, {}
+        LegalHoldRequestedDialog(
+            LegalHoldRequestedState.Visible(legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = true), {}, {}, {}
         )
     }
 }
@@ -163,8 +150,8 @@ fun PreviewLegalHoldRequestedDialogWithPassword() {
 @PreviewMultipleThemes
 fun PreviewLegalHoldRequestedDialogWithoutPassword() {
     WireTheme {
-        LegalHoldRequestedDialogContent(
-            LegalHoldRequestedState(legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = false), {}, {}, {}
+        LegalHoldRequestedDialog(
+            LegalHoldRequestedState.Visible(legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = false), {}, {}, {}
         )
     }
 }

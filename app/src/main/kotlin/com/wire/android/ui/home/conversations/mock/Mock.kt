@@ -126,7 +126,7 @@ Sample text here...
 ```
 
 # Links
-[AR PR](https://github.com/wireapp/wire-android-reloaded/pulls)
+[AR PR](https://github.com/wireapp/wire-android/pulls)
 
 Autoconverted link https://github.com/wireapp/kalium/pulls
 """

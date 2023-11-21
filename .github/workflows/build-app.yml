@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-app:
-    runs-on: buildjet-4vcpu-ubuntu-2204
+    runs-on: macos-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4

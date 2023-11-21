@@ -24,8 +24,10 @@ import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
@@ -128,7 +130,7 @@ class PersistentWebSocketService : Service() {
             .setOngoing(true)
             .build()
 
-        startForeground(PERSISTENT_NOTIFICATION_ID, notification)
+        ServiceCompat.startForeground(this, PERSISTENT_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
     }
 
     override fun onDestroy() {

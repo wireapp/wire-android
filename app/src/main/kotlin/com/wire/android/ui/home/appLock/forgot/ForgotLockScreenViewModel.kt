@@ -147,7 +147,7 @@ class ForgotLockScreenViewModel @Inject constructor(
             is IsPasswordRequiredUseCase.Result.Success -> when {
                 isPasswordRequiredResult.value && password.isBlank() -> Result.Failure.PasswordRequired to password
                 isPasswordRequiredResult.value && !validatePassword(password).isValid -> Result.Failure.InvalidPassword to password
-                else -> Result.Success to if(isPasswordRequiredResult.value) password else ""
+                else -> Result.Success to if (isPasswordRequiredResult.value) password else ""
             }
         }
 

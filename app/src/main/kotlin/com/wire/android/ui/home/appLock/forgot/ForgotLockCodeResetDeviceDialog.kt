@@ -96,7 +96,7 @@ fun ForgotLockCodeResetDeviceDialog(
             state = if (!isResetDeviceEnabled) WireButtonState.Disabled else WireButtonState.Error
         )
     ) {
-        if(!isPasswordNotRequired) {
+        if (!isPasswordNotRequired) {
             // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
             // to the dialog's content and use keyboard controller from there
             keyboardController = LocalSoftwareKeyboardController.current

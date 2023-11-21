@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-app:
-    runs-on: macos-latest
+    runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
         submodules: recursive # Needed in order to fetch Kalium sources for building
         fetch-depth: 0
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: buildjet/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'

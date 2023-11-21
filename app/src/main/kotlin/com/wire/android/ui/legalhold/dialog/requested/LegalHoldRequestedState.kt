@@ -20,15 +20,17 @@ package com.wire.android.ui.legalhold.dialog.requested
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.CoreFailure
 
-data class LegalHoldRequestedState(
-    val done: Boolean = false,
-    val legalHoldDeviceFingerprint: String = "",
-    val password: TextFieldValue = TextFieldValue(""),
-    val requiresPassword: Boolean = false,
-    val loading: Boolean = false,
-    val acceptEnabled: Boolean = false,
-    val error: LegalHoldRequestedError = LegalHoldRequestedError.None,
-)
+sealed class LegalHoldRequestedState {
+    data object Hidden : LegalHoldRequestedState()
+    data class Visible(
+        val legalHoldDeviceFingerprint: String = "",
+        val password: TextFieldValue = TextFieldValue(""),
+        val requiresPassword: Boolean = false,
+        val loading: Boolean = false,
+        val acceptEnabled: Boolean = false,
+        val error: LegalHoldRequestedError = LegalHoldRequestedError.None,
+    ) : LegalHoldRequestedState()
+}
 
 sealed class LegalHoldRequestedError {
     data object None : LegalHoldRequestedError()

@@ -90,14 +90,21 @@ class ForgotLockScreenViewModel @Inject constructor(
 
     fun onResetDevice() {
         viewModelScope.launch {
-            val isPasswordNotRequired = isPasswordRequired().let { it is IsPasswordRequiredUseCase.Result.Success && !it.value }
-            state = state.copy(
-                dialogState = ForgotLockCodeDialogState.Visible(
-                    username = getSelf().firstOrNull()?.name ?: "",
-                    passwordNotRequired = isPasswordNotRequired,
-                    resetDeviceEnabled = isPasswordNotRequired,
-                )
-            )
+            state = when (val isPasswordRequiredResult = isPasswordRequired()) {
+                is IsPasswordRequiredUseCase.Result.Success -> {
+                    state.copy(
+                        dialogState = ForgotLockCodeDialogState.Visible(
+                            username = getSelf().firstOrNull()?.name ?: "",
+                            passwordRequired = isPasswordRequiredResult.value,
+                            resetDeviceEnabled = !isPasswordRequiredResult.value,
+                        )
+                    )
+                }
+                is IsPasswordRequiredUseCase.Result.Failure -> {
+                    appLogger.e("$TAG Failed to check if password is required when opening reset passcode dialog")
+                    state.copy(error = isPasswordRequiredResult.cause)
+                }
+            }
         }
     }
 
@@ -126,7 +133,7 @@ class ForgotLockScreenViewModel @Inject constructor(
                                 updateIfDialogStateVisible { it.copy(loading = false, resetDeviceEnabled = true) }
                             }
                             Result.Failure.PasswordRequired ->
-                                updateIfDialogStateVisible { it.copy(passwordNotRequired = false, passwordValid = false, loading = false) }
+                                updateIfDialogStateVisible { it.copy(passwordRequired = true, passwordValid = false, loading = false) }
                             Result.Failure.InvalidPassword ->
                                 updateIfDialogStateVisible { it.copy(passwordValid = false, loading = false) }
                             Result.Success ->

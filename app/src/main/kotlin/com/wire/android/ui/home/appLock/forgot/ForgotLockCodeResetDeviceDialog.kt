@@ -52,7 +52,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 @Composable
 fun ForgotLockCodeResetDeviceDialog(
     username: String,
-    isPasswordNotRequired: Boolean,
+    isPasswordRequired: Boolean,
     isPasswordValid: Boolean,
     isResetDeviceEnabled: Boolean,
     onPasswordChanged: (TextFieldValue) -> Unit,
@@ -67,9 +67,7 @@ fun ForgotLockCodeResetDeviceDialog(
     }
     WireDialog(
         title = stringResource(R.string.settings_forgot_lock_screen_reset_device),
-        text = if (isPasswordNotRequired) {
-            AnnotatedString(stringResource(id = R.string.settings_forgot_lock_screen_reset_device_without_password_description))
-        } else {
+        text = if (isPasswordRequired) {
             LocalContext.current.resources.stringWithStyledArgs(
                 R.string.settings_forgot_lock_screen_reset_device_description,
                 MaterialTheme.wireTypography.body01,
@@ -78,6 +76,8 @@ fun ForgotLockCodeResetDeviceDialog(
                 colorsScheme().onBackground,
                 username
             )
+        } else {
+            AnnotatedString(stringResource(id = R.string.settings_forgot_lock_screen_reset_device_without_password_description))
         },
         onDismiss = onDialogDismissHideKeyboard,
         buttonsHorizontalAlignment = false,
@@ -96,7 +96,7 @@ fun ForgotLockCodeResetDeviceDialog(
             state = if (!isResetDeviceEnabled) WireButtonState.Disabled else WireButtonState.Error
         )
     ) {
-        if (!isPasswordNotRequired) {
+        if (isPasswordRequired) {
             // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
             // to the dialog's content and use keyboard controller from there
             keyboardController = LocalSoftwareKeyboardController.current

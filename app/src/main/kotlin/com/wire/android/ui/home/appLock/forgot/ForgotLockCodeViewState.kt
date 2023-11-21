@@ -31,7 +31,7 @@ sealed class ForgotLockCodeDialogState {
     data class Visible(
         val username: String,
         val password: TextFieldValue = TextFieldValue(""),
-        val passwordNotRequired: Boolean = false,
+        val passwordRequired: Boolean = false,
         val passwordValid: Boolean = true,
         val resetDeviceEnabled: Boolean = false,
         val loading: Boolean = false,

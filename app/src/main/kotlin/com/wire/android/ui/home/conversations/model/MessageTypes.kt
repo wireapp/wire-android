@@ -82,7 +82,8 @@ internal fun MessageBody(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     buttonList: List<MessageButton>?,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    clickable: Boolean = true
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
         mapToDisplayMentions(it, LocalContext.current.resources)
@@ -105,7 +106,11 @@ internal fun MessageBody(
         TablesExtension.create()
     )
     text?.also {
-        MarkdownDocument(Parser.builder().extensions(extensions).build().parse(it) as Document, nodeData)
+        MarkdownDocument(
+            Parser.builder().extensions(extensions).build().parse(it) as Document,
+            nodeData,
+            clickable
+        )
     }
     buttonList?.also {
         MessageButtonsContent(

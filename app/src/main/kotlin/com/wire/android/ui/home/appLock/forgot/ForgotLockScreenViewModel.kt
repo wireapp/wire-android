@@ -48,9 +48,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.flatMap
-import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -88,12 +85,19 @@ class ForgotLockScreenViewModel @Inject constructor(
     }
 
     fun onPasswordChanged(password: TextFieldValue) {
-        updateIfDialogStateVisible { it.copy(password = password, resetDeviceEnabled = true) }
+        updateIfDialogStateVisible { it.copy(password = password, resetDeviceEnabled = password.text.isNotBlank()) }
     }
 
     fun onResetDevice() {
         viewModelScope.launch {
-            state = state.copy(dialogState = ForgotLockCodeDialogState.Visible(username = getSelf().firstOrNull()?.name ?: ""))
+            val isPasswordNotRequired = isPasswordRequired().let { it is IsPasswordRequiredUseCase.Result.Success && !it.value }
+            state = state.copy(
+                dialogState = ForgotLockCodeDialogState.Visible(
+                    username = getSelf().firstOrNull()?.name ?: "",
+                    passwordNotRequired = isPasswordNotRequired,
+                    resetDeviceEnabled = isPasswordNotRequired,
+                )
+            )
         }
     }
 
@@ -110,40 +114,45 @@ class ForgotLockScreenViewModel @Inject constructor(
             updateIfDialogStateVisible { it.copy(resetDeviceEnabled = false) }
             viewModelScope.launch {
                 validatePasswordIfNeeded(dialogStateVisible.password.text)
-                    .flatMapIfSuccess {
+                    .flatMapIfSuccess { validatedPassword ->
                         updateIfDialogStateVisible { it.copy(loading = true) }
-                        deleteCurrentClient(dialogStateVisible.password.text)
-                            .flatMapIfSuccess { hardLogoutAllAccounts() }
+                        deleteCurrentClient(validatedPassword)
                     }
-                    .fold({ error ->
-                        state = state.copy(error = error)
-                        updateIfDialogStateVisible { it.copy(loading = false, resetDeviceEnabled = true) }
-                    }, { result ->
+                    .flatMapIfSuccess { hardLogoutAllAccounts() }
+                    .let { result ->
                         when (result) {
-                            Result.InvalidPassword -> updateIfDialogStateVisible { it.copy(passwordValid = false, loading = false) }
-                            Result.Success -> state = state.copy(completed = true, dialogState = ForgotLockCodeDialogState.Hidden)
+                            is Result.Failure.Generic -> {
+                                state = state.copy(error = result.cause)
+                                updateIfDialogStateVisible { it.copy(loading = false, resetDeviceEnabled = true) }
+                            }
+                            Result.Failure.PasswordRequired ->
+                                updateIfDialogStateVisible { it.copy(passwordNotRequired = false, passwordValid = false, loading = false) }
+                            Result.Failure.InvalidPassword ->
+                                updateIfDialogStateVisible { it.copy(passwordValid = false, loading = false) }
+                            Result.Success ->
+                                state = state.copy(completed = true, dialogState = ForgotLockCodeDialogState.Hidden)
                         }
                     }
-                    )
             }
         }
     }
 
     @VisibleForTesting
-    internal suspend fun validatePasswordIfNeeded(password: String): Either<CoreFailure, Result> =
+    internal suspend fun validatePasswordIfNeeded(password: String): Pair<Result, String> =
         when (val isPasswordRequiredResult = isPasswordRequired()) {
             is IsPasswordRequiredUseCase.Result.Failure -> {
                 appLogger.e("$TAG Failed to check if password is required when resetting passcode")
-                Either.Left(isPasswordRequiredResult.cause)
+                Result.Failure.Generic(isPasswordRequiredResult.cause) to password
             }
-            is IsPasswordRequiredUseCase.Result.Success -> {
-                if (!isPasswordRequiredResult.value || validatePassword(password).isValid) Either.Right(Result.Success)
-                else Either.Right(Result.InvalidPassword)
+            is IsPasswordRequiredUseCase.Result.Success -> when {
+                isPasswordRequiredResult.value && password.isBlank() -> Result.Failure.PasswordRequired to password
+                isPasswordRequiredResult.value && !validatePassword(password).isValid -> Result.Failure.InvalidPassword to password
+                else -> Result.Success to if(isPasswordRequiredResult.value) password else ""
             }
         }
 
     @VisibleForTesting
-    internal suspend fun deleteCurrentClient(password: String): Either<CoreFailure, Result> =
+    internal suspend fun deleteCurrentClient(password: String): Result =
         observeCurrentClientId()
             .filterNotNull()
             .first()
@@ -151,19 +160,19 @@ class ForgotLockScreenViewModel @Inject constructor(
                 when (val deleteClientResult = deleteClient(DeleteClientParam(password, clientId))) {
                     is DeleteClientResult.Failure.Generic -> {
                         appLogger.e("$TAG Failed to delete current client when resetting passcode")
-                        Either.Left(deleteClientResult.genericFailure)
+                        Result.Failure.Generic(deleteClientResult.genericFailure)
                     }
-                    DeleteClientResult.Success -> Either.Right(Result.Success)
-                    else -> Either.Right(Result.InvalidPassword)
+                    DeleteClientResult.Success -> Result.Success
+                    else -> Result.Failure.InvalidPassword
                 }
             }
 
     @VisibleForTesting
-    internal suspend fun hardLogoutAllAccounts(): Either<CoreFailure, Result> =
+    internal suspend fun hardLogoutAllAccounts(): Result =
         when (val getAllSessionsResult = getSessions()) {
             is GetAllSessionsResult.Failure.Generic -> {
                 appLogger.e("$TAG Failed to get all sessions when resetting passcode")
-                Either.Left(getAllSessionsResult.genericFailure)
+                Result.Failure.Generic(getAllSessionsResult.genericFailure)
             }
             is GetAllSessionsResult.Failure.NoSessionFound,
             is GetAllSessionsResult.Success -> {
@@ -178,7 +187,7 @@ class ForgotLockScreenViewModel @Inject constructor(
                 }.joinAll() // wait until all accounts are logged out
                 globalDataStore.clearAppLockPasscode()
                 accountSwitch(SwitchAccountParam.Clear)
-                Either.Right(Result.Success)
+                Result.Success
             }
         }
 
@@ -190,10 +199,20 @@ class ForgotLockScreenViewModel @Inject constructor(
         userDataStoreProvider.getOrCreate(userId).clear()
     }
 
-    internal enum class Result { InvalidPassword, Success; }
+    internal sealed class Result {
+        sealed class Failure : Result() {
+            data object InvalidPassword : Failure()
+            data object PasswordRequired : Failure()
+            data class Generic(val cause: CoreFailure) : Failure()
+        }
+        data object Success : Result()
+    }
 
-    private inline fun <T> Either<T, Result>.flatMapIfSuccess(block: () -> Either<T, Result>): Either<T, Result> =
-        this.flatMap { if (it == Result.Success) block() else Either.Right(it) }
+    private inline fun Result.flatMapIfSuccess(block: () -> Result): Result =
+        if (this is Result.Success) block() else this
+
+    private inline fun <T> Pair<Result, T>.flatMapIfSuccess(block: (T) -> Result): Result =
+        if (this.first is Result.Success) block(this.second) else this.first
 
     companion object {
         const val TAG = "ForgotLockResetPasscode"

@@ -86,6 +86,7 @@ fun ForgotLockCodeScreen(
             if (dialogState.loading) ForgotLockCodeResettingDeviceDialog()
             else ForgotLockCodeResetDeviceDialog(
                 username = dialogState.username,
+                isPasswordNotRequired = dialogState.passwordNotRequired,
                 isPasswordValid = dialogState.passwordValid,
                 isResetDeviceEnabled = dialogState.resetDeviceEnabled,
                 onPasswordChanged = viewModel::onPasswordChanged,

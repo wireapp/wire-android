@@ -14,25 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
 package com.wire.android.ui.common.topappbar
 
-import androidx.compose.runtime.Stable
-import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 
-@Stable
-sealed interface ConnectivityUIState {
-    data object Connecting : ConnectivityUIState
-
-    data object WaitingConnection : ConnectivityUIState
-
-    data object None : ConnectivityUIState
-
-    data class EstablishedCall(
-        val conversationId: ConversationId,
-        val isMuted: Boolean
-    ) : ConnectivityUIState
-}
+data class CommonTopAppBarState(
+    val connectivityState: ConnectivityUIState = ConnectivityUIState.None,
+    val legalHoldState: LegalHoldUIState = LegalHoldUIState.None,
+)

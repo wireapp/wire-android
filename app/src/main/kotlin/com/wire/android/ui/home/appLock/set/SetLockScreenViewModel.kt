@@ -24,7 +24,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
@@ -53,8 +52,7 @@ class SetLockScreenViewModel @Inject constructor(
             observeAppLockConfigUseCase()
                 .collectLatest {
                     state = state.copy(
-                        timeout = it.timeout,
-                        isAppLockByUser = it !is AppLockConfig.EnforcedByTeam
+                        timeout = it.timeout
                     )
                 }
         }
@@ -82,11 +80,9 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore) {
-                            if (state.isAppLockByUser) {
-                                setUserAppLock(state.password.text.sha256())
-                            } else {
-                                setTeamAppLock(state.password.text.sha256())
-                            }
+                            setUserAppLock(state.password.text.sha256())
+
+                            // TODO: call only when needed
                             markTeamAppLockStatusAsNotified()
                         }
                     }

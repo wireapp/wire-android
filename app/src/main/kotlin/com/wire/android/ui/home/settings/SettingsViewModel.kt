@@ -26,22 +26,27 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.feature.ObserveAppLockConfigUseCase
+import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
     private val globalDataStore: GlobalDataStore,
+    private val isAppLockEditableUseCase: IsAppLockEditableUseCase
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
 
     init {
         viewModelScope.launch {
-            observeAppLockConfigUseCase().collect { appLockConfig -> state = state.copy(appLockConfig = appLockConfig) }
+            isAppLockEditableUseCase().let {
+                state = state.copy(isAppLockEditable = it)
+            }
+            globalDataStore.isAppLockPasscodeSetFlow().collect {
+                state = state.copy(isAppLockEnabled = it)
+            }
         }
     }
 

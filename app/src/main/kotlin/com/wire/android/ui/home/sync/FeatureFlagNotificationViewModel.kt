@@ -138,9 +138,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
                 .distinctUntilChanged()
                 .collectLatest {
-                    it.isStatusChanged?.let { isStatusChanged ->
+                    it?.isStatusChanged?.let { isStatusChanged ->
                         featureFlagState = featureFlagState.copy(
-                            isTeamAppLockEnabled = it.isEnabled,
+                            isTeamAppLockEnabled = it.isEnforced,
                             shouldShowTeamAppLockDialog = isStatusChanged
                         )
                     }
@@ -236,12 +236,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     (currentSession as CurrentSessionResult.Success).accountInfo.userId
                 ).markTeamAppLockStatusAsNotified()
             }
-        }
-    }
-
-    fun clearTeamAppLockPasscode() {
-        viewModelScope.launch {
-            globalDataStore.clearTeamAppLockPasscode()
         }
     }
 

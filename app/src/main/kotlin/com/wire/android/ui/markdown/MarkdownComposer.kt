@@ -59,12 +59,24 @@ import kotlin.math.min
 import org.commonmark.node.Text as nodeText
 
 @Composable
-fun MarkdownDocument(document: Document, nodeData: NodeData) {
-    MarkdownBlockChildren(document, nodeData)
+fun MarkdownDocument(
+    document: Document,
+    nodeData: NodeData,
+    clickable: Boolean
+) {
+    MarkdownBlockChildren(
+        document,
+        nodeData,
+        clickable
+    )
 }
 
 @Composable
-fun MarkdownBlockChildren(parent: Node, nodeData: NodeData) {
+fun MarkdownBlockChildren(
+    parent: Node,
+    nodeData: NodeData,
+    clickable: Boolean = true
+) {
     var child = parent.firstChild
 
     var updateMentions = nodeData.mentions
@@ -72,11 +84,11 @@ fun MarkdownBlockChildren(parent: Node, nodeData: NodeData) {
     while (child != null) {
         val updatedNodeData = nodeData.copy(mentions = updateMentions)
         when (child) {
-            is Document -> MarkdownDocument(child, updatedNodeData)
+            is Document -> MarkdownDocument(child, updatedNodeData, clickable)
             is BlockQuote -> MarkdownBlockQuote(child, updatedNodeData)
             is ThematicBreak -> MarkdownThematicBreak()
             is Heading -> MarkdownHeading(child, updatedNodeData)
-            is Paragraph -> MarkdownParagraph(child, updatedNodeData) {
+            is Paragraph -> MarkdownParagraph(child, updatedNodeData, clickable) {
                 updateMentions = it
             }
 

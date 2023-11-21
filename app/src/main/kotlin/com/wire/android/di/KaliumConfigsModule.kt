@@ -65,8 +65,6 @@ class KaliumConfigsModule {
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
             isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
             certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
-            teamAppLock = BuildConfig.TEAM_APP_LOCK,
-            teamAppLockTimeout = BuildConfig.TEAM_APP_LOCK_TIMEOUT
         )
     }
 }

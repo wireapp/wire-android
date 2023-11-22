@@ -97,6 +97,7 @@ class MessageMapper @Inject constructor(
         return when (content) {
             is UIMessageContent.Regular ->
                 UIMessage.Regular(
+                    id = message.id,
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
@@ -106,6 +107,7 @@ class MessageMapper @Inject constructor(
 
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
+                    id = message.id,
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),

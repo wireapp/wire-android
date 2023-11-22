@@ -24,14 +24,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetAssetMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase2
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetConversationMessagesFromSearchQueryUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
-import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfAssetMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -45,7 +46,6 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.components.ViewModelComponent
@@ -139,6 +139,11 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetPrivateAssetUseCase2(messageScope: MessageScope): GetMessageAssetUseCase2 =
+        messageScope.getAssetMessage2
+
+    @ViewModelScoped
+    @Provides
     fun provideGetNotificationsUseCase(messageScope: MessageScope): GetNotificationsUseCase =
         messageScope.getNotifications
 
@@ -151,11 +156,10 @@ class MessageModule {
     @Provides
     fun provideGetPaginatedMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfMessagesByConversationUseCase =
         messageScope.getPaginatedFlowOfMessagesByConversation
-
     @ViewModelScoped
     @Provides
-    fun provideGetPaginatedAssetMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfAssetMessagesByConversationUseCase =
-        messageScope.getPaginatedFlowOfAssetMessagesByConversation
+    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesByConversationUseCase =
+        messageScope.getAssetMessagesByConversation
 
     @ViewModelScoped
     @Provides

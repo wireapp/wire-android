@@ -220,7 +220,7 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
+                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId, null)
                 null
             }
         }
@@ -239,7 +239,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
-                    updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId)
+                    updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId, null)
                     onFileSavedToExternalStorage(savedFileName)
                     hideOnAssetDownloadedDialog()
                 }

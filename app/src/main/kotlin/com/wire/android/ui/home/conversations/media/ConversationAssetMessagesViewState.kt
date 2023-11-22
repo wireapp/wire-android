@@ -20,16 +20,13 @@
 
 package com.wire.android.ui.home.conversations.media
 
-import androidx.paging.PagingData
-import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import androidx.compose.runtime.Stable
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
+@Stable
 data class ConversationAssetMessagesViewState(
-    val messages: Flow<PagingData<UIAsset>> = emptyFlow(),
-    val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val audioMessagesState: Map<String, AudioState> = emptyMap()
+    val messages: ImmutableList<UIAsset> = persistentListOf(),
+    val currentOffset: Int = 0
 )

@@ -42,7 +42,7 @@ class GetMessagesForConversationUseCase @Inject constructor(
     private val getMessages: GetPaginatedFlowOfMessagesByConversationUseCase,
     private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
     private val messageMapper: MessageMapper,
-    private val dispatchers: DispatcherProvider,
+    private val dispatchers: DispatcherProvider
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)

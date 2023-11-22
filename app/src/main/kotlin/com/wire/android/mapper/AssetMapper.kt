@@ -18,37 +18,25 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageTime
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
-import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.data.message.AssetMessage
 import javax.inject.Inject
 
-class AssetMapper @Inject constructor(
-    private val messageContentMapper: MessageContentMapper,
-    private val isoFormatter: ISOFormatter,
-) {
+class AssetMapper @Inject constructor() {
 
     @Suppress("LongMethod")
-    fun toUIAsset(userList: List<User>, message: Message.Standalone): UIAsset? {
-        val sender = userList.findUser(message.senderUserId)
-        val content = messageContentMapper.fromMessage(
-            message = message,
-            userList = userList
+    fun toUIAsset(assetMessage: AssetMessage): UIAsset {
+        return UIAsset(
+            assetId = assetMessage.assetId,
+            time = MessageTime(assetMessage.time),
+            username = assetMessage.username?.let { UIText.DynamicString(it) }
+                ?: UIText.StringResource(R.string.username_unavailable_label),
+            conversationId = assetMessage.conversationId,
+            messageId = assetMessage.messageId,
+            downloadedAssetPath = assetMessage.decodedAssetPath,
+            downloadStatus = assetMessage.downloadStatus
         )
-        return if (content is UIMessageContent.ImageMessage) {
-            UIAsset(
-                imageMessage = content,
-                time = MessageTime(message.date),
-                username = sender?.name?.let { UIText.DynamicString(it) }
-                    ?: UIText.StringResource(R.string.username_unavailable_label)
-            )
-        } else {
-            null
-        }
     }
 }

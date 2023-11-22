@@ -74,6 +74,7 @@ val mockHeader = MessageHeader(
 )
 
 val mockMessageWithText = UIMessage.Regular(
+    id = "id",
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = mockHeader,
     messageContent = UIMessageContent.TextMessage(
@@ -91,6 +92,7 @@ val mockMessageWithText = UIMessage.Regular(
 )
 
 val mockMessageWithMarkdownTextAndLinks = UIMessage.Regular(
+    id = "id",
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = mockHeader,
     messageContent = UIMessageContent.TextMessage(
@@ -138,6 +140,7 @@ Autoconverted link https://github.com/wireapp/kalium/pulls
 )
 
 val mockMessageWithMarkdownListAndImages = UIMessage.Regular(
+    id = "id",
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = mockHeader,
     messageContent = UIMessageContent.TextMessage(
@@ -193,6 +196,7 @@ Png
 )
 
 val mockMessageWithMarkdownTablesAndBlocks = UIMessage.Regular(
+    id = "id",
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = mockHeader,
     messageContent = UIMessageContent.TextMessage(
@@ -237,6 +241,7 @@ Enable typographer option to see result.
 )
 
 val mockMessageWithKnock = UIMessage.System(
+    id = "id",
     header = mockHeader,
     messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("John Doe pinged"), true),
     source = MessageSource.Self,
@@ -258,6 +263,7 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     )
 
 fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
+    id = "id",
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
@@ -306,6 +312,7 @@ fun mockedImageUIMessage(
         expirationStatus = ExpirationStatus.NotExpirable
     )
 ) = UIMessage.Regular(
+    id = "id",
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = MessageHeader(
         username = UIText.DynamicString("John Doe"),
@@ -326,6 +333,7 @@ fun mockedImageUIMessage(
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
     UIMessage.Regular(
+        id = "id",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -355,6 +363,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     ),
     UIMessage.Regular(
+        id = "id2",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -375,6 +384,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     ),
     UIMessage.Regular(
+        id = "id3",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -396,6 +406,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     ),
     UIMessage.Regular(
+        id = "id4",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -417,6 +428,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     ),
     UIMessage.Regular(
+        id = "id5",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -447,6 +459,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     ),
     UIMessage.Regular(
+        id = "id6",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -468,6 +481,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     ),
     UIMessage.Regular(
+        id = "id7",
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         header = MessageHeader(
             username = UIText.DynamicString("John Doe"),

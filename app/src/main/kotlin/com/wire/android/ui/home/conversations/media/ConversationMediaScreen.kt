@@ -24,7 +24,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -35,13 +34,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
@@ -49,11 +46,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
-import com.wire.android.ui.home.conversations.model.MessageGenericAsset
-import com.wire.android.ui.home.conversations.model.MessageImage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
 
 @RootNavGraph
 @Destination(
@@ -63,11 +60,23 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
 @Composable
 fun ConversationMediaScreen(navigator: Navigator) {
     val viewModel: ConversationAssetMessagesViewModel = hiltViewModel()
-    val state: ConversationAssetMessagesViewState = viewModel.conversationViewState
+    val state: ConversationAssetMessagesViewState = viewModel.viewState
 
     Content(
         state = state,
-        onNavigationPressed = { navigator.navigateBack() }
+        onNavigationPressed = { navigator.navigateBack() },
+        onImageFullScreenMode = { conversationId, messageId ->
+                navigator.navigate(
+                    NavigationCommand(
+                        MediaGalleryScreenDestination(
+                            conversationId = conversationId,
+                            messageId = messageId,
+                            isSelfAsset = false, // TODO
+                            isEphemeral = false
+                        )
+                    )
+                )
+        },
     )
 }
 
@@ -75,8 +84,8 @@ fun ConversationMediaScreen(navigator: Navigator) {
 private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String) -> Unit,
 ) {
-    val lazyPagingMessages: LazyPagingItems<UIAsset> = state.messages.collectAsLazyPagingItems()
 
     WireScaffold(
         topBar = {
@@ -89,8 +98,9 @@ private fun Content(
         },
     ) { padding ->
         AssetList(
-            lazyPagingMessages = lazyPagingMessages,
-            modifier = Modifier.padding(padding)
+            uiAssetList = state.messages,
+            modifier = Modifier.padding(padding),
+            onImageFullScreenMode = onImageFullScreenMode
         )
 
     }
@@ -98,17 +108,10 @@ private fun Content(
 
 @Composable
 fun AssetList(
-    lazyPagingMessages: LazyPagingItems<UIAsset>,
+    uiAssetList: List<UIAsset>,
     modifier: Modifier,
-//    lazyListState: LazyListState,
-//    audioMessagesState: Map<String, AudioState>,
 //    onAssetItemClicked: (String) -> Unit,
-//    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
-//    onOpenProfile: (String) -> Unit,
-//    onAudioItemClicked: (String) -> Unit,
-//    onChangeAudioPosition: (String, Int) -> Unit,
-//    onReactionClicked: (String, String) -> Unit,
-//    onLinkClick: (String) -> Unit
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val horizontalPadding = dimensions().spacing12x * 2
@@ -120,16 +123,6 @@ fun AssetList(
             .fillMaxSize()
             .background(color = colorsScheme().backgroundVariant),
         content = {
-//            LazyColumn(
-////                state = lazyListState,
-//                reverseLayout = false,
-//                // calculating bottom padding to have space for [UsersTypingIndicator]
-////                contentPadding = PaddingValues(
-////                    bottom = dimensions().typingIndicatorHeight - dimensions().messageItemVerticalPadding
-////                ),
-//                modifier = Modifier
-//                    .fillMaxSize()
-//            ) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(COLUMN_COUNT),
                 modifier = Modifier.padding(
@@ -137,11 +130,11 @@ fun AssetList(
                     vertical = dimensions().spacing8x
                 )
             ) {
-
-                items(lazyPagingMessages.itemCount, key = { index -> lazyPagingMessages[index]?.imageMessage?.assetId?.toString() ?: "asset$index" }) { index ->
-                    val content = lazyPagingMessages[index] ?: return@items
-                    val currentOnImageClick = remember(content) {
+                items(uiAssetList.size, key = { index -> uiAssetList[index].messageId }) { index ->
+                    val uiAsset = uiAssetList[index]
+                    val currentOnImageClick = remember(uiAsset) {
                         Clickable(enabled = true, onClick = {
+                            onImageFullScreenMode(uiAsset.conversationId, uiAsset.messageId)
 //                            onImageMessageClicked(
 //                                message,
 //                                source == MessageSource.Self
@@ -150,44 +143,20 @@ fun AssetList(
 //                            onLongClicked(message)
                         })
                     }
-//                    when (content) {
-//                        is UIMessageContent.ImageMessage -> {
-                            Box(
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .padding(all = dimensions().spacing2x)
-                            ) {
-                                MediaAssetImage(
-                                    asset = content.imageMessage.asset,
-                                    width = imageSize,
-                                    height = imageSize,
-                                    downloadStatus = content.imageMessage.downloadStatus,
-                                    onImageClick = currentOnImageClick
-                                )
-                            }
-//                        }
-
-//                        is UIMessageContent.AssetMessage -> {
-//                            Box(
-//                                modifier = Modifier
-//                                    .height(dimensions().spacing80x)
-//                                    .padding(all = dimensions().spacing2x)
-//                            ) {
-//                                MessageGenericAsset(
-//                                    assetName = content.assetName,
-//                                    assetExtension = content.assetExtension,
-//                                    assetSizeInBytes = content.assetSizeInBytes,
-//                                    assetUploadStatus = content.uploadStatus,
-//                                    assetDownloadStatus = content.downloadStatus,
-//                                    onAssetClick = currentOnImageClick
-//                                )
-//                            }
-//                        }
-
-//                        else -> {
-//                            appLogger.d("KBX $content")
-//                        }
-//                    }
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .padding(all = dimensions().spacing2x)
+                    ) {
+                        MediaAssetImage(
+                            asset = null, // TODO
+                            width = imageSize,
+                            height = imageSize,
+                            downloadStatus = uiAsset.downloadStatus,
+                            onImageClick = currentOnImageClick,
+                            assetPath = uiAsset.downloadedAssetPath
+                        )
+                    }
                 }
             }
         })

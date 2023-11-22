@@ -47,6 +47,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
 sealed interface UIMessage {
+    val id: String
     val header: MessageHeader
     val source: MessageSource
     val messageContent: UIMessageContent?
@@ -55,6 +56,7 @@ sealed interface UIMessage {
     val isPending: Boolean
 
     data class Regular(
+        override val id: String,
         override val header: MessageHeader,
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
@@ -74,6 +76,7 @@ sealed interface UIMessage {
     }
 
     data class System(
+        override val id: String,
         override val header: MessageHeader,
         override val source: MessageSource,
         override val messageContent: UIMessageContent.SystemMessage

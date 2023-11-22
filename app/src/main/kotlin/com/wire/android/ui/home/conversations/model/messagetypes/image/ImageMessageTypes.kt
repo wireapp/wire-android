@@ -29,18 +29,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import coil.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.dimensions
@@ -48,6 +49,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import okio.Path
 
 @Composable
 fun DisplayableImageMessage(
@@ -62,6 +64,32 @@ fun DisplayableImageMessage(
         modifier = modifier
             .width(width)
             .height(height),
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+fun AsyncImageMessage(
+    assetPath: Path,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    SubcomposeAsyncImage(
+        assetPath.toFile(),
+        contentDescription = stringResource(R.string.content_description_image_message),
+        modifier = modifier
+            .width(width)
+            .height(height),
+        loading = { _ ->
+            WireCircularProgressIndicator(
+                progressColor = MaterialTheme.wireColorScheme.primary,
+                modifier = Modifier.align(
+                    Alignment.Center
+                ).padding(dimensions().spacing8x)
+            )
+        },
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )
@@ -131,15 +159,11 @@ fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, showTe
                 .height(height)
                 .padding(MaterialTheme.wireDimensions.spacing8x)
         ) {
-            Image(
+            Icon(
                 painter = painterResource(id = R.drawable.ic_gallery),
                 contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
-                    .width(dimensions().spacing24x)
-                    .height(dimensions().spacing24x),
-                alignment = Alignment.CenterStart,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
-                contentScale = ContentScale.Crop
             )
             if (showText) {
                 Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.messages
 
+import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.home.conversations.model.AssetBundle
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Instant
 
+@Stable
 data class ConversationMessagesViewState(
     val messages: Flow<PagingData<UIMessage>> = emptyFlow(),
     val firstUnreadInstant: Instant? = null,

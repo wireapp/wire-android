@@ -852,7 +852,7 @@ fun MessageList(
             ) {
                 items(
                     count = lazyPagingMessages.itemCount,
-                    key = lazyPagingMessages.itemKey { it.header.messageId },
+                    key = lazyPagingMessages.itemKey { it.id },
                     contentType = lazyPagingMessages.itemContentType { it }
                 ) { index ->
                     val message: UIMessage? = lazyPagingMessages[index]

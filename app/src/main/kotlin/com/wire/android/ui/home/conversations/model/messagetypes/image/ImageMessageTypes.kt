@@ -87,7 +87,7 @@ fun AsyncImageMessage(
                 progressColor = MaterialTheme.wireColorScheme.primary,
                 modifier = Modifier.align(
                     Alignment.Center
-                ).padding(dimensions().spacing8x)
+                ).padding(dimensions().spacing24x)
             )
         },
         alignment = Alignment.Center,

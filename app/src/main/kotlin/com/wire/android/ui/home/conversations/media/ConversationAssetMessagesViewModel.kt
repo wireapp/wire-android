@@ -25,12 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.mapper.AssetMapper
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetAssetMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase2
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -64,6 +66,7 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         var continueLoading = true
         while (continueLoading) {
             val currentOffset = viewState.currentOffset
+            appLogger.d("KBX offset ${viewState.currentOffset} get assets")
             val uiAssetList = withContext(dispatchers.io()) {
                 getAssets.invoke(
                     conversationId = conversationId,
@@ -72,36 +75,45 @@ class ConversationAssetMessagesViewModel @Inject constructor(
                 ).map(assetMapper::toUIAsset)
             }
 
+            appLogger.d("KBX offset ${viewState.currentOffset} set load")
             // imitate loading new asset batch
-            viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList).toImmutableList())
+            viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList.map {
+                it.copy(
+                    downloadStatus = if (it.downloadedAssetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD)
+                        Message.DownloadStatus.DOWNLOAD_IN_PROGRESS else it.downloadStatus
+                )
+            }).toImmutableList())
 
             if (uiAssetList.size >= BATCH_SIZE) {
                 val uiMessages = uiAssetList.map { uiAsset ->
-                        if (uiAsset.downloadedAssetPath == null) {
-                            val assetPath = withContext(dispatchers.io()) {
-                                when (val asset = getPrivateAsset.invoke(uiAsset.conversationId, uiAsset.messageId)) {
-                                    is MessageAssetResult.Failure -> null
-                                    is MessageAssetResult.Success -> asset.decodedAssetPath
-                                }
+                    if (uiAsset.downloadedAssetPath == null) {
+                        appLogger.d("KBX offset ${viewState.currentOffset} download asset")
+                        val assetPath = withContext(dispatchers.io()) {
+                            when (val asset = getPrivateAsset.invoke(uiAsset.conversationId, uiAsset.messageId)) {
+                                is MessageAssetResult.Failure -> null
+                                is MessageAssetResult.Success -> asset.decodedAssetPath
                             }
-                            uiAsset.copy(downloadedAssetPath = assetPath)
-                        } else {
-                            uiAsset
                         }
+                        uiAsset.copy(downloadedAssetPath = assetPath)
+                    } else {
+                        uiAsset
                     }
+                }
 
+                appLogger.d("KBX offset ${viewState.currentOffset} update asset")
                 viewState = viewState.copy(
                     messages = viewState.messages.dropLast(uiMessages.size).plus(uiMessages).toImmutableList(),
                     currentOffset = viewState.currentOffset + BATCH_SIZE
                 )
                 continueLoading = true
             } else {
+                appLogger.d("KBX offset ${viewState.currentOffset} no assets")
                 continueLoading = false
             }
         }
     }
 
     companion object {
-        const val BATCH_SIZE = 10
+        const val BATCH_SIZE = 1
     }
 }

@@ -55,6 +55,12 @@ fun SettingsScreen(
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
+    val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
+        { isChecked ->
+            if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
+            else turnAppLockOffDialogState.show(Unit)
+        }
+    }
 
     val context = LocalContext.current
     SettingsScreenContent(
@@ -68,12 +74,7 @@ fun SettingsScreen(
                 )
             }
         },
-        onAppLockSwitchChanged = remember {
-            { isChecked ->
-                if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
-                else turnAppLockOffDialogState.show(Unit)
-            }
-        }
+        onAppLockSwitchChanged = onAppLockSwitchClicked
     )
     TurnAppLockOffDialog(dialogState = turnAppLockOffDialogState, turnOff = viewModel::disableAppLock)
 }

@@ -87,11 +87,13 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
+import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
+import com.wire.android.ui.common.dialogs.calling.SureAboutCallingInDegradedConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -273,6 +275,24 @@ fun ConversationScreen(
             })
         }
 
+        ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
+            SureAboutCallingInDegradedConversationDialog(
+                callAnyway = {
+                    startCallIfPossible(
+                        conversationCallViewModel,
+                        showDialog,
+                        coroutineScope,
+                        conversationInfoViewModel.conversationInfoViewState.conversationType,
+                        onOpenInitiatingCallScreen = {
+                            navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
+                        }
+                    ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+                },
+                onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
+            )
+            conversationCallViewModel.onConversationDegradedDialogShown()
+        }
+
         ConversationScreenDialogType.NONE -> {}
     }
 
@@ -297,7 +317,7 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = messageComposerViewModel::sendMessage,
+        onSendMessage = messageComposerViewModel::trySendMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
@@ -405,6 +425,12 @@ fun ConversationScreen(
         hideDialog = messageComposerViewModel::hideInvalidLinkError
     )
 
+    SureAboutMessagingInDegradedConversationDialog(
+        dialogState = messageComposerViewModel.sureAboutMessagingDialogState,
+        sendAnyway = messageComposerViewModel::sureAboutSendingMessage,
+        hideDialog = messageComposerViewModel::hideSureAboutSendingMessage
+    )
+
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {
             is Canceled -> {
@@ -482,6 +508,8 @@ private fun startCallIfPossible(
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
             showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
+        } else if (conversationCallViewModel.shouldInformAboutVerification.value) {
+            showDialog.value = ConversationScreenDialogType.VERIFICATION_DEGRADED
         } else {
             val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
                 ConferenceCallingResult.Enabled -> {

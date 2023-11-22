@@ -26,10 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -46,17 +48,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-abstract class CommonTopAppBarBaseViewModel : ViewModel()
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic,
-) : CommonTopAppBarBaseViewModel() {
+) : ViewModel() {
 
-    var connectivityState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
+    var state by mutableStateOf(CommonTopAppBarState())
+        private set
 
     private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
 
@@ -69,6 +70,7 @@ class CommonTopAppBarViewModel @Inject constructor(
             }
         }
     }
+
     private suspend fun activeCallFlow(userId: UserId): Flow<Call?> = coreLogic.sessionScope(userId) {
         calls.establishedCall().distinctUntilChanged().map { calls ->
             calls.firstOrNull()
@@ -81,7 +83,7 @@ class CommonTopAppBarViewModel @Inject constructor(
                 session.currentSessionFlow().flatMapLatest {
                     when (it) {
                         is CurrentSessionResult.Failure.Generic,
-                        CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.Info.None)
+                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.None to LegalHoldUIState.None)
 
                         is CurrentSessionResult.Success -> {
                             val userId = it.accountInfo.userId
@@ -90,11 +92,13 @@ class CommonTopAppBarViewModel @Inject constructor(
                                 currentScreenFlow(),
                                 connectivityFlow(userId)
                             ) { activeCall, currentScreen, connectivity ->
-                                mapToUIState(currentScreen, connectivity, activeCall)
+                                mapToConnectivityUIState(currentScreen, connectivity, activeCall) to
+                                        mapToLegalHoldUIState(currentScreen, LegalHoldStatus.NO_CONSENT) // TODO: get legalHoldStatus
                             }
                         }
                     }
-                }.collectLatest { connectivityUIState ->
+                }.collectLatest { (connectivityUIState, legalHoldUIState) ->
+                    state = state.copy(legalHoldState = legalHoldUIState)
                     /**
                      * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
                      * hided in a short time when the user hangs up the call
@@ -102,37 +106,50 @@ class CommonTopAppBarViewModel @Inject constructor(
                      * could be called when the screen is changed, so we delayed
                      * showing the banner until getting the correct calling values
                      */
-                    if (connectivityUIState is ConnectivityUIState.Info.EstablishedCall) {
+                    if (connectivityUIState is ConnectivityUIState.EstablishedCall) {
                         delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
                     }
-                    connectivityState = connectivityState.copy(info = connectivityUIState)
+                    state = state.copy(connectivityState = connectivityUIState)
                 }
             }
         }
     }
 
-    private fun mapToUIState(
+    private fun mapToConnectivityUIState(
         currentScreen: CurrentScreen,
         connectivity: Connectivity,
         activeCall: Call?
-    ): ConnectivityUIState.Info {
+    ): ConnectivityUIState {
         val canDisplayActiveCall = currentScreen !is CurrentScreen.OngoingCallScreen
 
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
 
         if (activeCall != null && canDisplayActiveCall) {
-            return ConnectivityUIState.Info.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            return ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
         }
 
         return if (canDisplayConnectivityIssues) {
             when (connectivity) {
-                Connectivity.WAITING_CONNECTION -> ConnectivityUIState.Info.WaitingConnection
-                Connectivity.CONNECTING -> ConnectivityUIState.Info.Connecting
-                Connectivity.CONNECTED -> ConnectivityUIState.Info.None
+                Connectivity.WAITING_CONNECTION -> ConnectivityUIState.WaitingConnection
+                Connectivity.CONNECTING -> ConnectivityUIState.Connecting
+                Connectivity.CONNECTED -> ConnectivityUIState.None
             }
         } else {
-            ConnectivityUIState.Info.None
+            ConnectivityUIState.None
         }
+    }
+
+    private fun mapToLegalHoldUIState(
+        currentScreen: CurrentScreen,
+        legalHoldStatus: LegalHoldStatus
+    ): LegalHoldUIState = when (legalHoldStatus) {
+        LegalHoldStatus.ENABLED -> LegalHoldUIState.Active
+        LegalHoldStatus.PENDING -> LegalHoldUIState.Pending
+        LegalHoldStatus.DISABLED,
+        LegalHoldStatus.NO_CONSENT -> LegalHoldUIState.None
+    }.let { legalHoldUIState ->
+        if (currentScreen is CurrentScreen.AuthRelated) LegalHoldUIState.None
+        else legalHoldUIState
     }
 
     private companion object {

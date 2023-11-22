@@ -30,6 +30,8 @@ import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -78,6 +80,12 @@ class ConversationCallViewModelTest {
     @MockK
     private lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
 
+    @MockK
+    lateinit var setUserInformedAboutVerificationUseCase: SetUserInformedAboutVerificationUseCase
+
+    @MockK
+    lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
+
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
     @BeforeEach
@@ -89,6 +97,8 @@ class ConversationCallViewModelTest {
         coEvery { observeOngoingCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversation(any()) } returns flowOf()
+        coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
+        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
 
         conversationCallViewModel = ConversationCallViewModel(
             savedStateHandle = savedStateHandle,
@@ -99,7 +109,9 @@ class ConversationCallViewModelTest {
             observeSyncState = observeSyncState,
             isConferenceCallingEnabled = isConferenceCallingEnabled,
             observeConversationDetails = observeConversationDetails,
-            observeParticipantsForConversation = observeParticipantsForConversation
+            observeParticipantsForConversation = observeParticipantsForConversation,
+            setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
+            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase
         )
     }
 

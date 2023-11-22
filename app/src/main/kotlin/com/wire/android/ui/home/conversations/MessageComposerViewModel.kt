@@ -60,7 +60,9 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -106,7 +108,9 @@ class MessageComposerViewModel @Inject constructor(
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
+    private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -158,16 +162,29 @@ class MessageComposerViewModel @Inject constructor(
         InvalidLinkDialogState.Hidden
     )
 
+    private val shouldInformAboutDegradedBeforeSendingMessage = mutableStateOf(false)
+
+    var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
+        SureAboutMessagingDialogState.None
+    )
+
     init {
         initTempWritableVideoUri()
         initTempWritableImageUri()
         observeIsTypingAvailable()
         observeSelfDeletingMessagesStatus()
         setFileSharingStatus()
+        observeInformedAboutDegradedVerification()
     }
 
-    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+    private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
+    }
+
+    private fun observeInformedAboutDegradedVerification() = viewModelScope.launch {
+        observeDegradedConversationNotified(conversationId).collect {
+            shouldInformAboutDegradedBeforeSendingMessage.value = !it
+        }
     }
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
@@ -191,7 +208,15 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(messageBundle: MessageBundle) {
+    fun trySendMessage(messageBundle: MessageBundle) {
+        if (shouldInformAboutDegradedBeforeSendingMessage.value) {
+            sureAboutMessagingDialogState = SureAboutMessagingDialogState.ConversationVerificationDegraded(messageBundle)
+        } else {
+            sendMessage(messageBundle)
+        }
+    }
+
+    private fun sendMessage(messageBundle: MessageBundle) {
         viewModelScope.launch {
             when (messageBundle) {
                 is ComposableMessageBundle.EditMessageBundle -> {
@@ -445,6 +470,18 @@ class MessageComposerViewModel @Inject constructor(
     fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
         viewModelScope.launch {
             sendTypingEvent(conversationId, typingIndicatorMode)
+        }
+    }
+
+    fun sureAboutSendingMessage(messageBundle: MessageBundle) {
+        hideSureAboutSendingMessage()
+        sendMessage(messageBundle)
+    }
+
+    fun hideSureAboutSendingMessage() {
+        sureAboutMessagingDialogState = SureAboutMessagingDialogState.None
+        viewModelScope.launch {
+            setUserInformedAboutVerification.invoke(conversationId)
         }
     }
 

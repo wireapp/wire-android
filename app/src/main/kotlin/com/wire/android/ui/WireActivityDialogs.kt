@@ -46,6 +46,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -381,6 +382,14 @@ fun previewGuestRoomLinkFeatureFlagDialog() {
 
 @PreviewMultipleThemes
 @Composable
+fun previewTeamAppLockFeatureFlagDialog() {
+    WireTheme {
+        TeamAppLockFeatureFlagDialog(true) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
 fun previewUpdateAppDialog() {
     WireTheme {
         UpdateAppDialog(true) {}
@@ -443,5 +452,31 @@ fun previewMaxAccountDialog() {
 fun previewAccountLoggedOutDialog() {
     WireTheme {
         AccountLoggedOutDialog(CurrentSessionErrorState.DeletedAccount) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewGuestCallWasEndedBecauseOfVerificationDegradedDialog() {
+    WireTheme {
+        GuestCallWasEndedBecauseOfVerificationDegradedDialog {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewNewClientDialog() {
+    WireTheme {
+        NewClientDialog(
+            NewClientsData.CurrentUser(listOf(NewClientInfo("date", UIText.DynamicString("name"))), UserId("id", "domain")),
+            {}, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewTestDialog() {
+    WireTheme {
+        FileRestrictionDialog(true) {}
     }
 }

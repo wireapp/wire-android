@@ -153,6 +153,8 @@ class DeepLinkProcessor @Inject constructor(
 
     companion object {
         const val DEEP_LINK_SCHEME = "wire"
+        const val E2EI_DEEPLINK_HOST = "e2ei"
+        const val E2EI_DEEPLINK_OAUTH_REDIRECT_PATH = "oauth2redirect"
         const val ACCESS_DEEPLINK_HOST = "access"
         const val SERVER_CONFIG_PARAM = "config"
         const val SSO_LOGIN_DEEPLINK_HOST = "sso-login"

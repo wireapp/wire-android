@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -37,9 +38,13 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -51,10 +56,13 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -72,7 +80,9 @@ data class DebugDataOptionsState(
     val mlsErrorMessage: String = "null",
     val isManualMigrationAllowed: Boolean = false,
     val debugId: String = "null",
-    val commitish: String = "null"
+    val commitish: String = "null",
+    val certificate: String = "null",
+    val showCertificate: Boolean = false
 )
 
 @Suppress("LongParameterList")
@@ -85,7 +95,8 @@ class DebugDataOptionsViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
+    private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
+    private val e2eiCertificateUseCase: GetE2EICertificateUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -114,6 +125,28 @@ class DebugDataOptionsViewModel
         viewModelScope.launch {
             restartSlowSyncProcessForRecovery()
         }
+    }
+
+    fun enrollE2EICertificate(context: Context) {
+        e2eiCertificateUseCase(context) { result ->
+            result.fold({
+                state = state.copy(
+                    certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true
+                )
+            }, {
+                if (it is E2EIEnrollmentResult.Finalized) {
+                    state = state.copy(
+                        certificate = it.certificate, showCertificate = true
+                    )
+                }
+            })
+        }
+    }
+
+    fun dismissCertificateDialog() {
+        state = state.copy(
+            showCertificate = false,
+        )
     }
 
     fun forceUpdateApiVersions() {
@@ -199,7 +232,9 @@ fun DebugDataOptions(
         onRestartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
         onForceUpdateApiVersions = viewModel::forceUpdateApiVersions,
         onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) },
-        onDisableEventProcessingChange = viewModel::disableEventProcessing
+        onDisableEventProcessingChange = viewModel::disableEventProcessing,
+        enrollE2EICertificate = viewModel::enrollE2EICertificate,
+        dismissCertificateDialog = viewModel::dismissCertificateDialog
     )
 }
 
@@ -214,7 +249,9 @@ fun DebugDataOptionsContent(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    onManualMigrationPressed: () -> Unit
+    onManualMigrationPressed: () -> Unit,
+    enrollE2EICertificate: (Context) -> Unit,
+    dismissCertificateDialog: () -> Unit
 ) {
     Column {
 
@@ -249,7 +286,6 @@ fun DebugDataOptionsContent(
                 onClick = { onCopyText(state.commitish) }
             )
         )
-
         if (BuildConfig.PRIVATE_BUILD) {
 
             SettingsItem(
@@ -261,19 +297,41 @@ fun DebugDataOptionsContent(
                     onClick = { onCopyText(state.debugId) }
                 )
             )
+            if (BuildConfig.DEBUG) {
+                GetE2EICertificateSwitch(
+                    enrollE2EI = enrollE2EICertificate
+                )
 
+                if (state.showCertificate) {
+                    WireDialog(
+                        title = stringResource(R.string.end_to_end_identity_ceritifcate),
+                        text = state.certificate,
+                        onDismiss = {
+                            dismissCertificateDialog()
+                        },
+                        optionButton1Properties = WireDialogButtonProperties(
+                            onClick = {
+                                dismissCertificateDialog()
+                            },
+                            text = stringResource(R.string.label_ok),
+                            type = WireDialogButtonType.Primary,
+                        )
+                    )
+                }
+            }
             ProteusOptions(
                 isEncryptedStorageEnabled = state.isEncryptedProteusStorageEnabled,
                 onEncryptedStorageEnabledChange = onEnableEncryptedProteusStorageChange
             )
-
-            MLSOptions(
-                keyPackagesCount = state.keyPackagesCount,
-                mlsClientId = state.mslClientId,
-                mlsErrorMessage = state.mlsErrorMessage,
-                restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
-                onCopyText = onCopyText
-            )
+            if (BuildConfig.DEBUG) {
+                MLSOptions(
+                    keyPackagesCount = state.keyPackagesCount,
+                    mlsClientId = state.mslClientId,
+                    mlsErrorMessage = state.mlsErrorMessage,
+                    restartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
+                    onCopyText = onCopyText
+                )
+            }
 
             DebugToolsOptions(
                 isEventProcessingEnabled = state.isEventProcessingDisabled,
@@ -289,6 +347,35 @@ fun DebugDataOptionsContent(
                 onManualMigrationClicked = onManualMigrationPressed
             )
         }
+    }
+}
+
+@Composable
+private fun GetE2EICertificateSwitch(
+    enrollE2EI: (context: Context) -> Unit
+) {
+    val context = LocalContext.current
+    Column {
+        FolderHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
+        RowItemTemplate(modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_get_e2ei_cetificate),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    onClick = {
+                        enrollE2EI(context)
+                    },
+                    text = stringResource(R.string.label_get_e2ei_cetificate),
+                    fillMaxWidth = false
+                )
+            }
+        )
     }
 }
 
@@ -513,6 +600,8 @@ fun PreviewOtherDebugOptions() {
         onForceUpdateApiVersions = {},
         onDisableEventProcessingChange = {},
         onRestartSlowSyncForRecovery = {},
-        onManualMigrationPressed = {}
+        onManualMigrationPressed = {},
+        enrollE2EICertificate = {},
+        dismissCertificateDialog = {},
     )
 }

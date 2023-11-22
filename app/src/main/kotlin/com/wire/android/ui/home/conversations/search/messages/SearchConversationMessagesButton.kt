@@ -28,10 +28,24 @@ import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun SearchConversationMessagesButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+    if (localFeatureVisibilityFlags.SearchConversationMessages) {
+        SearchConversationMessagesButtonContent(
+            onClick = onClick,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun SearchConversationMessagesButtonContent(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {

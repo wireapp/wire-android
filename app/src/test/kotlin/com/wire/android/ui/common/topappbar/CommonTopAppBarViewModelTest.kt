@@ -64,10 +64,10 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.Connecting::class
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.Connecting::class
     }
 
     @Test
@@ -80,10 +80,10 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.Connecting::class
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.Connecting::class
     }
 
     @Test
@@ -96,11 +96,11 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.EstablishedCall::class
-        info as ConnectivityUIState.Info.EstablishedCall
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+        info as ConnectivityUIState.EstablishedCall
         info.conversationId shouldBeEqualTo arrangement.activeCall.conversationId
     }
 
@@ -114,10 +114,10 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.WaitingConnection::class
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
     }
 
     @Test
@@ -131,11 +131,11 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.EstablishedCall::class
-        info as ConnectivityUIState.Info.EstablishedCall
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+        info as ConnectivityUIState.EstablishedCall
         info.isMuted shouldBe true
     }
 
@@ -150,11 +150,11 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.EstablishedCall::class
-        info as ConnectivityUIState.Info.EstablishedCall
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+        info as ConnectivityUIState.EstablishedCall
         info.isMuted shouldBe false
     }
 
@@ -167,10 +167,10 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.None::class
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.None::class
     }
 
     @Test
@@ -180,10 +180,10 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.connectivityState
+        val state = commonTopAppBarViewModel.state
 
-        val info = state.info
-        info shouldBeInstanceOf ConnectivityUIState.Info.None::class
+        val info = state.connectivityState
+        info shouldBeInstanceOf ConnectivityUIState.None::class
     }
 
     private class Arrangement {

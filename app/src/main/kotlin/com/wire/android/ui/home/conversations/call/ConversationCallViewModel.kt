@@ -30,8 +30,8 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -41,6 +41,8 @@ import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -52,7 +54,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ConversationCallViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
@@ -62,13 +64,16 @@ class ConversationCallViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
     private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase,
-    private val observeConversationDetails: ObserveConversationDetailsUseCase
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
+    private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
+    val shouldInformAboutVerification = mutableStateOf(false)
 
     var establishedCallConversationId: QualifiedID? = null
 
@@ -76,6 +81,7 @@ class ConversationCallViewModel @Inject constructor(
         listenOngoingCall()
         observeEstablishedCall()
         observeParticipantsForConversation()
+        observeInformedAboutDegradedVerification()
     }
 
     private fun observeParticipantsForConversation() {
@@ -85,6 +91,10 @@ class ConversationCallViewModel @Inject constructor(
                     conversationCallViewState = conversationCallViewState.copy(participantsCount = it.allCount)
                 }
         }
+    }
+
+    private fun observeInformedAboutDegradedVerification() = viewModelScope.launch {
+        observeDegradedConversationNotified(conversationId).collect { shouldInformAboutVerification.value = !it }
     }
 
     private fun listenOngoingCall() = viewModelScope.launch {
@@ -177,6 +187,12 @@ class ConversationCallViewModel @Inject constructor(
 
     suspend fun isConferenceCallingEnabled(conversationType: Conversation.Type): ConferenceCallingResult =
         isConferenceCallingEnabled.invoke(conversationId, conversationType)
+
+    fun onConversationDegradedDialogShown() {
+        viewModelScope.launch {
+            setUserInformedAboutVerification.invoke(conversationId)
+        }
+    }
 
     companion object {
         const val DELAY_END_CALL = 200L

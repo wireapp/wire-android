@@ -25,6 +25,7 @@ import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
@@ -109,6 +110,11 @@ class UserModule {
     @Provides
     fun providePersistReadReceiptsStatusConfig(userScope: UserScope): PersistReadReceiptsStatusConfigUseCase =
         userScope.persistReadReceiptsStatusConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideEnrollE2EIUseCase(userScope: UserScope): EnrollE2EIUseCase =
+        userScope.enrollE2EI
 
     @ViewModelScoped
     @Provides

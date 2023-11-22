@@ -84,6 +84,9 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
@@ -120,11 +123,20 @@ class WireActivity : AppCompatActivity() {
     private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
+    private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
 
+    // This flag is used to keep the splash screen open until the first screen is drawn.
+    private var shouldKeepSplashOpen = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        // We need to keep the splash screen open until the first screen is drawn.
+        // Otherwise a white screen is displayed.
+        // It's an API limitation, at some point we may need to remove it
+        installSplashScreen().setKeepOnScreenCondition {
+            shouldKeepSplashOpen
+        }
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
@@ -137,6 +149,7 @@ class WireActivity : AppCompatActivity() {
             InitialAppState.LOGGED_IN -> HomeScreenDestination
         }
         setComposableContent(startDestination) {
+            shouldKeepSplashOpen = false
             handleDeepLink(intent, savedInstanceState)
         }
     }
@@ -177,10 +190,11 @@ class WireActivity : AppCompatActivity() {
                         ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         CommonTopAppBar(
-                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
+                            commonTopAppBarState = commonTopAppBarViewModel.state,
                             onReturnToCallClick = { establishedCall ->
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
-                            }
+                            },
+                            onPendingClicked = legalHoldRequestedViewModel::show,
                         )
                         NavigationGraph(
                             navigator = navigator,
@@ -245,6 +259,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("ComplexMethod")
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
         featureFlagNotificationViewModel.loadInitialSync()
@@ -277,6 +292,14 @@ class WireActivity : AppCompatActivity() {
                     }
                 )
             } else {
+                if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
+                    LegalHoldRequestedDialog(
+                        state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
+                        passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+                        notNowClicked = legalHoldRequestedViewModel::notNowClicked,
+                        acceptClicked = legalHoldRequestedViewModel::acceptClicked,
+                    )
+                }
                 if (showFileSharingDialog) {
                     FileRestrictionDialog(
                         isFileSharingEnabled = isFileSharingEnabledState,

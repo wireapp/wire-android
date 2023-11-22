@@ -61,7 +61,7 @@ jobs:
                   # The event file is a JSON containing the data of the event that triggered the tests.
                   # In this case, it will contain information about the PR.
               run: |
-                  CHECKS_LINK="https://github.com/wireapp/wire-android-reloaded/actions/runs/${{ github.event.workflow_run.id }}"
+                  CHECKS_LINK="https://github.com/wireapp/wire-android/actions/runs/${{ github.event.workflow_run.id }}"
                   PR_NUMBER=$(jq --raw-output .pull_request.number "$EVENT_FILE_PATH")
                   gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
 

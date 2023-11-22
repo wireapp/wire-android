@@ -59,6 +59,7 @@ fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
         versionNameSuffix = "-${flavour.buildName}"
         resValue("string", "app_name", flavour.appName)
         manifestPlaceholders["sharedUserId"] = sharedUserId
+        manifestPlaceholders["appAuthRedirectScheme"] = flavorApplicationId
     }
 }
 

@@ -191,11 +191,13 @@ private fun SelfUserProfileContent(
                             else EditableState.IsEditable(onEditClick)
                         )
                     }
-                    stickyHeader {
-                        CurrentSelfUserStatus(
-                            userStatus = status,
-                            onStatusClicked = onStatusClicked
-                        )
+                    if (!state.teamName.isNullOrBlank()) {
+                        stickyHeader {
+                            CurrentSelfUserStatus(
+                                userStatus = status,
+                                onStatusClicked = onStatusClicked
+                            )
+                        }
                     }
                     if (state.otherAccounts.isNotEmpty()) {
                         stickyHeader {

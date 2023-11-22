@@ -188,6 +188,9 @@ dependencies {
     // Development dependencies
     debugImplementation(libs.leakCanary)
 
+    // oauth dependencies
+    implementation(libs.openIdAppOauth)
+
     // Internal, dev, beta and staging only tracking & logging
     devImplementation(libs.dataDog.core)
     internalImplementation(libs.dataDog.core)
@@ -198,4 +201,7 @@ dependencies {
     internalImplementation(libs.dataDog.compose)
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
+
+    implementation(project(":ksp"))
+    ksp(project(":ksp"))
 }

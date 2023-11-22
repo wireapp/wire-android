@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -252,4 +254,18 @@ class ConversationModule {
     @Provides
     fun provideClearTypingEventsUseCase(conversationScope: ConversationScope): ClearUsersTypingEventsUseCase =
         conversationScope.clearUsersTypingEvents
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetUserInformedAboutVerificationBeforeMessagingUseCase(
+        conversationScope: ConversationScope
+    ): SetUserInformedAboutVerificationUseCase =
+        conversationScope.setUserInformedAboutVerificationBeforeMessagingUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveInformAboutVerificationBeforeMessagingFlagUseCase(
+        conversationScope: ConversationScope
+    ): ObserveDegradedConversationNotifiedUseCase =
+        conversationScope.observeInformAboutVerificationBeforeMessagingFlagUseCase
 }

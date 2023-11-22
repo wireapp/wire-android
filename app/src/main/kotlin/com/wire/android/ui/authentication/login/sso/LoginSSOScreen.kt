@@ -190,7 +190,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Preview
 @Composable
 fun PreviewLoginSSOScreen() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, {}, {}, {}, null, "Test Server")
     }
 }

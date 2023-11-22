@@ -31,6 +31,7 @@ data class NodeData(
     val colorScheme: WireColorScheme,
     val typography: WireTypography,
     val mentions: List<DisplayMention>,
+    val searchQuery: String,
     val onLongClick: (() -> Unit)? = null,
     val onOpenProfile: (String) -> Unit,
     val onLinkClick: (String) -> Unit

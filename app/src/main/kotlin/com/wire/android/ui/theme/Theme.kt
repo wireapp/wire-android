@@ -28,17 +28,18 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.platform.LocalInspectionMode
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 
 @Composable
 fun WireTheme(
-    isPreview: Boolean = false,
     wireColorScheme: WireColorScheme = WireColorSchemeTypes.currentTheme,
     wireTypography: WireTypography = WireTypographyTypes.currentScreenSize,
     wireDimensions: WireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation,
     content: @Composable () -> Unit
 ) {
+    val isPreview = LocalInspectionMode.current
     val systemUiController = rememberSystemUiController()
     @Suppress("SpreadOperator")
     CompositionLocalProvider(

@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.scopedArgs
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
@@ -34,8 +35,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ViewModelScopedPreview
 interface SecurityClassificationViewModel {
-    fun state(): SecurityClassificationType
+    fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
 @HiltViewModel
@@ -70,9 +72,4 @@ class SecurityClassificationViewModelImpl @Inject constructor(
             state = classificationType
         }
     }
-}
-
-@Suppress("EmptyFunctionBlock")
-class SecurityClassificationPreviewModel(private val state: SecurityClassificationType) : SecurityClassificationViewModel {
-    override fun state(): SecurityClassificationType = state
 }

@@ -85,7 +85,7 @@ fun AppUnlockWithBiometricsScreen(
                 navigator.navigate(
                     NavigationCommand(
                         destination = EnterLockCodeScreenDestination,
-                        backStackMode = BackStackMode.NONE
+                        backStackMode = BackStackMode.REMOVE_CURRENT
                     )
                 )
             }

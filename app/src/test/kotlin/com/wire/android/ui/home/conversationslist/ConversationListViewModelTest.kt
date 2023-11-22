@@ -17,6 +17,7 @@
  *
  *
  */
+@file:Suppress("MaxLineLength", "MaximumLineLength")
 
 package com.wire.android.ui.home.conversationslist
 
@@ -268,18 +269,18 @@ class ConversationListViewModelTest {
 
     @Test
     fun `given join dialog displayed, when user dismiss it, then hide it`() {
-        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(
+        conversationListViewModel.conversationListCallState = conversationListViewModel.conversationListCallState.copy(
             shouldShowJoinAnywayDialog = true
         )
 
         conversationListViewModel.dismissJoinCallAnywayDialog()
 
-        assertEquals(false, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
+        assertEquals(false, conversationListViewModel.conversationListCallState.shouldShowJoinAnywayDialog)
     }
 
     @Test
     fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() {
-        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = false)
+        conversationListViewModel.conversationListCallState = conversationListViewModel.conversationListCallState.copy(hasEstablishedCall = false)
 
         coEvery { joinCall(conversationId = any()) } returns Unit
 
@@ -287,22 +288,22 @@ class ConversationListViewModelTest {
 
         coVerify(exactly = 1) { joinCall(conversationId = any()) }
         coVerify(exactly = 1) { onJoined(any()) }
-        assertEquals(false, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
+        assertEquals(false, conversationListViewModel.conversationListCallState.shouldShowJoinAnywayDialog)
     }
 
     @Test
     fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() {
-        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = true)
+        conversationListViewModel.conversationListCallState = conversationListViewModel.conversationListCallState.copy(hasEstablishedCall = true)
 
         conversationListViewModel.joinOngoingCall(conversationId, onJoined)
 
-        assertEquals(true, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
+        assertEquals(true, conversationListViewModel.conversationListCallState.shouldShowJoinAnywayDialog)
         coVerify(inverse = true) { joinCall(conversationId = any()) }
     }
 
     @Test
     fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() {
-        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = true)
+        conversationListViewModel.conversationListCallState = conversationListViewModel.conversationListCallState.copy(hasEstablishedCall = true)
         conversationListViewModel.establishedCallConversationId = ConversationId("value", "Domain")
         coEvery { endCall(any()) } returns Unit
 
@@ -313,22 +314,22 @@ class ConversationListViewModelTest {
 
     @Test
     fun `given permission dialog default state is false, when calling showPermissionDialog, then update the state to true`() = runTest {
-        conversationListViewModel.conversationListState =
-            conversationListViewModel.conversationListState.copy(shouldShowCallingPermissionDialog = false)
+        conversationListViewModel.conversationListCallState =
+            conversationListViewModel.conversationListCallState.copy(shouldShowCallingPermissionDialog = false)
 
         conversationListViewModel.showCallingPermissionDialog()
 
-        assertEquals(true, conversationListViewModel.conversationListState.shouldShowCallingPermissionDialog)
+        assertEquals(true, conversationListViewModel.conversationListCallState.shouldShowCallingPermissionDialog)
     }
 
     @Test
     fun `given default permission dialog state, when calling dismissPermissionDialog, then update the state to false`() = runTest {
-        conversationListViewModel.conversationListState =
-            conversationListViewModel.conversationListState.copy(shouldShowCallingPermissionDialog = true)
+        conversationListViewModel.conversationListCallState =
+            conversationListViewModel.conversationListCallState.copy(shouldShowCallingPermissionDialog = true)
 
         conversationListViewModel.dismissCallingPermissionDialog()
 
-        assertEquals(false, conversationListViewModel.conversationListState.shouldShowCallingPermissionDialog)
+        assertEquals(false, conversationListViewModel.conversationListCallState.shouldShowCallingPermissionDialog)
     }
 
     @Test

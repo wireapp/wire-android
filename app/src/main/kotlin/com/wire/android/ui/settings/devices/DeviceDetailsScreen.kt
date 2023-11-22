@@ -161,16 +161,18 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-            item {
-                EndToEndIdentityCertificateItem(
-                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                    certificate = state.e2eiCertificate,
-                    isSelfClient = state.isSelfClient,
-                    enrollE2eiCertificate = enrollE2eiCertificate,
-                    updateE2eiCertificate = {},
-                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
-                )
-                Divider(color = colorsScheme().background)
+            if (BuildConfig.DEBUG) {
+                item {
+                    EndToEndIdentityCertificateItem(
+                        isE2eiCertificateActivated = state.isE2eiCertificateActivated,
+                        certificate = state.e2eiCertificate,
+                        isSelfClient = state.isSelfClient,
+                        enrollE2eiCertificate = enrollE2eiCertificate,
+                        updateE2eiCertificate = {},
+                        showCertificate = onNavigateToE2eiCertificateDetailsScreen
+                    )
+                    Divider(color = colorsScheme().background)
+                }
             }
             item {
                 FolderHeader(

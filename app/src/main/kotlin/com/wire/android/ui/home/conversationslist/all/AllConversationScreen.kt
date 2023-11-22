@@ -92,7 +92,7 @@ fun AllConversationScreenContent(
     val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
 
-    if (viewModel.conversationListState.shouldShowJoinAnywayDialog) {
+    if (viewModel.conversationListCallState.shouldShowJoinAnywayDialog) {
         appLogger.i("$TAG showing showJoinAnywayDialog..")
         JoinAnywayDialog(
             onDismiss = viewModel::dismissJoinCallAnywayDialog,

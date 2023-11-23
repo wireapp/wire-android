@@ -49,12 +49,10 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -798,7 +796,7 @@ fun MessageList(
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit
 ) {
-    val mostRecentMessage by remember { derivedStateOf { lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] } } }
+    val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
     LaunchedEffect(mostRecentMessage) {
         // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
@@ -807,12 +805,9 @@ fun MessageList(
         }
     }
 
-    val isScrollInProgress by remember { derivedStateOf { lazyListState.isScrollInProgress } }
-    val currentLazyPagingItems by rememberUpdatedState(lazyPagingMessages)
-
-    LaunchedEffect(isScrollInProgress) {
-        if (!isScrollInProgress && currentLazyPagingItems.itemCount > 0) {
-            val lastVisibleMessage = currentLazyPagingItems[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
+            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
 
             val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
 

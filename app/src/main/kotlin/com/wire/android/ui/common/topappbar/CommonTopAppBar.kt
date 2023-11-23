@@ -38,56 +38,52 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.R
+import com.wire.android.ui.legalhold.banner.LegalHoldStatusBar
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun CommonTopAppBar(
-    connectivityUIState: ConnectivityUIState,
-    onReturnToCallClick: (ConnectivityUIState.Info.EstablishedCall) -> Unit
+    commonTopAppBarState: CommonTopAppBarState,
+    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
+    onPendingClicked: () -> Unit,
 ) {
-    ConnectivityStatusBar(
-        connectivityInfo = connectivityUIState.info,
-        onReturnToCallClick = onReturnToCallClick
-    )
+    Column {
+        ConnectivityStatusBar(
+            connectivityInfo = commonTopAppBarState.connectivityState,
+            onReturnToCallClick = onReturnToCallClick
+        )
+        LegalHoldStatusBar(
+            legalHoldState = commonTopAppBarState.legalHoldState,
+            onPendingClicked = onPendingClicked
+        )
+    }
 }
 
 @Composable
 private fun ConnectivityStatusBar(
-    connectivityInfo: ConnectivityUIState.Info,
-    onReturnToCallClick: (ConnectivityUIState.Info.EstablishedCall) -> Unit
+    connectivityInfo: ConnectivityUIState,
+    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit
 ) {
-    val isVisible = connectivityInfo !is ConnectivityUIState.Info.None
-
-    // So it keeps the current colour while the animation is collapsing the bar
-    val initialColour = MaterialTheme.wireColorScheme.primary
-    var lastVisibleBackgroundColor by remember {
-        mutableStateOf(initialColour)
-    }
-
+    val isVisible = connectivityInfo !is ConnectivityUIState.None
     val backgroundColor = when (connectivityInfo) {
-        is ConnectivityUIState.Info.EstablishedCall ->
-            MaterialTheme.wireColorScheme.connectivityBarOngoingCallBackgroundColor
-
-        ConnectivityUIState.Info.Connecting, ConnectivityUIState.Info.WaitingConnection ->
-            MaterialTheme.wireColorScheme.primary
-
-        ConnectivityUIState.Info.None -> lastVisibleBackgroundColor
+        is ConnectivityUIState.EstablishedCall -> MaterialTheme.wireColorScheme.positive
+        ConnectivityUIState.Connecting, ConnectivityUIState.WaitingConnection -> MaterialTheme.wireColorScheme.primary
+        ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
     }
     if (!isVisible) {
         clearStatusBarColor()
@@ -107,7 +103,7 @@ private fun ConnectivityStatusBar(
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
         .background(backgroundColor)
         .run {
-            if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall) {
+            if (connectivityInfo is ConnectivityUIState.EstablishedCall) {
                 clickable(onClick = { onReturnToCallClick(connectivityInfo) })
             } else this
         }
@@ -123,11 +119,13 @@ private fun ConnectivityStatusBar(
             verticalArrangement = Arrangement.Center
         ) {
             when (connectivityInfo) {
-                is ConnectivityUIState.Info.EstablishedCall -> OngoingCallContent(connectivityInfo.isMuted)
-                ConnectivityUIState.Info.Connecting -> StatusLabel(R.string.connectivity_status_bar_connecting)
-                ConnectivityUIState.Info.WaitingConnection ->
-                    StatusLabel(R.string.connectivity_status_bar_waiting_for_network)
-                ConnectivityUIState.Info.None -> {}
+                is ConnectivityUIState.EstablishedCall ->
+                    OngoingCallContent(connectivityInfo.isMuted)
+                ConnectivityUIState.Connecting ->
+                    StatusLabel(R.string.connectivity_status_bar_connecting, MaterialTheme.wireColorScheme.onPrimary)
+                ConnectivityUIState.WaitingConnection ->
+                    StatusLabel(R.string.connectivity_status_bar_waiting_for_network, MaterialTheme.wireColorScheme.onPrimary)
+                ConnectivityUIState.None -> {}
             }
         }
     }
@@ -136,33 +134,33 @@ private fun ConnectivityStatusBar(
 @Composable
 private fun OngoingCallContent(isMuted: Boolean) {
     Row {
-        MicrophoneIcon(isMuted)
-        CameraIcon()
-        StatusLabel(R.string.connectivity_status_bar_return_to_call)
+        MicrophoneIcon(isMuted, MaterialTheme.wireColorScheme.onPositive)
+        CameraIcon(MaterialTheme.wireColorScheme.onPositive)
+        StatusLabel(R.string.connectivity_status_bar_return_to_call, MaterialTheme.wireColorScheme.onPositive)
     }
 }
 
 @Composable
-private fun StatusLabel(stringResource: Int) {
+private fun StatusLabel(stringResource: Int, color: Color = MaterialTheme.wireColorScheme.onPrimary) {
     Text(
         text = stringResource(id = stringResource).uppercase(),
-        color = MaterialTheme.wireColorScheme.onPrimary,
+        color = color,
         style = MaterialTheme.wireTypography.title03,
     )
 }
 
 @Composable
-fun StatusLabel(message: String) {
+fun StatusLabel(message: String, color: Color = MaterialTheme.wireColorScheme.onPrimary) {
     Text(
         text = message,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.wireColorScheme.onPrimary,
+        color = color,
         style = MaterialTheme.wireTypography.title03,
     )
 }
 
 @Composable
-private fun CameraIcon() {
+private fun CameraIcon(tint: Color = MaterialTheme.wireColorScheme.onPositive) {
     Icon(
         painter = painterResource(id = R.drawable.ic_camera_white_paused),
         contentDescription = stringResource(R.string.content_description_calling_call_paused_camera),
@@ -170,12 +168,12 @@ private fun CameraIcon() {
             start = MaterialTheme.wireDimensions.spacing8x,
             end = MaterialTheme.wireDimensions.spacing8x
         ),
-        tint = MaterialTheme.wireColorScheme.onPrimary
+        tint = tint
     )
 }
 
 @Composable
-private fun MicrophoneIcon(isMuted: Boolean) {
+private fun MicrophoneIcon(isMuted: Boolean, tint: Color = MaterialTheme.wireColorScheme.onPositive) {
     Icon(
         painter = painterResource(
             id = if (isMuted) R.drawable.ic_microphone_white_muted
@@ -185,7 +183,7 @@ private fun MicrophoneIcon(isMuted: Boolean) {
             id = if (isMuted) R.string.content_description_calling_call_muted
             else R.string.content_description_calling_call_unmuted
         ),
-        tint = MaterialTheme.wireColorScheme.onPrimary
+        tint = tint
     )
 }
 
@@ -200,51 +198,53 @@ private fun clearStatusBarColor() {
     )
 }
 
-@Preview("is NOT muted")
 @Composable
-fun PreviewCommonTopAppBarCallIsNotMuted() {
-    ConnectivityStatusBar(
-        connectivityInfo = ConnectivityUIState.Info.EstablishedCall(
-            ConversationId("what", "ever"), false
-        ),
-        onReturnToCallClick = { }
-    )
+private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState, legalHoldUIState: LegalHoldUIState) {
+    WireTheme {
+        CommonTopAppBar(CommonTopAppBarState(connectivityUIState, legalHoldUIState), {}, {})
+    }
 }
 
-@Preview("is muted")
+@PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBarCallIsMuted() {
-    ConnectivityStatusBar(
-        connectivityInfo = ConnectivityUIState.Info.EstablishedCall(
-            ConversationId("what", "ever"), true
-        ),
-        onReturnToCallClick = { }
-    )
-}
+fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldNone() =
+    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.None)
 
-@Preview("is connecting")
+@PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppConnectionStatusIsConnecting() {
-    ConnectivityStatusBar(
-        connectivityInfo = ConnectivityUIState.Info.Connecting,
-        onReturnToCallClick = { }
-    )
-}
+fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldPending() =
+    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.Pending)
 
-@Preview("is waiting connection")
+@PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppConnectionStatusIsWaitingConnection() {
-    ConnectivityStatusBar(
-        connectivityInfo = ConnectivityUIState.Info.WaitingConnection,
-        onReturnToCallClick = { }
-    )
-}
+fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldActive() =
+    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.Active)
 
-@Preview("is None")
+@PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppConnectionStatusIsNone() {
-    ConnectivityStatusBar(
-        connectivityInfo = ConnectivityUIState.Info.None,
-        onReturnToCallClick = { }
-    )
-}
+fun PreviewCommonTopAppBar_ConnectivityConnecting_LegalHoldNone() =
+    PreviewCommonTopAppBar(ConnectivityUIState.Connecting, LegalHoldUIState.None)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityConnecting_LegalHoldPending() =
+    PreviewCommonTopAppBar(ConnectivityUIState.Connecting, LegalHoldUIState.Pending)
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityConnecting_LegalHoldActive() =
+    PreviewCommonTopAppBar(ConnectivityUIState.Connecting, LegalHoldUIState.Active)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityNone_LegalHoldNone() =
+    PreviewCommonTopAppBar(ConnectivityUIState.None, LegalHoldUIState.None)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityNone_LegalHoldPending() =
+    PreviewCommonTopAppBar(ConnectivityUIState.None, LegalHoldUIState.Pending)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCommonTopAppBar_ConnectivityNone_LegalHoldActive() =
+    PreviewCommonTopAppBar(ConnectivityUIState.None, LegalHoldUIState.Active)

@@ -49,10 +49,12 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -105,6 +107,8 @@ import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
@@ -766,23 +770,6 @@ private fun ConversationScreenContent(
         tempWritableImageUri = tempWritableImageUri,
         onTypingEvent = onTypingEvent
     )
-
-    // TODO: uncomment when we have the "scroll to bottom" button implemented
-//    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
-//        derivedStateOf {
-//            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-//                (it.type as? MessageComposeInputType.EditMessage)?.messageId
-//            }
-//        }
-//    }
-//    LaunchedEffect(currentEditMessageId) {
-//        // executes when the id of currently being edited message changes, if not currently editing then it's just null
-//        if (currentEditMessageId != null) {
-//            lazyPagingMessages.itemSnapshotList.items
-//                .indexOfFirst { it.header.messageId == currentEditMessageId }
-//                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
-//        }
-//    }
 }
 
 @Composable
@@ -839,7 +826,7 @@ fun MessageList(
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit
 ) {
-    val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
+    val mostRecentMessage by remember { derivedStateOf { lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] } } }
 
     LaunchedEffect(mostRecentMessage) {
         // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
@@ -848,9 +835,12 @@ fun MessageList(
         }
     }
 
-    LaunchedEffect(lazyListState.isScrollInProgress) {
-        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
-            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+    val isScrollInProgress by remember { derivedStateOf { lazyListState.isScrollInProgress } }
+    val currentLazyPagingItems by rememberUpdatedState(lazyPagingMessages)
+
+    LaunchedEffect(isScrollInProgress) {
+        if (!isScrollInProgress && currentLazyPagingItems.itemCount > 0) {
+            val lastVisibleMessage = currentLazyPagingItems[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
 
             val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
 
@@ -883,30 +873,11 @@ fun MessageList(
                     key = lazyPagingMessages.itemKey { it.header.messageId },
                     contentType = lazyPagingMessages.itemContentType { it }
                 ) { index ->
-                    val message: UIMessage? = lazyPagingMessages[index]
-                    if (message == null) {
-                        // We can draw a placeholder here, as we fetch the next page of messages
-                        return@items
-                    }
-                    val showAuthor by remember {
-                        mutableStateOf(
-                            AuthorHeaderHelper.shouldShowHeader(
-                                index,
-                                lazyPagingMessages.itemSnapshotList.items,
-                                message
-                            )
-                        )
-                    }
+                    val message: UIMessage = lazyPagingMessages[index]
+                        ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
 
-                    val useSmallBottomPadding by remember {
-                        mutableStateOf(
-                            AuthorHeaderHelper.shouldHaveSmallBottomPadding(
-                                index,
-                                lazyPagingMessages.itemSnapshotList.items,
-                                message
-                            )
-                        )
-                    }
+                    val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
+                    val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
                     when (message) {
                         is UIMessage.Regular -> {

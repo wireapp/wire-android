@@ -34,6 +34,7 @@ object AuthorHeaderHelper {
     private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int) =
         if (index in 0 until this.itemCount) this.peek(index) else null
 
+    @Suppress("ComplexCondition")
     internal fun shouldShowHeader(currentMessage: UIMessage, messageAbove: UIMessage?): Boolean =
         if (messageAbove != null
             && currentMessage.header.userId == messageAbove.header.userId
@@ -62,6 +63,7 @@ object AuthorHeaderHelper {
         return state
     }
 
+    @Suppress("ComplexCondition")
     internal fun shouldHaveSmallBottomPadding(currentMessage: UIMessage, messageBelow: UIMessage?): Boolean =
         if (messageBelow != null
             && currentMessage.header.userId == messageBelow.header.userId

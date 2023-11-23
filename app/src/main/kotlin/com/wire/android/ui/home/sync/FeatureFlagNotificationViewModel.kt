@@ -23,7 +23,6 @@ package com.wire.android.ui.home.sync
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -245,8 +244,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun confirmAppLockNotEnforced() {
         viewModelScope.launch {
-            when(globalDataStore.getAppLockSource()) {
-                AppLockSource.Manual -> { }
+            when (globalDataStore.getAppLockSource()) {
+                AppLockSource.Manual -> {}
 
                 AppLockSource.TeamEnforced -> disableAppLockUseCase()
             }

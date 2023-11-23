@@ -212,6 +212,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }.firstOrNull() ?: AppLockSource.Manual
     }
 
+    @Suppress("TooGenericExceptionCaught")
     suspend fun setUserAppLock(
         passcode: String,
         source: AppLockSource

@@ -18,6 +18,11 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.paging.compose.LazyPagingItems
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.util.DateTimeUtil
 
@@ -26,41 +31,62 @@ object AuthorHeaderHelper {
     @VisibleForTesting
     internal const val AGGREGATION_TIME_WINDOW: Int = 30_000 // millis
 
-    internal fun shouldShowHeader(index: Int, messages: List<UIMessage>, currentMessage: UIMessage): Boolean {
-        var showHeader = currentMessage is UIMessage.Regular
-        val nextIndex = index + 1
-        if (nextIndex < messages.size) {
-            val nextUiMessage = messages[nextIndex]
-            if (currentMessage.header.userId == nextUiMessage.header.userId
-                && currentMessage is UIMessage.Regular
-                && nextUiMessage is UIMessage.Regular
-            ) {
-                val difference = DateTimeUtil.calculateMillisDifference(
-                    nextUiMessage.header.messageTime.utcISO,
-                    currentMessage.header.messageTime.utcISO,
-                )
-                showHeader = difference > AGGREGATION_TIME_WINDOW
+    private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int) =
+        if (index in 0 until this.itemCount) this.peek(index) else null
+
+    internal fun shouldShowHeader(currentMessage: UIMessage, messageAbove: UIMessage?): Boolean =
+        if (messageAbove != null
+            && currentMessage.header.userId == messageAbove.header.userId
+            && currentMessage is UIMessage.Regular
+            && messageAbove is UIMessage.Regular
+        ) {
+            val difference = DateTimeUtil.calculateMillisDifference(
+                messageAbove.header.messageTime.utcISO,
+                currentMessage.header.messageTime.utcISO,
+            )
+            difference > AGGREGATION_TIME_WINDOW
+        } else currentMessage is UIMessage.Regular
+
+    @Composable
+    internal fun rememberShouldShowHeader(
+        currentIndex: Int,
+        currentMessage: UIMessage,
+        messages: LazyPagingItems<UIMessage>
+    ): Boolean {
+        val messageAbove = messages.peekOrNull(currentIndex + 1) // order of messages is reversed (from bottom to top)
+        val state by remember(currentIndex, currentMessage, messageAbove) {
+            derivedStateOf {
+                shouldShowHeader(currentMessage, messageAbove)
             }
         }
-        return showHeader
+        return state
     }
 
-    internal fun shouldHaveSmallBottomPadding(index: Int, messages: List<UIMessage>, currentMessage: UIMessage): Boolean {
-        var shouldHaveSmallBottomPadding = false
-        if (index > 0) {
-            val previousIndex = index - 1
-            val previousUiMessage = messages[previousIndex]
-            if (currentMessage.header.userId == previousUiMessage.header.userId
-                && currentMessage is UIMessage.Regular
-                && previousUiMessage is UIMessage.Regular
-            ) {
-                val difference = DateTimeUtil.calculateMillisDifference(
-                    currentMessage.header.messageTime.utcISO,
-                    previousUiMessage.header.messageTime.utcISO
-                )
-                shouldHaveSmallBottomPadding = difference < AGGREGATION_TIME_WINDOW
+    internal fun shouldHaveSmallBottomPadding(currentMessage: UIMessage, messageBelow: UIMessage?): Boolean =
+        if (messageBelow != null
+            && currentMessage.header.userId == messageBelow.header.userId
+            && currentMessage is UIMessage.Regular
+            && messageBelow is UIMessage.Regular
+        ) {
+            val difference = DateTimeUtil.calculateMillisDifference(
+                currentMessage.header.messageTime.utcISO,
+                messageBelow.header.messageTime.utcISO
+            )
+            difference < AGGREGATION_TIME_WINDOW
+        } else false
+
+    @Composable
+    internal fun rememberShouldHaveSmallBottomPadding(
+        currentIndex: Int,
+        currentMessage: UIMessage,
+        messages: LazyPagingItems<UIMessage>
+    ): Boolean {
+        val messageBelow = messages.peekOrNull(currentIndex - 1) // order of messages is reversed (from bottom to top)
+        val state by remember(currentIndex, currentMessage, messageBelow) {
+            derivedStateOf {
+                shouldHaveSmallBottomPadding(currentMessage, messageBelow)
             }
         }
-        return shouldHaveSmallBottomPadding
+        return state
     }
 }

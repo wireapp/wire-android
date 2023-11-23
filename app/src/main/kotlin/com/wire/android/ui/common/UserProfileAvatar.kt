@@ -22,6 +22,7 @@ package com.wire.android.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -68,7 +69,11 @@ fun UserProfileAvatar(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .wrapContentSize()
-            .let { if (clickable != null) it.clip(CircleShape).clickable(clickable) else it }
+            .let {
+                if (clickable != null) it
+                    .clip(CircleShape)
+                    .clickable(clickable) else it
+            }
             .padding(padding)
     ) {
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
@@ -79,6 +84,7 @@ fun UserProfileAvatar(
                 .padding(statusBorderSize)
                 .background(MaterialTheme.wireColorScheme.divider, CircleShape)
                 .size(size)
+                .border(width = dimensions().spacing1x, shape = CircleShape, color = MaterialTheme.wireColorScheme.outline)
                 .clip(CircleShape)
                 .testTag("User avatar"),
             contentScale = ContentScale.Crop

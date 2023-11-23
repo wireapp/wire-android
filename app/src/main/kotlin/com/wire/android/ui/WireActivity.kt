@@ -280,6 +280,7 @@ class WireActivity : AppCompatActivity() {
                         } else {
                             with(featureFlagNotificationViewModel) {
                                 markTeamAppLockStatusAsNot()
+                                confirmAppLockNotEnforced()
                             }
                         }
                     }

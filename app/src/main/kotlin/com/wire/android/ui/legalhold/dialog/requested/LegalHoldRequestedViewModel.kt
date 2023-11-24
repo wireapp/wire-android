@@ -26,9 +26,11 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.legalhold.LegalHoldRequestObserverResult
+import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldUseCase
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestObserverResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,28 +53,30 @@ class LegalHoldRequestedViewModel @Inject constructor(
     var state: LegalHoldRequestedState by mutableStateOf(LegalHoldRequestedState.Hidden)
         private set
 
-    private val legalHoldRequestDataStateFlow = currentSessionFlow(noSession = LegalHoldRequestData.None) {
-            legalHoldRequestUseCase()
-                .mapLatest { legalHoldRequestResult ->
-                    when (legalHoldRequestResult) {
-                        is LegalHoldRequestObserverResult.Failure -> {
-                            appLogger.e("$TAG: Failed to get legal hold request data: ${legalHoldRequestResult.failure}")
-                            LegalHoldRequestData.None
-                        }
-                        LegalHoldRequestObserverResult.NoLegalHoldRequest -> LegalHoldRequestData.None
-                        is LegalHoldRequestObserverResult.LegalHoldRequestAvailable ->
-                            users.isPasswordRequired()
-                                .let {
-                                    LegalHoldRequestData.Pending(
-                                        legalHoldRequestResult.fingerprint.decodeToString(),
-                                        (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true
-                                    )
-                                }
+    private val legalHoldRequestDataStateFlow = currentSessionFlow(noSession = LegalHoldRequestData.None) { userId ->
+        legalHoldRequestUseCase()
+            .mapLatest { legalHoldRequestResult ->
+                when (legalHoldRequestResult) {
+                    is ObserveLegalHoldRequestObserverResult.Failure -> {
+                        appLogger.e("$TAG: Failed to get legal hold request data: ${legalHoldRequestResult.failure}")
+                        LegalHoldRequestData.None
                     }
-                }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, LegalHoldRequestData.None)
 
-    private fun <T> currentSessionFlow(noSession: T, session: UserSessionScope.() -> Flow<T>): Flow<T> =
+                    ObserveLegalHoldRequestObserverResult.NoObserveLegalHoldRequest -> LegalHoldRequestData.None
+                    is ObserveLegalHoldRequestObserverResult.ObserveLegalHoldRequestAvailable ->
+                        users.isPasswordRequired()
+                            .let {
+                                LegalHoldRequestData.Pending(
+                                    legalHoldRequestResult.fingerprint.decodeToString(),
+                                    (it as? IsPasswordRequiredUseCase.Result.Success)?.value ?: true,
+                                    userId,
+                                )
+                            }
+                }
+            }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, LegalHoldRequestData.None)
+
+    private fun <T> currentSessionFlow(noSession: T, session: UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
         coreLogic.getGlobalScope().session.currentSessionFlow()
             .flatMapLatest { currentSessionResult ->
                 when (currentSessionResult) {
@@ -80,8 +84,10 @@ class LegalHoldRequestedViewModel @Inject constructor(
                         appLogger.e("$TAG: Failed to get current session")
                         flowOf(noSession)
                     }
+
                     CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
-                    is CurrentSessionResult.Success -> coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).session()
+                    is CurrentSessionResult.Success ->
+                        currentSessionResult.accountInfo.userId.let { coreLogic.getSessionScope(it).session(it) }
                 }
             }
 
@@ -92,9 +98,11 @@ class LegalHoldRequestedViewModel @Inject constructor(
                     is LegalHoldRequestData.Pending -> {
                         LegalHoldRequestedState.Visible(
                             requiresPassword = legalHoldRequestData.isPasswordRequired,
-                            legalHoldDeviceFingerprint = legalHoldRequestData.fingerprint
+                            legalHoldDeviceFingerprint = legalHoldRequestData.fingerprint,
+                            userId = legalHoldRequestData.userId,
                         )
                     }
+
                     LegalHoldRequestData.None -> LegalHoldRequestedState.Hidden
                 }
             }
@@ -119,7 +127,8 @@ class LegalHoldRequestedViewModel @Inject constructor(
         (legalHoldRequestDataStateFlow.value as? LegalHoldRequestData.Pending)?.let {
             state = LegalHoldRequestedState.Visible(
                 requiresPassword = it.isPasswordRequired,
-                legalHoldDeviceFingerprint = it.fingerprint
+                legalHoldDeviceFingerprint = it.fingerprint,
+                userId = it.userId,
             )
         }
     }
@@ -129,9 +138,45 @@ class LegalHoldRequestedViewModel @Inject constructor(
             state = it.copy(acceptEnabled = false, loading = true)
             // the accept button is enabled if the password is valid, this check is for safety only
             validatePassword(it.password.text).let { validatePasswordResult ->
-                state = when (validatePasswordResult.isValid) {
-                    false -> it.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
-                    true -> LegalHoldRequestedState.Hidden // TODO: accept legal hold
+                when (validatePasswordResult.isValid) {
+                    false ->
+                        state = it.copy(
+                            loading = false,
+                            error = LegalHoldRequestedError.InvalidCredentialsError
+                        )
+
+                    true ->
+                        viewModelScope.launch {
+                            coreLogic.sessionScope(it.userId) {
+                                team.approveLegalHold(it.password.text).let { approveLegalHoldResult ->
+                                    state = when (approveLegalHoldResult) {
+                                        is ApproveLegalHoldUseCase.Result.Success ->
+                                            LegalHoldRequestedState.Hidden
+
+                                        ApproveLegalHoldUseCase.Result.Failure.InvalidPassword ->
+                                            it.copy(
+                                                loading = false,
+                                                error = LegalHoldRequestedError.InvalidCredentialsError
+                                            )
+
+                                        ApproveLegalHoldUseCase.Result.Failure.PasswordRequired ->
+                                            it.copy(
+                                                loading = false,
+                                                requiresPassword = true,
+                                                error = LegalHoldRequestedError.InvalidCredentialsError
+                                            )
+
+                                        is ApproveLegalHoldUseCase.Result.Failure.GenericFailure -> {
+                                            appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
+                                            it.copy(
+                                                loading = false,
+                                                error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         }
@@ -139,7 +184,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
 
     private sealed class LegalHoldRequestData {
         data object None : LegalHoldRequestData()
-        data class Pending(val fingerprint: String, val isPasswordRequired: Boolean) : LegalHoldRequestData()
+        data class Pending(val fingerprint: String, val isPasswordRequired: Boolean, val userId: UserId) : LegalHoldRequestData()
     }
 
     companion object {

@@ -24,6 +24,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetAssetMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
@@ -149,6 +150,11 @@ class MessageModule {
     @Provides
     fun provideGetPaginatedMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfMessagesByConversationUseCase =
         messageScope.getPaginatedFlowOfMessagesByConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesByConversationUseCase =
+        messageScope.getAssetMessagesByConversation
 
     @ViewModelScoped
     @Provides

@@ -38,16 +38,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
+import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
@@ -64,8 +67,10 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_FOUND
 import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
+import okio.Path
 import org.commonmark.Extension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
@@ -197,17 +202,96 @@ fun MessageImage(
         when {
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
-                ImageMessageInProgress(imgParams, downloadStatus == DOWNLOAD_IN_PROGRESS)
+                ImageMessageInProgress(
+                    imgParams.normalizedWidth, imgParams.normalizedHeight,
+                    downloadStatus == DOWNLOAD_IN_PROGRESS
+                )
+            }
+
+            downloadStatus == NOT_FOUND -> {
+                ImageMessageFailed(
+                    imgParams.normalizedWidth, imgParams.normalizedHeight,
+                    true
+                )
             }
 
             asset != null -> {
                 if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
-                else DisplayableImageMessage(asset, imgParams)
+                else DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             }
 
             // Show error placeholder
             uploadStatus == FAILED_UPLOAD || downloadStatus == FAILED_DOWNLOAD -> {
-                ImageMessageFailed(imgParams, downloadStatus == FAILED_DOWNLOAD)
+                ImageMessageFailed(
+                    imgParams.normalizedWidth, imgParams.normalizedHeight,
+                    downloadStatus == FAILED_DOWNLOAD
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MediaAssetImage(
+    asset: ImageAsset?,
+    width: Dp,
+    height: Dp,
+    downloadStatus: Message.DownloadStatus,
+    assetPath: Path? = null,
+    onImageClick: Clickable,
+) {
+    Box(
+        Modifier
+            .padding(top = MaterialTheme.wireDimensions.spacing2x)
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+            .background(
+                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .wrapContentSize()
+            .clickable(onImageClick)
+    ) {
+        // TODO KBX
+        when {
+            // Trying to upload the asset
+            downloadStatus == DOWNLOAD_IN_PROGRESS -> {
+                ImageMessageInProgress(
+                    width = width,
+                    height = height,
+                    isDownloading = true,
+                    showText = false
+                )
+            }
+
+            assetPath != null -> {
+                AsyncImageMessage(assetPath, width, height)
+            }
+
+            asset != null -> {
+                DisplayableImageMessage(asset, width, height)
+            }
+
+            // Show error placeholder
+            downloadStatus == FAILED_DOWNLOAD -> {
+                ImageMessageFailed(
+                    width = width,
+                    height = height,
+                    isDownloadFailure = true,
+                    showText = false
+                )
+            }
+
+            downloadStatus == NOT_FOUND -> {
+                ImageMessageFailed(
+                    width = width,
+                    height = height,
+                    isDownloadFailure = true,
+                    showText = false
+                )
             }
         }
     }

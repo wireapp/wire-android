@@ -87,6 +87,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.connection.ConnectionActionButton
+import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
@@ -144,6 +145,18 @@ fun OtherUserProfileScreen(
         }
     }
 
+    val onConversationMediaClick: () -> Unit = {
+        conversationId?.let {
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationMediaScreenDestination(
+                        conversationId = it
+                    )
+                )
+            )
+        }
+    }
+
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
@@ -163,6 +176,7 @@ fun OtherUserProfileScreen(
         shouldShowSearchButton = shouldShowSearchButton,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
+        onConversationMediaClick = onConversationMediaClick
     )
 
     LaunchedEffect(Unit) {
@@ -195,6 +209,7 @@ fun OtherProfileScreenContent(
     onOpenDeviceDetails: (Device) -> Unit = {},
     onSearchConversationMessagesClick: () -> Unit,
     shouldShowSearchButton: Boolean,
+    onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
@@ -273,7 +288,8 @@ fun OtherProfileScreenContent(
             TopBarCollapsing(
                 state = state,
                 onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                shouldShowSearchButton = shouldShowSearchButton
+                shouldShowSearchButton = shouldShowSearchButton,
+                onConversationMediaClick = onConversationMediaClick
             )
         },
         topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
@@ -374,7 +390,8 @@ private fun TopBarHeader(
 private fun TopBarCollapsing(
     state: OtherUserProfileState,
     onSearchConversationMessagesClick: () -> Unit,
-    shouldShowSearchButton: Boolean
+    shouldShowSearchButton: Boolean,
+    onConversationMediaClick: () -> Unit = {}
 ) {
     Crossfade(
         targetState = state,
@@ -393,7 +410,8 @@ private fun TopBarCollapsing(
             connection = targetState.connectionState,
             isProteusVerified = targetState.isProteusVerified,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-            shouldShowSearchButton = shouldShowSearchButton
+            shouldShowSearchButton = shouldShowSearchButton,
+            onConversationMediaClick = onConversationMediaClick
         )
     }
 }

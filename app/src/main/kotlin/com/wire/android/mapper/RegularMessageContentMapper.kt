@@ -59,7 +59,7 @@ class RegularMessageMapper @Inject constructor(
         message: Message.Regular,
         sender: User?,
         userList: List<User>
-    ) = when (val content = message.content) {
+    ): UIMessageContent = when (val content = message.content) {
         is Asset -> {
             when (val metadata = content.value.metadata) {
                 is AssetContent.AssetMetadata.Audio -> {

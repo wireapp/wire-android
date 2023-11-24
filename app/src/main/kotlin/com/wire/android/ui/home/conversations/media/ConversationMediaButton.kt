@@ -15,17 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.messages
+package com.wire.android.ui.home.conversations.media
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,37 +28,22 @@ import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
-fun SearchConversationMessagesButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-    if (localFeatureVisibilityFlags.SearchConversationMessages) {
-        SearchConversationMessagesButtonContent(
-            onClick = onClick,
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-private fun SearchConversationMessagesButtonContent(
+fun ConversationMediaButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
         WireSecondaryButton(
             modifier = modifier,
-            text = stringResource(R.string.label_search_button),
+            text = stringResource(R.string.label_conversation_media),
             onClick = onClick,
             minSize = DpSize(dimensions().spacing0x, dimensions().spacing48x),
             fillMaxWidth = true,
             leadingIcon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = stringResource(R.string.label_search_messages),
+                    painter = painterResource(id = R.drawable.ic_gallery),
+                    contentDescription = stringResource(R.string.label_conversation_media),
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(end = dimensions().spacing8x)
                 )

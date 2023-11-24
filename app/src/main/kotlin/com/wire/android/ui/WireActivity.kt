@@ -286,7 +286,11 @@ class WireActivity : AppCompatActivity() {
                         } else {
                             with(featureFlagNotificationViewModel) {
                                 markTeamAppLockStatusAsNot()
+<<<<<<< HEAD
                                 clearTeamAppLockPasscode()
+=======
+                                confirmAppLockNotEnforced()
+>>>>>>> 50827f6ec (LAST_COMMIT_MESSAGE)
                             }
                         }
                     }

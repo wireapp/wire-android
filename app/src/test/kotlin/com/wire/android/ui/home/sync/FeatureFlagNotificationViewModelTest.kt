@@ -2,6 +2,8 @@ package com.wire.android.ui.home.sync
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.AppLockSource
+import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
@@ -208,6 +210,37 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
     }
 
+    @Test
+    fun givenSourceIsTeamEnforce_whenConfirmingAppLockNotEnforcedDialog_thenRemoveAppLock() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withAppLockSource(AppLockSource.TeamEnforced)
+            .withDisableAppLockUseCase()
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        viewModel.confirmAppLockNotEnforced()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.disableAppLockUseCase() }
+    }
+
+    @Test
+    fun givenAppLockSourceIsManual_whenConfirmingAppLockNotEnforcedDialog_thenDoNothing() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withAppLockSource(AppLockSource.Manual)
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        viewModel.confirmAppLockNotEnforced()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.disableAppLockUseCase() }
+    }
+
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -233,12 +266,16 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markE2EIRequiredAsNotified: MarkEnablingE2EIAsNotifiedUseCase
 
         @MockK
+        lateinit var disableAppLockUseCase: DisableAppLockUseCase
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession,
-            globalDataStore = globalDataStore
+            globalDataStore = globalDataStore,
+            disableAppLockUseCase = disableAppLockUseCase
         )
 
         init {
@@ -257,6 +294,14 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withSyncState(stateFlow: Flow<SyncState>) = apply {
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns stateFlow
+        }
+
+        fun withAppLockSource(source: AppLockSource) = apply {
+            coEvery { globalDataStore.getAppLockSource() } returns source
+        }
+
+        fun withDisableAppLockUseCase() = apply {
+            coEvery { disableAppLockUseCase() } returns true
         }
 
         fun withFileSharingStatus(stateFlow: Flow<FileSharingStatus>) = apply {

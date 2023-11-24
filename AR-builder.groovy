@@ -548,7 +548,7 @@ pipeline {
                         def sanitizedUploadUrl = "https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')"
                         echo 'Uploading APK to Github Release destination: ' + sanitizedUploadUrl
 
-                        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${fileApk.getPath()} \"${sanitizedUploadUrl}\""
+                        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${fileApk.getPath()} '${sanitizedUploadUrl}'"
                     }
                 }
             }

@@ -282,6 +282,9 @@ fun EnabledMessageComposer(
                 }
             }
 
+            BackHandler(inputStateHolder.inputType is MessageCompositionType.Editing) {
+                cancelEdit()
+            }
             BackHandler(isImeVisible || inputStateHolder.optionsVisible) {
                 inputStateHolder.handleBackPressed(
                     isImeVisible,

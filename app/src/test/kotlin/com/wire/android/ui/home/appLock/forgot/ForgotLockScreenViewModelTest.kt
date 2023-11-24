@@ -48,9 +48,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.isLeft
-import com.wire.kalium.logic.functional.isRight
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -62,6 +59,7 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -71,24 +69,26 @@ class ForgotLockScreenViewModelTest {
 
     // password validation
     @Test
-    fun `given password not required, when validating password, then return Success`() =
+    fun `given password not required, when validating password, then return Success with empty password`() =
         runTest(dispatcher.default()) {
             val (arrangement, viewModel) = Arrangement()
                 .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(false))
                 .arrange()
-            val result = viewModel.validatePasswordIfNeeded("password")
-            assert(result.isRight() && (result as Either.Right).value == ForgotLockScreenViewModel.Result.Success)
+            val (result, resultPassword) = viewModel.validatePasswordIfNeeded("password")
+            assert(result is ForgotLockScreenViewModel.Result.Success)
+            assertEquals("", resultPassword)
             verify { arrangement.validatePasswordUseCase(any()) wasNot Called }
         }
     @Test
-    fun `given password required and valid, when validating password, then return Success`() =
+    fun `given password required and valid, when validating password, then return Success with given password`() =
         runTest(dispatcher.default()) {
             val (_, viewModel) = Arrangement()
                 .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(true))
                 .withValidatePasswordResult(ValidatePasswordResult.Valid)
                 .arrange()
-            val result = viewModel.validatePasswordIfNeeded("password")
-            assert(result.isRight() && (result as Either.Right).value == ForgotLockScreenViewModel.Result.Success)
+            val (result, resultPassword) = viewModel.validatePasswordIfNeeded("password")
+            assert(result is ForgotLockScreenViewModel.Result.Success)
+            assertEquals("password", resultPassword)
         }
     @Test
     fun `given password required but invalid, when validating password, then return InvalidPassword`() =
@@ -97,83 +97,118 @@ class ForgotLockScreenViewModelTest {
                 .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(true))
                 .withValidatePasswordResult(ValidatePasswordResult.Invalid())
                 .arrange()
-            val result = viewModel.validatePasswordIfNeeded("password")
-            assert(result.isRight() && (result as Either.Right).value == ForgotLockScreenViewModel.Result.InvalidPassword)
+            val (result, _) = viewModel.validatePasswordIfNeeded("password")
+            assert(result is ForgotLockScreenViewModel.Result.Failure.InvalidPassword)
+        }
+    @Test
+    fun `given password required but not provided, when validating password, then return PasswordRequired`() =
+        runTest(dispatcher.default()) {
+            val (_, viewModel) = Arrangement()
+                .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(true))
+                .withValidatePasswordResult(ValidatePasswordResult.Invalid())
+                .arrange()
+            val (result, _) = viewModel.validatePasswordIfNeeded("")
+            assert(result is ForgotLockScreenViewModel.Result.Failure.PasswordRequired)
         }
     @Test
     fun `given password required returns failure, when validating password, then return failure`() =
         runTest(dispatcher.default()) {
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Failure(StorageFailure.DataNotFound))
                 .arrange()
-            val result = viewModel.validatePasswordIfNeeded("password")
-            assert(result.isLeft())
+            val (result, _) = viewModel.validatePasswordIfNeeded("password")
+            assert(result is ForgotLockScreenViewModel.Result.Failure)
+            verify { arrangement.validatePasswordUseCase(any()) wasNot Called }
         }
 
     // current client deletion
-    private fun testSuccessfulClientDelete(deleteClientResult: DeleteClientResult, actionResult: ForgotLockScreenViewModel.Result) =
+    private fun testClientDelete(deleteClientResult: DeleteClientResult, expected: ForgotLockScreenViewModel.Result) =
         runTest(dispatcher.default()) {
             val (_, viewModel) = Arrangement()
                 .withDeleteClientResult(deleteClientResult)
                 .arrange()
             val result = viewModel.deleteCurrentClient("password")
-            assert(result.isRight() && (result as Either.Right).value == actionResult)
+            assertEquals(expected, result)
         }
     @Test
     fun `given deleting client returns success, when deleting current client, then return Success`() =
-        testSuccessfulClientDelete(DeleteClientResult.Success, ForgotLockScreenViewModel.Result.Success)
+        testClientDelete(
+            deleteClientResult = DeleteClientResult.Success,
+            expected = ForgotLockScreenViewModel.Result.Success
+        )
     @Test
     fun `given deleting client returns invalid credentials, when deleting current client, then return InvalidPassword`() =
-        testSuccessfulClientDelete(DeleteClientResult.Failure.InvalidCredentials, ForgotLockScreenViewModel.Result.InvalidPassword)
+        testClientDelete(
+            deleteClientResult = DeleteClientResult.Failure.InvalidCredentials,
+            expected = ForgotLockScreenViewModel.Result.Failure.InvalidPassword
+        )
     @Test
     fun `given deleting client returns failure, when deleting current client, then return failure`() =
-        runTest(dispatcher.default()) {
-            val (_, viewModel) = Arrangement()
-                .withDeleteClientResult(DeleteClientResult.Failure.Generic(StorageFailure.DataNotFound))
-                .arrange()
-            val result = viewModel.deleteCurrentClient("password")
-            assert(result.isLeft())
-        }
+        testClientDelete(
+            deleteClientResult = DeleteClientResult.Failure.Generic(StorageFailure.DataNotFound),
+            expected = ForgotLockScreenViewModel.Result.Failure.Generic(StorageFailure.DataNotFound)
+        )
 
     // sessions hard logout
-    private fun Arrangement.verifyHardLogoutActions(logoutCalled: Boolean) {
-        coVerify { observeEstablishedCallsUseCase() }
-        coVerify { endCallUseCase(any()) }
-        coVerify { globalDataStore.clearAppLockPasscode() }
-        coVerify { accountSwitchUseCase(SwitchAccountParam.Clear) }
-        val (atLeast, atMost) = if (logoutCalled) 1 to 1 else 0 to 0
-        coVerify(atLeast = atLeast, atMost = atMost) { logoutUseCase(any(), any()) }
-        coVerify(atLeast = atLeast, atMost = atMost) { notificationManager.stopObservingOnLogout(any()) }
-        coVerify(atLeast = atLeast, atMost = atMost) { notificationChannelsManager.deleteChannelGroup(any()) }
-        coVerify(atLeast = atLeast, atMost = atMost) { userDataStore.clear() }
+    private fun Arrangement.verifyHardLogoutActions(successActionsCalled: Boolean, userLogoutActionsCalled: Boolean) {
+        val successActionsCalledExactly = if (successActionsCalled) 1 else 0
+        coVerify(exactly = successActionsCalledExactly) { observeEstablishedCallsUseCase() }
+        coVerify(exactly = successActionsCalledExactly) { endCallUseCase(any()) }
+        coVerify(exactly = successActionsCalledExactly) { globalDataStore.clearAppLockPasscode() }
+        coVerify(exactly = successActionsCalledExactly) { accountSwitchUseCase(SwitchAccountParam.Clear) }
+        val logoutActionsCalledExactly = if (userLogoutActionsCalled) 1 else 0
+        coVerify(exactly = logoutActionsCalledExactly) { logoutUseCase(any(), any()) }
+        coVerify(exactly = logoutActionsCalledExactly) { notificationManager.stopObservingOnLogout(any()) }
+        coVerify(exactly = logoutActionsCalledExactly) { notificationChannelsManager.deleteChannelGroup(any()) }
+        coVerify(exactly = logoutActionsCalledExactly) { userDataStore.clear() }
     }
-    private fun testSuccessfulLoggingOut(getSessionsResult: GetAllSessionsResult, logoutCalled: Boolean) = runTest(dispatcher.default()) {
+    private fun testLoggingOut(
+        getSessionsResult: GetAllSessionsResult,
+        expected: ForgotLockScreenViewModel.Result,
+        successActionsCalled: Boolean,
+        userLogoutActionsCalled: Boolean
+    ) =
+        runTest(dispatcher.default()) {
             val (arrangement, viewModel) = Arrangement()
                 .withGetSessionsResult(getSessionsResult)
                 .arrange()
             val result = viewModel.hardLogoutAllAccounts()
             advanceUntilIdle()
-            assert(result.isRight() && (result as Either.Right).value == ForgotLockScreenViewModel.Result.Success)
-            arrangement.verifyHardLogoutActions(logoutCalled = logoutCalled)
+            assertEquals(expected, result)
+            arrangement.verifyHardLogoutActions(successActionsCalled, userLogoutActionsCalled)
     }
     @Test
     fun `given no sessions, when logging out, then make all required actions other than logout and return success`() =
-        testSuccessfulLoggingOut(getSessionsResult = GetAllSessionsResult.Failure.NoSessionFound, logoutCalled = false)
+        testLoggingOut(
+            getSessionsResult = GetAllSessionsResult.Failure.NoSessionFound,
+            expected = ForgotLockScreenViewModel.Result.Success,
+            successActionsCalled = true,
+            userLogoutActionsCalled = false
+        )
     @Test
     fun `given no valid sessions, when logging out, then make all required actions other than logout and return success`() =
-        testSuccessfulLoggingOut(getSessionsResult = GetAllSessionsResult.Success(listOf(INVALID_SESSION)), logoutCalled = false)
+        testLoggingOut(
+            getSessionsResult = GetAllSessionsResult.Success(listOf(INVALID_SESSION)),
+            expected = ForgotLockScreenViewModel.Result.Success,
+            successActionsCalled = true,
+            userLogoutActionsCalled = false
+        )
     @Test
     fun `given valid sessions, when logging out, then make all required actions with logout and return success`() =
-        testSuccessfulLoggingOut(getSessionsResult = GetAllSessionsResult.Success(listOf(VALID_SESSION)), logoutCalled = true)
+        testLoggingOut(
+            getSessionsResult = GetAllSessionsResult.Success(listOf(VALID_SESSION)),
+            expected = ForgotLockScreenViewModel.Result.Success,
+            successActionsCalled = true,
+            userLogoutActionsCalled = true
+        )
     @Test
     fun `given sessions return failure, when hard-logging out sessions, then return failure`() =
-        runTest(dispatcher.default()) {
-            val (_, viewModel) = Arrangement()
-                .withGetSessionsResult(GetAllSessionsResult.Failure.Generic(StorageFailure.DataNotFound))
-                .arrange()
-            val result = viewModel.hardLogoutAllAccounts()
-            assert(result.isLeft())
-        }
+        testLoggingOut(
+            getSessionsResult = GetAllSessionsResult.Failure.Generic(StorageFailure.DataNotFound),
+            expected = ForgotLockScreenViewModel.Result.Failure.Generic(StorageFailure.DataNotFound),
+            successActionsCalled = false,
+            userLogoutActionsCalled = false
+        )
 
     class Arrangement {
         @MockK lateinit var coreLogic: CoreLogic

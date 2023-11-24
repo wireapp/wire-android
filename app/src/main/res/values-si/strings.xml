@@ -1217,7 +1217,7 @@
     <string name="record_audio_max_file_size_reached_title">පටිගතය නතර විය</string>
     <string name="record_audio_max_file_size_reached_text">හඬ පණිවිඩ ගොනුවක ප්‍රමාණය මෙ.බ. %1$d කට සීමා වේ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර හඬ පණිවිඩ පටිගත කිරීමට නොහැකිය.</string>
-    <string name="permission_dialog_title">යෙදුමේ අවසර</string>
+    <string name="call_permission_dialog_title">යෙදුමේ අවසර</string>
     <string name="call_permission_dialog_description">ඇමතුමක් ගැනීමට වයර් වෙත ඔබගේ උපාංගයේ සැකසුම් හරහා ශබ්දවාහිනියට ප්‍රවේශ වීමට හා අවට උපාංග සොයා ගැනීමට ඉඩ දෙන්න.</string>
     <string name="label_not_now">දැන් නොවේ</string>
     <string name="last_message_composite_with_missing_text">අන්‍යෝන්‍ය පණිවිඩයක් යවා ඇත</string>

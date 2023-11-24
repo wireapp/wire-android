@@ -29,7 +29,12 @@ import org.commonmark.node.Document
 import org.commonmark.node.Paragraph
 
 @Composable
-fun MarkdownParagraph(paragraph: Paragraph, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
+fun MarkdownParagraph(
+    paragraph: Paragraph,
+    nodeData: NodeData,
+    clickable: Boolean,
+    onMentionsUpdate: (List<DisplayMention>) -> Unit
+) {
         val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
             val annotatedString = buildAnnotatedString {
@@ -43,7 +48,8 @@ fun MarkdownParagraph(paragraph: Paragraph, nodeData: NodeData, onMentionsUpdate
                 style = nodeData.style,
                 onLongClick = nodeData.onLongClick,
                 onOpenProfile = nodeData.onOpenProfile,
-                onClickLink = nodeData.onLinkClick
+                onClickLink = nodeData.onLinkClick,
+                clickable = clickable
             )
         }
 }

@@ -1,5 +1,5 @@
 # Wire™
-[![codecov](https://codecov.io/gh/wireapp/wire-android-reloaded/branch/develop/graph/badge.svg?token=9ELBEPM793)](https://codecov.io/gh/wireapp/wire-android-reloaded)
+[![codecov](https://codecov.io/gh/wireapp/wire-android/branch/develop/graph/badge.svg?token=9ELBEPM793)](https://codecov.io/gh/wireapp/wire-android)
 [![Crowdin](https://badges.crowdin.net/wire-android-reloaded/localized.svg)](https://crowdin.com/project/wire-android-reloaded)
 
 [![Wire logo](https://github.com/wireapp/wire/blob/master/assets/header-small.png?raw=true)](https://wire.com/jobs/)
@@ -18,7 +18,7 @@ For clarity, if you compile the open source software that we make available from
 
 No license is granted to the Wire trademark and its associated logos, all of which will continue to be owned exclusively by Wire Swiss GmbH. Any use of the Wire trademark and/or its associated logos is expressly prohibited without the express prior written consent of Wire Swiss GmbH.
 
-# Wire Android Reloaded
+# Wire Android
 
 ## What is included in the open source client
 
@@ -56,8 +56,8 @@ Import the project as a gradle project by browsing to the root path of the ```bu
 
 ## Typical build issues
 
-It might be that after cloning the Android Reloaded project, some build issues appear on your IDE (IntelliJ or Android studio). To avoid most of these, make sure that:
-- After cloning the Android Reloaded project, you have run `git submodule update --init --recursive` (to init any needed configuration within the embedded Kalium submodule project)
+It might be that after cloning the Android project, some build issues appear on your IDE (IntelliJ or Android studio). To avoid most of these, make sure that:
+- After cloning the Android project, you have run `git submodule update --init --recursive` (to init any needed configuration within the embedded Kalium submodule project)
 - There is a valid SDK path on your `local.properties` AND `kalium/local.properties` files pointing to the Android SDK folder. In Mac, that folder can be usually found under `sdk.dir=/Users/YOUR_USER_FOLDER/Library/Android/sdk`. The IDE **will not** create `kalium/local.properties` automatically, so you might want to copy/paste the one in the project root
 - When you've already started working on the project adding some commits, it might occur that your local build breaks, if that is the case, make sure you've updated the `kalium` submodule reference by running: `git submodule update --remote --merge`
 

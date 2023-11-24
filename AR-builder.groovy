@@ -571,6 +571,9 @@ pipeline {
                         def releaseId = sh "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2"
                         def sanitizedUploadUrl = shellQuote("https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename ${filename})")
 
+                        echo 'Uploading apk to github release: ' + sanitizedUploadUrl
+
+                        echo 'Preparing send'
                         sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST --data-binary @${fileApk.getPath()} ${sanitizedUploadUrl}"
                     }
                 }

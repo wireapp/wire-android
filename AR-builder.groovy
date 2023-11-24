@@ -560,7 +560,6 @@ pipeline {
                         def fileApk = apks[0]
                         def filename = fileApk.getName()
 
-                        echo 'Uploading apk to github release: ' + filename
                         // headers request
                         def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")
                         def contentTypeHeader = shellQuote("Content-Type: application/octet-stream")
@@ -568,13 +567,11 @@ pipeline {
 
                         // api request
                         def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
-                        def releaseId = sh "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2"
-                        def sanitizedUploadUrl = shellQuote("https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename ${filename})")
-
+                        def releaseId = sh(script: "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2", returnStdout: true).trim()
+                        def sanitizedUploadUrl = shellQuote("https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')")
                         echo 'Uploading apk to github release: ' + sanitizedUploadUrl
 
-                        echo 'Preparing send'
-                        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST --data-binary @${fileApk.getPath()} ${sanitizedUploadUrl}"
+                        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${fileApk.getPath()} ${sanitizedUploadUrl}"
                     }
                 }
             }

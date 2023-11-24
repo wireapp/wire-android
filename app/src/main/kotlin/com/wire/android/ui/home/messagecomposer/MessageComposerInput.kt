@@ -200,7 +200,7 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     modifier: Modifier,
 ) {
-    if (!showOptions) {
+    if (!showOptions && inputType is MessageCompositionType.Composing) {
         AdditionalOptionButton(
             isSelected = false,
             onClick = {

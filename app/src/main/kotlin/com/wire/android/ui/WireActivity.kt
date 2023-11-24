@@ -93,6 +93,7 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -201,7 +202,10 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleDialogs(navigator::navigate)
+                        handleDialogs(
+                            navigator::navigate,
+                            viewModel.currentUserId.value
+                        )
                     }
                 }
             }
@@ -255,8 +259,10 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
-        featureFlagNotificationViewModel.loadInitialSync()
+    private fun handleDialogs(navigate: (NavigationCommand) -> Unit, userId: UserId?) {
+        LaunchedEffect(userId) {
+            featureFlagNotificationViewModel.loadInitialSync()
+        }
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(

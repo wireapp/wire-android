@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 
 String shellQuote(String s) {
     // Quote a string so it's suitable to pass to the shell
@@ -40,6 +41,28 @@ def postGithubComment(String changeId, String body) {
     // no unsubstituted variables
     sh "curl -s -H ${authHeader} -X POST -d ${json} ${apiUrl}"
 
+}
+
+def postApkToGithubRelease(List<FileWrapper> apks) {
+    if (apks.isEmpty()) {
+        return
+    }
+
+    echo 'Attaching APK to Github Release for tag: ' + env.SOURCE_BRANCH
+    def fileApk = apks[0]
+    def filename = fileApk.getName()
+
+    // headers request
+    def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")
+    def contentTypeHeader = shellQuote("Content-Type: application/octet-stream")
+    def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
+
+    // api request
+    def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
+    def uploadUrl = sh("curl -s ${apiUrl} | jq -r '.upload_url' | cut -d'{' -f1", returnStdout: true).trim()
+    def sanitizedUploadUrl = shellQuote(uploadUrl + "?name=\$(basename ${filename})")
+
+    sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST --data-binary @${fileApk.getPath()} ${sanitizedUploadUrl}"
 }
 
 def defineTrackName(String branchName) {
@@ -526,6 +549,14 @@ pipeline {
                     }
 
                     postGithubComment(params.GITHUB_CHANGE_ID, payload)
+                }
+
+                // if (env.SOURCE_BRANCH ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./) {
+                if (env.SOURCE_BRANCH ==~ /y\/.*/) {
+                    def apks = findFiles(glob: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/com.wire.android-*.apk")
+                    if (apks.size() > 0) {
+                        postApkToGithubRelease(apks)
+                    }
                 }
             }
 

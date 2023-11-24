@@ -6,12 +6,14 @@ List<String> defineFlavor() {
     }
 
     def branchName = env.BRANCH_NAME
+    //     def isTagAndValid = env.TAG_NAME ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./ || branchName ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./
+    def isTagAndValid = env.BRANCH_NAME ==~ /y\/.*/
 
     if (branchName == "main") {
         return ['Beta']
     } else if (branchName == "develop") {
         return ['Staging', 'Dev']
-    } else if (branchName == "prod") {
+    } else if (branchName == "prod" || isTagAndValid) {
         return ['Prod']
     } else if (branchName == "internal") {
         return ['Internal']
@@ -73,6 +75,14 @@ String handleChangeBranch(String changeBranch) {
     return env.BRANCH_NAME
 }
 
+/**
+* Force in case of a tag to not upload to PlayStore, otherwise it will delegate to the stage resolution.
+*/
+String defineUploadToPlayStoreEnabled() {
+    return env.BRANCH_NAME !=~ /y\/.*/
+//     return env.BRANCH_NAME !=~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./
+}
+
 pipeline {
     agent {
         node {
@@ -99,6 +109,7 @@ pipeline {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
                         String definedChangeBranch = handleChangeBranch(env.CHANGE_BRANCH)
+                        Boolean uploadToPlayStoreEnabled = defineUploadToPlayStoreEnabled()
                         dynamicStages[stageName] = {
                             node {
                                 stage(stageName) {
@@ -110,7 +121,7 @@ pipeline {
                                                     string(name: 'BUILD_TYPE', value: buildType),
                                                     string(name: 'FLAVOR', value: flavor),
                                                     booleanParam(name: 'UPLOAD_TO_S3', value: true),
-                                                    booleanParam(name: 'UPLOAD_TO_PLAYSTORE_ENABLED', value: true),
+                                                    booleanParam(name: 'UPLOAD_TO_PLAYSTORE_ENABLED', value: uploadToPlayStoreEnabled),
                                                     booleanParam(name: 'RUN_UNIT_TEST', value: true),
                                                     booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
                                                     booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),

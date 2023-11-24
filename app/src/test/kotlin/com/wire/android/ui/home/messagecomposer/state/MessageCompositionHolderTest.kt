@@ -55,7 +55,7 @@ class MessageCompositionHolderTest {
     }
 
     @Test
-    fun `given empty text, when adding bold markdown, then 2x ** is added to the text`() = runTest {
+    fun `GivenEmptyText, WhenAddingBoldMarkdown, Then2X star char IsAddedToTheText`() = runTest {
         // given
         // when
         state.addOrRemoveMessageMarkdown(markdown = RichTextMarkdown.Bold)
@@ -106,7 +106,7 @@ class MessageCompositionHolderTest {
     }
 
     @Test
-    fun `given non empty text, when adding bold markdown on selection, then 2x ** is added to the text`() = runTest {
+    fun `given non empty text, when adding bold markdown on selection, then 2x star char is added to the text`() = runTest {
         // given
         state.messageComposition.update {
             it.copy(

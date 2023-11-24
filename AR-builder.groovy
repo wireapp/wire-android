@@ -567,7 +567,7 @@ pipeline {
 
                         // api request
                         def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
-                        def uploadUrl = sh "curl -s ${apiUrl} | jq -r '.upload_url' | cut -d'{' -f1"
+                        def uploadUrl = sh "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2"
                         def sanitizedUploadUrl = shellQuote(uploadUrl + "?name=\$(basename ${filename})")
 
                         sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST --data-binary @${fileApk.getPath()} ${sanitizedUploadUrl}"

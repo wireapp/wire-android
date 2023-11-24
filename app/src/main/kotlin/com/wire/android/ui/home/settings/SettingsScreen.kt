@@ -160,7 +160,6 @@ fun SettingsScreenContent(
             )
         }
     }
-
 }
 
 private fun LazyListScope.folderWithElements(

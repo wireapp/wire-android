@@ -82,7 +82,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
+import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -105,6 +105,8 @@ import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
@@ -222,7 +224,7 @@ fun ConversationScreen(
             )
         }
 
-        MicrophoneBTPermissionsDeniedDialog(
+        MicrophonePermissionDeniedDialog(
             shouldShow = conversationCallViewState.shouldShowCallingPermissionDialog,
             onDismiss = ::dismissCallingPermissionDialog,
             onOpenSettings = {
@@ -766,23 +768,6 @@ private fun ConversationScreenContent(
         tempWritableImageUri = tempWritableImageUri,
         onTypingEvent = onTypingEvent
     )
-
-    // TODO: uncomment when we have the "scroll to bottom" button implemented
-//    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
-//        derivedStateOf {
-//            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-//                (it.type as? MessageComposeInputType.EditMessage)?.messageId
-//            }
-//        }
-//    }
-//    LaunchedEffect(currentEditMessageId) {
-//        // executes when the id of currently being edited message changes, if not currently editing then it's just null
-//        if (currentEditMessageId != null) {
-//            lazyPagingMessages.itemSnapshotList.items
-//                .indexOfFirst { it.header.messageId == currentEditMessageId }
-//                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
-//        }
-//    }
 }
 
 @Composable
@@ -883,30 +868,11 @@ fun MessageList(
                     key = lazyPagingMessages.itemKey { it.header.messageId },
                     contentType = lazyPagingMessages.itemContentType { it }
                 ) { index ->
-                    val message: UIMessage? = lazyPagingMessages[index]
-                    if (message == null) {
-                        // We can draw a placeholder here, as we fetch the next page of messages
-                        return@items
-                    }
-                    val showAuthor by remember {
-                        mutableStateOf(
-                            AuthorHeaderHelper.shouldShowHeader(
-                                index,
-                                lazyPagingMessages.itemSnapshotList.items,
-                                message
-                            )
-                        )
-                    }
+                    val message: UIMessage = lazyPagingMessages[index]
+                        ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
 
-                    val useSmallBottomPadding by remember {
-                        mutableStateOf(
-                            AuthorHeaderHelper.shouldHaveSmallBottomPadding(
-                                index,
-                                lazyPagingMessages.itemSnapshotList.items,
-                                message
-                            )
-                        )
-                    }
+                    val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
+                    val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
                     when (message) {
                         is UIMessage.Regular -> {

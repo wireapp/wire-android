@@ -33,7 +33,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -42,13 +42,13 @@ fun StartCallButton(
     onPermanentPermissionDecline: () -> Unit,
     isCallingEnabled: Boolean
 ) {
-    val audioBTPermissionCheck = AudioBluetoothPermissionCheckFlow(
+    val audioPermissionCheck = AudioPermissionCheckFlow(
         startCall = onPhoneButtonClick,
         onPermanentPermissionDecline = onPermanentPermissionDecline
     )
 
     WireSecondaryButton(
-        onClick = audioBTPermissionCheck::launch,
+        onClick = audioPermissionCheck::launch,
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_phone),
@@ -58,7 +58,10 @@ fun StartCallButton(
         state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
         fillMaxWidth = false,
         minSize = dimensions().buttonSmallMinSize,
-        minClickableSize = DpSize(dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height),
+        minClickableSize = DpSize(
+            dimensions().buttonSmallMinSize.width,
+            dimensions().buttonMinClickableSize.height
+        ),
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
         contentPadding = PaddingValues(0.dp)
@@ -66,16 +69,16 @@ fun StartCallButton(
 }
 
 @Composable
-private fun AudioBluetoothPermissionCheckFlow(
+private fun AudioPermissionCheckFlow(
     startCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit
-) = rememberCallingRecordAudioBluetoothRequestFlow(
-    onAudioBluetoothPermissionGranted = {
-        appLogger.d("startCall - Permissions granted")
+) = rememberCallingRecordAudioRequestFlow(
+    onAudioPermissionGranted = {
+        appLogger.d("startCall - Audio permission granted")
         startCall()
     },
-    onAudioBluetoothPermissionDenied = { },
-    onAudioBluetoothPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onAudioPermissionDenied = { },
+    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @PreviewMultipleThemes

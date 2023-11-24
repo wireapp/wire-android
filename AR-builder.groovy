@@ -555,7 +555,22 @@ pipeline {
                 if (env.SOURCE_BRANCH ==~ /y\/.*/) {
                     def apks = findFiles(glob: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/com.wire.android-*.apk")
                     if (apks.size() > 0) {
-                        postApkToGithubRelease(apks)
+                        // postApkToGithubRelease(apks)
+                        echo 'Attaching APK to Github Release for tag: ' + env.SOURCE_BRANCH
+                        def fileApk = apks[0]
+                        def filename = fileApk.getName()
+
+                        // headers request
+                        def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")
+                        def contentTypeHeader = shellQuote("Content-Type: application/octet-stream")
+                        def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
+
+                        // api request
+                        def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
+                        def uploadUrl = sh("curl -s ${apiUrl} | jq -r '.upload_url' | cut -d'{' -f1", returnStdout: true).trim()
+                        def sanitizedUploadUrl = shellQuote(uploadUrl + "?name=\$(basename ${filename})")
+
+                        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST --data-binary @${fileApk.getPath()} ${sanitizedUploadUrl}"
                     }
                 }
             }

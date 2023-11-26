@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 
 String shellQuote(String s) {
     // Quote a string so it's suitable to pass to the shell
@@ -46,6 +45,31 @@ def postGithubComment(String changeId, String body) {
     // no unsubstituted variables
     sh "curl -s -H ${authHeader} -X POST -d ${json} ${apiUrl}"
 
+}
+
+def postGithubApkToRelease(String flavor, String buildType) {
+    def apks = findFiles(glob: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk")
+    if (apks.size() > 0) {
+        echo 'Attaching APK to Github Release for tag: ' + env.SOURCE_BRANCH
+        def fileApk = apks[0]
+        def filename = shellParentheses(fileApk.getName())
+
+        // building headers request
+        def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")
+        def contentTypeHeader = shellQuote("Content-Type: application/octet-stream")
+        def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
+
+        // building gh api request
+        def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
+        def releaseId = sh(script: "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2", returnStdout: true).trim()
+        def sanitizedUploadUrl = "https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')"
+        def sanitizedApkPath = shellParentheses(fileApk.getPath())
+        echo 'Starting! Upload of APK: ' + sanitizedApkPath + ' to Github Release destination: ' + sanitizedUploadUrl
+
+        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${sanitizedApkPath} ${sanitizedUploadUrl}"
+    } else {
+        echo 'No APK found to attach to Github Release for tag: ' + env.SOURCE_BRANCH
+    }
 }
 
 def defineTrackName(String branchName) {
@@ -536,27 +560,7 @@ pipeline {
 
                 // if (env.SOURCE_BRANCH ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./) {
                 if (env.SOURCE_BRANCH ==~ /y\/.*/) {
-                    def apks = findFiles(glob: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/com.wire.android-*.apk")
-                    if (apks.size() > 0) {
-                        echo 'Attaching APK to Github Release for tag: ' + env.SOURCE_BRANCH
-                        def fileApk = apks[0]
-                        def filename = fileApk.getName()
-
-                        // headers request
-                        def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")
-                        def contentTypeHeader = shellQuote("Content-Type: application/octet-stream")
-                        def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
-
-                        // api request
-                        def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
-                        def releaseId = sh(script: "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2", returnStdout: true).trim()
-                        def sanitizedUploadUrl = "https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')"
-
-                        def sanitizedPath = shellParentheses(fileApk.getPath())
-                        echo 'Uploading APK: ' + sanitizedPath + ' to Github Release destination: ' + sanitizedUploadUrl
-
-                        sh "curl -v -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${sanitizedPath} ${sanitizedUploadUrl}"
-                    }
+                    postGithubApkToRelease(params.FLAVOR, params.BUILD_TYPE)
                 }
             }
 

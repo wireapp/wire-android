@@ -22,6 +22,11 @@ String shellQuote(String s) {
     return "'" + s.replaceAll("'", "'\"'\"'") + "'"
 }
 
+String shellParentheses(String s) {
+    // Parenthesize a string so it's suitable to pass to the shell
+    return s.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
+}
+
 def postGithubComment(String changeId, String body) {
     def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
     def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android-reloaded/issues/${changeId}/comments")
@@ -546,9 +551,11 @@ pipeline {
                         def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
                         def releaseId = sh(script: "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2", returnStdout: true).trim()
                         def sanitizedUploadUrl = "https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')"
-                        echo 'Uploading APK to Github Release destination: ' + sanitizedUploadUrl
 
-                        sh "curl -v -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T '${fileApk.getPath()}' '${sanitizedUploadUrl}'"
+                        def sanitizedPath = shellParentheses(fileApk.getPath())
+                        echo 'Uploading APK: ' + sanitizedPath + ' to Github Release destination: ' + sanitizedUploadUrl
+
+                        sh "curl -v -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${sanitizedPath} ${sanitizedUploadUrl}"
                     }
                 }
             }

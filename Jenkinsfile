@@ -6,8 +6,7 @@ List<String> defineFlavor() {
     }
 
     def branchName = env.BRANCH_NAME
-    //     def isTagAndValid = env.TAG_NAME ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./ || branchName ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./
-    def isTagAndValid = env.BRANCH_NAME ==~ /y\/.*/
+    def isTagAndValid = env.TAG_NAME ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./ || branchName ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./
 
     if (branchName == "main") {
         return ['Beta']
@@ -79,8 +78,7 @@ String handleChangeBranch(String changeBranch) {
 * Force in case of a tag to not upload to PlayStore, otherwise it will delegate to the stage resolution.
 */
 String defineUploadToPlayStoreEnabled() {
-    return env.BRANCH_NAME !=~ /y\/.*/
-//     return env.BRANCH_NAME !=~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./
+    return env.BRANCH_NAME !=~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./
 }
 
 pipeline {

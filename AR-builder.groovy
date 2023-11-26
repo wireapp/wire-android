@@ -215,9 +215,9 @@ pipeline {
                     last_started = env.STAGE_NAME
                 }
 
-                withGradle() {
-                    sh './gradlew compileApp'
-                }
+//                withGradle() {
+//                    sh './gradlew compileApp'
+//                }
 
             }
         }
@@ -548,12 +548,11 @@ pipeline {
                         def sanitizedUploadUrl = "https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')"
                         echo 'Uploading APK to Github Release destination: ' + sanitizedUploadUrl
 
-                        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${fileApk.getPath()} '${sanitizedUploadUrl}'"
+                        sh "curl -v -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T '${fileApk.getPath()}' '${sanitizedUploadUrl}'"
                     }
                 }
             }
 
-            sh './gradlew jacocoReport'
             wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ✅ SUCCESS 🎉" + "\nLast 5 commits:\n```text\n$lastCommits\n```")
         }
 

@@ -52,7 +52,9 @@ def postGithubApkToRelease(String flavor, String buildType) {
     if (apks.size() > 0) {
         echo 'Attaching APK to Github Release for tag: ' + env.SOURCE_BRANCH
         def fileApk = apks[0]
-        def filename = shellParentheses(fileApk.getName())
+        // note: apk name value rename to comply with github releases assets names requirements
+        // https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
+        def filename = fileApk.getName().replaceAll("\\(", "_").replaceAll("\\)", "_")
 
         // building headers request
         def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")

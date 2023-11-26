@@ -560,7 +560,7 @@ pipeline {
                     postGithubComment(params.GITHUB_CHANGE_ID, payload)
                 }
 
-                if (env.SOURCE_BRANCH ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+./) {
+                if (env.SOURCE_BRANCH ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+/) {
                     postGithubApkToRelease(params.FLAVOR, params.BUILD_TYPE)
                 }
             }

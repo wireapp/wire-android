@@ -246,9 +246,9 @@ pipeline {
                     last_started = env.STAGE_NAME
                 }
 
-//                withGradle() {
-//                    sh './gradlew compileApp'
-//                }
+                withGradle() {
+                    sh './gradlew compileApp'
+                }
 
             }
         }

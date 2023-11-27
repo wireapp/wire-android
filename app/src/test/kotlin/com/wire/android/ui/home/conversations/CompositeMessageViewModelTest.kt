@@ -48,6 +48,7 @@ class CompositeMessageViewModelTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val buttonId = "buttonId"
         viewModel.pendingButtonId = buttonId
+        advanceUntilIdle()
 
         // Act
         viewModel.sendButtonActionMessage(buttonId)

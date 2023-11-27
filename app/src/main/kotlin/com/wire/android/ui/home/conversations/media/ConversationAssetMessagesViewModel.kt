@@ -56,61 +56,76 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         private set
 
     private var continueLoading by mutableStateOf(true)
+    private var isLoading by mutableStateOf(false)
 
     init {
         loadAssets()
     }
 
-    // TODO KBX
-    fun continueLoading() {
-        continueLoading = true
+    fun continueLoading(shouldContinue: Boolean) {
+        if (shouldContinue) {
+            if (!continueLoading) {
+                continueLoading = true
+                loadAssets()
+            }
+        } else {
+            continueLoading = false
+        }
+
     }
 
     private fun loadAssets() = viewModelScope.launch {
-        while (continueLoading) {
-            val currentOffset = viewState.currentOffset
-            val uiAssetList = withContext(dispatchers.io()) {
-                getAssets.invoke(
-                    conversationId = conversationId,
-                    limit = BATCH_SIZE,
-                    offset = currentOffset
-                ).map(assetMapper::toUIAsset)
-            }
-
-            // imitate loading new asset batch
-            viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList.map {
-                it.copy(
-                    downloadStatus = if (it.downloadedAssetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD)
-                        Message.DownloadStatus.DOWNLOAD_IN_PROGRESS else it.downloadStatus
-                )
-            }).toImmutableList())
-
-            if (uiAssetList.size >= BATCH_SIZE) {
-                val uiMessages = uiAssetList.map { uiAsset ->
-                    if (uiAsset.downloadedAssetPath == null) {
-                        val assetPath = withContext(dispatchers.io()) {
-                            when (val asset = getPrivateAsset.invoke(uiAsset.conversationId, uiAsset.messageId).await()) {
-                                is MessageAssetResult.Failure -> null
-                                is MessageAssetResult.Success -> asset.decodedAssetPath
-                            }
-                        }
-                        uiAsset.copy(downloadedAssetPath = assetPath)
-                    } else {
-                        uiAsset
-                    }
+        if (isLoading)
+            return@launch
+        isLoading = true
+        try {
+            while (continueLoading) {
+                val currentOffset = viewState.currentOffset
+                val uiAssetList = withContext(dispatchers.io()) {
+                    getAssets.invoke(
+                        conversationId = conversationId,
+                        limit = BATCH_SIZE,
+                        offset = currentOffset
+                    ).map(assetMapper::toUIAsset)
                 }
 
-                viewState = viewState.copy(
-                    messages = viewState.messages.dropLast(uiMessages.size).plus(uiMessages).toImmutableList(),
-                    currentOffset = viewState.currentOffset + BATCH_SIZE
-                )
-            } else {
-                continueLoading = false
+                // imitate loading new asset batch
+                viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList.map {
+                    it.copy(
+                        downloadStatus = if (it.downloadedAssetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD)
+                            Message.DownloadStatus.DOWNLOAD_IN_PROGRESS else it.downloadStatus
+                    )
+                }).toImmutableList())
+
+                if (uiAssetList.size >= BATCH_SIZE) {
+                    val uiMessages = uiAssetList.map { uiAsset ->
+                        if (uiAsset.downloadedAssetPath == null) {
+                            val assetPath = withContext(dispatchers.io()) {
+                                when (val asset = getPrivateAsset.invoke(uiAsset.conversationId, uiAsset.messageId).await()) {
+                                    is MessageAssetResult.Failure -> null
+                                    is MessageAssetResult.Success -> asset.decodedAssetPath
+                                }
+                            }
+                            uiAsset.copy(downloadedAssetPath = assetPath)
+                        } else {
+                            uiAsset
+                        }
+                    }
+
+                    viewState = viewState.copy(
+                        messages = viewState.messages.dropLast(uiMessages.size).plus(uiMessages).toImmutableList(),
+                        currentOffset = viewState.currentOffset + BATCH_SIZE
+                    )
+                } else {
+                    continueLoading = false
+                }
             }
+        } finally {
+            isLoading = false
         }
     }
 
     companion object {
-        const val BATCH_SIZE = 10
+        const val BATCH_SIZE = 5
     }
 }

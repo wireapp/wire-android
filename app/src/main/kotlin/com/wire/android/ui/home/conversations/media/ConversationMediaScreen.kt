@@ -79,6 +79,9 @@ fun ConversationMediaScreen(navigator: Navigator) {
                 )
             )
         },
+        continueAssetLoading = { shouldContinue ->
+            viewModel.continueLoading(shouldContinue)
+        }
     )
 }
 
@@ -87,6 +90,7 @@ private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String) -> Unit,
+    continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
 
     WireScaffold(
@@ -102,7 +106,8 @@ private fun Content(
         AssetList(
             uiAssetList = state.messages,
             modifier = Modifier.padding(padding),
-            onImageFullScreenMode = onImageFullScreenMode
+            onImageFullScreenMode = onImageFullScreenMode,
+            continueAssetLoading = continueAssetLoading
         )
 
     }
@@ -113,18 +118,19 @@ fun AssetList(
     uiAssetList: List<UIAsset>,
     modifier: Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String) -> Unit,
+    continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
-    val canScrollForward by remember {
+    val shouldContinue by remember {
         derivedStateOf {
-            scrollState.canScrollForward
+            !scrollState.canScrollForward
         }
     }
 
     // act when end of list reached
-    LaunchedEffect(canScrollForward) {
-        appLogger.d("KBX can scroll forward $canScrollForward")
-
+    LaunchedEffect(shouldContinue) {
+        continueAssetLoading(shouldContinue)
+        appLogger.d("KBX should Continue $shouldContinue")
     }
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp

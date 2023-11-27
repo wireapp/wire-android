@@ -27,14 +27,14 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MicrophonePermissionDeniedDialog(
+fun MicrophoneBTPermissionsDeniedDialog(
     shouldShow: Boolean,
     onDismiss: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
     if (shouldShow) {
         WireDialog(
-            title = stringResource(id = R.string.call_permission_dialog_title),
+            title = stringResource(id = R.string.permission_dialog_title),
             text = stringResource(id = R.string.call_permission_dialog_description),
             onDismiss = onDismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -53,8 +53,8 @@ fun MicrophonePermissionDeniedDialog(
 }
 @PreviewMultipleThemes
 @Composable
-fun PreviewMicrophonePermissionDeniedDialog() {
-    MicrophonePermissionDeniedDialog(
+fun PreviewMicrophoneBTPermissionsDeniedDialog() {
+    MicrophoneBTPermissionsDeniedDialog(
         shouldShow = true,
         onDismiss = {},
         onOpenSettings = {}

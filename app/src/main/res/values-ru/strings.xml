@@ -1278,7 +1278,7 @@
     <string name="record_audio_max_file_size_reached_title">Запись остановлена</string>
     <string name="record_audio_max_file_size_reached_text">Размер файла аудиосообщения ограничен %1$d МБ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Записать аудиосообщение во время звонка невозможно.</string>
-    <string name="call_permission_dialog_title">Разрешения приложения</string>
+    <string name="permission_dialog_title">Разрешения приложения</string>
     <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону и поиск соседних устройств в настройках устройства.</string>
     <string name="label_not_now">Не сейчас</string>
     <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>

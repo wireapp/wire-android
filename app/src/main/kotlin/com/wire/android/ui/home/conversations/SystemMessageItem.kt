@@ -106,21 +106,30 @@ fun SystemMessageItem(
             .padding(
                 end = dimensions().spacing16x,
                 top = fullAvatarOuterPadding,
-                bottom = dimensions().messageItemVerticalPadding
+                bottom = dimensions().messageItemBottomPadding
             )
             .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
-                .width(dimensions().spacing56x)
-                .padding(end = fullAvatarOuterPadding),
+                .width(
+                    dimensions().avatarDefaultSize
+                            + (dimensions().avatarStatusBorderSize * 2)
+                            + (dimensions().avatarClickablePadding * 2)
+                )
+                .padding(
+                    end = fullAvatarOuterPadding,
+                    // because for now only end call icon is large and have vertical empty space
+                    // we need to disable padding for it
+                    top = if (message.messageContent.isSmallIcon) fullAvatarOuterPadding else dimensions().spacing0x
+                ),
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
                 Box(
                     modifier = Modifier.size(
                         width = dimensions().systemMessageIconLargeSize,
-                        height = dimensions().spacing20x
+                        height = dimensions().systemMessageIconLargeSize
                     ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -140,7 +149,7 @@ fun SystemMessageItem(
                 }
             }
         }
-        Spacer(Modifier.padding(start = dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
+        Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
         Column(
             Modifier
                 .defaultMinSize(minHeight = dimensions().spacing20x)

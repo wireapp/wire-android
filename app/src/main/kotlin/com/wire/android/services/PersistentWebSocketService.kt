@@ -67,6 +67,7 @@ class PersistentWebSocketService : Service() {
     @Inject
     lateinit var notificationManager: WireNotificationManager
 
+    // TODO: remove since it is not used
     @Inject
     @CurrentSessionFlowService
     lateinit var currentSessionFlow: CurrentSessionFlowUseCase

@@ -98,6 +98,7 @@ fun MessageItem(
     conversationDetailsData: ConversationDetailsData,
     searchQuery: String = "",
     showAuthor: Boolean = true,
+    useSmallBottomPadding: Boolean = false,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
@@ -185,8 +186,8 @@ fun MessageItem(
                     }
                     .padding(
                         end = dimensions().messageItemHorizontalPadding,
-                        top = dimensions().messageItemVerticalPadding - fullAvatarOuterPadding,
-                        bottom = dimensions().messageItemVerticalPadding
+                        top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
+                        bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
                     )
             ) {
                 val isProfileRedirectEnabled =
@@ -194,7 +195,6 @@ fun MessageItem(
                             !(header.isSenderDeleted || header.isSenderUnavailable)
 
                 Box(
-                    modifier = Modifier.width(dimensions().spacing56x),
                     contentAlignment = Alignment.TopStart
                 ) {
                     if (showAuthor) {
@@ -221,8 +221,8 @@ fun MessageItem(
                 }
                 Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
                 Column {
-                    Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     if (showAuthor) {
+                        Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
@@ -449,7 +449,6 @@ private fun MessageFooter(
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
-            modifier = Modifier.padding(top = dimensions().spacing4x)
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }

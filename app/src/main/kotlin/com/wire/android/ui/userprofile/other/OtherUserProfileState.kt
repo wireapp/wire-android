@@ -75,6 +75,13 @@ data class OtherUserProfileState(
     fun isMetadataEmpty(): Boolean {
         return fullName.isEmpty() || userName.isEmpty()
     }
+
+    fun shouldShowSearchButton(): Boolean = (groupState == null
+            && connectionState in listOf(
+        ConnectionState.ACCEPTED,
+        ConnectionState.BLOCKED,
+        ConnectionState.MISSING_LEGALHOLD_CONSENT
+    ))
 }
 
 data class OtherUserProfileGroupState(

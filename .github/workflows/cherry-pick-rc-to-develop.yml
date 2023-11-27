@@ -92,7 +92,7 @@ jobs:
                   cd ..
                   git add ${{ env.SUBMODULE_NAME }}
                   git commit -m "Update submodule ${{ env.SUBMODULE_NAME }} to latest from ${{ env.TARGET_BRANCH }}"
-                  echo "lastCommitMessage=LAST_COMMIT_MESSAGE" >> $GITHUB_ENV
+                  echo "lastCommitMessage=$LAST_COMMIT_MESSAGE" >> $GITHUB_ENV
 
             - name: Get Cherry-pick commit
               id: get-cherry

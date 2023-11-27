@@ -21,6 +21,7 @@
 package com.wire.android.util.permission
 
 import android.content.Context
+import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,50 +32,63 @@ import com.wire.android.util.extension.checkPermission
 import com.wire.android.util.extension.getActivity
 
 @Composable
-fun rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted: () -> Unit,
-    onAudioPermissionDenied: () -> Unit,
-    onAudioPermissionPermanentlyDenied: () -> Unit,
+fun rememberCallingRecordAudioBluetoothRequestFlow(
+    onAudioBluetoothPermissionGranted: () -> Unit,
+    onAudioBluetoothPermissionDenied: () -> Unit,
+    onAudioBluetoothPermissionPermanentlyDenied: () -> Unit,
 ): CallingAudioRequestFlow {
     val context = LocalContext.current
 
-    val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                onAudioPermissionGranted()
+    val requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            var permissionsGranted = true
+            permissions.values.forEach { if (!it) permissionsGranted = false }
+
+            if (permissionsGranted) {
+                onAudioBluetoothPermissionGranted()
             } else {
                 context.getActivity()?.let {
-                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
-                        onAudioPermissionDenied()
+                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO) ||
+                        it.shouldShowRequestPermissionRationale(android.Manifest.permission.BLUETOOTH_CONNECT)
+                    ) {
+                        onAudioBluetoothPermissionDenied()
                     } else {
-                        onAudioPermissionPermanentlyDenied()
+                        onAudioBluetoothPermissionPermanentlyDenied()
                     }
                 }
             }
         }
 
     return remember {
-        CallingAudioRequestFlow(context, onAudioPermissionGranted, requestPermissionLauncher)
+        CallingAudioRequestFlow(context, onAudioBluetoothPermissionGranted, requestPermissionLauncher)
     }
 }
 
 class CallingAudioRequestFlow(
     private val context: Context,
     private val permissionGranted: () -> Unit,
-    private val audioRecordPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
+    private val audioRecordPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
 ) {
     fun launch() {
-        val audioPermissionEnabled =
-            context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
+        val audioPermissionEnabled = context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
+        val bluetoothPermissionEnabled = context.checkPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
 
         val neededPermissions = mutableListOf(
             android.Manifest.permission.RECORD_AUDIO
         )
 
-        if (audioPermissionEnabled) {
+        val permissionsEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            neededPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
+
+            audioPermissionEnabled && bluetoothPermissionEnabled
+        } else {
+            audioPermissionEnabled
+        }
+
+        if (permissionsEnabled) {
             permissionGranted()
         } else {
-            audioRecordPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+            audioRecordPermissionLauncher.launch(neededPermissions.toTypedArray())
         }
     }
 }

@@ -23,7 +23,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -87,14 +86,10 @@ class SetLockScreenViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-<<<<<<< HEAD
             coEvery { globalDataStore.setUserAppLock(any()) } returns Unit
-            coEvery { globalDataStore.setTeamAppLock(any()) } returns Unit
-=======
             coEvery { globalDataStore.setUserAppLock(any(), any()) } returns Unit
->>>>>>> 50827f6ec (LAST_COMMIT_MESSAGE)
             coEvery { observeAppLockConfig() } returns flowOf(
-                AppLockConfig.Disabled(AppLockTeamFeatureConfigObserverImpl.DEFAULT_TIMEOUT)
+                AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
         }
 

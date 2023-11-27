@@ -23,6 +23,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -35,6 +36,7 @@ class DisableAppLockUseCaseTest {
             .withClearAppLockPasscode()
             .arrange()
 
+        advanceUntilIdle()
         useCase()
 
         coVerify(exactly = 1) { arrangement.dataStore.clearAppLockPasscode() }

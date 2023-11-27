@@ -55,9 +55,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED =
             booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
-        private val IS_APP_LOCKED_BY_USER = booleanPreferencesKey("is_app_locked_by_user")
-        private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
-        private val TEAM_APP_LOCK_PASSCODE = stringPreferencesKey("team_app_lock_passcode")
+         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> =
@@ -169,11 +167,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      */
     @Suppress("TooGenericExceptionCaught")
     fun getAppLockPasscodeFlow(): Flow<String?> {
-        val preference = if (isAppLockPasscodeSet()) APP_LOCK_PASSCODE else TEAM_APP_LOCK_PASSCODE
         return context.dataStore.data.map {
-            it[preference]?.let { passcode ->
+            it[APP_LOCK_PASSCODE]?.let { passcode ->
                 try {
-                    EncryptionManager.decrypt(preference.name, passcode)
+                    EncryptionManager.decrypt(APP_LOCK_PASSCODE.name, passcode)
                 } catch (e: Exception) {
                     null
                 }
@@ -195,21 +192,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         }.first()
     }
 
-    fun isAppTeamPasscodeSet(): Boolean = runBlocking {
-        context.dataStore.data.map {
-            it.contains(TEAM_APP_LOCK_PASSCODE)
-        }.first()
-    }
-
     suspend fun clearAppLockPasscode() {
         context.dataStore.edit {
             it.remove(APP_LOCK_PASSCODE)
-        }
-    }
-
-    suspend fun clearTeamAppLockPasscode() {
-        context.dataStore.edit {
-            it.remove(TEAM_APP_LOCK_PASSCODE)
         }
     }
 
@@ -227,13 +212,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
                 it.remove(key)
             }
         }
-    }
-
-    suspend fun setTeamAppLock(
-        passcode: String,
-        key: Preferences.Key<String> = TEAM_APP_LOCK_PASSCODE
-    ) {
-        setAppLockPasscode(passcode, key)
     }
 
     suspend fun setUserAppLock(

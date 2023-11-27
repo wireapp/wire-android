@@ -61,7 +61,7 @@ class ObserveAppLockConfigUseCaseTest {
             val (_, useCase) = Arrangement()
                 .withValidSession()
                 .withTeamAppLockEnabled()
-                .withAppLockedByCurrentUser()
+                .withAppLockedByCurrentUser(false)
                 .arrange()
 
             val result = useCase.invoke()
@@ -80,7 +80,7 @@ class ObserveAppLockConfigUseCaseTest {
             val (_, useCase) = Arrangement()
                 .withValidSession()
                 .withTeamAppLockDisabled()
-                .withAppLockedByCurrentUser()
+                .withAppLockedByCurrentUser(true)
                 .arrange()
 
             val result = useCase.invoke()
@@ -103,7 +103,6 @@ class ObserveAppLockConfigUseCaseTest {
                 .arrange()
 
             val result = useCase.invoke()
-
             result.test {
                 val appLockStatus = awaitItem()
 
@@ -141,10 +140,6 @@ class ObserveAppLockConfigUseCaseTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun withAppLockPasscodeSet(value: Boolean) = apply {
-            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(value)
-        }
-
         fun arrange() = this to useCase
 
         fun withNonValidSession() = apply {
@@ -175,8 +170,8 @@ class ObserveAppLockConfigUseCaseTest {
             } returns flowOf(AppLockTeamConfig(false, timeout, false))
         }
 
-        fun withAppLockedByCurrentUser() = apply {
-            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(true)
+        fun withAppLockedByCurrentUser(state: Boolean) = apply {
+            every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(state)
         }
 
         fun withAppNonLockedByCurrentUser() = apply {

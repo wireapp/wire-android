@@ -286,7 +286,6 @@ class WireActivity : AppCompatActivity() {
                         } else {
                             with(featureFlagNotificationViewModel) {
                                 markTeamAppLockStatusAsNot()
-                                clearTeamAppLockPasscode()
                             }
                         }
                     }

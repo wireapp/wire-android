@@ -52,7 +52,7 @@ import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
-import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
+import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
@@ -63,7 +63,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.openAppInfoScreen
-import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -80,12 +80,12 @@ fun IncomingCallScreen(
 ) {
     val context = LocalContext.current
 
-    val audioPermissionCheck = AudioPermissionCheckFlow(
+    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
         incomingCallViewModel::acceptCall,
         incomingCallViewModel::showPermissionDialog
     )
 
-    MicrophonePermissionDeniedDialog(
+    MicrophoneBTPermissionsDeniedDialog(
         shouldShow = incomingCallViewModel.incomingCallState.shouldShowPermissionDialog,
         onDismiss = incomingCallViewModel::dismissPermissionDialog,
         onOpenSettings = {
@@ -233,16 +233,16 @@ private fun IncomingCallContent(
 }
 
 @Composable
-fun AudioPermissionCheckFlow(
+fun AudioBluetoothPermissionCheckFlow(
     onAcceptCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit,
-) = rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted = {
-        appLogger.d("IncomingCall - Audio permission granted")
+) = rememberCallingRecordAudioBluetoothRequestFlow(
+    onAudioBluetoothPermissionGranted = {
+        appLogger.d("IncomingCall - Permissions granted")
         onAcceptCall()
     },
-    onAudioPermissionDenied = { },
-    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onAudioBluetoothPermissionDenied = { },
+    onAudioBluetoothPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @Preview

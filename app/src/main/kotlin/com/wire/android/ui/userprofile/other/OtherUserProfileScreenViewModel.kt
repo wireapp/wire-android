@@ -393,5 +393,4 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             }
         )
     }
-
 }

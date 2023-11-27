@@ -177,7 +177,7 @@ fun SetLockCodeScreenContent(
             }
         }
 
-        BackHandler() {
+        BackHandler {
             if (state.isEditable) {
                 onBackPress()
             }

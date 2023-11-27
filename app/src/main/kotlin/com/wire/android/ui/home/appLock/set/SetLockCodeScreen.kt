@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.appLock.set
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +62,7 @@ import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -109,6 +111,7 @@ fun SetLockCodeScreenContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPress,
+                navigationIconType = if (state.isEditable) NavigationIconType.Back else null,
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.settings_set_lock_screen_title)
             )
@@ -171,6 +174,12 @@ fun SetLockCodeScreenContent(
                         onContinue = onContinue
                     )
                 }
+            }
+        }
+
+        BackHandler() {
+            if (state.isEditable) {
+                onBackPress()
             }
         }
     }

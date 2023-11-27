@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -42,10 +43,12 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -114,7 +117,8 @@ fun MessageItem(
     onMessageClick: (messageId: String) -> Unit = {},
     defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
-    shouldDisplayFooter: Boolean = true
+    shouldDisplayFooter: Boolean = true,
+    isSelectedMessage: Boolean = false
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -130,7 +134,7 @@ fun MessageItem(
             )
         }
 
-        val backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
+        var backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
         } else if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
@@ -142,6 +146,23 @@ fun MessageItem(
             Modifier.background(color)
         } else {
             Modifier.background(defaultBackgroundColor)
+        }
+
+        val colorAnimation = remember { Animatable(Color.Transparent) }
+        val highlightColor = colorsScheme().selectedMessageHighlightColor
+        val transparentColor = colorsScheme().primary.copy(alpha = 0F)
+        LaunchedEffect(isSelectedMessage) {
+            if (isSelectedMessage) {
+                colorAnimation.snapTo(highlightColor)
+                colorAnimation.animateTo(
+                    transparentColor,
+                    tween(SELECTED_MESSAGE_ANIMATION_DURATION)
+                )
+            }
+        }
+
+        if (isSelectedMessage) {
+            backgroundColorModifier = Modifier.drawBehind { drawRect(colorAnimation.value) }
         }
 
         Box(
@@ -644,3 +665,5 @@ private fun Message.DownloadStatus.isSaved(): Boolean {
 
 internal val DeliveryStatusContent.expandable
     get() = this is DeliveryStatusContent.PartialDelivery && !this.isSingleUserFailure
+
+private const val SELECTED_MESSAGE_ANIMATION_DURATION = 2000

@@ -635,6 +635,7 @@ private fun ConversationScreen(
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
+                    selectedMessageId = conversationMessagesViewState.searchedMessageId,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
@@ -677,6 +678,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
+    selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
@@ -729,7 +731,8 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onLinkClick = onLinkClick
+                onLinkClick = onLinkClick,
+                selectedMessageId = selectedMessageId
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -794,7 +797,8 @@ fun MessageList(
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    selectedMessageId: String?
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -865,7 +869,8 @@ fun MessageList(
                                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                                onLinkClick = onLinkClick
+                                onLinkClick = onLinkClick,
+                                isSelectedMessage = (message.header.messageId == selectedMessageId)
                             )
                         }
 

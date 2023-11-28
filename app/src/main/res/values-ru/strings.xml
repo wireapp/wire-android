@@ -971,10 +971,11 @@
     <string name="team_app_lock_enabled">Блокировка приложения теперь обязательна. Wire блокируется спустя определенное время бездействия. Для разблокировки приложения необходимо ввести код доступа или использовать биометрическую аутентификацию.</string>
     <string name="team_app_lock_disabled">Блокировка приложений больше не является обязательной. Wire больше не будет блокироваться после определенного времени бездействия.</string>
     <string name="settings_forgot_lock_screen_title">Забыли код доступа к приложению?</string>
-    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа. Если вы забыли свой код доступа, вы можете сбросить настройки этого клиента.</string>
-    <string name="settings_forgot_lock_screen_warning">При сбросе настроек вашего устройства все локальные данные и сообщения этого аккаунта будут удалены навсегда.</string>
+    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа приложения. Если вы забудете свой код доступа, вы можете удалить это устройство.</string>
+    <string name="settings_forgot_lock_screen_warning">При удалении устройства вы навсегда теряете все локальные данные и сообщения всех аккаунтов на этом устройстве.</string>
     <string name="settings_forgot_lock_screen_reset_device">Удалить устройство</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль для аккаунта %s, чтобы подтвердить, что вы хотите удалить все данные на этом устройстве. После удаления этого устройства можно будет снова авторизоваться с помощью ваших учетных данных.</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль от аккаунта %s для подтверждения удаления всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Подтвердите удаление всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Пожалуйста, подождите...</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
@@ -998,6 +999,7 @@
     <string name="label_delete_logs">Удалить все журналы</string>
     <string name="label_restart_slowsync_for_recovery">Перезапустить медленную синхронизацию</string>
     <string name="restart_slowsync_for_recovery_button">Перезапуск</string>
+    <string name="label_get_e2ei_cetificate">Получить E2EI сертификат</string>
     <string name="label_mls_option_title">Опции MLS</string>
     <string name="label_enable_logging">Включить журналирование</string>
     <string name="label_proteus_option_title">Настройки Proteus</string>
@@ -1265,6 +1267,7 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Сертификат обновлен</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Сертификат обновлен, а устройство верифицировано.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
+    <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
@@ -1312,4 +1315,31 @@
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Сертификат скопирован в буфер обмена</string>
     <string name="call_ended_because_of_verification_title">Беседа больше не является верифицированной</string>
     <string name="call_ended_because_of_verification_message">Вызов был прерван, поскольку как минимум один из участников больше не является верифицированным контактом.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Запрошены юридические ограничения</string>
+    <string name="legal_hold_requested_dialog_description_device">Все последующие сообщения будут записываться устройством с отпечатком:</string>
+    <string name="legal_hold_requested_dialog_description_includes">К ним относятся удаленные, отредактированные и самоудаляющиеся сообщения во всех беседах.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Введите пароль для подтверждения.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Принять</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Не сейчас</string>
+    <string name="legal_hold_learn_more_button">Подробнее о юридических ограничениях</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Юридические ограничения деактивированы</string>
+    <string name="legal_hold_deactivated_dialog_description">Будущие сообщения записываться не будут.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничением</string>
+    <string name="legal_hold_subject_dialog_description">Все сообщения, изображения и документы будут сохранены для последующего доступа. Сюда входят удаленные, отредактированные и самоудаляющиеся сообщения.</string>
+    <string name="legal_hold_subject_dialog_description_group">По крайней мере, один из участников этой беседы находится под юридическим ограничением.</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Отправить в любом случае</string>
+    <string name="legal_hold_subject_to">Субъект - %1$s.</string>
+    <string name="legal_hold_label">юридические ограничения</string>
+    <string name="legal_hold_is_active_label">Юридические ограничения активны</string>
+    <string name="legal_hold_is_pending_label">Юридические ограничения ожидаются</string>
+    <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">Беседа больше не является верифицированной</string>
+    <string name="sure_about_messaging_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите отправить сообщение?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Отправить в любом случае</string>
+    <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">Беседа больше не является верифицированной</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите начать разговор?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Все равно позвонить</string>
 </resources>

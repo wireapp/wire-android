@@ -29,8 +29,8 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestObserverResult
+import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,16 +54,16 @@ class LegalHoldRequestedViewModel @Inject constructor(
         private set
 
     private val legalHoldRequestDataStateFlow = currentSessionFlow(noSession = LegalHoldRequestData.None) { userId ->
-        legalHoldRequestUseCase()
+        observeLegalHoldRequest()
             .mapLatest { legalHoldRequestResult ->
                 when (legalHoldRequestResult) {
-                    is ObserveLegalHoldRequestObserverResult.Failure -> {
+                    is ObserveLegalHoldRequestUseCaseResult.Failure -> {
                         appLogger.e("$TAG: Failed to get legal hold request data: ${legalHoldRequestResult.failure}")
                         LegalHoldRequestData.None
                     }
 
-                    ObserveLegalHoldRequestObserverResult.NoObserveLegalHoldRequest -> LegalHoldRequestData.None
-                    is ObserveLegalHoldRequestObserverResult.ObserveLegalHoldRequestAvailable ->
+                    ObserveLegalHoldRequestUseCaseResult.NoObserveLegalHoldRequest -> LegalHoldRequestData.None
+                    is ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable ->
                         users.isPasswordRequired()
                             .let {
                                 LegalHoldRequestData.Pending(
@@ -148,25 +148,25 @@ class LegalHoldRequestedViewModel @Inject constructor(
                     true ->
                         viewModelScope.launch {
                             coreLogic.sessionScope(it.userId) {
-                                team.approveLegalHold(it.password.text).let { approveLegalHoldResult ->
+                                approveLegalHoldRequest(it.password.text).let { approveLegalHoldResult ->
                                     state = when (approveLegalHoldResult) {
-                                        is ApproveLegalHoldUseCase.Result.Success ->
+                                        is ApproveLegalHoldRequestUseCase.Result.Success ->
                                             LegalHoldRequestedState.Hidden
 
-                                        ApproveLegalHoldUseCase.Result.Failure.InvalidPassword ->
+                                        ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
                                             it.copy(
                                                 loading = false,
                                                 error = LegalHoldRequestedError.InvalidCredentialsError
                                             )
 
-                                        ApproveLegalHoldUseCase.Result.Failure.PasswordRequired ->
+                                        ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
                                             it.copy(
                                                 loading = false,
                                                 requiresPassword = true,
                                                 error = LegalHoldRequestedError.InvalidCredentialsError
                                             )
 
-                                        is ApproveLegalHoldUseCase.Result.Failure.GenericFailure -> {
+                                        is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
                                             appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
                                             it.copy(
                                                 loading = false,

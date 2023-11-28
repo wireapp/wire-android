@@ -21,6 +21,11 @@ String shellQuote(String s) {
     return "'" + s.replaceAll("'", "'\"'\"'") + "'"
 }
 
+String shellParentheses(String s) {
+    // Parenthesize a string so it's suitable to pass to the shell
+    return s.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
+}
+
 def postGithubComment(String changeId, String body) {
     def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
     def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android-reloaded/issues/${changeId}/comments")
@@ -40,6 +45,33 @@ def postGithubComment(String changeId, String body) {
     // no unsubstituted variables
     sh "curl -s -H ${authHeader} -X POST -d ${json} ${apiUrl}"
 
+}
+
+def postGithubApkToRelease(String flavor, String buildType) {
+    def apks = findFiles(glob: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk")
+    if (apks.size() > 0) {
+        echo 'Attaching APK to Github Release for tag: ' + env.SOURCE_BRANCH
+        def fileApk = apks[0]
+        // note: apk name value rename to comply with github releases assets names requirements
+        // https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset
+        def filename = fileApk.getName().replaceAll("\\(", "_").replaceAll("\\)", "_")
+
+        // building headers request
+        def acceptHeader = shellQuote("Accept: application/vnd.github.v3+json")
+        def contentTypeHeader = shellQuote("Content-Type: application/octet-stream")
+        def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
+
+        // building gh api request
+        def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/releases/latest")
+        def releaseId = sh(script: "curl -s ${apiUrl} | grep -m 1 \"id.:\" | grep -w id | tr : = | tr -cd '[[:alnum:]]=' | cut -d'=' -f2", returnStdout: true).trim()
+        def sanitizedUploadUrl = "https://uploads.github.com/repos/wireapp/wire-android/releases/${releaseId}/assets?name=\$(basename '${filename}')"
+        def sanitizedApkPath = shellParentheses(fileApk.getPath())
+        echo 'Starting! Upload of APK: ' + sanitizedApkPath + ' to Github Release destination: ' + sanitizedUploadUrl
+
+        sh "curl -s -H ${authHeader} -H ${acceptHeader} -H ${contentTypeHeader} -X POST -T ${sanitizedApkPath} ${sanitizedUploadUrl}"
+    } else {
+        echo 'No APK found to attach to Github Release for tag: ' + env.SOURCE_BRANCH
+    }
 }
 
 def defineTrackName(String branchName) {
@@ -527,9 +559,12 @@ pipeline {
 
                     postGithubComment(params.GITHUB_CHANGE_ID, payload)
                 }
+
+                if (env.SOURCE_BRANCH ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+/) {
+                    postGithubApkToRelease(params.FLAVOR, params.BUILD_TYPE)
+                }
             }
 
-            sh './gradlew jacocoReport'
             wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ✅ SUCCESS 🎉" + "\nLast 5 commits:\n```text\n$lastCommits\n```")
         }
 

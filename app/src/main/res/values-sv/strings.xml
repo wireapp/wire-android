@@ -422,11 +422,11 @@
     <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
     <string name="conversation_details_group_members">GRUPPMEDLEMMAR (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
-    <string name="conversation_details_participants_count">%s participants</string>
+    <string name="conversation_details_participants_count">%s deltagare</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
     <string name="conversation_details_group_participants_title">Gruppdeltagare</string>
     <string name="conversation_details_group_participants_add">Lägg till deltagare</string>
-    <string name="conversation_participant_you_label">(You)</string>
+    <string name="conversation_participant_you_label">(Du)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
@@ -685,7 +685,7 @@
     <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
-        <item quantity="one">%s is typing</item>
+        <item quantity="one">%s skriver</item>
         <item quantity="other">%1$s and %2$d more are typing</item>
     </plurals>
     <!-- Search Messages -->
@@ -947,6 +947,7 @@
     <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
     <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
     <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Dina enheter</string>
@@ -1252,13 +1253,13 @@
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
     <!--    biometrics-->
-    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
+    <string name="biometrics_prompt_dialog_title">Autentisera med biometri</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
     <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
     <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
-    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Kopiera till urklipp</string>
     <string name="e2ei_certificate_details_download">Download</string>
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
     <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>

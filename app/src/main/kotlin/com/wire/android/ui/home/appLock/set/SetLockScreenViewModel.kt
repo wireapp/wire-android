@@ -40,7 +40,12 @@ class SetLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
+<<<<<<< HEAD
     private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
+=======
+    private val observeAppLockConfig: ObserveAppLockConfigUseCase,
+    private val isAppLockEditable: IsAppLockEditableUseCase,
+>>>>>>> e751f691a (fix: disable back press when app lock team enforced (WPB-5644) (#2474))
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
@@ -49,10 +54,12 @@ class SetLockScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeAppLockConfigUseCase()
+            val isEditable = isAppLockEditable()
+            observeAppLockConfig()
                 .collectLatest {
                     state = state.copy(
-                        timeout = it.timeout
+                        timeout = it.timeout,
+                        isEditable = isEditable
                     )
                 }
         }
@@ -80,7 +87,15 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore) {
+<<<<<<< HEAD
                             setUserAppLock(state.password.text.sha256())
+=======
+                            val source = if (isAppLockEditable()) {
+                                AppLockSource.Manual
+                            } else {
+                                AppLockSource.TeamEnforced
+                            }
+>>>>>>> e751f691a (fix: disable back press when app lock team enforced (WPB-5644) (#2474))
 
                             // TODO: call only when needed
                             markTeamAppLockStatusAsNotified()

@@ -32,6 +32,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -39,7 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SetLockScreenViewModelTest {
 
     @Test
-    fun `given new password input, when valid,then should update state`() {
+    fun `given new password input, when valid,then should update state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withValidPassword()
             .arrange()
@@ -53,7 +54,7 @@ class SetLockScreenViewModelTest {
     }
 
     @Test
-    fun `given new password input, when invalid,then should update state`() {
+    fun `given new password input, when invalid,then should update state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withInvalidPassword()
             .arrange()
@@ -86,6 +87,7 @@ class SetLockScreenViewModelTest {
             coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
+            coEvery { isAppLockEditableUseCase() } returns true
         }
 
         fun withValidPassword() = apply {

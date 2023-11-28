@@ -41,8 +41,8 @@ class SetLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
-    private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
-    private val isAppLockEditableUseCase: IsAppLockEditableUseCase,
+    private val observeAppLockConfig: ObserveAppLockConfigUseCase,
+    private val isAppLockEditable: IsAppLockEditableUseCase,
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
@@ -51,10 +51,12 @@ class SetLockScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeAppLockConfigUseCase()
+            val isEditable = isAppLockEditable()
+            observeAppLockConfig()
                 .collectLatest {
                     state = state.copy(
-                        timeout = it.timeout
+                        timeout = it.timeout,
+                        isEditable = isEditable
                     )
                 }
         }
@@ -82,7 +84,7 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore) {
-                            val source = if (isAppLockEditableUseCase()) {
+                            val source = if (isAppLockEditable()) {
                                 AppLockSource.Manual
                             } else {
                                 AppLockSource.TeamEnforced

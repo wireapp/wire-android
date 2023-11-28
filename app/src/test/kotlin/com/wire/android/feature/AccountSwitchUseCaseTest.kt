@@ -60,7 +60,6 @@ class AccountSwitchUseCaseTest {
                     .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
                     .arrange()
 
-            advanceUntilIdle()
             val result = switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_VALID_2.userId))
 
             assertEquals(expectedResult, result)

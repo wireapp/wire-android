@@ -81,7 +81,7 @@
     <string name="folder_label_access">Доступ</string>
     <string name="folder_label_protocol_details">Детальний опис протоколу (beta)</string>
     <string name="folder_label_messaging">Messaging</string>
-    <string name="label_user_blocked">Blocked</string>
+    <string name="label_user_blocked">Заблокований(-на)</string>
     <string name="label_and">і</string>
     <string name="label_retry">Повторити</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -211,7 +211,7 @@
     <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
     <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
     <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
-    <string name="welcome_button_create_team">Create a Team</string>
+    <string name="welcome_button_create_team">Створити команду</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
@@ -975,6 +975,7 @@
     <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
     <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
     <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>

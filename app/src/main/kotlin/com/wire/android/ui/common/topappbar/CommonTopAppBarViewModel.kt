@@ -79,11 +79,11 @@ class CommonTopAppBarViewModel @Inject constructor(
     }
 
     private fun legalHoldStatusFlow(userId: UserId) = coreLogic.sessionScope(userId) {
-        observeLegalHoldRequest() // TODO combine with legal host status
+        observeLegalHoldRequest() // TODO combine with legal hold status
             .map { legalHoldRequestResult ->
                 when (legalHoldRequestResult) {
                     is ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable -> LegalHoldStatus.PENDING
-                    else -> LegalHoldStatus.NO_CONSENT
+                    else -> LegalHoldStatus.DISABLED
                 }
             }
     }
@@ -160,10 +160,7 @@ class CommonTopAppBarViewModel @Inject constructor(
         LegalHoldStatus.DISABLED,
         LegalHoldStatus.NO_CONSENT -> LegalHoldUIState.None
     }.let { legalHoldUIState ->
-        if (currentScreen is CurrentScreen.AuthRelated
-            || currentScreen is CurrentScreen.OngoingCallScreen
-            || currentScreen is CurrentScreen.IncomingCallScreen
-        ) LegalHoldUIState.None
+        if (currentScreen is CurrentScreen.AuthRelated || currentScreen is CurrentScreen.CallScreen) LegalHoldUIState.None
         else legalHoldUIState
     }
 

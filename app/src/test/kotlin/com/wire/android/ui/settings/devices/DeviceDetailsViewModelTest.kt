@@ -11,6 +11,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -37,6 +38,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -192,6 +194,57 @@ class DeviceDetailsViewModelTest {
             assertTrue(viewModel.state.error is RemoveDeviceError.None)
         }
 
+    @Test
+    fun `given self legal hold client, when fetching state, then canBeRemoved is false`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup()
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.LegalHold), false))
+            .arrange()
+        // then
+        assertFalse(viewModel.state.canBeRemoved)
+    }
+    @Test
+    fun `given self temporary client, when fetching state, then canBeRemoved is true`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup()
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Temporary), false))
+            .arrange()
+        // then
+        assertFalse(viewModel.state.canBeRemoved)
+    }
+    @Test
+    fun `given self permanent client, when fetching state, then canBeRemoved is true`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup()
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Permanent), false))
+            .arrange()
+        // then
+        assertTrue(viewModel.state.canBeRemoved)
+    }
+    @Test
+    fun `given self permanent current client, when fetching state, then canBeRemoved is false`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup()
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Permanent), true))
+            .arrange()
+        // then
+        assertFalse(viewModel.state.canBeRemoved)
+    }
+    @Test
+    fun `given other user permanent client, when fetching state, then canBeRemoved is false`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup(userId = UserId("otherUserId", "otherUserDomain"))
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Permanent), false))
+            .arrange()
+        // then
+        assertFalse(viewModel.state.canBeRemoved)
+    }
+
     private class Arrangement {
 
         @MockK
@@ -269,9 +322,9 @@ class DeviceDetailsViewModelTest {
             coEvery { deleteClientUseCase(any()) } returns result
         }
 
-        fun withRequiredMockSetup() = apply {
+        fun withRequiredMockSetup(userId: UserId = currentUserId) = apply {
             every { savedStateHandle.navArgs<DeviceDetailsNavArgs>() } returns DeviceDetailsNavArgs(
-                userId = currentUserId,
+                userId = userId,
                 clientId = CLIENT_ID
             )
         }

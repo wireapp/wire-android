@@ -293,14 +293,14 @@
     <string name="remove_device_details_description_with_wipe">Entfernen Sie Ihr Gerät, wenn Sie es nicht mehr nutzen. Den Sicherheitseinstellungen Ihres Teams entsprechend wird auch Ihr Gesprächsverlauf gelöscht.</string>
     <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
     <string name="item_subtitle_status_e2ei_certificate">Status</string>
-    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
-    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
-    <string name="get_e2ei_certificate_button">Get Certificate</string>
-    <string name="update_e2ei_certificat_button">Update Certificate</string>
-    <string name="e2ei_certificat_status_valid">Valid</string>
-    <string name="e2ei_certificat_status_expired">Expired</string>
-    <string name="e2ei_certificat_status_revoked">Revoked</string>
-    <string name="e2ei_certificat_status_not_activated">Not activated</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Seriennummer</string>
+    <string name="show_e2ei_certificate_details_button">Zertifikatsdetails anzeigen</string>
+    <string name="get_e2ei_certificate_button">Zertifikat erhalten</string>
+    <string name="update_e2ei_certificat_button">Zertifikat aktualisieren</string>
+    <string name="e2ei_certificat_status_valid">Gültig</string>
+    <string name="e2ei_certificat_status_expired">Abgelaufen</string>
+    <string name="e2ei_certificat_status_revoked">Widerrufen</string>
+    <string name="e2ei_certificat_status_not_activated">Nicht aktiviert</string>
     <!-- Register Device -->
     <string name="register_device_title">Dieses Gerät hinzufügen</string>
     <string name="register_device_text">Geben Sie Ihr Passwort ein, um Wire auf diesem Gerät zu verwenden.</string>
@@ -415,7 +415,7 @@
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
     <string name="username_unavailable_label">Name nicht verfügbar</string>
-    <string name="group_unavailable_label">Group name not available</string>
+    <string name="group_unavailable_label">Gruppenname nicht verfügbar</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
@@ -423,7 +423,7 @@
     <string name="conversation_details_group_admins">GRUPPEN-ADMINS (%d)</string>
     <string name="conversation_details_group_members">GRUPPEN-MITGLIEDER (%d)</string>
     <string name="conversation_details_participants_info">Diese Gruppe hat %s Teilnehmer.\nBis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
-    <string name="conversation_details_participants_count">%s participants</string>
+    <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
     <string name="conversation_details_group_participants_title">Teilnehmer</string>
     <string name="conversation_details_group_participants_add">Teilnehmer hinzufügen</string>
@@ -466,11 +466,11 @@
     <string name="message_details_read_receipts_empty_text">Niemand hat diese Nachricht bisher gelesen 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Mehr über Lesebestätigungen erfahren</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Datei hinzufügen</string>
-    <string name="attachment_share_image">Bild anhängen</string>
-    <string name="attachment_take_photo">Foto aufnehmen</string>
-    <string name="attachment_record_video">Video aufnehmen</string>
-    <string name="attachment_voice_message">Audionachricht</string>
+    <string name="attachment_share_file">Datei</string>
+    <string name="attachment_share_image">Gallery</string>
+    <string name="attachment_take_photo">Kamera</string>
+    <string name="attachment_record_video">Video</string>
+    <string name="attachment_voice_message">Audio</string>
     <string name="attachment_share_location">Standort teilen</string>
     <!-- User Profile -->
     <string name="user_profile_title">Benutzerprofil</string>
@@ -526,8 +526,8 @@
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Alles</string>
     <string name="muting_option_all_allowed_text">Sie erhalten alle Benachrichtigungen für diese Unterhaltung, einschließlich Audio- und Videoanrufe</string>
-    <string name="muting_option_only_mentions_title">Calls, mentions and replies</string>
-    <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone calls, mentions you or replies to you</string>
+    <string name="muting_option_only_mentions_title">Anrufe, Erwähnungen und Antworten</string>
+    <string name="muting_option_only_mentions_text">Sie erhalten nur dann Benachrichtigungen für diese Unterhaltung, wenn jemand Sie anruft, erwähnt oder Ihnen antwortet</string>
     <string name="muting_option_all_muted_title">Nichts</string>
     <string name="muting_option_all_muted_text">Keine Benachrichtigungen für diese Unterhaltung bekommen</string>
     <!--Profile image-->
@@ -605,11 +605,11 @@
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
-    <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
-    <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
-    <string name="label_conversations_details_verified_proteus">Verified (Proteus)</string>
-    <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
+    <string name="label_system_message_conversation_verified_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
+    <string name="label_system_message_conversation_verified_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
+    <string name="label_system_message_conversation_started_sensitive_information">Kommunikation in Wire ist immer Ende-zu-Ende verschlüsselt. Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Gruppenteilnehmer zugänglich.\n**Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.**</string>
+    <string name="label_conversations_details_verified_proteus">Überprüft (Proteus)</string>
+    <string name="label_conversations_details_verified_mls">Überprüft (Ende-zu-Ende-Identität)</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
@@ -657,10 +657,10 @@
     <string name="last_message_self_user_left_conversation">haben die Unterhaltung verlassen.</string>
     <string name="last_message_other_user_joined_conversation">ist der Unterhaltung beigetreten.</string>
     <string name="last_message_other_user_left_conversation">hat die Unterhaltung verlassen.</string>
-    <string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
-    <string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
-    <string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
-    <string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
+    <string name="last_message_verified_conversation_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
+    <string name="last_message_verified_conversation_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
+    <string name="last_message_conversations_verification_degraded_mls">Unterhaltung nicht mehr überprüft</string>
+    <string name="last_message_conversations_verification_degraded_proteus">Unterhaltung nicht mehr überprüft</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d Ping</item>
@@ -687,13 +687,13 @@
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s schreibt</item>
-        <item quantity="other">%1$s and %2$d more are typing</item>
+        <item quantity="other">%1$s und %2$d weitere Personen schreiben</item>
     </plurals>
     <!-- Search Messages -->
-    <string name="label_search_messages">Search messages</string>
-    <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
-    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
-    <string name="label_search_button">Search</string>
+    <string name="label_search_messages">Textnachrichten suchen</string>
+    <string name="label_search_messages_empty_title">Alle Nachrichten in dieser Unterhaltung durchsuchen.</string>
+    <string name="label_search_messages_no_results">Keine passenden Ergebnisse.\nVerfeinern Sie Ihre Suche und versuchen Sie es erneut.</string>
+    <string name="label_search_button">Suche</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
@@ -746,7 +746,7 @@
     <string name="error_unarchiving_conversation">Unterhaltung konnte nicht reaktiviert werden</string>
     <string name="dialog_archive_conversation_title">Unterhaltung archivieren?</string>
     <string name="dialog_archive_conversation_description">Diese Unterhaltung wird in Ihr Archiv verschoben. Sie erhalten weiterhin neue Nachrichten, Dateien und Anrufe, aber keine Benachrichtigungen. Sie können die Unterhaltung jederzeit reaktivieren.</string>
-    <string name="dialog_archive_conversation_option">Archiv</string>
+    <string name="dialog_archive_conversation_option">Archivieren</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="email_label">E-Mail-Adresse</string>
@@ -827,8 +827,8 @@
     <string name="connection_label_accepting_request_description">Wenn Sie die Anfrage annehmen, wird die Person als Kontakt hinzugefügt und Sie können direkt miteinander kommunizieren.</string>
     <string name="connection_label_accept">Annehmen</string>
     <string name="connection_label_ignore">Ignorieren</string>
-    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
-    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
+    <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Mediengalerie</string>
     <string name="media_gallery_on_image_downloaded">Im Download-Ordner gespeichert</string>
@@ -894,12 +894,12 @@
     <string name="settings_keep_connection_to_websocket_description">Verbessern Sie den Empfang von Benachrichtigungen, indem Sie eine ständige Verbindung zu %1$s aufrechterhalten. Es ersetzt die Benachrichtigungsdienste, wenn die Google-Dienste auf Ihrem Gerät nicht verfügbar sind.</string>
     <string name="settings_service_is_running">Dienst wird ausgeführt</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Appearance</string>
-    <string name="settings_appearance_theme_label">Theme</string>
-    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
-    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
-    <string name="settings_appearance_theme_option_light">Light mode</string>
-    <string name="settings_appearance_theme_option_dark">Dark mode</string>
+    <string name="settings_appearance_label">Erscheinungsbild</string>
+    <string name="settings_appearance_theme_label">Hintergrund</string>
+    <string name="settings_appearance_theme_option_system">Mit Systemeinstellungen synchronisieren</string>
+    <string name="settings_appearance_theme_option_default_hint">(Standard)</string>
+    <string name="settings_appearance_theme_option_light">Hell</string>
+    <string name="settings_appearance_theme_option_dark">Dunkel</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Kontodaten</string>
     <string name="settings_myaccount_display_name">PROFILNAME</string>
@@ -925,30 +925,31 @@
     <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
     <string name="settings_app_lock_title">Mit Kennwort sperren</string>
     <!--Privacy Settings, App lock -->
-    <string name="settings_set_lock_screen_title">Set app lock passcode</string>
-    <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
+    <string name="settings_set_lock_screen_title">Kennwort der App-Sperre festlegen</string>
+    <string name="settings_set_lock_screen_description">Die App wird nach %1$s der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie dieses Kennwort eingeben oder die biometrische Authentifizierung verwenden.\n\n Bitte merken Sie sich unbedingt das Kennwort, da es keine Möglichkeit gibt, es wiederherzustellen.</string>
     <string name="settings_set_lock_screen_passcode_label">Kennwort</string>
-    <string name="settings_set_lock_screen_continue_button_label">Set a passcode</string>
-    <string name="settings_enter_lock_screen_title">Enter passcode to unlock Wire</string>
-    <string name="settings_enter_lock_screen_unlock_button_label">Unlock</string>
-    <string name="settings_enter_lock_screen_wrong_passcode_label">Check your passcode and try again</string>
-    <string name="settings_enter_lock_screen_forgot_passcode_label">Forgot your passcode?</string>
-    <string name="password_validation_length">At least 8 characters</string>
-    <string name="password_validation_lowercase">A lowercase character</string>
-    <string name="password_validation_uppercase">An uppercase character</string>
-    <string name="password_validation_digit">A digit</string>
-    <string name="password_validation_special_character">A special character</string>
-    <string name="turn_app_lock_off_dialog_title">Turn app lock off?</string>
-    <string name="turn_app_lock_off_dialog_description">You will no longer need to unlock Wire with your passcode or biometric authentication.</string>
+    <string name="settings_set_lock_screen_continue_button_label">Kennwort festlegen</string>
+    <string name="settings_enter_lock_screen_title">Kennwort zum Entsperren eingeben</string>
+    <string name="settings_enter_lock_screen_unlock_button_label">Entsperren</string>
+    <string name="settings_enter_lock_screen_wrong_passcode_label">Überprüfen Sie Ihr Kennwort und versuchen Sie es erneut</string>
+    <string name="settings_enter_lock_screen_forgot_passcode_label">Kennwort vergessen?</string>
+    <string name="password_validation_length">Mindestens 8 Zeichen</string>
+    <string name="password_validation_lowercase">Ein Kleinbuchstabe</string>
+    <string name="password_validation_uppercase">Ein Großbuchstabe</string>
+    <string name="password_validation_digit">Eine Ziffer</string>
+    <string name="password_validation_special_character">Ein Sonderzeichen</string>
+    <string name="turn_app_lock_off_dialog_title">App-Sperre ausschalten?</string>
+    <string name="turn_app_lock_off_dialog_description">Sie müssen Wire nicht mehr mit Ihrem Kennwort oder der biometrischen Authentifizierung entsperren.</string>
     <string name="label_turn_off">Ausschalten</string>
-    <string name="team_app_lock_enabled">App lock is now mandatory. Wire will lock itself after a certain time of inactivity. To unlock the app, you need to enter a passcode or use biometric authentication.</string>
-    <string name="team_app_lock_disabled">App lock is not mandatory any more. Wire will no longer lock itself after a certain time of inactivity.</string>
-    <string name="settings_forgot_lock_screen_title">Forgot your app lock passcode?</string>
-    <string name="settings_forgot_lock_screen_description">You can only access the data stored on this device with your app lock passcode. If you have forgotten your passcode, you can remove this device.</string>
-    <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
-    <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
-    <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
+    <string name="team_app_lock_enabled">Die App-Sperre ist jetzt verbindlich. Wire wird nach einer bestimmten Zeit der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie ein Kennwort eingeben oder eine biometrische Authentifizierung verwenden.</string>
+    <string name="team_app_lock_disabled">Die App-Sperre ist nicht mehr verbindlich. Wire wird nicht mehr nach einer bestimmten Zeit der Inaktivität gesperrt.</string>
+    <string name="settings_forgot_lock_screen_title">Kennwort der App-Sperre vergessen?</string>
+    <string name="settings_forgot_lock_screen_description">Sie können auf die gespeicherten Daten auf diesem Gerät nur mit dem Kennwort für die App-Sperre zugreifen. Wenn Sie Ihr Kennwort vergessen haben, können Sie dieses Gerät entfernen.</string>
+    <string name="settings_forgot_lock_screen_warning">Wenn Sie Ihr Gerät entfernen, verlieren Sie dauerhaft alle lokalen Daten und Nachrichten für alle Benutzerkonten auf diesem Gerät.</string>
+    <string name="settings_forgot_lock_screen_reset_device">Gerät entfernen</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Geben Sie Ihr Passwort für das Benutzerkonto %s ein, um die Löschung aller Daten für alle Konten auf diesem Gerät zu bestätigen. Nachdem Sie Ihr Gerät entfernt haben, können Sie sich mit Ihren Zugangsdaten anmelden.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_please_wait_label">Bitte warten…</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>
     <string name="current_device_label">Aktuelles Gerät</string>
@@ -971,6 +972,7 @@
     <string name="label_delete_logs">Alle Protokolle löschen</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Neu starten</string>
+    <string name="label_get_e2ei_cetificate">Get E2EI Certificate</string>
     <string name="label_mls_option_title">MLS-Optionen</string>
     <string name="label_enable_logging">Protokollierung aktivieren</string>
     <string name="label_proteus_option_title">Proteus-Optionen</string>
@@ -1039,7 +1041,7 @@
     <string name="label_proxy_password">PROXY-PASSWORT</string>
     <string name="label_wire_credentials">WIRE-ZUGANGSDATEN</string>
     <string name="dialog_clear_content_title">Verlauf löschen?</string>
-    <string name="dialog_clear_content_option">Gesprächsverlauf löschen</string>
+    <string name="dialog_clear_content_option">Verlauf löschen</string>
     <string name="dialog_clear_content_text">Der Gesprächsverlauf wird auf all Ihren Geräten gelöscht. Sie bleiben in der %1$s und haben Zugriff auf alle neuen Aktivitäten</string>
     <string name="not_supported_dialog_title">Nicht unterstützt</string>
     <string name="sso_not_supported_dialog_description">Sie können sich nicht über SSO auf einem lokalen Backend mit Proxy-Unterstützung anmelden.</string>
@@ -1213,11 +1215,12 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">Zertifikat aktualisieren</string>
     <string name="end_to_end_identity_renew_error_dialog_title">Zertifikat konnte nicht aktualisiert werden.</string>
-    <string name="end_to_end_identity_renew_error_dialog_text">You can retry to update the certificate now, or you will get a reminder later.</string>
+    <string name="end_to_end_identity_renew_error_dialog_text">Sie können jetzt erneut versuchen, das Zertifikat zu aktualisieren, oder Sie erhalten später eine Erinnerung.</string>
     <string name="end_to_end_identity_renew_error_dialog_text_no_snooze">Bitte versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">Zertifikat aktualisiert</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Zertifikatsdetails</string>
+    <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
     <string name="record_audio_recording_label">Audio-Aufnahme…</string>
@@ -1238,31 +1241,58 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
     <string name="join_conversation_dialog_password_placeholder">Passwort eingeben</string>
     <string name="participant_tile_call_connecting_label">Verbinden…</string>
-    <string name="create_guest_link">Create Guest Link</string>
-    <string name="create_guest_link_with_password">Create password secured link</string>
-    <string name="create_guest_link_without_password_title">Create link without password</string>
-    <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
+    <string name="create_guest_link">Gäste-Link erstellen</string>
+    <string name="create_guest_link_with_password">Passwortgesicherten Link erstellen</string>
+    <string name="create_guest_link_without_password_title">Link ohne Passwort erstellen</string>
+    <string name="conversation_options_create_password_protected_guest_link_title">Passwortgesicherten Link erstellen</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption">Personen, die über den Gäste-Link an der Unterhaltung teilnehmen möchten, müssen zuerst dieses Passwort eingeben.</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption_2">Sie können das Passwort später nicht ändern. Denken Sie daran, es zu kopieren und zu speichern.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_label">PASSWORT FESTLEGEN</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">PASSWORT BESTÄTIGEN</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Passwort eingeben</string>
     <string name="generate_password_button_text">Passwort generieren</string>
-    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
+    <string name="password_protected_link_banner_description">Personen, die über den Gäste-Link an der Unterhaltung teilnehmen möchten, müssen zuerst dieses Passwort eingeben.\nPasswort vergessen? Widerrufen Sie den Link und erstellen Sie einen neuen.</string>
     <string name="password_protected_link_banner_title">Link is password secured</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Passwort in Zwischenablage kopiert</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_description">Verwenden Sie mindestens 8 Zeichen mit einem Kleinbuchstaben, einem Großbuchstaben, einer Zahl und einem Sonderzeichen.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_generated">Neues Passwort generiert</string>
     <!--    biometrics-->
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
-    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
-    <string name="biometrics_use_passcode_button">Use passcode</string>
+    <string name="biometrics_prompt_dialog_subtitle">Um Wire zu entsperren</string>
+    <string name="biometrics_use_passcode_button">Kennwort verwenden</string>
     <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
-    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
-    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
-    <string name="e2ei_certificate_details_download">Download</string>
-    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
-    <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
+    <string name="e2ei_certificate_details_screen_title">Zertifikatsdetails</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">In Zwischenablage kopieren</string>
+    <string name="e2ei_certificate_details_download">Herunterladen</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Zertifikat in Zwischenablage kopiert</string>
+    <string name="call_ended_because_of_verification_title">Unterhaltung nicht mehr überprüft</string>
     <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Legal hold requested</string>
+    <string name="legal_hold_requested_dialog_description_device">All future messages will be recorded by the device with fingerprint:</string>
+    <string name="legal_hold_requested_dialog_description_includes">This includes deleted, edited and self-deleting messages in all conversations.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Enter your password to confirm.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Accept</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
+    <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
+    <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_subject_to">Subject to %1$s.</string>
+    <string name="legal_hold_label">legal hold</string>
+    <string name="legal_hold_is_active_label">Legal hold is active</string>
+    <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_messaging_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to send the message?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Send Anyway</string>
+    <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
 </resources>

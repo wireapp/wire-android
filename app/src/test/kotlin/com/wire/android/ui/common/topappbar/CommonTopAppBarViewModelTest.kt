@@ -222,10 +222,10 @@ class CommonTopAppBarViewModelTest {
     )
 
     @Test
-    fun givenLegalHoldRequestAndCallScreen_whenGettingState_thenShouldHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
+    fun givenLegalHoldRequestAndCallScreen_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
         currentScreen = CurrentScreen.OngoingCallScreen(mockk()),
         result = ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(byteArrayOf()),
-        expectedState = LegalHoldUIState.Pending
+        expectedState = LegalHoldUIState.None
     )
 
     @Test

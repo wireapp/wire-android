@@ -160,7 +160,10 @@ class CommonTopAppBarViewModel @Inject constructor(
         LegalHoldStatus.DISABLED,
         LegalHoldStatus.NO_CONSENT -> LegalHoldUIState.None
     }.let { legalHoldUIState ->
-        if (currentScreen is CurrentScreen.AuthRelated) LegalHoldUIState.None
+        if (currentScreen is CurrentScreen.AuthRelated
+            || currentScreen is CurrentScreen.OngoingCallScreen
+            || currentScreen is CurrentScreen.IncomingCallScreen
+        ) LegalHoldUIState.None
         else legalHoldUIState
     }
 

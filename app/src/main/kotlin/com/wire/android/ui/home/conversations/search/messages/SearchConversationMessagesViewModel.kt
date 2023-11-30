@@ -32,10 +32,10 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -65,30 +65,34 @@ class SearchConversationMessagesViewModel @Inject constructor(
     private val mutableSearchQueryFlow = MutableStateFlow(searchConversationMessagesState.searchQuery.text)
 
     init {
-        viewModelScope.launch {
-            mutableSearchQueryFlow
-                .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
-                .collectLatest { searchTerm ->
-                    getSearchMessagesForConversation(
-                        searchTerm = searchTerm,
-                        conversationId = conversationId,
-                        lastReadIndex = 0
-                    ).flowOn(dispatchers.io()).collectLatest {
-                        searchConversationMessagesState = searchConversationMessagesState.copy(
-                            searchResult = flowOf(it),
-                            isLoading = false
-                        )
-                    }
-                }
-        }
+        val messagesResultFlow = mutableSearchQueryFlow
+            .onEach {
+                searchConversationMessagesState = searchConversationMessagesState.copy(
+                    isLoading = true
+                )
+            }
+            .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+            .flatMapConcat { searchTerm ->
+                getSearchMessagesForConversation(
+                    searchTerm = searchTerm,
+                    conversationId = conversationId,
+                    lastReadIndex = 0
+                ).onEach {
+                    searchConversationMessagesState = searchConversationMessagesState.copy(
+                        isLoading = false
+                    )
+                }.flowOn(dispatchers.io())
+            }
+        searchConversationMessagesState = searchConversationMessagesState.copy(
+            searchResult = messagesResultFlow
+        )
     }
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
         val textQueryChanged = searchConversationMessagesState.searchQuery.text != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
         searchConversationMessagesState = searchConversationMessagesState.copy(
-            searchQuery = searchQuery,
-            isLoading = true
+            searchQuery = searchQuery
         )
         if (textQueryChanged && searchQuery.text.isNotBlank()) {
             viewModelScope.launch {

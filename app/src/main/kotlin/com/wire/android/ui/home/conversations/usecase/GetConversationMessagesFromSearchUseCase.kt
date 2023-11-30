@@ -82,7 +82,7 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
     private companion object {
         const val MINIMUM_CHARACTERS_TO_SEARCH = 1
         const val PAGE_SIZE = 20
-        const val INITIAL_LOAD_SIZE = 50
+        const val INITIAL_LOAD_SIZE = 20
         const val PREFETCH_DISTANCE = 30
     }
 }

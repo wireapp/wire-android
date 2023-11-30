@@ -40,6 +40,7 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
@@ -151,11 +152,16 @@ sealed class CurrentScreen {
     // Another User Profile Screen is opened
     data class OtherUserProfile(val id: ConversationId) : CurrentScreen()
 
+    sealed class CallScreen(open val id: QualifiedID) : CurrentScreen()
+
     // Ongoing call screen is opened
-    data class OngoingCallScreen(val id: QualifiedID) : CurrentScreen()
+    class OngoingCallScreen(override val id: QualifiedID) : CallScreen(id)
 
     // Incoming call screen is opened
-    data class IncomingCallScreen(val id: QualifiedID) : CurrentScreen()
+    class IncomingCallScreen(override val id: QualifiedID) : CallScreen(id)
+
+    // Initiating call screen is opened
+    class InitiatingCallScreen(override val id: QualifiedID) : CallScreen(id)
 
     // Import media screen is opened
     object ImportMedia : CurrentScreen()
@@ -192,6 +198,9 @@ sealed class CurrentScreen {
 
                 is IncomingCallScreenDestination ->
                     IncomingCallScreen(destination.argsFrom(arguments).conversationId)
+
+                is InitiatingCallScreenDestination ->
+                    InitiatingCallScreen(destination.argsFrom(arguments).conversationId)
 
                 is ImportMediaScreenDestination -> ImportMedia
 

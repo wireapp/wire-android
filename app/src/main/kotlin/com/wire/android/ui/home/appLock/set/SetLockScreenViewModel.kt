@@ -29,6 +29,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,7 +41,8 @@ class SetLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
-    private val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
+    private val observeAppLockConfig: ObserveAppLockConfigUseCase,
+    private val isAppLockEditable: IsAppLockEditableUseCase,
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
@@ -49,10 +51,12 @@ class SetLockScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeAppLockConfigUseCase()
+            val isEditable = isAppLockEditable()
+            observeAppLockConfig()
                 .collectLatest {
                     state = state.copy(
-                        timeout = it.timeout
+                        timeout = it.timeout,
+                        isEditable = isEditable
                     )
                 }
         }

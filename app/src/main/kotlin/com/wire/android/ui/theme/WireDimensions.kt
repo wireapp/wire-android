@@ -187,7 +187,7 @@ data class WireDimensions(
     val initiatingCallHangUpButtonSize: Dp,
     val ongoingCallLabelHeight: Dp,
     // Message item
-    val messageItemVerticalPadding: Dp,
+    val messageItemBottomPadding: Dp,
     val messageItemHorizontalPadding: Dp,
     // audio message
     val audioMessageHeight: Dp,
@@ -316,8 +316,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     dividerThickness = 0.5.dp,
     defaultSearchLazyColumnHeight = 320.dp,
     messageComposerPaddingEnd = 82.dp,
-    systemMessageIconSize = 12.dp,
-    systemMessageIconLargeSize = 16.dp,
+    systemMessageIconSize = 16.dp,
+    systemMessageIconLargeSize = 18.dp,
     groupButtonHeight = 82.dp,
     defaultCallingControlsSize = 56.dp,
     defaultCallingHangUpButtonSize = 56.dp,
@@ -330,7 +330,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultIncomingCallSheetPeekHeight = 280.dp,
     callingIncomingUserAvatarSize = 128.dp,
     initiatingCallHangUpButtonSize = 72.dp,
-    messageItemVerticalPadding = 8.dp,
+    messageItemBottomPadding = 6.dp,
     messageItemHorizontalPadding = 12.dp,
     conversationOptionsItemMinHeight = 57.dp,
     ongoingCallLabelHeight = 28.dp,

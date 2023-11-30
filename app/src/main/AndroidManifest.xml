@@ -40,6 +40,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -144,6 +145,12 @@
             </intent-filter>
 
             <intent-filter>
+                <action android:name="com.wire.android.internal.debug.HANDLE_AUTHORIZATION_RESPONSE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="video/*" />
@@ -195,6 +202,34 @@
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/*" />
+            </intent-filter>
+        </activity>
+
+        <activity
+                android:name="net.openid.appauth.RedirectUriReceiverActivity"
+                android:exported="true"
+                tools:node="replace">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:path="/oauth2redirect"
+                        android:host="e2ei"
+                        android:scheme="wire" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:path="/logout"
+                        android:host="e2ei"
+                        android:scheme="wire" />
             </intent-filter>
         </activity>
 
@@ -261,7 +296,9 @@
 
         <service
                 android:name=".services.PersistentWebSocketService"
-                android:exported="false" />
+                android:foregroundServiceType="specialUse"
+                android:exported="false">
+        </service>
 
         <service
                 android:name=".services.OngoingCallService"

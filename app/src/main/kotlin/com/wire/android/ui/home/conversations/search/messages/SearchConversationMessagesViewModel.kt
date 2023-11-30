@@ -89,9 +89,9 @@ class SearchConversationMessagesViewModel @Inject constructor(
         val textQueryChanged = searchConversationMessagesState.searchQuery.text != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
         searchConversationMessagesState = searchConversationMessagesState.copy(searchQuery = searchQuery)
-        if (textQueryChanged) {
+        if (textQueryChanged && searchQuery.text.isNotBlank()) {
             viewModelScope.launch {
-                mutableSearchQueryFlow.emit(searchQuery.text)
+                mutableSearchQueryFlow.emit(searchQuery.text.trim())
             }
         }
     }

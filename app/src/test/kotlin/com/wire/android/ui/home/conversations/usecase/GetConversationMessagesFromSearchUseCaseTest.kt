@@ -60,7 +60,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
                 .arrange()
 
             // when
-            val result = useCase("a", arrangement.conversationId)
+            val result = useCase("", arrangement.conversationId)
 
             // then
             assert(result is Either.Right<List<UIMessage>>)

@@ -131,7 +131,6 @@ fun OtherUserProfileScreen(
 
     val conversationId = viewModel.state.conversationId
         ?: viewModel.state.conversationSheetContent?.conversationId
-    val shouldShowSearchButton = viewModel.shouldShowSearchButton(conversationId = conversationId)
     val onSearchConversationMessagesClick: () -> Unit = {
         conversationId?.let {
             navigator.navigate(
@@ -160,7 +159,6 @@ fun OtherUserProfileScreen(
         onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
         onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-        shouldShowSearchButton = shouldShowSearchButton,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
     )
@@ -194,7 +192,6 @@ fun OtherProfileScreenContent(
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
     onSearchConversationMessagesClick: () -> Unit,
-    shouldShowSearchButton: Boolean,
     navigateBack: () -> Unit = {}
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
@@ -272,8 +269,7 @@ fun OtherProfileScreenContent(
         topBarCollapsing = {
             TopBarCollapsing(
                 state = state,
-                onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                shouldShowSearchButton = shouldShowSearchButton
+                onSearchConversationMessagesClick = onSearchConversationMessagesClick
             )
         },
         topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
@@ -373,8 +369,7 @@ private fun TopBarHeader(
 @Composable
 private fun TopBarCollapsing(
     state: OtherUserProfileState,
-    onSearchConversationMessagesClick: () -> Unit,
-    shouldShowSearchButton: Boolean
+    onSearchConversationMessagesClick: () -> Unit
 ) {
     Crossfade(
         targetState = state,
@@ -393,7 +388,7 @@ private fun TopBarCollapsing(
             connection = targetState.connectionState,
             isProteusVerified = targetState.isProteusVerified,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-            shouldShowSearchButton = shouldShowSearchButton
+            shouldShowSearchButton = state.shouldShowSearchButton()
         )
     }
 }
@@ -539,7 +534,7 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 @Composable
 @Preview(name = "Connected")
 fun PreviewOtherProfileScreenContent() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         OtherProfileScreenContent(
             scope = rememberCoroutineScope(),
             state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
@@ -550,8 +545,7 @@ fun PreviewOtherProfileScreenContent() {
             closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {},
-            shouldShowSearchButton = false
+            onSearchConversationMessagesClick = {}
         )
     }
 }
@@ -560,7 +554,7 @@ fun PreviewOtherProfileScreenContent() {
 @Composable
 @Preview(name = "Not Connected")
 fun PreviewOtherProfileScreenContentNotConnected() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         OtherProfileScreenContent(
             scope = rememberCoroutineScope(),
             state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
@@ -571,8 +565,7 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {},
-            shouldShowSearchButton = false
+            onSearchConversationMessagesClick = {}
         )
     }
 }

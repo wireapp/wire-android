@@ -40,29 +40,31 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * AppLockManager provides a mechanism to determine if the app should be locked based on configuration and screen state.
+ *
+ * - [isLockedFlow] observes conditions and returns:
+ *   - false if app lock is disabled.
+ *   - true after a background delay if app lock is enabled.
+ *   - false if brought back to the foreground before the delay.
+ */
+
 @Singleton
 class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
-    globalDataStore: GlobalDataStore
+    globalDataStore: GlobalDataStore,
 ) {
 
-    private val isLockedFlow = MutableStateFlow(false)
+    private lateinit var isLockedFlow: MutableStateFlow<Boolean>
 
     init {
-        // first, set initial value - if app lock is enabled then app needs to be locked right away
         runBlocking {
-            observeAppLockConfigUseCase().firstOrNull()?.let { appLockConfig ->
-                // app could be locked by team but user still didn't set the passcode
-                val isTeamAppLockSet = appLockConfig is AppLockConfig.EnforcedByTeam &&
-                        globalDataStore.isAppTeamPasscodeSet()
-                if (appLockConfig is AppLockConfig.Enabled || isTeamAppLockSet) {
-                    isLockedFlow.value = true
-                }
-            }
+            val initialValue = globalDataStore.isAppLockPasscodeSetFlow().firstOrNull() ?: false
+            isLockedFlow = MutableStateFlow(initialValue)
         }
-        @Suppress("MagicNumber")
+
         // next, listen for app lock config and app visibility changes to determine if app should be locked
         appCoroutineScope.launch {
             combine(
@@ -72,29 +74,27 @@ class LockCodeTimeManager @Inject constructor(
             )
                 .distinctUntilChanged()
                 .flatMapLatest { (appLockConfig, isInForeground) ->
-                when {
-                    appLockConfig is AppLockConfig.Disabled -> flowOf(false)
+                    when {
+                        appLockConfig is AppLockConfig.Disabled -> flowOf(false)
 
-                    !isInForeground && !isLockedFlow.value -> flow {
-                        appLogger.i("$TAG lock is enabled and app in the background, lock count started")
-                        delay(appLockConfig.timeout.inWholeMilliseconds)
-                        appLogger.i("$TAG lock count ended, app state should be locked if passcode is set")
-                        // app could be locked by team but user still didn't set the passcode
-                        val isTeamAppLockSet = appLockConfig is AppLockConfig.EnforcedByTeam
-                                && globalDataStore.isAppTeamPasscodeSet()
-                        if (appLockConfig is AppLockConfig.Enabled || isTeamAppLockSet) {
-                            emit(true)
+                        !isInForeground && !isLockedFlow.value -> flow {
+                            appLogger.i("$TAG lock is enabled and app in the background, lock count started")
+                            delay(appLockConfig.timeout.inWholeMilliseconds)
+                            appLogger.i("$TAG lock count ended, app state should be locked if passcode is set")
+
+                            if (appLockConfig is AppLockConfig.Enabled) {
+                                emit(true)
+                            }
+                        }
+
+                        else -> {
+                            appLogger.i("$TAG no change to lock state, isInForeground: $isInForeground, isLocked: ${isLockedFlow.value}")
+                            emptyFlow()
                         }
                     }
-
-                    else -> {
-                        appLogger.i("$TAG no change to lock state, isInForeground: $isInForeground, isLocked: ${isLockedFlow.value}")
-                        emptyFlow()
-                    }
+                }.collectLatest {
+                    isLockedFlow.value = it
                 }
-            }.collectLatest {
-                isLockedFlow.value = it
-            }
         }
     }
 

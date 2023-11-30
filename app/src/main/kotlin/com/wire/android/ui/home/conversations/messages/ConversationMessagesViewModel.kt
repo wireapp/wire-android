@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -61,6 +60,7 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
@@ -70,6 +70,7 @@ import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -128,10 +129,6 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
-            conversationViewState = conversationViewState.copy(
-                searchedMessageId = null
-            )
-
             when (val result = getSearchedConversationMessagePosition(
                 conversationId = conversationId,
                 messageId = messageId
@@ -146,12 +143,22 @@ class ConversationMessagesViewModel @Inject constructor(
 
         val paginatedMessagesFlow = getMessageForConversation(conversationId, lastReadIndex)
             .flowOn(dispatchers.io())
-            .cachedIn(this)
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,
             firstuUnreadEventIndex = max(lastReadIndex - 1, 0)
         )
+
+        handleSelectedSearchedMessageHighlighting()
+    }
+
+    private suspend fun handleSelectedSearchedMessageHighlighting() {
+        viewModelScope.launch {
+            delay(3.seconds)
+            conversationViewState = conversationViewState.copy(
+                searchedMessageId = null
+            )
+        }
     }
 
     private fun loadLastMessageInstant() = viewModelScope.launch {

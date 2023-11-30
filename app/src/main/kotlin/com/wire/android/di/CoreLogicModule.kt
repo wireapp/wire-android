@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -470,6 +471,11 @@ class UseCaseModule {
     fun provideObserveScreenshotCensoringConfigUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveScreenshotCensoringConfigUseCase =
-        coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
+    ): ObserveScreenshotCensoringConfigUseCase = coreLogic.getSessionScope(currentAccount).observeScreenshotCensoringConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsAppLockEditableUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ): IsAppLockEditableUseCase = coreLogic.getGlobalScope().isAppLockEditableUseCase
 }

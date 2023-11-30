@@ -61,6 +61,9 @@ rss-parser = "6.0.1"
 # Logging
 dataDog = "1.19.3"
 
+#OAuth
+openIdAppAuth = "0.11.1"
+
 # Other Tools
 aboutLibraries = "10.8.0"
 leakCanary = "2.7"
@@ -114,6 +117,8 @@ aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:abo
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
 ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "ktx-immutableCollections" }
+
+ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 
 # android dependencies
 
@@ -195,6 +200,9 @@ rss-parser = { module = "com.prof18.rssparser:rssparser", version.ref = "rss-par
 # Logging
 dataDog-core = { module = "com.datadoghq:dd-sdk-android", version.ref = "dataDog" }
 dataDog-compose = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "dataDog" }
+
+# OAuth
+openIdAppOauth = { module = "net.openid:appauth", version.ref = "openIdAppAuth" }
 
 # Material
 material = { module = "com.google.android.material:material", version.ref = "material" }

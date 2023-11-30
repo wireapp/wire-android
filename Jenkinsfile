@@ -42,7 +42,7 @@ String shellQuote(String s) {
 
 def postGithubComment(String changeId, String body) {
     def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
-    def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android-reloaded/issues/${changeId}/comments")
+    def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/issues/${changeId}/comments")
 
     // The comment body must be quoted for embedding into a JSON string,
     // and the JSON string must be quoted for embedding into the shell command

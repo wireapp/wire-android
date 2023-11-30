@@ -119,7 +119,8 @@ private fun toSpanStyle(textStyle: TextStyle, color: Color) = SpanStyle(
     fontWeight = textStyle.fontWeight,
     fontSize = textStyle.fontSize,
     fontFamily = textStyle.fontFamily,
-    fontStyle = textStyle.fontStyle
+    fontStyle = textStyle.fontStyle,
+    textDecoration = textStyle.textDecoration,
 )
 
 private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR

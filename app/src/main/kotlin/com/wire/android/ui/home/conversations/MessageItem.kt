@@ -20,10 +20,12 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,10 +41,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -92,7 +96,9 @@ import com.wire.kalium.logic.data.user.UserId
 fun MessageItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
+    searchQuery: String = "",
     showAuthor: Boolean = true,
+    useSmallBottomPadding: Boolean = false,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
@@ -106,10 +112,12 @@ fun MessageItem(
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
+    isContentClickable: Boolean = false,
     onMessageClick: (messageId: String) -> Unit = {},
     defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
-    shouldDisplayFooter: Boolean = true
+    shouldDisplayFooter: Boolean = true,
+    isSelectedMessage: Boolean = false
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -125,7 +133,7 @@ fun MessageItem(
             )
         }
 
-        val backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
+        var backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
         } else if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
@@ -139,21 +147,47 @@ fun MessageItem(
             Modifier.background(defaultBackgroundColor)
         }
 
-        Box(backgroundColorModifier) {
+        val colorAnimation = remember { Animatable(Color.Transparent) }
+        val highlightColor = colorsScheme().selectedMessageHighlightColor
+        val transparentColor = colorsScheme().primary.copy(alpha = 0F)
+        LaunchedEffect(isSelectedMessage) {
+            if (isSelectedMessage) {
+                colorAnimation.snapTo(highlightColor)
+                colorAnimation.animateTo(
+                    transparentColor,
+                    tween(SELECTED_MESSAGE_ANIMATION_DURATION)
+                )
+            }
+        }
+
+        if (isSelectedMessage) {
+            backgroundColorModifier = Modifier.drawBehind { drawRect(colorAnimation.value) }
+        }
+
+        Box(
+            backgroundColorModifier
+                .clickable(enabled = isContentClickable, onClick = {
+                    onMessageClick(message.header.messageId)
+                })
+        ) {
             // padding needed to have same top padding for avatar and rest composables in message item
             val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .combinedClickable(
-                        enabled = message.isAvailable,
-                        onClick = { onMessageClick(message.header.messageId) },
-                        onLongClick = remember(message) { { onLongClicked(message) } }
-                    )
+                    .apply {
+                        if (!isContentClickable) {
+                            combinedClickable(
+                                enabled = message.isAvailable,
+                                onClick = { },
+                                onLongClick = remember(message) { { onLongClicked(message) } }
+                            )
+                        }
+                    }
                     .padding(
                         end = dimensions().messageItemHorizontalPadding,
-                        top = dimensions().messageItemVerticalPadding - fullAvatarOuterPadding,
-                        bottom = dimensions().messageItemVerticalPadding
+                        top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
+                        bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
                     )
             ) {
                 val isProfileRedirectEnabled =
@@ -161,7 +195,6 @@ fun MessageItem(
                             !(header.isSenderDeleted || header.isSenderUnavailable)
 
                 Box(
-                    modifier = Modifier.width(dimensions().spacing56x),
                     contentAlignment = Alignment.TopStart
                 ) {
                     if (showAuthor) {
@@ -173,7 +206,7 @@ fun MessageItem(
                         // because avatar takes start padding we don't need to add padding to message item
                         UserProfileAvatar(
                             avatarData = message.userAvatarData,
-                            clickable = avatarClickable
+                            clickable = if (isContentClickable) null else avatarClickable
                         )
                     } else {
                         // imitating width of space that avatar takes
@@ -188,8 +221,8 @@ fun MessageItem(
                 }
                 Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
                 Column {
-                    Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     if (showAuthor) {
+                        Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
@@ -215,7 +248,7 @@ fun MessageItem(
                             }
 
                             val currentOnImageClick = remember(message) {
-                                Clickable(enabled = isAvailable, onClick = {
+                                Clickable(enabled = isAvailable && !isContentClickable, onClick = {
                                     onImageMessageClicked(
                                         message,
                                         source == MessageSource.Self
@@ -224,7 +257,7 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick: (() -> Unit)? = remember(message) {
+                            val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
                                 if (isAvailable) {
                                     { onLongClicked(message) }
                                 } else {
@@ -236,6 +269,7 @@ fun MessageItem(
                                     MessageContent(
                                         message = message,
                                         messageContent = messageContent,
+                                        searchQuery = searchQuery,
                                         audioMessagesState = audioMessagesState,
                                         onAudioClick = onAudioClick,
                                         onChangeAudioPosition = onChangeAudioPosition,
@@ -243,7 +277,8 @@ fun MessageItem(
                                         onImageClick = currentOnImageClick,
                                         onLongClick = onLongClick,
                                         onOpenProfile = onOpenProfile,
-                                        onLinkClick = onLinkClick
+                                        onLinkClick = onLinkClick,
+                                        clickable = !isContentClickable
                                     )
                                 }
                                 if (isMyMessage && shouldDisplayMessageStatus) {
@@ -414,7 +449,6 @@ private fun MessageFooter(
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x, Alignment.Start),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing6x, Alignment.Top),
-            modifier = Modifier.padding(top = dimensions().spacing4x)
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }
@@ -463,6 +497,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
+    searchQuery: String,
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -470,7 +505,8 @@ private fun MessageContent(
     onChangeAudioPosition: (String, Int) -> Unit,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    clickable: Boolean
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
@@ -498,12 +534,14 @@ private fun MessageContent(
                 }
                 MessageBody(
                     messageBody = messageContent.messageBody,
+                    searchQuery = searchQuery,
                     isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile,
                     buttonList = null,
                     messageId = message.header.messageId,
-                    onLinkClick = onLinkClick
+                    onLinkClick = onLinkClick,
+                    clickable = clickable
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
@@ -627,3 +665,5 @@ private fun Message.DownloadStatus.isSaved(): Boolean {
 
 internal val DeliveryStatusContent.expandable
     get() = this is DeliveryStatusContent.PartialDelivery && !this.isSingleUserFailure
+
+private const val SELECTED_MESSAGE_ANIMATION_DURATION = 2000

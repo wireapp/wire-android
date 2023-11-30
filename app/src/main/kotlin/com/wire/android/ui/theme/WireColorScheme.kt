@@ -91,7 +91,6 @@ data class WireColorScheme(
     val onCallingHangupButtonColor: Color,
     val callingAnswerButtonColor: Color,
     val onCallingAnswerButtonColor: Color,
-    val connectivityBarOngoingCallBackgroundColor: Color,
     val connectivityBarIssueBackgroundColor: Color,
     val messageComposerBackgroundColor: Color,
     val messageComposerEditBackgroundColor: Color,
@@ -105,6 +104,7 @@ data class WireColorScheme(
     val onScrollToBottomButtonColor: Color,
     val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
+    val selectedMessageHighlightColor: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -226,7 +226,6 @@ private val LightWireColorScheme = WireColorScheme(
     onCallingHangupButtonColor = Color.White,
     callingAnswerButtonColor = WireColorPalette.LightGreen500,
     onCallingAnswerButtonColor = Color.White,
-    connectivityBarOngoingCallBackgroundColor = WireColorPalette.LightGreen500,
     connectivityBarIssueBackgroundColor = WireColorPalette.LightBlue500,
     messageComposerBackgroundColor = Color.White,
     messageComposerEditBackgroundColor = WireColorPalette.LightBlue50,
@@ -239,7 +238,8 @@ private val LightWireColorScheme = WireColorScheme(
     scrollToBottomButtonColor = WireColorPalette.Gray70,
     onScrollToBottomButtonColor = Color.White,
     validE2eiStatusColor = WireColorPalette.LightGreen550,
-    mlsVerificationTextColor = WireColorPalette.DarkGreen700
+    mlsVerificationTextColor = WireColorPalette.DarkGreen700,
+    selectedMessageHighlightColor = WireColorPalette.DarkBlue50
 )
 
 // Dark WireColorScheme
@@ -249,7 +249,7 @@ private val DarkWireColorScheme = WireColorScheme(
     primary = WireColorPalette.DarkBlue500, onPrimary = Color.Black,
     primaryVariant = WireColorPalette.DarkBlue800, onPrimaryVariant = WireColorPalette.DarkBlue300,
     error = WireColorPalette.DarkRed500, onError = Color.Black,
-    errorOutline = WireColorPalette.DarkRed200,
+    errorOutline = WireColorPalette.DarkRed800,
     warning = WireColorPalette.DarkYellow500, onWarning = Color.Black,
     positive = WireColorPalette.DarkGreen500, onPositive = Color.Black,
     background = WireColorPalette.Gray100, onBackground = Color.White,
@@ -335,7 +335,6 @@ private val DarkWireColorScheme = WireColorScheme(
     onCallingHangupButtonColor = Color.Black,
     callingAnswerButtonColor = WireColorPalette.DarkGreen500,
     onCallingAnswerButtonColor = Color.Black,
-    connectivityBarOngoingCallBackgroundColor = WireColorPalette.DarkGreen700,
     connectivityBarIssueBackgroundColor = WireColorPalette.LightBlue500,
     messageComposerBackgroundColor = WireColorPalette.Gray100,
     messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800,
@@ -348,7 +347,8 @@ private val DarkWireColorScheme = WireColorScheme(
     scrollToBottomButtonColor = WireColorPalette.Gray60,
     onScrollToBottomButtonColor = Color.Black,
     validE2eiStatusColor = WireColorPalette.DarkGreen550,
-    mlsVerificationTextColor = WireColorPalette.DarkGreen700
+    mlsVerificationTextColor = WireColorPalette.DarkGreen700,
+    selectedMessageHighlightColor = WireColorPalette.DarkBlue50
 )
 
 @PackagePrivate

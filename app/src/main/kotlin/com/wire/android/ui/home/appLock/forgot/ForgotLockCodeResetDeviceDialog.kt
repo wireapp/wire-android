@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
@@ -51,6 +52,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 @Composable
 fun ForgotLockCodeResetDeviceDialog(
     username: String,
+    isPasswordRequired: Boolean,
     isPasswordValid: Boolean,
     isResetDeviceEnabled: Boolean,
     onPasswordChanged: (TextFieldValue) -> Unit,
@@ -65,14 +67,18 @@ fun ForgotLockCodeResetDeviceDialog(
     }
     WireDialog(
         title = stringResource(R.string.settings_forgot_lock_screen_reset_device),
-        text = LocalContext.current.resources.stringWithStyledArgs(
-            R.string.settings_forgot_lock_screen_reset_device_description,
-            MaterialTheme.wireTypography.body01,
-            MaterialTheme.wireTypography.body02,
-            colorsScheme().onBackground,
-            colorsScheme().onBackground,
-            username
-        ),
+        text = if (isPasswordRequired) {
+            LocalContext.current.resources.stringWithStyledArgs(
+                R.string.settings_forgot_lock_screen_reset_device_description,
+                MaterialTheme.wireTypography.body01,
+                MaterialTheme.wireTypography.body02,
+                colorsScheme().onBackground,
+                colorsScheme().onBackground,
+                username
+            )
+        } else {
+            AnnotatedString(stringResource(id = R.string.settings_forgot_lock_screen_reset_device_without_password_description))
+        },
         onDismiss = onDialogDismissHideKeyboard,
         buttonsHorizontalAlignment = false,
         dismissButtonProperties = WireDialogButtonProperties(
@@ -90,23 +96,25 @@ fun ForgotLockCodeResetDeviceDialog(
             state = if (!isResetDeviceEnabled) WireButtonState.Disabled else WireButtonState.Error
         )
     ) {
-        // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
-        // to the dialog's content and use keyboard controller from there
-        keyboardController = LocalSoftwareKeyboardController.current
-        WirePasswordTextField(
-            state = when {
-                !isPasswordValid -> WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
-                else -> WireTextFieldState.Default
-            },
-            value = backupPassword,
-            onValueChange = {
-                backupPassword = it
-                onPasswordChanged(it)
-            },
-            autofill = false,
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier.padding(bottom = dimensions().spacing16x)
-        )
+        if (isPasswordRequired) {
+            // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
+            // to the dialog's content and use keyboard controller from there
+            keyboardController = LocalSoftwareKeyboardController.current
+            WirePasswordTextField(
+                state = when {
+                    !isPasswordValid -> WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
+                    else -> WireTextFieldState.Default
+                },
+                value = backupPassword,
+                onValueChange = {
+                    backupPassword = it
+                    onPasswordChanged(it)
+                },
+                autofill = false,
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                modifier = Modifier.padding(bottom = dimensions().spacing16x)
+            )
+        }
     }
 }
 
@@ -123,15 +131,23 @@ fun ForgotLockCodeResettingDeviceDialog() {
 @PreviewMultipleThemes
 @Composable
 fun PreviewForgotLockCodeResetDeviceDialog() {
-    WireTheme(isPreview = true) {
-        ForgotLockCodeResetDeviceDialog("Username", true, true, {}, {}, {})
+    WireTheme {
+        ForgotLockCodeResetDeviceDialog("Username", false, true, true, {}, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewForgotLockCodeResetDeviceWithoutPasswordDialog() {
+    WireTheme {
+        ForgotLockCodeResetDeviceDialog("Username", true, true, true, {}, {}, {})
     }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewForgotLockCodeResettingDeviceDialog() {
-    WireTheme(isPreview = true) {
+    WireTheme {
         ForgotLockCodeResettingDeviceDialog()
     }
 }

@@ -77,7 +77,6 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
         } else {
             return flowOf(PagingData.empty<UIMessage>()).flowOn(dispatchers.io())
         }
-
     }
 
     private companion object {

@@ -155,7 +155,7 @@ class MessageModule {
     @Provides
     fun provideGetPaginatedFlowOfMessagesBySearchQueryAndConversation(
         messageScope: MessageScope
-    ) : GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
+    ): GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
         messageScope.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 
     @ViewModelScoped

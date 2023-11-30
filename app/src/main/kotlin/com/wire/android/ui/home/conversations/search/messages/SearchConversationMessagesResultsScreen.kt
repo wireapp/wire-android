@@ -43,25 +43,11 @@ fun SearchConversationMessagesResultsScreen(
             val message: UIMessage = lazyPagingMessages[index]
                 ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
 
-            val showAuthor = AuthorHeaderHelper.rememberShouldShowHeader(
-                index,
-                message,
-                lazyPagingMessages
-            )
-
-            val useSmallBottomPadding = AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding(
-                index,
-                message,
-                lazyPagingMessages
-            )
-
             when (message) {
                 is UIMessage.Regular -> {
                     MessageItem(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None,
-                        showAuthor = showAuthor,
-                        useSmallBottomPadding = useSmallBottomPadding,
                         searchQuery = searchQuery,
                         audioMessagesState = mapOf(),
                         onLongClicked = { },

@@ -30,7 +30,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.feature.asset.GetAssetMessagesByConversationUseCase
+import com.wire.kalium.logic.feature.asset.GetAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,7 +44,7 @@ import javax.inject.Inject
 class ConversationAssetMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
-    private val getAssets: GetAssetMessagesByConversationUseCase,
+    private val getAssets: GetAssetMessagesForConversationUseCase,
     private val getPrivateAsset: GetMessageAssetUseCase,
     private val assetMapper: UIAssetMapper,
 ) : SavedStateViewModel(savedStateHandle) {

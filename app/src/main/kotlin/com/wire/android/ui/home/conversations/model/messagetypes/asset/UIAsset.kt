@@ -32,5 +32,6 @@ data class UIAsset(
     val messageId: String,
     val conversationId: QualifiedID,
     val downloadedAssetPath: Path?,
-    val downloadStatus: Message.DownloadStatus
+    val downloadStatus: Message.DownloadStatus,
+    val isSelfAsset: Boolean
     )

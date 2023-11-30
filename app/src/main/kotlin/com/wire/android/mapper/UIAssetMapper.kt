@@ -35,7 +35,8 @@ class UIAssetMapper @Inject constructor() {
             conversationId = assetMessage.conversationId,
             messageId = assetMessage.messageId,
             downloadedAssetPath = assetMessage.assetPath,
-            downloadStatus = assetMessage.downloadStatus
+            downloadStatus = assetMessage.downloadStatus,
+            isSelfAsset = assetMessage.isSelfAsset
         )
     }
 }

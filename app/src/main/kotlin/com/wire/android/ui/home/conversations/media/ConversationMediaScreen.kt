@@ -67,13 +67,13 @@ fun ConversationMediaScreen(navigator: Navigator) {
     Content(
         state = state,
         onNavigationPressed = { navigator.navigateBack() },
-        onImageFullScreenMode = { conversationId, messageId ->
+        onImageFullScreenMode = { conversationId, messageId, isSelfAsset ->
             navigator.navigate(
                 NavigationCommand(
                     MediaGalleryScreenDestination(
                         conversationId = conversationId,
                         messageId = messageId,
-                        isSelfAsset = false, // TODO KBX
+                        isSelfAsset = isSelfAsset,
                         isEphemeral = false
                     )
                 )
@@ -89,7 +89,7 @@ fun ConversationMediaScreen(navigator: Navigator) {
 private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String) -> Unit,
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
 
@@ -117,7 +117,7 @@ private fun Content(
 fun AssetList(
     uiAssetList: List<UIAsset>,
     modifier: Modifier,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String) -> Unit,
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
@@ -155,7 +155,7 @@ fun AssetList(
                     val uiAsset = uiAssetList[index]
                     val currentOnImageClick = remember(uiAsset) {
                         Clickable(enabled = true, onClick = {
-                            onImageFullScreenMode(uiAsset.conversationId, uiAsset.messageId)
+                            onImageFullScreenMode(uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset)
                         }, onLongClick = {
                         })
                     }
@@ -165,7 +165,7 @@ fun AssetList(
                             .padding(all = dimensions().spacing2x)
                     ) {
                         MediaAssetImage(
-                            asset = null, // TODO KBX
+                            asset = null,
                             width = imageSize,
                             height = imageSize,
                             downloadStatus = uiAsset.downloadStatus,

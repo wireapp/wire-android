@@ -255,7 +255,6 @@ fun MediaAssetImage(
             .wrapContentSize()
             .clickable(onImageClick)
     ) {
-        // TODO KBX
         when {
             // Trying to upload the asset
             downloadStatus == DOWNLOAD_IN_PROGRESS -> {

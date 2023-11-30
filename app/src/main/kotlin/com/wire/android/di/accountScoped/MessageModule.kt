@@ -24,7 +24,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetAssetMessagesByConversationUseCase
+import com.wire.kalium.logic.feature.asset.GetAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
@@ -153,7 +153,7 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesByConversationUseCase =
+    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesForConversationUseCase =
         messageScope.getAssetMessagesByConversation
 
     @ViewModelScoped

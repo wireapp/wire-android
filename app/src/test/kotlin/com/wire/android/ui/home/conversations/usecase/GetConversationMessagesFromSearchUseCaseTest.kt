@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.usecase
 
 import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
@@ -43,9 +44,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.UUID
@@ -62,10 +64,11 @@ class GetConversationMessagesFromSearchUseCaseTest {
                 .arrange()
 
             // when
-            val result = useCase("", arrangement.conversationId, 100)
+            val result = useCase("", arrangement.conversationId, 100).asSnapshot()
+            advanceUntilIdle()
 
             // then
-            assert(result.toList().isEmpty())
+            assert(result.isEmpty())
         }
 
     @Test
@@ -86,12 +89,13 @@ class GetConversationMessagesFromSearchUseCaseTest {
             .arrange()
 
         // when
-        val result = useCase(arrangement.searchTerm, arrangement.conversationId, 100)
+        val result = useCase(arrangement.searchTerm, arrangement.conversationId, 100).asSnapshot()
+        advanceUntilIdle()
 
         // then
         assertEquals(
             Arrangement.messages.size,
-            result.toList().size
+            result.size
         )
     }
 
@@ -117,7 +121,6 @@ class GetConversationMessagesFromSearchUseCaseTest {
                 observeMemberDetailsByIds,
                 messageMapper,
                 dispatchers = TestDispatcherProvider(),
-
             )
         }
 
@@ -137,8 +140,8 @@ class GetConversationMessagesFromSearchUseCaseTest {
 
         fun withMemberIdList() = apply {
             every { messageMapper.memberIdList(messages) } returns listOf(
+                message2.senderUserId,
                 message1.senderUserId,
-                message2.senderUserId
             )
         }
 
@@ -149,7 +152,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
         }
 
         fun withMappedMessage(user: User, message: Message.Standalone) = apply {
-            every { messageMapper.toUIMessage(users, message) } returns UIMessage.Regular(
+            every { messageMapper.toUIMessage(any(), message) } returns UIMessage.Regular(
                 userAvatarData = UserAvatarData(
                     asset = null,
                     availabilityStatus = UserAvailabilityStatus.NONE

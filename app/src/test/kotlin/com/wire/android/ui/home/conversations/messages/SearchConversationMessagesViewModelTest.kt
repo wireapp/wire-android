@@ -40,11 +40,14 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -56,30 +59,72 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SearchConversationMessagesViewModelTest {
 
     @Test
-    fun `given search term, when searching for messages, then specific messages are returned`() =
-        runTest {
-            // given
-            val message1 = mockMessageWithText.copy(
+    fun `given search term, when searching for messages, then specific messages are returned`() = runTest {
+        // given
+        val message1 = mockMessageWithText.copy(
+            messageContent = UIMessageContent.TextMessage(
+                messageBody = MessageBody(
+                    UIText.DynamicString("message1")
+                )
+            )
+        )
+
+        val (arrangement, viewModel) = SearchConversationMessagesViewModelArrangement()
+            .arrange()
+
+        // when
+        arrangement.withSuccessSearch(pagingDataFlow = PagingData.from(listOf(message1)))
+
+        // then
+        viewModel.searchConversationMessagesState.searchResult.test {
+            awaitItem().map {
+                it shouldBeEqualTo message1
+            }
+        }
+    }
+
+    @Test
+    fun `given blank search term, when searching for messages, then search is not triggered`() = runTest {
+        // given
+        val searchTerm = " "
+        val messages = listOf(
+            mockMessageWithText.copy(
                 messageContent = UIMessageContent.TextMessage(
                     messageBody = MessageBody(
-                        UIText.DynamicString("message1")
+                        UIText.DynamicString("  message1")
+                    )
+                )
+            ),
+            mockMessageWithText.copy(
+                messageContent = UIMessageContent.TextMessage(
+                    messageBody = MessageBody(
+                        UIText.DynamicString("  message2")
                     )
                 )
             )
+        )
 
-            val (arrangement, viewModel) = SearchConversationMessagesViewModelArrangement()
-                .arrange()
+        val (arrangement, viewModel) = SearchConversationMessagesViewModelArrangement()
+            .withSuccessSearch(PagingData.from(messages))
+            .arrange()
 
-            // when
-            arrangement.withSuccessSearch(pagingDataFlow = PagingData.from(listOf(message1)))
+        // when
+        viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+        advanceUntilIdle()
 
-            // then
-            viewModel.searchConversationMessagesState.searchResult.test {
-                awaitItem().map {
-                    it shouldBeEqualTo message1
-                }
-            }
+        // then
+        assertEquals(
+            TextFieldValue(searchTerm),
+            viewModel.searchConversationMessagesState.searchQuery
+        )
+        coVerify(exactly = 0) {
+            arrangement.getSearchMessagesForConversation(
+                searchTerm,
+                arrangement.conversationId,
+                any()
+            )
         }
+    }
 
     @Test
     fun `given search term with empty space at start and at end, when searching for messages, then specific messages are returned`() =

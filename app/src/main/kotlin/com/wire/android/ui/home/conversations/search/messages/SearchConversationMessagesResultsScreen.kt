@@ -18,29 +18,50 @@
 package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
-import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
-    searchResult: List<UIMessage>,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
     searchQuery: String = "",
     onMessageClick: (messageId: String) -> Unit
 ) {
     LazyColumn {
-        items(searchResult) { message ->
+        items(
+            count = lazyPagingMessages.itemCount,
+            key = lazyPagingMessages.itemKey { it.header.messageId },
+            contentType = lazyPagingMessages.itemContentType { it }
+        ) { index ->
+            val message: UIMessage = lazyPagingMessages[index]
+                ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
+
+            val showAuthor = AuthorHeaderHelper.rememberShouldShowHeader(
+                index,
+                message,
+                lazyPagingMessages
+            )
+
+            val useSmallBottomPadding = AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding(
+                index,
+                message,
+                lazyPagingMessages
+            )
+
             when (message) {
                 is UIMessage.Regular -> {
                     MessageItem(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None,
+                        showAuthor = showAuthor,
+                        useSmallBottomPadding = useSmallBottomPadding,
                         searchQuery = searchQuery,
                         audioMessagesState = mapOf(),
                         onLongClicked = { },
@@ -62,19 +83,5 @@ fun SearchConversationMessagesResultsScreen(
                 is UIMessage.System -> { }
             }
         }
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun previewSearchConversationMessagesResultsScreen() {
-    WireTheme {
-        SearchConversationMessagesResultsScreen(
-            searchResult = listOf(
-                mockMessageWithText,
-                mockMessageWithText,
-            ),
-            onMessageClick = {}
-        )
     }
 }

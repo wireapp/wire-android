@@ -105,7 +105,6 @@ class GetConversationMessagesFromSearchUseCaseTest {
         @MockK
         lateinit var getMessagesSearch: GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 
-
         @MockK
         lateinit var observeMemberDetailsByIds: ObserveUserListByIdUseCase
 

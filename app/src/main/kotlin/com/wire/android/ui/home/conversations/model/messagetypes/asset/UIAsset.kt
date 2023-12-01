@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.asset
 
 import androidx.compose.runtime.Stable
-import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
@@ -35,4 +34,4 @@ data class UIAsset(
     val assetPath: Path?,
     val downloadStatus: Message.DownloadStatus,
     val isSelfAsset: Boolean
-    )
+)

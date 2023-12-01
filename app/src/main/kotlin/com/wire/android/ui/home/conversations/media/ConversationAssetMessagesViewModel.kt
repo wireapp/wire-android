@@ -74,8 +74,9 @@ class ConversationAssetMessagesViewModel @Inject constructor(
     }
 
     private fun loadAssets() = viewModelScope.launch {
-        if (isLoading)
+        if (isLoading) {
             return@launch
+        }
         isLoading = true
         try {
             while (continueLoading) {
@@ -91,8 +92,11 @@ class ConversationAssetMessagesViewModel @Inject constructor(
                 // imitate loading new asset batch
                 viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList.map {
                     it.copy(
-                        downloadStatus = if (it.assetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD)
-                            Message.DownloadStatus.DOWNLOAD_IN_PROGRESS else it.downloadStatus
+                        downloadStatus = if (it.assetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD) {
+                            Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
+                        } else {
+                            it.downloadStatus
+                        }
                     )
                 }).toImmutableList())
 

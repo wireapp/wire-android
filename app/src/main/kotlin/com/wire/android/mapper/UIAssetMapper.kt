@@ -18,7 +18,6 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetMessage

@@ -238,7 +238,7 @@ fun MediaAssetImage(
     height: Dp,
     downloadStatus: Message.DownloadStatus,
     assetPath: Path? = null,
-    onImageClick: Clickable,
+    onImageClick: Clickable
 ) {
     Box(
         Modifier
@@ -279,8 +279,7 @@ fun MediaAssetImage(
                 ImageMessageFailed(
                     width = width,
                     height = height,
-                    isDownloadFailure = true,
-                    showText = false
+                    isDownloadFailure = true
                 )
             }
 
@@ -288,8 +287,7 @@ fun MediaAssetImage(
                 ImageMessageFailed(
                     width = width,
                     height = height,
-                    isDownloadFailure = true,
-                    showText = false
+                    isDownloadFailure = true
                 )
             }
         }

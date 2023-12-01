@@ -71,7 +71,6 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         } else {
             continueLoading = false
         }
-
     }
 
     private fun loadAssets() = viewModelScope.launch {
@@ -92,21 +91,21 @@ class ConversationAssetMessagesViewModel @Inject constructor(
                 // imitate loading new asset batch
                 viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList.map {
                     it.copy(
-                        downloadStatus = if (it.downloadedAssetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD)
+                        downloadStatus = if (it.assetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD)
                             Message.DownloadStatus.DOWNLOAD_IN_PROGRESS else it.downloadStatus
                     )
                 }).toImmutableList())
 
                 if (uiAssetList.size >= BATCH_SIZE) {
                     val uiMessages = uiAssetList.map { uiAsset ->
-                        if (uiAsset.downloadedAssetPath == null) {
+                        if (uiAsset.assetPath == null) {
                             val assetPath = withContext(dispatchers.io()) {
                                 when (val asset = getPrivateAsset.invoke(uiAsset.conversationId, uiAsset.messageId).await()) {
                                     is MessageAssetResult.Failure -> null
                                     is MessageAssetResult.Success -> asset.decodedAssetPath
                                 }
                             }
-                            uiAsset.copy(downloadedAssetPath = assetPath)
+                            uiAsset.copy(assetPath = assetPath)
                         } else {
                             uiAsset
                         }

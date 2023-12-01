@@ -19,39 +19,23 @@
 package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.appLogger
-import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
-import com.wire.android.ui.home.conversations.model.MediaAssetImage
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
 import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
@@ -92,8 +76,9 @@ private fun Content(
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
-
     WireScaffold(
+        modifier = Modifier
+            .background(color = colorsScheme().backgroundVariant),
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
@@ -103,79 +88,12 @@ private fun Content(
             )
         },
     ) { padding ->
+        // TODO implement tab here for https://wearezeta.atlassian.net/browse/WPB-5378
         AssetList(
             uiAssetList = state.messages,
             modifier = Modifier.padding(padding),
             onImageFullScreenMode = onImageFullScreenMode,
             continueAssetLoading = continueAssetLoading
         )
-
     }
 }
-
-@Composable
-fun AssetList(
-    uiAssetList: List<UIAsset>,
-    modifier: Modifier,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
-) {
-    val scrollState = rememberLazyGridState()
-    val shouldContinue by remember {
-        derivedStateOf {
-            !scrollState.canScrollForward
-        }
-    }
-
-    // act when end of list reached
-    LaunchedEffect(shouldContinue) {
-        continueAssetLoading(shouldContinue)
-        appLogger.d("KBX should Continue $shouldContinue")
-    }
-
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val horizontalPadding = dimensions().spacing12x * 2
-    val spaceBetweenItems = dimensions().spacing2x * (COLUMN_COUNT - 1) // For 4 columns, there are 3 spaces between items
-    val totalPadding = horizontalPadding + spaceBetweenItems
-    val imageSize = (screenWidth - totalPadding) / COLUMN_COUNT
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = colorsScheme().backgroundVariant),
-        content = {
-            LazyVerticalGrid(
-                state = scrollState,
-                columns = GridCells.Fixed(COLUMN_COUNT),
-                modifier = Modifier.padding(
-                    horizontal = dimensions().spacing12x,
-                    vertical = dimensions().spacing8x
-                )
-            ) {
-                items(uiAssetList.size, key = { index -> uiAssetList[index].messageId }) { index ->
-                    val uiAsset = uiAssetList[index]
-                    val currentOnImageClick = remember(uiAsset) {
-                        Clickable(enabled = true, onClick = {
-                            onImageFullScreenMode(uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset)
-                        }, onLongClick = {
-                        })
-                    }
-                    Box(
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .padding(all = dimensions().spacing2x)
-                    ) {
-                        MediaAssetImage(
-                            asset = null,
-                            width = imageSize,
-                            height = imageSize,
-                            downloadStatus = uiAsset.downloadStatus,
-                            onImageClick = currentOnImageClick,
-                            assetPath = uiAsset.downloadedAssetPath
-                        )
-                    }
-                }
-            }
-        })
-}
-
-private const val COLUMN_COUNT = 4

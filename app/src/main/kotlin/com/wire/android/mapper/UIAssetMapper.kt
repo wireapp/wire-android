@@ -29,12 +29,12 @@ class UIAssetMapper @Inject constructor() {
     fun toUIAsset(assetMessage: AssetMessage): UIAsset {
         return UIAsset(
             assetId = assetMessage.assetId,
-            time = MessageTime(assetMessage.time),
+            time = assetMessage.time,
             username = assetMessage.username?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(R.string.username_unavailable_label),
             conversationId = assetMessage.conversationId,
             messageId = assetMessage.messageId,
-            downloadedAssetPath = assetMessage.assetPath,
+            assetPath = assetMessage.assetPath,
             downloadStatus = assetMessage.downloadStatus,
             isSelfAsset = assetMessage.isSelfAsset
         )

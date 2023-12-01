@@ -148,7 +148,7 @@ fun ImageMessageInProgress(width: Dp, height: Dp, isDownloading: Boolean, showTe
 }
 
 @Composable
-fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, showText: Boolean = true) {
+fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean) {
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -165,7 +165,6 @@ fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, showTe
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
             )
-            if (showText) {
                 Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
                 Text(
                     text = stringResource(
@@ -176,6 +175,5 @@ fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean, showTe
                     style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.error)
                 )
             }
-        }
     }
 }

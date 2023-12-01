@@ -22,16 +22,17 @@ import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
+import kotlinx.datetime.Instant
 import okio.Path
 
 @Stable
 data class UIAsset(
     val assetId: String,
-    val time: MessageTime,
+    val time: Instant,
     val username: UIText,
     val messageId: String,
     val conversationId: QualifiedID,
-    val downloadedAssetPath: Path?,
+    val assetPath: Path?,
     val downloadStatus: Message.DownloadStatus,
     val isSelfAsset: Boolean
     )

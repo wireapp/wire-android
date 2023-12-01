@@ -270,10 +270,9 @@ sealed class UIMessageContent {
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
+        @StringRes val learnMoreResId: Int? = null,
         val isSmallIcon: Boolean = true,
-        val additionalContent: String = "",
-        @StringRes val learnMoreResId: Int? = null
-    ) : UIMessageContent() {
+        ) : UIMessageContent() {
 
         data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
@@ -348,21 +347,17 @@ sealed class UIMessageContent {
         sealed class MissedCall(
             open val author: UIText,
             @StringRes override val stringResId: Int
-        ) : SystemMessage(R.drawable.ic_call_end, stringResId, false) {
+        ) : SystemMessage(R.drawable.ic_call_end, stringResId) {
 
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
             data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)
         }
 
         data class RenamedConversation(val author: UIText, val content: MessageContent.ConversationRenamed) :
-            SystemMessage(
-                R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation,
-                false,
-                content.conversationName
-            )
+            SystemMessage(R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation)
 
         data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
-            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
+            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left)
 
         data class CryptoSessionReset(val author: UIText) :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset)
@@ -486,6 +481,24 @@ sealed class UIMessageContent {
             R.drawable.ic_info,
             R.string.label_system_message_conversation_started_sensitive_information
         )
+
+        sealed class LegalHold(
+            @StringRes stringResId: Int,
+            @StringRes learnMoreResId: Int? = null,
+            open val memberNames: List<UIText>? = null,
+        ) : SystemMessage(R.drawable.ic_legal_hold, stringResId, learnMoreResId) {
+
+            sealed class Enabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, R.string.url_legal_hold_learn_more) {
+                data object Self : Enabled(R.string.legal_hold_system_message_enabled_self)
+                data class Others(override val memberNames: List<UIText>) : Enabled(R.string.legal_hold_system_message_enabled_others)
+            }
+
+            sealed class Disabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, null) {
+                data object Self : Disabled(R.string.legal_hold_system_message_disabled_self)
+                data class Others(override val memberNames: List<UIText>) : Disabled(R.string.legal_hold_system_message_disabled_others)
+                data object Conversation: Disabled(R.string.legal_hold_system_message_disabled_conversation)
+            }
+        }
     }
 }
 

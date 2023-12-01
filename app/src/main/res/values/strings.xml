@@ -1305,6 +1305,11 @@
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
     <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
+    <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
+    <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
 
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>

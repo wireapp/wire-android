@@ -33,7 +33,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ class SearchConversationMessagesViewModel @Inject constructor(
                 )
             }
             .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
-            .flatMapConcat { searchTerm ->
+            .flatMapLatest { searchTerm ->
                 getSearchMessagesForConversation(
                     searchTerm = searchTerm,
                     conversationId = conversationId,

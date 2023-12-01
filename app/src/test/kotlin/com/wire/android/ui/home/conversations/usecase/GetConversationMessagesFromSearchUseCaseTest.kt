@@ -71,7 +71,6 @@ class GetConversationMessagesFromSearchUseCaseTest {
             assert(result.isEmpty())
         }
 
-    @Ignore("needs to be checked and fix")
     @Test
     fun `given search term, when searching messages, then return messages list`() = runTest {
         // given
@@ -141,8 +140,15 @@ class GetConversationMessagesFromSearchUseCaseTest {
 
         fun withMemberIdList() = apply {
             every { messageMapper.memberIdList(messages) } returns listOf(
-                message2.senderUserId,
                 message1.senderUserId,
+                message2.senderUserId
+            )
+            every { messageMapper.memberIdList(listOf(message1)) } returns listOf(
+                message1.senderUserId,
+            )
+
+            every { messageMapper.memberIdList(listOf(message2)) } returns listOf(
+                message2.senderUserId,
             )
         }
 

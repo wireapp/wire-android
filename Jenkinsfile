@@ -16,7 +16,7 @@ List<String> defineFlavor() {
     } else if (branchName == "internal") {
         return ['Internal']
     }
-    return ['Internal']
+    return ['Staging', 'Internal']
 }
 
 String defineBuildType(String flavor) {

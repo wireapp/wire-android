@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -77,6 +78,16 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
+    private fun legalHoldStatusFlow(userId: UserId) = coreLogic.sessionScope(userId) {
+        observeLegalHoldRequest() // TODO combine with legal hold status
+            .map { legalHoldRequestResult ->
+                when (legalHoldRequestResult) {
+                    is ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable -> LegalHoldStatus.PENDING
+                    else -> LegalHoldStatus.DISABLED
+                }
+            }
+    }
+
     init {
         viewModelScope.launch {
             coreLogic.globalScope {
@@ -90,10 +101,11 @@ class CommonTopAppBarViewModel @Inject constructor(
                             combine(
                                 activeCallFlow(userId),
                                 currentScreenFlow(),
-                                connectivityFlow(userId)
-                            ) { activeCall, currentScreen, connectivity ->
+                                connectivityFlow(userId),
+                                legalHoldStatusFlow(userId),
+                            ) { activeCall, currentScreen, connectivity, legalHoldStatus ->
                                 mapToConnectivityUIState(currentScreen, connectivity, activeCall) to
-                                        mapToLegalHoldUIState(currentScreen, LegalHoldStatus.NO_CONSENT) // TODO: get legalHoldStatus
+                                        mapToLegalHoldUIState(currentScreen, legalHoldStatus)
                             }
                         }
                     }
@@ -148,7 +160,7 @@ class CommonTopAppBarViewModel @Inject constructor(
         LegalHoldStatus.DISABLED,
         LegalHoldStatus.NO_CONSENT -> LegalHoldUIState.None
     }.let { legalHoldUIState ->
-        if (currentScreen is CurrentScreen.AuthRelated) LegalHoldUIState.None
+        if (currentScreen is CurrentScreen.AuthRelated || currentScreen is CurrentScreen.CallScreen) LegalHoldUIState.None
         else legalHoldUIState
     }
 

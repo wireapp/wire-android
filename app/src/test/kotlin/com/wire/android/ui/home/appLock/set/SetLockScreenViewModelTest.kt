@@ -26,12 +26,14 @@ import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -39,7 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SetLockScreenViewModelTest {
 
     @Test
-    fun `given new password input, when valid,then should update state`() {
+    fun `given new password input, when valid,then should update state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withValidPassword()
             .arrange()
@@ -53,7 +55,7 @@ class SetLockScreenViewModelTest {
     }
 
     @Test
-    fun `given new password input, when invalid,then should update state`() {
+    fun `given new password input, when invalid,then should update state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withInvalidPassword()
             .arrange()
@@ -80,12 +82,16 @@ class SetLockScreenViewModelTest {
         @MockK
         private lateinit var markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 
+        @MockK
+        private lateinit var isAppLockEditable: IsAppLockEditableUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { globalDataStore.setUserAppLock(any()) } returns Unit
             coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
+            coEvery { isAppLockEditable() } returns true
         }
 
         fun withValidPassword() = apply {
@@ -101,6 +107,7 @@ class SetLockScreenViewModelTest {
             globalDataStore,
             TestDispatcherProvider(),
             observeAppLockConfig,
+            isAppLockEditable,
             markTeamAppLockStatusAsNotified
         )
 

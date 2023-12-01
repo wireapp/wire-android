@@ -167,6 +167,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
     testRuntimeOnly(libs.junit5.engine)
+    testImplementation(libs.androidx.paging.testing)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(libs.androidx.test.runner)

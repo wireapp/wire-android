@@ -18,15 +18,15 @@
 package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.paging.PagingData
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 data class SearchConversationMessagesState(
     val conversationId: ConversationId,
     val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: ImmutableList<UIMessage> = persistentListOf(),
-    val isEmptyResult: Boolean = false,
+    val searchResult: Flow<PagingData<UIMessage>> = emptyFlow(),
     val isLoading: Boolean = false
 )

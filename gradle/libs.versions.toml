@@ -146,6 +146,7 @@ androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-cor
 androidx-work = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-workManager" }
 androidx-paging3 = { module = "androidx.paging:paging-runtime", version.ref = "androidx-paging3" }
 androidx-paging3Compose = { module = "androidx.paging:paging-compose", version.ref = "androidx-paging3Compose" }
+androidx-paging-testing = { module = "androidx.paging:paging-testing", version.ref = "androidx-paging3" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
 androidx-dataStore = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-dataStore" }
 androidx-exifInterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidx-exif" }

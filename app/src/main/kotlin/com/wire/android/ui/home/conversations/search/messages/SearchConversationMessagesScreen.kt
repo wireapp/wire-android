@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -35,6 +37,7 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIMessage
+import kotlinx.coroutines.flow.Flow
 
 @RootNavGraph
 @Destination(
@@ -63,9 +66,7 @@ fun SearchConversationMessagesScreen(
             content = {
                 SearchConversationMessagesResultContent(
                     searchQuery = searchQuery.text,
-                    noneSearchSucceed = isEmptyResult,
                     searchResult = searchResult,
-                    isLoading = isLoading,
                     onMessageClick = { messageId ->
                         navigator.navigate(
                             NavigationCommand(
@@ -91,21 +92,21 @@ fun SearchConversationMessagesScreen(
 @Composable
 fun SearchConversationMessagesResultContent(
     searchQuery: String,
-    noneSearchSucceed: Boolean,
-    searchResult: List<UIMessage>,
-    isLoading: Boolean,
+    searchResult: Flow<PagingData<UIMessage>>,
     onMessageClick: (messageId: String) -> Unit
 ) {
+    val lazyPagingMessages = searchResult.collectAsLazyPagingItems()
+
     if (searchQuery.isEmpty()) {
         SearchConversationMessagesEmptyScreen()
     } else {
-        if (noneSearchSucceed && !isLoading) {
-            SearchConversationMessagesNoResultsScreen()
-        } else {
+        if (lazyPagingMessages.itemCount > 0) {
             SearchConversationMessagesResultsScreen(
-                searchResult = searchResult,
+                lazyPagingMessages = lazyPagingMessages,
                 onMessageClick = onMessageClick
             )
+        } else {
+            SearchConversationMessagesNoResultsScreen()
         }
     }
 }

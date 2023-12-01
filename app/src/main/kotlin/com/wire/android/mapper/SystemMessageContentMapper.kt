@@ -71,6 +71,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.FederationStopped -> mapFederationMessage(content)
         is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
+        is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -274,6 +275,37 @@ class SystemMessageContentMapper @Inject constructor(
         }
 
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
+    }
+
+    private fun mapLegalHoldMessage(
+        content: MessageContent.LegalHold,
+        senderUserId: UserId,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+
+        fun handleLegalHoldForMembers(
+            members: List<UserId>,
+            self: () -> UIMessageContent.SystemMessage.LegalHold,
+            others: (List<UIText>) -> UIMessageContent.SystemMessage.LegalHold
+        ): UIMessageContent.SystemMessage.LegalHold =
+            if (members.size == 1 && senderUserId == members.first()) self()
+            else others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })
+
+        return when (content) {
+            MessageContent.LegalHold.DisabledForConversation -> UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation
+
+            is MessageContent.LegalHold.DisabledForMembers -> handleLegalHoldForMembers(
+                members = content.members,
+                self = { UIMessageContent.SystemMessage.LegalHold.Disabled.Self },
+                others = { UIMessageContent.SystemMessage.LegalHold.Disabled.Others(it) }
+            )
+
+            is MessageContent.LegalHold.EnabledForMembers -> handleLegalHoldForMembers(
+                members = content.members,
+                self = { UIMessageContent.SystemMessage.LegalHold.Enabled.Self },
+                others = { UIMessageContent.SystemMessage.LegalHold.Enabled.Others(it) }
+            )
+        }
     }
 
     enum class SelfNameType {

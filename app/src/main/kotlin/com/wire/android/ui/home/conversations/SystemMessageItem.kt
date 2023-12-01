@@ -165,7 +165,7 @@ fun SystemMessageItem(
                     isErrorString = message.addingFailed,
                 ),
                 onTextLayout = {
-                    centerOfFirstLine = if (it.lineCount == 0) 0f else (it.getLineTop(0) + it.getLineBottom(0) / 2)
+                    centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
                 }
             )
             if ((message.addingFailed && expanded) || message.singleUserAddFailed) {

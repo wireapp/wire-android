@@ -291,7 +291,6 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
-
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession,

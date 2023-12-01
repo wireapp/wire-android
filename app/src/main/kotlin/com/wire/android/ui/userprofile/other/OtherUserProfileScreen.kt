@@ -132,7 +132,6 @@ fun OtherUserProfileScreen(
 
     val conversationId = viewModel.state.conversationId
         ?: viewModel.state.conversationSheetContent?.conversationId
-    val shouldShowSearchButton = viewModel.shouldShowSearchButton(conversationId = conversationId)
     val onSearchConversationMessagesClick: () -> Unit = {
         conversationId?.let {
             navigator.navigate(
@@ -173,7 +172,6 @@ fun OtherUserProfileScreen(
         onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
         onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-        shouldShowSearchButton = shouldShowSearchButton,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
         onConversationMediaClick = onConversationMediaClick
@@ -208,7 +206,6 @@ fun OtherProfileScreenContent(
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
     onSearchConversationMessagesClick: () -> Unit,
-    shouldShowSearchButton: Boolean,
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {}
 ) {
@@ -288,7 +285,6 @@ fun OtherProfileScreenContent(
             TopBarCollapsing(
                 state = state,
                 onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                shouldShowSearchButton = shouldShowSearchButton,
                 onConversationMediaClick = onConversationMediaClick
             )
         },
@@ -390,7 +386,6 @@ private fun TopBarHeader(
 private fun TopBarCollapsing(
     state: OtherUserProfileState,
     onSearchConversationMessagesClick: () -> Unit,
-    shouldShowSearchButton: Boolean,
     onConversationMediaClick: () -> Unit = {}
 ) {
     Crossfade(
@@ -410,7 +405,7 @@ private fun TopBarCollapsing(
             connection = targetState.connectionState,
             isProteusVerified = targetState.isProteusVerified,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-            shouldShowSearchButton = shouldShowSearchButton,
+            shouldShowSearchButton = state.shouldShowSearchButton(),
             onConversationMediaClick = onConversationMediaClick
         )
     }
@@ -568,8 +563,7 @@ fun PreviewOtherProfileScreenContent() {
             closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {},
-            shouldShowSearchButton = false
+            onSearchConversationMessagesClick = {}
         )
     }
 }
@@ -589,8 +583,7 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             closeBottomSheet = {},
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
-            onSearchConversationMessagesClick = {},
-            shouldShowSearchButton = false
+            onSearchConversationMessagesClick = {}
         )
     }
 }

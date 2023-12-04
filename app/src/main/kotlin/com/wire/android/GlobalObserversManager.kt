@@ -45,7 +45,7 @@ class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
-    private val notificationChannelsManager: NotificationChannelsManager,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 

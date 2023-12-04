@@ -35,7 +35,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
@@ -593,7 +593,8 @@ class GroupConversationDetailsViewModelTest {
                 archived = false,
                 archivedDateTime = null,
                 mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

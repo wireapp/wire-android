@@ -636,12 +636,11 @@ private fun MessageContent(
             }
         }
 
-        is UIMessageContent.Location -> {
-            val resources = LocalContext.current.resources
-            val locationUrl = messageContent.createLink(resources)
+        is UIMessageContent.Location -> with(messageContent) {
+            val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
             Column {
                 LocationMessageContent(
-                    locationName = messageContent.name,
+                    locationName = name,
                     locationUrl = locationUrl,
                     onLocationClick = Clickable(
                         enabled = message.isAvailable,
@@ -649,7 +648,7 @@ private fun MessageContent(
                         onLongClick = onLongClick
                     )
                 )
-                PartialDeliveryInformation(messageContent.deliveryStatus)
+                PartialDeliveryInformation(deliveryStatus)
             }
         }
 

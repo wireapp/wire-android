@@ -212,13 +212,6 @@ sealed class UIMessageContent {
         val deliveryStatus: DeliveryStatusContent
     }
 
-    /**
-     * Interface for [UIMessage] classes that can generate a link.
-     */
-    interface Linkable {
-        fun createLink(resources: Resources): String
-    }
-
     data class TextMessage(
         val messageBody: MessageBody,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
@@ -280,11 +273,9 @@ sealed class UIMessageContent {
         val longitude: Float,
         val name: String,
         val zoom: Int = DEFAULT_LOCATION_ZOOM,
+        @StringRes val urlCoordinates: Int = R.string.url_maps_location_coordinates,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : Regular(), PartialDeliverable, Linkable {
-        override fun createLink(resources: Resources): String =
-            resources.getString(R.string.url_maps_location_coordinates, zoom, latitude, longitude)
-    }
+    ) : Regular(), PartialDeliverable
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,

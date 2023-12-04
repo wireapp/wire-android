@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -795,7 +796,8 @@ private fun SnackBarMessage(
             val actionLabel = if (it is OnFileDownloaded) showLabel else null
             val snackbarResult = snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
-                actionLabel = actionLabel
+                actionLabel = actionLabel,
+                duration = SnackbarDuration.Short
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {

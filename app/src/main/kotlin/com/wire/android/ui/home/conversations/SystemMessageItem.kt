@@ -78,6 +78,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
+import kotlin.math.roundToInt
 
 @Suppress("ComplexMethod")
 @Composable
@@ -117,48 +118,35 @@ fun SystemMessageItem(
                             + (dimensions().avatarStatusBorderSize * 2)
                             + (dimensions().avatarClickablePadding * 2)
                 )
-                .padding(
-                    end = fullAvatarOuterPadding,
-                    // because for now only end call icon is large and have vertical empty space
-                    // we need to disable padding for it
-                    top = if (message.messageContent.isSmallIcon) fullAvatarOuterPadding else dimensions().spacing0x
-                ),
+                .padding(end = fullAvatarOuterPadding)
+                .alignBy { it.measuredHeight / 2 },
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
-                Box(
-                    modifier = Modifier.size(
-                        width = dimensions().systemMessageIconLargeSize,
-                        height = dimensions().systemMessageIconLargeSize
-                    ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val size =
-                        if (message.messageContent.isSmallIcon) {
-                            dimensions().systemMessageIconSize
-                        } else {
-                            dimensions().systemMessageIconLargeSize
-                        }
                     Image(
                         painter = painterResource(id = message.messageContent.iconResId),
                         contentDescription = null,
                         colorFilter = getColorFilter(message.messageContent),
-                        modifier = Modifier.size(size),
+                        modifier = Modifier.size(
+                            if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
+                            else dimensions().systemMessageIconLargeSize
+                        ),
                         contentScale = ContentScale.Crop
                     )
-                }
             }
         }
         Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
+        val lineHeight = MaterialTheme.wireTypography.body02.lineHeight.value
+        var centerOfFirstLine by remember { mutableStateOf(lineHeight / 2f) }
         Column(
             Modifier
-                .defaultMinSize(minHeight = dimensions().spacing20x)
                 .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessMediumLow
                     )
                 )
+                .alignBy { centerOfFirstLine.roundToInt() }
         ) {
             val context = LocalContext.current
             var expanded: Boolean by remember { mutableStateOf(false) }
@@ -174,22 +162,23 @@ fun SystemMessageItem(
                     normalColor = MaterialTheme.wireColorScheme.secondaryText,
                     boldColor = MaterialTheme.wireColorScheme.onBackground,
                     errorColor = MaterialTheme.wireColorScheme.error,
-                    isErrorString = message.addingFailed
-                )
+                    isErrorString = message.addingFailed,
+                ),
+                onTextLayout = {
+                    centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
+                }
             )
             if ((message.addingFailed && expanded) || message.singleUserAddFailed) {
                 OfflineBackendsLearnMoreLink()
             }
-            if (message.messageContent is SystemMessage.Knock) {
-                VerticalSpace.x8()
-            }
             if (message.messageContent.expandable) {
+                VerticalSpace.x8()
                 WireSecondaryButton(
                     onClick = { expanded = !expanded },
                     text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
                     fillMaxWidth = false,
                     minSize = dimensions().buttonSmallMinSize,
-                    minClickableSize = dimensions().buttonMinClickableSize,
+                    minClickableSize = dimensions().buttonSmallMinSize,
                     shape = RoundedCornerShape(size = dimensions().corner12x),
                     contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
                 )

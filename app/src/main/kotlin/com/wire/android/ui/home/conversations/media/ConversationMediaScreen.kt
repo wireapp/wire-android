@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -32,6 +31,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -81,7 +81,7 @@ private fun Content(
             .background(color = colorsScheme().backgroundVariant),
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.label_conversation_media),
                 navigationIconType = NavigationIconType.Back,
                 onNavigationPressed = onNavigationPressed
@@ -90,7 +90,7 @@ private fun Content(
     ) { padding ->
         // TODO implement tab here for https://wearezeta.atlassian.net/browse/WPB-5378
         AssetList(
-            uiAssetList = state.messages,
+            uiAssetMessageList = state.messages,
             modifier = Modifier.padding(padding),
             onImageFullScreenMode = onImageFullScreenMode,
             continueAssetLoading = continueAssetLoading

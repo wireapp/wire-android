@@ -55,8 +55,9 @@ class ConversationAssetMessagesViewModel @Inject constructor(
     var viewState by mutableStateOf(ConversationAssetMessagesViewState())
         private set
 
-    private var continueLoading by mutableStateOf(true)
-    private var isLoading by mutableStateOf(false)
+    private var continueLoading = true
+    private var isLoading = false
+    private var currentOffset: Int = 0
 
     init {
         loadAssets()
@@ -80,7 +81,6 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         isLoading = true
         try {
             while (continueLoading) {
-                val currentOffset = viewState.currentOffset
                 val uiAssetList = withContext(dispatchers.io()) {
                     getAssets.invoke(
                         conversationId = conversationId,
@@ -114,10 +114,10 @@ class ConversationAssetMessagesViewModel @Inject constructor(
                             uiAsset
                         }
                     }
+                    currentOffset += BATCH_SIZE
 
                     viewState = viewState.copy(
                         messages = viewState.messages.dropLast(uiMessages.size).plus(uiMessages).toImmutableList(),
-                        currentOffset = viewState.currentOffset + BATCH_SIZE
                     )
                 } else {
                     continueLoading = false

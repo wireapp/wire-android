@@ -18,15 +18,15 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetMessage
 import javax.inject.Inject
 
 class UIAssetMapper @Inject constructor() {
 
-    fun toUIAsset(assetMessage: AssetMessage): UIAsset {
-        return UIAsset(
+    fun toUIAsset(assetMessage: AssetMessage): UIAssetMessage {
+        return UIAssetMessage(
             assetId = assetMessage.assetId,
             time = assetMessage.time,
             username = assetMessage.username?.let { UIText.DynamicString(it) }

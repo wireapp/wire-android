@@ -24,29 +24,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun ConversationMediaButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-        WireSecondaryButton(
-            modifier = modifier,
-            text = stringResource(R.string.label_conversation_media),
-            onClick = onClick,
-            minSize = DpSize(dimensions().spacing0x, dimensions().spacing48x),
-            fillMaxWidth = true,
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_gallery),
-                    contentDescription = stringResource(R.string.label_conversation_media),
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(end = dimensions().spacing8x)
-                )
-            }
-        )
+    WireSecondaryButton(
+        modifier = modifier,
+        text = stringResource(R.string.label_conversation_media),
+        onClick = onClick,
+        minSize = MaterialTheme.wireDimensions.buttonMinSize,
+        fillMaxWidth = true,
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_gallery),
+                contentDescription = stringResource(R.string.label_conversation_media),
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(end = dimensions().spacing8x)
+            )
+        }
+    )
 }

@@ -25,7 +25,7 @@ import kotlinx.datetime.Instant
 import okio.Path
 
 @Stable
-data class UIAsset(
+data class UIAssetMessage(
     val assetId: String,
     val time: Instant,
     val username: UIText,

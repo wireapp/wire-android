@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.media
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,13 +35,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAsset
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
@@ -54,20 +53,15 @@ import java.util.Locale
 
 @Composable
 fun AssetList(
-    uiAssetList: List<UIAsset>,
+    uiAssetMessageList: List<UIAssetMessage>,
     modifier: Modifier = Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val horizontalPadding = dimensions().spacing12x
-    val itemSpacing = dimensions().spacing2x * 2
-    val totalItemSpacing = itemSpacing * COLUMN_COUNT
-    val availableWidth = screenWidth - (horizontalPadding * 2) - totalItemSpacing
-    val itemSize = availableWidth / COLUMN_COUNT
+
 
     val timeZone = remember { TimeZone.currentSystemDefault() }
-    val groupedAssets = remember(uiAssetList) { groupAssetsByMonthYear(uiAssetList, timeZone) }
+    val groupedAssets = remember(uiAssetMessageList) { groupAssetsByMonthYear(uiAssetMessageList, timeZone) }
 
     val scrollState = rememberLazyListState()
     val shouldContinue by remember {
@@ -81,63 +75,72 @@ fun AssetList(
         continueAssetLoading(shouldContinue)
     }
 
-    LazyColumn(
-        state = scrollState,
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = colorsScheme().backgroundVariant)
+    BoxWithConstraints {
+        val screenWidth = maxWidth
+        val horizontalPadding = dimensions().spacing12x
+        val itemSpacing = dimensions().spacing2x * 2
+        val totalItemSpacing = itemSpacing * COLUMN_COUNT
+        val availableWidth = screenWidth - (horizontalPadding * 2) - totalItemSpacing
+        val itemSize = availableWidth / COLUMN_COUNT
 
-    ) {
-        groupedAssets.forEachIndexed { index, entry ->
-            val label = entry.key
-            val assetList = entry.value
+        LazyColumn(
+            state = scrollState,
+            modifier = modifier
+                .fillMaxSize()
+                .background(color = colorsScheme().backgroundVariant)
 
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            bottom = dimensions().spacing6x,
-                            // first label should not have top padding
-                            top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
-                        )
-                ) {
-                    FolderHeader(
-                        name = label.uppercase(),
-                        modifier = Modifier
-                            .background(MaterialTheme.wireColorScheme.background)
-                            .fillMaxWidth()
-                    )
-                }
-            }
+        ) {
+            groupedAssets.forEachIndexed { index, entry ->
+                val label = entry.key
+                val assetList = entry.value
 
-            val rows = assetList.windowed(COLUMN_COUNT, COLUMN_COUNT, partialWindows = true)
-            rows.forEach { row ->
                 item {
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        modifier = Modifier.padding(horizontal = horizontalPadding)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                bottom = dimensions().spacing6x,
+                                // first label should not have top padding
+                                top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
+                            )
                     ) {
-                        for (uiAsset in row) {
-                            val currentOnImageClick = remember(uiAsset) {
-                                Clickable(enabled = true, onClick = {
-                                    onImageFullScreenMode(
-                                        uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
+                        FolderHeader(
+                            name = label.uppercase(),
+                            modifier = Modifier
+                                .background(MaterialTheme.wireColorScheme.background)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+
+                val rows = assetList.windowed(COLUMN_COUNT, COLUMN_COUNT, partialWindows = true)
+                rows.forEach { row ->
+                    item {
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            modifier = Modifier.padding(horizontal = horizontalPadding)
+                        ) {
+                            for (uiAsset in row) {
+                                val currentOnImageClick = remember(uiAsset) {
+                                    Clickable(enabled = true, onClick = {
+                                        onImageFullScreenMode(
+                                            uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
+                                        )
+                                    })
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .padding(all = dimensions().spacing2x)
+                                ) {
+                                    MediaAssetImage(
+                                        asset = null,
+                                        width = itemSize,
+                                        height = itemSize,
+                                        downloadStatus = uiAsset.downloadStatus,
+                                        onImageClick = currentOnImageClick,
+                                        assetPath = uiAsset.assetPath
                                     )
-                                })
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .padding(all = dimensions().spacing2x)
-                            ) {
-                                MediaAssetImage(
-                                    asset = null,
-                                    width = itemSize,
-                                    height = itemSize,
-                                    downloadStatus = uiAsset.downloadStatus,
-                                    onImageClick = currentOnImageClick,
-                                    assetPath = uiAsset.assetPath
-                                )
+                                }
                             }
                         }
                     }
@@ -161,8 +164,8 @@ fun monthYearHeader(month: Int, year: Int): String {
     }
 }
 
-fun groupAssetsByMonthYear(uiAssetList: List<UIAsset>, timeZone: TimeZone): Map<String, List<UIAsset>> {
-    return uiAssetList.groupBy { asset ->
+fun groupAssetsByMonthYear(uiAssetMessageList: List<UIAssetMessage>, timeZone: TimeZone): Map<String, List<UIAssetMessage>> {
+    return uiAssetMessageList.groupBy { asset ->
         val localDateTime = asset.time.toLocalDateTime(timeZone)
         monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
     }

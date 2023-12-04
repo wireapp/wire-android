@@ -39,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -188,7 +187,7 @@ fun MessageImage(
                 color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
-                width = 1.dp,
+                width = dimensions().spacing1x,
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
@@ -248,7 +247,7 @@ fun MediaAssetImage(
                 color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
-                width = 1.dp,
+                width = dimensions().spacing1x,
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )

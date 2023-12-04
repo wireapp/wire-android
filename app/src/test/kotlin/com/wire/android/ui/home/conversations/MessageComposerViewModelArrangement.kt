@@ -45,7 +45,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState

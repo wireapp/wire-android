@@ -31,7 +31,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
-import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult

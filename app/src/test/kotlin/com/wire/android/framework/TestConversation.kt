@@ -53,7 +53,8 @@ object TestConversation {
         archived = false,
         archivedDateTime = null,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
     )
     val SELF = Conversation(
         ID.copy(value = "SELF ID"),
@@ -75,7 +76,8 @@ object TestConversation {
         archived = false,
         archivedDateTime = null,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
     )
 
     fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
@@ -98,7 +100,8 @@ object TestConversation {
         archived = false,
         archivedDateTime = null,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
     )
 
     fun one_on_one(convId: ConversationId) = Conversation(
@@ -121,7 +124,8 @@ object TestConversation {
         archived = false,
         archivedDateTime = null,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
     )
 
     val USER_1 = UserId("member1", "domainMember")
@@ -151,6 +155,7 @@ object TestConversation {
         archived = false,
         archivedDateTime = null,
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
     )
 }

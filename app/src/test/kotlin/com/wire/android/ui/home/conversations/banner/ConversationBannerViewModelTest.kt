@@ -31,9 +31,11 @@ import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversation
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -97,6 +99,28 @@ class ConversationBannerViewModelTest {
             awaitComplete()
         }
     }
+
+    @Test
+    fun givenGroupConversation_whenInitialisingViewModel_thenShouldCallNotifyConversationIsOpen() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withGroupConversation()
+            .arrange()
+
+        coVerify(exactly = 1) {
+            arrangement.notifyConversationIsOpenUseCase(arrangement.conversationId)
+        }
+    }
+
+    @Test
+    fun givenOneOnOneConversation_whenInitialisingViewModel_thenShouldCallNotifyConversationIsOpen() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withOneOnOneConversation()
+            .arrange()
+
+        coVerify(exactly = 1) {
+            arrangement.notifyConversationIsOpenUseCase(arrangement.conversationId)
+        }
+    }
 }
 
 private class Arrangement {
@@ -110,11 +134,15 @@ private class Arrangement {
     @MockK
     lateinit var observeConversationDetailsUseCase: ObserveConversationDetailsUseCase
 
+    @MockK
+    lateinit var notifyConversationIsOpenUseCase: NotifyConversationIsOpenUseCase
+
     private val viewModel by lazy {
         ConversationBannerViewModel(
             savedStateHandle,
             observeConversationMembersByTypesUseCase,
             observeConversationDetailsUseCase,
+            notifyConversationIsOpenUseCase
         )
     }
     val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
@@ -126,6 +154,7 @@ private class Arrangement {
         every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         // Default empty values
         coEvery { observeConversationMembersByTypesUseCase(any()) } returns flowOf()
+        coEvery { notifyConversationIsOpenUseCase(any()) } returns Unit
     }
 
     suspend fun withConversationParticipantsUserTypesUpdate(participants: List<UserType>) = apply {

@@ -15,6 +15,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
+import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
@@ -115,17 +116,18 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun observeDeviceDetails() {
         viewModelScope.launch {
             observeClientDetails(userId, deviceId).collect { result ->
-                when (result) {
+                state = when (result) {
                     is GetClientDetailsResult.Failure.Generic -> {
                         appLogger.e("Error getting self clients $result")
-                        state = state.copy(error = RemoveDeviceError.InitError)
+                        state.copy(error = RemoveDeviceError.InitError)
                     }
 
                     is GetClientDetailsResult.Success -> {
-                        state = state.copy(
+                        state.copy(
                             device = Device(result.client),
                             isCurrentDevice = result.isCurrentClient,
-                            removeDeviceDialogState = RemoveDeviceDialogState.Hidden
+                            removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
+                            canBeRemoved = !result.isCurrentClient && isSelfClient && result.client.type == ClientType.Permanent,
                         )
                     }
                 }

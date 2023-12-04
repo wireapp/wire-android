@@ -86,6 +86,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AddMembersSearchScreenDestination
+import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
@@ -136,6 +137,16 @@ fun GroupConversationDetailsScreen(
         navigator.navigate(
             NavigationCommand(
                 SearchConversationMessagesScreenDestination(
+                    conversationId = viewModel.conversationId
+                )
+            )
+        )
+    }
+
+    val onConversationMediaClick: () -> Unit = {
+        navigator.navigate(
+            NavigationCommand(
+                ConversationMediaScreenDestination(
                     conversationId = viewModel.conversationId
                 )
             )
@@ -222,7 +233,8 @@ fun GroupConversationDetailsScreen(
             navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
         },
         isLoading = viewModel.requestInProgress,
-        onSearchConversationMessagesClick = onSearchConversationMessagesClick
+        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+        onConversationMediaClick = onConversationMediaClick
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -263,7 +275,8 @@ private fun GroupConversationDetailsContent(
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
-    onSearchConversationMessagesClick: () -> Unit
+    onSearchConversationMessagesClick: () -> Unit,
+    onConversationMediaClick: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -332,7 +345,8 @@ private fun GroupConversationDetailsContent(
                         conversationId = it.conversationId,
                         totalParticipants = groupParticipantsState.data.allCount,
                         isLoading = isLoading,
-                        onSearchConversationMessagesClick = onSearchConversationMessagesClick
+                        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                        onConversationMediaClick = onConversationMediaClick
                     )
                 }
                 WireTabRow(
@@ -539,7 +553,8 @@ fun PreviewGroupConversationDetails() {
             onEditGroupName = {},
             onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
-            onSearchConversationMessagesClick = {}
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {}
         )
     }
 }

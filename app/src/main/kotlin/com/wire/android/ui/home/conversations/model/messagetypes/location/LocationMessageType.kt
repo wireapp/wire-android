@@ -55,7 +55,6 @@ fun LocationMessageContent(
     onLocationClick: Clickable
 ) {
     Card(
-        onClick = { },
         modifier = Modifier.clickable(onLocationClick),
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline)

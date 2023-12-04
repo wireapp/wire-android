@@ -644,10 +644,11 @@ private fun MessageContent(
                     locationName = messageContent.name,
                     locationUrl = locationUrl,
                     onLocationClick = Clickable(
-                        enabled = !message.isPending && message.isAvailable,
+                        enabled = message.isAvailable,
                         onClick = { onLinkClick(locationUrl) },
                         onLongClick = onLongClick
-                    ))
+                    )
+                )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
             }
         }

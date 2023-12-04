@@ -121,6 +121,15 @@ class RegularMessageMapper @Inject constructor(
             )
         }
 
+        is MessageContent.Location -> {
+            UIMessageContent.Location(
+                latitude = content.latitude,
+                longitude = content.longitude,
+                name = content.name.orEmpty(),
+                deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)
+            )
+        }
+
         else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }
 

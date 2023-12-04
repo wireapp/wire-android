@@ -186,6 +186,7 @@
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
+    <string name="url_maps_location_coordinates" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=%2f,%2f</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -659,6 +660,8 @@
     <string name="last_message_other_user_shared_video">shared a video.</string>
     <string name="last_message_self_user_shared_audio">shared an audio message.</string>
     <string name="last_message_other_user_shared_audio">shared an audio message.</string>
+    <string name="last_message_self_user_shared_location">shared a location.</string>
+    <string name="last_message_other_user_shared_location">shared a location.</string>
     <string name="last_message_self_user_knock">pinged.</string>
     <string name="last_message_other_user_knock">pinged.</string>
     <string name="last_message_call">called.</string>
@@ -770,6 +773,7 @@
     <string name="phone_label">Phone</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
+    <string name="notification_shared_location">Shared a location</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_missed_call">Missed call</string>

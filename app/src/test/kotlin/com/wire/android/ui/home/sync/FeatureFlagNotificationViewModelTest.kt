@@ -250,15 +250,9 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markE2EIRequiredAsNotified: MarkEnablingE2EIAsNotifiedUseCase
 
         @MockK
-<<<<<<< HEAD
-=======
         lateinit var ppLockTeamFeatureConfigObserver: AppLockTeamFeatureConfigObserver
 
         @MockK
-        lateinit var disableAppLockUseCase: DisableAppLockUseCase
-
-        @MockK
->>>>>>> fde49a386 (fix: display the app lock enforce dialogue when it is enforced but no… (#2487))
         lateinit var globalDataStore: GlobalDataStore
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(

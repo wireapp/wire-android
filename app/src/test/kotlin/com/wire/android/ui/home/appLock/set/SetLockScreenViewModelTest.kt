@@ -85,9 +85,12 @@ class SetLockScreenViewModelTest {
         @MockK
         private lateinit var isAppLockEditable: IsAppLockEditableUseCase
 
+        @MockK
+        private lateinit var isAppLockEditableUseCase: IsAppLockEditableUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { globalDataStore.setUserAppLock(any()) } returns Unit
+            coEvery { globalDataStore.setUserAppLock(any(), any()) } returns Unit
             coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
@@ -102,12 +105,17 @@ class SetLockScreenViewModelTest {
             every { validatePassword(any()) } returns ValidatePasswordResult.Invalid()
         }
 
+        fun withIsAppLockEditable(result: Boolean) = apply {
+            coEvery { isAppLockEditableUseCase() } returns result
+        }
+
         private val viewModel = SetLockScreenViewModel(
             validatePassword,
             globalDataStore,
             TestDispatcherProvider(),
             observeAppLockConfig,
             isAppLockEditable,
+            isAppLockEditableUseCase,
             markTeamAppLockStatusAsNotified
         )
 

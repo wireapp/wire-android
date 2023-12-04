@@ -51,6 +51,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -141,7 +142,11 @@ fun LegalHoldRequestedDialog(
 fun PreviewLegalHoldRequestedDialogWithPassword() {
     WireTheme {
         LegalHoldRequestedDialog(
-            LegalHoldRequestedState.Visible(legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = true), {}, {}, {}
+            LegalHoldRequestedState.Visible(
+                legalHoldDeviceFingerprint = "0123456789ABCDEF",
+                requiresPassword = true,
+                userId = UserId("", ""),
+            ), {}, {}, {}
         )
     }
 }
@@ -151,7 +156,11 @@ fun PreviewLegalHoldRequestedDialogWithPassword() {
 fun PreviewLegalHoldRequestedDialogWithoutPassword() {
     WireTheme {
         LegalHoldRequestedDialog(
-            LegalHoldRequestedState.Visible(legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = false), {}, {}, {}
+            LegalHoldRequestedState.Visible(
+                legalHoldDeviceFingerprint = "0123456789ABCDEF",
+                requiresPassword = false,
+                userId = UserId("", ""),
+            ), {}, {}, {}
         )
     }
 }

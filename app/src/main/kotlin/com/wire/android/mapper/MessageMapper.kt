@@ -52,6 +52,7 @@ class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
+    // TODO(qol): a message mapper should not depend on a UI related component
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 

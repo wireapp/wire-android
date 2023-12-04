@@ -15,18 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.messages
+package com.wire.android.feature
 
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.paging.PagingData
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import dagger.hilt.android.scopes.ViewModelScoped
+import javax.inject.Inject
 
-data class SearchConversationMessagesState(
-    val conversationId: ConversationId,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: Flow<PagingData<UIMessage>> = emptyFlow(),
-    val isLoading: Boolean = false
-)
+@ViewModelScoped
+class DisableAppLockUseCase @Inject constructor(
+    private val dataStore: GlobalDataStore,
+    private val isAppLockEditableUseCase: IsAppLockEditableUseCase
+) {
+    suspend operator fun invoke(): Boolean = if (isAppLockEditableUseCase()) {
+        dataStore.clearAppLockPasscode()
+        true
+    } else {
+        false
+    }
+}

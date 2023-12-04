@@ -15,18 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.messages
+package com.wire.android.feature
 
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.paging.PagingData
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+sealed interface AppLockSource {
+    val code: Int
+        get() = when (this) {
+            is Manual -> 0
+            is TeamEnforced -> 1
+        }
+    data object Manual : AppLockSource
+    data object TeamEnforced : AppLockSource
 
-data class SearchConversationMessagesState(
-    val conversationId: ConversationId,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: Flow<PagingData<UIMessage>> = emptyFlow(),
-    val isLoading: Boolean = false
-)
+    companion object {
+        fun fromInt(value: Int): AppLockSource {
+            return when (value) {
+                0 -> Manual
+                1 -> TeamEnforced
+                else -> throw IllegalArgumentException("Unknown AppLockSource value: $value")
+            }
+        }
+    }
+}

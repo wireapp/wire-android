@@ -15,18 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.messages
+package com.wire.android.ui.home.conversations.media
 
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.paging.PagingData
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 
-data class SearchConversationMessagesState(
-    val conversationId: ConversationId,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: Flow<PagingData<UIMessage>> = emptyFlow(),
-    val isLoading: Boolean = false
+data class ConversationMediaNavArgs(
+    val conversationId: ConversationId
 )

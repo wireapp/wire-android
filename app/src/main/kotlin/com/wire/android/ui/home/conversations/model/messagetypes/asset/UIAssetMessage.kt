@@ -15,18 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.messages
+package com.wire.android.ui.home.conversations.model.messagetypes.asset
 
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.paging.PagingData
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import androidx.compose.runtime.Stable
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
+import kotlinx.datetime.Instant
+import okio.Path
 
-data class SearchConversationMessagesState(
-    val conversationId: ConversationId,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: Flow<PagingData<UIMessage>> = emptyFlow(),
-    val isLoading: Boolean = false
+@Stable
+data class UIAssetMessage(
+    val assetId: String,
+    val time: Instant,
+    val username: UIText,
+    val messageId: String,
+    val conversationId: QualifiedID,
+    val assetPath: Path?,
+    val downloadStatus: Message.DownloadStatus,
+    val isSelfAsset: Boolean
 )

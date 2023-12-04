@@ -22,12 +22,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,18 +53,16 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun AssetList(
+fun AssetGrid(
     uiAssetMessageList: List<UIAssetMessage>,
     modifier: Modifier = Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
-
-
     val timeZone = remember { TimeZone.currentSystemDefault() }
     val groupedAssets = remember(uiAssetMessageList) { groupAssetsByMonthYear(uiAssetMessageList, timeZone) }
 
-    val scrollState = rememberLazyListState()
+    val scrollState = rememberLazyGridState()
     val shouldContinue by remember {
         derivedStateOf {
             !scrollState.canScrollForward
@@ -75,26 +74,28 @@ fun AssetList(
         continueAssetLoading(shouldContinue)
     }
 
-    BoxWithConstraints {
+    BoxWithConstraints(
+        modifier
+            .fillMaxSize()
+            .background(color = colorsScheme().backgroundVariant)
+    ) {
         val screenWidth = maxWidth
         val horizontalPadding = dimensions().spacing12x
         val itemSpacing = dimensions().spacing2x * 2
         val totalItemSpacing = itemSpacing * COLUMN_COUNT
-        val availableWidth = screenWidth - (horizontalPadding * 2) - totalItemSpacing
+        val availableWidth = screenWidth - horizontalPadding - totalItemSpacing
         val itemSize = availableWidth / COLUMN_COUNT
 
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(COLUMN_COUNT),
             state = scrollState,
-            modifier = modifier
-                .fillMaxSize()
-                .background(color = colorsScheme().backgroundVariant)
-
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             groupedAssets.forEachIndexed { index, entry ->
                 val label = entry.key
-                val assetList = entry.value
-
-                item {
+                item(
+                    key = entry.key,
+                    span = { GridItemSpan(COLUMN_COUNT) }) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -113,36 +114,30 @@ fun AssetList(
                     }
                 }
 
-                val rows = assetList.windowed(COLUMN_COUNT, COLUMN_COUNT, partialWindows = true)
-                rows.forEach { row ->
-                    item {
-                        Row(
-                            horizontalArrangement = Arrangement.Start,
-                            modifier = Modifier.padding(horizontal = horizontalPadding)
-                        ) {
-                            for (uiAsset in row) {
-                                val currentOnImageClick = remember(uiAsset) {
-                                    Clickable(enabled = true, onClick = {
-                                        onImageFullScreenMode(
-                                            uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
-                                        )
-                                    })
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .padding(all = dimensions().spacing2x)
-                                ) {
-                                    MediaAssetImage(
-                                        asset = null,
-                                        width = itemSize,
-                                        height = itemSize,
-                                        downloadStatus = uiAsset.downloadStatus,
-                                        onImageClick = currentOnImageClick,
-                                        assetPath = uiAsset.assetPath
-                                    )
-                                }
-                            }
-                        }
+                items(
+                    count = entry.value.size,
+                    key = { entry.value[it].assetId }
+                ) {
+                    val uiAsset = entry.value[it]
+                    val currentOnImageClick = remember(uiAsset) {
+                        Clickable(enabled = true, onClick = {
+                            onImageFullScreenMode(
+                                uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
+                            )
+                        })
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(all = dimensions().spacing2x)
+                    ) {
+                        MediaAssetImage(
+                            asset = null,
+                            width = itemSize,
+                            height = itemSize,
+                            downloadStatus = uiAsset.downloadStatus,
+                            onImageClick = currentOnImageClick,
+                            assetPath = uiAsset.assetPath
+                        )
                     }
                 }
             }

@@ -89,7 +89,7 @@ private fun Content(
         },
     ) { padding ->
         // TODO implement tab here for https://wearezeta.atlassian.net/browse/WPB-5378
-        AssetList(
+        AssetGrid(
             uiAssetMessageList = state.messages,
             modifier = Modifier.padding(padding),
             onImageFullScreenMode = onImageFullScreenMode,

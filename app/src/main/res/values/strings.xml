@@ -187,7 +187,7 @@
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
-    <string name="url_maps_location_coordinates" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=%2f,%2f</string>
+    <string name="url_maps_location_coordinates" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>

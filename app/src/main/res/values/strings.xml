@@ -174,6 +174,7 @@
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_location_icon">Location item</string>
     <!-- Non translatable strings-->
     <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>

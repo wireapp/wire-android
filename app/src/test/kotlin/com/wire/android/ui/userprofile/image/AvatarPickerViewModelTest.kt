@@ -82,7 +82,7 @@ class AvatarPickerViewModelTest {
                         uploadUserAvatarUseCase(any(), any())
                         userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
                     }
-                    verify(exactly = 1) { onSuccess() }
+                    verify(exactly = 1) { onSuccess(any()) }
                 }
 
                 expectNoEvents()
@@ -107,7 +107,7 @@ class AvatarPickerViewModelTest {
                     uploadUserAvatarUseCase(any(), any())
                     avatarImageManager.getWritableAvatarUri(any()) wasNot Called
                 }
-                verify(exactly = 0) { onSuccess() }
+                verify(exactly = 0) { onSuccess(any()) }
             }
 
             assertEquals(AvatarPickerViewModel.InfoMessageType.UploadAvatarError.uiText, awaitItem())
@@ -126,7 +126,7 @@ class AvatarPickerViewModelTest {
 
         val context = mockk<Context>()
 
-        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onSuccess = mockk<(String?) -> Unit>(relaxed = true)
 
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper

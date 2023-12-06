@@ -292,15 +292,15 @@ class SystemMessageContentMapper @Inject constructor(
             else others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })
 
         return when (content) {
-            MessageContent.LegalHold.DisabledForConversation -> UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation
+            MessageContent.LegalHold.ForConversation.Disabled -> UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation
 
-            is MessageContent.LegalHold.DisabledForMembers -> handleLegalHoldForMembers(
+            is MessageContent.LegalHold.ForMembers.Disabled -> handleLegalHoldForMembers(
                 members = content.members,
                 self = { UIMessageContent.SystemMessage.LegalHold.Disabled.Self },
                 others = { UIMessageContent.SystemMessage.LegalHold.Disabled.Others(it) }
             )
 
-            is MessageContent.LegalHold.EnabledForMembers -> handleLegalHoldForMembers(
+            is MessageContent.LegalHold.ForMembers.Enabled -> handleLegalHoldForMembers(
                 members = content.members,
                 self = { UIMessageContent.SystemMessage.LegalHold.Enabled.Self },
                 others = { UIMessageContent.SystemMessage.LegalHold.Enabled.Others(it) }

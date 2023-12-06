@@ -69,8 +69,7 @@ class MessageMapper @Inject constructor(
                 is Message.System -> {
                     when (val content = message.content) {
                         is MessageContent.MemberChange -> content.members
-                        is MessageContent.LegalHold.EnabledForMembers -> content.members
-                        is MessageContent.LegalHold.DisabledForMembers -> content.members
+                        is MessageContent.LegalHold.ForMembers -> content.members
                         else -> listOf()
                     }
                 }

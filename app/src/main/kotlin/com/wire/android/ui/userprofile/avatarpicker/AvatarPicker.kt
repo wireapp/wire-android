@@ -99,8 +99,8 @@ fun AvatarPickerScreen(
         state = state,
         onCloseClick = navigator::navigateBack,
         onSaveClick = {
-            viewModel.uploadNewPickedAvatar {
-                resultNavigator.setResult(it)
+            viewModel.uploadNewPickedAvatar { avatarAssetId ->
+                resultNavigator.setResult(avatarAssetId)
                 resultNavigator.navigateBack()
             }
         }

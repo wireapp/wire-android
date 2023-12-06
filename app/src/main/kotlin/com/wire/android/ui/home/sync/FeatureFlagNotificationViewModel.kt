@@ -28,6 +28,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.AppLockSource
+import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -51,7 +53,8 @@ import javax.inject.Inject
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSessionUseCase: CurrentSessionUseCase,
-    private val globalDataStore: GlobalDataStore
+    private val globalDataStore: GlobalDataStore,
+    private val disableAppLockUseCase: DisableAppLockUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -137,11 +140,17 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
                 .distinctUntilChanged()
-                .collectLatest {
-                    it?.isStatusChanged?.let { isStatusChanged ->
+                .collectLatest { appLockConfig ->
+                    appLockConfig?.isStatusChanged?.let { isStatusChanged ->
+                        val shouldBlockApp = if (isStatusChanged) {
+                            true
+                        } else {
+                            (!isUserAppLockSet() && appLockConfig.isEnforced)
+                        }
+
                         featureFlagState = featureFlagState.copy(
-                            isTeamAppLockEnabled = it.isEnforced,
-                            shouldShowTeamAppLockDialog = isStatusChanged
+                            isTeamAppLockEnabled = appLockConfig.isEnforced,
+                            shouldShowTeamAppLockDialog = shouldBlockApp
                         )
                     }
                 }
@@ -235,6 +244,16 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 coreLogic.getSessionScope(
                     (currentSession as CurrentSessionResult.Success).accountInfo.userId
                 ).markTeamAppLockStatusAsNotified()
+            }
+        }
+    }
+
+    fun confirmAppLockNotEnforced() {
+        viewModelScope.launch {
+            when (globalDataStore.getAppLockSource()) {
+                AppLockSource.Manual -> {}
+
+                AppLockSource.TeamEnforced -> disableAppLockUseCase()
             }
         }
     }

@@ -712,6 +712,11 @@
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
+    <!-- Conversation Media -->
+    <string name="label_conversation_media">Media</string>
+    <string name="label_conversation_pictures">Pictures</string>
+    <string name="label_conversation_files">Files</string>
+    <string name="label_conversation_links">Links</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>

@@ -24,9 +24,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
@@ -43,6 +43,7 @@ class SetLockScreenViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeAppLockConfig: ObserveAppLockConfigUseCase,
     private val isAppLockEditable: IsAppLockEditableUseCase,
+    private val isAppLockEditableUseCase: IsAppLockEditableUseCase,
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
@@ -84,9 +85,15 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore) {
-                            setUserAppLock(state.password.text.sha256())
+                            val source = if (isAppLockEditableUseCase()) {
+                                AppLockSource.Manual
+                            } else {
+                                AppLockSource.TeamEnforced
+                            }
 
-                            // TODO: call only when needed
+                            setUserAppLock(state.password.text, source)
+
+                            // TODO(bug): this does not take into account which account enforced the app lock
                             markTeamAppLockStatusAsNotified()
                         }
                     }

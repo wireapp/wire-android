@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.messages
+package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -28,37 +28,22 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
-fun SearchConversationMessagesButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-    if (localFeatureVisibilityFlags.SearchConversationMessages) {
-        SearchConversationMessagesButtonContent(
-            onClick = onClick,
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-private fun SearchConversationMessagesButtonContent(
+fun ConversationMediaButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     WireSecondaryButton(
         modifier = modifier,
-        text = stringResource(R.string.label_search_button),
+        text = stringResource(R.string.label_conversation_media),
         onClick = onClick,
         minSize = MaterialTheme.wireDimensions.buttonMinSize,
         fillMaxWidth = true,
         leadingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = stringResource(R.string.label_search_messages),
+                painter = painterResource(id = R.drawable.ic_gallery),
+                contentDescription = stringResource(R.string.label_conversation_media),
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(end = dimensions().spacing8x)
             )

@@ -59,6 +59,7 @@ fun LocationMessageContent(
     Column(
         modifier = Modifier
             .clickable(onLocationClick)
+            .padding(top = dimensions().spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .border(
                 width = dimensions().spacing1x,

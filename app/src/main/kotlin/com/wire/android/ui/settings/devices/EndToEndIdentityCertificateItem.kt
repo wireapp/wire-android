@@ -46,6 +46,7 @@ fun EndToEndIdentityCertificateItem(
     isE2eiCertificateActivated: Boolean,
     certificate: E2eiCertificate,
     isSelfClient: Boolean,
+    isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
     updateE2eiCertificate: () -> Unit,
     showCertificate: (String) -> Unit
@@ -83,13 +84,6 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_revoked_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        ShowE2eiCertificateButton(
-                            enabled = true,
-                            isLoading = false,
-                            onShowCertificateClicked = {
-                                showCertificate(certificate.certificateDetail)
-                            }
-                        )
                     }
 
                     CertificateStatus.EXPIRED -> {
@@ -99,18 +93,13 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_not_activated_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        UpdateE2eiCertificateButton(
-                            enabled = true,
-                            isLoading = false,
-                            updateE2eiCertificate
-                        )
-                        ShowE2eiCertificateButton(
-                            enabled = true,
-                            isLoading = false,
-                            onShowCertificateClicked = {
-                                showCertificate(certificate.certificateDetail)
-                            }
-                        )
+                        if (isSelfClient) {
+                            UpdateE2eiCertificateButton(
+                                enabled = true,
+                                isLoading = isLoadingCertificate,
+                                onUpdateCertificateClicked = enrollE2eiCertificate
+                            )
+                        }
                     }
 
                     CertificateStatus.VALID -> {
@@ -120,15 +109,22 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_valid_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        ShowE2eiCertificateButton(
-                            enabled = true,
-                            isLoading = false,
-                            onShowCertificateClicked = {
-                                showCertificate(certificate.certificateDetail)
-                            }
-                        )
+                        if (isSelfClient) {
+                            UpdateE2eiCertificateButton(
+                                enabled = true,
+                                isLoading = isLoadingCertificate,
+                                onUpdateCertificateClicked = enrollE2eiCertificate
+                            )
+                        }
                     }
                 }
+                ShowE2eiCertificateButton(
+                    enabled = true,
+                    isLoading = false,
+                    onShowCertificateClicked = {
+                        showCertificate(certificate.certificateDetail)
+                    }
+                )
             } else {
                 E2EIStatusRow(
                     label = stringResource(id = R.string.e2ei_certificat_status_not_activated),
@@ -136,7 +132,11 @@ fun EndToEndIdentityCertificateItem(
                     icon = R.drawable.ic_certificate_not_activated_mls
                 )
                 if (isSelfClient) {
-                    GetE2eiCertificateButton(enabled = true, isLoading = false) { }
+                    GetE2eiCertificateButton(
+                        enabled = true,
+                        isLoading = isLoadingCertificate,
+                        onGetCertificateClicked = enrollE2eiCertificate
+                    )
                 }
             }
         }
@@ -200,6 +200,26 @@ fun PreviewEndToEndIdentityCertificateItem() {
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = ""
         ),
+        isLoadingCertificate = false,
+        enrollE2eiCertificate = {},
+        updateE2eiCertificate = {},
+        showCertificate = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewEndToEndIdentityCertificateSelfItem() {
+    EndToEndIdentityCertificateItem(
+        isE2eiCertificateActivated = true,
+        isSelfClient = true,
+        certificate = E2eiCertificate(
+            issuer = "Wire",
+            status = CertificateStatus.VALID,
+            serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+            certificateDetail = ""
+        ),
+        isLoadingCertificate = false,
         enrollE2eiCertificate = {},
         updateE2eiCertificate = {},
         showCertificate = {}

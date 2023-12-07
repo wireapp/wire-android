@@ -50,36 +50,78 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun E2EIRequiredDialog(
-    result: FeatureFlagState.E2EIRequired,
-    getCertificate: () -> Unit,
+    e2EIRequired: FeatureFlagState.E2EIRequired,
+    isE2EILoading: Boolean,
+    getCertificate: (FeatureFlagState.E2EIRequired) -> Unit,
     snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit,
 ) {
-    when (result) {
-        FeatureFlagState.E2EIRequired.NoGracePeriod.Create -> E2EIRequiredNoSnoozeDialog(getCertificate = getCertificate)
-        FeatureFlagState.E2EIRequired.NoGracePeriod.Renew -> E2EIRenewNoSnoozeDialog(updateCertificate = getCertificate)
+    when (e2EIRequired) {
+        FeatureFlagState.E2EIRequired.NoGracePeriod.Create -> E2EIRequiredNoSnoozeDialog(
+            isLoading = isE2EILoading,
+            getCertificate = { getCertificate(e2EIRequired) }
+        )
+
+        FeatureFlagState.E2EIRequired.NoGracePeriod.Renew -> E2EIRenewNoSnoozeDialog(
+            isLoading = isE2EILoading,
+            updateCertificate = { getCertificate(e2EIRequired) }
+        )
+
         is FeatureFlagState.E2EIRequired.WithGracePeriod.Create -> E2EIRequiredWithSnoozeDialog(
-            getCertificate = getCertificate,
-            snoozeDialog = { snoozeDialog(result) }
+            isLoading = isE2EILoading,
+            getCertificate = { getCertificate(e2EIRequired) },
+            snoozeDialog = { snoozeDialog(e2EIRequired) }
         )
 
         is FeatureFlagState.E2EIRequired.WithGracePeriod.Renew -> E2EIRenewWithSnoozeDialog(
-            updateCertificate = getCertificate,
-            snoozeDialog = { snoozeDialog(result) }
+            isLoading = isE2EILoading,
+            updateCertificate = { getCertificate(e2EIRequired) },
+            snoozeDialog = { snoozeDialog(e2EIRequired) }
         )
     }
 }
 
 @Composable
+fun E2EIResultDialog(
+    result: FeatureFlagState.E2EIResult,
+    isE2EILoading: Boolean,
+    updateCertificate: (FeatureFlagState.E2EIRequired) -> Unit,
+    snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit,
+    openCertificateDetails: (String) -> Unit,
+    dismissSuccessDialog: () -> Unit
+) {
+    when (result) {
+        is FeatureFlagState.E2EIResult.Failure -> E2EIRenewErrorDialog(
+            e2EIRequired = result.e2EIRequired,
+            isE2EILoading = isE2EILoading,
+            updateCertificate = { updateCertificate(result.e2EIRequired) },
+            snoozeDialog = snoozeDialog
+        )
+
+        is FeatureFlagState.E2EIResult.Success -> E2EISuccessDialog(
+            openCertificateDetails = { openCertificateDetails(result.certificate) },
+            dismissDialog = dismissSuccessDialog
+        )
+    }
+
+}
+
+@Composable
 fun E2EIRenewErrorDialog(
-    result: FeatureFlagState.E2EIRequired,
+    e2EIRequired: FeatureFlagState.E2EIRequired,
+    isE2EILoading: Boolean,
     updateCertificate: () -> Unit,
     snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit,
 ) {
-    when (result) {
-        is FeatureFlagState.E2EIRequired.NoGracePeriod -> E2EIErrorNoSnoozeDialog(updateCertificate = updateCertificate)
+    when (e2EIRequired) {
+        is FeatureFlagState.E2EIRequired.NoGracePeriod -> E2EIErrorNoSnoozeDialog(
+            isE2EILoading = isE2EILoading,
+            updateCertificate = updateCertificate
+        )
+
         is FeatureFlagState.E2EIRequired.WithGracePeriod -> E2EIErrorWithSnoozeDialog(
             updateCertificate = updateCertificate,
-            snoozeDialog = { snoozeDialog(result) }
+            isE2EILoading = isE2EILoading,
+            snoozeDialog = { snoozeDialog(e2EIRequired) }
         )
     }
 }
@@ -152,18 +194,46 @@ fun E2EISuccessDialog(
 }
 
 @Composable
+fun E2EIErrorWithDismissDialog(
+    isE2EILoading: Boolean,
+    updateCertificate: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    WireDialog(
+        title = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_text),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = updateCertificate,
+            text = stringResource(id = R.string.label_retry),
+            type = WireDialogButtonType.Primary,
+            loading = isE2EILoading
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(id = R.string.label_cancel),
+            type = WireDialogButtonType.Secondary,
+        ),
+        buttonsHorizontalAlignment = false,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    )
+}
+
+@Composable
 private fun E2EIErrorWithSnoozeDialog(
+    isE2EILoading: Boolean,
     updateCertificate: () -> Unit,
     snoozeDialog: () -> Unit
 ) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_title),
         text = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_text),
-        onDismiss = updateCertificate,
+        onDismiss = snoozeDialog,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = updateCertificate,
             text = stringResource(id = R.string.label_retry),
             type = WireDialogButtonType.Primary,
+            loading = isE2EILoading
         ),
         optionButton2Properties = WireDialogButtonProperties(
             onClick = snoozeDialog,
@@ -177,6 +247,7 @@ private fun E2EIErrorWithSnoozeDialog(
 
 @Composable
 private fun E2EIErrorNoSnoozeDialog(
+    isE2EILoading: Boolean,
     updateCertificate: () -> Unit
 ) {
     WireDialog(
@@ -187,6 +258,7 @@ private fun E2EIErrorNoSnoozeDialog(
             onClick = updateCertificate,
             text = stringResource(id = R.string.label_retry),
             type = WireDialogButtonType.Primary,
+            loading = isE2EILoading
         ),
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -198,6 +270,7 @@ private fun E2EIErrorNoSnoozeDialog(
 
 @Composable
 private fun E2EIRequiredWithSnoozeDialog(
+    isLoading: Boolean,
     getCertificate: () -> Unit,
     snoozeDialog: () -> Unit
 ) {
@@ -209,6 +282,7 @@ private fun E2EIRequiredWithSnoozeDialog(
             onClick = getCertificate,
             text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_button),
             type = WireDialogButtonType.Primary,
+            loading = isLoading
         ),
         optionButton2Properties = WireDialogButtonProperties(
             onClick = snoozeDialog,
@@ -221,7 +295,7 @@ private fun E2EIRequiredWithSnoozeDialog(
 }
 
 @Composable
-private fun E2EIRequiredNoSnoozeDialog(getCertificate: () -> Unit) {
+private fun E2EIRequiredNoSnoozeDialog(isLoading: Boolean, getCertificate: () -> Unit) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
         text = stringResource(id = R.string.end_to_end_identity_required_dialog_text_no_snooze),
@@ -230,6 +304,7 @@ private fun E2EIRequiredNoSnoozeDialog(getCertificate: () -> Unit) {
             onClick = getCertificate,
             text = stringResource(id = R.string.end_to_end_identity_required_dialog_positive_button),
             type = WireDialogButtonType.Primary,
+            loading = isLoading
         ),
         buttonsHorizontalAlignment = false,
         properties = DialogProperties(
@@ -242,6 +317,7 @@ private fun E2EIRequiredNoSnoozeDialog(getCertificate: () -> Unit) {
 
 @Composable
 private fun E2EIRenewWithSnoozeDialog(
+    isLoading: Boolean,
     updateCertificate: () -> Unit,
     snoozeDialog: () -> Unit
 ) {
@@ -253,6 +329,7 @@ private fun E2EIRenewWithSnoozeDialog(
             onClick = updateCertificate,
             text = stringResource(id = R.string.end_to_end_identity_renew_dialog_positive_button),
             type = WireDialogButtonType.Primary,
+            loading = isLoading
         ),
         optionButton2Properties = WireDialogButtonProperties(
             onClick = snoozeDialog,
@@ -265,7 +342,7 @@ private fun E2EIRenewWithSnoozeDialog(
 }
 
 @Composable
-private fun E2EIRenewNoSnoozeDialog(updateCertificate: () -> Unit) {
+private fun E2EIRenewNoSnoozeDialog(isLoading: Boolean, updateCertificate: () -> Unit) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_renew_dialog_title),
         text = stringResource(id = R.string.end_to_end_identity_renew_dialog_text_no_snooze),
@@ -274,6 +351,7 @@ private fun E2EIRenewNoSnoozeDialog(updateCertificate: () -> Unit) {
             onClick = updateCertificate,
             text = stringResource(id = R.string.end_to_end_identity_renew_dialog_positive_button),
             type = WireDialogButtonType.Primary,
+            loading = isLoading
         ),
         buttonsHorizontalAlignment = false,
         properties = DialogProperties(
@@ -288,7 +366,7 @@ private fun E2EIRenewNoSnoozeDialog(updateCertificate: () -> Unit) {
 @Composable
 fun previewE2EIdRequiredWithSnoozeDialog() {
     WireTheme {
-        E2EIRequiredWithSnoozeDialog({}) {}
+        E2EIRequiredWithSnoozeDialog(false, {}) {}
     }
 }
 
@@ -296,7 +374,7 @@ fun previewE2EIdRequiredWithSnoozeDialog() {
 @Composable
 fun previewE2EIdRequiredNoSnoozeDialog() {
     WireTheme {
-        E2EIRequiredNoSnoozeDialog {}
+        E2EIRequiredNoSnoozeDialog(false) {}
     }
 }
 
@@ -304,7 +382,7 @@ fun previewE2EIdRequiredNoSnoozeDialog() {
 @Composable
 fun previewE2EIdRenewRequiredWithSnoozeDialog() {
     WireTheme {
-        E2EIRenewWithSnoozeDialog({}) {}
+        E2EIRenewWithSnoozeDialog(false, {}) {}
     }
 }
 
@@ -312,7 +390,7 @@ fun previewE2EIdRenewRequiredWithSnoozeDialog() {
 @Composable
 fun previewE2EIdRenewRequiredNoSnoozeDialog() {
     WireTheme {
-        E2EIRenewNoSnoozeDialog {}
+        E2EIRenewNoSnoozeDialog(false) {}
     }
 }
 
@@ -328,7 +406,7 @@ fun previewE2EIdSnoozeDialog() {
 @Composable
 fun previewE2EIRenewErrorDialogNoGracePeriod() {
     WireTheme {
-        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, { }) {}
+        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, false, { }) {}
     }
 }
 
@@ -336,7 +414,7 @@ fun previewE2EIRenewErrorDialogNoGracePeriod() {
 @Composable
 fun previewE2EIRenewErrorDialogWithGracePeriod() {
     WireTheme {
-        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(2.days), { }) {}
+        E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(2.days), false, { }) {}
     }
 }
 
@@ -352,7 +430,7 @@ fun previewE2EISuccessDialog() {
 @Composable
 fun previewE2EIRenewErrorNoSnoozeDialog() {
     WireTheme {
-        E2EIErrorNoSnoozeDialog { }
+        E2EIErrorNoSnoozeDialog(false) { }
     }
 }
 
@@ -360,6 +438,6 @@ fun previewE2EIRenewErrorNoSnoozeDialog() {
 @Composable
 fun previewE2EIRenewErrorWithSnoozeDialog() {
     WireTheme {
-        E2EIErrorWithSnoozeDialog(updateCertificate = {}) { }
+        E2EIErrorWithSnoozeDialog(isE2EILoading = false, updateCertificate = {}) { }
     }
 }

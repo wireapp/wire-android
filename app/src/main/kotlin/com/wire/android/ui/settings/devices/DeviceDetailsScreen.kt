@@ -1,5 +1,6 @@
 package com.wire.android.ui.settings.devices
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.home.E2EIErrorWithDismissDialog
+import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
@@ -94,7 +97,9 @@ fun DeviceDetailsScreen(
                 navigator.navigate(
                     NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
                 )
-            }
+            },
+            onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,
+            onEnrollE2EISuccessDismiss = viewModel::hideEnrollE2EICertificateSuccess
         )
     }
 }
@@ -109,8 +114,10 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
-    enrollE2eiCertificate: () -> Unit = {},
-    onUpdateClientVerification: (Boolean) -> Unit = {}
+    enrollE2eiCertificate: (Context) -> Unit = {},
+    onUpdateClientVerification: (Boolean) -> Unit = {},
+    onEnrollE2EIErrorDismiss: () -> Unit = {},
+    onEnrollE2EISuccessDismiss: () -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
@@ -148,6 +155,7 @@ fun DeviceDetailsContent(
             }
         }
     ) { internalPadding ->
+        val context = LocalContext.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -161,18 +169,17 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-            if (BuildConfig.DEBUG) {
-                item {
-                    EndToEndIdentityCertificateItem(
-                        isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                        certificate = state.e2eiCertificate,
-                        isSelfClient = state.isSelfClient,
-                        enrollE2eiCertificate = enrollE2eiCertificate,
-                        updateE2eiCertificate = {},
-                        showCertificate = onNavigateToE2eiCertificateDetailsScreen
-                    )
-                    Divider(color = colorsScheme().background)
-                }
+            item {
+                EndToEndIdentityCertificateItem(
+                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
+                    certificate = state.e2eiCertificate,
+                    isSelfClient = state.isSelfClient,
+                    isLoadingCertificate = state.isLoadingCertificate,
+                    enrollE2eiCertificate = { enrollE2eiCertificate(context) },
+                    updateE2eiCertificate = {},
+                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
+                )
+                Divider(color = colorsScheme().background)
             }
             item {
                 FolderHeader(
@@ -245,6 +252,21 @@ fun DeviceDetailsContent(
                     )
                 )
             }
+        }
+
+        if (state.isE2EICertificateEnrollError) {
+            E2EIErrorWithDismissDialog(
+                isE2EILoading = state.isLoadingCertificate,
+                updateCertificate = { enrollE2eiCertificate(context) },
+                onDismiss = onEnrollE2EIErrorDismiss
+            )
+        }
+
+        if (state.isE2EICertificateEnrollSuccess) {
+            E2EISuccessDialog(
+                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate.certificateDetail) },
+                dismissDialog = onEnrollE2EISuccessDismiss
+            )
         }
     }
 }

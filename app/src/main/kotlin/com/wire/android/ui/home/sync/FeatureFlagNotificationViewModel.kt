@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.sync
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,17 +31,21 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
+import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -54,7 +59,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSessionUseCase: CurrentSessionUseCase,
     private val globalDataStore: GlobalDataStore,
-    private val disableAppLockUseCase: DisableAppLockUseCase
+    private val disableAppLockUseCase: DisableAppLockUseCase,
+    private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -254,9 +260,32 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
 
-    fun getE2EICertificate() {
-        // TODO do the magic
-        featureFlagState = featureFlagState.copy(e2EIRequired = null)
+    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
+        featureFlagState = featureFlagState.copy(isE2EILoading = true)
+        currentUserId?.let { userId ->
+            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(context) { result ->
+                result.fold({
+                    featureFlagState = featureFlagState.copy(
+                        isE2EILoading = false,
+                        e2EIRequired = null,
+                        e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
+                    )
+                }, {
+                    if (it is E2EIEnrollmentResult.Finalized)
+                        featureFlagState = featureFlagState.copy(
+                            isE2EILoading = false,
+                            e2EIRequired = null,
+                            e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
+                        )
+                    else if (it is E2EIEnrollmentResult.Failed)
+                        featureFlagState = featureFlagState.copy(
+                            isE2EILoading = false,
+                            e2EIRequired = null,
+                            e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
+                        )
+                })
+            }
+        }
     }
 
     fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIRequired.WithGracePeriod) {
@@ -277,5 +306,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun dismissCallEndedBecauseOfConversationDegraded() {
         featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = false)
+    }
+
+
+    fun dismissSuccessE2EIdDialog() {
+        featureFlagState = featureFlagState.copy(e2EIResult = null)
     }
 }

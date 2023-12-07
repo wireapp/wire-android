@@ -272,7 +272,7 @@ sealed class UIMessageContent {
         @StringRes open val stringResId: Int,
         @StringRes val learnMoreResId: Int? = null,
         val isSmallIcon: Boolean = true,
-        ) : UIMessageContent() {
+    ) : UIMessageContent() {
 
         data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
@@ -496,7 +496,7 @@ sealed class UIMessageContent {
             sealed class Disabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, null) {
                 data object Self : Disabled(R.string.legal_hold_system_message_disabled_self)
                 data class Others(override val memberNames: List<UIText>) : Disabled(R.string.legal_hold_system_message_disabled_others)
-                data object Conversation: Disabled(R.string.legal_hold_system_message_disabled_conversation)
+                data object Conversation : Disabled(R.string.legal_hold_system_message_disabled_conversation)
             }
         }
     }

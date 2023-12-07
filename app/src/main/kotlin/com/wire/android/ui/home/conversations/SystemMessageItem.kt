@@ -531,7 +531,6 @@ fun PreviewSystemMessageLegalHoldDisabledConversation() {
     }
 }
 
-
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD

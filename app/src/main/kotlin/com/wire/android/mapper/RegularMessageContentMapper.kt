@@ -122,18 +122,22 @@ class RegularMessageMapper @Inject constructor(
             )
         }
 
-        is MessageContent.Location -> {
-            UIMessageContent.Location(
-                latitude = content.latitude,
-                longitude = content.longitude,
-                name = content.name.orEmpty(),
-                zoom = content.zoom ?: DEFAULT_LOCATION_ZOOM,
-                deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)
-            )
-        }
+        is MessageContent.Location -> toLocation(content, userList, message)
 
         else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }
+
+    private fun toLocation(
+        content: MessageContent.Location,
+        userList: List<User>,
+        message: Message.Regular
+    ) = UIMessageContent.Location(
+        latitude = content.latitude,
+        longitude = content.longitude,
+        name = content.name.orEmpty(),
+        zoom = content.zoom ?: DEFAULT_LOCATION_ZOOM,
+        deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)
+    )
 
     private fun mapAudio(
         assetContent: AssetContent,

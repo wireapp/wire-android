@@ -44,6 +44,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
@@ -95,7 +97,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val notificationManager: WireNotificationManager,
-    private val globalDataStore: GlobalDataStore
+    private val globalDataStore: GlobalDataStore,
+    private val qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -127,7 +130,11 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun isUserInCall(): Boolean = establishedCallsList.value.isNotEmpty()
 
-    private suspend fun fetchSelfUser() {
+    fun reloadNewPickedAvatar(avatarAssetId: String) {
+        updateUserAvatar(avatarAssetId = avatarAssetId.toQualifiedID(qualifiedIdMapper))
+    }
+
+    private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
             val selfTeam = getSelfTeam().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))

@@ -24,9 +24,12 @@ import android.net.Uri
 import androidx.core.net.toUri
 import com.wire.android.appLogger
 
+// geo intent url scheme
+internal const val GEO_INTENT_URL = "geo:0,0?q=%1f,%2f"
+
 /**
  * Launches a geo intent with the given latitude and longitude.
- * If no app/activity can be found to handle the geo intent, a fallback to url is used.
+ * If no app/activity can be found to handle the [GEO_INTENT_URL], a [fallbackUrl] is used.
  */
 fun launchGeoIntent(
     latitude: Float,
@@ -35,7 +38,7 @@ fun launchGeoIntent(
     fallbackUrl: String,
     context: Context
 ) {
-    val geoStringUrl = StringBuilder("geo:0,0?q=$latitude,$longitude")
+    val geoStringUrl = StringBuilder(String.format(GEO_INTENT_URL, latitude, longitude))
     if (!placeName.isNullOrEmpty()) geoStringUrl.append("(${Uri.encode(placeName)})")
     try {
         context.startActivity(Intent(Intent.ACTION_VIEW, geoStringUrl.toString().toUri()))

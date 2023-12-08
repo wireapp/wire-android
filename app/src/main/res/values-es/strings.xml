@@ -691,6 +691,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
+    <!-- Conversation Media -->
+    <string name="label_conversation_media">Media</string>
+    <string name="label_conversation_pictures">Pictures</string>
+    <string name="label_conversation_files">Files</string>
+    <string name="label_conversation_links">Links</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
     <string name="label_new_group">Nuevo Grupo</string>
@@ -942,6 +947,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
     <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
     <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Tus dispositivos</string>
@@ -971,6 +977,7 @@ URL del backend:
     <string name="label_delete_logs">Eliminar todos los registros</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
+    <string name="label_get_e2ei_cetificate">Get E2EI Certificate</string>
     <string name="label_mls_option_title">MLS Options</string>
     <string name="label_enable_logging">Habilitar registro</string>
     <string name="label_proteus_option_title">Proteus Options</string>
@@ -1219,6 +1226,7 @@ URL del backend:
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1266,4 +1274,31 @@ URL del backend:
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
     <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
     <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Legal hold requested</string>
+    <string name="legal_hold_requested_dialog_description_device">All future messages will be recorded by the device with fingerprint:</string>
+    <string name="legal_hold_requested_dialog_description_includes">This includes deleted, edited and self-deleting messages in all conversations.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Enter your password to confirm.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Accept</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
+    <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
+    <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_subject_to">Subject to %1$s.</string>
+    <string name="legal_hold_label">legal hold</string>
+    <string name="legal_hold_is_active_label">Legal hold is active</string>
+    <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_messaging_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to send the message?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Send Anyway</string>
+    <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
 </resources>

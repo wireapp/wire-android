@@ -17,70 +17,51 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun SearchConversationMessagesButton(
-    onSearchConversationMessagesClick: () -> Unit
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     if (localFeatureVisibilityFlags.SearchConversationMessages) {
         SearchConversationMessagesButtonContent(
-            onSearchConversationMessagesClick = onSearchConversationMessagesClick
+            onClick = onClick,
+            modifier = modifier
         )
     }
 }
 
 @Composable
 private fun SearchConversationMessagesButtonContent(
-    onSearchConversationMessagesClick: () -> Unit
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .wrapContentSize()
-            .fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(
-                    top = dimensions().spacing24x,
-                    start = dimensions().spacing16x,
-                    end = dimensions().spacing16x,
-                )
-                .fillMaxWidth()
-        ) {
-            WireSecondaryButton(
-                text = stringResource(R.string.label_search_button),
-                onClick = onSearchConversationMessagesClick,
-                minSize = DpSize(dimensions().spacing0x, dimensions().spacing48x),
-                fillMaxWidth = true,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.label_search_messages),
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(end = dimensions().spacing8x)
-                    )
-                }
+    WireSecondaryButton(
+        modifier = modifier,
+        text = stringResource(R.string.label_search_button),
+        onClick = onClick,
+        minSize = MaterialTheme.wireDimensions.buttonMinSize,
+        fillMaxWidth = true,
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = stringResource(R.string.label_search_messages),
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(end = dimensions().spacing8x)
             )
         }
-    }
+    )
 }

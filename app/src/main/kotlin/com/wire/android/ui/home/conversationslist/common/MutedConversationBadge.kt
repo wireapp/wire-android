@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -52,7 +51,6 @@ fun MutedConversationBadge() {
             .height(dimensions().spacing20x)
             .padding(PaddingValues(dimensions().spacing0x))
             .clip(shape = RoundedCornerShape(size = dimensions().spacing6x))
-            .clickable(enabled = false, onClick = {})
             .border(
                 width = 1.dp,
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,

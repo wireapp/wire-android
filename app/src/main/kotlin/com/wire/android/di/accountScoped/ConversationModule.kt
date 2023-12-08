@@ -32,6 +32,7 @@ import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -90,6 +91,11 @@ class ConversationModule {
     @Provides
     fun provideObserveConversationDetailsUseCase(conversationScope: ConversationScope): ObserveConversationDetailsUseCase =
         conversationScope.observeConversationDetails
+
+    @ViewModelScoped
+    @Provides
+    fun provideNotifyConversationIsOpenUseCase(conversationScope: ConversationScope): NotifyConversationIsOpenUseCase =
+        conversationScope.notifyConversationIsOpen
 
     @ViewModelScoped
     @Provides

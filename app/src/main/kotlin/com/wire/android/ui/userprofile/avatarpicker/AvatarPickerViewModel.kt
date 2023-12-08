@@ -103,7 +103,7 @@ class AvatarPickerViewModel @Inject constructor(
         pictureState = PictureState.Picked(updatedUri)
     }
 
-    fun uploadNewPickedAvatar(onSuccess: () -> Unit) {
+    fun uploadNewPickedAvatar(onComplete: (avatarAssetId: String?) -> Unit) {
         val imgUri = pictureState.avatarUri
 
         viewModelScope.launch {
@@ -115,7 +115,7 @@ class AvatarPickerViewModel @Inject constructor(
             when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
                 is UploadAvatarResult.Success -> {
                     dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                    onSuccess()
+                    onComplete(dataStore.avatarAssetId.first())
                 }
                 is UploadAvatarResult.Failure -> {
                     when (result.coreFailure) {

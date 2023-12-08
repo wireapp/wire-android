@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -105,6 +106,8 @@ import com.wire.android.ui.destinations.MessageDetailsScreenDestination
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
@@ -661,6 +664,7 @@ private fun ConversationScreen(
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
+                    selectedMessageId = conversationMessagesViewState.searchedMessageId,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
@@ -703,6 +707,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
+    selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
@@ -755,7 +760,8 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onLinkClick = onLinkClick
+                onLinkClick = onLinkClick,
+                selectedMessageId = selectedMessageId
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -766,23 +772,6 @@ private fun ConversationScreenContent(
         tempWritableImageUri = tempWritableImageUri,
         onTypingEvent = onTypingEvent
     )
-
-    // TODO: uncomment when we have the "scroll to bottom" button implemented
-//    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
-//        derivedStateOf {
-//            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-//                (it.type as? MessageComposeInputType.EditMessage)?.messageId
-//            }
-//        }
-//    }
-//    LaunchedEffect(currentEditMessageId) {
-//        // executes when the id of currently being edited message changes, if not currently editing then it's just null
-//        if (currentEditMessageId != null) {
-//            lazyPagingMessages.itemSnapshotList.items
-//                .indexOfFirst { it.header.messageId == currentEditMessageId }
-//                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
-//        }
-//    }
 }
 
 @Composable
@@ -807,7 +796,8 @@ private fun SnackBarMessage(
             val actionLabel = if (it is OnFileDownloaded) showLabel else null
             val snackbarResult = snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
-                actionLabel = actionLabel
+                actionLabel = actionLabel,
+                duration = SnackbarDuration.Short
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
@@ -837,7 +827,8 @@ fun MessageList(
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    selectedMessageId: String?
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -883,30 +874,11 @@ fun MessageList(
                     key = lazyPagingMessages.itemKey { it.header.messageId },
                     contentType = lazyPagingMessages.itemContentType { it }
                 ) { index ->
-                    val message: UIMessage? = lazyPagingMessages[index]
-                    if (message == null) {
-                        // We can draw a placeholder here, as we fetch the next page of messages
-                        return@items
-                    }
-                    val showAuthor by remember {
-                        mutableStateOf(
-                            AuthorHeaderHelper.shouldShowHeader(
-                                index,
-                                lazyPagingMessages.itemSnapshotList.items,
-                                message
-                            )
-                        )
-                    }
+                    val message: UIMessage = lazyPagingMessages[index]
+                        ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
 
-                    val useSmallBottomPadding by remember {
-                        mutableStateOf(
-                            AuthorHeaderHelper.shouldHaveSmallBottomPadding(
-                                index,
-                                lazyPagingMessages.itemSnapshotList.items,
-                                message
-                            )
-                        )
-                    }
+                    val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
+                    val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
                     when (message) {
                         is UIMessage.Regular -> {
@@ -927,7 +899,8 @@ fun MessageList(
                                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                                onLinkClick = onLinkClick
+                                onLinkClick = onLinkClick,
+                                isSelectedMessage = (message.header.messageId == selectedMessageId)
                             )
                         }
 

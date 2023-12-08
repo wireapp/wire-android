@@ -18,7 +18,8 @@
 package com.wire.android.ui.home.appLock.set
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
+import com.wire.android.feature.ObserveAppLockConfigUseCase
+
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import kotlin.time.Duration
 
@@ -26,7 +27,7 @@ data class SetLockCodeViewState(
     val continueEnabled: Boolean = false,
     val password: TextFieldValue = TextFieldValue(),
     val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
-    val timeout: Duration = DEFAULT_TIMEOUT,
-    val isAppLockByUser: Boolean = true,
-    val done: Boolean = false
+    val timeout: Duration = ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT,
+    val done: Boolean = false,
+    val isEditable: Boolean = true
 )

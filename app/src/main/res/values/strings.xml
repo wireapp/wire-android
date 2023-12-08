@@ -712,7 +712,8 @@
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
     <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_links">Links</string>
+    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>

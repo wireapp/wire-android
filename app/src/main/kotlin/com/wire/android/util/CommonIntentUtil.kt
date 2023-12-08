@@ -25,7 +25,7 @@ import androidx.core.net.toUri
 import com.wire.android.appLogger
 
 // geo intent url scheme
-internal const val GEO_INTENT_URL = "geo:0,0?q=%1f,%2f"
+internal const val GEO_INTENT_URL = "geo:0,0?q=%f,%f"
 
 /**
  * Launches a geo intent with the given latitude and longitude.

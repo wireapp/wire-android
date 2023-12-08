@@ -338,7 +338,7 @@ pipeline {
         stage('Bundle AAB') {
             when {
                 expression {
-                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                    // params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                             ((params.FLAVOR == 'Prod' && params.BUILD_TYPE == 'Compatrelease') ||
                                     (params.FLAVOR == 'Beta' && params.BUILD_TYPE == 'Release') ||
                                     (params.FLAVOR == 'Internal' && params.BUILD_TYPE == 'Compat'))

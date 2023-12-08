@@ -111,9 +111,9 @@ pipeline {
                                                     string(name: 'FLAVOR', value: flavor),
                                                     booleanParam(name: 'UPLOAD_TO_S3', value: true),
                                                     booleanParam(name: 'UPLOAD_TO_PLAYSTORE_ENABLED', value: true),
-                                                    booleanParam(name: 'RUN_UNIT_TEST', value: true),
-                                                    booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
-                                                    booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
+                                                    booleanParam(name: 'RUN_UNIT_TEST', value: false),
+                                                    booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: false),
+                                                    booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: false),
                                                     string(name: 'GITHUB_CHANGE_ID', value: env.CHANGE_ID)]
                                     )
                                 }

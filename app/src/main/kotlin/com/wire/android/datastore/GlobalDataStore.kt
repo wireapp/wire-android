@@ -37,6 +37,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -90,8 +91,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
-    fun isLoggingEnabled(): Flow<Boolean> =
-        getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
+    fun isLoggingEnabled(): Flow<Boolean> = flowOf(true)
+        // getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
 
     suspend fun setLoggingEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }

@@ -87,6 +87,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
@@ -637,6 +638,7 @@ private fun MessageContent(
         }
 
         is UIMessageContent.Location -> with(messageContent) {
+            val context = LocalContext.current
             val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
             Column {
                 LocationMessageContent(
@@ -644,7 +646,7 @@ private fun MessageContent(
                     locationUrl = locationUrl,
                     onLocationClick = Clickable(
                         enabled = message.isAvailable,
-                        onClick = { onLinkClick(locationUrl) },
+                        onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
                         onLongClick = onLongClick
                     )
                 )

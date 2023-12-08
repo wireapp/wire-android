@@ -273,7 +273,7 @@ sealed class UIMessageContent {
         val longitude: Float,
         val name: String,
         val zoom: Int = DEFAULT_LOCATION_ZOOM,
-        @StringRes val urlCoordinates: Int = R.string.url_maps_location_coordinates,
+        @StringRes val urlCoordinates: Int = R.string.url_maps_location_coordinates_fallback,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 

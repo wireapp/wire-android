@@ -26,7 +26,7 @@ import com.wire.android.appLogger
 
 /**
  * Launches a geo intent with the given latitude and longitude.
- * If no intent can be found to handle the geo intent, a fallback to url is used.
+ * If no app/activity can be found to handle the geo intent, a fallback to url is used.
  */
 fun launchGeoIntent(
     latitude: Float,
@@ -38,7 +38,7 @@ fun launchGeoIntent(
     val geoStringUrl = StringBuilder("geo:0,0?q=$latitude,$longitude")
     if (!placeName.isNullOrEmpty()) geoStringUrl.append("(${Uri.encode(placeName)})")
     try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(geoStringUrl.toString())))
+        context.startActivity(Intent(Intent.ACTION_VIEW, geoStringUrl.toString().toUri()))
     } catch (e: ActivityNotFoundException) {
         appLogger.e("No activity found to handle geo intent, fallback to url", e)
         context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri()))

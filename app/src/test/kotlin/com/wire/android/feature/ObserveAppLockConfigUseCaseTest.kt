@@ -20,13 +20,12 @@ package com.wire.android.feature
 import app.cash.turbine.test
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -117,9 +116,6 @@ class ObserveAppLockConfigUseCaseTest {
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
-        lateinit var currentSession: CurrentSessionUseCase
-
-        @MockK
         lateinit var coreLogic: CoreLogic
 
         @MockK
@@ -131,8 +127,7 @@ class ObserveAppLockConfigUseCaseTest {
         val useCase by lazy {
             ObserveAppLockConfigUseCase(
                 globalDataStore = globalDataStore,
-                coreLogic = coreLogic,
-                currentSession = currentSession
+                coreLogic = coreLogic
             )
         }
 
@@ -143,11 +138,13 @@ class ObserveAppLockConfigUseCaseTest {
         fun arrange() = this to useCase
 
         fun withNonValidSession() = apply {
-            coEvery { currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
+            coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
+                    flowOf(CurrentSessionResult.Failure.SessionNotFound)
         }
 
         fun withValidSession() = apply {
-            coEvery { currentSession() } returns CurrentSessionResult.Success(accountInfo)
+            coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
+                    flowOf(CurrentSessionResult.Success(accountInfo))
         }
 
         fun withTeamAppLockEnabled() = apply {

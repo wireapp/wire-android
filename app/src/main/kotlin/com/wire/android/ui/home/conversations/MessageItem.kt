@@ -84,8 +84,10 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
@@ -632,6 +634,23 @@ private fun MessageContent(
                     onAudioMessageLongClick = onLongClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
+            }
+        }
+
+        is UIMessageContent.Location -> with(messageContent) {
+            val context = LocalContext.current
+            val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
+            Column {
+                LocationMessageContent(
+                    locationName = name,
+                    locationUrl = locationUrl,
+                    onLocationClick = Clickable(
+                        enabled = message.isAvailable,
+                        onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
+                        onLongClick = onLongClick
+                    )
+                )
+                PartialDeliveryInformation(deliveryStatus)
             }
         }
 

@@ -267,6 +267,13 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
                 is WithUser.MembersCreationAdded -> UILastMessageContent.None
                 is WithUser.MembersFailedToAdd -> UILastMessageContent.None
+                is WithUser.Location -> UILastMessageContent.SenderWithMessage(
+                    userUIText,
+                    UIText.StringResource(
+                        if (isSelfMessage) R.string.last_message_self_user_shared_location
+                        else R.string.last_message_other_user_shared_location
+                    )
+                )
             }
         }
 

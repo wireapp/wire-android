@@ -84,7 +84,6 @@ class LegalHoldDeactivatedViewModel @Inject constructor(
                                 }
                         }
                     }
-
             }.collectLatest { state = it }
         }
     }

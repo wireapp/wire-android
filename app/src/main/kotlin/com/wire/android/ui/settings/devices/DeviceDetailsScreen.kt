@@ -173,7 +173,7 @@ fun DeviceDetailsContent(
                 EndToEndIdentityCertificateItem(
                     isE2eiCertificateActivated = state.isE2eiCertificateActivated,
                     certificate = state.e2eiCertificate,
-                    isSelfClient = state.isSelfClient,
+                    isCurrentDevice = state.isCurrentDevice,
                     isLoadingCertificate = state.isLoadingCertificate,
                     enrollE2eiCertificate = { enrollE2eiCertificate(context) },
                     updateE2eiCertificate = {},

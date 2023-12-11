@@ -91,12 +91,14 @@ class DeviceDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val certificate = e2eiCertificate(deviceId)
             state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+                println("cyka getting cert success")
                 state.copy(
                     isE2eiCertificateActivated = true,
                     e2eiCertificate = certificate.certificate,
                     isLoadingCertificate = false
                 )
             } else {
+                println("cyka getting cert success")
                 state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
             }
         }
@@ -106,19 +108,24 @@ class DeviceDetailsViewModel @Inject constructor(
         state = state.copy(isLoadingCertificate = true)
         enrolE2EICertificateUseCase(context) { result ->
             result.fold({
+                println("cyka error0 $it")
                 state = state.copy(
                     isLoadingCertificate = false,
                     isE2EICertificateEnrollError = true
                 )
             }, {
                 if (it is E2EIEnrollmentResult.Finalized) {
+                    println("cyka Finalized, getting cert")
                     getE2eiCertificate()
                     state = state.copy(isE2EICertificateEnrollSuccess = true)
                 } else if (it is E2EIEnrollmentResult.Failed) {
+                    println("cyka error1 $it")
                     state = state.copy(
                         isLoadingCertificate = false,
                         isE2EICertificateEnrollError = true
                     )
+                } else {
+                    println("cyka other: $it")
                 }
             })
         }

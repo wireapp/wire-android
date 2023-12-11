@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.mapLeft
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -62,10 +63,10 @@ class GetE2EICertificateUseCase @Inject constructor(
         scope.launch {
             when (oAuthResult) {
                 is OAuthUseCase.OAuthResult.Success -> {
-                    enrollE2EI.finalizeEnrollment(
+                    enrollmentResultHandler(enrollE2EI.finalizeEnrollment(
                         oAuthResult.idToken,
                         initialEnrollmentResult
-                    ).map { enrollmentResultHandler(Either.Right(it)) }
+                    ))
                 }
 
                 is OAuthUseCase.OAuthResult.Failed -> {

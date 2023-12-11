@@ -45,7 +45,7 @@ import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
 fun EndToEndIdentityCertificateItem(
     isE2eiCertificateActivated: Boolean,
     certificate: E2eiCertificate,
-    isSelfClient: Boolean,
+    isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
     updateE2eiCertificate: () -> Unit,
@@ -93,7 +93,7 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_not_activated_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        if (isSelfClient) {
+                        if (isCurrentDevice) {
                             UpdateE2eiCertificateButton(
                                 enabled = true,
                                 isLoading = isLoadingCertificate,
@@ -109,7 +109,7 @@ fun EndToEndIdentityCertificateItem(
                             icon = R.drawable.ic_certificate_valid_mls
                         )
                         SerialNumberBlock(certificate.serialNumber)
-                        if (isSelfClient) {
+                        if (isCurrentDevice) {
                             UpdateE2eiCertificateButton(
                                 enabled = true,
                                 isLoading = isLoadingCertificate,
@@ -131,7 +131,7 @@ fun EndToEndIdentityCertificateItem(
                     labelColor = colorsScheme().error,
                     icon = R.drawable.ic_certificate_not_activated_mls
                 )
-                if (isSelfClient) {
+                if (isCurrentDevice) {
                     GetE2eiCertificateButton(
                         enabled = true,
                         isLoading = isLoadingCertificate,
@@ -193,7 +193,7 @@ private fun E2EIStatusRow(
 fun PreviewEndToEndIdentityCertificateItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
-        isSelfClient = false,
+        isCurrentDevice = false,
         certificate = E2eiCertificate(
             issuer = "Wire",
             status = CertificateStatus.VALID,
@@ -212,7 +212,7 @@ fun PreviewEndToEndIdentityCertificateItem() {
 fun PreviewEndToEndIdentityCertificateSelfItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
-        isSelfClient = true,
+        isCurrentDevice = true,
         certificate = E2eiCertificate(
             issuer = "Wire",
             status = CertificateStatus.VALID,

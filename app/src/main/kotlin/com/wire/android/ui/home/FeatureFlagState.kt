@@ -61,6 +61,6 @@ data class FeatureFlagState(
 
     sealed class E2EIResult {
         data class Failure(val e2EIRequired: E2EIRequired) : E2EIResult()
-        data class Success(val certificate: String): E2EIResult()
+        data class Success(val certificate: String) : E2EIResult()
     }
 }

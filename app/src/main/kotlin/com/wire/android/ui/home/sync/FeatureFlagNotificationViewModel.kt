@@ -277,18 +277,19 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                         e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
                     )
                 }, {
-                    if (it is E2EIEnrollmentResult.Finalized)
+                    if (it is E2EIEnrollmentResult.Finalized) {
                         featureFlagState = featureFlagState.copy(
                             isE2EILoading = false,
                             e2EIRequired = null,
                             e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
                         )
-                    else if (it is E2EIEnrollmentResult.Failed)
+                    } else if (it is E2EIEnrollmentResult.Failed) {
                         featureFlagState = featureFlagState.copy(
                             isE2EILoading = false,
                             e2EIRequired = null,
                             e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
                         )
+                    }
                 })
             }
         }
@@ -313,7 +314,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun dismissCallEndedBecauseOfConversationDegraded() {
         featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = false)
     }
-
 
     fun dismissSuccessE2EIdDialog() {
         featureFlagState = featureFlagState.copy(e2EIResult = null)

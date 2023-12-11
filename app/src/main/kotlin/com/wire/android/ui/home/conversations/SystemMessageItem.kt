@@ -153,24 +153,49 @@ fun SystemMessageItem(
         ) {
             val context = LocalContext.current
             var expanded: Boolean by remember { mutableStateOf(initiallyExpanded) }
-            Text(
+            val annotatedString = message.messageContent.annotatedString(
+                res = context.resources,
+                expanded = expanded,
+                normalStyle = MaterialTheme.wireTypography.body01,
+                boldStyle = MaterialTheme.wireTypography.body02,
+                normalColor = MaterialTheme.wireColorScheme.secondaryText,
+                boldColor = MaterialTheme.wireColorScheme.onBackground,
+                errorColor = MaterialTheme.wireColorScheme.error,
+                isErrorString = message.addingFailed,
+            )
+            val learnMoreAnnotatedString = message.messageContent.learnMoreResId?.let {
+                val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
+                val learnMoreText = stringResource(id = R.string.label_learn_more)
+                buildAnnotatedString {
+                    append(learnMoreText)
+                    addStyle(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        start = 0,
+                        end = learnMoreText.length
+                    )
+                    addStringAnnotation(tag = TAG_LEARN_MORE, annotation = learnMoreLink, start = 0, end = learnMoreText.length)
+                }
+            }
+            val fullAnnotatedString =
+                if (learnMoreAnnotatedString != null) annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
+                else annotatedString
+
+            ClickableText(
                 modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-                style = MaterialTheme.wireTypography.body01,
-                lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
-                text = message.messageContent.annotatedString(
-                    res = context.resources,
-                    expanded = expanded,
-                    normalStyle = MaterialTheme.wireTypography.body01,
-                    boldStyle = MaterialTheme.wireTypography.body02,
-                    normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                    boldColor = MaterialTheme.wireColorScheme.onBackground,
-                    errorColor = MaterialTheme.wireColorScheme.error,
-                    isErrorString = message.addingFailed,
-                ),
+                text = fullAnnotatedString,
+                onClick = { offset ->
+                    fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset,)
+                        .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
+                },
+                style = MaterialTheme.wireTypography.body02,
                 onTextLayout = {
                     centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
                 }
             )
+
             if ((message.addingFailed && expanded) || message.singleUserAddFailed) {
                 OfflineBackendsLearnMoreLink()
             }
@@ -191,31 +216,6 @@ fun SystemMessageItem(
                     messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
-                )
-            }
-            if (message.messageContent.learnMoreResId != null) {
-                val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
-                val learnMoreText = stringResource(id = R.string.label_learn_more)
-                val annotatedString = buildAnnotatedString {
-                    append(learnMoreText)
-                    addStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        ),
-                        start = 0,
-                        end = learnMoreText.length
-                    )
-                }
-                ClickableText(
-                    text = annotatedString,
-                    onClick = {
-                        CustomTabsHelper.launchUrl(
-                            context,
-                            learnMoreLink
-                        )
-                    },
-                    style = MaterialTheme.wireTypography.body01,
                 )
             }
         }
@@ -714,3 +714,4 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddMarkdownText(
 
 private const val EXPANDABLE_THRESHOLD = 4
 private const val SINGLE_EXPANDABLE_THRESHOLD = 1
+private const val TAG_LEARN_MORE = "tag_learn_more"

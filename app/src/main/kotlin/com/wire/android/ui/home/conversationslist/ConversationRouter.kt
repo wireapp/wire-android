@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
+import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
@@ -89,7 +89,7 @@ fun ConversationRouterHomeBridge(
         viewModel.updateConversationsSource(conversationsSource)
     }
 
-    MicrophoneBTPermissionsDeniedDialog(
+    MicrophonePermissionDeniedDialog(
         shouldShow = viewModel.conversationListCallState.shouldShowCallingPermissionDialog,
         onDismiss = viewModel::dismissCallingPermissionDialog,
         onOpenSettings = {

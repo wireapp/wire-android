@@ -293,6 +293,7 @@ class SystemMessageContentMapper @Inject constructor(
 
         return when (content) {
             MessageContent.LegalHold.ForConversation.Disabled -> UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation
+            MessageContent.LegalHold.ForConversation.Enabled -> UIMessageContent.SystemMessage.LegalHold.Enabled.Conversation
 
             is MessageContent.LegalHold.ForMembers.Disabled -> handleLegalHoldForMembers(
                 members = content.members,

@@ -501,6 +501,7 @@ sealed class UIMessageContent {
             sealed class Enabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, R.string.url_legal_hold_learn_more) {
                 data object Self : Enabled(R.string.legal_hold_system_message_enabled_self)
                 data class Others(override val memberNames: List<UIText>) : Enabled(R.string.legal_hold_system_message_enabled_others)
+                data object Conversation : Enabled(R.string.legal_hold_system_message_enabled_conversation)
             }
 
             sealed class Disabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, null) {

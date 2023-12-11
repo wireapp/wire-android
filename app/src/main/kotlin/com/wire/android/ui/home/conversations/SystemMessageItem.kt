@@ -531,6 +531,14 @@ fun PreviewSystemMessageLegalHoldDisabledConversation() {
     }
 }
 
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldEnabledConversation() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Enabled.Conversation))
+    }
+}
+
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD

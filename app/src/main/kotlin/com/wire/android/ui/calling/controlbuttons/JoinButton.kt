@@ -37,7 +37,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 
 @Composable
 fun JoinButton(
@@ -47,13 +47,13 @@ fun JoinButton(
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
 ) {
-    val audioBTPermissionCheck = AudioBluetoothPermissionCheckFlow(
+    val audioPermissionCheck = AudioPermissionCheckFlow(
         onJoinCall = buttonClick,
         onPermanentPermissionDecline = onPermanentPermissionDecline
     )
 
     WirePrimaryButton(
-        onClick = audioBTPermissionCheck::launch,
+        onClick = audioPermissionCheck::launch,
         fillMaxWidth = false,
         shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
         text = stringResource(R.string.calling_button_label_join_call),
@@ -72,16 +72,16 @@ fun JoinButton(
 }
 
 @Composable
-private fun AudioBluetoothPermissionCheckFlow(
+private fun AudioPermissionCheckFlow(
     onJoinCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit
-) = rememberCallingRecordAudioBluetoothRequestFlow(
-    onAudioBluetoothPermissionGranted = {
-        appLogger.d("IncomingCall - Permissions granted")
+) = rememberCallingRecordAudioRequestFlow(
+    onAudioPermissionGranted = {
+        appLogger.d("IncomingCall - Audio permission granted")
         onJoinCall()
     },
-    onAudioBluetoothPermissionDenied = { },
-    onAudioBluetoothPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onAudioPermissionDenied = { },
+    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @Preview

@@ -15,7 +15,8 @@ data class DeviceDetailsState(
     val userName: String? = null,
     val isE2eiCertificateActivated: Boolean = false,
     val e2eiCertificate: E2eiCertificate = E2eiCertificate(),
+    val canBeRemoved: Boolean = false,
     val isLoadingCertificate: Boolean = false,
     val isE2EICertificateEnrollSuccess: Boolean = false,
-    val isE2EICertificateEnrollError: Boolean = false
+    val isE2EICertificateEnrollError: Boolean = false,
 )

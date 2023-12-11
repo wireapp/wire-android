@@ -146,11 +146,17 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
                 .distinctUntilChanged()
-                .collectLatest {
-                    it?.isStatusChanged?.let { isStatusChanged ->
+                .collectLatest { appLockConfig ->
+                    appLockConfig?.isStatusChanged?.let { isStatusChanged ->
+                        val shouldBlockApp = if (isStatusChanged) {
+                            true
+                        } else {
+                            (!isUserAppLockSet() && appLockConfig.isEnforced)
+                        }
+
                         featureFlagState = featureFlagState.copy(
-                            isTeamAppLockEnabled = it.isEnforced,
-                            shouldShowTeamAppLockDialog = isStatusChanged
+                            isTeamAppLockEnabled = appLockConfig.isEnforced,
+                            shouldShowTeamAppLockDialog = shouldBlockApp
                         )
                     }
                 }

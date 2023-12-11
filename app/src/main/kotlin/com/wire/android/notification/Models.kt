@@ -141,6 +141,7 @@ enum class CommentResId(@StringRes val value: Int) {
     MISSED_CALL(R.string.notification_missed_call),
     NOT_SUPPORTED(R.string.notification_not_supported_issue),
     KNOCK(R.string.notification_knock),
+    LOCATION(R.string.notification_shared_location),
 }
 
 fun LocalNotification.Conversation.intoNotificationConversation(): NotificationConversation {
@@ -233,4 +234,5 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
+        LocalNotificationCommentType.LOCATION -> CommentResId.LOCATION
     }

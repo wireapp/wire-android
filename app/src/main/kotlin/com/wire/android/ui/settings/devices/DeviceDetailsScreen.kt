@@ -128,7 +128,7 @@ fun DeviceDetailsContent(
                     .background(MaterialTheme.wireColorScheme.surface)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             ) {
-                if (!state.isCurrentDevice && state.isSelfClient) {
+                if (state.canBeRemoved) {
                     Text(
                         text = stringResource(
                             id = if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {

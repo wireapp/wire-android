@@ -1231,7 +1231,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
-    <string name="permission_dialog_title">App-Berechtigungen</string>
+    <string name="call_permission_dialog_title">App-Berechtigungen</string>
     <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon und die Suche nach Geräten in der Nähe in Ihren Geräteeinstellungen.</string>
     <string name="label_not_now">Nicht jetzt</string>
     <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
@@ -1257,7 +1257,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
-    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
     <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>

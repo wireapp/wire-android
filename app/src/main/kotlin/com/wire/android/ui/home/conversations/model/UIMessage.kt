@@ -267,6 +267,16 @@ sealed class UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
+    @Stable
+    data class Location(
+        val latitude: Float,
+        val longitude: Float,
+        val name: String,
+        val zoom: Int = DEFAULT_LOCATION_ZOOM,
+        @StringRes val urlCoordinates: Int = R.string.url_maps_location_coordinates_fallback,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
+
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
@@ -571,3 +581,5 @@ data class MessageButton(
     val text: String,
     val isSelected: Boolean,
 )
+
+const val DEFAULT_LOCATION_ZOOM = 20

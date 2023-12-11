@@ -83,7 +83,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.calling.common.MicrophoneBTPermissionsDeniedDialog
+import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -225,7 +225,7 @@ fun ConversationScreen(
             )
         }
 
-        MicrophoneBTPermissionsDeniedDialog(
+        MicrophonePermissionDeniedDialog(
             shouldShow = conversationCallViewState.shouldShowCallingPermissionDialog,
             onDismiss = ::dismissCallingPermissionDialog,
             onOpenSettings = {

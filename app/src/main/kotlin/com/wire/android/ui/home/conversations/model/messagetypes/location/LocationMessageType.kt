@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -81,12 +82,14 @@ fun LocationMessageContent(
                 .fillMaxWidth()
                 .padding(PaddingValues(horizontal = dimensions().spacing8x)),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = stringResource(id = R.string.content_description_location_icon),
-                modifier = Modifier.size(MaterialTheme.wireDimensions.wireIconButtonSize)
+                modifier = Modifier
+                    .size(MaterialTheme.wireDimensions.wireIconButtonSize)
+                    .offset(y = dimensions().spacing4x)
             )
             Spacer(modifier = Modifier.width(dimensions().spacing4x))
             Text(

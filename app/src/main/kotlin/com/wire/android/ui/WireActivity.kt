@@ -384,22 +384,18 @@ class WireActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+
     override fun onResume() {
         super.onResume()
-
         lifecycleScope.launch {
-            lockCodeTimeManager.observeAppLock()
-                // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
-                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .first().let {
-                    if (it) {
-                        startActivity(
-                            Intent(this@WireActivity, AppLockActivity::class.java)
-                        )
-                    }
+            lockCodeTimeManager.observeAppLock().first().let {
+                if (it) {
+                    startActivity(
+                        Intent(this@WireActivity, AppLockActivity::class.java)
+                    )
                 }
+            }
         }
-
         proximitySensorManager.registerListener()
     }
 

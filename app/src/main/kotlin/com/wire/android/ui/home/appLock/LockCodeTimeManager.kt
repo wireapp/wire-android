@@ -24,19 +24,16 @@ import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,9 +49,9 @@ import javax.inject.Singleton
 @Singleton
 class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
-    currentScreenManager: CurrentScreenManager,
-    observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
-    globalDataStore: GlobalDataStore,
+    val currentScreenManager: CurrentScreenManager,
+    val observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
+    val globalDataStore: GlobalDataStore,
 ) {
 
     private lateinit var isLockedFlow: MutableStateFlow<Boolean>
@@ -65,47 +62,57 @@ class LockCodeTimeManager @Inject constructor(
             isLockedFlow = MutableStateFlow(initialValue)
         }
 
-        // next, listen for app lock config and app visibility changes to determine if app should be locked
         appCoroutineScope.launch {
-            combine(
-                observeAppLockConfigUseCase(),
-                currentScreenManager.isAppVisibleFlow(),
-                ::Pair
-            )
-                .distinctUntilChanged()
-                .flatMapLatest { (appLockConfig, isInForeground) ->
-                    when {
-                        appLockConfig is AppLockConfig.Disabled -> flowOf(false)
-
-                        !isInForeground && !isLockedFlow.value -> flow {
-                            appLogger.i("$TAG lock is enabled and app in the background, lock count started")
-                            delay(appLockConfig.timeout.inWholeMilliseconds)
-                            appLogger.i("$TAG lock count ended, app state should be locked if passcode is set")
-
-                            if (appLockConfig is AppLockConfig.Enabled) {
-                                emit(true)
-                            }
-                        }
-
-                        else -> {
-                            appLogger.i("$TAG no change to lock state, isInForeground: $isInForeground, isLocked: ${isLockedFlow.value}")
-                            emptyFlow()
-                        }
-                    }
-                }.collectLatest {
-                    isLockedFlow.value = it
+            currentScreenManager.isAppVisibleFlow().collectLatest { isAppVisible ->
+                // if app is not visible and not locked, set the time when app went to background
+                if (!isAppVisible && !isLockedFlow.value) {
+                    appLogger.i("$TAG setAppWentToBackgroundAt called")
+                    globalDataStore.setAppWentToBackgroundAt(Clock.System.now().epochSeconds)
                 }
+            }
         }
     }
 
+    private fun shouldLockApp(): Flow<Boolean> = currentScreenManager.isAppVisibleFlow().map {
+        if (it) {
+            return@map observeAppLockConfigUseCase().map { appLockConfig ->
+                val now = Clock.System.now().epochSeconds
+                when (appLockConfig) {
+                    is AppLockConfig.Disabled -> {
+                        appLogger.i("$TAG app lock config: Disabled")
+                        false
+                    }
+                    else -> {
+                        val applicationWentToBackgroundAt =
+                            globalDataStore.getApplicationWentToBackgroundAt().first()
+                        appLogger.i(
+                            "$TAG diff: ${now - applicationWentToBackgroundAt} " +
+                                    "timeout: ${appLockConfig.timeout.inWholeSeconds}"
+                        )
+                        now - applicationWentToBackgroundAt >= appLockConfig.timeout.inWholeSeconds
+                    }
+                }
+            }
+        } else flowOf(isLockedFlow.value)
+    }.map {
+        isLockedFlow = MutableStateFlow(it.first())
+        it.first()
+    }
+
+
     fun appUnlocked() {
         appLogger.i("$TAG app unlocked")
+        // set future time to avoid app lock on next app start
+        // 4858066827 = Sun Dec 12 2123 15:00:27 GMT+0000
+        appCoroutineScope.launch {
+            globalDataStore.setAppWentToBackgroundAt(4858066827)
+        }
         isLockedFlow.value = false
     }
 
     fun isAppLocked(): Boolean = isLockedFlow.value
 
-    fun observeAppLock(): Flow<Boolean> = isLockedFlow
+    fun observeAppLock(): Flow<Boolean> = shouldLockApp()
 
     companion object {
         private const val TAG = "LockCodeTimeManager"

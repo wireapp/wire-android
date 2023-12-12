@@ -26,6 +26,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
@@ -59,6 +60,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val APP_LOCK_PASSCODE = stringPreferencesKey("app_lock_passcode")
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
+        private val APP_WENT_TO_BACKGROUND_AT = longPreferencesKey("app_went_to_background_at")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
@@ -86,6 +88,13 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     ): Flow<String> =
         context.dataStore.data.map { it[key] ?: defaultValue }
 
+
+    private fun getLongPreference(
+        key: Preferences.Key<Long>,
+        defaultValue: Long
+    ): Flow<Long> =
+        context.dataStore.data.map { it[key] ?: defaultValue }
+
     fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
@@ -102,6 +111,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED,
             BuildConfig.ENCRYPT_PROTEUS_STORAGE
         )
+
+    suspend fun setAppWentToBackgroundAt(timestamp: Long) {
+        context.dataStore.edit { it[APP_WENT_TO_BACKGROUND_AT] = timestamp }
+    }
 
     suspend fun setEncryptedProteusStorageEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
@@ -138,6 +151,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
             }
         }
     }
+
+    fun getApplicationWentToBackgroundAt(): Flow<Long> =
+        getLongPreference(APP_WENT_TO_BACKGROUND_AT, 0L)
 
     /**
      * Returns the migration status of the user with the given [userId].

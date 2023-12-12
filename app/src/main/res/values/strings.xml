@@ -1261,8 +1261,8 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="permission_dialog_title">App permissions</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
+    <string name="call_permission_dialog_title">App permission</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
@@ -1287,7 +1287,7 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
-    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
     <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
@@ -1314,6 +1314,12 @@
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
     <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
+    <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
+    <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
+    <string name="legal_hold_system_message_enabled_conversation">Legal hold is now active for this conversation.</string>
 
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>

@@ -651,7 +651,6 @@ private fun MessageContent(
                     )
                 )
                 PartialDeliveryInformation(deliveryStatus)
-                VerticalSpace.x4()
             }
         }
 

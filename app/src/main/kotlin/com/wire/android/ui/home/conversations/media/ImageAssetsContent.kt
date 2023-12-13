@@ -39,7 +39,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.toGroupedByMonthAndYear
+import com.wire.android.ui.common.toImageAssetGroupedByMonthAndYear
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -63,7 +63,7 @@ fun ImageAssetGrid(
 ) {
     val timeZone = remember { TimeZone.currentSystemDefault() }
     val groupedAssets = remember(uiAssetMessageList) {
-        uiAssetMessageList.toGroupedByMonthAndYear(timeZone = timeZone)
+        uiAssetMessageList.toImageAssetGroupedByMonthAndYear(timeZone = timeZone)
     }
 
     val scrollState = rememberLazyGridState()

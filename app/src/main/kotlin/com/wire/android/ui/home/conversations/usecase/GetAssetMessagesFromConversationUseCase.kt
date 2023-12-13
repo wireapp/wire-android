@@ -18,7 +18,7 @@
 package com.wire.android.ui.home.conversations.usecase
 
 import com.wire.android.mapper.MessageMapper
-import com.wire.android.ui.common.toGroupedByMonthAndYear
+import com.wire.android.ui.common.toGenericAssetGroupedByMonthAndYear
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,9 +51,9 @@ class GetAssetMessagesFromConversationUseCase @Inject constructor(
             conversationId = conversationId,
             limit = 35,
             offset = 0
-        ).let {
+        ).let { assetMessageList ->
             val timeZone = TimeZone.currentSystemDefault()
-            it.toGroupedByMonthAndYear(timeZone = timeZone)
+            assetMessageList.toGenericAssetGroupedByMonthAndYear(timeZone = timeZone)
         }.map {
 
             val values: List<UIMessage> = it.value.map { message ->

@@ -170,12 +170,12 @@ private fun monthYearHeader(month: Int, year: Int): String {
     }
 }
 
-fun List<UIAssetMessage>.toGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { asset ->
+fun List<UIAssetMessage>.toImageAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { asset ->
     val localDateTime = asset.time.toLocalDateTime(timeZone)
     monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
 }
 
-fun List<Message.Standalone>.toGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { message ->
+fun List<Message.Standalone>.toGenericAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { message ->
     val localDateTime = message.date.toInstant().toLocalDateTime(timeZone)
     monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
 }

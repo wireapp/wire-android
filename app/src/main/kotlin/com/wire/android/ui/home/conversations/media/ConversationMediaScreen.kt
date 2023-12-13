@@ -24,7 +24,6 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,11 +31,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +53,7 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -71,14 +66,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 import com.wire.kalium.util.map.forEachIndexed
-import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
@@ -146,47 +138,6 @@ private fun Content(
             )
         },
     ) { padding ->
-        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(padding)
-            ) { pageIndex ->
-                when (ConversationMediaScreenTabItem.entries[pageIndex]) {
-                    ConversationMediaScreenTabItem.PICTURES -> PicturesContent(
-                        uiAssetMessageList = state.messages,
-                        onImageFullScreenMode = onImageFullScreenMode,
-                        continueAssetLoading = continueAssetLoading
-                    )
-                    ConversationMediaScreenTabItem.FILES -> FilesContent()
-                }
-            }
-
-            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                    focusedTabIndex = pagerState.currentPage
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PicturesContent(
-    uiAssetMessageList: List<UIAssetMessage>,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
-) {
-    if (uiAssetMessageList.isEmpty()) {
-        EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_pictures_empty)
-        )
-    } else {
-        AssetGrid(
-            uiAssetMessageList = uiAssetMessageList,
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
 
         CompositionLocalProvider(LocalOverscrollConfiguration provides null) {

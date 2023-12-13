@@ -51,6 +51,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.util.map.forEachIndexed
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 
 @Composable
@@ -174,7 +175,7 @@ fun previewAssetGrid() {
         downloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
     )
     WireTheme {
-        AssetGrid(
+        ImageAssetGrid(
             uiAssetMessageList = listOf(
                 message1,
                 message2,

@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.sync
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
@@ -295,7 +296,8 @@ class FeatureFlagNotificationViewModelTest {
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession,
             globalDataStore = globalDataStore,
-            disableAppLockUseCase = disableAppLockUseCase
+            disableAppLockUseCase = disableAppLockUseCase,
+            dispatcherProvider = TestDispatcherProvider()
         )
 
         init {

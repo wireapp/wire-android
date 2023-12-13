@@ -42,8 +42,13 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.util.map.forEachIndexed
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -167,3 +172,39 @@ fun groupAssetsByMonthYear(uiAssetMessageList: List<UIAssetMessage>, timeZone: T
 }
 
 private const val COLUMN_COUNT = 4
+
+@PreviewMultipleThemes
+@Composable
+fun previewAssetGrid() {
+    val message1 = UIAssetMessage(
+        assetId = "1",
+        time = Instant.DISTANT_PAST,
+        username = UIText.DynamicString("Username 1"),
+        messageId = "msg1",
+        conversationId = QualifiedID("value", "domain"),
+        assetPath = null,
+        downloadStatus = Message.DownloadStatus.SAVED_EXTERNALLY,
+        isSelfAsset = false
+    )
+    val message2 = message1.copy(
+        messageId = "msg2",
+        username = UIText.DynamicString("Username 2"),
+        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+        isSelfAsset = true
+    )
+    val message3 = message2.copy(
+        messageId = "msg3",
+        downloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
+    )
+    WireTheme {
+        AssetGrid(
+            uiAssetMessageList = listOf(
+                message1,
+                message2,
+                message3
+            ),
+            onImageFullScreenMode = {_, _, _ -> },
+            continueAssetLoading = {}
+        )
+    }
+}

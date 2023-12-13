@@ -39,28 +39,26 @@ import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.toGroupedByMonthAndYear
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.util.map.forEachIndexed
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.TextStyle
-import java.util.Locale
 
 @Composable
-fun AssetGrid(
+fun ImageAssetGrid(
     uiAssetMessageList: List<UIAssetMessage>,
     modifier: Modifier = Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
     val timeZone = remember { TimeZone.currentSystemDefault() }
-    val groupedAssets = remember(uiAssetMessageList) { groupAssetsByMonthYear(uiAssetMessageList, timeZone) }
+    val groupedAssets = remember(uiAssetMessageList) {
+        uiAssetMessageList.toGroupedByMonthAndYear(timeZone = timeZone)
+    }
 
     val scrollState = rememberLazyGridState()
     val shouldContinue by remember {
@@ -142,27 +140,6 @@ fun AssetGrid(
                 }
             }
         }
-    }
-}
-
-fun monthYearHeader(month: Int, year: Int): String {
-    val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(TimeZone.currentSystemDefault()).year
-    val monthYearInstant = LocalDateTime(year = year, monthNumber = month, 1, 0, 0, 0)
-
-    val monthName = monthYearInstant.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
-    return if (year == currentYear) {
-        // If it's the current year, display only the month name
-        monthName
-    } else {
-        // If it's not the current year, display both the month name and the year
-        "$monthName $year"
-    }
-}
-
-fun groupAssetsByMonthYear(uiAssetMessageList: List<UIAssetMessage>, timeZone: TimeZone): Map<String, List<UIAssetMessage>> {
-    return uiAssetMessageList.groupBy { asset ->
-        val localDateTime = asset.time.toLocalDateTime(timeZone)
-        monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
     }
 }
 

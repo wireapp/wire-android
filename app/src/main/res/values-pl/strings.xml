@@ -366,7 +366,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="create_account_username_label">NAZWA U&#379;YTKOWNIKA</string>
     <string name="create_account_username_text">Wprowad&#378; swoj&#261; nazw&#281; u&#380;ytkownika. Pomaga to innym u&#380;ytkownikom odnale&#378;&#263; Ci&#281; w Wire i po&#322;&#261;czy&#263; si&#281; z Tob&#261;.</string>
     <string name="create_account_username_taken_error">Ta nazwa u&#380;ytkownika jest ju&#380; zaj&#281;ta. Prosz&#281; wybra&#263; inny.</string>
-    <string name="create_account_username_description">Co najmniej 2 znaki: a-z, 0-9 i _</string>
+    <string name="create_account_username_description">Co najmniej 2 znaki: a-z, 0-9, “_”, “-” i “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">NIEODEBRANE PO&#321;&#260;CZENIA</string>
     <string name="calls_label_calls_history">HISTORIA PO&#321;&#260;CZE&#324;</string>

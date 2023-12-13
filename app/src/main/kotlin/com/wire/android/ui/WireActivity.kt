@@ -84,6 +84,9 @@ import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
@@ -125,6 +128,7 @@ class WireActivity : AppCompatActivity() {
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
 
@@ -304,6 +308,11 @@ class WireActivity : AppCompatActivity() {
                         passwordChanged = legalHoldRequestedViewModel::passwordChanged,
                         notNowClicked = legalHoldRequestedViewModel::notNowClicked,
                         acceptClicked = legalHoldRequestedViewModel::acceptClicked,
+                    )
+                }
+                if (legalHoldDeactivatedViewModel.state is LegalHoldDeactivatedState.Visible) {
+                    LegalHoldDeactivatedDialog(
+                        dialogDismissed = legalHoldDeactivatedViewModel::dismiss,
                     )
                 }
                 if (showFileSharingDialog) {

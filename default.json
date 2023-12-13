@@ -6,15 +6,7 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false,
-            "cert_pinning_config": {
-                "sha256/fnBeCwh0imI9t46Onid49IwvsB5vcf7RCvafRRdCyRE=": [
-                    "**.prod-nginz-https.wire.com",
-                    "**.prod-nginz-ssl.wire.com",
-                    "**.prod-assets.wire.com",
-                    "clientblacklist.wire.com"
-                ]
-            }
+            "mls_support_enabled": false
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -105,7 +97,14 @@
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
     "default_backend_title": "wire-production",
-    "cert_pinning_config": {},
+    "cert_pinning_config": {
+        "sha256/fnBeCwh0imI9t46Onid49IwvsB5vcf7RCvafRRdCyRE=": [
+            "**.prod-nginz-https.wire.com",
+            "**.prod-nginz-ssl.wire.com",
+            "**.prod-assets.wire.com",
+            "clientblacklist.wire.com"
+        ]
+    },
     "is_password_protected_guest_link_enabled": false,
     "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android",
     "team_app_lock": false,

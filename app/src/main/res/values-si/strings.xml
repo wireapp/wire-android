@@ -356,7 +356,7 @@
     <string name="create_account_username_label">පරිශ්‍රීලක නාමය</string>
     <string name="create_account_username_text">ඔබගේ පරිශ්‍රීලක නාමය ඇතුල් කරන්න. අන් අයට ඔබව වයර් තුළ සොයා ගැනීමට සහ සම්බන්ධ වීමට උපකාරී වේ.</string>
     <string name="create_account_username_taken_error">මෙම පරිශ්‍රීලක නාමය අරගෙන ඇත. වෙනත් එකක් තෝරන්න.</string>
-    <string name="create_account_username_description">අවම වශයෙන් අකුරු 2 ක්. a-z, 0-9 හා _ පමණි</string>
+    <string name="create_account_username_description">අවම වශයෙන් අකුරු 2 ක්, a-z, 0-9, “_”, “-” හා “.” පමණි</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">මඟහැරුණු ඇමතුම්</string>
     <string name="calls_label_calls_history">ඇමතුම් ඉතිහාසය</string>

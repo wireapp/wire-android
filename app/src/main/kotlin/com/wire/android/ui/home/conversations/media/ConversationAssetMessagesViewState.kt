@@ -21,11 +21,14 @@
 package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.runtime.Stable
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 
 @Stable
 data class ConversationAssetMessagesViewState(
-    val messages: ImmutableList<UIAssetMessage> = persistentListOf()
+    val imageMessages: ImmutableList<UIAssetMessage> = persistentListOf(),
+    val assetMessages: Map<String, List<UIMessage>> = persistentMapOf()
 )

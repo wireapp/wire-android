@@ -26,11 +26,12 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.UIAssetMapper
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.feature.asset.GetAssetMessagesForConversationUseCase
+import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,7 +45,8 @@ import javax.inject.Inject
 class ConversationAssetMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
-    private val getAssets: GetAssetMessagesForConversationUseCase,
+    private val getImageMessages: GetImageAssetMessagesForConversationUseCase,
+    private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
     private val getPrivateAsset: GetMessageAssetUseCase,
     private val assetMapper: UIAssetMapper,
 ) : SavedStateViewModel(savedStateHandle) {
@@ -60,21 +62,34 @@ class ConversationAssetMessagesViewModel @Inject constructor(
     private var currentOffset: Int = 0
 
     init {
+        loadImages()
         loadAssets()
+    }
+
+    private fun loadAssets() = viewModelScope.launch {
+        val assetMessages = withContext(dispatchers.io()) {
+            getAssetMessages.invoke(
+                conversationId = conversationId
+            )
+        }
+
+        viewState = viewState.copy(
+            assetMessages = assetMessages
+        )
     }
 
     fun continueLoading(shouldContinue: Boolean) {
         if (shouldContinue) {
             if (!continueLoading) {
                 continueLoading = true
-                loadAssets()
+                loadImages()
             }
         } else {
             continueLoading = false
         }
     }
 
-    private fun loadAssets() = viewModelScope.launch {
+    private fun loadImages() = viewModelScope.launch {
         if (isLoading) {
             return@launch
         }
@@ -82,7 +97,7 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         try {
             while (continueLoading) {
                 val uiAssetList = withContext(dispatchers.io()) {
-                    getAssets.invoke(
+                    getImageMessages.invoke(
                         conversationId = conversationId,
                         limit = BATCH_SIZE,
                         offset = currentOffset
@@ -90,7 +105,7 @@ class ConversationAssetMessagesViewModel @Inject constructor(
                 }
 
                 // imitate loading new asset batch
-                viewState = viewState.copy(messages = viewState.messages.plus(uiAssetList.map {
+                viewState = viewState.copy(imageMessages = viewState.imageMessages.plus(uiAssetList.map {
                     it.copy(
                         downloadStatus = if (it.assetPath == null && it.downloadStatus != Message.DownloadStatus.FAILED_DOWNLOAD) {
                             Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
@@ -117,7 +132,7 @@ class ConversationAssetMessagesViewModel @Inject constructor(
                     currentOffset += BATCH_SIZE
 
                     viewState = viewState.copy(
-                        messages = viewState.messages.dropLast(uiMessages.size).plus(uiMessages).toImmutableList(),
+                        imageMessages = viewState.imageMessages.dropLast(uiMessages.size).plus(uiMessages).toImmutableList(),
                     )
                 } else {
                     continueLoading = false

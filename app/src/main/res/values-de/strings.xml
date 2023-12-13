@@ -363,7 +363,7 @@
     <string name="create_account_username_label">BENUTZERNAME</string>
     <string name="create_account_username_text">Geben Sie Ihren Benutzernamen ein. Andere können Sie so leichter in Wire finden und sich mit Ihnen verbinden.</string>
     <string name="create_account_username_taken_error">Dieser Benutzername ist bereits vergeben. Bitte wählen Sie einen anderen.</string>
-    <string name="create_account_username_description">Mindestens 2 Zeichen, a–z, 0–9, und _</string>
+    <string name="create_account_username_description">Mindestens 2 Zeichen, a-z, 0-9, “_”, “-” und “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">VERPASSTE ANRUFE</string>
     <string name="calls_label_calls_history">ANRUFLISTE</string>

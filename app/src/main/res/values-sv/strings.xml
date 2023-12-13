@@ -363,7 +363,7 @@
     <string name="create_account_username_label">ANVÄNDARNAMN</string>
     <string name="create_account_username_text">Ange ditt användarnamn. Det hjälper andra att hitta dig i Wire och ansluta till dig.</string>
     <string name="create_account_username_taken_error">Det här användarnamnet är redan upptaget. Vänligen välj ett annat.</string>
-    <string name="create_account_username_description">Minst 2 tecken, a-z, 0-9 och _</string>
+    <string name="create_account_username_description">Minst 2 tecken, a-z, 0-9, “_”, “-” och “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSADE SAMTAL</string>
     <string name="calls_label_calls_history">SAMTALSHISTORIK</string>

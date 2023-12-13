@@ -57,7 +57,9 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 
@@ -184,4 +186,16 @@ private fun FilesContent() {
 enum class ConversationMediaScreenTabItem(@StringRes override val titleResId: Int) : TabItem {
     PICTURES(R.string.label_conversation_pictures),
     FILES(R.string.label_conversation_files);
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewConversationMediaScreenEmptyContent() {
+    WireTheme {
+        Content(
+            state = ConversationAssetMessagesViewState(),
+            onImageFullScreenMode = {_, _, _ -> },
+            continueAssetLoading = {}
+        )
+    }
 }

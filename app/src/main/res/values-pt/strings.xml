@@ -364,7 +364,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="create_account_username_label">NOME DE USUÁRIO</string>
     <string name="create_account_username_text">Digite seu nome de usuário. Isso ajuda outras pessoas a te encontrarem e conectarem contigo no Wire.</string>
     <string name="create_account_username_taken_error">Esse nome de usuário já está sendo usado. Por favor escolha outro.</string>
-    <string name="create_account_username_description">Ao menos 2 caracteres, a-z, 0-9, e _</string>
+    <string name="create_account_username_description">Ao menos 2 caracteres, a-z, 0-9, “_”, “-” e “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">CHAMADAS PERDIDAS</string>
     <string name="calls_label_calls_history">HISTÓRICO DE CHAMADAS</string>

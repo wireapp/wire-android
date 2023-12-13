@@ -365,7 +365,7 @@
     <string name="create_account_username_label">ПСЕВДОНИМ</string>
     <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
     <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
-    <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9 и _</string>
+    <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9, “_”, “-” и “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">ПРОПУЩЕННЫЕ ВЫЗОВЫ</string>
     <string name="calls_label_calls_history">ИСТОРИЯ ЗВОНКОВ</string>

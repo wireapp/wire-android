@@ -363,7 +363,7 @@
     <string name="create_account_username_label">FELHASZNÁLÓNÉV</string>
     <string name="create_account_username_text">Adja meg felhasználónevét. Ez segít másoknak megtalálni Önt a Wire-ön, és kapcsolatba lépni Önnel.</string>
     <string name="create_account_username_taken_error">Ez a Felhasználónév már foglalt. Kérjük, válasszon egy másikat.</string>
-    <string name="create_account_username_description">Legalább 2 karakter, és kizárólag a—z, 0—9 és _ karakterek</string>
+    <string name="create_account_username_description">Legalább 2 karakter, és kizárólag a—z, 0—9 “_”, “-” és “.” karakterek</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">NEM FOGADOTT HÍVÁSOK</string>
     <string name="calls_label_calls_history">HÍVÁSNAPLÓ</string>

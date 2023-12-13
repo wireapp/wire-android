@@ -34,7 +34,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -82,7 +82,7 @@ class CommonTopAppBarViewModel @Inject constructor(
         observeLegalHoldRequest() // TODO combine with legal hold status
             .map { legalHoldRequestResult ->
                 when (legalHoldRequestResult) {
-                    is ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable -> LegalHoldStatus.PENDING
+                    is ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable -> LegalHoldStatus.PENDING
                     else -> LegalHoldStatus.DISABLED
                 }
             }

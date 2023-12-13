@@ -36,6 +36,8 @@ data class FeatureFlagState(
     val areSelfDeletedMessagesEnabled: Boolean = true,
     val e2EIRequired: E2EIRequired? = null,
     val e2EISnoozeInfo: E2EISnooze? = null,
+    val e2EIResult: E2EIResult? = null,
+    val isE2EILoading: Boolean = false,
     val showCallEndedBecauseOfConversationDegraded: Boolean = false
 ) {
     enum class SharingRestrictedState {
@@ -55,5 +57,10 @@ data class FeatureFlagState(
             data object Create : NoGracePeriod()
             data object Renew : NoGracePeriod()
         }
+    }
+
+    sealed class E2EIResult {
+        data class Failure(val e2EIRequired: E2EIRequired) : E2EIResult()
+        data class Success(val certificate: String) : E2EIResult()
     }
 }

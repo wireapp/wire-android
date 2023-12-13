@@ -24,8 +24,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -70,27 +72,30 @@ fun LocationMessageContent(
                 color = MaterialTheme.wireColorScheme.surfaceVariant,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .height(dimensions().spacing64x),
+            .defaultMinSize(minHeight = dimensions().spacing64x),
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
+        Spacer(modifier = Modifier.height(dimensions().spacing12x))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(PaddingValues(horizontal = dimensions().spacing8x)),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = stringResource(id = R.string.content_description_location_icon),
-                modifier = Modifier.size(MaterialTheme.wireDimensions.wireIconButtonSize)
+                modifier = Modifier
+                    .size(MaterialTheme.wireDimensions.wireIconButtonSize)
+                    .offset(y = dimensions().spacing4x)
             )
             Spacer(modifier = Modifier.width(dimensions().spacing4x))
             Text(
                 text = locationName,
                 style = MaterialTheme.wireTypography.body02,
                 fontSize = 15.sp,
-                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
@@ -99,14 +104,10 @@ fun LocationMessageContent(
             style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            modifier = Modifier.padding(
-                PaddingValues(
-                    bottom = dimensions().spacing8x,
-                    start = dimensions().spacing8x,
-                    end = dimensions().spacing8x
-                )
-            )
+            modifier = Modifier.padding(horizontal = dimensions().spacing8x)
         )
+
+        Spacer(modifier = Modifier.height(dimensions().spacing12x))
     }
 }
 
@@ -114,7 +115,7 @@ fun LocationMessageContent(
 @PreviewMultipleThemes
 fun PreviewLocationMessageContent() {
     LocationMessageContent(
-        locationName = "Rapa Nui",
+        locationName = "Rapa Nui, 2770000, CL",
         locationUrl = "https://www.google.com/maps/place/Rapa+Nui",
         onLocationClick = Clickable()
     )

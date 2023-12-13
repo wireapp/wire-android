@@ -1,8 +1,10 @@
 package com.wire.android.ui.settings.devices
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
@@ -204,6 +206,7 @@ class DeviceDetailsViewModelTest {
         // then
         assertFalse(viewModel.state.canBeRemoved)
     }
+
     @Test
     fun `given self temporary client, when fetching state, then canBeRemoved is true`() = runTest {
         // given
@@ -214,6 +217,7 @@ class DeviceDetailsViewModelTest {
         // then
         assertFalse(viewModel.state.canBeRemoved)
     }
+
     @Test
     fun `given self permanent client, when fetching state, then canBeRemoved is true`() = runTest {
         // given
@@ -224,6 +228,7 @@ class DeviceDetailsViewModelTest {
         // then
         assertTrue(viewModel.state.canBeRemoved)
     }
+
     @Test
     fun `given self permanent current client, when fetching state, then canBeRemoved is false`() = runTest {
         // given
@@ -234,6 +239,7 @@ class DeviceDetailsViewModelTest {
         // then
         assertFalse(viewModel.state.canBeRemoved)
     }
+
     @Test
     fun `given other user permanent client, when fetching state, then canBeRemoved is false`() = runTest {
         // given
@@ -245,7 +251,26 @@ class DeviceDetailsViewModelTest {
         assertFalse(viewModel.state.canBeRemoved)
     }
 
+    @Test
+    fun `given get certificate clicked, then should call GetE2EICertificate`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withRequiredMockSetup()
+                .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
+                .arrange()
+
+            viewModel.enrollE2eiCertificate(arrangement.context)
+
+            coVerify {
+                arrangement.enrolE2EICertificateUseCase(any(), any())
+            }
+            assertTrue(viewModel.state.isLoadingCertificate)
+        }
+
     private class Arrangement {
+
+        @MockK
+        lateinit var context: Context
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -271,6 +296,9 @@ class DeviceDetailsViewModelTest {
         @MockK
         lateinit var getE2eiCertificate: GetE2eiCertificateUseCase
 
+        @MockK
+        lateinit var enrolE2EICertificateUseCase: GetE2EICertificateUseCase
+
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit
 
@@ -286,7 +314,8 @@ class DeviceDetailsViewModelTest {
                 updateClientVerificationStatus = updateClientVerificationStatus,
                 currentUserId = currentUserId,
                 observeUserInfo = observeUserInfo,
-                e2eiCertificate = getE2eiCertificate
+                e2eiCertificate = getE2eiCertificate,
+                enrolE2EICertificateUseCase = enrolE2EICertificateUseCase
             )
         }
 

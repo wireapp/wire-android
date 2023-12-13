@@ -1,14 +1,15 @@
 package com.wire.android.ui.settings.devices
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
@@ -26,11 +27,13 @@ import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,7 +50,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private val fingerprintUseCase: ClientFingerprintUseCase,
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
-    private val e2eiCertificate: GetE2eiCertificateUseCase
+    private val e2eiCertificate: GetE2eiCertificateUseCase,
+    private val enrolE2EICertificateUseCase: GetE2EICertificateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
@@ -61,9 +65,7 @@ class DeviceDetailsViewModel @Inject constructor(
         observeDeviceDetails()
         getClientFingerPrint()
         observeUserName()
-        if (BuildConfig.DEBUG) {
-            getE2eiCertificate()
-        }
+        getE2eiCertificate()
     }
 
     private val isSelfClient: Boolean
@@ -92,16 +94,35 @@ class DeviceDetailsViewModel @Inject constructor(
             state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
                 state.copy(
                     isE2eiCertificateActivated = true,
-                    e2eiCertificate = certificate.certificate
+                    e2eiCertificate = certificate.certificate,
+                    isLoadingCertificate = false
                 )
             } else {
-                state.copy(isE2eiCertificateActivated = false)
+                state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
             }
         }
     }
 
-    fun enrollE2eiCertificate() {
-        // TODO invoke correspondent use case
+    fun enrollE2eiCertificate(context: Context) {
+        state = state.copy(isLoadingCertificate = true)
+        enrolE2EICertificateUseCase(context) { result ->
+            result.fold({
+                state = state.copy(
+                    isLoadingCertificate = false,
+                    isE2EICertificateEnrollError = true
+                )
+            }, {
+                if (it is E2EIEnrollmentResult.Finalized) {
+                    getE2eiCertificate()
+                    state = state.copy(isE2EICertificateEnrollSuccess = true)
+                } else if (it is E2EIEnrollmentResult.Failed) {
+                    state = state.copy(
+                        isLoadingCertificate = false,
+                        isE2EICertificateEnrollError = true
+                    )
+                }
+            })
+        }
     }
 
     private fun getClientFingerPrint() {
@@ -224,5 +245,13 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun clearDeleteClientError() {
         state = state.copy(error = RemoveDeviceError.None)
+    }
+
+    fun hideEnrollE2EICertificateError() {
+        state = state.copy(isE2EICertificateEnrollError = false)
+    }
+
+    fun hideEnrollE2EICertificateSuccess() {
+        state = state.copy(isE2EICertificateEnrollSuccess = false)
     }
 }

@@ -27,7 +27,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
@@ -70,7 +70,7 @@ class LegalHoldRequestedViewModelTest {
     fun givenLegalHoldRequestReturnsFailure_whenGettingState_thenStateShouldBeHidden() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
-            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.Failure(UNKNOWN_ERROR))
+            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.Failure(UNKNOWN_ERROR))
             .arrange()
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
@@ -80,7 +80,7 @@ class LegalHoldRequestedViewModelTest {
     fun givenNoPendingLegalHoldRequest_whenGettingState_thenStateShouldBeHidden() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
-            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.NoObserveLegalHoldRequest)
+            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest)
             .arrange()
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
@@ -91,7 +91,7 @@ class LegalHoldRequestedViewModelTest {
         val fingerprint = "fingerprint".toByteArray()
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
-            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(fingerprint))
+            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
             .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(true))
             .arrange()
         advanceUntilIdle()
@@ -106,7 +106,7 @@ class LegalHoldRequestedViewModelTest {
         val fingerprint = "fingerprint".toByteArray()
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
-            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(fingerprint))
+            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
             .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(true))
             .arrange()
         advanceUntilIdle()
@@ -121,7 +121,7 @@ class LegalHoldRequestedViewModelTest {
         val fingerprint = "fingerprint".toByteArray()
         val (_, viewModel) = Arrangement()
             .withCurrentSessionExists()
-            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(fingerprint))
+            .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(fingerprint))
             .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(false))
             .arrange()
         advanceUntilIdle()
@@ -133,7 +133,7 @@ class LegalHoldRequestedViewModelTest {
 
     private fun arrangeWithLegalHoldRequest(isPasswordRequired: Boolean = true) = Arrangement()
         .withCurrentSessionExists()
-        .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable("fingerprint".toByteArray()))
+        .withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable("fingerprint".toByteArray()))
         .withIsPasswordRequiredResult(IsPasswordRequiredUseCase.Result.Success(isPasswordRequired))
 
     private fun LegalHoldRequestedState.assertStateVisible(assert: (LegalHoldRequestedState.Visible) -> Unit) {
@@ -259,7 +259,7 @@ class LegalHoldRequestedViewModelTest {
             every { coreLogic.globalScope { session.currentSessionFlow() } } returns
                     flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("userId", "domain"))))
         }
-        fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCaseResult) = apply {
+        fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCase.Result) = apply {
             every { coreLogic.getSessionScope(any()).observeLegalHoldRequest() } returns flowOf(result)
         }
         fun withIsPasswordRequiredResult(result: IsPasswordRequiredUseCase.Result) = apply {

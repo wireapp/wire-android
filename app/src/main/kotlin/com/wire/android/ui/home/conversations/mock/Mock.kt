@@ -45,6 +45,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -242,6 +243,16 @@ val mockMessageWithKnock = UIMessage.System(
     source = MessageSource.Self,
 )
 
+val mockUsersUITexts = listOf(
+    "Albert Lewis".toUIText(),
+    "Bert Strunk".toUIText(),
+    "Claudia Schiffer".toUIText(),
+    "Dorothee Friedrich".toUIText(),
+    "Erich Weinert".toUIText(),
+    "Frieda Kahlo".toUIText(),
+    "Gudrun Gut".toUIText()
+)
+
 val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override val components: ComponentRegistry get() = TODO("Not yet implemented")
     override val defaults: DefaultRequestOptions get() = TODO("Not yet implemented")
@@ -255,7 +266,7 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     object : NetworkStateObserver {
         override fun observeNetworkState(): StateFlow<NetworkState> = MutableStateFlow(NetworkState.ConnectedWithInternet)
     }
-    )
+)
 
 fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
     userAvatarData = UserAvatarData(

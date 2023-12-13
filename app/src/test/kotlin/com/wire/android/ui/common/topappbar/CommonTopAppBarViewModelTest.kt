@@ -32,7 +32,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -192,7 +192,7 @@ class CommonTopAppBarViewModelTest {
 
     private fun testLegalHoldRequestInfo(
         currentScreen: CurrentScreen,
-        result: ObserveLegalHoldRequestUseCaseResult,
+        result: ObserveLegalHoldRequestUseCase.Result,
         expectedState: LegalHoldUIState,
     ) = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
@@ -210,28 +210,28 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenNoLegalHoldRequest_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
         currentScreen = CurrentScreen.Home,
-        result = ObserveLegalHoldRequestUseCaseResult.NoObserveLegalHoldRequest,
+        result = ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest,
         expectedState = LegalHoldUIState.None
     )
 
     @Test
     fun givenLegalHoldRequestAndHomeScreen_whenGettingState_thenShouldHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
         currentScreen = CurrentScreen.Home,
-        result = ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(byteArrayOf()),
+        result = ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(byteArrayOf()),
         expectedState = LegalHoldUIState.Pending
     )
 
     @Test
     fun givenLegalHoldRequestAndCallScreen_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
         currentScreen = CurrentScreen.OngoingCallScreen(mockk()),
-        result = ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(byteArrayOf()),
+        result = ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(byteArrayOf()),
         expectedState = LegalHoldUIState.None
     )
 
     @Test
     fun givenLegalHoldRequestAndAuthRelatedScreen_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
         currentScreen = CurrentScreen.AuthRelated,
-        result = ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable(byteArrayOf()),
+        result = ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(byteArrayOf()),
         expectedState = LegalHoldUIState.None
     )
 
@@ -282,7 +282,7 @@ class CommonTopAppBarViewModelTest {
 
             withSyncState(SyncState.Live)
             withoutActiveCall()
-            withLegalHoldRequestResult(ObserveLegalHoldRequestUseCaseResult.NoObserveLegalHoldRequest)
+            withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest)
         }
 
         private val commonTopAppBarViewModel by lazy {
@@ -327,7 +327,7 @@ class CommonTopAppBarViewModelTest {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(currentScreen)
         }
 
-        fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCaseResult) = apply {
+        fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCase.Result) = apply {
             every { coreLogic.getSessionScope(any()).observeLegalHoldRequest() } returns flowOf(result)
         }
 

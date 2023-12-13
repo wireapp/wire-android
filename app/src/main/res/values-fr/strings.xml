@@ -352,7 +352,7 @@
     <string name="create_account_username_label">USERNAME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
+    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>

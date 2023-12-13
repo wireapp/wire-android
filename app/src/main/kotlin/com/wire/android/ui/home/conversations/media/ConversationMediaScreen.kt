@@ -237,13 +237,13 @@ private fun AssetMessagesListContent(
                             conversationDetailsData = ConversationDetailsData.None,
                             audioMessagesState = emptyMap(), // TODO(Media): handle audio state
                             onAudioClick = {}, // TODO(Media): handle audio click
-                            onChangeAudioPosition = {_, _ -> },
+                            onChangeAudioPosition = {_, _ ->},
                             onLongClicked = {},
                             onAssetMessageClicked = {}, // TODO(Media): handle asset click
-                            onImageMessageClicked = {_, _ -> },
-                            onOpenProfile = {_ -> },
-                            onReactionClicked = {_, _ -> },
-                            onResetSessionClicked = {_, _ -> },
+                            onImageMessageClicked = {_, _ ->},
+                            onOpenProfile = {_ ->},
+                            onReactionClicked = {_, _ ->},
+                            onResetSessionClicked = {_, _ ->},
                             onSelfDeletingMessageRead = {},
                             defaultBackgroundColor = colorsScheme().backgroundVariant,
                             shouldDisplayMessageStatus = false,
@@ -259,8 +259,6 @@ private fun AssetMessagesListContent(
     }
 }
 
-
-
 enum class ConversationMediaScreenTabItem(@StringRes override val titleResId: Int) : TabItem {
     PICTURES(R.string.label_conversation_pictures),
     FILES(R.string.label_conversation_files);
@@ -272,7 +270,7 @@ fun previewConversationMediaScreenEmptyContent() {
     WireTheme {
         Content(
             state = ConversationAssetMessagesViewState(),
-            onImageFullScreenMode = {_, _, _ -> },
+            onImageFullScreenMode = {_, _, _ ->},
             continueAssetLoading = {}
         )
     }

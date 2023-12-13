@@ -380,7 +380,7 @@
     <string name="create_account_username_label">USERNAME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
+    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>
@@ -1315,6 +1315,12 @@
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
     <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
+    <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
+    <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
+    <string name="legal_hold_system_message_enabled_conversation">Legal hold is now active for this conversation.</string>
 
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>

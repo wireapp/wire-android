@@ -29,9 +29,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun EmptyMediaContentScreen(
@@ -52,5 +56,25 @@ fun EmptyMediaContentScreen(
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewAssetEmptyMediaContentScreen() {
+    WireTheme {
+        EmptyMediaContentScreen(
+            text = stringResource(R.string.label_conversation_files_empty)
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewPictureEmptyMediaContentScreen() {
+    WireTheme {
+        EmptyMediaContentScreen(
+            text = stringResource(R.string.label_conversation_pictures_empty)
+        )
     }
 }

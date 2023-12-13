@@ -21,7 +21,9 @@
 package com.wire.android.ui.common.dialogs
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
@@ -30,16 +32,16 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 
-// todo: parametrize the dialog with the number of accounts using BuildConfig
 @Composable
 fun MaxAccountsReachedDialogContent(
+    maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS,
     dialogState: VisibilityState<MaxAccountsReachedDialogState>,
-    onActionButtonClicked: () -> Unit
+    onActionButtonClicked: () -> Unit,
 ) {
-    VisibilityState(dialogState) { state ->
+    VisibilityState(dialogState) { _ ->
         WireDialog(
-            title = stringResource(id = R.string.max_account_reached_dialog_title),
-            text = stringResource(id = R.string.max_account_reached_dialog_message),
+            title = pluralStringResource(R.plurals.max_account_reached_dialog_title, maxAccountsAllowed),
+            text = pluralStringResource(R.plurals.max_account_reached_dialog_message, maxAccountsAllowed),
             onDismiss = dialogState::dismiss,
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_ok),

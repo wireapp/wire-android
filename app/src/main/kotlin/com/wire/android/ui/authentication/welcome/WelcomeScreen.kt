@@ -152,7 +152,7 @@ private fun WelcomeContent(
                 .padding(internalPadding)
         ) {
             val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
-            MaxAccountsReachedDialogContent(maxAccountsReachedDialogState) { navigateBack() }
+            MaxAccountsReachedDialogContent(dialogState = maxAccountsReachedDialogState) { navigateBack() }
             if (maxAccountsReached) {
                 maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
             }

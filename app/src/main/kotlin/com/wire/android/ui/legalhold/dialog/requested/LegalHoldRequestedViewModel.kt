@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCaseResult
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,13 +57,13 @@ class LegalHoldRequestedViewModel @Inject constructor(
         observeLegalHoldRequest()
             .mapLatest { legalHoldRequestResult ->
                 when (legalHoldRequestResult) {
-                    is ObserveLegalHoldRequestUseCaseResult.Failure -> {
+                    is ObserveLegalHoldRequestUseCase.Result.Failure -> {
                         appLogger.e("$TAG: Failed to get legal hold request data: ${legalHoldRequestResult.failure}")
                         LegalHoldRequestData.None
                     }
 
-                    ObserveLegalHoldRequestUseCaseResult.NoObserveLegalHoldRequest -> LegalHoldRequestData.None
-                    is ObserveLegalHoldRequestUseCaseResult.ObserveLegalHoldRequestAvailable ->
+                    ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest -> LegalHoldRequestData.None
+                    is ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable ->
                         users.isPasswordRequired()
                             .let {
                                 LegalHoldRequestData.Pending(

@@ -51,36 +51,32 @@ fun Resources.stringWithStyledArgs(
 ): AnnotatedString {
     val normalSpanStyle = toSpanStyle(normalStyle, normalColor)
     val boldSpanStyle = toSpanStyle(argsStyle, argsColor)
-    val string = this.getString(stringResId, *formatArgs.map { it.bold() }.toTypedArray())
+    val string = this.getString(stringResId, *formatArgs.map { it.markdownBold() }.toTypedArray())
     return buildAnnotatedString {
-        string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->
+        string.split(BOLD_SEPARATOR).forEachIndexed { index, text ->
             withStyle(if (index % 2 == 0) normalSpanStyle else boldSpanStyle) { append(text) }
         }
     }
 }
 
 @Suppress("LongParameterList", "SpreadOperator")
-fun Resources.annotatedText(
-    @StringRes stringResId: Int,
+fun markdownText(
+    markdownInput: String,
     normalStyle: TextStyle,
     boldStyle: TextStyle,
     normalColor: Color,
     boldColor: Color,
     errorColor: Color,
     isErrorString: Boolean,
-    vararg formatArgs: String
 ): AnnotatedString {
-
-    // Mark all arguments as bold, by adding **
-    val input = this.getString(stringResId, *formatArgs.map { it.markdownBold() }.toTypedArray())
     // The text gets split into pieces based on **
-    val splitText = input.split(BOLD_SEPARATOR).filter { it.isNotEmpty() }
+    val splitText = markdownInput.split(BOLD_SEPARATOR).filter { it.isNotEmpty() }
 
     // Prepare the annotated string
     return buildAnnotatedString {
         splitText.forEach { piece ->
             when {
-                input.contains(BOLD_SEPARATOR + piece.trim() + BOLD_SEPARATOR) -> { // If the piece was between ** characters
+                markdownInput.contains(BOLD_SEPARATOR + piece.trim() + BOLD_SEPARATOR) -> { // If the piece was between ** characters
                     pushStyle(style = toSpanStyle(boldStyle, useErrorColorIfApplies(isErrorString, errorColor, boldColor)))
                     append(piece)
                     pop()
@@ -105,9 +101,9 @@ fun Resources.stringWithBoldArgs(
     @StringRes stringResId: Int,
     vararg formatArgs: String
 ): SpannedString {
-    val string = this.getString(stringResId, *formatArgs.map { it.bold() }.toTypedArray())
+    val string = this.getString(stringResId, *formatArgs.map { it.markdownBold() }.toTypedArray())
     return buildSpannedString {
-        string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->
+        string.split(BOLD_SEPARATOR).forEachIndexed { index, text ->
             if (index % 2 == 0) append(text)
             else bold { append(text) }
         }
@@ -123,10 +119,8 @@ private fun toSpanStyle(textStyle: TextStyle, color: Color) = SpanStyle(
     textDecoration = textStyle.textDecoration,
 )
 
-private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
-private fun String.markdownBold() = BOLD_SEPARATOR + this + BOLD_SEPARATOR
+fun String.markdownBold() = BOLD_SEPARATOR + this + BOLD_SEPARATOR
 
-private const val STYLE_SEPARATOR: String = "\u0000"
 private const val BOLD_SEPARATOR: String = "**"
 
 data class LinkTextData(

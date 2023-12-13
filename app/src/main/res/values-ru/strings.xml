@@ -365,7 +365,7 @@
     <string name="create_account_username_label">ПСЕВДОНИМ</string>
     <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
     <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
-    <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9 и _</string>
+    <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9, “_”, “-” и “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">ПРОПУЩЕННЫЕ ВЫЗОВЫ</string>
     <string name="calls_label_calls_history">ИСТОРИЯ ЗВОНКОВ</string>
@@ -1278,7 +1278,7 @@
     <string name="record_audio_max_file_size_reached_title">Запись остановлена</string>
     <string name="record_audio_max_file_size_reached_text">Размер файла аудиосообщения ограничен %1$d МБ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Записать аудиосообщение во время звонка невозможно.</string>
-    <string name="permission_dialog_title">Разрешения приложения</string>
+    <string name="call_permission_dialog_title">Разрешения приложения</string>
     <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону и поиск соседних устройств в настройках устройства.</string>
     <string name="label_not_now">Не сейчас</string>
     <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>

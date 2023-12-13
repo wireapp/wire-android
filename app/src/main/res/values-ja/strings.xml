@@ -362,7 +362,7 @@
     <string name="create_account_username_label">USERNAME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
+    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>
@@ -1205,7 +1205,7 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="permission_dialog_title">App permissions</string>
+    <string name="call_permission_dialog_title">App permission</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
@@ -1231,7 +1231,7 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
-    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
     <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>

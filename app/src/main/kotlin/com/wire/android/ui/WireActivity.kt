@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -70,6 +71,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -81,9 +83,13 @@ import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.E2EIRequiredDialog
+import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
@@ -125,6 +131,7 @@ class WireActivity : AppCompatActivity() {
 
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
     private val legalHoldRequestedViewModel: LegalHoldRequestedViewModel by viewModels()
+    private val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel by viewModels()
 
     val navigationCommands: MutableSharedFlow<NavigationCommand> = MutableSharedFlow()
 
@@ -269,6 +276,7 @@ class WireActivity : AppCompatActivity() {
         LaunchedEffect(userId) {
             featureFlagNotificationViewModel.loadInitialSync()
         }
+        val context = LocalContext.current
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(
@@ -306,6 +314,11 @@ class WireActivity : AppCompatActivity() {
                         acceptClicked = legalHoldRequestedViewModel::acceptClicked,
                     )
                 }
+                if (legalHoldDeactivatedViewModel.state is LegalHoldDeactivatedState.Visible) {
+                    LegalHoldDeactivatedDialog(
+                        dialogDismissed = legalHoldDeactivatedViewModel::dismiss,
+                    )
+                }
                 if (showFileSharingDialog) {
                     FileRestrictionDialog(
                         isFileSharingEnabled = isFileSharingEnabledState,
@@ -330,8 +343,9 @@ class WireActivity : AppCompatActivity() {
 
                 e2EIRequired?.let {
                     E2EIRequiredDialog(
-                        result = e2EIRequired,
-                        getCertificate = featureFlagNotificationViewModel::getE2EICertificate,
+                        e2EIRequired = e2EIRequired,
+                        isE2EILoading = isE2EILoading,
+                        getCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it, context) },
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
                     )
                 }
@@ -340,6 +354,17 @@ class WireActivity : AppCompatActivity() {
                     E2EISnoozeDialog(
                         timeLeft = e2EISnoozeInfo.timeLeft,
                         dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog
+                    )
+                }
+
+                e2EIResult?.let {
+                    E2EIResultDialog(
+                        result = e2EIResult,
+                        updateCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it, context) },
+                        snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
+                        openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
+                        dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
+                        isE2EILoading = isE2EILoading
                     )
                 }
 

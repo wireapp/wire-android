@@ -55,9 +55,11 @@ class LockCodeTimeManager @Inject constructor(
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
     globalDataStore: GlobalDataStore,
+    currentTimestamp: CurrentTimestampProvider,
 ) {
 
-    private lateinit var isLockedFlow: MutableStateFlow<Boolean>
+    private var isLockedFlow: MutableStateFlow<Boolean>
+    private var lockTimeoutStarted: Long? = null
 
     init {
         runBlocking {
@@ -77,13 +79,26 @@ class LockCodeTimeManager @Inject constructor(
                     when {
                         appLockConfig is AppLockConfig.Disabled -> flowOf(false)
 
-                        !isInForeground && !isLockedFlow.value -> flow {
+                        !isInForeground && !isLockedFlow.value && appLockConfig is AppLockConfig.Enabled -> flow {
                             appLogger.i("$TAG lock is enabled and app in the background, lock count started")
+                            if (lockTimeoutStarted == null) {
+                                lockTimeoutStarted = currentTimestamp()
+                            }
                             delay(appLockConfig.timeout.inWholeMilliseconds)
-                            appLogger.i("$TAG lock count ended, app state should be locked if passcode is set")
+                            appLogger.i("$TAG lock count ended while app in the background, app state should be locked")
+                            emit(true)
+                        }
 
-                            if (appLockConfig is AppLockConfig.Enabled) {
+                        isInForeground && !isLockedFlow.value && appLockConfig is AppLockConfig.Enabled -> flow {
+                            if (lockTimeoutStarted != null
+                                && (lockTimeoutStarted!! + appLockConfig.timeout.inWholeMilliseconds) < currentTimestamp()
+                            ) {
+                                appLogger.i("$TAG app put into foreground and lock count ended, app state should be locked")
                                 emit(true)
+                            } else {
+                                appLogger.i("$TAG app put into foreground but lock count hasn't ended, app state should not be changed")
+                                emit(false)
+                                lockTimeoutStarted = null
                             }
                         }
 
@@ -101,6 +116,7 @@ class LockCodeTimeManager @Inject constructor(
     fun appUnlocked() {
         appLogger.i("$TAG app unlocked")
         isLockedFlow.value = false
+        lockTimeoutStarted = null
     }
 
     fun isAppLocked(): Boolean = isLockedFlow.value
@@ -111,3 +127,5 @@ class LockCodeTimeManager @Inject constructor(
         private const val TAG = "LockCodeTimeManager"
     }
 }
+
+typealias CurrentTimestampProvider = () -> Long

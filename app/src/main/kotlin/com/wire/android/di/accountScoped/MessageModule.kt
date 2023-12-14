@@ -19,19 +19,17 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.GetConversationMessagesFromSearchQueryUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
+import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
@@ -45,7 +43,11 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
+import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 
@@ -152,8 +154,15 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationMessagesFromSearchQueryUseCase(messageScope: MessageScope): GetConversationMessagesFromSearchQueryUseCase =
-        messageScope.getConversationMessagesFromSearchQuery
+    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesForConversationUseCase =
+        messageScope.getAssetMessagesByConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPaginatedFlowOfMessagesBySearchQueryAndConversation(
+        messageScope: MessageScope
+    ): GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
+        messageScope.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 
     @ViewModelScoped
     @Provides

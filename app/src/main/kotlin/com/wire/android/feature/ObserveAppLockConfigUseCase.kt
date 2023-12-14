@@ -20,9 +20,7 @@ package com.wire.android.feature
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserverImpl.Companion.DEFAULT_TIMEOUT
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -30,46 +28,55 @@ import kotlinx.coroutines.flow.combineTransform
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val currentSession: CurrentSessionUseCase
+    @KaliumCoreLogic private val coreLogic: CoreLogic
 ) {
-
     operator fun invoke(): Flow<AppLockConfig> = channelFlow {
-        when (val currentSession = currentSession()) {
-            is CurrentSessionResult.Failure -> {
-                send(AppLockConfig.Disabled(DEFAULT_TIMEOUT))
-            }
+        coreLogic.getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
+            when (sessionResult) {
+                is CurrentSessionResult.Failure -> {
+                    send(AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT))
+                }
 
-            is CurrentSessionResult.Success -> {
-                val userId = currentSession.accountInfo.userId
-                val appLockTeamFeatureConfigFlow =
-                    coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
+                is CurrentSessionResult.Success -> {
+                    val userId = sessionResult.accountInfo.userId
+                    val appLockTeamFeatureConfigFlow =
+                        coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
 
-                appLockTeamFeatureConfigFlow().combineTransform(
-                    globalDataStore.isAppLockPasscodeSetFlow()
-                ) { isAppLockedByTeam, isAppLocked ->
-                    if (isAppLockedByTeam.isEnabled) {
-                        emit(AppLockConfig.EnforcedByTeam(isAppLockedByTeam.timeout))
-                    } else {
-                        if (isAppLocked) {
-                            emit(AppLockConfig.Enabled(isAppLockedByTeam.timeout))
-                        } else {
-                            emit(AppLockConfig.Disabled(isAppLockedByTeam.timeout))
+                    appLockTeamFeatureConfigFlow().combineTransform(
+                        globalDataStore.isAppLockPasscodeSetFlow()
+                    ) { teamAppLockConfig, isAppLockConfigured ->
+                        when {
+                            isAppLockConfigured -> {
+                                emit(AppLockConfig.Enabled(teamAppLockConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT))
+                            }
+
+                            teamAppLockConfig != null && teamAppLockConfig.isEnforced -> {
+                                emit(AppLockConfig.EnforcedByTeam(teamAppLockConfig.timeout))
+                            }
+
+                            else -> {
+                                emit(AppLockConfig.Disabled(teamAppLockConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT))
+                            }
                         }
+                    }.collectLatest {
+                        send(it)
                     }
-                }.collectLatest {
-                    send(it)
                 }
             }
         }
     }
+
+    companion object {
+        val DEFAULT_APP_LOCK_TIMEOUT = 60.seconds
+    }
 }
 
-sealed class AppLockConfig(open val timeout: Duration = DEFAULT_TIMEOUT) {
+sealed class AppLockConfig(open val timeout: Duration) {
     data class Disabled(override val timeout: Duration) : AppLockConfig(timeout)
     data class Enabled(override val timeout: Duration) : AppLockConfig(timeout)
     data class EnforcedByTeam(override val timeout: Duration) : AppLockConfig(timeout)

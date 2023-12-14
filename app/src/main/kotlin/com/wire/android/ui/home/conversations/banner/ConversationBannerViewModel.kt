@@ -34,6 +34,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,6 +49,7 @@ class ConversationBannerViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var bannerState by mutableStateOf<UIText?>(null)
@@ -66,6 +68,9 @@ class ConversationBannerViewModel @Inject constructor(
                 }
                 .flatMapLatest { observeConversationMembersByTypes(conversationId) }
                 .collect(::handleConversationMemberTypes)
+        }
+        viewModelScope.launch {
+            notifyConversationIsOpen(conversationId)
         }
     }
 

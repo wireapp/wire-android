@@ -19,6 +19,8 @@ package com.wire.android.ui.home.conversations
 
 import com.wire.android.framework.TestMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.shouldHaveSmallBottomPadding
+import com.wire.android.ui.home.conversations.AuthorHeaderHelper.shouldShowHeader
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -33,12 +35,17 @@ import java.util.UUID
 
 class AuthorHeaderHelperTest {
 
+    private data class Messages(val currentMessage: UIMessage, val messageAbove: UIMessage?, val messageBelow: UIMessage?)
+    private fun List<UIMessage>.forIndex(index: Int, action: (Messages) -> Boolean): Boolean =
+        action(Messages(this[index], this.getOrNull(index + 1), this.getOrNull(index - 1)))
+
+    // shouldShowHeader tests
     @Test
     fun givenOneRegularMessage_thenShouldShowHeaderForRecentMessage() {
         // given
         val messages = listOf(testRegularMessage())
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(true, result)
     }
@@ -48,7 +55,7 @@ class AuthorHeaderHelperTest {
         // given
         val messages = listOf(testSystemMessage())
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(false, result)
     }
@@ -58,7 +65,7 @@ class AuthorHeaderHelperTest {
         // given
         val messages = listOf(testPingMessage())
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(false, result)
     }
@@ -71,7 +78,7 @@ class AuthorHeaderHelperTest {
             testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(false, result)
     }
@@ -84,7 +91,7 @@ class AuthorHeaderHelperTest {
             testRegularMessage(userId = OTHER_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(true, result)
     }
@@ -97,7 +104,7 @@ class AuthorHeaderHelperTest {
             testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(true, result)
     }
@@ -110,7 +117,7 @@ class AuthorHeaderHelperTest {
             testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(false, result)
     }
@@ -123,7 +130,7 @@ class AuthorHeaderHelperTest {
             testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(true, result)
     }
@@ -136,7 +143,7 @@ class AuthorHeaderHelperTest {
             testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(false, result)
     }
@@ -151,7 +158,7 @@ class AuthorHeaderHelperTest {
             testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusLessThanThreshold)
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(false, result)
     }
@@ -166,9 +173,164 @@ class AuthorHeaderHelperTest {
             testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusMoreThanThreshold)
         )
         // when
-        val result = AuthorHeaderHelper.shouldShowHeader(0, messages, messages[0])
+        val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
         // then
         assertEquals(true, result)
+    }
+
+    // shouldHaveSmallBottomPadding tests
+    @Test
+    fun givenOneRegularMessage_thenShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf(testRegularMessage())
+        // when
+        val result = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun givenOneSystemMessage_thenShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf(testSystemMessage())
+        // when
+        val result = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun givenOnePingMessage_thenShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf(testPingMessage())
+        // when
+        val result = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun givenTwoRegularMessagesFromSameUser_thenPreviousShouldHaveSmallBottomPaddingAndRecentShouldNot() {
+        // given
+        val messages = listOf( // more recent message is first on list
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(true, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenTwoRegularMessagesFromDifferentUser_thenBothShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf( // more recent message is first on list
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
+            testRegularMessage(userId = OTHER_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenSystemAndThenRegularMessageFromSameUser_thenBothShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf( // more recent message is first on list
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
+            testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenRegularAndThenSystemMessagFromSameUsere_thenBothShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf( // more recent message is first on list
+            testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenPingAndThenRegularMessageFromSameUser_thenBothShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf( // more recent message is first on list
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
+            testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenRegularAndThenPingMessageFromSameUser_thenBothShouldNotHaveSmallBottomPadding() {
+        // given
+        val messages = listOf( // more recent message is first on list
+            testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
+            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenTwoRegularMessagesFromSameUserAndTimestampsWithinThreshold_thenPreviousShouldHaveSmallBottomPaddingAndRecentShouldNot() {
+        // given
+        val timestamp = "2021-01-01T00:00:00.000Z"
+        val timestampMinusLessThanThreshold = DateTimeUtil.minusMilliseconds(timestamp, AuthorHeaderHelper.AGGREGATION_TIME_WINDOW - 1L)
+        val messages = listOf(
+            testRegularMessage(userId = SELF_USER_ID, timestamp = timestamp),
+            testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusLessThanThreshold)
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(true, resultPrevious)
+        assertEquals(false, resultRecent)
+    }
+
+    @Test
+    fun givenTwoRegularMessagesFromSameUserAndTimestampsBeyondThreshold_thenBothShouldNotHaveSmallBottomPadding() {
+        // given
+        val timestamp = "2021-01-01T00:00:00.000Z"
+        val timestampMinusMoreThanThreshold = DateTimeUtil.minusMilliseconds(timestamp, AuthorHeaderHelper.AGGREGATION_TIME_WINDOW + 1L)
+        val messages = listOf(
+            testRegularMessage(userId = SELF_USER_ID, timestamp = timestamp),
+            testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusMoreThanThreshold)
+        )
+        // when
+        val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        val resultRecent = messages.forIndex(0) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
+        // then
+        assertEquals(false, resultPrevious)
+        assertEquals(false, resultRecent)
     }
 
     companion object {

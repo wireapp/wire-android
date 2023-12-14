@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -174,6 +173,7 @@
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_location_icon">Location item</string>
     <!-- Non translatable strings-->
     <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -186,6 +186,7 @@
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
+    <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -379,7 +380,7 @@
     <string name="create_account_username_label">USERNAME</string>
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
+    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>
@@ -659,6 +660,8 @@
     <string name="last_message_other_user_shared_video">shared a video.</string>
     <string name="last_message_self_user_shared_audio">shared an audio message.</string>
     <string name="last_message_other_user_shared_audio">shared an audio message.</string>
+    <string name="last_message_self_user_shared_location">shared a location.</string>
+    <string name="last_message_other_user_shared_location">shared a location.</string>
     <string name="last_message_self_user_knock">pinged.</string>
     <string name="last_message_other_user_knock">pinged.</string>
     <string name="last_message_call">called.</string>
@@ -708,6 +711,11 @@
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
+    <!-- Conversation Media -->
+    <string name="label_conversation_media">Media</string>
+    <string name="label_conversation_pictures">Pictures</string>
+    <string name="label_conversation_files">Files</string>
+    <string name="label_conversation_links">Links</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -770,6 +778,7 @@
     <string name="phone_label">Phone</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
+    <string name="notification_shared_location">Shared a location</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_missed_call">Missed call</string>
@@ -965,6 +974,7 @@
     <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
     <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
     <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
@@ -975,8 +985,14 @@
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
     <!--max account reached dialog-->
-    <string name="max_account_reached_dialog_title">Three accounts active</string>
-    <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
+    <plurals name="max_account_reached_dialog_title">
+        <item quantity="one">one account active</item>
+        <item quantity="other">%1$d accounts active</item>
+    </plurals>
+    <plurals name="max_account_reached_dialog_message">
+        <item quantity="one">You can only be logged in with one account at once. Log out from one to add another.</item>
+        <item quantity="other">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
+    </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
@@ -1251,8 +1267,8 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="permission_dialog_title">App permissions</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
+    <string name="call_permission_dialog_title">App permission</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
@@ -1277,7 +1293,7 @@
     <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
     <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
     <string name="biometrics_use_passcode_button">Use passcode</string>
-    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on Biometrics. Unlock with passcode instead.</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
     <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
     <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
@@ -1304,6 +1320,12 @@
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
     <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
+    <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
+    <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
+    <string name="legal_hold_system_message_enabled_conversation">Legal hold is now active for this conversation.</string>
 
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>

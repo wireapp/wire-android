@@ -38,7 +38,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesButton
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -52,6 +52,7 @@ fun GroupConversationDetailsTopBarCollapsing(
     totalParticipants: Int,
     isLoading: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
+    onConversationMediaClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -123,8 +124,10 @@ fun GroupConversationDetailsTopBarCollapsing(
             }
         }
 
-        SearchConversationMessagesButton(
-            onSearchConversationMessagesClick = onSearchConversationMessagesClick
+        VerticalSpace.x24()
+        SearchAndMediaRow(
+            onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+            onConversationMediaClick = onConversationMediaClick
         )
     }
 }

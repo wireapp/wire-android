@@ -19,6 +19,7 @@ package com.wire.android.ui.legalhold.dialog.requested
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.user.UserId
 
 sealed class LegalHoldRequestedState {
     data object Hidden : LegalHoldRequestedState()
@@ -29,6 +30,7 @@ sealed class LegalHoldRequestedState {
         val loading: Boolean = false,
         val acceptEnabled: Boolean = false,
         val error: LegalHoldRequestedError = LegalHoldRequestedError.None,
+        val userId: UserId,
     ) : LegalHoldRequestedState()
 }
 

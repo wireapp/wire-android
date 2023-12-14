@@ -236,19 +236,19 @@ private fun AssetMessagesListContent(
                             message = message,
                             conversationDetailsData = ConversationDetailsData.None,
                             audioMessagesState = emptyMap(), // TODO(Media): handle audio state
-                            onAudioClick = {}, // TODO(Media): handle audio click
-                            onChangeAudioPosition = {_, _ ->},
-                            onLongClicked = {},
-                            onAssetMessageClicked = {}, // TODO(Media): handle asset click
-                            onImageMessageClicked = {_, _ ->},
-                            onOpenProfile = {_ ->},
-                            onReactionClicked = {_, _ ->},
-                            onResetSessionClicked = {_, _ ->},
-                            onSelfDeletingMessageRead = {},
+                            onAudioClick = { }, // TODO(Media): handle audio click
+                            onChangeAudioPosition = { _, _ -> },
+                            onLongClicked = { },
+                            onAssetMessageClicked = { }, // TODO(Media): handle asset click
+                            onImageMessageClicked = { _, _ -> },
+                            onOpenProfile = { _ -> },
+                            onReactionClicked = { _, _ -> },
+                            onResetSessionClicked = { _, _ -> },
+                            onSelfDeletingMessageRead = { },
                             defaultBackgroundColor = colorsScheme().backgroundVariant,
                             shouldDisplayMessageStatus = false,
                             shouldDisplayFooter = false,
-                            onLinkClick = {}
+                            onLinkClick = { }
                         )
                     }
 
@@ -270,8 +270,8 @@ fun previewConversationMediaScreenEmptyContent() {
     WireTheme {
         Content(
             state = ConversationAssetMessagesViewState(),
-            onImageFullScreenMode = {_, _, _ ->},
-            continueAssetLoading = {}
+            onImageFullScreenMode = { _, _, _ -> },
+            continueAssetLoading = { }
         )
     }
 }

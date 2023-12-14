@@ -181,8 +181,8 @@ fun previewAssetGrid() {
                 message2,
                 message3
             ),
-            onImageFullScreenMode = {_, _, _ ->},
-            continueAssetLoading = {}
+            onImageFullScreenMode = { _, _, _ -> },
+            continueAssetLoading = { }
         )
     }
 }

@@ -175,6 +175,7 @@ class LockCodeTimeManagerTest {
         arrangement.withIsAppVisible(false)
         advanceTimeBy(startDelay)
         arrangement.withIsAppVisible(true)
+        advanceUntilIdle()
         // then
         assertEquals(expected, manager.observeAppLock().first())
     }
@@ -297,7 +298,8 @@ class LockCodeTimeManagerTest {
                 CoroutineScope(dispatcher),
                 currentScreenManager,
                 observeAppLockConfigUseCase,
-                globalDataStore
+                globalDataStore,
+                dispatcher.scheduler::currentTime
             )
         }
 

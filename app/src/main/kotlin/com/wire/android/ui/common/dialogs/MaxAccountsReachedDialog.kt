@@ -20,9 +20,12 @@
 
 package com.wire.android.ui.common.dialogs
 
+import androidx.annotation.PluralsRes
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.VisibilityState
@@ -31,27 +34,55 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MaxAccountsReachedDialogContent(
-    maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS,
+fun MaxAccountsReachedDialog(
     dialogState: VisibilityState<MaxAccountsReachedDialogState>,
     onActionButtonClicked: () -> Unit,
 ) {
     VisibilityState(dialogState) { _ ->
-        WireDialog(
-            title = pluralStringResource(R.plurals.max_account_reached_dialog_title, maxAccountsAllowed),
-            text = pluralStringResource(R.plurals.max_account_reached_dialog_message, maxAccountsAllowed),
+        MaxAccountAllowedDialogContent(
+            onConfirm = onActionButtonClicked,
             onDismiss = dialogState::dismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                text = stringResource(R.string.label_ok),
-                onClick = onActionButtonClicked,
-                type = WireDialogButtonType.Primary
-            ),
-            properties = wireDialogPropertiesBuilder(
+            buttonText = R.string.label_ok,
+            dialogProperties = wireDialogPropertiesBuilder(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false
             )
         )
     }
 }
+
+@Composable
+fun MaxAccountAllowedDialogContent(
+    maxAccountsAllowed: Int = BuildConfig.MAX_ACCOUNTS,
+    @PluralsRes title: Int = R.plurals.max_account_reached_dialog_title,
+    @PluralsRes message: Int = R.plurals.max_account_reached_dialog_message,
+    @StringRes buttonText: Int,
+    dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    WireDialog(
+        title = pluralStringResource(title, maxAccountsAllowed, maxAccountsAllowed),
+        text = pluralStringResource(message, maxAccountsAllowed, maxAccountsAllowed),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            text = stringResource(buttonText),
+            onClick = onConfirm,
+            type = WireDialogButtonType.Primary
+        ),
+        properties = dialogProperties
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMaxAccountReachedDialogWithOkButton() {
+    WireTheme {
+        MaxAccountAllowedDialogContent(onConfirm = { }, onDismiss = { }, buttonText = R.string.label_ok)
+    }
+}
+

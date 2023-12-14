@@ -81,7 +81,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
-import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogContent
+import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -152,7 +152,7 @@ private fun WelcomeContent(
                 .padding(internalPadding)
         ) {
             val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
-            MaxAccountsReachedDialogContent(dialogState = maxAccountsReachedDialogState) { navigateBack() }
+            MaxAccountsReachedDialog(dialogState = maxAccountsReachedDialogState) { navigateBack() }
             if (maxAccountsReached) {
                 maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
             }

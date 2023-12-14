@@ -85,4 +85,3 @@ fun PreviewMaxAccountReachedDialogWithOkButton() {
         MaxAccountAllowedDialogContent(onConfirm = { }, onDismiss = { }, buttonText = R.string.label_ok)
     }
 }
-

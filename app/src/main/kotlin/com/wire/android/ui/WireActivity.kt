@@ -25,7 +25,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -38,10 +37,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -165,7 +162,6 @@ class WireActivity : AppCompatActivity() {
     ) {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            var isLoaded by remember { mutableStateOf(false) }
 
             LaunchedEffect(viewModel.globalAppState.themeOption) {
                 when (viewModel.globalAppState.themeOption) {
@@ -184,7 +180,6 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     Column(modifier = Modifier.statusBarsPadding()) {
-                        ReportDrawnWhen { isLoaded }
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         CommonTopAppBar(
                             connectivityUIState = commonTopAppBarViewModel.connectivityState,
@@ -200,7 +195,6 @@ class WireActivity : AppCompatActivity() {
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete)
-                        isLoaded = true
                         handleScreenshotCensoring()
                         handleDialogs(
                             navigator::navigate,

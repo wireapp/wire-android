@@ -985,8 +985,14 @@
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
     <!--max account reached dialog-->
-    <string name="max_account_reached_dialog_title">Three accounts active</string>
-    <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
+    <plurals name="max_account_reached_dialog_title">
+        <item quantity="one">one account active</item>
+        <item quantity="other">%1$d accounts active</item>
+    </plurals>
+    <plurals name="max_account_reached_dialog_message">
+        <item quantity="one">You can only be logged in with one account at once. Log out from one to add another.</item>
+        <item quantity="other">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
+    </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>

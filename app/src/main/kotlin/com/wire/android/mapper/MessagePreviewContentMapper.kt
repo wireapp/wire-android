@@ -236,7 +236,8 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
                 is WithUser.TeamMembersRemoved -> {
                     val teamMembersRemovedContent = (content as WithUser.TeamMembersRemoved)
-                    val previewMessageContent = UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
+                    val previewMessageContent =
+                        UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
 
                     UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
                 }
@@ -326,12 +327,16 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         MessagePreviewContent.VerificationChanged.VerifiedMls ->
             UILastMessageContent.VerificationChanged(R.string.last_message_verified_conversation_mls)
+
         MessagePreviewContent.VerificationChanged.VerifiedProteus ->
             UILastMessageContent.VerificationChanged(R.string.last_message_verified_conversation_proteus)
+
         MessagePreviewContent.VerificationChanged.DegradedMls ->
             UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_mls)
+
         MessagePreviewContent.VerificationChanged.DegradedProteus ->
             UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_proteus)
+
         Unknown -> UILastMessageContent.None
     }
 }

@@ -408,6 +408,7 @@ sealed class UIMessageContent {
             )
 
         @Deprecated("Use TeamMemberRemoved")
+        @Suppress("ClassNaming")
         data class TeamMemberRemoved_Legacy(val content: MessageContent.TeamMemberRemoved) :
             SystemMessage(R.drawable.ic_minus,
                 R.plurals.label_system_message_team_member_left,

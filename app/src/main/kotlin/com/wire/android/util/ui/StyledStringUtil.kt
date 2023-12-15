@@ -72,8 +72,13 @@ fun Resources.annotatedText(
 ): AnnotatedString {
 
     // Mark all arguments as bold, by adding **
-    val input = when(stringResId) {
-        is LocalizedStringResource.PluralResource -> this.getQuantityString(stringResId.id, stringResId.quantity, *formatArgs.map { it.markdownBold() }.toTypedArray())
+    val input = when (stringResId) {
+        is LocalizedStringResource.PluralResource -> this.getQuantityString(
+            stringResId.id,
+            stringResId.quantity,
+            *formatArgs.map { it.markdownBold() }.toTypedArray()
+        )
+
         is LocalizedStringResource.StringResource -> this.getString(stringResId.id, *formatArgs.map { it.markdownBold() }.toTypedArray())
     }
     // The text gets split into pieces based on **

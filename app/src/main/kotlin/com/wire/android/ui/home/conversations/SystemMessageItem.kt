@@ -267,7 +267,6 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning,
         is SystemMessage.TeamMemberRemoved,
         is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
-
     }
 }
 

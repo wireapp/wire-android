@@ -98,10 +98,7 @@ class MessageCompositionHolder(
             }
 
             is UIMessageContent.Location -> with(messageContent) {
-                UIQuotedMessage.UIQuotedData.Location(
-                    locationName = name,
-                    locationUrl = context.resources.getString(urlCoordinates, zoom, latitude, longitude)
-                )
+                UIQuotedMessage.UIQuotedData.Location(locationName = name)
             }
 
             else -> {

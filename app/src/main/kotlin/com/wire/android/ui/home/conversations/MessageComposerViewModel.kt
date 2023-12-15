@@ -61,7 +61,9 @@ import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -77,6 +79,7 @@ import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -110,7 +113,9 @@ class MessageComposerViewModel @Inject constructor(
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
-    private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase
+    private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
+    private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
+    private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -162,10 +167,8 @@ class MessageComposerViewModel @Inject constructor(
         InvalidLinkDialogState.Hidden
     )
 
-    private val shouldInformAboutDegradedBeforeSendingMessage = mutableStateOf(false)
-
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
-        SureAboutMessagingDialogState.None
+        SureAboutMessagingDialogState.Hidden
     )
 
     init {
@@ -174,17 +177,10 @@ class MessageComposerViewModel @Inject constructor(
         observeIsTypingAvailable()
         observeSelfDeletingMessagesStatus()
         setFileSharingStatus()
-        observeInformedAboutDegradedVerification()
     }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
-    }
-
-    private fun observeInformedAboutDegradedVerification() = viewModelScope.launch {
-        observeDegradedConversationNotified(conversationId).collect {
-            shouldInformAboutDegradedBeforeSendingMessage.value = !it
-        }
     }
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
@@ -208,58 +204,66 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    private suspend fun shouldInformAboutDegradedBeforeSendingMessage(): Boolean =
+        observeDegradedConversationNotified(conversationId).first().let { !it }
+
+    private suspend fun shouldInformAboutUnderLegalHoldBeforeSendingMessage() =
+        observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
+
     fun trySendMessage(messageBundle: MessageBundle) {
-        if (shouldInformAboutDegradedBeforeSendingMessage.value) {
-            sureAboutMessagingDialogState = SureAboutMessagingDialogState.ConversationVerificationDegraded(messageBundle)
-        } else {
-            sendMessage(messageBundle)
+        viewModelScope.launch {
+            when {
+                shouldInformAboutDegradedBeforeSendingMessage() ->
+                    sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
+                shouldInformAboutUnderLegalHoldBeforeSendingMessage() ->
+                    sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold(messageBundle)
+                else -> sendMessage(messageBundle)
+            }
         }
     }
 
-    private fun sendMessage(messageBundle: MessageBundle) {
-        viewModelScope.launch {
-            when (messageBundle) {
-                is ComposableMessageBundle.EditMessageBundle -> {
-                    with(messageBundle) {
-                        sendEditTextMessage(
-                            conversationId = conversationId,
-                            originalMessageId = originalMessageId,
-                            text = newContent,
-                            mentions = newMentions.map { it.intoMessageMention() },
-                        )
-                    }
-                    sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
-                }
-
-                is ComposableMessageBundle.AttachmentPickedBundle -> {
-                    handleAssetMessageBundle(
-                        attachmentUri = messageBundle.attachmentUri
+    private suspend fun sendMessage(messageBundle: MessageBundle) {
+        when (messageBundle) {
+            is ComposableMessageBundle.EditMessageBundle -> {
+                with(messageBundle) {
+                    sendEditTextMessage(
+                        conversationId = conversationId,
+                        originalMessageId = originalMessageId,
+                        text = newContent,
+                        mentions = newMentions.map { it.intoMessageMention() },
                     )
                 }
+                sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
+            }
 
-                is ComposableMessageBundle.AudioMessageBundle -> {
-                    handleAssetMessageBundle(
-                        attachmentUri = messageBundle.attachmentUri,
-                        audioPath = messageBundle.attachmentUri.uri.path?.toPath()
+            is ComposableMessageBundle.AttachmentPickedBundle -> {
+                handleAssetMessageBundle(
+                    attachmentUri = messageBundle.attachmentUri
+                )
+            }
+
+            is ComposableMessageBundle.AudioMessageBundle -> {
+                handleAssetMessageBundle(
+                    attachmentUri = messageBundle.attachmentUri,
+                    audioPath = messageBundle.attachmentUri.uri.path?.toPath()
+                )
+            }
+
+            is ComposableMessageBundle.SendTextMessageBundle -> {
+                with(messageBundle) {
+                    sendTextMessage(
+                        conversationId = conversationId,
+                        text = message,
+                        mentions = mentions.map { it.intoMessageMention() },
+                        quotedMessageId = quotedMessageId
                     )
                 }
+                sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
+            }
 
-                is ComposableMessageBundle.SendTextMessageBundle -> {
-                    with(messageBundle) {
-                        sendTextMessage(
-                            conversationId = conversationId,
-                            text = message,
-                            mentions = mentions.map { it.intoMessageMention() },
-                            quotedMessageId = quotedMessageId
-                        )
-                    }
-                    sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
-                }
-
-                Ping -> {
-                    pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-                    sendKnockUseCase(conversationId = conversationId, hotKnock = false)
-                }
+            Ping -> {
+                pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
+                sendKnockUseCase(conversationId = conversationId, hotKnock = false)
             }
         }
     }
@@ -473,16 +477,34 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sureAboutSendingMessage(messageBundle: MessageBundle) {
-        hideSureAboutSendingMessage()
-        sendMessage(messageBundle)
+    fun acceptSureAboutSendingMessage() {
+        (sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible)?.let {
+            viewModelScope.launch {
+                it.markAsNotified()
+                trySendMessage(it.messageBundleToSend)
+            }
+        }
     }
 
-    fun hideSureAboutSendingMessage() {
-        sureAboutMessagingDialogState = SureAboutMessagingDialogState.None
-        viewModelScope.launch {
-            setUserInformedAboutVerification.invoke(conversationId)
+    fun dismissSureAboutSendingMessage() {
+        (sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible)?.let {
+            viewModelScope.launch {
+                it.markAsNotified()
+            }
         }
+    }
+
+    private suspend fun SureAboutMessagingDialogState.markAsNotified() {
+        when (this) {
+            is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold ->
+                setNotifiedAboutConversationUnderLegalHold(conversationId)
+
+            is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
+                setUserInformedAboutVerification(conversationId)
+
+            SureAboutMessagingDialogState.Hidden -> {/* do nothing */ }
+        }
+        sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
 
     companion object {

@@ -45,11 +45,11 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -65,8 +65,10 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -111,6 +113,8 @@ internal class MessageComposerViewModelArrangement {
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
+        coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
+        coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
     }
 
     @MockK
@@ -191,6 +195,12 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
 
+    @MockK
+    lateinit var setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase
+
+    @MockK
+    lateinit var observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -218,7 +228,9 @@ internal class MessageComposerViewModelArrangement {
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
-            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase
+            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
+            setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
+            observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
         )
     }
 
@@ -316,6 +328,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(flag)
+    }
+
+    fun withObserveConversationUnderLegalHoldNotified(flag: Boolean) = apply {
+        coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(flag)
     }
 
     fun arrange() = this to viewModel

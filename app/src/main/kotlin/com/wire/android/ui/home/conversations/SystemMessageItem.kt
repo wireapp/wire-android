@@ -67,6 +67,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
+import com.wire.android.ui.home.conversations.mock.mockUsersUITexts
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
@@ -74,10 +75,10 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.annotatedText
+import com.wire.android.util.ui.markdownBold
+import com.wire.android.util.ui.markdownText
 import com.wire.android.util.ui.toUIText
 import kotlin.math.roundToInt
 
@@ -85,6 +86,7 @@ import kotlin.math.roundToInt
 @Composable
 fun SystemMessageItem(
     message: UIMessage.System,
+    initiallyExpanded: Boolean = false,
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onSelfDeletingMessageRead: (UIMessage) -> Unit = {}
@@ -150,25 +152,50 @@ fun SystemMessageItem(
                 .alignBy { centerOfFirstLine.roundToInt() }
         ) {
             val context = LocalContext.current
-            var expanded: Boolean by remember { mutableStateOf(false) }
-            Text(
+            var expanded: Boolean by remember { mutableStateOf(initiallyExpanded) }
+            val annotatedString = message.messageContent.annotatedString(
+                res = context.resources,
+                expanded = expanded,
+                normalStyle = MaterialTheme.wireTypography.body01,
+                boldStyle = MaterialTheme.wireTypography.body02,
+                normalColor = MaterialTheme.wireColorScheme.secondaryText,
+                boldColor = MaterialTheme.wireColorScheme.onBackground,
+                errorColor = MaterialTheme.wireColorScheme.error,
+                isErrorString = message.addingFailed,
+            )
+            val learnMoreAnnotatedString = message.messageContent.learnMoreResId?.let {
+                val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
+                val learnMoreText = stringResource(id = R.string.label_learn_more)
+                buildAnnotatedString {
+                    append(learnMoreText)
+                    addStyle(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        start = 0,
+                        end = learnMoreText.length
+                    )
+                    addStringAnnotation(tag = TAG_LEARN_MORE, annotation = learnMoreLink, start = 0, end = learnMoreText.length)
+                }
+            }
+            val fullAnnotatedString =
+                if (learnMoreAnnotatedString != null) annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
+                else annotatedString
+
+            ClickableText(
                 modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-                style = MaterialTheme.wireTypography.body01,
-                lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
-                text = message.messageContent.annotatedString(
-                    res = context.resources,
-                    expanded = expanded,
-                    normalStyle = MaterialTheme.wireTypography.body01,
-                    boldStyle = MaterialTheme.wireTypography.body02,
-                    normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                    boldColor = MaterialTheme.wireColorScheme.onBackground,
-                    errorColor = MaterialTheme.wireColorScheme.error,
-                    isErrorString = message.addingFailed,
-                ),
+                text = fullAnnotatedString,
+                onClick = { offset ->
+                    fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset,)
+                        .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
+                },
+                style = MaterialTheme.wireTypography.body02,
                 onTextLayout = {
                     centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
                 }
             )
+
             if ((message.addingFailed && expanded) || message.singleUserAddFailed) {
                 OfflineBackendsLearnMoreLink()
             }
@@ -189,31 +216,6 @@ fun SystemMessageItem(
                     messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
-                )
-            }
-            if (message.messageContent.learnMoreResId != null) {
-                val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
-                val learnMoreText = stringResource(id = R.string.label_learn_more)
-                val annotatedString = buildAnnotatedString {
-                    append(learnMoreText)
-                    addStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        ),
-                        start = 0,
-                        end = learnMoreText.length
-                    )
-                }
-                ClickableText(
-                    text = annotatedString,
-                    onClick = {
-                        CustomTabsHelper.launchUrl(
-                            context,
-                            learnMoreLink
-                        )
-                    },
-                    style = MaterialTheme.wireTypography.body01,
                 )
             }
         }
@@ -245,7 +247,9 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationDegraded -> null
         is SystemMessage.ConversationVerified -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
+        is SystemMessage.LegalHold,
         is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
+
         is SystemMessage.MemberAdded,
         is SystemMessage.MemberJoined,
         is SystemMessage.MemberLeft,
@@ -402,6 +406,24 @@ fun PreviewSystemMessageFailedToAddMultiple() {
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewSystemMessageFailedToAddMultipleExpanded() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    listOf(
+                        UIText.DynamicString("Barbara Cotolina"),
+                        UIText.DynamicString("Albert Lewis")
+                    )
+                )
+            ),
+            initiallyExpanded = true,
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewSystemMessageFederationMemberRemoved() {
     WireTheme {
         SystemMessageItem(
@@ -470,6 +492,54 @@ fun PreviewSystemMessageFederationStoppedSelf() {
     }
 }
 
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldEnabledSelf() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Enabled.Self))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldDisabledSelf() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Disabled.Self))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldEnabledOthers() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Enabled.Others(mockUsersUITexts)))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldDisabledOthers() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Disabled.Others(mockUsersUITexts)))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldDisabledConversation() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Disabled.Conversation))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageLegalHoldEnabledConversation() {
+    WireTheme {
+        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Enabled.Conversation))
+    }
+}
+
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
@@ -497,25 +567,31 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationVerified -> false
         is SystemMessage.FederationStopped -> false
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> false
+        is SystemMessage.LegalHold -> false
         is SystemMessage.TeamMemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
     }
 
-private fun List<String>.toUserNamesListString(res: Resources): String = when {
+private fun List<String>.toUserNamesListMarkdownString(res: Resources): String = when {
     this.isEmpty() -> ""
-    this.size == 1 -> this[0]
-    else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", "), this.last())
+    this.size == 1 -> this[0].markdownBold()
+    else -> res.getString(
+        R.string.label_system_message_and,
+        this.dropLast(1).joinToString(", ") { it.markdownBold() },
+        this.last().markdownBold()
+    )
 }
 
 private fun List<UIText>.limitUserNamesList(
     res: Resources,
-    threshold: Int,
+    expanded: Boolean,
+    collapsedSize: Int = EXPANDABLE_THRESHOLD,
     @PluralsRes quantityString: Int = R.plurals.label_system_message_x_more
 ): List<String> =
-    if (this.size <= threshold) {
+    if (expanded || this.size <= collapsedSize) {
         this.map { it.asString(res) }
     } else {
-        val moreCount = this.size - (threshold - 1) // the last visible place is taken by "and X more"
-        this.take(threshold - 1)
+        val moreCount = this.size - (collapsedSize - 1) // the last visible place is taken by "and X more"
+        this.take(collapsedSize - 1)
             .map { it.asString(res) }
             .plus(res.getQuantityString(quantityString, moreCount, moreCount))
     }
@@ -531,17 +607,17 @@ fun SystemMessage.annotatedString(
     errorColor: Color,
     isErrorString: Boolean = false
 ): AnnotatedString {
-    val args = when (this) {
+    val markdownArgs = when (this) {
         is SystemMessage.MemberAdded ->
             arrayOf(
-                author.asString(res),
-                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+                author.asString(res).markdownBold(),
+                memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
             )
 
         is SystemMessage.MemberRemoved ->
             arrayOf(
-                author.asString(res),
-                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+                author.asString(res).markdownBold(),
+                memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
             )
 
         is SystemMessage.TeamMemberRemoved -> arrayOf(
@@ -551,18 +627,22 @@ fun SystemMessage.annotatedString(
 
         is SystemMessage.FederationMemberRemoved ->
             arrayOf(
-                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+                memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
             )
 
-        is SystemMessage.MemberJoined -> arrayOf(author.asString(res))
-        is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
-        is SystemMessage.MissedCall -> arrayOf(author.asString(res))
-        is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
+        is SystemMessage.MemberJoined -> arrayOf(author.asString(res).markdownBold())
+        is SystemMessage.MemberLeft -> arrayOf(author.asString(res).markdownBold())
+        is SystemMessage.MissedCall -> arrayOf(author.asString(res).markdownBold())
+        is SystemMessage.RenamedConversation -> arrayOf(author.asString(res).markdownBold(), content.conversationName.markdownBold())
+        is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName.markdownBold())
+        is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res).markdownBold())
+        is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res).markdownBold())
+        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(
+            author.asString(res).markdownBold(),
+            receiptMode.asString(res).markdownBold()
+        )
         is SystemMessage.TeamMemberRemoved_Legacy -> arrayOf(content.userName)
-        is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
-        is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
-        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
-        is SystemMessage.Knock -> arrayOf(author.asString(res))
+        is SystemMessage.Knock -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.HistoryLost -> arrayOf()
         is SystemMessage.MLSWrongEpochWarning -> arrayOf()
         is SystemMessage.ConversationDegraded -> arrayOf()
@@ -570,33 +650,33 @@ fun SystemMessage.annotatedString(
         is SystemMessage.HistoryLostProtocolChanged -> arrayOf()
         is SystemMessage.ConversationProtocolChanged -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
-            author.asString(res),
-            selfDeletionDuration.longLabel.asString(res)
+            author.asString(res).markdownBold(),
+            selfDeletionDuration.longLabel.asString(res).markdownBold()
         )
 
-        is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res))
-        is SystemMessage.ConversationMessageCreated -> arrayOf(author.asString(res))
+        is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res).markdownBold())
+        is SystemMessage.ConversationMessageCreated -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.ConversationStartedWithMembers ->
-            arrayOf(
-                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD)
-                    .toUserNamesListString(res)
-            )
+            arrayOf(memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res))
 
         is SystemMessage.MemberFailedToAdd ->
-            return this.toFailedToAddAnnotatedText(
+            return this.toFailedToAddMarkdownText(
                 res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
                 if (usersCount > SINGLE_EXPANDABLE_THRESHOLD) expanded else true
             )
 
         is SystemMessage.FederationStopped -> domainList.toTypedArray()
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> arrayOf()
+        is SystemMessage.LegalHold -> memberNames?.let { memberNames ->
+            arrayOf(memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res))
+        } ?: arrayOf()
     }
-
-    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)
+    val markdownString = res.getString(stringResId, *markdownArgs)
+    return markdownText(markdownString, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString)
 }
 
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
-private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
+private fun SystemMessage.MemberFailedToAdd.toFailedToAddMarkdownText(
     res: Resources,
     normalStyle: TextStyle,
     boldStyle: TextStyle,
@@ -610,33 +690,29 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
     val isMultipleUsersFailure = usersCount > SINGLE_EXPANDABLE_THRESHOLD
     if (isMultipleUsersFailure) {
         failedToAddAnnotatedText.append(
-            res.annotatedText(
-                LocalizedStringResource.StringResource(
-                    R.string.label_system_message_conversation_failed_add_members_summary
-                ),
+            markdownText(
+                res.getString(R.string.label_system_message_conversation_failed_add_members_summary, usersCount.toString().markdownBold()),
                 normalStyle,
                 boldStyle,
                 normalColor,
                 boldColor,
                 errorColor,
                 isErrorString,
-                this.usersCount.toString()
             )
         )
     }
 
     if (expanded) {
-        if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n")
+        if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n\n")
         failedToAddAnnotatedText.append(
-            res.annotatedText(
-                stringResId,
+            markdownText(
+                res.getString(stringResId, memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)),
                 normalStyle,
                 boldStyle,
                 normalColor,
                 boldColor,
                 errorColor,
                 isErrorString,
-                memberNames.limitUserNamesList(res, EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
         )
     }
@@ -645,3 +721,4 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
 
 private const val EXPANDABLE_THRESHOLD = 4
 private const val SINGLE_EXPANDABLE_THRESHOLD = 1
+private const val TAG_LEARN_MORE = "tag_learn_more"

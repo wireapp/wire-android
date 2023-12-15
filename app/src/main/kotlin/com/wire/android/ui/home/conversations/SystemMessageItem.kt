@@ -75,6 +75,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.markdownBold
@@ -187,7 +188,7 @@ fun SystemMessageItem(
                 modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
                 text = fullAnnotatedString,
                 onClick = { offset ->
-                    fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset,)
+                    fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset)
                         .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
                 },
                 style = MaterialTheme.wireTypography.body02,
@@ -596,7 +597,7 @@ private fun List<UIText>.limitUserNamesList(
             .plus(res.getQuantityString(quantityString, moreCount, moreCount))
     }
 
-@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
+@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod", "LongMethod")
 fun SystemMessage.annotatedString(
     res: Resources,
     expanded: Boolean,
@@ -621,8 +622,8 @@ fun SystemMessage.annotatedString(
             )
 
         is SystemMessage.TeamMemberRemoved -> arrayOf(
-            author.asString(res),
-            memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+            author.asString(res).markdownBold(),
+            memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
         )
 
         is SystemMessage.FederationMemberRemoved ->
@@ -634,13 +635,13 @@ fun SystemMessage.annotatedString(
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.MissedCall -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res).markdownBold(), content.conversationName.markdownBold())
-        is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName.markdownBold())
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res).markdownBold())
         is SystemMessage.ConversationReceiptModeChanged -> arrayOf(
             author.asString(res).markdownBold(),
             receiptMode.asString(res).markdownBold()
         )
+
         is SystemMessage.TeamMemberRemoved_Legacy -> arrayOf(content.userName)
         is SystemMessage.Knock -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.HistoryLost -> arrayOf()
@@ -671,7 +672,19 @@ fun SystemMessage.annotatedString(
             arrayOf(memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res))
         } ?: arrayOf()
     }
-    val markdownString = res.getString(stringResId, *markdownArgs)
+    val markdownString = when (stringResId) {
+        is LocalizedStringResource.PluralResource -> res.getQuantityString(
+            (stringResId as LocalizedStringResource.PluralResource).id,
+            (stringResId as LocalizedStringResource.PluralResource).quantity,
+            *markdownArgs
+        )
+
+        is LocalizedStringResource.StringResource -> res.getString(
+            (stringResId as LocalizedStringResource.StringResource).id,
+            *markdownArgs
+        )
+    }
+
     return markdownText(markdownString, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString)
 }
 
@@ -706,7 +719,18 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddMarkdownText(
         if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n\n")
         failedToAddAnnotatedText.append(
             markdownText(
-                res.getString(stringResId, memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)),
+                when (stringResId) {
+                    is LocalizedStringResource.PluralResource -> res.getQuantityString(
+                        stringResId.id,
+                        stringResId.quantity,
+                        stringResId.formatArgs
+                    )
+
+                    is LocalizedStringResource.StringResource -> res.getString(
+                        stringResId.id,
+                        memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)
+                    )
+                },
                 normalStyle,
                 boldStyle,
                 normalColor,

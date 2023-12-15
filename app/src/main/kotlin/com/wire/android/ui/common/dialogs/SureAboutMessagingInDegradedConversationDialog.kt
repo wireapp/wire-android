@@ -41,7 +41,7 @@ fun SureAboutMessagingInDegradedConversationDialog(
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.sure_about_messaging_dialog_positiv_button),
                 type = WireDialogButtonType.Primary,
-                onClick =  sendAnyway,
+                onClick = sendAnyway,
             ),
             dismissButtonProperties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),

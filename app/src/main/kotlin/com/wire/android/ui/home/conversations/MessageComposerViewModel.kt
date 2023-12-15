@@ -502,7 +502,7 @@ class MessageComposerViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> {/* do nothing */ }
+            SureAboutMessagingDialogState.Hidden -> { /* do nothing */ }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }

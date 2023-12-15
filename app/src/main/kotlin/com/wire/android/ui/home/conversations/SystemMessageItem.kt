@@ -74,6 +74,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.annotatedText
@@ -123,16 +124,16 @@ fun SystemMessageItem(
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
-                    Image(
-                        painter = painterResource(id = message.messageContent.iconResId),
-                        contentDescription = null,
-                        colorFilter = getColorFilter(message.messageContent),
-                        modifier = Modifier.size(
-                            if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
-                            else dimensions().systemMessageIconLargeSize
-                        ),
-                        contentScale = ContentScale.Crop
-                    )
+                Image(
+                    painter = painterResource(id = message.messageContent.iconResId),
+                    contentDescription = null,
+                    colorFilter = getColorFilter(message.messageContent),
+                    modifier = Modifier.size(
+                        if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
+                        else dimensions().systemMessageIconLargeSize
+                    ),
+                    contentScale = ContentScale.Crop
+                )
             }
         }
         Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
@@ -251,7 +252,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MemberRemoved,
         is SystemMessage.CryptoSessionReset,
         is SystemMessage.RenamedConversation,
-        is SystemMessage.TeamMemberRemoved,
+        is SystemMessage.TeamMemberRemoved_Legacy,
         is SystemMessage.ConversationReceiptModeChanged,
         is SystemMessage.HistoryLost,
         is SystemMessage.HistoryLostProtocolChanged,
@@ -264,7 +265,9 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.FederationMemberRemoved,
         is SystemMessage.FederationStopped,
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning,
+        is SystemMessage.TeamMemberRemoved,
         is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
+
     }
 }
 
@@ -477,7 +480,7 @@ private val SystemMessage.expandable
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
         is SystemMessage.RenamedConversation -> false
-        is SystemMessage.TeamMemberRemoved -> false
+        is SystemMessage.TeamMemberRemoved_Legacy -> false
         is SystemMessage.CryptoSessionReset -> false
         is SystemMessage.NewConversationReceiptMode -> false
         is SystemMessage.ConversationReceiptModeChanged -> false
@@ -495,6 +498,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationVerified -> false
         is SystemMessage.FederationStopped -> false
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> false
+        is SystemMessage.TeamMemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
     }
 
 private fun List<String>.toUserNamesListString(res: Resources): String = when {
@@ -541,6 +545,11 @@ fun SystemMessage.annotatedString(
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
 
+        is SystemMessage.TeamMemberRemoved -> arrayOf(
+            author.asString(res),
+            memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+        )
+
         is SystemMessage.FederationMemberRemoved ->
             arrayOf(
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
@@ -550,7 +559,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
-        is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
+        is SystemMessage.TeamMemberRemoved_Legacy -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
         is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
@@ -603,7 +612,9 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
     if (isMultipleUsersFailure) {
         failedToAddAnnotatedText.append(
             res.annotatedText(
-                R.string.label_system_message_conversation_failed_add_members_summary,
+                LocalizedStringResource.StringResource(
+                    R.string.label_system_message_conversation_failed_add_members_summary
+                ),
                 normalStyle,
                 boldStyle,
                 normalColor,

@@ -61,7 +61,7 @@ fun Resources.stringWithStyledArgs(
 
 @Suppress("LongParameterList", "SpreadOperator")
 fun Resources.annotatedText(
-    @StringRes stringResId: Int,
+    stringResId: LocalizedStringResource,
     normalStyle: TextStyle,
     boldStyle: TextStyle,
     normalColor: Color,
@@ -72,7 +72,10 @@ fun Resources.annotatedText(
 ): AnnotatedString {
 
     // Mark all arguments as bold, by adding **
-    val input = this.getString(stringResId, *formatArgs.map { it.markdownBold() }.toTypedArray())
+    val input = when(stringResId) {
+        is LocalizedStringResource.PluralResource -> this.getQuantityString(stringResId.id, stringResId.quantity, *formatArgs.map { it.markdownBold() }.toTypedArray())
+        is LocalizedStringResource.StringResource -> this.getString(stringResId.id, *formatArgs.map { it.markdownBold() }.toTypedArray())
+    }
     // The text gets split into pieces based on **
     val splitText = input.split(BOLD_SEPARATOR).filter { it.isNotEmpty() }
 

@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations.model
 
 import android.content.res.Resources
 import androidx.annotation.DrawableRes
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
@@ -30,6 +31,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.Copyable
+import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -279,11 +281,35 @@ sealed class UIMessageContent {
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
-        @StringRes open val stringResId: Int,
+        open val stringResId: LocalizedStringResource,
         val isSmallIcon: Boolean = true,
         val additionalContent: String = "",
         @StringRes val learnMoreResId: Int? = null
     ) : UIMessageContent() {
+
+        constructor(
+            @DrawableRes iconResId: Int?,
+            @StringRes stringResId: Int,
+            isSmallIcon: Boolean = true,
+            additionalContent: String = "",
+            @StringRes learnMoreResId: Int? = null
+        ) : this(iconResId, LocalizedStringResource.StringResource(stringResId), isSmallIcon, additionalContent, learnMoreResId)
+
+        constructor(
+            @DrawableRes iconResId: Int?,
+            @PluralsRes stringResId: Int,
+            quantity: Int,
+            formatArgs: List<UIText>,
+            isSmallIcon: Boolean = true,
+            additionalContent: String = "",
+            @StringRes learnMoreResId: Int? = null
+        ) : this(
+            iconResId,
+            LocalizedStringResource.PluralResource(stringResId, quantity, formatArgs.toTypedArray()),
+            isSmallIcon,
+            additionalContent,
+            learnMoreResId
+        )
 
         data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
@@ -318,6 +344,16 @@ sealed class UIMessageContent {
         ) : SystemMessage(
             R.drawable.ic_minus,
             if (isSelfTriggered) R.string.label_system_message_removed_by_self else R.string.label_system_message_removed_by_other
+        )
+
+        data class TeamMemberRemoved(
+            val author: UIText,
+            val memberNames: List<UIText>,
+        ) : SystemMessage(
+            R.drawable.ic_minus,
+            R.plurals.label_system_message_team_member_left,
+            quantity = memberNames.size,
+            formatArgs = memberNames
         )
 
         data class MemberLeft(
@@ -357,7 +393,7 @@ sealed class UIMessageContent {
 
         sealed class MissedCall(
             open val author: UIText,
-            @StringRes override val stringResId: Int
+            @StringRes stringResId: Int
         ) : SystemMessage(R.drawable.ic_call_end, stringResId, false) {
 
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
@@ -371,8 +407,14 @@ sealed class UIMessageContent {
                 content.conversationName
             )
 
-        data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
-            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
+        @Deprecated("Use TeamMemberRemoved")
+        data class TeamMemberRemoved_Legacy(val content: MessageContent.TeamMemberRemoved) :
+            SystemMessage(R.drawable.ic_minus,
+                R.plurals.label_system_message_team_member_left,
+                quantity = 0,
+                formatArgs = emptyList(),
+                true,
+                content.userName)
 
         data class CryptoSessionReset(val author: UIText) :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset)

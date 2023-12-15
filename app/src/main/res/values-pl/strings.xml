@@ -581,7 +581,10 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_blocked_user">%1$s zablokowa&#322;(a) tego u&#380;ytkownika</string>
     <string name="label_system_message_renamed_the_conversation">%1$s zmieni&#322;(a) nazw&#281; konwersacji na:
 %2$s</string>
-    <string name="label_system_message_team_member_left">%1$s zosta&#322;(a) usuni&#281;ty(a) z tego zespo&#322;u</string>
+    <plurals name="label_system_message_team_member_left">
+        <item quantity="one">%1$s was removed from the team</item>
+        <item quantity="other">%1$s were removed from the team</item>
+    </plurals>
     <string name="label_system_message_user_not_available">Ten u&#380;ytkownik nie jest ju&#380; dost&#281;pny</string>
     <string name="label_system_message_new_conversation_receipt_mode">Tryb potwierdze&#324; odczytu: %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s zmieni&#322;(a) tryb odczytu na %2$s dla wszystkich</string>

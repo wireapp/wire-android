@@ -204,10 +204,10 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
                 }
 
-                is WithUser.MembersRemoved -> {
-                    val membersRemovedContent = (content as WithUser.MembersRemoved)
-                    val isSelfRemoved = membersRemovedContent.isSelfUserRemoved
-                    val otherUsersSize = membersRemovedContent.otherUserIdList.size
+                is WithUser.ConversationMembersRemoved -> {
+                    val conversationMembersRemovedContent = (content as WithUser.ConversationMembersRemoved)
+                    val isSelfRemoved = conversationMembersRemovedContent.isSelfUserRemoved
+                    val otherUsersSize = conversationMembersRemovedContent.otherUserIdList.size
 
                     val previewMessageContent = when {
                         isSelfMessage && otherUsersSize > 0 -> {
@@ -234,6 +234,13 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
                 }
 
+                is WithUser.TeamMembersRemoved -> {
+                    val teamMembersRemovedContent = (content as WithUser.TeamMembersRemoved)
+                    val previewMessageContent = UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
+
+                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+                }
+
                 is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(R.string.last_message_mentioned)
@@ -244,7 +251,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UIText.StringResource(R.string.last_message_replied)
                 )
 
-                is WithUser.TeamMemberRemoved -> UILastMessageContent.None // TODO
+                is WithUser.TeamMemberRemoved -> UILastMessageContent.None
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },

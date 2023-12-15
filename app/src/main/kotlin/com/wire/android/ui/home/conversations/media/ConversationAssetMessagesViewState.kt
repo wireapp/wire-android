@@ -21,11 +21,15 @@
 package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.runtime.Stable
+import androidx.paging.PagingData
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.immutableMapOf
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Stable
 data class ConversationAssetMessagesViewState(

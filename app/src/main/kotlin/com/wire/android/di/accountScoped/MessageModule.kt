@@ -21,9 +21,9 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -160,8 +161,8 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesForConversationUseCase =
-        messageScope.getAssetMessagesByConversation
+    fun GetPaginatedFlowOfAssetMessageByConversationId(messageScope: MessageScope): GetPaginatedFlowOfAssetMessageByConversationIdUseCase =
+        messageScope.getPaginatedFlowOfAssetMessageByConversationId
 
     @ViewModelScoped
     @Provides

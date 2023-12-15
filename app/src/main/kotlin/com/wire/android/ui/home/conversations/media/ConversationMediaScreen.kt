@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -69,8 +70,8 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.launch
 import com.wire.kalium.util.map.forEachIndexed
+import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
@@ -191,12 +192,15 @@ private fun PicturesContent(
 private fun FilesContent(
     groupedAssetMessageList: Map<String, List<UIMessage>>
 ) {
-    if (groupedAssetMessageList.isEmpty()) {
+    // val lazyPagingMessages = groupedAssetMessageList.collectAsLazyPagingItems()
+
+    // if (lazyPagingMessages.itemCount > 0) {
+    if (groupedAssetMessageList.isNotEmpty()) {
+        AssetMessagesListContent(groupedAssetMessageList = groupedAssetMessageList)
+    } else {
         EmptyMediaContentScreen(
             text = stringResource(R.string.label_conversation_files_empty)
         )
-    } else {
-        AssetMessagesListContent(groupedAssetMessageList = groupedAssetMessageList)
     }
 }
 

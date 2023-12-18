@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -70,6 +71,7 @@ import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
+import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
@@ -77,10 +79,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
@@ -112,6 +116,9 @@ fun OngoingCallScreen(
             isSpeakerOn = isSpeakerOn,
             isCbrEnabled = isCbrEnabled,
             isOnFrontCamera = isOnFrontCamera,
+            protocolInfo = protocolInfo,
+            mlsVerificationStatus = mlsVerificationStatus,
+            proteusVerificationStatus = proteusVerificationStatus,
             shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
@@ -140,6 +147,9 @@ private fun OngoingCallContent(
     isSpeakerOn: Boolean,
     isCbrEnabled: Boolean,
     shouldShowDoubleTapToast: Boolean,
+    protocolInfo: Conversation.ProtocolInfo?,
+    mlsVerificationStatus: Conversation.VerificationStatus?,
+    proteusVerificationStatus: Conversation.VerificationStatus?,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -174,7 +184,10 @@ private fun OngoingCallContent(
                     else -> ""
                 },
                 isCbrEnabled = isCbrEnabled,
-                onCollapse = navigateBack
+                onCollapse = navigateBack,
+                protocolInfo = protocolInfo,
+                mlsVerificationStatus = mlsVerificationStatus,
+                proteusVerificationStatus = proteusVerificationStatus
             )
         },
         sheetPeekHeight = dimensions().defaultSheetPeekHeight,
@@ -273,14 +286,34 @@ private fun OngoingCallContent(
 private fun OngoingCallTopBar(
     conversationName: String,
     isCbrEnabled: Boolean,
+    protocolInfo: Conversation.ProtocolInfo?,
+    mlsVerificationStatus: Conversation.VerificationStatus?,
+    proteusVerificationStatus: Conversation.VerificationStatus?,
     onCollapse: () -> Unit
 ) {
     Column {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onCollapse,
-            titleStyle = MaterialTheme.wireTypography.title02,
-            maxLines = 1,
-            title = conversationName,
+            titleContent = {
+                Row(
+                    modifier = Modifier.padding(
+                        start = dimensions().spacing6x,
+                        end = dimensions().spacing6x
+                    )
+                ) {
+                    Text(
+                        text = conversationName,
+                        style = MaterialTheme.wireTypography.title02,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    ConversationVerificationIcons(
+                        protocolInfo,
+                        mlsVerificationStatus,
+                        proteusVerificationStatus
+                    )
+                }
+            },
             navigationIconType = NavigationIconType.Collapse,
             elevation = 0.dp,
             actions = {}
@@ -354,5 +387,5 @@ private fun CallingControls(
 @PreviewMultipleThemes
 @Composable
 fun PreviewOngoingCallTopBar() {
-    OngoingCallTopBar("Default", true) { }
+    OngoingCallTopBar("Default", true, null, null, null) { }
 }

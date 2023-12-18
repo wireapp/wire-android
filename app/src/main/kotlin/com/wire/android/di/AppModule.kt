@@ -27,6 +27,7 @@ import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.mapper.MessageResourceProvider
+import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.Module
@@ -79,4 +80,8 @@ object AppModule {
             )
         }
     }
+
+    @Singleton
+    @Provides
+    fun provideCurrentTimestampProvider(): CurrentTimestampProvider = { System.currentTimeMillis() }
 }

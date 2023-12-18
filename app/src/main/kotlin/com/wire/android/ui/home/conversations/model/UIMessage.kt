@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations.model
 
 import android.content.res.Resources
 import androidx.annotation.DrawableRes
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
@@ -30,6 +31,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.Copyable
+import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -279,10 +281,31 @@ sealed class UIMessageContent {
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
-        @StringRes open val stringResId: Int,
+        open val stringResId: LocalizedStringResource,
         @StringRes val learnMoreResId: Int? = null,
         val isSmallIcon: Boolean = true,
     ) : UIMessageContent() {
+
+        constructor(
+            @DrawableRes iconResId: Int?,
+            @StringRes stringResId: Int,
+            isSmallIcon: Boolean = true,
+            @StringRes learnMoreResId: Int? = null
+        ) : this(iconResId, LocalizedStringResource.StringResource(stringResId), learnMoreResId, isSmallIcon)
+
+        constructor(
+            @DrawableRes iconResId: Int?,
+            @PluralsRes stringResId: Int,
+            quantity: Int,
+            formatArgs: List<UIText>,
+            isSmallIcon: Boolean = true,
+            @StringRes learnMoreResId: Int? = null
+        ) : this(
+            iconResId,
+            LocalizedStringResource.PluralResource(stringResId, quantity, formatArgs.toTypedArray()),
+            learnMoreResId,
+            isSmallIcon
+        )
 
         data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
             R.drawable.ic_ping,
@@ -317,6 +340,16 @@ sealed class UIMessageContent {
         ) : SystemMessage(
             R.drawable.ic_minus,
             if (isSelfTriggered) R.string.label_system_message_removed_by_self else R.string.label_system_message_removed_by_other
+        )
+
+        data class TeamMemberRemoved(
+            val author: UIText,
+            val memberNames: List<UIText>,
+        ) : SystemMessage(
+            R.drawable.ic_minus,
+            R.plurals.label_system_message_team_member_left,
+            quantity = memberNames.size,
+            formatArgs = memberNames
         )
 
         data class MemberLeft(
@@ -356,7 +389,7 @@ sealed class UIMessageContent {
 
         sealed class MissedCall(
             open val author: UIText,
-            @StringRes override val stringResId: Int
+            @StringRes stringResId: Int
         ) : SystemMessage(R.drawable.ic_call_end, stringResId) {
 
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
@@ -366,8 +399,16 @@ sealed class UIMessageContent {
         data class RenamedConversation(val author: UIText, val content: MessageContent.ConversationRenamed) :
             SystemMessage(R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation)
 
-        data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
-            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left)
+        @Deprecated("Use TeamMemberRemoved")
+        @Suppress("ClassNaming")
+        data class TeamMemberRemoved_Legacy(val content: MessageContent.TeamMemberRemoved) :
+            SystemMessage(
+                R.drawable.ic_minus,
+                R.plurals.label_system_message_team_member_left,
+                quantity = 0,
+                formatArgs = emptyList(),
+                true
+            )
 
         data class CryptoSessionReset(val author: UIText) :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset)
@@ -493,18 +534,25 @@ sealed class UIMessageContent {
         )
 
         sealed class LegalHold(
-            @StringRes stringResId: Int,
+            stringResId: LocalizedStringResource.StringResource,
             @StringRes learnMoreResId: Int? = null,
             open val memberNames: List<UIText>? = null,
         ) : SystemMessage(R.drawable.ic_legal_hold, stringResId, learnMoreResId) {
 
-            sealed class Enabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, R.string.url_legal_hold_learn_more) {
+            sealed class Enabled(override val stringResId: LocalizedStringResource.StringResource) :
+                LegalHold(stringResId, R.string.url_legal_hold_learn_more) {
+
+                constructor(@StringRes stringResId: Int) : this(LocalizedStringResource.StringResource(stringResId))
+
                 data object Self : Enabled(R.string.legal_hold_system_message_enabled_self)
                 data class Others(override val memberNames: List<UIText>) : Enabled(R.string.legal_hold_system_message_enabled_others)
                 data object Conversation : Enabled(R.string.legal_hold_system_message_enabled_conversation)
             }
 
-            sealed class Disabled(@StringRes override val stringResId: Int) : LegalHold(stringResId, null) {
+            sealed class Disabled(override val stringResId: LocalizedStringResource.StringResource) : LegalHold(stringResId, null) {
+
+                constructor(@StringRes stringResId: Int) : this(LocalizedStringResource.StringResource(stringResId))
+
                 data object Self : Disabled(R.string.legal_hold_system_message_disabled_self)
                 data class Others(override val memberNames: List<UIText>) : Disabled(R.string.legal_hold_system_message_disabled_others)
                 data object Conversation : Disabled(R.string.legal_hold_system_message_disabled_conversation)

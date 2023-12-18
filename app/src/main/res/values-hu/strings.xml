@@ -578,7 +578,10 @@
     </plurals>
     <string name="label_system_message_blocked_user">%1$s letiltotta ezt a felhasználót</string>
     <string name="label_system_message_renamed_the_conversation">%1$s átnevezte a beszélgetést\n%2$s</string>
-    <string name="label_system_message_team_member_left">%1$s el lett távolítva a csapatból</string>
+    <plurals name="label_system_message_team_member_left">
+        <item quantity="one">%1$s was removed from the team</item>
+        <item quantity="other">%1$s were removed from the team</item>
+    </plurals>
     <string name="label_system_message_user_not_available">Ez a felhasználó már nem elérhető</string>
     <string name="label_system_message_new_conversation_receipt_mode">Tértivevények %1$s vannak kapcsolva</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s a tértivevényeket %2$skapcsolta mindenki számára</string>

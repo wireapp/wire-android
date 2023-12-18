@@ -1,3 +1,7 @@
+Boolean isTagAndValid() {
+    return env.TAG_NAME ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+/
+}
+
 List<String> defineFlavor() {
     //check if the pipeline has the custom flavor env variable set
     def overwrite = env.CUSTOM_FLAVOR
@@ -6,7 +10,7 @@ List<String> defineFlavor() {
     }
 
     def branchName = env.BRANCH_NAME
-    def isTagAndValid = env.TAG_NAME ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+/ || branchName ==~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+/
+    def isTagAndValid = isTagAndValid()
 
     if (branchName == "main") {
         return ['Beta']
@@ -68,17 +72,12 @@ def postGithubComment(String changeId, String body) {
 * @param changeBranch env var to use as the branch name if the changeBranch is not empty
 */
 String handleChangeBranch(String changeBranch) {
-    if (changeBranch?.trim()) {
+    if (isTagAndValid()) {
+        return "refs/tags/${env.TAG_NAME}"
+    } else if (changeBranch?.trim()) {
         return changeBranch
     }
     return env.BRANCH_NAME
-}
-
-/**
-* Force in case of a tag to not upload to PlayStore, otherwise it will delegate to the stage resolution.
-*/
-String defineUploadToPlayStoreEnabled() {
-    return env.BRANCH_NAME !=~ /v[0-9]+.[0-9]+.[0-9A-Za-z-+]+/
 }
 
 pipeline {
@@ -107,7 +106,7 @@ pipeline {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
                         String definedChangeBranch = handleChangeBranch(env.CHANGE_BRANCH)
-                        Boolean uploadToPlayStoreEnabled = defineUploadToPlayStoreEnabled()
+                        Boolean uploadToPlayStoreEnabled = !isTagAndValid()
                         dynamicStages[stageName] = {
                             node {
                                 stage(stageName) {

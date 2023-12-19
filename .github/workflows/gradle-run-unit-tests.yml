@@ -66,9 +66,6 @@ jobs:
           name: report
           path: app/build/reports/jacoco
 
-      - name: Display structure of downloaded files
-        run: ls -R app/build/reports/jacoco
-
       - name: Download Test Reports Folder
         uses: actions/download-artifact@v4
         with:

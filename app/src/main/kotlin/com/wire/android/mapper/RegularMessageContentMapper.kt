@@ -222,6 +222,7 @@ class RegularMessageMapper @Inject constructor(
             }
 
             is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(quotedContent.value)
+            is MessageContent.QuotedMessageDetails.Location -> UIQuotedMessage.UIQuotedData.Location(quotedContent.locationName.orEmpty())
             MessageContent.QuotedMessageDetails.Deleted -> UIQuotedMessage.UIQuotedData.Deleted
             MessageContent.QuotedMessageDetails.Invalid -> UIQuotedMessage.UIQuotedData.Invalid
         }

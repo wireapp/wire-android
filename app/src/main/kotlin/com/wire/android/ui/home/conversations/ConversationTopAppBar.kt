@@ -24,7 +24,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,9 +47,8 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
-import com.wire.android.ui.common.MLSVerifiedIcon
-import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -135,7 +133,7 @@ private fun ConversationScreenTopAppBarContent(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                VerificationIcons(
+                ConversationVerificationIcons(
                     conversationInfoViewState.protocolInfo,
                     conversationInfoViewState.mlsVerificationStatus,
                     conversationInfoViewState.proteusVerificationStatus
@@ -184,32 +182,6 @@ private fun ConversationScreenTopAppBarContent(
             navigationIconContentColor = MaterialTheme.colorScheme.onBackground
         )
     )
-}
-
-@Composable
-private fun RowScope.VerificationIcons(
-    protocolInfo: Conversation.ProtocolInfo?,
-    mlsVerificationStatus: Conversation.VerificationStatus?,
-    proteusVerificationStatus: Conversation.VerificationStatus?
-) {
-    val mlsIcon: @Composable () -> Unit = {
-        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-            MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
-        }
-    }
-    val proteusIcon: @Composable () -> Unit = {
-        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-            ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
-        }
-    }
-
-    if (protocolInfo is Conversation.ProtocolInfo.Proteus) {
-        proteusIcon()
-        mlsIcon()
-    } else {
-        mlsIcon()
-        proteusIcon()
-    }
 }
 
 @Composable

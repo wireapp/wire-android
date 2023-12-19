@@ -631,6 +631,10 @@
         <item quantity="one">Eltávolított 1 személyt a beszélgetésből</item>
         <item quantity="other">Eltávolított %1$d személyt a beszélgetésből</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">Ön el lett távolítva a beszélgetésből</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">Ön és 1 másik személy el lett távolítva a beszélgetésből</item>

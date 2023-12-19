@@ -621,6 +621,10 @@
         <item quantity="one">ඔබ පුද්ගලයෙක් සංවාදයෙන් ඉවත් කළා</item>
         <item quantity="other">ඔබ %1$d දෙනෙක් සංවාදයෙන් ඉවත් කළා</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">ඔබව සංවාදයෙන් ඉවත් කළා</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">ඔබව සහ තවත් පුද්ගලයෙක් සංවාදයෙන් ඉවත් කර ඇත</item>

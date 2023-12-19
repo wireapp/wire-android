@@ -15,6 +15,7 @@
             "application_is_private_build": true,
             "development_api_enabled": true,
             "mls_support_enabled": true,
+            "ignore_ssl_certificates": true,
             "firebase_push_sender_id": "723990470614",
             "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
             "google_api_key": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
@@ -105,6 +106,7 @@
             "clientblacklist.wire.com"
         ]
     },
+    "ignore_ssl_certificates": false,
     "is_password_protected_guest_link_enabled": false,
     "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android",
     "team_app_lock": false,

@@ -26,6 +26,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -35,6 +36,8 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun FileAssetsContent(
     groupedAssetMessageList: Flow<PagingData<UIMessage>>,
+    audioMessagesState: Map<String, AudioState> = emptyMap(),
+    onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
 ) {
     val lazyPagingMessages = groupedAssetMessageList.collectAsLazyPagingItems()
@@ -42,6 +45,8 @@ fun FileAssetsContent(
     if (lazyPagingMessages.itemCount > 0) {
         AssetMessagesListContent(
             groupedAssetMessageList = lazyPagingMessages,
+            audioMessagesState = audioMessagesState,
+            onAudioItemClicked = onAudioItemClicked,
             onAssetItemClicked = onAssetItemClicked
         )
     } else {
@@ -54,6 +59,8 @@ fun FileAssetsContent(
 @Composable
 private fun AssetMessagesListContent(
     groupedAssetMessageList: LazyPagingItems<UIMessage>,
+    audioMessagesState: Map<String, AudioState>,
+    onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
 ) {
     LazyColumn {
@@ -68,8 +75,8 @@ private fun AssetMessagesListContent(
                     MessageItem(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None,
-                        audioMessagesState = emptyMap(), // TODO(Media): handle audio state
-                        onAudioClick = { }, // TODO(Media): handle audio click
+                        audioMessagesState = audioMessagesState,
+                        onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = { _, _ -> },
                         onLongClicked = { },
                         onAssetMessageClicked = onAssetItemClicked,

@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import kotlinx.collections.immutable.ImmutableList

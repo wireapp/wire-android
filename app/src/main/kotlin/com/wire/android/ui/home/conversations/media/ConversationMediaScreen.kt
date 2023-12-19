@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -98,7 +99,9 @@ fun ConversationMediaScreen(
         continueAssetLoading = { shouldContinue ->
             conversationAssetMessagesViewModel.continueLoading(shouldContinue)
         },
-        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
+        onAudioItemClicked = conversationMessagesViewModel::audioClick,
     )
 
     DownloadedAssetDialog(
@@ -121,6 +124,8 @@ private fun Content(
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit,
+    audioMessagesState: Map<String, AudioState> = emptyMap(),
+    onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -167,6 +172,8 @@ private fun Content(
                     )
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages,
+                        audioMessagesState = audioMessagesState,
+                        onAudioItemClicked = onAudioItemClicked,
                         onAssetItemClicked = onAssetItemClicked
                     )
                 }
@@ -194,6 +201,7 @@ fun previewConversationMediaScreenEmptyContent() {
             state = ConversationAssetMessagesViewState(),
             onImageFullScreenMode = { _, _, _ -> },
             continueAssetLoading = { },
+            onAudioItemClicked = { },
             onAssetItemClicked = { }
         )
     }

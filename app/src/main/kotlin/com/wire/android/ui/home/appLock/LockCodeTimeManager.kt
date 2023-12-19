@@ -40,29 +40,33 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * AppLockManager provides a mechanism to determine if the app should be locked based on configuration and screen state.
+ *
+ * - [isLockedFlow] observes conditions and returns:
+ *   - false if app lock is disabled.
+ *   - true after a background delay if app lock is enabled.
+ *   - false if brought back to the foreground before the delay.
+ */
+
 @Singleton
 class LockCodeTimeManager @Inject constructor(
     @ApplicationScope private val appCoroutineScope: CoroutineScope,
     currentScreenManager: CurrentScreenManager,
     observeAppLockConfigUseCase: ObserveAppLockConfigUseCase,
-    globalDataStore: GlobalDataStore
+    globalDataStore: GlobalDataStore,
+    currentTimestamp: CurrentTimestampProvider,
 ) {
 
-    private val isLockedFlow = MutableStateFlow(false)
+    private var isLockedFlow: MutableStateFlow<Boolean>
+    private var lockTimeoutStarted: Long? = null
 
     init {
-        // first, set initial value - if app lock is enabled then app needs to be locked right away
         runBlocking {
-            observeAppLockConfigUseCase().firstOrNull()?.let { appLockConfig ->
-                // app could be locked by team but user still didn't set the passcode
-                val isTeamAppLockSet = appLockConfig is AppLockConfig.EnforcedByTeam &&
-                        globalDataStore.isAppTeamPasscodeSet()
-                if (appLockConfig is AppLockConfig.Enabled || isTeamAppLockSet) {
-                    isLockedFlow.value = true
-                }
-            }
+            val initialValue = globalDataStore.isAppLockPasscodeSetFlow().firstOrNull() ?: false
+            isLockedFlow = MutableStateFlow(initialValue)
         }
-        @Suppress("MagicNumber")
+
         // next, listen for app lock config and app visibility changes to determine if app should be locked
         appCoroutineScope.launch {
             combine(
@@ -72,35 +76,47 @@ class LockCodeTimeManager @Inject constructor(
             )
                 .distinctUntilChanged()
                 .flatMapLatest { (appLockConfig, isInForeground) ->
-                when {
-                    appLockConfig is AppLockConfig.Disabled -> flowOf(false)
+                    when {
+                        appLockConfig is AppLockConfig.Disabled -> flowOf(false)
 
-                    !isInForeground && !isLockedFlow.value -> flow {
-                        appLogger.i("$TAG lock is enabled and app in the background, lock count started")
-                        delay(appLockConfig.timeout.inWholeMilliseconds)
-                        appLogger.i("$TAG lock count ended, app state should be locked if passcode is set")
-                        // app could be locked by team but user still didn't set the passcode
-                        val isTeamAppLockSet = appLockConfig is AppLockConfig.EnforcedByTeam
-                                && globalDataStore.isAppTeamPasscodeSet()
-                        if (appLockConfig is AppLockConfig.Enabled || isTeamAppLockSet) {
+                        !isInForeground && !isLockedFlow.value && appLockConfig is AppLockConfig.Enabled -> flow {
+                            appLogger.i("$TAG lock is enabled and app in the background, lock count started")
+                            if (lockTimeoutStarted == null) {
+                                lockTimeoutStarted = currentTimestamp()
+                            }
+                            delay(appLockConfig.timeout.inWholeMilliseconds)
+                            appLogger.i("$TAG lock count ended while app in the background, app state should be locked")
                             emit(true)
                         }
-                    }
 
-                    else -> {
-                        appLogger.i("$TAG no change to lock state, isInForeground: $isInForeground, isLocked: ${isLockedFlow.value}")
-                        emptyFlow()
+                        isInForeground && !isLockedFlow.value && appLockConfig is AppLockConfig.Enabled -> flow {
+                            if (lockTimeoutStarted != null
+                                && (lockTimeoutStarted!! + appLockConfig.timeout.inWholeMilliseconds) < currentTimestamp()
+                            ) {
+                                appLogger.i("$TAG app put into foreground and lock count ended, app state should be locked")
+                                emit(true)
+                            } else {
+                                appLogger.i("$TAG app put into foreground but lock count hasn't ended, app state should not be changed")
+                                emit(false)
+                                lockTimeoutStarted = null
+                            }
+                        }
+
+                        else -> {
+                            appLogger.i("$TAG no change to lock state, isInForeground: $isInForeground, isLocked: ${isLockedFlow.value}")
+                            emptyFlow()
+                        }
                     }
+                }.collectLatest {
+                    isLockedFlow.value = it
                 }
-            }.collectLatest {
-                isLockedFlow.value = it
-            }
         }
     }
 
     fun appUnlocked() {
         appLogger.i("$TAG app unlocked")
         isLockedFlow.value = false
+        lockTimeoutStarted = null
     }
 
     fun isAppLocked(): Boolean = isLockedFlow.value
@@ -111,3 +127,5 @@ class LockCodeTimeManager @Inject constructor(
         private const val TAG = "LockCodeTimeManager"
     }
 }
+
+typealias CurrentTimestampProvider = () -> Long

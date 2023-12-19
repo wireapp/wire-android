@@ -175,6 +175,7 @@
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_location_icon">Location item</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Skrytka</string>
@@ -366,7 +367,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="create_account_username_label">NAZWA U&#379;YTKOWNIKA</string>
     <string name="create_account_username_text">Wprowad&#378; swoj&#261; nazw&#281; u&#380;ytkownika. Pomaga to innym u&#380;ytkownikom odnale&#378;&#263; Ci&#281; w Wire i po&#322;&#261;czy&#263; si&#281; z Tob&#261;.</string>
     <string name="create_account_username_taken_error">Ta nazwa u&#380;ytkownika jest ju&#380; zaj&#281;ta. Prosz&#281; wybra&#263; inny.</string>
-    <string name="create_account_username_description">Co najmniej 2 znaki: a-z, 0-9 i _</string>
+    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">NIEODEBRANE PO&#321;&#260;CZENIA</string>
     <string name="calls_label_calls_history">HISTORIA PO&#321;&#260;CZE&#324;</string>
@@ -581,7 +582,10 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_system_message_blocked_user">%1$s zablokowa&#322;(a) tego u&#380;ytkownika</string>
     <string name="label_system_message_renamed_the_conversation">%1$s zmieni&#322;(a) nazw&#281; konwersacji na:
 %2$s</string>
-    <string name="label_system_message_team_member_left">%1$s zosta&#322;(a) usuni&#281;ty(a) z tego zespo&#322;u</string>
+    <plurals name="label_system_message_team_member_left">
+        <item quantity="one">%1$s was removed from the team</item>
+        <item quantity="other">%1$s were removed from the team</item>
+    </plurals>
     <string name="label_system_message_user_not_available">Ten u&#380;ytkownik nie jest ju&#380; dost&#281;pny</string>
     <string name="label_system_message_new_conversation_receipt_mode">Tryb potwierdze&#324; odczytu: %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s zmieni&#322;(a) tryb odczytu na %2$s dla wszystkich</string>
@@ -660,6 +664,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="last_message_other_user_shared_video">udost&#281;pni&#322;(a) film</string>
     <string name="last_message_self_user_shared_audio">dost&#281;pni&#322;e&#347;(a&#347;) plik d&#378;wi&#281;kowy</string>
     <string name="last_message_other_user_shared_audio">udost&#281;pni&#322;(a) plik d&#378;wi&#281;kowy</string>
+    <string name="last_message_self_user_shared_location">shared a location.</string>
+    <string name="last_message_other_user_shared_location">shared a location.</string>
     <string name="last_message_self_user_knock">zaczepi&#322;e&#347;(a&#347;)</string>
     <string name="last_message_other_user_knock">zaczepi&#322;.</string>
     <string name="last_message_call">zadzwoni&#322;.</string>
@@ -721,6 +727,11 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
+    <!-- Conversation Media -->
+    <string name="label_conversation_media">Media</string>
+    <string name="label_conversation_pictures">Pictures</string>
+    <string name="label_conversation_files">Files</string>
+    <string name="label_conversation_links">Links</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTY</string>
     <string name="label_new_group">Nowa grupa</string>
@@ -780,6 +791,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Udost&#281;pni&#322;(a) zdj&#281;cie</string>
+    <string name="notification_shared_location">Shared a location</string>
     <string name="notification_shared_file">Udost&#281;pni&#322;(a) plik</string>
     <string name="notification_reacted">Doda&#322;(a) reakcj&#281;</string>
     <string name="notification_missed_call">Nieodebrane po&#322;&#261;czenie</string>
@@ -974,6 +986,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_forgot_lock_screen_warning">If you remove your device, you lose all local data and messages for all accounts on this device permanently.</string>
     <string name="settings_forgot_lock_screen_reset_device">Remove Device</string>
     <string name="settings_forgot_lock_screen_reset_device_description">Enter your password for the account %s to confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Please wait...</string>
     <!--Devices -->
     <string name="devices_title">Twoje urz&#261;dzenia</string>
@@ -984,8 +997,18 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="unblock_user_dialog_body">%1$s b&#281;dzie m&#243;g&#322; si&#281; z tob&#261; skontaktowa&#263; lub doda&#263; do rozm&#243;w grupowych. B&#281;dziesz m&#243;g&#322; uzyska&#263; dost&#281;p do prywatnej rozmowy z nimi.</string>
     <string name="unblock_user_dialog_confirm_button">Odblokuj</string>
     <!--max account reached dialog-->
-    <string name="max_account_reached_dialog_title">Aktywne trzy konta</string>
-    <string name="max_account_reached_dialog_message">Mo&#380;esz by&#263; zalogowany tylko na trzech kontach jednocze&#347;nie. Wyloguj si&#281; z jednego, aby doda&#263; kolejne.</string>
+    <plurals name="max_account_reached_dialog_title">
+        <item quantity="one">one account active</item>
+        <item quantity="few">%1$d accounts active</item>
+        <item quantity="many">%1$d accounts active</item>
+        <item quantity="other">%1$d accounts active</item>
+    </plurals>
+    <plurals name="max_account_reached_dialog_message">
+        <item quantity="one">You can only be logged in with one account at once. Log out from one to add another.</item>
+        <item quantity="few">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
+        <item quantity="many">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
+        <item quantity="other">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
+    </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Otw&#243;rz profil</string>
     <string name="cant_switch_account_in_call">Nie mo&#380;esz prze&#322;&#261;cza&#263; kont podczas rozmowy</string>
     <string name="custom_backend_dialog_title">Przekierowa&#263; do lokalnego serwera?</string>
@@ -1003,6 +1026,7 @@ URL serwera:
     <string name="label_delete_logs">Usu&#324; wszystkie dzienniki</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
+    <string name="label_get_e2ei_cetificate">Get E2EI Certificate</string>
     <string name="label_mls_option_title">MLS Options</string>
     <string name="label_enable_logging">W&#322;&#261;cz rejestrowanie dzia&#322;a&#324;</string>
     <string name="label_proteus_option_title">Proteus Options</string>
@@ -1270,6 +1294,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1284,7 +1309,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
     <string name="call_permission_dialog_title">App permission</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone and to find nearby devices in your device settings.</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
@@ -1317,4 +1342,37 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
     <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
     <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Legal hold requested</string>
+    <string name="legal_hold_requested_dialog_description_device">All future messages will be recorded by the device with fingerprint:</string>
+    <string name="legal_hold_requested_dialog_description_includes">This includes deleted, edited and self-deleting messages in all conversations.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Enter your password to confirm.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Accept</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
+    <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
+    <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_subject_to">Subject to %1$s.</string>
+    <string name="legal_hold_label">legal hold</string>
+    <string name="legal_hold_is_active_label">Legal hold is active</string>
+    <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
+    <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
+    <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
+    <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
+    <string name="legal_hold_system_message_enabled_conversation">Legal hold is now active for this conversation.</string>
+    <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_messaging_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to send the message?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Send Anyway</string>
+    <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
 </resources>

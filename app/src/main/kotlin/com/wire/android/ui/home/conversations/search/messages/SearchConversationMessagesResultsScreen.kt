@@ -18,8 +18,12 @@
 package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -27,15 +31,23 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
-    searchResult: List<UIMessage>,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
     searchQuery: String = "",
     onMessageClick: (messageId: String) -> Unit
 ) {
     LazyColumn {
-        items(searchResult) { message ->
+        items(
+            count = lazyPagingMessages.itemCount,
+            key = lazyPagingMessages.itemKey { it.header.messageId },
+            contentType = lazyPagingMessages.itemContentType { it }
+        ) { index ->
+            val message: UIMessage = lazyPagingMessages[index]
+                ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
+
             when (message) {
                 is UIMessage.Regular -> {
                     MessageItem(
@@ -70,10 +82,14 @@ fun SearchConversationMessagesResultsScreen(
 fun previewSearchConversationMessagesResultsScreen() {
     WireTheme {
         SearchConversationMessagesResultsScreen(
-            searchResult = listOf(
-                mockMessageWithText,
-                mockMessageWithText,
-            ),
+            lazyPagingMessages = flowOf(
+                PagingData.from(
+                    listOf<UIMessage>(
+                        mockMessageWithText.copy(header = mockMessageWithText.header.copy(messageId = "1")),
+                        mockMessageWithText.copy(header = mockMessageWithText.header.copy(messageId = "2")),
+                    )
+                )
+            ).collectAsLazyPagingItems(),
             onMessageClick = {}
         )
     }

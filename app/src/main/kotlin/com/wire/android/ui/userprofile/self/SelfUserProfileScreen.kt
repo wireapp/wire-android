@@ -53,7 +53,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
@@ -102,7 +105,8 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun SelfUserProfileScreen(
     navigator: Navigator,
-    viewModelSelf: SelfUserProfileViewModel = hiltViewModel()
+    viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
+    avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>
 ) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
@@ -120,6 +124,22 @@ fun SelfUserProfileScreen(
         onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
         isUserInCall = viewModelSelf::isUserInCall
     )
+
+    avatarPickerResultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {
+                appLogger.i("Error with receiving navigation back args from avatar picker in SelfUserProfileScreen")
+            }
+
+            is NavResult.Value -> {
+                result.value?.let { avatarAssetId ->
+                    viewModelSelf.reloadNewPickedAvatar(
+                        avatarAssetId = avatarAssetId
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

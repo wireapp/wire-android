@@ -34,7 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.feature.AppLockConfig
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeNavGraph
@@ -115,6 +115,7 @@ fun SettingsScreenContent(
                         add(SettingsItem.AppSettings)
                     }
                     add(SettingsItem.NetworkSettings)
+
                     add(SettingsItem.AppLock(
 <<<<<<< HEAD
                         when (settingsState.appLockConfig) {
@@ -141,8 +142,15 @@ fun SettingsScreenContent(
                                 )
 >>>>>>> dd3cb91b8 (LAST_COMMIT_MESSAGE)
                             }
-                            is AppLockConfig.EnforcedByTeam -> {
-                                SwitchState.TextOnly(true)
+
+                            false -> {
+                                appLogger.d("AppLockConfig isAooLockEditable: ${settingsState.isAppLockEditable}")
+
+                                appLogger.d("AppLockConfig isAppLockEnabled: ${settingsState.isAppLockEnabled}")
+                                SwitchState.Disabled(
+                                    value = settingsState.isAppLockEnabled,
+                                    isOnOffVisible = true,
+                                )
                             }
                         }
                     ))

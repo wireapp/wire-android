@@ -1,15 +1,20 @@
 package com.wire.android.ui.home.sync
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.AppLockSource
+import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
@@ -28,8 +33,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -110,6 +117,20 @@ class FeatureFlagNotificationViewModelTest {
 
         coVerify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
         assertEquals(false, viewModel.featureFlagState.shouldShowSelfDeletingMessagesDialog)
+    }
+
+    @Test
+    fun givenTeamAppLockIsEnforceButNotChanged_whenAppHaveNotAppLockSetup_thenDisplayTheAppLockDialog() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .withIsAppLockSetup(false)
+            .withTeamAppLockEnforce(AppLockTeamConfig(true, Duration.ZERO, false))
+            .arrange()
+
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.featureFlagState.shouldShowTeamAppLockDialog)
     }
 
     @Test
@@ -208,13 +229,43 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
     }
 
+    @Test
+    fun givenSourceIsTeamEnforce_whenConfirmingAppLockNotEnforcedDialog_thenRemoveAppLock() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withAppLockSource(AppLockSource.TeamEnforced)
+            .withDisableAppLockUseCase()
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        viewModel.confirmAppLockNotEnforced()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.disableAppLockUseCase() }
+    }
+
+    @Test
+    fun givenAppLockSourceIsManual_whenConfirmingAppLockNotEnforcedDialog_thenDoNothing() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withAppLockSource(AppLockSource.Manual)
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+
+        viewModel.confirmAppLockNotEnforced()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.disableAppLockUseCase() }
+    }
+
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).appLockTeamFeatureConfigObserver() } returns flowOf()
         }
 
         @MockK
@@ -233,30 +284,52 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markE2EIRequiredAsNotified: MarkEnablingE2EIAsNotifiedUseCase
 
         @MockK
+        lateinit var disableAppLockUseCase: DisableAppLockUseCase
+
+        @MockK
+        lateinit var ppLockTeamFeatureConfigObserver: AppLockTeamFeatureConfigObserver
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession,
-            globalDataStore = globalDataStore
+            globalDataStore = globalDataStore,
+            disableAppLockUseCase = disableAppLockUseCase,
+            dispatcherProvider = TestDispatcherProvider()
         )
 
         init {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
             every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
             every { coreLogic.getSessionScope(any()).markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
+            coEvery { coreLogic.getSessionScope(any()).appLockTeamFeatureConfigObserver } returns ppLockTeamFeatureConfigObserver
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
+            coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
         }
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {
             coEvery { currentSession() } returns result
         }
 
+        fun withIsAppLockSetup(result: Boolean) = apply {
+            coEvery { globalDataStore.isAppLockPasscodeSet() } returns result
+        }
+
         fun withSyncState(stateFlow: Flow<SyncState>) = apply {
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns stateFlow
+        }
+
+        fun withAppLockSource(source: AppLockSource) = apply {
+            coEvery { globalDataStore.getAppLockSource() } returns source
+        }
+
+        fun withDisableAppLockUseCase() = apply {
+            coEvery { disableAppLockUseCase() } returns true
         }
 
         fun withFileSharingStatus(stateFlow: Flow<FileSharingStatus>) = apply {
@@ -273,6 +346,10 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withEndCallDialog() = apply {
             coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf(Unit)
+        }
+
+        fun withTeamAppLockEnforce(result: AppLockTeamConfig?) = apply {
+            coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

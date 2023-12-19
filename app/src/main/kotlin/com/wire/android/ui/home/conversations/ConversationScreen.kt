@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -663,6 +664,7 @@ private fun ConversationScreen(
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
+                    selectedMessageId = conversationMessagesViewState.searchedMessageId,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
@@ -705,6 +707,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
+    selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
@@ -757,7 +760,8 @@ private fun ConversationScreenContent(
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onLinkClick = onLinkClick
+                onLinkClick = onLinkClick,
+                selectedMessageId = selectedMessageId
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -792,7 +796,8 @@ private fun SnackBarMessage(
             val actionLabel = if (it is OnFileDownloaded) showLabel else null
             val snackbarResult = snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
-                actionLabel = actionLabel
+                actionLabel = actionLabel,
+                duration = SnackbarDuration.Short
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
@@ -822,7 +827,8 @@ fun MessageList(
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    selectedMessageId: String?
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -893,7 +899,8 @@ fun MessageList(
                                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                                onLinkClick = onLinkClick
+                                onLinkClick = onLinkClick,
+                                isSelectedMessage = (message.header.messageId == selectedMessageId)
                             )
                         }
 

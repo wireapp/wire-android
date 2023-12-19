@@ -17,57 +17,72 @@
  */
 package com.wire.android.ui.home.conversations.usecase
 
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.flatMap
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.kalium.logic.CoreFailure
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
-import com.wire.kalium.logic.feature.message.GetConversationMessagesFromSearchQueryUseCase
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
+import kotlin.math.max
 
 class GetConversationMessagesFromSearchUseCase @Inject constructor(
-    private val getConversationMessagesFromSearch: GetConversationMessagesFromSearchQueryUseCase,
+    private val getMessagesSearch: GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase,
     private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
-    private val messageMapper: MessageMapper
+    private val messageMapper: MessageMapper,
+    private val dispatchers: DispatcherProvider
 ) {
 
     /**
      * This operation combines messages searched from a conversation and its respective user to UI
-     * @param searchQuery The search term used to define which messages will be returned.
+     * @param searchTerm The search term used to define which messages will be returned.
      * @param conversationId The conversation ID that it will look for messages in.
      * @return A [Either<CoreFailure, List<UIMessage>>] indicating the success of the operation.
      */
     suspend operator fun invoke(
         searchTerm: String,
-        conversationId: ConversationId
-    ): Either<CoreFailure, List<UIMessage>> =
+        conversationId: ConversationId,
+        lastReadIndex: Int
+    ): Flow<PagingData<UIMessage>> {
+        val pagingConfig = PagingConfig(
+            pageSize = PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE,
+            initialLoadSize = INITIAL_LOAD_SIZE
+        )
+
         if (searchTerm.length >= MINIMUM_CHARACTERS_TO_SEARCH) {
-            getConversationMessagesFromSearch(
+            return getMessagesSearch(
                 searchQuery = searchTerm,
-                conversationId = conversationId
-            ).map { foundMessages ->
-                foundMessages.flatMap { messageItem ->
-                    observeMemberDetailsByIds(
-                        userIdList = messageMapper.memberIdList(
-                            messages = foundMessages
-                        )
-                    ).map { usersList ->
-                        messageMapper.toUIMessage(
-                            userList = usersList,
-                            message = messageItem
-                        )?.let { listOf(it) } ?: emptyList()
-                    }.first()
+                conversationId = conversationId,
+                pagingConfig = pagingConfig,
+                startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE).toLong()
+            ).map { pagingData ->
+                pagingData.flatMap { messageItem ->
+                    observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
+                        .mapLatest { usersList ->
+                            messageMapper.toUIMessage(usersList, messageItem)?.let { listOf(it) }
+                                ?: emptyList()
+                        }.first()
                 }
-            }
+            }.flowOn(dispatchers.io())
         } else {
-            Either.Right(value = listOf())
+            return flowOf(PagingData.empty<UIMessage>()).flowOn(dispatchers.io())
         }
+    }
 
     private companion object {
         const val MINIMUM_CHARACTERS_TO_SEARCH = 1
+        const val PAGE_SIZE = 20
+        const val INITIAL_LOAD_SIZE = 20
+        const val PREFETCH_DISTANCE = 30
     }
 }

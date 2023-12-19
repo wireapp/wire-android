@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.DEFAULT_LOCATION_ZOOM
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageButton
@@ -59,7 +60,7 @@ class RegularMessageMapper @Inject constructor(
         message: Message.Regular,
         sender: User?,
         userList: List<User>
-    ) = when (val content = message.content) {
+    ): UIMessageContent = when (val content = message.content) {
         is Asset -> {
             when (val metadata = content.value.metadata) {
                 is AssetContent.AssetMetadata.Audio -> {
@@ -121,8 +122,22 @@ class RegularMessageMapper @Inject constructor(
             )
         }
 
+        is MessageContent.Location -> toLocation(content, userList, message)
+
         else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }
+
+    private fun toLocation(
+        content: MessageContent.Location,
+        userList: List<User>,
+        message: Message.Regular
+    ) = UIMessageContent.Location(
+        latitude = content.latitude,
+        longitude = content.longitude,
+        name = content.name.orEmpty(),
+        zoom = content.zoom ?: DEFAULT_LOCATION_ZOOM,
+        deliveryStatus = mapRecipientsFailure(userList, message.deliveryStatus)
+    )
 
     private fun mapAudio(
         assetContent: AssetContent,

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -40,10 +41,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -81,8 +84,10 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
@@ -113,7 +118,8 @@ fun MessageItem(
     onMessageClick: (messageId: String) -> Unit = {},
     defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
-    shouldDisplayFooter: Boolean = true
+    shouldDisplayFooter: Boolean = true,
+    isSelectedMessage: Boolean = false
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -129,7 +135,7 @@ fun MessageItem(
             )
         }
 
-        val backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
+        var backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
         } else if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
@@ -141,6 +147,23 @@ fun MessageItem(
             Modifier.background(color)
         } else {
             Modifier.background(defaultBackgroundColor)
+        }
+
+        val colorAnimation = remember { Animatable(Color.Transparent) }
+        val highlightColor = colorsScheme().selectedMessageHighlightColor
+        val transparentColor = colorsScheme().primary.copy(alpha = 0F)
+        LaunchedEffect(isSelectedMessage) {
+            if (isSelectedMessage) {
+                colorAnimation.snapTo(highlightColor)
+                colorAnimation.animateTo(
+                    transparentColor,
+                    tween(SELECTED_MESSAGE_ANIMATION_DURATION)
+                )
+            }
+        }
+
+        if (isSelectedMessage) {
+            backgroundColorModifier = Modifier.drawBehind { drawRect(colorAnimation.value) }
         }
 
         Box(
@@ -614,6 +637,23 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.Location -> with(messageContent) {
+            val context = LocalContext.current
+            val locationUrl = stringResource(urlCoordinates, zoom, latitude, longitude)
+            Column {
+                LocationMessageContent(
+                    locationName = name,
+                    locationUrl = locationUrl,
+                    onLocationClick = Clickable(
+                        enabled = message.isAvailable,
+                        onClick = { launchGeoIntent(latitude, longitude, name, locationUrl, context) },
+                        onLongClick = onLongClick
+                    )
+                )
+                PartialDeliveryInformation(deliveryStatus)
+            }
+        }
+
         UIMessageContent.Deleted -> {}
         null -> {
             throw NullPointerException("messageContent is null")
@@ -644,3 +684,5 @@ private fun Message.DownloadStatus.isSaved(): Boolean {
 
 internal val DeliveryStatusContent.expandable
     get() = this is DeliveryStatusContent.PartialDelivery && !this.isSingleUserFailure
+
+private const val SELECTED_MESSAGE_ANIMATION_DURATION = 2000

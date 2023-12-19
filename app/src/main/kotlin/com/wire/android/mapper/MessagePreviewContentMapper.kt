@@ -204,10 +204,10 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
                 }
 
-                is WithUser.MembersRemoved -> {
-                    val membersRemovedContent = (content as WithUser.MembersRemoved)
-                    val isSelfRemoved = membersRemovedContent.isSelfUserRemoved
-                    val otherUsersSize = membersRemovedContent.otherUserIdList.size
+                is WithUser.ConversationMembersRemoved -> {
+                    val conversationMembersRemovedContent = (content as WithUser.ConversationMembersRemoved)
+                    val isSelfRemoved = conversationMembersRemovedContent.isSelfUserRemoved
+                    val otherUsersSize = conversationMembersRemovedContent.otherUserIdList.size
 
                     val previewMessageContent = when {
                         isSelfMessage && otherUsersSize > 0 -> {
@@ -234,6 +234,14 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
                 }
 
+                is WithUser.TeamMembersRemoved -> {
+                    val teamMembersRemovedContent = (content as WithUser.TeamMembersRemoved)
+                    val previewMessageContent =
+                        UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
+
+                    UILastMessageContent.TextMessage(MessageBody(previewMessageContent))
+                }
+
                 is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(R.string.last_message_mentioned)
@@ -244,7 +252,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UIText.StringResource(R.string.last_message_replied)
                 )
 
-                is WithUser.TeamMemberRemoved -> UILastMessageContent.None // TODO
+                is WithUser.TeamMemberRemoved -> UILastMessageContent.None
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
@@ -267,6 +275,13 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
                 is WithUser.MembersCreationAdded -> UILastMessageContent.None
                 is WithUser.MembersFailedToAdd -> UILastMessageContent.None
+                is WithUser.Location -> UILastMessageContent.SenderWithMessage(
+                    userUIText,
+                    UIText.StringResource(
+                        if (isSelfMessage) R.string.last_message_self_user_shared_location
+                        else R.string.last_message_other_user_shared_location
+                    )
+                )
             }
         }
 
@@ -312,12 +327,16 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         MessagePreviewContent.VerificationChanged.VerifiedMls ->
             UILastMessageContent.VerificationChanged(R.string.last_message_verified_conversation_mls)
+
         MessagePreviewContent.VerificationChanged.VerifiedProteus ->
             UILastMessageContent.VerificationChanged(R.string.last_message_verified_conversation_proteus)
+
         MessagePreviewContent.VerificationChanged.DegradedMls ->
             UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_mls)
+
         MessagePreviewContent.VerificationChanged.DegradedProteus ->
             UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_proteus)
+
         Unknown -> UILastMessageContent.None
     }
 }

@@ -36,6 +36,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
+import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -43,7 +44,6 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -231,7 +231,7 @@ fun CustomBackendDialog(
 @Composable
 fun MaxAccountDialog(shouldShow: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     if (shouldShow) {
-        MaxAccountReachedDialog(
+        MaxAccountAllowedDialogContent(
             onConfirm = onConfirm,
             onDismiss = onDismiss,
             buttonText = R.string.max_account_reached_dialog_button_open_profile

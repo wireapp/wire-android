@@ -92,8 +92,8 @@ fun MarkdownBlockChildren(
                 updateMentions = it
             }
 
-            is FencedCodeBlock -> MarkdownFencedCodeBlock(child)
-            is IndentedCodeBlock -> MarkdownIndentedCodeBlock(child)
+            is FencedCodeBlock -> MarkdownFencedCodeBlock(child, updatedNodeData)
+            is IndentedCodeBlock -> MarkdownIndentedCodeBlock(child, updatedNodeData)
             is BulletList -> MarkdownBulletList(child, updatedNodeData)
             is OrderedList -> MarkdownOrderedList(child, updatedNodeData)
             is TableBlock -> MarkdownTable(child, updatedNodeData) {
@@ -171,7 +171,7 @@ fun inlineChildren(
 
             is Code -> {
                 annotatedString.pushStyle(TextStyle(fontFamily = FontFamily.Monospace).toSpanStyle())
-                annotatedString.append(child.literal)
+                annotatedString.append(highlightText(nodeData, child.literal))
                 annotatedString.pop()
             }
 
@@ -253,7 +253,7 @@ fun appendLinksAndMentions(
 
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
-    val append = buildAnnotatedString {
+    val updatedAnnotatedString = buildAnnotatedString {
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
@@ -317,8 +317,37 @@ fun appendLinksAndMentions(
                 }
         }
     }
-    annotatedString.append(append)
+    annotatedString.append(updatedAnnotatedString)
     return updatedMentions
+}
+
+fun highlightText(nodeData: NodeData, text: String): AnnotatedString {
+    var highlightIndexes = emptyList<MatchQueryResult>()
+
+    if (nodeData.searchQuery.isNotBlank()) {
+        highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
+            matchText = nodeData.searchQuery,
+            text = text
+        )
+    }
+
+    return buildAnnotatedString {
+        append(text)
+        highlightIndexes
+            .forEach { highLightIndex ->
+                if (highLightIndex.endIndex <= length) {
+                    addStyle(
+                        style = SpanStyle(
+                            background = nodeData.colorScheme.highLight.copy(alpha = 0.5f),
+                            fontFamily = nodeData.typography.body02.fontFamily,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        start = highLightIndex.startIndex,
+                        end = highLightIndex.endIndex
+                    )
+                }
+            }
+    }
 }
 
 private fun convertTypoGraphs(child: Text) = child.literal

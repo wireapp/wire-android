@@ -34,12 +34,16 @@ import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun FileAssetsContent(
-    groupedAssetMessageList: Flow<PagingData<UIMessage>>
+    groupedAssetMessageList: Flow<PagingData<UIMessage>>,
+    onAssetItemClicked: (String) -> Unit
 ) {
     val lazyPagingMessages = groupedAssetMessageList.collectAsLazyPagingItems()
 
     if (lazyPagingMessages.itemCount > 0) {
-        AssetMessagesListContent(groupedAssetMessageList = lazyPagingMessages)
+        AssetMessagesListContent(
+            groupedAssetMessageList = lazyPagingMessages,
+            onAssetItemClicked = onAssetItemClicked
+        )
     } else {
         EmptyMediaContentScreen(
             text = stringResource(R.string.label_conversation_files_empty)
@@ -49,7 +53,8 @@ fun FileAssetsContent(
 
 @Composable
 private fun AssetMessagesListContent(
-    groupedAssetMessageList: LazyPagingItems<UIMessage> // Map<String, List<UIMessage>>
+    groupedAssetMessageList: LazyPagingItems<UIMessage>,
+    onAssetItemClicked: (String) -> Unit,
 ) {
     LazyColumn {
         items(
@@ -67,7 +72,7 @@ private fun AssetMessagesListContent(
                         onAudioClick = { }, // TODO(Media): handle audio click
                         onChangeAudioPosition = { _, _ -> },
                         onLongClicked = { },
-                        onAssetMessageClicked = { }, // TODO(Media): handle asset click
+                        onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = { _, _ -> },
                         onOpenProfile = { _ -> },
                         onReactionClicked = { _, _ -> },

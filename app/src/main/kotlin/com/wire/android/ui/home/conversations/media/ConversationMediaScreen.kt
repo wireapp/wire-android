@@ -56,6 +56,10 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
+import com.wire.android.ui.home.conversations.DownloadedAssetDialog
+import com.wire.android.ui.home.conversations.MessageComposerViewModel
+import com.wire.android.ui.home.conversations.SnackBarMessage
+import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -68,9 +72,13 @@ import kotlinx.coroutines.launch
     style = PopUpNavigationAnimation::class
 )
 @Composable
-fun ConversationMediaScreen(navigator: Navigator) {
-    val viewModel: ConversationAssetMessagesViewModel = hiltViewModel()
-    val state: ConversationAssetMessagesViewState = viewModel.viewState
+fun ConversationMediaScreen(
+    navigator: Navigator,
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = hiltViewModel()
+) {
+    val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
 
     Content(
         state = state,
@@ -88,8 +96,21 @@ fun ConversationMediaScreen(navigator: Navigator) {
             )
         },
         continueAssetLoading = { shouldContinue ->
-            viewModel.continueLoading(shouldContinue)
-        }
+            conversationAssetMessagesViewModel.continueLoading(shouldContinue)
+        },
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog
+    )
+
+    DownloadedAssetDialog(
+        downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
+        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
+        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+    )
+
+    SnackBarMessage(
+        messageComposerViewModel.infoMessage,
+        conversationMessagesViewModel.infoMessage
     )
 }
 
@@ -99,7 +120,8 @@ private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+    continueAssetLoading: (shouldContinue: Boolean) -> Unit,
+    onAssetItemClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = ConversationMediaScreenTabItem.entries.map { rememberLazyListState() }
@@ -144,7 +166,8 @@ private fun Content(
                         continueAssetLoading = continueAssetLoading
                     )
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
-                        groupedAssetMessageList = state.assetMessages
+                        groupedAssetMessageList = state.assetMessages,
+                        onAssetItemClicked = onAssetItemClicked
                     )
                 }
             }
@@ -170,7 +193,8 @@ fun previewConversationMediaScreenEmptyContent() {
         Content(
             state = ConversationAssetMessagesViewState(),
             onImageFullScreenMode = { _, _, _ -> },
-            continueAssetLoading = { }
+            continueAssetLoading = { },
+            onAssetItemClicked = { }
         )
     }
 }

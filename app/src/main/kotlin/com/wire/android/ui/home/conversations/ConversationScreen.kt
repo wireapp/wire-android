@@ -775,7 +775,7 @@ private fun ConversationScreenContent(
 }
 
 @Composable
-private fun SnackBarMessage(
+fun SnackBarMessage(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>
 ) {

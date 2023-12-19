@@ -63,6 +63,7 @@ class GetE2EICertificateUseCase @Inject constructor(
                 is OAuthUseCase.OAuthResult.Success -> {
                     enrollmentResultHandler(enrollE2EI.finalizeEnrollment(
                         oAuthResult.idToken,
+                        oAuthResult.refreshToken,
                         initialEnrollmentResult
                     ))
                 }

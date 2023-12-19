@@ -226,7 +226,10 @@ private fun IncomingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = isCallingString
+                callingLabel = isCallingString,
+                protocolInfo = callState.protocolInfo,
+                mlsVerificationStatus = callState.mlsVerificationStatus,
+                proteusVerificationStatus = callState.proteusVerificationStatus
             )
         }
     }

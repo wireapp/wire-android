@@ -97,6 +97,10 @@ class MessageCompositionHolder(
                 )
             }
 
+            is UIMessageContent.Location -> with(messageContent) {
+                UIQuotedMessage.UIQuotedData.Location(locationName = name)
+            }
+
             else -> {
                 appLogger.w("Attempting to reply to an unsupported message type of content = $messageContent")
                 null

@@ -24,6 +24,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.IconButton
@@ -41,6 +42,7 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
@@ -52,6 +54,7 @@ import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
@@ -64,7 +67,10 @@ fun CallerDetails(
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
-    callingLabel: String
+    callingLabel: String,
+    protocolInfo: Conversation.ProtocolInfo?,
+    mlsVerificationStatus: Conversation.VerificationStatus?,
+    proteusVerificationStatus: Conversation.VerificationStatus?,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -93,16 +99,23 @@ fun CallerDetails(
                 style = MaterialTheme.wireTypography.title03,
             )
         }
-        Text(
-            text = when (conversationName) {
-                is ConversationName.Known -> conversationName.name
-                is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-                else -> ""
-            },
-            color = colorsScheme().onBackground,
-            style = MaterialTheme.wireTypography.title01,
-            modifier = Modifier.padding(top = dimensions().spacing24x)
-        )
+        Row(modifier = Modifier.padding(top = dimensions().spacing24x)) {
+            Text(
+                text = when (conversationName) {
+                    is ConversationName.Known -> conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+                    else -> ""
+                },
+                color = colorsScheme().onBackground,
+                style = MaterialTheme.wireTypography.title01,
+            )
+
+            ConversationVerificationIcons(
+                protocolInfo,
+                mlsVerificationStatus,
+                proteusVerificationStatus
+            )
+        }
         Text(
             text = callingLabel,
             color = colorsScheme().onBackground,
@@ -116,8 +129,7 @@ fun CallerDetails(
 
         SecurityClassificationBannerForConversation(
             conversationId = conversationId,
-            modifier = Modifier.padding(top = dimensions().spacing8x),
-
+            modifier = Modifier.padding(top = dimensions().spacing8x)
         )
 
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
@@ -142,5 +154,8 @@ fun PreviewCallerDetails() {
         conversationType = ConversationType.OneOnOne,
         membership = Membership.Guest,
         callingLabel = String.EMPTY,
+        protocolInfo = null,
+        mlsVerificationStatus = null,
+        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
     )
 }

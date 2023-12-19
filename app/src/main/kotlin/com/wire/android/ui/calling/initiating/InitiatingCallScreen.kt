@@ -158,7 +158,10 @@ private fun InitiatingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = stringResource(id = R.string.calling_label_ringing_call)
+                callingLabel = stringResource(id = R.string.calling_label_ringing_call),
+                protocolInfo = callState.protocolInfo,
+                mlsVerificationStatus = callState.mlsVerificationStatus,
+                proteusVerificationStatus = callState.proteusVerificationStatus,
             )
         }
     }

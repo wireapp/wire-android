@@ -183,7 +183,7 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved
-    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
+    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved_Legacy(content)
 
     private fun mapConversationRenamedMessage(
         senderUserId: UserId,
@@ -243,6 +243,11 @@ class SystemMessageContentMapper @Inject constructor(
             is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
 
             is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
+                memberNames = memberNameList
+            )
+
+            is MemberChange.RemovedFromTeam -> UIMessageContent.SystemMessage.TeamMemberRemoved(
+                author = authorName,
                 memberNames = memberNameList
             )
         }

@@ -505,11 +505,11 @@
     <string name="dialog_logout_wipe_data_title">Удалить данные?</string>
     <string name="dialog_logout_wipe_data_checkbox">Удалить всю личную информацию и беседы на этом устройстве</string>
     <!-- User Profile status dialog-->
-    <string name="user_profile_change_status_dialog_available_title">Установить статус \'Доступен\'</string>
+    <string name="user_profile_change_status_dialog_available_title">Установка статуса \'Доступен\'</string>
     <string name="user_profile_change_status_dialog_available_text">Для других пользователей будет отображаться статус \'Доступен\'. Вы будете получать уведомления о входящих вызовах и сообщениях в соответствии с настройками уведомлений в каждой беседе.</string>
-    <string name="user_profile_change_status_dialog_busy_title">Установить статус \'Занят\'</string>
+    <string name="user_profile_change_status_dialog_busy_title">Установка статуса \'Занят\'</string>
     <string name="user_profile_change_status_dialog_busy_text">Для других пользователей будет отображаться статус \'Занят\'. Вы будете получать уведомления только об упоминаниях, ответах и звонках в беседах, уведомления для которых не отключены.</string>
-    <string name="user_profile_change_status_dialog_away_title">Установить статус \'Отошел\'</string>
+    <string name="user_profile_change_status_dialog_away_title">Установка статуса \'Отошел\'</string>
     <string name="user_profile_change_status_dialog_away_text">Для других пользователей будет отображаться статус \'Отошел\'. Вы не будете получать уведомления о любых входящих звонках или сообщениях.</string>
     <string name="user_profile_change_status_dialog_none_title">Статус не установлен</string>
     <string name="user_profile_change_status_dialog_none_text">Вы будете получать уведомления о входящих вызовах и сообщениях в соответствии с настройками уведомлений в каждой беседе.</string>
@@ -583,8 +583,10 @@
     <string name="label_system_message_blocked_user">%1$s заблокировал(-а) этого пользователя</string>
     <string name="label_system_message_renamed_the_conversation">%1$s переименовал эту беседу\n%2$s</string>
     <plurals name="label_system_message_team_member_left">
-        <item quantity="one">%1$s was removed from the team</item>
-        <item quantity="other">%1$s were removed from the team</item>
+        <item quantity="one">%1$s был(-а) удален(-а) из команды</item>
+        <item quantity="few">%1$s были удалены из команды</item>
+        <item quantity="many">%1$s были удалены из команды</item>
+        <item quantity="other">%1$s были удалены из команды</item>
     </plurals>
     <string name="label_system_message_user_not_available">Этот пользователь больше не доступен</string>
     <string name="label_system_message_new_conversation_receipt_mode">Отчеты о прочтении %1$s</string>
@@ -643,6 +645,12 @@
         <item quantity="many">Вы удалили из беседы %1$d пользователей</item>
         <item quantity="other">Вы удалили из беседы %1$d пользователя</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 пользователь был удален из команды</item>
+        <item quantity="few">%1$d пользователя были удалены из команды</item>
+        <item quantity="many">%1$d пользователей были удалены из команды</item>
+        <item quantity="other">%1$d пользователя были удалены из команды</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">Вы были удалены из беседы</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">Вы и еще 1 пользователь были удалены из беседы</item>
@@ -652,8 +660,8 @@
     </plurals>
     <plurals name="last_message_other_removed_other_users">
         <item quantity="one">1 пользователь был удален из беседы</item>
-        <item quantity="few">%1$d пользователя был удалены из беседы</item>
-        <item quantity="many">%1$d пользователей был удалены из беседы</item>
+        <item quantity="few">%1$d пользователя были удалены из беседы</item>
+        <item quantity="many">%1$d пользователей были удалены из беседы</item>
         <item quantity="other">%1$d пользователя были удалены из беседы</item>
     </plurals>
     <string name="last_message_self_user_shared_asset">поделились файлом.</string>
@@ -1368,6 +1376,6 @@
     <string name="sure_about_messaging_dialog_positiv_button">Отправить в любом случае</string>
     <!-- Sure want to call Dialog -->
     <string name="sure_about_calling_in_degraded_dialog_title">Беседа больше не является верифицированной</string>
-    <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите начать разговор?</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите позвонить?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Все равно позвонить</string>
 </resources>

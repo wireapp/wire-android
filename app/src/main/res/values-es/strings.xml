@@ -629,6 +629,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
         <item quantity="one">Eliminaste a 1 persona de la conversación</item>
         <item quantity="other">Eliminaste a %1$d personas de la conversación</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">Te eliminaron de la conversaci&#243;n</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">Tú y otra persona más fuisteis eliminados de la conversación</item>

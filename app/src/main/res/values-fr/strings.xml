@@ -620,6 +620,10 @@
         <item quantity="one">You removed 1 person from the conversation</item>
         <item quantity="other">You removed %1$d people from the conversation</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">You and 1 other person were removed from the conversation</item>

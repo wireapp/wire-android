@@ -36,6 +36,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -55,7 +57,26 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 
 @Composable
-fun ImageAssetGrid(
+fun ImageAssetsContent(
+    groupedImageMessageList: List<UIAssetMessage>,
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
+    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+) {
+    if (groupedImageMessageList.isEmpty()) {
+        EmptyMediaContentScreen(
+            text = stringResource(R.string.label_conversation_pictures_empty)
+        )
+    } else {
+        ImageAssetGrid(
+            uiAssetMessageList = groupedImageMessageList,
+            onImageFullScreenMode = onImageFullScreenMode,
+            continueAssetLoading = continueAssetLoading
+        )
+    }
+}
+
+@Composable
+private fun ImageAssetGrid(
     uiAssetMessageList: List<UIAssetMessage>,
     modifier: Modifier = Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,

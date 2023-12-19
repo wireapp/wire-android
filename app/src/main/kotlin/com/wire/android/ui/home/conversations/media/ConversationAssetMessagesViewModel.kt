@@ -36,7 +36,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -68,14 +67,14 @@ class ConversationAssetMessagesViewModel @Inject constructor(
     }
 
     private fun loadAssets() = viewModelScope.launch {
-        getAssetMessages.invoke(
+        val assetsResult = getAssetMessages.invoke(
             conversationId = conversationId,
             initialOffset = 0
-        ).collect {
-            viewState = viewState.copy(
-                assetMessages = it
-            )
-        }
+        )
+
+        viewState = viewState.copy(
+            assetMessages = assetsResult
+        )
     }
 
     fun continueLoading(shouldContinue: Boolean) {

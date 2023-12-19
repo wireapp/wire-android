@@ -23,14 +23,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -54,23 +51,15 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.ui.home.conversations.MessageItem
-import com.wire.android.ui.home.conversations.info.ConversationDetailsData
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.util.map.forEachIndexed
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -149,12 +138,12 @@ private fun Content(
                     .padding(padding)
             ) { pageIndex ->
                 when (ConversationMediaScreenTabItem.entries[pageIndex]) {
-                    ConversationMediaScreenTabItem.PICTURES -> PicturesContent(
+                    ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
                         groupedImageMessageList = state.imageMessages,
                         onImageFullScreenMode = onImageFullScreenMode,
                         continueAssetLoading = continueAssetLoading
                     )
-                    ConversationMediaScreenTabItem.FILES -> FilesContent(
+                    ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages
                     )
                 }
@@ -163,100 +152,6 @@ private fun Content(
             LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
                 if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
                     focusedTabIndex = pagerState.currentPage
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PicturesContent(
-    groupedImageMessageList: List<UIAssetMessage>,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
-) {
-    if (groupedImageMessageList.isEmpty()) {
-        EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_pictures_empty)
-        )
-    } else {
-        ImageAssetGrid(
-            uiAssetMessageList = groupedImageMessageList,
-            onImageFullScreenMode = onImageFullScreenMode,
-            continueAssetLoading = continueAssetLoading
-        )
-    }
-}
-
-@Composable
-private fun FilesContent(
-    groupedAssetMessageList: Map<String, List<UIMessage>>
-) {
-    // val lazyPagingMessages = groupedAssetMessageList.collectAsLazyPagingItems()
-
-    // if (lazyPagingMessages.itemCount > 0) {
-    if (groupedAssetMessageList.isNotEmpty()) {
-        AssetMessagesListContent(groupedAssetMessageList = groupedAssetMessageList)
-    } else {
-        EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_files_empty)
-        )
-    }
-}
-
-@Composable
-private fun AssetMessagesListContent(
-    groupedAssetMessageList: Map<String, List<UIMessage>>
-) {
-    LazyColumn {
-        groupedAssetMessageList.forEachIndexed { index, entry ->
-            val label = entry.key
-            item(key = entry.key) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            bottom = dimensions().spacing6x,
-                            // first label should not have top padding
-                            top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
-                        )
-                ) {
-                    FolderHeader(
-                        name = label.uppercase(),
-                        modifier = Modifier
-                            .background(MaterialTheme.wireColorScheme.background)
-                            .fillMaxWidth()
-                    )
-                }
-            }
-
-            items(
-                count = entry.value.size,
-                key = { entry.value[it].header.messageId }
-            ) {
-                when (val message = entry.value[it]) {
-                    is UIMessage.Regular -> {
-                        MessageItem(
-                            message = message,
-                            conversationDetailsData = ConversationDetailsData.None,
-                            audioMessagesState = emptyMap(), // TODO(Media): handle audio state
-                            onAudioClick = { }, // TODO(Media): handle audio click
-                            onChangeAudioPosition = { _, _ -> },
-                            onLongClicked = { },
-                            onAssetMessageClicked = { }, // TODO(Media): handle asset click
-                            onImageMessageClicked = { _, _ -> },
-                            onOpenProfile = { _ -> },
-                            onReactionClicked = { _, _ -> },
-                            onResetSessionClicked = { _, _ -> },
-                            onSelfDeletingMessageRead = { },
-                            defaultBackgroundColor = colorsScheme().backgroundVariant,
-                            shouldDisplayMessageStatus = false,
-                            shouldDisplayFooter = false,
-                            onLinkClick = { }
-                        )
-                    }
-
-                    is UIMessage.System -> {}
                 }
             }
         }

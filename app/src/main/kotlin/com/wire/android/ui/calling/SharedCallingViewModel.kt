@@ -146,7 +146,10 @@ class SharedCallingViewModel @Inject constructor(
                     is ConversationDetails.Group -> {
                         callState.copy(
                             conversationName = getConversationName(details.conversation.name),
-                            conversationType = ConversationType.Conference
+                            conversationType = ConversationType.Conference,
+                            protocolInfo = details.conversation.protocol,
+                            mlsVerificationStatus = details.conversation.mlsVerificationStatus,
+                            proteusVerificationStatus = details.conversation.proteusVerificationStatus
                         )
                     }
 
@@ -157,7 +160,10 @@ class SharedCallingViewModel @Inject constructor(
                                 ImageAsset.UserAvatarAsset(wireSessionImageLoader, assetId)
                             },
                             conversationType = ConversationType.OneOnOne,
-                            membership = userTypeMapper.toMembership(details.otherUser.userType)
+                            membership = userTypeMapper.toMembership(details.otherUser.userType),
+                            protocolInfo = details.conversation.protocol,
+                            mlsVerificationStatus = details.conversation.mlsVerificationStatus,
+                            proteusVerificationStatus = details.conversation.proteusVerificationStatus
                         )
                     }
 

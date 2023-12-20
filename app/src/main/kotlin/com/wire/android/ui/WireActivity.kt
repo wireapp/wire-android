@@ -214,10 +214,7 @@ class WireActivity : AppCompatActivity() {
                         setUpNavigation(navigator.navController, onComplete)
                         isLoaded = true
                         handleScreenshotCensoring()
-                        handleDialogs(
-                            navigator::navigate,
-                            viewModel.currentUserId.value
-                        )
+                        handleDialogs(navigator::navigate)
                     }
                 }
             }
@@ -272,8 +269,8 @@ class WireActivity : AppCompatActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit, userId: UserId?) {
-        LaunchedEffect(userId) {
+    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
+        LaunchedEffect(Unit) {
             featureFlagNotificationViewModel.loadInitialSync()
         }
         val context = LocalContext.current

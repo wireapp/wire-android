@@ -15,6 +15,7 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
@@ -47,6 +48,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenNoCurrentUser_thenSharingRestricted() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Failure.SessionNotFound)
+            .withCurrentSessionsFlow(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -61,6 +63,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
         viewModel.initialSync()
@@ -76,6 +79,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
             .arrange()
         viewModel.initialSync()
@@ -94,6 +98,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
         viewModel.initialSync()
@@ -109,6 +114,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenSelfDeletionDialogIsShown_whenDismissingIt_thenInvokeMarkSelfDeletionStatusAsNotified() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -123,6 +129,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenTeamAppLockIsEnforceButNotChanged_whenAppHaveNotAppLockSetup_thenDisplayTheAppLockDialog() = runTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .withIsAppLockSetup(false)
             .withTeamAppLockEnforce(AppLockTeamConfig(true, Duration.ZERO, false))
             .arrange()
@@ -233,6 +240,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenSourceIsTeamEnforce_whenConfirmingAppLockNotEnforcedDialog_thenRemoveAppLock() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withAppLockSource(AppLockSource.TeamEnforced)
             .withDisableAppLockUseCase()
             .arrange()
@@ -249,6 +257,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenAppLockSourceIsManual_whenConfirmingAppLockNotEnforcedDialog_thenDoNothing() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            .withCurrentSessionsFlow(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withAppLockSource(AppLockSource.Manual)
             .arrange()
         viewModel.initialSync()
@@ -270,6 +279,9 @@ class FeatureFlagNotificationViewModelTest {
 
         @MockK
         lateinit var currentSession: CurrentSessionUseCase
+
+        @MockK
+        lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -295,6 +307,7 @@ class FeatureFlagNotificationViewModelTest {
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             currentSessionUseCase = currentSession,
+            currentSessionFlow = currentSessionFlow,
             globalDataStore = globalDataStore,
             disableAppLockUseCase = disableAppLockUseCase,
             dispatcherProvider = TestDispatcherProvider()
@@ -314,6 +327,10 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {
             coEvery { currentSession() } returns result
+        }
+
+        fun withCurrentSessionsFlow(result: CurrentSessionResult) = apply {
+            coEvery { currentSessionFlow() } returns flowOf(result)
         }
 
         fun withIsAppLockSetup(result: Boolean) = apply {

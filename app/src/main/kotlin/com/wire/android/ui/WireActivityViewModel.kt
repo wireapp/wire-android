@@ -121,7 +121,6 @@ class WireActivityViewModel @Inject constructor(
                 if (it.accountInfo.isValid().not()) {
                     handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
                 }
-                currentUserId.value = it.accountInfo.userId
             }
         }
         .map { result ->
@@ -138,8 +137,6 @@ class WireActivityViewModel @Inject constructor(
 
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
-
-    val currentUserId: MutableState<UserId?> = mutableStateOf(null)
 
     init {
         observeSyncState()

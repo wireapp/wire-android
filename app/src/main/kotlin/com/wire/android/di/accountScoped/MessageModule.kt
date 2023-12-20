@@ -161,7 +161,9 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetPaginatedFlowOfAssetMessageByConversationId(messageScope: MessageScope): GetPaginatedFlowOfAssetMessageByConversationIdUseCase =
+    fun provideGetPaginatedFlowOfAssetMessageByConversationId(
+        messageScope: MessageScope
+    ): GetPaginatedFlowOfAssetMessageByConversationIdUseCase =
         messageScope.getPaginatedFlowOfAssetMessageByConversationId
 
     @ViewModelScoped

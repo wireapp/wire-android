@@ -1325,6 +1325,7 @@
     <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>

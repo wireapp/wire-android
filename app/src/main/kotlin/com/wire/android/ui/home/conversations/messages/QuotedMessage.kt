@@ -139,6 +139,15 @@ internal fun QuotedMessage(
             style = style,
             startContent = startContent
         )
+
+        is UIQuotedMessage.UIQuotedData.Location -> QuotedLocation(
+            senderName = messageData.senderName,
+            originalDateTimeText = messageData.originalMessageDateDescription,
+            locationName = quotedContent.locationName,
+            modifier = modifier,
+            style = style,
+            startContent = startContent
+        )
     }
 }
 
@@ -406,7 +415,11 @@ private fun AutosizeContainer(
     val imageDimension = Dimension.value(dimensions().spacing56x)
     // ConstraintLayout is used to measure the text content and then
     // resize the image to match the height of the text
-    ConstraintLayout(modifier = modifier.fillMaxWidth().padding(dimensions().spacing8x)) {
+    ConstraintLayout(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(dimensions().spacing8x)
+    ) {
         val (leftSide, rightSide) = createRefs()
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
@@ -431,7 +444,8 @@ private fun AutosizeContainer(
                     end.linkTo(parent.end)
                     width = imageDimension
                     height = Dimension.fillToConstraints
-                }.clip(RoundedCornerShape(dimensions().spacing8x))
+                }
+                .clip(RoundedCornerShape(dimensions().spacing8x))
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.wireColorScheme.outline,
@@ -506,6 +520,32 @@ private fun QuotedGenericAsset(
         }, endContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_file),
+                contentDescription = null,
+                modifier = modifier
+                    .size(dimensions().spacing24x),
+                tint = colorsScheme().secondaryText
+            )
+        }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }
+    )
+}
+
+@Composable
+private fun QuotedLocation(
+    senderName: UIText,
+    originalDateTimeText: UIText,
+    locationName: String,
+    style: QuotedMessageStyle,
+    startContent: @Composable () -> Unit = {},
+    modifier: Modifier
+) {
+    QuotedMessageContent(
+        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
+            MainContentText(locationName)
+        }, startContent = {
+            startContent()
+        }, endContent = {
+            Icon(
+                painter = painterResource(R.drawable.ic_location),
                 contentDescription = null,
                 modifier = modifier
                     .size(dimensions().spacing24x),

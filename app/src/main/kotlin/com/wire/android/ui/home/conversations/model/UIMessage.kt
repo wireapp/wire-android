@@ -592,6 +592,8 @@ sealed class UIQuotedMessage {
             val displayable: ImageAsset.PrivateAsset
         ) : Content
 
+        data class Location(val locationName: String) : Content
+
         object AudioMessage : Content
 
         object Deleted : Content

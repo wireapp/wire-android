@@ -130,7 +130,6 @@ private fun AssetMessagesListContent(
                     }
                 }
             }
-
         }
     }
 }

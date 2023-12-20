@@ -141,7 +141,8 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
                     if (response != null) {
                         authState.update(response, exception)
                         appLogger.i("OAuth idToken: ${response.idToken}")
-                        resultHandler(OAuthResult.Success(response.idToken.toString()))
+                        appLogger.i("OAuth refreshToken: ${response.refreshToken}")
+                        resultHandler(OAuthResult.Success(response.idToken.toString(), response.refreshToken))
                     } else {
                         resultHandler(OAuthResult.Failed.EmptyResponse)
                     }
@@ -152,7 +153,12 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
 
     private fun getAuthorizationRequest() = AuthorizationRequest.Builder(
         authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, URL_AUTH_REDIRECT
-    ).setCodeVerifier().setScopes(SCOPE_OPENID, SCOPE_EMAIL, SCOPE_PROFILE).build()
+    ).setCodeVerifier().setScopes(
+        AuthorizationRequest.Scope.OPENID,
+        AuthorizationRequest.Scope.EMAIL,
+        AuthorizationRequest.Scope.PROFILE,
+        AuthorizationRequest.Scope.OFFLINE_ACCESS
+    ).build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
         val codeVerifier = getCodeVerifier()
@@ -176,7 +182,7 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
     }
 
     sealed class OAuthResult {
-        data class Success(val idToken: String) : OAuthResult()
+        data class Success(val idToken: String, val refreshToken: String?) : OAuthResult()
         open class Failed(val reason: String) : OAuthResult() {
             object Unknown : Failed("Unknown")
             class InvalidActivityResult(reason: String) : Failed(reason)
@@ -186,10 +192,6 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
 
     companion object {
         const val OAUTH_ACTIVITY_RESULT_KEY = "OAuthActivityResult"
-
-        const val SCOPE_PROFILE = "profile"
-        const val SCOPE_EMAIL = "email"
-        const val SCOPE_OPENID = "openid"
 
         // todo: clientId and the clientSecret will be replaced with the values from the BE once the BE provides them
         const val CLIENT_ID = "wireapp"

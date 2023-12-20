@@ -83,7 +83,7 @@ private fun ImageAssetGrid(
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
     val timeZone = remember { TimeZone.currentSystemDefault() }
-    val groupedAssets = remember(uiAssetMessageList) {
+    val groupedAssets: Map<String, List<UIAssetMessage>> = remember(uiAssetMessageList) {
         uiAssetMessageList.toImageAssetGroupedByMonthAndYear(timeZone = timeZone)
     }
 

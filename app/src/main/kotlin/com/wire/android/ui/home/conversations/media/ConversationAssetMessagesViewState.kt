@@ -22,9 +22,8 @@ package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
-import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
+import com.wire.android.ui.home.conversations.usecase.UIPagingItem
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
@@ -33,5 +32,5 @@ import kotlinx.coroutines.flow.emptyFlow
 @Stable
 data class ConversationAssetMessagesViewState(
     val imageMessages: ImmutableList<UIAssetMessage> = persistentListOf(),
-    val assetMessages: Flow<PagingData<UIMessage>> = emptyFlow()
+    val assetMessages: Flow<PagingData<UIPagingItem>> = emptyFlow()
 )

@@ -17,8 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.media
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -28,14 +34,18 @@ import androidx.paging.compose.itemKey
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.usecase.UIPagingItem
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.wireColorScheme
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun FileAssetsContent(
-    groupedAssetMessageList: Flow<PagingData<UIMessage>>,
+    groupedAssetMessageList: Flow<PagingData<UIPagingItem>>,
     audioMessagesState: Map<String, AudioState> = emptyMap(),
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
@@ -58,7 +68,7 @@ fun FileAssetsContent(
 
 @Composable
 private fun AssetMessagesListContent(
-    groupedAssetMessageList: LazyPagingItems<UIMessage>,
+    groupedAssetMessageList: LazyPagingItems<UIPagingItem>,
     audioMessagesState: Map<String, AudioState>,
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -66,34 +76,61 @@ private fun AssetMessagesListContent(
     LazyColumn {
         items(
             count = groupedAssetMessageList.itemCount,
-            key = groupedAssetMessageList.itemKey { it.header.messageId },
+            key = groupedAssetMessageList.itemKey {
+                when (it) {
+                    is UIPagingItem.Label -> it.date
+                    is UIPagingItem.Message -> it.uiMessage.header.messageId
+                }
+            },
             contentType = groupedAssetMessageList.itemContentType { it }
         ) { index ->
-            val message: UIMessage = groupedAssetMessageList[index] ?: return@items
-            when (message) {
-                is UIMessage.Regular -> {
-                    MessageItem(
-                        message = message,
-                        conversationDetailsData = ConversationDetailsData.None,
-                        audioMessagesState = audioMessagesState,
-                        onAudioClick = onAudioItemClicked,
-                        onChangeAudioPosition = { _, _ -> },
-                        onLongClicked = { },
-                        onAssetMessageClicked = onAssetItemClicked,
-                        onImageMessageClicked = { _, _ -> },
-                        onOpenProfile = { _ -> },
-                        onReactionClicked = { _, _ -> },
-                        onResetSessionClicked = { _, _ -> },
-                        onSelfDeletingMessageRead = { },
-                        defaultBackgroundColor = colorsScheme().backgroundVariant,
-                        shouldDisplayMessageStatus = false,
-                        shouldDisplayFooter = false,
-                        onLinkClick = { }
+            val uiPagingItem: UIPagingItem = groupedAssetMessageList[index] ?: return@items
+
+            when (uiPagingItem) {
+                is UIPagingItem.Label -> Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            bottom = dimensions().spacing6x,
+                            // first label should not have top padding
+                            top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
+                        )
+                ) {
+                    FolderHeader(
+                        name = uiPagingItem.date.uppercase(),
+                        modifier = Modifier
+                            .background(MaterialTheme.wireColorScheme.background)
+                            .fillMaxWidth()
                     )
                 }
+                is UIPagingItem.Message -> {
+                    when (val message = uiPagingItem.uiMessage) {
+                        is UIMessage.Regular -> {
+                            MessageItem(
+                                message = message,
+                                conversationDetailsData = ConversationDetailsData.None,
+                                audioMessagesState = audioMessagesState,
+                                onAudioClick = onAudioItemClicked,
+                                onChangeAudioPosition = { _, _ -> },
+                                onLongClicked = { },
+                                onAssetMessageClicked = onAssetItemClicked,
+                                onImageMessageClicked = { _, _ -> },
+                                onOpenProfile = { _ -> },
+                                onReactionClicked = { _, _ -> },
+                                onResetSessionClicked = { _, _ -> },
+                                onSelfDeletingMessageRead = { },
+                                defaultBackgroundColor = colorsScheme().backgroundVariant,
+                                shouldDisplayMessageStatus = false,
+                                shouldDisplayFooter = false,
+                                onLinkClick = { }
+                            )
+                        }
 
-                is UIMessage.System -> {}
+                        is UIMessage.System -> {}
+                    }
+                }
             }
+
         }
     }
 }

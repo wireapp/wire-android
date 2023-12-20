@@ -20,7 +20,9 @@ package com.wire.android.ui.home.conversations.usecase
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.flatMap
+import androidx.paging.insertSeparators
 import com.wire.android.mapper.MessageMapper
+import com.wire.android.ui.common.monthYearHeader
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
@@ -31,6 +33,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -50,7 +55,7 @@ class GetAssetMessagesFromConversationUseCase @Inject constructor(
     suspend operator fun invoke(
         conversationId: ConversationId,
         initialOffset: Int
-    ): Flow<PagingData<UIMessage>> {
+    ): Flow<PagingData<UIPagingItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
@@ -62,13 +67,36 @@ class GetAssetMessagesFromConversationUseCase @Inject constructor(
             startingOffset = max(0, initialOffset - PREFETCH_DISTANCE).toLong(),
             pagingConfig = pagingConfig
         ).map { pagingData ->
-            pagingData.flatMap { messageItem ->
+            val currentTime = TimeZone.currentSystemDefault()
+            val uiMessagePagingData: PagingData<UIPagingItem> = pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
                     .mapLatest { usersList ->
-                        messageMapper.toUIMessage(usersList, messageItem)?.let { listOf(it) }
+                        messageMapper.toUIMessage(usersList, messageItem)
+                            ?.let { listOf(UIPagingItem.Message(it, Instant.parse(messageItem.date))) }
                             ?: emptyList()
                     }.first()
+            }.insertSeparators { before: UIPagingItem.Message?, after: UIPagingItem.Message? ->
+                if (before == null && after != null) {
+                    val localDateTime = after.date.toLocalDateTime(currentTime)
+                    UIPagingItem.Label(monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber))
+                } else if (before != null && after != null) {
+                    val beforeDateTime = before.date.toLocalDateTime(currentTime)
+                    val afterDateTime = after.date.toLocalDateTime(currentTime)
+
+                    if (beforeDateTime.year != afterDateTime.year
+                        || beforeDateTime.month != afterDateTime.month
+                    ) {
+                        UIPagingItem.Label(monthYearHeader(year = afterDateTime.year, month = afterDateTime.monthNumber))
+                    } else {
+                        null
+                    }
+                } else {
+                    // no separator - either end of list, or first
+                    // letters of items are the same
+                    null
+                }
             }
+            uiMessagePagingData
         }.flowOn(dispatchers.io())
     }
 
@@ -77,4 +105,11 @@ class GetAssetMessagesFromConversationUseCase @Inject constructor(
         const val INITIAL_LOAD_SIZE = 20
         const val PREFETCH_DISTANCE = 30
     }
+}
+
+sealed class UIPagingItem {
+
+    data class Message(val uiMessage: UIMessage, val date: Instant) : UIPagingItem()
+
+    data class Label(val date: String) : UIPagingItem()
 }

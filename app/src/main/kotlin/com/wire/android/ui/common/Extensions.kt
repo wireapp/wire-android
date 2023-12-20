@@ -155,7 +155,7 @@ fun <T> StateFlow<T>.collectAsStateLifecycleAware(
     context: CoroutineContext = EmptyCoroutineContext
 ): State<T> = collectAsStateLifecycleAware(value, context)
 
-private fun monthYearHeader(month: Int, year: Int): String {
+fun monthYearHeader(month: Int, year: Int): String {
     val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(
         TimeZone.currentSystemDefault()).year
     val monthYearInstant = LocalDateTime(year = year, monthNumber = month, 1, 0, 0, 0)

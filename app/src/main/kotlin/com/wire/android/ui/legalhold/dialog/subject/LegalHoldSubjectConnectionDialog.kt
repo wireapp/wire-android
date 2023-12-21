@@ -31,7 +31,7 @@ fun LegalHoldSubjectConnectionDialog(
 ) {
     LegalHoldSubjectBaseDialog(
         name = userName,
-        isConversation = false,
+        withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_cancel),
         dialogDismissed = dialogDismissed,
         action = stringResource(id = R.string.connection_label_connect) to connectClicked,

@@ -476,6 +476,10 @@ sealed class UIMessageContent {
                 Conversation.Protocol.MLS -> R.string.label_system_message_learn_more_about_mls_link
             }
         )
+        data object ConversationProtocolChangedWithCallOngoing : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_protocol_changed_during_a_call
+        )
 
         object HistoryLost : SystemMessage(
             R.drawable.ic_info,

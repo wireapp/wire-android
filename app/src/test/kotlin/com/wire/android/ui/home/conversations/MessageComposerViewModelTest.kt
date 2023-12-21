@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companio
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
@@ -673,8 +674,66 @@ class MessageComposerViewModelTest {
                 )
             }
             assertEquals(
-                SureAboutMessagingDialogState.ConversationVerificationDegraded(messageBundle),
+                SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle),
                 viewModel.sureAboutMessagingDialogState
             )
+        }
+
+    @Test
+    fun `given that user needs to be informed about enabled legal hold, when invoked sending, then message is not sent and dialog shown`() =
+        runTest {
+            // given
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withObserveConversationUnderLegalHoldNotified(false)
+                .arrange()
+            // when
+            viewModel.trySendMessage(messageBundle)
+            // then
+            coVerify(exactly = 0) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
+            assertEquals(
+                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold(messageBundle),
+                viewModel.sureAboutMessagingDialogState
+            )
+        }
+
+    @Test
+    fun `given that user chose to dismiss when enabled legal hold, when invoked sending, then message is not sent and dialog hidden`() =
+        runTest {
+            // given
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withObserveConversationUnderLegalHoldNotified(false)
+                .arrange()
+            viewModel.trySendMessage(messageBundle)
+            // when
+            arrangement.withObserveConversationUnderLegalHoldNotified(true)
+            viewModel.dismissSureAboutSendingMessage()
+            advanceUntilIdle()
+            // then
+            coVerify(exactly = 0) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
+            assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+        }
+
+    @Test
+    fun `given that user chose to send anyway when enabled legal hold, when invoked sending, then message is sent and dialog hidden`() =
+        runTest {
+            // given
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withObserveConversationUnderLegalHoldNotified(false)
+                .withSuccessfulSendTextMessage()
+                .arrange()
+            viewModel.trySendMessage(messageBundle)
+            // when
+            arrangement.withObserveConversationUnderLegalHoldNotified(true)
+            viewModel.acceptSureAboutSendingMessage()
+            advanceUntilIdle()
+            // then
+            coVerify(exactly = 1) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
+            assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
         }
 }

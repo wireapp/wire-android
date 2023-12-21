@@ -594,6 +594,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
@@ -628,6 +629,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <plurals name="last_message_self_removed_users">
         <item quantity="one">Eliminaste a 1 persona de la conversación</item>
         <item quantity="other">Eliminaste a %1$d personas de la conversación</item>
+    </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Te eliminaron de la conversaci&#243;n</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -1301,6 +1306,7 @@ URL del backend:
     <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>

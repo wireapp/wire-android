@@ -263,6 +263,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.HistoryLostProtocolChanged,
         is SystemMessage.NewConversationReceiptMode,
         is SystemMessage.ConversationProtocolChanged,
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing,
         is SystemMessage.ConversationMessageTimerActivated,
         is SystemMessage.ConversationMessageCreated,
         is SystemMessage.ConversationStartedWithMembers,
@@ -558,6 +559,7 @@ private val SystemMessage.expandable
         is SystemMessage.HistoryLost -> false
         is SystemMessage.HistoryLostProtocolChanged -> false
         is SystemMessage.ConversationProtocolChanged -> false
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing -> false
         is SystemMessage.ConversationMessageTimerActivated -> false
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
@@ -650,6 +652,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.ConversationVerified -> arrayOf()
         is SystemMessage.HistoryLostProtocolChanged -> arrayOf()
         is SystemMessage.ConversationProtocolChanged -> arrayOf()
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
             author.asString(res).markdownBold(),
             selfDeletionDuration.longLabel.asString(res).markdownBold()

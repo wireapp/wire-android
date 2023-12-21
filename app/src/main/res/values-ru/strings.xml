@@ -505,11 +505,11 @@
     <string name="dialog_logout_wipe_data_title">Удалить данные?</string>
     <string name="dialog_logout_wipe_data_checkbox">Удалить всю личную информацию и беседы на этом устройстве</string>
     <!-- User Profile status dialog-->
-    <string name="user_profile_change_status_dialog_available_title">Установить статус \'Доступен\'</string>
+    <string name="user_profile_change_status_dialog_available_title">Установка статуса \'Доступен\'</string>
     <string name="user_profile_change_status_dialog_available_text">Для других пользователей будет отображаться статус \'Доступен\'. Вы будете получать уведомления о входящих вызовах и сообщениях в соответствии с настройками уведомлений в каждой беседе.</string>
-    <string name="user_profile_change_status_dialog_busy_title">Установить статус \'Занят\'</string>
+    <string name="user_profile_change_status_dialog_busy_title">Установка статуса \'Занят\'</string>
     <string name="user_profile_change_status_dialog_busy_text">Для других пользователей будет отображаться статус \'Занят\'. Вы будете получать уведомления только об упоминаниях, ответах и звонках в беседах, уведомления для которых не отключены.</string>
-    <string name="user_profile_change_status_dialog_away_title">Установить статус \'Отошел\'</string>
+    <string name="user_profile_change_status_dialog_away_title">Установка статуса \'Отошел\'</string>
     <string name="user_profile_change_status_dialog_away_text">Для других пользователей будет отображаться статус \'Отошел\'. Вы не будете получать уведомления о любых входящих звонках или сообщениях.</string>
     <string name="user_profile_change_status_dialog_none_title">Статус не установлен</string>
     <string name="user_profile_change_status_dialog_none_text">Вы будете получать уведомления о входящих вызовах и сообщениях в соответствии с настройками уведомлений в каждой беседе.</string>
@@ -583,8 +583,10 @@
     <string name="label_system_message_blocked_user">%1$s заблокировал(-а) этого пользователя</string>
     <string name="label_system_message_renamed_the_conversation">%1$s переименовал эту беседу\n%2$s</string>
     <plurals name="label_system_message_team_member_left">
-        <item quantity="one">%1$s was removed from the team</item>
-        <item quantity="other">%1$s were removed from the team</item>
+        <item quantity="one">%1$s был(-а) удален(-а) из команды</item>
+        <item quantity="few">%1$s были удалены из команды</item>
+        <item quantity="many">%1$s были удалены из команды</item>
+        <item quantity="other">%1$s были удалены из команды</item>
     </plurals>
     <string name="label_system_message_user_not_available">Этот пользователь больше не доступен</string>
     <string name="label_system_message_new_conversation_receipt_mode">Отчеты о прочтении %1$s</string>
@@ -600,6 +602,7 @@
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Групповой ключ MLS был обновлен без предварительного уведомления. Это могло произойти из-за потери сообщений между бэкэндами или из-за ошибки. Мы автоматически повторно подключились к беседе, но сообщения могли быть потеряны.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Вы не обновили свое приложение вовремя. Некоторые сообщения могут не отображаться.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Миграция протокола шифрования была отменена.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">При переходе на MLS могут возникнуть проблемы с текущим вызовом. В этом случае прервите разговор и позвоните снова.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Началась миграция протокола шифрования. Убедитесь, что все ваши клиенты Wire обновлены.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Миграция протокола шифрования завершена. Клиенты Wire, которые не были обновлены, перестанут получать сообщения.</string>
     <string name="label_system_message_receipt_mode_on">вкл</string>
@@ -643,6 +646,12 @@
         <item quantity="many">Вы удалили из беседы %1$d пользователей</item>
         <item quantity="other">Вы удалили из беседы %1$d пользователя</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 пользователь был удален из команды</item>
+        <item quantity="few">%1$d пользователя были удалены из команды</item>
+        <item quantity="many">%1$d пользователей были удалены из команды</item>
+        <item quantity="other">%1$d пользователя были удалены из команды</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">Вы были удалены из беседы</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">Вы и еще 1 пользователь были удалены из беседы</item>
@@ -652,8 +661,8 @@
     </plurals>
     <plurals name="last_message_other_removed_other_users">
         <item quantity="one">1 пользователь был удален из беседы</item>
-        <item quantity="few">%1$d пользователя был удалены из беседы</item>
-        <item quantity="many">%1$d пользователей был удалены из беседы</item>
+        <item quantity="few">%1$d пользователя были удалены из беседы</item>
+        <item quantity="many">%1$d пользователей были удалены из беседы</item>
         <item quantity="other">%1$d пользователя были удалены из беседы</item>
     </plurals>
     <string name="last_message_self_user_shared_asset">поделились файлом.</string>
@@ -1351,6 +1360,7 @@
     <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничением</string>
     <string name="legal_hold_subject_dialog_description">Все сообщения, изображения и документы будут сохранены для последующего доступа. Сюда входят удаленные, отредактированные и самоудаляющиеся сообщения.</string>
     <string name="legal_hold_subject_dialog_description_group">По крайней мере, один из участников этой беседы находится под юридическим ограничением.</string>
+    <string name="legal_hold_subject_dialog_description_message">Вы все еще хотите отправить ваше сообщение?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Отправить в любом случае</string>
     <string name="legal_hold_subject_to">Субъект - %1$s.</string>
     <string name="legal_hold_label">юридические ограничения</string>
@@ -1368,6 +1378,6 @@
     <string name="sure_about_messaging_dialog_positiv_button">Отправить в любом случае</string>
     <!-- Sure want to call Dialog -->
     <string name="sure_about_calling_in_degraded_dialog_title">Беседа больше не является верифицированной</string>
-    <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите начать разговор?</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите позвонить?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Все равно позвонить</string>
 </resources>

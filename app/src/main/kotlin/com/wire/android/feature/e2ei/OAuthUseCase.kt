@@ -110,7 +110,7 @@ class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: St
         }
     }
 
-    private fun launchLoginFlow(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit){
+    private fun launchLoginFlow(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
         val resultLauncher = activityResultRegistry.register(
             OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
         ) { result ->

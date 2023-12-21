@@ -280,7 +280,7 @@ class FeatureFlagNotificationViewModelTest {
         currentSessionsFlow.emit(CurrentSessionResult.Failure.SessionNotFound)
         advanceUntilIdle()
 
-        //then
+        // then
         assertEquals(null, viewModel.featureFlagState.e2EIRequired)
     }
 

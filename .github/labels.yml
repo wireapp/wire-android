@@ -18,7 +18,13 @@ XL:
     name: size/XL
     lines: 1000
     color: C32607
+    comment: |
+        # Ups 🫰🟨
+        This PR is too big. Please try to break it up into smaller PRs.
 XXL:
     name: size/XXL
     lines: 100000
     color: E50009
+    comment: |
+        # Ups 🫰🟥
+        This PR is too big. Please break it up into smaller PRs.

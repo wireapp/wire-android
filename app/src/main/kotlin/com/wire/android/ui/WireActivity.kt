@@ -99,7 +99,6 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
-import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -208,10 +207,7 @@ class WireActivity : AppCompatActivity() {
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete)
                         handleScreenshotCensoring()
-                        handleDialogs(
-                            navigator::navigate,
-                            viewModel.currentUserId.value
-                        )
+                        handleDialogs(navigator::navigate)
                     }
                 }
             }
@@ -266,8 +262,8 @@ class WireActivity : AppCompatActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit, userId: UserId?) {
-        LaunchedEffect(userId) {
+    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
+        LaunchedEffect(Unit) {
             featureFlagNotificationViewModel.loadInitialSync()
         }
         val context = LocalContext.current

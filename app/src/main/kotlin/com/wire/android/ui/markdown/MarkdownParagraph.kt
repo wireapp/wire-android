@@ -35,7 +35,7 @@ fun MarkdownParagraph(
     clickable: Boolean,
     onMentionsUpdate: (List<DisplayMention>) -> Unit
 ) {
-        val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
+        val padding = if (paragraph.parent is Document) dimensions().spacing4x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
             val annotatedString = buildAnnotatedString {
                 pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())

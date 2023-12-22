@@ -25,15 +25,14 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
-import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 
 @Composable
 fun SureAboutMessagingInDegradedConversationDialog(
     dialogState: SureAboutMessagingDialogState,
-    sendAnyway: (MessageBundle) -> Unit,
+    sendAnyway: () -> Unit,
     hideDialog: () -> Unit
 ) {
-    if (dialogState is SureAboutMessagingDialogState.ConversationVerificationDegraded) {
+    if (dialogState is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded) {
         WireDialog(
             title = stringResource(R.string.sure_about_messaging_dialog_title),
             text = stringResource(R.string.sure_about_messaging_dialog_body),
@@ -42,11 +41,11 @@ fun SureAboutMessagingInDegradedConversationDialog(
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.sure_about_messaging_dialog_positiv_button),
                 type = WireDialogButtonType.Primary,
-                onClick = { sendAnyway(dialogState.messageBundleToSend) }
+                onClick = sendAnyway,
             ),
             dismissButtonProperties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),
-                onClick = hideDialog
+                onClick = hideDialog,
             )
         )
     }

@@ -75,6 +75,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.markdownBold
@@ -126,16 +127,16 @@ fun SystemMessageItem(
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
-                    Image(
-                        painter = painterResource(id = message.messageContent.iconResId),
-                        contentDescription = null,
-                        colorFilter = getColorFilter(message.messageContent),
-                        modifier = Modifier.size(
-                            if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
-                            else dimensions().systemMessageIconLargeSize
-                        ),
-                        contentScale = ContentScale.Crop
-                    )
+                Image(
+                    painter = painterResource(id = message.messageContent.iconResId),
+                    contentDescription = null,
+                    colorFilter = getColorFilter(message.messageContent),
+                    modifier = Modifier.size(
+                        if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
+                        else dimensions().systemMessageIconLargeSize
+                    ),
+                    contentScale = ContentScale.Crop
+                )
             }
         }
         Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
@@ -187,7 +188,7 @@ fun SystemMessageItem(
                 modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
                 text = fullAnnotatedString,
                 onClick = { offset ->
-                    fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset,)
+                    fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset)
                         .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
                 },
                 style = MaterialTheme.wireTypography.body02,
@@ -256,12 +257,13 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MemberRemoved,
         is SystemMessage.CryptoSessionReset,
         is SystemMessage.RenamedConversation,
-        is SystemMessage.TeamMemberRemoved,
+        is SystemMessage.TeamMemberRemoved_Legacy,
         is SystemMessage.ConversationReceiptModeChanged,
         is SystemMessage.HistoryLost,
         is SystemMessage.HistoryLostProtocolChanged,
         is SystemMessage.NewConversationReceiptMode,
         is SystemMessage.ConversationProtocolChanged,
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing,
         is SystemMessage.ConversationMessageTimerActivated,
         is SystemMessage.ConversationMessageCreated,
         is SystemMessage.ConversationStartedWithMembers,
@@ -269,6 +271,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.FederationMemberRemoved,
         is SystemMessage.FederationStopped,
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning,
+        is SystemMessage.TeamMemberRemoved,
         is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -548,7 +551,7 @@ private val SystemMessage.expandable
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
         is SystemMessage.RenamedConversation -> false
-        is SystemMessage.TeamMemberRemoved -> false
+        is SystemMessage.TeamMemberRemoved_Legacy -> false
         is SystemMessage.CryptoSessionReset -> false
         is SystemMessage.NewConversationReceiptMode -> false
         is SystemMessage.ConversationReceiptModeChanged -> false
@@ -556,6 +559,7 @@ private val SystemMessage.expandable
         is SystemMessage.HistoryLost -> false
         is SystemMessage.HistoryLostProtocolChanged -> false
         is SystemMessage.ConversationProtocolChanged -> false
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing -> false
         is SystemMessage.ConversationMessageTimerActivated -> false
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
@@ -567,6 +571,7 @@ private val SystemMessage.expandable
         is SystemMessage.FederationStopped -> false
         is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> false
         is SystemMessage.LegalHold -> false
+        is SystemMessage.TeamMemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
     }
 
 private fun List<String>.toUserNamesListMarkdownString(res: Resources): String = when {
@@ -594,7 +599,7 @@ private fun List<UIText>.limitUserNamesList(
             .plus(res.getQuantityString(quantityString, moreCount, moreCount))
     }
 
-@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
+@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod", "LongMethod")
 fun SystemMessage.annotatedString(
     res: Resources,
     expanded: Boolean,
@@ -618,6 +623,11 @@ fun SystemMessage.annotatedString(
                 memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
             )
 
+        is SystemMessage.TeamMemberRemoved -> arrayOf(
+            author.asString(res).markdownBold(),
+            memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
+        )
+
         is SystemMessage.FederationMemberRemoved ->
             arrayOf(
                 memberNames.limitUserNamesList(res, expanded).toUserNamesListMarkdownString(res)
@@ -627,7 +637,6 @@ fun SystemMessage.annotatedString(
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.MissedCall -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res).markdownBold(), content.conversationName.markdownBold())
-        is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName.markdownBold())
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res).markdownBold())
         is SystemMessage.ConversationReceiptModeChanged -> arrayOf(
@@ -635,6 +644,7 @@ fun SystemMessage.annotatedString(
             receiptMode.asString(res).markdownBold()
         )
 
+        is SystemMessage.TeamMemberRemoved_Legacy -> arrayOf(content.userName)
         is SystemMessage.Knock -> arrayOf(author.asString(res).markdownBold())
         is SystemMessage.HistoryLost -> arrayOf()
         is SystemMessage.MLSWrongEpochWarning -> arrayOf()
@@ -642,6 +652,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.ConversationVerified -> arrayOf()
         is SystemMessage.HistoryLostProtocolChanged -> arrayOf()
         is SystemMessage.ConversationProtocolChanged -> arrayOf()
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
             author.asString(res).markdownBold(),
             selfDeletionDuration.longLabel.asString(res).markdownBold()
@@ -664,7 +675,19 @@ fun SystemMessage.annotatedString(
             arrayOf(memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res))
         } ?: arrayOf()
     }
-    val markdownString = res.getString(stringResId, *markdownArgs)
+    val markdownString = when (stringResId) {
+        is LocalizedStringResource.PluralResource -> res.getQuantityString(
+            (stringResId as LocalizedStringResource.PluralResource).id,
+            (stringResId as LocalizedStringResource.PluralResource).quantity,
+            *markdownArgs
+        )
+
+        is LocalizedStringResource.StringResource -> res.getString(
+            (stringResId as LocalizedStringResource.StringResource).id,
+            *markdownArgs
+        )
+    }
+
     return markdownText(markdownString, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString)
 }
 
@@ -699,7 +722,18 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddMarkdownText(
         if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n\n")
         failedToAddAnnotatedText.append(
             markdownText(
-                res.getString(stringResId, memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)),
+                when (stringResId) {
+                    is LocalizedStringResource.PluralResource -> res.getQuantityString(
+                        stringResId.id,
+                        stringResId.quantity,
+                        stringResId.formatArgs
+                    )
+
+                    is LocalizedStringResource.StringResource -> res.getString(
+                        stringResId.id,
+                        memberNames.limitUserNamesList(res, true).toUserNamesListMarkdownString(res)
+                    )
+                },
                 normalStyle,
                 boldStyle,
                 normalColor,

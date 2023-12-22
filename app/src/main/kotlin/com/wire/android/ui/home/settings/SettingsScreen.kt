@@ -54,6 +54,14 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
+    val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
+    val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
+        { isChecked ->
+            if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
+            else turnAppLockOffDialogState.show(Unit)
+        }
+    }
+
     val context = LocalContext.current
     SettingsScreenContent(
         lazyListState = lazyListState,
@@ -66,13 +74,9 @@ fun SettingsScreen(
                 )
             }
         },
-        onAppLockSwitchChanged = remember {
-            { isChecked ->
-                if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
-                else viewModel.disableAppLock()
-            }
-        }
+        onAppLockSwitchChanged = onAppLockSwitchClicked
     )
+    TurnAppLockOffDialog(dialogState = turnAppLockOffDialogState, turnOff = viewModel::disableAppLock)
 }
 
 @Composable
@@ -84,7 +88,6 @@ fun SettingsScreenContent(
 ) {
     val context = LocalContext.current
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
-    val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
 
     with(featureVisibilityFlags) {
         LazyColumn(
@@ -121,10 +124,9 @@ fun SettingsScreenContent(
                                 appLogger.d("AppLockConfig isAppLockEnabled: ${settingsState.isAppLockEnabled}")
                                 SwitchState.Enabled(
                                     value = settingsState.isAppLockEnabled,
-                                    isOnOffVisible = true
-                                ) {
-                                    turnAppLockOffDialogState.show(Unit)
-                                }
+                                    isOnOffVisible = true,
+                                    onCheckedChange = onAppLockSwitchChanged
+                                )
                             }
 
                             false -> {
@@ -158,8 +160,6 @@ fun SettingsScreenContent(
             )
         }
     }
-
-    TurnAppLockOffDialog(dialogState = turnAppLockOffDialogState) { onAppLockSwitchChanged(false) }
 }
 
 private fun LazyListScope.folderWithElements(

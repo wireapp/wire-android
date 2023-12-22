@@ -70,6 +70,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationVerifiedProteus -> mapConversationVerified(Conversation.Protocol.PROTEUS)
         is MessageContent.FederationStopped -> mapFederationMessage(content)
         is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
+        is MessageContent.ConversationProtocolChangedDuringACall -> mapConversationProtocolChangedDuringACall()
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
     }
@@ -118,9 +119,11 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapConversationProtocolChanged(
         content: MessageContent.ConversationProtocolChanged
-    ): UIMessageContent.SystemMessage {
-        return UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
-    }
+    ): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
+
+    private fun mapConversationProtocolChangedDuringACall(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationProtocolChangedWithCallOngoing
 
     private fun mapResetSession(
         senderUserId: UserId,
@@ -180,7 +183,7 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved
-    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
+    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved_Legacy(content)
 
     private fun mapConversationRenamedMessage(
         senderUserId: UserId,
@@ -240,6 +243,11 @@ class SystemMessageContentMapper @Inject constructor(
             is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
 
             is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
+                memberNames = memberNameList
+            )
+
+            is MemberChange.RemovedFromTeam -> UIMessageContent.SystemMessage.TeamMemberRemoved(
+                author = authorName,
                 memberNames = memberNameList
             )
         }

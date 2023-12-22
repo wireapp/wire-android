@@ -105,6 +105,7 @@ private fun AssetMessagesListContent(
                             .fillMaxWidth()
                     )
                 }
+
                 is UIPagingItem.Message -> {
                     when (val message = uiPagingItem.uiMessage) {
                         is UIMessage.Regular -> {

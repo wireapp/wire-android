@@ -72,6 +72,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
+        MessageContent.ConversationProtocolChangedDuringACall -> TODO()
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
@@ -180,7 +181,7 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved
-    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
+    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved_Legacy(content)
 
     private fun mapConversationRenamedMessage(
         senderUserId: UserId,
@@ -240,6 +241,11 @@ class SystemMessageContentMapper @Inject constructor(
             is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
 
             is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
+                memberNames = memberNameList
+            )
+
+            is MemberChange.RemovedFromTeam -> UIMessageContent.SystemMessage.TeamMemberRemoved(
+                author = authorName,
                 memberNames = memberNameList
             )
         }

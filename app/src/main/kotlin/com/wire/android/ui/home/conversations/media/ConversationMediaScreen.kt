@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -56,7 +57,10 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
+import com.wire.android.ui.home.conversations.DownloadedAssetDialog
+import com.wire.android.ui.home.conversations.MessageComposerViewModel
+import com.wire.android.ui.home.conversations.SnackBarMessage
+import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -69,9 +73,13 @@ import kotlinx.coroutines.launch
     style = PopUpNavigationAnimation::class
 )
 @Composable
-fun ConversationMediaScreen(navigator: Navigator) {
-    val viewModel: ConversationAssetMessagesViewModel = hiltViewModel()
-    val state: ConversationAssetMessagesViewState = viewModel.viewState
+fun ConversationMediaScreen(
+    navigator: Navigator,
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = hiltViewModel()
+) {
+    val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
 
     Content(
         state = state,
@@ -89,8 +97,23 @@ fun ConversationMediaScreen(navigator: Navigator) {
             )
         },
         continueAssetLoading = { shouldContinue ->
-            viewModel.continueLoading(shouldContinue)
-        }
+            conversationAssetMessagesViewModel.continueLoading(shouldContinue)
+        },
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
+        onAudioItemClicked = conversationMessagesViewModel::audioClick,
+    )
+
+    DownloadedAssetDialog(
+        downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
+        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
+        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+    )
+
+    SnackBarMessage(
+        messageComposerViewModel.infoMessage,
+        conversationMessagesViewModel.infoMessage
     )
 }
 
@@ -100,7 +123,10 @@ private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+    continueAssetLoading: (shouldContinue: Boolean) -> Unit,
+    audioMessagesState: Map<String, AudioState> = emptyMap(),
+    onAudioItemClicked: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = ConversationMediaScreenTabItem.entries.map { rememberLazyListState() }
@@ -139,12 +165,17 @@ private fun Content(
                     .padding(padding)
             ) { pageIndex ->
                 when (ConversationMediaScreenTabItem.entries[pageIndex]) {
-                    ConversationMediaScreenTabItem.PICTURES -> PicturesContent(
-                        uiAssetMessageList = state.messages,
+                    ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
+                        groupedImageMessageList = state.imageMessages,
                         onImageFullScreenMode = onImageFullScreenMode,
                         continueAssetLoading = continueAssetLoading
                     )
-                    ConversationMediaScreenTabItem.FILES -> FilesContent()
+                    ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
+                        groupedAssetMessageList = state.assetMessages,
+                        audioMessagesState = audioMessagesState,
+                        onAudioItemClicked = onAudioItemClicked,
+                        onAssetItemClicked = onAssetItemClicked
+                    )
                 }
             }
 
@@ -155,32 +186,6 @@ private fun Content(
             }
         }
     }
-}
-
-@Composable
-private fun PicturesContent(
-    uiAssetMessageList: List<UIAssetMessage>,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
-) {
-    if (uiAssetMessageList.isEmpty()) {
-        EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_pictures_empty)
-        )
-    } else {
-        AssetGrid(
-            uiAssetMessageList = uiAssetMessageList,
-            onImageFullScreenMode = onImageFullScreenMode,
-            continueAssetLoading = continueAssetLoading
-        )
-    }
-}
-
-@Composable
-private fun FilesContent() {
-    EmptyMediaContentScreen(
-        text = stringResource(R.string.label_conversation_files_empty)
-    )
 }
 
 enum class ConversationMediaScreenTabItem(@StringRes override val titleResId: Int) : TabItem {
@@ -194,8 +199,10 @@ fun previewConversationMediaScreenEmptyContent() {
     WireTheme {
         Content(
             state = ConversationAssetMessagesViewState(),
-            onImageFullScreenMode = {_, _, _ -> },
-            continueAssetLoading = {}
+            onImageFullScreenMode = { _, _, _ -> },
+            continueAssetLoading = { },
+            onAudioItemClicked = { },
+            onAssetItemClicked = { }
         )
     }
 }

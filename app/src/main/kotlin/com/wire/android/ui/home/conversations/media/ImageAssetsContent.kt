@@ -36,9 +36,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.toImageAssetGroupedByMonthAndYear
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -51,21 +54,38 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.util.map.forEachIndexed
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.TextStyle
-import java.util.Locale
 
 @Composable
-fun AssetGrid(
+fun ImageAssetsContent(
+    groupedImageMessageList: List<UIAssetMessage>,
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
+    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+) {
+    if (groupedImageMessageList.isEmpty()) {
+        EmptyMediaContentScreen(
+            text = stringResource(R.string.label_conversation_pictures_empty)
+        )
+    } else {
+        ImageAssetGrid(
+            uiAssetMessageList = groupedImageMessageList,
+            onImageFullScreenMode = onImageFullScreenMode,
+            continueAssetLoading = continueAssetLoading
+        )
+    }
+}
+
+@Composable
+private fun ImageAssetGrid(
     uiAssetMessageList: List<UIAssetMessage>,
     modifier: Modifier = Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
     continueAssetLoading: (shouldContinue: Boolean) -> Unit
 ) {
     val timeZone = remember { TimeZone.currentSystemDefault() }
-    val groupedAssets = remember(uiAssetMessageList) { groupAssetsByMonthYear(uiAssetMessageList, timeZone) }
+    val groupedAssets: Map<String, List<UIAssetMessage>> = remember(uiAssetMessageList) {
+        uiAssetMessageList.toImageAssetGroupedByMonthAndYear(timeZone = timeZone)
+    }
 
     val scrollState = rememberLazyGridState()
     val shouldContinue by remember {
@@ -150,27 +170,6 @@ fun AssetGrid(
     }
 }
 
-fun monthYearHeader(month: Int, year: Int): String {
-    val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(TimeZone.currentSystemDefault()).year
-    val monthYearInstant = LocalDateTime(year = year, monthNumber = month, 1, 0, 0, 0)
-
-    val monthName = monthYearInstant.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
-    return if (year == currentYear) {
-        // If it's the current year, display only the month name
-        monthName
-    } else {
-        // If it's not the current year, display both the month name and the year
-        "$monthName $year"
-    }
-}
-
-fun groupAssetsByMonthYear(uiAssetMessageList: List<UIAssetMessage>, timeZone: TimeZone): Map<String, List<UIAssetMessage>> {
-    return uiAssetMessageList.groupBy { asset ->
-        val localDateTime = asset.time.toLocalDateTime(timeZone)
-        monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
-    }
-}
-
 private const val COLUMN_COUNT = 4
 
 @PreviewMultipleThemes
@@ -197,14 +196,14 @@ fun previewAssetGrid() {
         downloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
     )
     WireTheme {
-        AssetGrid(
+        ImageAssetGrid(
             uiAssetMessageList = listOf(
                 message1,
                 message2,
                 message3
             ),
-            onImageFullScreenMode = {_, _, _ -> },
-            continueAssetLoading = {}
+            onImageFullScreenMode = { _, _, _ -> },
+            continueAssetLoading = { }
         )
     }
 }

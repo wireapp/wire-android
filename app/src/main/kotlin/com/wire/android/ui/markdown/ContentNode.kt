@@ -23,30 +23,30 @@ sealed class ContentNode {
     abstract val children: List<ContentNode>
 
     sealed class Block : ContentNode() {
-        class Document(override val children: List<ContentNode> = listOf()) : Block()
-        class Heading(val level: Int, override val children: List<ContentNode> = listOf()) : Block()
-        class Paragraph(override val children: List<ContentNode> = listOf()) : Block()
-        class BlockQuote(override val children: List<ContentNode> = listOf()) : Block()
-        class ListBlock(override val children: List<ContentNode>) : Block()
-        class ListItem(override val children: List<ContentNode> = listOf()) : Block()
+        data class Document(override val children: List<ContentNode> = listOf()) : Block()
+        data class Heading(val level: Int, override val children: List<ContentNode> = listOf()) : Block()
+        data class Paragraph(override val children: List<ContentNode> = listOf()) : Block()
+        data class BlockQuote(override val children: List<ContentNode> = listOf()) : Block()
+        data class ListBlock(override val children: List<ContentNode>) : Block()
+        data class ListItem(override val children: List<ContentNode> = listOf()) : Block()
     }
 
     sealed class Inline : ContentNode() {
-        class Text(val literal: String) : Inline() {
+        data class Text(val literal: String) : Inline() {
             override val children: List<ContentNode> = listOf()
         }
-        class StrongEmphasis(override val children: List<ContentNode> = listOf()) : Inline()
-        class Emphasis(override val children: List<ContentNode> = listOf()) : Inline()
-        class Link(val destination: String, val title: String, override val children: List<ContentNode> = listOf()) : Inline()
-        class Image(val destination: String, val title: String, override val children: List<ContentNode> = listOf()) : Inline()
-        class Code(val literal: String) : Inline() {
+        data class StrongEmphasis(override val children: List<ContentNode> = listOf()) : Inline()
+        data class Emphasis(override val children: List<ContentNode> = listOf()) : Inline()
+        data class Link(val destination: String, val title: String, override val children: List<ContentNode> = listOf()) : Inline()
+        data class Image(val destination: String, val title: String, override val children: List<ContentNode> = listOf()) : Inline()
+        data class Code(val literal: String) : Inline() {
             override val children: List<ContentNode> = listOf()
         }
     }
 
-    class HtmlInline(override val children: List<ContentNode> = listOf()) : Inline()
-    class HtmlBlock(override val children: List<ContentNode> = listOf()) : Block()
-    class ThematicBreak(override val children: List<ContentNode> = listOf()) : Block()
+    data class HtmlInline(override val children: List<ContentNode> = listOf()) : Inline()
+    data class HtmlBlock(override val children: List<ContentNode> = listOf()) : Block()
+    data class ThematicBreak(override val children: List<ContentNode> = listOf()) : Block()
 }
 
 @Suppress("ComplexMethod")

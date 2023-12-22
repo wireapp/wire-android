@@ -25,7 +25,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -168,24 +167,25 @@ fun MessageItem(
 
         Box(
             backgroundColorModifier
-                .clickable(enabled = isContentClickable, onClick = {
-                    onMessageClick(message.header.messageId)
-                })
+                .combinedClickable(enabled = true, onClick = {
+                    if (isContentClickable) {
+                        onMessageClick(message.header.messageId)
+                    }
+                },
+                    onLongClick = remember(message) {
+                        {
+                            if (!isContentClickable) {
+                                onLongClicked(message)
+                            }
+                        }
+                    }
+                )
         ) {
             // padding needed to have same top padding for avatar and rest composables in message item
             val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .apply {
-                        if (!isContentClickable) {
-                            combinedClickable(
-                                enabled = message.isAvailable,
-                                onClick = { },
-                                onLongClick = remember(message) { { onLongClicked(message) } }
-                            )
-                        }
-                    }
                     .padding(
                         end = dimensions().messageItemHorizontalPadding,
                         top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,

@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -35,6 +36,7 @@ import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -130,7 +132,13 @@ private fun AssetMessagesListContent(
                     }
                 }
             }
-
+        }
+        item {
+            if (groupedAssetMessageList.loadState.append is LoadState.Loading) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.onBackground,
+                )
+            }
         }
     }
 }

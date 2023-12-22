@@ -96,9 +96,6 @@ fun ConversationMediaScreen(
                 )
             )
         },
-        continueAssetLoading = { shouldContinue ->
-            conversationAssetMessagesViewModel.continueLoading(shouldContinue)
-        },
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
         onAudioItemClicked = conversationMessagesViewModel::audioClick,
@@ -123,7 +120,6 @@ private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit,
     audioMessagesState: Map<String, AudioState> = emptyMap(),
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
@@ -166,9 +162,8 @@ private fun Content(
             ) { pageIndex ->
                 when (ConversationMediaScreenTabItem.entries[pageIndex]) {
                     ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
-                        groupedImageMessageList = state.imageMessages,
-                        onImageFullScreenMode = onImageFullScreenMode,
-                        continueAssetLoading = continueAssetLoading
+                        imageMessageList = state.imageMessages,
+                        onImageFullScreenMode = onImageFullScreenMode
                     )
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages,
@@ -200,7 +195,6 @@ fun previewConversationMediaScreenEmptyContent() {
         Content(
             state = ConversationAssetMessagesViewState(),
             onImageFullScreenMode = { _, _, _ -> },
-            continueAssetLoading = { },
             onAudioItemClicked = { },
             onAssetItemClicked = { }
         )

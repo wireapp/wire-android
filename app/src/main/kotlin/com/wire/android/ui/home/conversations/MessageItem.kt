@@ -348,6 +348,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
 @Composable
 fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
     when (messageContent) {
+        is UIMessageContent.Location,
         is UIMessageContent.TextMessage -> {
             StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
         }

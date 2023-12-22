@@ -48,7 +48,7 @@ class GetE2EICertificateUseCase @Inject constructor(
             }, {
                 if (it is E2EIEnrollmentResult.Initialized) {
                     initialEnrollmentResult = it
-                    OAuthUseCase(context, it.target).launch(
+                    OAuthUseCase(context, it.target, it.oAuthState).launch(
                         context.getActivity()!!.activityResultRegistry,
                         ::oAuthResultHandler
                     )
@@ -61,10 +61,13 @@ class GetE2EICertificateUseCase @Inject constructor(
         scope.launch {
             when (oAuthResult) {
                 is OAuthUseCase.OAuthResult.Success -> {
-                    enrollmentResultHandler(enrollE2EI.finalizeEnrollment(
-                        oAuthResult.idToken,
-                        initialEnrollmentResult
-                    ))
+                    enrollmentResultHandler(
+                        enrollE2EI.finalizeEnrollment(
+                            oAuthResult.idToken,
+                            oAuthResult.authState,
+                            initialEnrollmentResult
+                        )
+                    )
                 }
 
                 is OAuthUseCase.OAuthResult.Failed -> {

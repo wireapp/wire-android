@@ -132,6 +132,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
@@ -430,9 +431,17 @@ fun ConversationScreen(
 
     SureAboutMessagingInDegradedConversationDialog(
         dialogState = messageComposerViewModel.sureAboutMessagingDialogState,
-        sendAnyway = messageComposerViewModel::sureAboutSendingMessage,
-        hideDialog = messageComposerViewModel::hideSureAboutSendingMessage
+        sendAnyway = messageComposerViewModel::acceptSureAboutSendingMessage,
+        hideDialog = messageComposerViewModel::dismissSureAboutSendingMessage
     )
+
+    (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
+            LegalHoldSubjectMessageDialog(
+                conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
+                dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
+                sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
+            )
+        }
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {

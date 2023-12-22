@@ -470,6 +470,10 @@ sealed class UIMessageContent {
                 Conversation.Protocol.MLS -> R.string.label_system_message_conversation_protocol_changed_mls
             }
         )
+        data object ConversationProtocolChangedWithCallOngoing : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_protocol_changed_during_a_call
+        )
 
         object HistoryLost : SystemMessage(
             R.drawable.ic_info,
@@ -591,6 +595,8 @@ sealed class UIQuotedMessage {
         data class DisplayableImage(
             val displayable: ImageAsset.PrivateAsset
         ) : Content
+
+        data class Location(val locationName: String) : Content
 
         object AudioMessage : Content
 

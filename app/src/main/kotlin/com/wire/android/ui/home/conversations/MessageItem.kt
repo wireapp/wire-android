@@ -297,6 +297,7 @@ fun MessageItem(
                                 }
                             }
                             if (shouldDisplayFooter) {
+                                VerticalSpace.x4()
                                 MessageFooter(
                                     messageFooter = messageFooter,
                                     onReactionClicked = onReactionClicked

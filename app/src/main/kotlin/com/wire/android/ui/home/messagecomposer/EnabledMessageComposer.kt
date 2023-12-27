@@ -252,7 +252,10 @@ fun EnabledMessageComposer(
                                         }
                                     }
                                 },
-                                onRichEditingButtonClicked = additionalOptionStateHolder::toRichTextEditing,
+                                onRichEditingButtonClicked = {
+                                    messageCompositionInputStateHolder.requestFocus()
+                                    additionalOptionStateHolder.toRichTextEditing()
+                                },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             )
                         }

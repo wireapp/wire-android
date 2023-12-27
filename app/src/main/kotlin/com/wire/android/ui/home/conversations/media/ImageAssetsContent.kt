@@ -116,8 +116,7 @@ private fun ImageAssetGrid(
                         null -> GridItemSpan(1)
                     }
                 }
-            )
-            { index ->
+            ) { index ->
                 when (val uiImageAssetPagingItem = uiAssetMessageList[index]) {
                     is UIImageAssetPagingItem.Asset -> {
                         val uiAsset = uiImageAssetPagingItem.uiAssetMessage
@@ -160,13 +159,11 @@ private fun ImageAssetGrid(
                                     .background(MaterialTheme.wireColorScheme.background)
                                     .fillMaxWidth()
                             )
-
                         }
                     }
 
                     null -> {}
                 }
-
             }
         }
     }

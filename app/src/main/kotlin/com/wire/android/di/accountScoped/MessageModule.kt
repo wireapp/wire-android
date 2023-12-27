@@ -170,7 +170,9 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun GetPaginatedFlowOfImageAssetMessageByConversationId(messageScope: MessageScope): GetPaginatedFlowOfAssetImageMessageByConversationIdUseCase =
+    fun provideGetPaginatedFlowOfImageAssetMessageByConversationId(
+        messageScope: MessageScope
+    ): GetPaginatedFlowOfAssetImageMessageByConversationIdUseCase =
         messageScope.getPaginatedFlowOfImageAssetMessageByConversationId
 
     @ViewModelScoped

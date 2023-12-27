@@ -30,7 +30,7 @@ fun LegalHoldSubjectProfileDialog(
 ) {
     LegalHoldSubjectBaseDialog(
         name = userName,
-        isConversation = false,
+        withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_close),
         dialogDismissed = dialogDismissed)
 }

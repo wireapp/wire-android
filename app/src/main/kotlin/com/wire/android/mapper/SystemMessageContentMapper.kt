@@ -70,6 +70,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationVerifiedProteus -> mapConversationVerified(Conversation.Protocol.PROTEUS)
         is MessageContent.FederationStopped -> mapFederationMessage(content)
         is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
+        is MessageContent.ConversationProtocolChangedDuringACall -> mapConversationProtocolChangedDuringACall()
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
         MessageContent.ConversationProtocolChangedDuringACall -> TODO()
@@ -119,9 +120,11 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapConversationProtocolChanged(
         content: MessageContent.ConversationProtocolChanged
-    ): UIMessageContent.SystemMessage {
-        return UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
-    }
+    ): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
+
+    private fun mapConversationProtocolChangedDuringACall(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationProtocolChangedWithCallOngoing
 
     private fun mapResetSession(
         senderUserId: UserId,

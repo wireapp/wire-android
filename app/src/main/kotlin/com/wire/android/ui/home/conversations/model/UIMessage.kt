@@ -457,17 +457,23 @@ sealed class UIMessageContent {
 
         class MLSWrongEpochWarning : SystemMessage(
             iconResId = R.drawable.ic_info,
-            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled
+            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
+            learnMoreResId = R.string.label_system_message_learn_more_about_mls_link
         )
 
         data class ConversationProtocolChanged(
             val protocol: Conversation.Protocol
         ) : SystemMessage(
-            R.drawable.ic_info,
-            when (protocol) {
+            iconResId = R.drawable.ic_info,
+            stringResId = when (protocol) {
                 Conversation.Protocol.PROTEUS -> R.string.label_system_message_conversation_protocol_changed_proteus
                 Conversation.Protocol.MIXED -> R.string.label_system_message_conversation_protocol_changed_mixed
                 Conversation.Protocol.MLS -> R.string.label_system_message_conversation_protocol_changed_mls
+            },
+            learnMoreResId = when (protocol) {
+                Conversation.Protocol.PROTEUS -> null
+                Conversation.Protocol.MIXED -> null
+                Conversation.Protocol.MLS -> R.string.label_system_message_learn_more_about_mls_link
             }
         )
         data object ConversationProtocolChangedWithCallOngoing : SystemMessage(

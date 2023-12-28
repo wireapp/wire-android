@@ -32,8 +32,8 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
@@ -96,7 +96,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var observeClientList: ObserveClientsByUserIdUseCase
 
     @MockK
-    lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
+    lateinit var fetchUsersClientsFromRemote: FetchUsersClientsFromRemoteUseCase
 
     @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
@@ -118,7 +118,7 @@ internal class OtherUserProfileViewModelArrangement {
             removeMemberFromConversationUseCase,
             updateConversationMemberRoleUseCase,
             observeClientList,
-            persistOtherUserClientsUseCase,
+            fetchUsersClientsFromRemote,
             clearConversationContent,
             updateConversationArchivedStatus,
             savedStateHandle

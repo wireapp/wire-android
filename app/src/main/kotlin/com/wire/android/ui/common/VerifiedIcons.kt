@@ -19,12 +19,52 @@ package com.wire.android.ui.common
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.kalium.logic.data.conversation.Conversation
+
+@Composable
+fun RowScope.ConversationVerificationIcons(
+    protocolInfo: Conversation.ProtocolInfo?,
+    mlsVerificationStatus: Conversation.VerificationStatus?,
+    proteusVerificationStatus: Conversation.VerificationStatus?
+) {
+    val mlsIcon: @Composable () -> Unit = {
+        if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+            MLSVerifiedIcon(
+                contentDescriptionId = R.string.content_description_mls_certificate_valid,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .align(Alignment.CenterVertically)
+            )
+        }
+    }
+    val proteusIcon: @Composable () -> Unit = {
+        if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
+            ProteusVerifiedIcon(
+                contentDescriptionId = R.string.content_description_proteus_certificate_valid,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .align(Alignment.CenterVertically)
+            )
+        }
+    }
+
+    if (protocolInfo is Conversation.ProtocolInfo.Proteus) {
+        proteusIcon()
+        mlsIcon()
+    } else {
+        mlsIcon()
+        proteusIcon()
+    }
+}
 
 @Composable
 fun ProteusVerifiedIcon(

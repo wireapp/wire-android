@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
@@ -51,8 +52,11 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class OAuthUseCase(context: Context, private val authUrl: String) {
-    private var authState: AuthState = AuthState()
+class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: String?) {
+    private var authState: AuthState = oAuthState?.let {
+        AuthState.jsonDeserialize(it)
+    } ?: AuthState()
+
     private var authorizationService: AuthorizationService
     private lateinit var authServiceConfig: AuthorizationServiceConfiguration
 
@@ -96,6 +100,17 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
     private fun getAuthorizationRequestIntent(): Intent = authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest())
 
     fun launch(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
+        authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
+            if (exception != null) {
+                Log.e("OAuthTokenRefreshManager", "Error refreshing tokens, continue with login!", exception)
+                launchLoginFlow(activityResultRegistry, resultHandler)
+            } else {
+                resultHandler(OAuthResult.Success(idToken.toString(), authState.jsonSerializeString()))
+            }
+        }
+    }
+
+    private fun launchLoginFlow(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
         val resultLauncher = activityResultRegistry.register(
             OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -141,7 +156,12 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
                     if (response != null) {
                         authState.update(response, exception)
                         appLogger.i("OAuth idToken: ${response.idToken}")
-                        resultHandler(OAuthResult.Success(response.idToken.toString()))
+                        resultHandler(
+                            OAuthResult.Success(
+                                response.idToken.toString(),
+                                authState.jsonSerializeString()
+                            )
+                        )
                     } else {
                         resultHandler(OAuthResult.Failed.EmptyResponse)
                     }
@@ -152,7 +172,12 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
 
     private fun getAuthorizationRequest() = AuthorizationRequest.Builder(
         authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, URL_AUTH_REDIRECT
-    ).setCodeVerifier().setScopes(SCOPE_OPENID, SCOPE_EMAIL, SCOPE_PROFILE).build()
+    ).setCodeVerifier().setScopes(
+        AuthorizationRequest.Scope.OPENID,
+        AuthorizationRequest.Scope.EMAIL,
+        AuthorizationRequest.Scope.PROFILE,
+        AuthorizationRequest.Scope.OFFLINE_ACCESS
+    ).build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
         val codeVerifier = getCodeVerifier()
@@ -176,7 +201,7 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
     }
 
     sealed class OAuthResult {
-        data class Success(val idToken: String) : OAuthResult()
+        data class Success(val idToken: String, val authState: String) : OAuthResult()
         open class Failed(val reason: String) : OAuthResult() {
             object Unknown : Failed("Unknown")
             class InvalidActivityResult(reason: String) : Failed(reason)
@@ -186,10 +211,6 @@ class OAuthUseCase(context: Context, private val authUrl: String) {
 
     companion object {
         const val OAUTH_ACTIVITY_RESULT_KEY = "OAuthActivityResult"
-
-        const val SCOPE_PROFILE = "profile"
-        const val SCOPE_EMAIL = "email"
-        const val SCOPE_OPENID = "openid"
 
         // todo: clientId and the clientSecret will be replaced with the values from the BE once the BE provides them
         const val CLIENT_ID = "wireapp"

@@ -50,6 +50,9 @@ sealed class InvalidLinkDialogState {
 }
 
 sealed class SureAboutMessagingDialogState {
-    object None : SureAboutMessagingDialogState()
-    data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : SureAboutMessagingDialogState()
+    data object Hidden : SureAboutMessagingDialogState()
+    sealed class Visible(open val messageBundleToSend: MessageBundle) : SureAboutMessagingDialogState() {
+        data class ConversationVerificationDegraded(override val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend)
+        data class ConversationUnderLegalHold(override val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend)
+    }
 }

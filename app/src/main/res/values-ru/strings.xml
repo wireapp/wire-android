@@ -175,6 +175,7 @@
     <string name="content_description_mls_certificate_valid">Все устройства всех участников имеют действующий сертификат MLS</string>
     <string name="content_description_proteus_certificate_valid">Все участники верифицированы (Proteus)</string>
     <string name="content_description_jump_to_last_message">Прокрутка вниз к последнему сообщению, кнопка</string>
+    <string name="content_description_location_icon">Элемент местоположения</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Хранилище</string>
@@ -365,7 +366,7 @@
     <string name="create_account_username_label">ПСЕВДОНИМ</string>
     <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
     <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
-    <string name="create_account_username_description">Минимум 2 символа. Только a–z, 0–9, “_”, “-” и “.”</string>
+    <string name="create_account_username_description">Минимум 2 символа. Только a-z, 0-9, “_”, “-” и “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">ПРОПУЩЕННЫЕ ВЫЗОВЫ</string>
     <string name="calls_label_calls_history">ИСТОРИЯ ЗВОНКОВ</string>
@@ -504,11 +505,11 @@
     <string name="dialog_logout_wipe_data_title">Удалить данные?</string>
     <string name="dialog_logout_wipe_data_checkbox">Удалить всю личную информацию и беседы на этом устройстве</string>
     <!-- User Profile status dialog-->
-    <string name="user_profile_change_status_dialog_available_title">Установить статус \'Доступен\'</string>
+    <string name="user_profile_change_status_dialog_available_title">Установка статуса \'Доступен\'</string>
     <string name="user_profile_change_status_dialog_available_text">Для других пользователей будет отображаться статус \'Доступен\'. Вы будете получать уведомления о входящих вызовах и сообщениях в соответствии с настройками уведомлений в каждой беседе.</string>
-    <string name="user_profile_change_status_dialog_busy_title">Установить статус \'Занят\'</string>
+    <string name="user_profile_change_status_dialog_busy_title">Установка статуса \'Занят\'</string>
     <string name="user_profile_change_status_dialog_busy_text">Для других пользователей будет отображаться статус \'Занят\'. Вы будете получать уведомления только об упоминаниях, ответах и звонках в беседах, уведомления для которых не отключены.</string>
-    <string name="user_profile_change_status_dialog_away_title">Установить статус \'Отошел\'</string>
+    <string name="user_profile_change_status_dialog_away_title">Установка статуса \'Отошел\'</string>
     <string name="user_profile_change_status_dialog_away_text">Для других пользователей будет отображаться статус \'Отошел\'. Вы не будете получать уведомления о любых входящих звонках или сообщениях.</string>
     <string name="user_profile_change_status_dialog_none_title">Статус не установлен</string>
     <string name="user_profile_change_status_dialog_none_text">Вы будете получать уведомления о входящих вызовах и сообщениях в соответствии с настройками уведомлений в каждой беседе.</string>
@@ -581,7 +582,12 @@
     </plurals>
     <string name="label_system_message_blocked_user">%1$s заблокировал(-а) этого пользователя</string>
     <string name="label_system_message_renamed_the_conversation">%1$s переименовал эту беседу\n%2$s</string>
-    <string name="label_system_message_team_member_left">%1$s был(-а) удален(-а) из команды</string>
+    <plurals name="label_system_message_team_member_left">
+        <item quantity="one">%1$s был(-а) удален(-а) из команды</item>
+        <item quantity="few">%1$s были удалены из команды</item>
+        <item quantity="many">%1$s были удалены из команды</item>
+        <item quantity="other">%1$s были удалены из команды</item>
+    </plurals>
     <string name="label_system_message_user_not_available">Этот пользователь больше не доступен</string>
     <string name="label_system_message_new_conversation_receipt_mode">Отчеты о прочтении %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s включил отчеты о прочтении %2$s для всех</string>
@@ -596,6 +602,7 @@
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Групповой ключ MLS был обновлен без предварительного уведомления. Это могло произойти из-за потери сообщений между бэкэндами или из-за ошибки. Мы автоматически повторно подключились к беседе, но сообщения могли быть потеряны.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Вы не обновили свое приложение вовремя. Некоторые сообщения могут не отображаться.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Миграция протокола шифрования была отменена.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">При переходе на MLS могут возникнуть проблемы с текущим вызовом. В этом случае прервите разговор и позвоните снова.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Началась миграция протокола шифрования. Убедитесь, что все ваши клиенты Wire обновлены.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Миграция протокола шифрования завершена. Клиенты Wire, которые не были обновлены, перестанут получать сообщения.</string>
     <string name="label_system_message_receipt_mode_on">вкл</string>
@@ -606,8 +613,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не верифицируется, так как кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
+    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
+    <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Общение в Wire всегда ведется с использованием сквозного шифрования. Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам группы.\n**Пожалуйста, будьте осторожны с теми, кому вы сообщаете конфиденциальную информацию.**</string>
@@ -639,6 +646,12 @@
         <item quantity="many">Вы удалили из беседы %1$d пользователей</item>
         <item quantity="other">Вы удалили из беседы %1$d пользователя</item>
     </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 пользователь был удален из команды</item>
+        <item quantity="few">%1$d пользователя были удалены из команды</item>
+        <item quantity="many">%1$d пользователей были удалены из команды</item>
+        <item quantity="other">%1$d пользователя были удалены из команды</item>
+    </plurals>
     <string name="last_message_other_removed_only_self_user">Вы были удалены из беседы</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">Вы и еще 1 пользователь были удалены из беседы</item>
@@ -648,8 +661,8 @@
     </plurals>
     <plurals name="last_message_other_removed_other_users">
         <item quantity="one">1 пользователь был удален из беседы</item>
-        <item quantity="few">%1$d пользователя был удалены из беседы</item>
-        <item quantity="many">%1$d пользователей был удалены из беседы</item>
+        <item quantity="few">%1$d пользователя были удалены из беседы</item>
+        <item quantity="many">%1$d пользователей были удалены из беседы</item>
         <item quantity="other">%1$d пользователя были удалены из беседы</item>
     </plurals>
     <string name="last_message_self_user_shared_asset">поделились файлом.</string>
@@ -660,6 +673,8 @@
     <string name="last_message_other_user_shared_video">поделился(-лась) видео.</string>
     <string name="last_message_self_user_shared_audio">поделились аудиосообщением.</string>
     <string name="last_message_other_user_shared_audio">поделился(-лась) аудиосообщением.</string>
+    <string name="last_message_self_user_shared_location">поделились местоположением.</string>
+    <string name="last_message_other_user_shared_location">поделился(-лась) местоположением.</string>
     <string name="last_message_self_user_knock">отправил(-а) пинг.</string>
     <string name="last_message_other_user_knock">отправил(-а) пинг.</string>
     <string name="last_message_call">звонил(-а).</string>
@@ -721,6 +736,11 @@
     <string name="label_search_messages_empty_title">Поиск всех сообщений в этой беседе.</string>
     <string name="label_search_messages_no_results">Ничего не найдено.\nПожалуйста, уточните свой поиск и попробуйте еще раз.</string>
     <string name="label_search_button">Поиск</string>
+    <!-- Conversation Media -->
+    <string name="label_conversation_media">Медиа</string>
+    <string name="label_conversation_pictures">Изображения</string>
+    <string name="label_conversation_files">Файлы</string>
+    <string name="label_conversation_links">Ссылки</string>
     <!-- Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>
@@ -780,6 +800,7 @@
     <string name="phone_label">Телефон</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Поделился(-лась) изображением</string>
+    <string name="notification_shared_location">Поделился(-лась) местоположением</string>
     <string name="notification_shared_file">Поделился(-лась) файлом</string>
     <string name="notification_reacted">Добавлена реакция</string>
     <string name="notification_missed_call">Пропущенный вызов</string>
@@ -971,10 +992,11 @@
     <string name="team_app_lock_enabled">Блокировка приложения теперь обязательна. Wire блокируется спустя определенное время бездействия. Для разблокировки приложения необходимо ввести код доступа или использовать биометрическую аутентификацию.</string>
     <string name="team_app_lock_disabled">Блокировка приложений больше не является обязательной. Wire больше не будет блокироваться после определенного времени бездействия.</string>
     <string name="settings_forgot_lock_screen_title">Забыли код доступа к приложению?</string>
-    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа. Если вы забыли свой код доступа, вы можете сбросить настройки этого клиента.</string>
-    <string name="settings_forgot_lock_screen_warning">При сбросе настроек вашего устройства все локальные данные и сообщения этого аккаунта будут удалены навсегда.</string>
+    <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа приложения. Если вы забудете свой код доступа, вы можете удалить это устройство.</string>
+    <string name="settings_forgot_lock_screen_warning">При удалении устройства вы навсегда теряете все локальные данные и сообщения всех аккаунтов на этом устройстве.</string>
     <string name="settings_forgot_lock_screen_reset_device">Удалить устройство</string>
-    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль для аккаунта %s, чтобы подтвердить, что вы хотите удалить все данные на этом устройстве. После удаления этого устройства можно будет снова авторизоваться с помощью ваших учетных данных.</string>
+    <string name="settings_forgot_lock_screen_reset_device_description">Введите пароль от аккаунта %s для подтверждения удаления всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Подтвердите удаление всех данных для всех аккаунтов на этом устройстве. После удаления устройства вы cможете авторизоваться с использованием своих учетных данных.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Пожалуйста, подождите...</string>
     <!--Devices -->
     <string name="devices_title">Ваши устройства</string>
@@ -985,8 +1007,18 @@
     <string name="unblock_user_dialog_body">%1$s сможет связаться с вами или добавить вас в групповую беседу. Вы сможете получить доступ к беседе с ним в формате 1:1.</string>
     <string name="unblock_user_dialog_confirm_button">Разблокировать</string>
     <!--max account reached dialog-->
-    <string name="max_account_reached_dialog_title">Активны три аккаунта</string>
-    <string name="max_account_reached_dialog_message">Одновременно можно авторизоваться не более чем в трех аккаунтах. Выйдите из одного для добавления другого.</string>
+    <plurals name="max_account_reached_dialog_title">
+        <item quantity="one">активен один аккаунт</item>
+        <item quantity="few">активно %1$d аккаунта</item>
+        <item quantity="many">активно %1$d аккаунтов</item>
+        <item quantity="other">активно %1$d аккаунта</item>
+    </plurals>
+    <plurals name="max_account_reached_dialog_message">
+        <item quantity="one">Одновременно можно авторизоваться только в одном аккаунте. Выйдите, чтобы добавить другой.</item>
+        <item quantity="few">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
+        <item quantity="many">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
+        <item quantity="other">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
+    </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>
@@ -998,6 +1030,7 @@
     <string name="label_delete_logs">Удалить все журналы</string>
     <string name="label_restart_slowsync_for_recovery">Перезапустить медленную синхронизацию</string>
     <string name="restart_slowsync_for_recovery_button">Перезапуск</string>
+    <string name="label_get_e2ei_cetificate">Получить E2EI сертификат</string>
     <string name="label_mls_option_title">Опции MLS</string>
     <string name="label_enable_logging">Включить журналирование</string>
     <string name="label_proteus_option_title">Настройки Proteus</string>
@@ -1265,6 +1298,7 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Сертификат обновлен</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Сертификат обновлен, а устройство верифицировано.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
+    <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
@@ -1279,7 +1313,7 @@
     <string name="record_audio_max_file_size_reached_text">Размер файла аудиосообщения ограничен %1$d МБ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Записать аудиосообщение во время звонка невозможно.</string>
     <string name="call_permission_dialog_title">Разрешения приложения</string>
-    <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону и поиск соседних устройств в настройках устройства.</string>
+    <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону в настройках устройства.</string>
     <string name="label_not_now">Не сейчас</string>
     <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>
     <string name="join_conversation_dialog_password_label">Пароль беседы</string>
@@ -1312,4 +1346,38 @@
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Сертификат скопирован в буфер обмена</string>
     <string name="call_ended_because_of_verification_title">Беседа больше не является верифицированной</string>
     <string name="call_ended_because_of_verification_message">Вызов был прерван, поскольку как минимум один из участников больше не является верифицированным контактом.</string>
+    <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Запрошены юридические ограничения</string>
+    <string name="legal_hold_requested_dialog_description_device">Все последующие сообщения будут записываться устройством с отпечатком:</string>
+    <string name="legal_hold_requested_dialog_description_includes">К ним относятся удаленные, отредактированные и самоудаляющиеся сообщения во всех беседах.</string>
+    <string name="legal_hold_requested_dialog_enter_password">Введите пароль для подтверждения.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Принять</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Не сейчас</string>
+    <string name="legal_hold_learn_more_button">Подробнее о юридических ограничениях</string>
+    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
+    <string name="legal_hold_deactivated_dialog_title">Юридические ограничения деактивированы</string>
+    <string name="legal_hold_deactivated_dialog_description">Будущие сообщения записываться не будут.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничением</string>
+    <string name="legal_hold_subject_dialog_description">Все сообщения, изображения и документы будут сохранены для последующего доступа. Сюда входят удаленные, отредактированные и самоудаляющиеся сообщения.</string>
+    <string name="legal_hold_subject_dialog_description_group">По крайней мере, один из участников этой беседы находится под юридическим ограничением.</string>
+    <string name="legal_hold_subject_dialog_description_message">Вы все еще хотите отправить ваше сообщение?</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Отправить в любом случае</string>
+    <string name="legal_hold_subject_to">Субъект - %1$s.</string>
+    <string name="legal_hold_label">юридические ограничения</string>
+    <string name="legal_hold_is_active_label">Юридические ограничения активны</string>
+    <string name="legal_hold_is_pending_label">Юридические ограничения ожидаются</string>
+    <string name="legal_hold_system_message_enabled_self">Теперь вы находитесь под юридическим ограничением.</string>
+    <string name="legal_hold_system_message_enabled_others">Юридическае ограничения активированы для %1$s.</string>
+    <string name="legal_hold_system_message_disabled_self">Вы больше не находитесь под юридическим ограничением.</string>
+    <string name="legal_hold_system_message_disabled_others">Юридическае ограничения деактивированы для %1$s.</string>
+    <string name="legal_hold_system_message_disabled_conversation">Для этой беседы больше не действует юридическое ограничение.</string>
+    <string name="legal_hold_system_message_enabled_conversation">Для этой беседы действует юридическое ограничение.</string>
+    <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">Беседа больше не является верифицированной</string>
+    <string name="sure_about_messaging_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите отправить сообщение?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Отправить в любом случае</string>
+    <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">Беседа больше не является верифицированной</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите позвонить?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Все равно позвонить</string>
 </resources>

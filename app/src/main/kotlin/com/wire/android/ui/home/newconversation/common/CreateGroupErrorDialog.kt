@@ -74,7 +74,7 @@ fun CreateGroupErrorDialog(
                 }
                 addStringAnnotation(
                     tag = MarkdownConstants.TAG_URL,
-                    annotation = stringResource(id = R.string.url_support),
+                    annotation = stringResource(id = R.string.url_message_details_offline_backends_learn_more),
                     start = description.length + 1,
                     end = description.length + 1 + learnMore.length
                 )

@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -88,6 +89,10 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
 
     @MockK
     lateinit var observeConversationMembersUseCase: ObserveConversationMembersUseCase
+
+    @MockK
+    lateinit var getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase
+
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
     private val uIParticipantMapper by lazy { UIParticipantMapper(UserTypeMapper(), wireSessionImageLoader) }
@@ -95,6 +100,7 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
     private val useCase by lazy {
         ObserveParticipantsForConversationUseCase(
             observeConversationMembersUseCase,
+            getMembersE2EICertificateStatuses,
             uIParticipantMapper,
             dispatchers = TestDispatcherProvider()
         )
@@ -105,6 +111,7 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         // Default empty values
         coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
+        coEvery { getMembersE2EICertificateStatuses(any()) } returns mapOf()
     }
 
     suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): ObserveParticipantsForConversationUseCaseArrangement {

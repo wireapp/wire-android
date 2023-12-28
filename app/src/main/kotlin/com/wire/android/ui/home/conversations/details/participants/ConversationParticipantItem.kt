@@ -36,6 +36,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
@@ -97,6 +98,7 @@ fun ConversationParticipantItem(
                     isDeleted = uiParticipant.isDeleted
                 )
 
+                if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
                 if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     uiParticipant.supportedProtocolList.map {
@@ -146,6 +148,7 @@ fun PreviewGroupConversationParticipantItem() {
             false,
             UserAvatarData(),
             Membership.Guest,
+            isMLSVerified = true,
             isProteusVerified = true,
             supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)),
         clickable = Clickable(enabled = true) {}

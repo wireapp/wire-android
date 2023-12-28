@@ -56,6 +56,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
@@ -91,6 +92,7 @@ fun UserProfileInfo(
     connection: ConnectionState = ConnectionState.ACCEPTED,
     delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
     isProteusVerified: Boolean = false,
+    isMLSVerified: Boolean = false,
     onSearchConversationMessagesClick: () -> Unit = {},
     onConversationMediaClick: () -> Unit = {},
     shouldShowSearchButton: Boolean = false
@@ -183,6 +185,7 @@ fun UserProfileInfo(
                         else MaterialTheme.wireColorScheme.labelText
                     )
 
+                    if (isMLSVerified) MLSVerifiedIcon()
                     if (isProteusVerified) ProteusVerifiedIcon()
                 }
                 Text(
@@ -282,6 +285,7 @@ fun PreviewUserProfileInfo() {
         onUserProfileClick = {},
         teamName = "Wire",
         connection = ConnectionState.ACCEPTED,
-        isProteusVerified = true
+        isProteusVerified = true,
+        isMLSVerified = true
     )
 }

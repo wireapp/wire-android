@@ -404,6 +404,7 @@ private fun TopBarCollapsing(
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
             connection = targetState.connectionState,
             isProteusVerified = targetState.isProteusVerified,
+            isMLSVerified = targetState.isMLSVerified,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
             shouldShowSearchButton = state.shouldShowSearchButton(),
             onConversationMediaClick = onConversationMediaClick

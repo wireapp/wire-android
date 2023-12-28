@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -37,6 +38,7 @@ import javax.inject.Inject
 
 class ObserveParticipantsForConversationUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase,
     private val uiParticipantMapper: UIParticipantMapper,
     private val dispatchers: DispatcherProvider
 ) {
@@ -53,9 +55,12 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
             .map { sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
                 val allParticipants = sortedMemberList.getOrDefault(false, listOf())
+                val mlsVerificationMap = getMembersE2EICertificateStatuses(conversationId)
                 ConversationParticipantsData(
-                    admins = allAdminsWithoutServices.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
-                    participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
+                    admins = allAdminsWithoutServices.limit(limit)
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
+                    participants = allParticipants.limit(limit)
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser }

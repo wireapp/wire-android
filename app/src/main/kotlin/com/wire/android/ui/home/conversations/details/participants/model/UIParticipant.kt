@@ -43,5 +43,6 @@ data class UIParticipant(
     val botService: BotService? = null,
     val isDefederated: Boolean = false,
     val isProteusVerified: Boolean = false,
+    val isMLSVerified: Boolean = false,
     val supportedProtocolList: List<SupportedProtocol> = listOf()
 )

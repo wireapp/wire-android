@@ -28,77 +28,61 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.toImageAssetGroupedByMonthAndYear
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
+import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.util.map.forEachIndexed
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
 
 @Composable
 fun ImageAssetsContent(
-    groupedImageMessageList: List<UIAssetMessage>,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+    imageMessageList: Flow<PagingData<UIImageAssetPagingItem>>,
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit
 ) {
-    if (groupedImageMessageList.isEmpty()) {
-        EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_pictures_empty)
+
+    val lazyPagingMessages = imageMessageList.collectAsLazyPagingItems()
+
+    if (lazyPagingMessages.itemCount > 0) {
+        ImageAssetGrid(
+            uiAssetMessageList = lazyPagingMessages,
+            onImageFullScreenMode = onImageFullScreenMode
         )
     } else {
-        ImageAssetGrid(
-            uiAssetMessageList = groupedImageMessageList,
-            onImageFullScreenMode = onImageFullScreenMode,
-            continueAssetLoading = continueAssetLoading
+        EmptyMediaContentScreen(
+            text = stringResource(R.string.label_conversation_pictures_empty)
         )
     }
 }
 
 @Composable
 private fun ImageAssetGrid(
-    uiAssetMessageList: List<UIAssetMessage>,
+    uiAssetMessageList: LazyPagingItems<UIImageAssetPagingItem>,
     modifier: Modifier = Modifier,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit
 ) {
-    val timeZone = remember { TimeZone.currentSystemDefault() }
-    val groupedAssets: Map<String, List<UIAssetMessage>> = remember(uiAssetMessageList) {
-        uiAssetMessageList.toImageAssetGroupedByMonthAndYear(timeZone = timeZone)
-    }
-
-    val scrollState = rememberLazyGridState()
-    val shouldContinue by remember {
-        derivedStateOf {
-            !scrollState.canScrollForward
-        }
-    }
-
-    // act when end of list reached
-    LaunchedEffect(shouldContinue) {
-        continueAssetLoading(shouldContinue)
-    }
-
     BoxWithConstraints(
         modifier
             .fillMaxSize()
@@ -113,64 +97,79 @@ private fun ImageAssetGrid(
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(COLUMN_COUNT),
-            state = scrollState,
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
         ) {
-            groupedAssets.forEachIndexed { index, entry ->
-                val label = entry.key
-                item(
-                    key = entry.key,
-                    span = { GridItemSpan(COLUMN_COUNT) }) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                bottom = dimensions().spacing6x,
-                                // first label should not have top padding
-                                top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
-                            )
-                    ) {
-                        FolderHeader(
-                            name = label.uppercase(),
-                            modifier = Modifier
-                                .background(MaterialTheme.wireColorScheme.background)
-                                .fillMaxWidth()
-                        )
+            items(
+                count = uiAssetMessageList.itemCount,
+                key = {
+                    when (val item = uiAssetMessageList[it]) {
+                        is UIImageAssetPagingItem.Asset -> item.uiAssetMessage.assetId
+                        is UIImageAssetPagingItem.Label -> item.date
+                        null -> "$it"
+                    }
+                },
+                contentType = uiAssetMessageList.itemContentType { it },
+                span = { index ->
+                    when (uiAssetMessageList[index]) {
+                        is UIImageAssetPagingItem.Asset -> GridItemSpan(1)
+                        is UIImageAssetPagingItem.Label -> GridItemSpan(COLUMN_COUNT)
+                        null -> GridItemSpan(1)
                     }
                 }
-
-                items(
-                    count = entry.value.size,
-                    key = { entry.value[it].assetId }
-                ) {
-                    val uiAsset = entry.value[it]
-                    val currentOnImageClick = remember(uiAsset) {
-                        Clickable(enabled = true, onClick = {
-                            onImageFullScreenMode(
-                                uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
+            ) { index ->
+                when (val uiImageAssetPagingItem = uiAssetMessageList[index]) {
+                    is UIImageAssetPagingItem.Asset -> {
+                        val uiAsset = uiImageAssetPagingItem.uiAssetMessage
+                        val currentOnImageClick = remember(uiAsset) {
+                            Clickable(enabled = true, onClick = {
+                                onImageFullScreenMode(
+                                    uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
+                                )
+                            })
+                        }
+                        Box(
+                            modifier = Modifier
+                                .padding(all = dimensions().spacing2x)
+                        ) {
+                            MediaAssetImage(
+                                asset = null,
+                                width = itemSize,
+                                height = itemSize,
+                                downloadStatus = uiAsset.downloadStatus,
+                                onImageClick = currentOnImageClick,
+                                assetPath = uiAsset.assetPath
                             )
-                        })
+                        }
                     }
-                    Box(
-                        modifier = Modifier
-                            .padding(all = dimensions().spacing2x)
-                    ) {
-                        MediaAssetImage(
-                            asset = null,
-                            width = itemSize,
-                            height = itemSize,
-                            downloadStatus = uiAsset.downloadStatus,
-                            onImageClick = currentOnImageClick,
-                            assetPath = uiAsset.assetPath
-                        )
+
+                    is UIImageAssetPagingItem.Label -> {
+                        val label = uiImageAssetPagingItem.date
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    bottom = dimensions().spacing6x,
+                                    // first label should not have top padding
+                                    top = if (index == 0) dimensions().spacing0x else dimensions().spacing6x,
+                                )
+                        ) {
+                            FolderHeader(
+                                name = label.uppercase(),
+                                modifier = Modifier
+                                    .background(MaterialTheme.wireColorScheme.background)
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
+
+                    null -> {}
                 }
             }
         }
     }
 }
 
-private const val COLUMN_COUNT = 4
+private const val COLUMN_COUNT = 3
 
 @PreviewMultipleThemes
 @Composable
@@ -197,13 +196,17 @@ fun previewAssetGrid() {
     )
     WireTheme {
         ImageAssetGrid(
-            uiAssetMessageList = listOf(
-                message1,
-                message2,
-                message3
-            ),
-            onImageFullScreenMode = { _, _, _ -> },
-            continueAssetLoading = { }
+            uiAssetMessageList = flowOf(
+                PagingData.from(
+                    listOf(
+                        UIImageAssetPagingItem.Label("October"),
+                        UIImageAssetPagingItem.Asset(message1),
+                        UIImageAssetPagingItem.Asset(message2),
+                        UIImageAssetPagingItem.Asset(message3),
+                    )
+                )
+            ).collectAsLazyPagingItems(),
+            onImageFullScreenMode = { _, _, _ -> }
         )
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -198,21 +199,27 @@ private fun WireDialogContent(
                 }
             }
             text?.let {
-                ClickableText(
-                    text = text,
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(
-                        top = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                        bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                    ),
-                    onClick = { offset ->
-                        text.getStringAnnotations(
-                            tag = MarkdownConstants.TAG_URL,
-                            start = offset,
-                            end = offset,
-                        ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                LazyColumn(modifier = Modifier
+                    .weight(1f, fill = false)
+                    .fillMaxWidth()) {
+                    item {
+                        ClickableText(
+                            text = text,
+                            style = MaterialTheme.wireTypography.body01,
+                            modifier = Modifier.padding(
+                                top = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                                bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                            ),
+                            onClick = { offset ->
+                                text.getStringAnnotations(
+                                    tag = MarkdownConstants.TAG_URL,
+                                    start = offset,
+                                    end = offset,
+                                ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                            }
+                        )
                     }
-                )
+                }
             }
             content?.let {
                 Box {

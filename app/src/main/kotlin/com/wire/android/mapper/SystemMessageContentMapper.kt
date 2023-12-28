@@ -73,7 +73,6 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationProtocolChangedDuringACall -> mapConversationProtocolChangedDuringACall()
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
-        MessageContent.ConversationProtocolChangedDuringACall -> TODO()
     }
 
     private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {

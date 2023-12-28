@@ -26,7 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
-import com.wire.android.ui.home.conversations.usecase.GetImageAssetMessagesFromConversationUseCase
+import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +37,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationAssetMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val getImageMessages: GetImageAssetMessagesFromConversationUseCase,
+    private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 

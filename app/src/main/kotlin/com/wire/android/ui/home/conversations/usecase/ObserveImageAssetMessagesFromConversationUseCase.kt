@@ -25,20 +25,21 @@ import com.wire.android.mapper.UIAssetMapper
 import com.wire.android.ui.common.monthYearHeader
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.time.TimeZoneProvider
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetImageMessageByConversationIdUseCase
+import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 import kotlin.math.max
 
-class GetImageAssetMessagesFromConversationUseCase @Inject constructor(
-    private val getAssetMessages: GetPaginatedFlowOfAssetImageMessageByConversationIdUseCase,
+class ObserveImageAssetMessagesFromConversationUseCase @Inject constructor(
+    private val getAssetMessages: ObservePaginatedAssetImageMessages,
     private val assetMapper: UIAssetMapper,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val timeZoneProvider: TimeZoneProvider
 ) {
 
     /**
@@ -62,8 +63,8 @@ class GetImageAssetMessagesFromConversationUseCase @Inject constructor(
             startingOffset = max(0, initialOffset - PREFETCH_DISTANCE).toLong(),
             pagingConfig = pagingConfig
         ).map { pagingData ->
-            val currentTime = TimeZone.currentSystemDefault()
-            val uiMessagePagingData: PagingData<UIImageAssetPagingItem> = pagingData.map { assetMessage ->
+            val currentTime = timeZoneProvider.currentSystemDefault()
+            pagingData.map { assetMessage ->
                 UIImageAssetPagingItem.Asset(assetMapper.toUIAsset(assetMessage))
             }.insertSeparators { before: UIImageAssetPagingItem.Asset?, after: UIImageAssetPagingItem.Asset? ->
                 if (before == null && after != null) {
@@ -84,7 +85,6 @@ class GetImageAssetMessagesFromConversationUseCase @Inject constructor(
                     null
                 }
             }
-            uiMessagePagingData
         }.flowOn(dispatchers.io())
     }
 

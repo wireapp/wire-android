@@ -23,7 +23,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetImageMessageByConversationIdUseCase
+import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
@@ -45,7 +45,7 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
-import com.wire.kalium.logic.feature.message.getPaginatedFlowOfImageAssetMessageByConversationId
+import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -172,8 +172,8 @@ class MessageModule {
     @Provides
     fun provideGetPaginatedFlowOfImageAssetMessageByConversationId(
         messageScope: MessageScope
-    ): GetPaginatedFlowOfAssetImageMessageByConversationIdUseCase =
-        messageScope.getPaginatedFlowOfImageAssetMessageByConversationId
+    ): ObservePaginatedAssetImageMessages =
+        messageScope.observePaginatedImageAssetMessageByConversationId
 
     @ViewModelScoped
     @Provides

@@ -14,21 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util.time
 
-package com.wire.android.ui.home.conversations.media
+import kotlinx.datetime.TimeZone
+import javax.inject.Inject
 
-import androidx.compose.runtime.Stable
-import androidx.paging.PagingData
-import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
-import com.wire.android.ui.home.conversations.usecase.UIPagingItem
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-
-@Stable
-data class ConversationAssetMessagesViewState(
-    val imageMessages: Flow<PagingData<UIImageAssetPagingItem>> = emptyFlow(),
-    val assetMessages: Flow<PagingData<UIPagingItem>> = emptyFlow()
-)
+class TimeZoneProvider @Inject constructor() {
+    fun currentSystemDefault(): TimeZone = TimeZone.currentSystemDefault()
+}

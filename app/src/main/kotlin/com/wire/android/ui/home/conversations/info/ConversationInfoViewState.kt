@@ -38,6 +38,7 @@ data class ConversationInfoViewState(
     val protocolInfo: Conversation.ProtocolInfo? = null,
     val mlsVerificationStatus: Conversation.VerificationStatus? = null,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,
+    val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
 )
 
 sealed class ConversationDetailsData {

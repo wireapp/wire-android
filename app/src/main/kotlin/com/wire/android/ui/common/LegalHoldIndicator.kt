@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -31,7 +32,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun LegalHoldIndicator(modifier: Modifier = Modifier) {
+fun LegalHoldIndicator(modifier: Modifier = Modifier.size(dimensions().spacing12x)) {
     Icon(
         painter = painterResource(id = R.drawable.ic_legal_hold),
         contentDescription = null,

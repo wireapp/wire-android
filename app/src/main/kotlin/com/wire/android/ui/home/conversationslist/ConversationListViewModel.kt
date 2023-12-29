@@ -53,7 +53,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
-import com.wire.kalium.logic.data.user.LegalHoldStatus
+import com.wire.kalium.logic.data.conversation.Conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
@@ -547,7 +547,7 @@ private fun ConversationDetails.toConversationItem(
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 conversation.mutedStatus,
@@ -578,7 +578,7 @@ private fun ConversationDetails.toConversationItem(
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,

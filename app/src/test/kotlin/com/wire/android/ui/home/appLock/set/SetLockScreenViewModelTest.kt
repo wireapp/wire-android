@@ -26,7 +26,7 @@ import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -83,7 +83,7 @@ class SetLockScreenViewModelTest {
         private lateinit var markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 
         @MockK
-        private lateinit var isAppLockEditableUseCase: IsAppLockEditableUseCase
+        private lateinit var observeIsAppLockEditableUseCase: ObserveIsAppLockEditableUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -91,7 +91,7 @@ class SetLockScreenViewModelTest {
             coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
-            coEvery { isAppLockEditableUseCase() } returns true
+            coEvery { observeIsAppLockEditableUseCase() } returns flowOf(true)
         }
 
         fun withValidPassword() = apply {
@@ -103,7 +103,7 @@ class SetLockScreenViewModelTest {
         }
 
         fun withIsAppLockEditable(result: Boolean) = apply {
-            coEvery { isAppLockEditableUseCase() } returns result
+            coEvery { observeIsAppLockEditableUseCase() } returns flowOf(result)
         }
 
         private val viewModel = SetLockScreenViewModel(
@@ -111,7 +111,7 @@ class SetLockScreenViewModelTest {
             globalDataStore,
             TestDispatcherProvider(),
             observeAppLockConfig,
-            isAppLockEditableUseCase,
+            observeIsAppLockEditableUseCase,
             markTeamAppLockStatusAsNotified
         )
 

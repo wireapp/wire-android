@@ -54,5 +54,4 @@ object TestConversationDetails {
         unreadEventCount = emptyMap(),
         selfRole = Conversation.Member.Role.Member
     )
-
 }

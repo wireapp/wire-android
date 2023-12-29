@@ -49,7 +49,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -368,7 +367,6 @@ internal fun withMockConversationDetailsOneOnOne(
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
     },
-    legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
     lastMessage = null,
     unreadEventCount = emptyMap()
@@ -380,7 +378,6 @@ internal fun mockConversationDetailsGroup(
 ) = ConversationDetails.Group(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),
-    legalHoldStatus = mockk(),
     hasOngoingCall = false,
     lastMessage = null,
     isSelfUserCreator = true,

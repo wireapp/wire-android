@@ -47,6 +47,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -54,7 +55,9 @@ import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
@@ -75,6 +78,7 @@ import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletio
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -216,7 +220,8 @@ class MessageComposerViewModel @Inject constructor(
                 shouldInformAboutDegradedBeforeSendingMessage() ->
                     sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
                 shouldInformAboutUnderLegalHoldBeforeSendingMessage() ->
-                    sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold(messageBundle)
+                    sureAboutMessagingDialogState =
+                        SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle)
                 else -> sendMessage(messageBundle)
             }
         }
@@ -231,7 +236,7 @@ class MessageComposerViewModel @Inject constructor(
                         originalMessageId = originalMessageId,
                         text = newContent,
                         mentions = newMentions.map { it.intoMessageMention() },
-                    )
+                    ).handleLegalHoldFailureAfterSendingMessage()
                 }
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
@@ -256,7 +261,7 @@ class MessageComposerViewModel @Inject constructor(
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
-                    )
+                    ).handleLegalHoldFailureAfterSendingMessage()
                 }
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
@@ -335,7 +340,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
-                            )
+                            ).handleLegalHoldFailureAfterSendingMessage()
                         }
 
                         AttachmentType.VIDEO,
@@ -354,7 +359,7 @@ class MessageComposerViewModel @Inject constructor(
                                         dataPath = dataPath,
                                         mimeType = mimeType
                                     )
-                                )
+                                ).handleLegalHoldFailureAfterSendingMessage()
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -363,6 +368,19 @@ class MessageComposerViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage() = also {
+        if (this is LegalHoldEnabledForConversationFailure) {
+            sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(this.messageId)
+        }
+    }
+    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage() =
+        onFailure { it.handleLegalHoldFailureAfterSendingMessage() }
+    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage() = also {
+        if (it is ScheduleNewAssetMessageResult.Failure) {
+            it.coreFailure.handleLegalHoldFailureAfterSendingMessage()
         }
     }
 
@@ -481,7 +499,14 @@ class MessageComposerViewModel @Inject constructor(
         (sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible)?.let {
             viewModelScope.launch {
                 it.markAsNotified()
-                trySendMessage(it.messageBundleToSend)
+                when (it) {
+                    is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
+                        trySendMessage(it.messageBundleToSend)
+                    is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending ->
+                        trySendMessage(it.messageBundleToSend)
+                    is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending ->
+                        retrySendingMessage(it.messageId)
+                }
             }
         }
     }

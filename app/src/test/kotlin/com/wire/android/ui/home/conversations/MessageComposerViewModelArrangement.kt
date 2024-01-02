@@ -278,6 +278,16 @@ internal class MessageComposerViewModelArrangement {
             )
         } returns Either.Right(Unit)
     }
+    fun withFailedSendTextMessage(failure: CoreFailure) = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Left(failure)
+    }
 
     fun withSuccessfulSendEditTextMessage() = apply {
         coEvery {
@@ -332,6 +342,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withObserveConversationUnderLegalHoldNotified(flag: Boolean) = apply {
         coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(flag)
+    }
+
+    fun withSuccessfulRetryFailedMessage() = apply {
+        coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
     }
 
     fun arrange() = this to viewModel

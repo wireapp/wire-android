@@ -25,12 +25,12 @@ import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
+import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
@@ -72,8 +72,8 @@ class ClientModule {
 
     @ViewModelScoped
     @Provides
-    fun providePersistOtherUsersClients(clientScope: ClientScope): PersistOtherUserClientsUseCase =
-        clientScope.persistOtherUserClients
+    fun provideFetchUsersClientsFromRemoteUseCase(clientScope: ClientScope): FetchUsersClientsFromRemoteUseCase =
+        clientScope.fetchUsersClients
 
     @ViewModelScoped
     @Provides
@@ -82,8 +82,8 @@ class ClientModule {
 
     @ViewModelScoped
     @Provides
-    fun provideSelfClientsUseCase(clientScope: ClientScope): FetchSelfClientsFromRemoteUseCase =
-        clientScope.selfClients
+    fun provideFetchSelfClientsFromRemoteUseCase(clientScope: ClientScope): FetchSelfClientsFromRemoteUseCase =
+        clientScope.fetchSelfClients
 
     @ViewModelScoped
     @Provides

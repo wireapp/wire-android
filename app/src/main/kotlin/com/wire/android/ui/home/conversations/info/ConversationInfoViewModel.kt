@@ -119,7 +119,8 @@ class ConversationInfoViewModel @Inject constructor(
             conversationType = conversationDetails.conversation.type,
             protocolInfo = conversationDetails.conversation.protocol,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
-            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus
+            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
         )
     }
 

@@ -181,7 +181,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 groupName = conversation.name.orEmpty(),
                 conversationId = conversation.id,
                 mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
                 badgeEventType = parseConversationEventType(
                     conversation.mutedStatus,
@@ -217,7 +217,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 ),
                 conversationId = conversation.id,
                 mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
                 badgeEventType = parsePrivateConversationEventType(
                     otherUser.connectionStatus,

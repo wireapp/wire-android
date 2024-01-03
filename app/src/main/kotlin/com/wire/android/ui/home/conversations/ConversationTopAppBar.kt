@@ -32,8 +32,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -115,15 +115,15 @@ private fun ConversationScreenTopAppBarContent(
     isInteractionEnabled: Boolean,
     isSearchEnabled: Boolean,
 ) {
-    SmallTopAppBar(
+    TopAppBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .fillMaxWidth()
                     // TopAppBar adds TopAppBarHorizontalPadding = 4.dp to each element, so we need to offset it to retain the desired
                     // spacing between navigation icon button and avatar according to the designs
                     .offset(x = -dimensions().spacing4x)
-                    .fillMaxWidth()
                     .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize))
                     .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled && isInteractionEnabled)
 

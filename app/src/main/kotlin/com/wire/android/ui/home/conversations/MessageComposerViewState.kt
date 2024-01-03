@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.id.MessageId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.time.Duration.Companion.ZERO
@@ -51,8 +52,11 @@ sealed class InvalidLinkDialogState {
 
 sealed class SureAboutMessagingDialogState {
     data object Hidden : SureAboutMessagingDialogState()
-    sealed class Visible(open val messageBundleToSend: MessageBundle) : SureAboutMessagingDialogState() {
-        data class ConversationVerificationDegraded(override val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend)
-        data class ConversationUnderLegalHold(override val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend)
+    sealed class Visible : SureAboutMessagingDialogState() {
+        data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : Visible()
+        sealed class ConversationUnderLegalHold : Visible() {
+            data class BeforeSending(val messageBundleToSend: MessageBundle) : ConversationUnderLegalHold()
+            data class AfterSending(val messageId: MessageId) : ConversationUnderLegalHold()
+        }
     }
 }

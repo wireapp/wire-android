@@ -55,8 +55,8 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -100,7 +100,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
-    private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    private val fetchUsersClients: FetchUsersClientsFromRemoteUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     savedStateHandle: SavedStateHandle
@@ -152,7 +152,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun persistClients() {
         viewModelScope.launch(dispatchers.io()) {
-            persistOtherUserClients(userId)
+            fetchUsersClients(listOf(userId))
         }
     }
 

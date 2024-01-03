@@ -591,12 +591,13 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
     <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">La chiave del gruppo MLS è stata aggiornata a nostra insaputa. Ciò potrebbe verificarsi a causa di messaggi perduti tra i backend, o di un bug. Ci siamo riuniti automaticamente alla conversazione, ma potresti aver perso dei messaggi.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">You haven’t updated this device for a while. In the meantime, the standard messaging protocol changed from Proteus to Messaging Layer Security (MLS). Due to this change, some messages may not appear here.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Non hai aggiornato la tua app in tempo. Alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migrazione del protocollo crittografico annullata.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migrazione del protocollo crittografico avviata. Assicurati che tutti i tuoi client di Wire siano aggiornati.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migrazione del protocollo crittografico completata. I client di Wire che non sono stati aggiornati smetteranno di ricevere messaggi.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">This conversation now uses the new Messaging Layer Security (MLS) protocol. To communicate seamlessly, always use the latest version of Wire on your devices.</string>
+    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
@@ -706,7 +707,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
     <string name="label_conversation_files">File</string>
-    <string name="label_conversation_links">Link</string>
+    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -1228,11 +1230,11 @@ registrato. Sei pregato di riprovare.</string>
     <string name="delete_acount_dialog_title">Elimina il profilo</string>
     <string name="delete_acount_dialog_text">Se continui, invieremo un messaggio via email. Segui il link per eliminare permanentemente il tuo profilo.</string>
     <string name="end_to_end_identity_required_dialog_title">Certificato d\'identità end-to-end</string>
-    <string name="end_to_end_identity_required_dialog_text">Ad oggi, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro e praticabile. La verifica del dispositivo si verifica automaticamente utilizzando un certificato e sostituisce il precedente processo manuale. Così, comunichi con lo standard di sicurezza più elevato.\n\nInserisci le credenziali del tuo fornitore d\'identità nel prossimo passaggio per ottenere automaticamente un certificato di convalida per questo dispositivo.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Il tuo team, ora, utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro. La verifica del dispositivo avviene automaticamente utilizzando un certificato.\n\nInserisci le credenziali del tuo fornitore d\'identità nel prossimo passaggio per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
+    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Ottieni il certificato</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Ricordamelo più tardi</string>
-    <string name="end_to_end_identity_snooze_dialog_text">Puoi ottenere il certificato nelle tue impostazioni di Wire durante il prossiimo %1$s. Apri Dispositivi e seleziona Ottieni certificato per il tuo dispositivo corrente.\nPer continuare a utilizzare Wire senza interruziioni, recuperalo in tempo: non ci vuole molto.</string>
+    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire Settings during the next %1$s.\nOpen Devices and select Get Certificate for your current device. </string>
     <string name="end_to_end_identity_renew_dialog_title">Aggiorna il certificato</string>
     <string name="end_to_end_identity_renew_dialog_text">Il certificato di identità end-to-end per questo dispositivo scadrà presto. Per mantenere sicura la tua comunicazione, aggiornalo ora.\n\nInserisci le credenziali del tuo forntore di identità nel prossimo passaggio per aggiornare il certificato automaticamente.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">Il certificato di identità end-to-end per questo dispositivo è scaduto.\n\nInserisci le credenziali del fornitore della tua identità nel prossimo passaggio per aggiornare automaticamente il certificato.</string>

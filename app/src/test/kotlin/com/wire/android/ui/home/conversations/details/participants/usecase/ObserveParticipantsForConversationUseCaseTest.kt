@@ -111,7 +111,7 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         // Default empty values
         coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
-        coEvery { getMembersE2EICertificateStatuses(any()) } returns mapOf()
+        coEvery { getMembersE2EICertificateStatuses(any(), any()) } returns mapOf()
     }
 
     suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): ObserveParticipantsForConversationUseCaseArrangement {

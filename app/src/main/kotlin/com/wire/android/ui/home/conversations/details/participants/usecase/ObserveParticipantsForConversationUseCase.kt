@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations.details.participants.usecase
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.ui.home.conversations.userId
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
@@ -53,12 +54,18 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
             }
             .map { sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
-                val allParticipants = sortedMemberList.getOrDefault(false, listOf())
-                val mlsVerificationMap = getMembersE2EICertificateStatuses(conversationId)
+                val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
+                val allParticipants = sortedMemberList.getOrDefault(false, listOf()).limit(limit)
+                val visibleParticipants = allParticipants.limit(limit)
+
+                val visibleUserIds = visibleParticipants.map { it.userId }
+                    .plus(visibleAdminsWithoutServices.map { it.userId })
+
+                val mlsVerificationMap = getMembersE2EICertificateStatuses(conversationId, visibleUserIds)
                 ConversationParticipantsData(
-                    admins = allAdminsWithoutServices.limit(limit)
+                    admins = visibleAdminsWithoutServices
                         .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
-                    participants = allParticipants.limit(limit)
+                    participants = visibleParticipants
                         .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,

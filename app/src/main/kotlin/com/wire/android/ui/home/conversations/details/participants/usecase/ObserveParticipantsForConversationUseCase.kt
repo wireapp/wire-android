@@ -51,7 +51,6 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     isAdmin && !isService
                 }
             }
-
             .map { sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
                 val allParticipants = sortedMemberList.getOrDefault(false, listOf())

@@ -145,8 +145,8 @@ dependencies {
     // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.fcm)
-
     implementation(libs.androidx.work)
+    implementation(libs.googleGms.location)
 
     // commonMark
     implementation(libs.commonmark.core)

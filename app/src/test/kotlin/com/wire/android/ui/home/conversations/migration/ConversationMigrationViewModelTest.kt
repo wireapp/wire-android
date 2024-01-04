@@ -25,7 +25,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -51,7 +50,6 @@ class ConversationMigrationViewModelTest {
                 ConversationDetails.OneOne(
                     conversation = TestConversation.ONE_ON_ONE,
                     otherUser = TestUser.OTHER_USER.copy(activeOneOnOneConversationId = conversationId),
-                    legalHoldStatus = LegalHoldStatus.ENABLED,
                     userType = UserType.NONE,
                     unreadEventCount = mapOf(),
                     lastMessage = null
@@ -70,7 +68,6 @@ class ConversationMigrationViewModelTest {
                 ConversationDetails.OneOne(
                     conversation = TestConversation.ONE_ON_ONE,
                     otherUser = TestUser.OTHER_USER.copy(activeOneOnOneConversationId = expectedActiveOneOnOneId),
-                    legalHoldStatus = LegalHoldStatus.ENABLED,
                     userType = UserType.NONE,
                     unreadEventCount = mapOf(),
                     lastMessage = null

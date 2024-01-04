@@ -83,14 +83,7 @@ class SetLockScreenViewModelTest {
         private lateinit var markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 
         @MockK
-<<<<<<< HEAD
-        private lateinit var isAppLockEditable: IsAppLockEditableUseCase
-
-        @MockK
-        private lateinit var isAppLockEditableUseCase: IsAppLockEditableUseCase
-=======
         private lateinit var observeIsAppLockEditableUseCase: ObserveIsAppLockEditableUseCase
->>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -98,11 +91,8 @@ class SetLockScreenViewModelTest {
             coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
-<<<<<<< HEAD
-            coEvery { isAppLockEditable() } returns true
-=======
+
             coEvery { observeIsAppLockEditableUseCase() } returns flowOf(true)
->>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
         }
 
         fun withValidPassword() = apply {
@@ -122,12 +112,7 @@ class SetLockScreenViewModelTest {
             globalDataStore,
             TestDispatcherProvider(),
             observeAppLockConfig,
-<<<<<<< HEAD
-            isAppLockEditable,
-            isAppLockEditableUseCase,
-=======
             observeIsAppLockEditableUseCase,
->>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
             markTeamAppLockStatusAsNotified
         )
 

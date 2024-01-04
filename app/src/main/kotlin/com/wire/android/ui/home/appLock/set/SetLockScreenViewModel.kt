@@ -43,12 +43,7 @@ class SetLockScreenViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
     private val observeAppLockConfig: ObserveAppLockConfigUseCase,
-<<<<<<< HEAD
-    private val isAppLockEditable: IsAppLockEditableUseCase,
-    private val isAppLockEditableUseCase: IsAppLockEditableUseCase,
-=======
     private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
->>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
@@ -91,11 +86,7 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore) {
-<<<<<<< HEAD
-                            val source = if (isAppLockEditableUseCase()) {
-=======
                             val source = if (state.isEditable) {
->>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
                                 AppLockSource.Manual
                             } else {
                                 AppLockSource.TeamEnforced

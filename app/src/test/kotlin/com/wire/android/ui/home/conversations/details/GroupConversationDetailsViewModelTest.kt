@@ -35,10 +35,10 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -52,7 +52,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -596,7 +595,6 @@ class GroupConversationDetailsViewModelTest {
                 proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                 legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
             ),
-            legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
             lastMessage = null,
             isSelfUserCreator = false,

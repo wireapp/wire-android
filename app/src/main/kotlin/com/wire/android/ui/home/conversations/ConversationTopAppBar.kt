@@ -24,6 +24,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,8 +32,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,12 +48,14 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.ConversationVerificationIcons
+import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
@@ -112,11 +115,12 @@ private fun ConversationScreenTopAppBarContent(
     isInteractionEnabled: Boolean,
     isSearchEnabled: Boolean,
 ) {
-    SmallTopAppBar(
+    TopAppBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .fillMaxWidth()
                     // TopAppBar adds TopAppBarHorizontalPadding = 4.dp to each element, so we need to offset it to retain the desired
                     // spacing between navigation icon button and avatar according to the designs
                     .offset(x = -dimensions().spacing4x)
@@ -138,6 +142,10 @@ private fun ConversationScreenTopAppBarContent(
                     conversationInfoViewState.mlsVerificationStatus,
                     conversationInfoViewState.proteusVerificationStatus
                 )
+                if (conversationInfoViewState.legalHoldStatus == Conversation.LegalHoldStatus.ENABLED) {
+                    HorizontalSpace.x4()
+                    LegalHoldIndicator()
+                }
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -371,6 +379,32 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
             mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
+        onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
+        isInteractionEnabled = true,
+        isSearchEnabled = false
+    )
+}
+
+@Preview("Topbar with a short conversation title and verified")
+@Composable
+fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
+    val conversationId = QualifiedID("", "")
+    ConversationScreenTopAppBarContent(
+        ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId),
+            protocolInfo = Conversation.ProtocolInfo.Proteus,
+            legalHoldStatus = Conversation.LegalHoldStatus.ENABLED,
         ),
         onBackButtonClick = {},
         onDropDownClick = {},

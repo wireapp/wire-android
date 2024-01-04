@@ -26,7 +26,7 @@ import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -83,10 +83,14 @@ class SetLockScreenViewModelTest {
         private lateinit var markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 
         @MockK
+<<<<<<< HEAD
         private lateinit var isAppLockEditable: IsAppLockEditableUseCase
 
         @MockK
         private lateinit var isAppLockEditableUseCase: IsAppLockEditableUseCase
+=======
+        private lateinit var observeIsAppLockEditableUseCase: ObserveIsAppLockEditableUseCase
+>>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -94,7 +98,11 @@ class SetLockScreenViewModelTest {
             coEvery { observeAppLockConfig() } returns flowOf(
                 AppLockConfig.Disabled(ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT)
             )
+<<<<<<< HEAD
             coEvery { isAppLockEditable() } returns true
+=======
+            coEvery { observeIsAppLockEditableUseCase() } returns flowOf(true)
+>>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
         }
 
         fun withValidPassword() = apply {
@@ -106,7 +114,7 @@ class SetLockScreenViewModelTest {
         }
 
         fun withIsAppLockEditable(result: Boolean) = apply {
-            coEvery { isAppLockEditableUseCase() } returns result
+            coEvery { observeIsAppLockEditableUseCase() } returns flowOf(result)
         }
 
         private val viewModel = SetLockScreenViewModel(
@@ -114,8 +122,12 @@ class SetLockScreenViewModelTest {
             globalDataStore,
             TestDispatcherProvider(),
             observeAppLockConfig,
+<<<<<<< HEAD
             isAppLockEditable,
             isAppLockEditableUseCase,
+=======
+            observeIsAppLockEditableUseCase,
+>>>>>>> b69889d3b (fix: applock toggle state when enforced and responding to changes [WPB-5751] (#2564))
             markTeamAppLockStatusAsNotified
         )
 

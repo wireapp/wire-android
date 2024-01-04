@@ -22,6 +22,7 @@ package com.wire.android.util.permission
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Geocoder
 import android.location.Location
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.location.LocationServices
+import com.wire.android.appLogger
 import com.wire.android.util.extension.checkPermission
 
 @Composable
@@ -82,9 +84,14 @@ private fun checkLocationPermissions(
 @SuppressLint("MissingPermission")
 private fun getCurrentLocation(onPermissionAllowed: (Location?) -> Unit, context: Context) {
     val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-    locationProvider.lastLocation.addOnSuccessListener {
+    locationProvider.lastLocation.addOnSuccessListener { location ->
         // todo(ym): for this to work we need to update the last known location with `locationProvider.requestLocationUpdates`
-        // todo(ym): we might ask for location permissions at the start ? also this needs to show a embedded map ui.
-        onPermissionAllowed(it)
+        // todo(ym): we might ask for location permissions at the start ?
+        onPermissionAllowed(location)
+
+        val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).orEmpty()
+        address.first()?.let {
+            appLogger.d("Location: ${it.featureName}, ${it.postalCode}, ${it.countryCode}")
+        }
     }
 }

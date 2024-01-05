@@ -6,16 +6,18 @@ import androidx.navigation.NavDestination
 import com.datadog.android.compose.ExperimentalTrackingApi
 import com.datadog.android.compose.NavigationViewTrackingEffect
 import com.datadog.android.rum.tracking.AcceptAllNavDestinations
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalTrackingApi::class)
+@OptIn(ExperimentalTrackingApi::class)
 @Composable
-fun rememberTrackingAnimatedNavController(nameFromRoute: (String) -> String?) = rememberAnimatedNavController().apply {
-    NavigationViewTrackingEffect(
-        navController = this,
-        trackArguments = true,
-        destinationPredicate = object : AcceptAllNavDestinations() {
-            override fun getViewName(component: NavDestination): String? = component.route?.let { nameFromRoute(it) }
-        }
-    )
-}
+fun rememberTrackingAnimatedNavController(nameFromRoute: (String) -> String?) =
+    rememberNavController().apply {
+        NavigationViewTrackingEffect(
+            navController = this,
+            trackArguments = true,
+            destinationPredicate = object : AcceptAllNavDestinations() {
+                override fun getViewName(component: NavDestination): String? =
+                    component.route?.let { nameFromRoute(it) }
+            }
+        )
+    }

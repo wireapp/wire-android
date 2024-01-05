@@ -120,7 +120,6 @@ dependencies {
     // Accompanist
     implementation(libs.accompanist.systemUI)
     implementation(libs.accompanist.placeholder)
-    implementation(libs.accompanist.navAnimation)
 
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)

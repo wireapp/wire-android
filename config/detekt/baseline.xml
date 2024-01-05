@@ -1,34 +1,16 @@
 <?xml version="1.0" ?>
-<!--
-  ~ Wire
-  ~ Copyright (C) 2024 Wire Swiss GmbH
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  -->
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CommentSpacing:com.wire.android.ui.common.AddContactButton.kt:49</ID>
-    <ID>CommentSpacing:com.wire.android.ui.home.conversationslist.common.RowItem.kt:39</ID>
-    <ID>CommentSpacing:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:42</ID>
-    <ID>CommentSpacing:com.wire.android.ui.home.newconversation.contacts.ContactsScreen.kt:109</ID>
+    <ID>CommentSpacing:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:40</ID>
+    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:47</ID>
+    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:48</ID>
     <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:49</ID>
     <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:50</ID>
-    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:51</ID>
-    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:52</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:25</ID>
+    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:23</ID>
+    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:26</ID>
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:28</ID>
+    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:29</ID>
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:30</ID>
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:31</ID>
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:32</ID>
@@ -42,210 +24,118 @@
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:40</ID>
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:41</ID>
     <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:42</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:43</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:44</ID>
-    <ID>MaximumLineLength:com.wire.android.feature.AccountSwitchUseCaseTest.kt:51</ID>
-    <ID>MaximumLineLength:com.wire.android.feature.AccountSwitchUseCaseTest.kt:77</ID>
-    <ID>MultiLineIfElse:MutingOptionsSheetContent.kt:67</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel.kt:186</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel.kt:188</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel.kt:76</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt:61</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.WireDialog.kt:181</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.WireDialog.kt:184</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.WireDialog.kt:187</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.WireDialog.kt:191</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.WireDialog.kt:195</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.WireDialog.kt:199</ID>
+    <ID>MultiLineIfElse:MutingOptionsSheetContent.kt:65</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt:59</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent.kt:75</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent.kt:77</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent.kt:79</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.BlockUserDialogs.kt:59</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.BlockUserDialogs.kt:61</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.BlockUserDialogs.kt:63</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.UnblockUserDialogs.kt:60</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.UnblockUserDialogs.kt:62</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.UnblockUserDialogs.kt:64</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog.kt:55</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog.kt:59</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog.kt:55</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog.kt:59</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog.kt:55</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog.kt:59</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants.kt:81</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants.kt:94</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.OtherUserConnectionStatusInfo.kt:56</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.OtherUserConnectionStatusInfo.kt:67</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.OtherUserProfileDetails.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.OtherUserProfileDetails.kt:65</ID>
+    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:59</ID>
     <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:61</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:63</ID>
-    <ID>MultiLineIfElse:com.wire.android.util.extension.LazyListScope.kt:70</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.datastore.UserDataStore.kt:87</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.di.LogWriterModule.kt:44</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.feature.AccountSwitchUseCaseTest.kt:142</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.feature.AccountSwitchUseCaseTest.kt:206</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.framework.FakeKaliumFileSystem.kt:110</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.framework.TestConversationDetails.kt:60</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.mapper.UserTypeMapper.kt:39</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.mapper.UserTypeMapperTest.kt:55</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.migration.feature.MigrateServerConfigUseCase.kt:79</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.authentication.create.common.CreateAccountBaseViewModel.kt:363</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState.kt:51</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel.kt:118</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.common.spacers.VerticalSpace.kt:55</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel.kt:105</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel.kt:107</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase.kt:46</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCaseTest.kt:154</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel.kt:37</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.details.participants.ConversationParticipantItem.kt:96</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:78</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:39</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.gallery.MediaGalleryViewModelTest.kt:297</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.newconversation.contacts.ContactsScreen.kt:111</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.settings.SettingsViewModel.kt:45</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.kt:151</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.kt:60</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:68</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState.kt:64</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.EmailComposer.kt:66</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.datastore.UserDataStore.kt:85</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.framework.FakeKaliumFileSystem.kt:108</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.mapper.UserTypeMapper.kt:37</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.mapper.UserTypeMapperTest.kt:53</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.migration.feature.MigrateServerConfigUseCase.kt:77</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState.kt:49</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.common.spacers.VerticalSpace.kt:53</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase.kt:44</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCaseTest.kt:152</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:76</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:37</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:66</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState.kt:62</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.EmailComposer.kt:64</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.ScreenStateObserverTest.kt:134</ID>
     <ID>NoBlankLineBeforeRbrace:com.wire.android.util.ScreenStateObserverTest.kt:136</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.ScreenStateObserverTest.kt:138</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.time.ISOFormatter.kt:36</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.di.CoroutineScope.kt:38</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.di.CoroutineScope.kt:55</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.di.LogWriterModule.kt:33</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.feature.AccountSwitchUseCaseTest.kt:102</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.feature.AccountSwitchUseCaseTest.kt:145</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.media.CallRinger.kt:84</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.migration.ScalaServerConfigDAOTest.kt:114</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.migration.ScalaServerConfigDAOTest.kt:124</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel.kt:167</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.authentication.welcome.WelcomeViewModel.kt:51</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.SurfaceBackgroundWrapper.kt:43</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog.kt:75</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.effects.LaunchedEffects.kt:30</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.textfield.WirePasswordTextField.kt:122</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.textfield.WireTextFieldDefaults.kt:138</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.topappbar.search.SearchTopBar.kt:23</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler.kt:47</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase.kt:53</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.info.ConversationInfoViewModelArrangement.kt:44</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.search.HighLightSubtTitle.kt:42</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:35</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar.kt:46</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.common.RowItem.kt:38</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.mention.MentionScreen.kt:109</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:61</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:68</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:73</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem.kt:28</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.search.SearchConversationScreen.kt:49</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.settings.appsettings.AppSettingsScreen.kt:54</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.settings.backup.BackUpAndRestoreStateHolder.kt:61</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.userprofile.other.OtherUserProfileDetails.kt:75</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.userprofile.self.model.OtherAccount.kt:26</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.util.ScreenStateObserver.kt:67</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.util.debug.FeatureVisibilityFlags.kt:61</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.ShakeAnimation.kt:47</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.ShakeAnimation.kt:48</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:100</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:101</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:102</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:103</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:104</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:107</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:108</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:109</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:110</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:111</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:117</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:118</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:119</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:120</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.button.WireButtonDefaults.kt:121</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.server.ApiVersioningDialogs.kt:64</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.theme.ThemeUtils.kt:51</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.theme.ThemeUtils.kt:52</ID>
-    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:80</ID>
-    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:90</ID>
-    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:96</ID>
-    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:114</ID>
-    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:55</ID>
-    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:62</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel.kt:24</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel.kt:24</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.CameraButton.kt:36</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.MicrophoneButton.kt:32</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt:32</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.common.SearchBar.kt:35</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:23</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:24</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.gallery.ZoomableImage.kt:38</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogStateHolder.kt:29</ID>
+    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.time.ISOFormatter.kt:34</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.di.CoroutineScope.kt:36</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.di.CoroutineScope.kt:53</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.media.CallRinger.kt:82</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.migration.ScalaServerConfigDAOTest.kt:112</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.migration.ScalaServerConfigDAOTest.kt:122</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.SurfaceBackgroundWrapper.kt:41</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.effects.LaunchedEffects.kt:28</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.textfield.WireTextFieldDefaults.kt:136</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.topappbar.search.SearchTopBar.kt:21</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase.kt:51</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:33</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:59</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:66</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:71</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem.kt:26</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.settings.backup.BackUpAndRestoreStateHolder.kt:59</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.userprofile.self.model.OtherAccount.kt:24</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.util.ScreenStateObserver.kt:65</ID>
+    <ID>NoMultipleSpaces:com.wire.android.ui.common.ShakeAnimation.kt:45</ID>
+    <ID>NoMultipleSpaces:com.wire.android.ui.common.ShakeAnimation.kt:46</ID>
+    <ID>NoMultipleSpaces:com.wire.android.ui.server.ApiVersioningDialogs.kt:62</ID>
+    <ID>NoMultipleSpaces:com.wire.android.ui.theme.ThemeUtils.kt:49</ID>
+    <ID>NoMultipleSpaces:com.wire.android.ui.theme.ThemeUtils.kt:50</ID>
+    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:78</ID>
+    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:88</ID>
+    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:94</ID>
+    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:112</ID>
+    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:53</ID>
+    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:60</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.CameraButton.kt:34</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt:30</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:21</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:22</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.home.gallery.ZoomableImage.kt:36</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:21</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:22</ID>
     <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:23</ID>
     <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:24</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:25</ID>
     <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:26</ID>
     <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:28</ID>
     <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:30</ID>
     <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:32</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:34</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:40</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:38</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:24</ID>
+    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:25</ID>
     <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:26</ID>
     <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:27</ID>
     <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:28</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:29</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:30</ID>
-    <ID>NoUnusedImports:com.wire.android.util.extension.LazyListScope.kt:27</ID>
-    <ID>NoUnusedImports:com.wire.android.util.extension.LazyListScope.kt:34</ID>
-    <ID>NoUnusedImports:com.wire.android.util.permission.CallingRecordAudioRequestFlow.kt:31</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.calling.controlbuttons.CameraButton.kt:99</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:100</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:101</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:102</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:103</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:104</ID>
+    <ID>ParameterListWrapping:com.wire.android.ui.calling.controlbuttons.CameraButton.kt:97</ID>
+    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:115</ID>
+    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:116</ID>
     <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:117</ID>
     <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:118</ID>
     <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:119</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:120</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:121</ID>
+    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:33</ID>
+    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:34</ID>
     <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:35</ID>
     <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:36</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:37</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:38</ID>
-    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:130</ID>
-    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:134</ID>
-    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:138</ID>
+    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:128</ID>
+    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:132</ID>
+    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:136</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:23</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:24</ID>
     <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:25</ID>
     <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:26</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:27</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:28</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState.kt:48</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.authentication.login.LoginError.kt:42</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.authentication.login.LoginError.kt:43</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:31</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:41</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:59</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants.kt:53</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.ConversationFolder.kt:27</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.ConversationFolder.kt:28</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.ConversationFolder.kt:29</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.ConversationFolder.kt:30</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.ConversationFolder.kt:32</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:34</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheet.kt:35</ID>
-    <ID>SpacingAroundColon:com.wire.android.util.SyncStateObserver.kt:28</ID>
-    <ID>SpacingAroundColon:com.wire.android.workmanager.WireForegroundNotificationDetailsProvider.kt:26</ID>
-    <ID>SpacingAroundComma:com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants.kt:84</ID>
-    <ID>SpacingAroundCurly:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase.kt:40</ID>
-    <ID>SpacingAroundCurly:com.wire.android.ui.home.conversations.search.widget.SearchFailureWidget.kt:38</ID>
-    <ID>SpacingAroundCurly:com.wire.android.util.extension.LazyListScope.kt:62</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.migration.feature.MigrateServerConfigUseCase.kt:65</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.ui.common.button.WireButtonDefaults.kt:127</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.ui.common.button.WireButtonDefaults.kt:138</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.ui.common.button.WireButtonDefaults.kt:149</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.ui.common.textfield.CodeTextField.kt:151</ID>
-    <ID>SpacingAroundOperators:com.wire.android.ui.common.visbility.VisibilityState.kt:64</ID>
-    <ID>SpacingAroundParens:com.wire.android.ui.settings.devices.model.SelfDevicesState.kt:25</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState.kt:46</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.authentication.login.LoginError.kt:40</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.authentication.login.LoginError.kt:41</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:29</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:39</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:57</ID>
+    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:32</ID>
+    <ID>SpacingAroundColon:com.wire.android.util.SyncStateObserver.kt:26</ID>
+    <ID>SpacingAroundColon:com.wire.android.workmanager.WireForegroundNotificationDetailsProvider.kt:24</ID>
+    <ID>SpacingAroundCurly:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase.kt:38</ID>
+    <ID>SpacingAroundCurly:com.wire.android.ui.home.conversations.search.widget.SearchFailureWidget.kt:36</ID>
+    <ID>SpacingAroundKeyword:com.wire.android.migration.feature.MigrateServerConfigUseCase.kt:63</ID>
+    <ID>SpacingAroundKeyword:com.wire.android.ui.common.textfield.CodeTextField.kt:149</ID>
+    <ID>SpacingAroundOperators:com.wire.android.ui.common.visbility.VisibilityState.kt:62</ID>
+    <ID>SpacingAroundParens:com.wire.android.ui.settings.devices.model.SelfDevicesState.kt:23</ID>
   </CurrentIssues>
 </SmellBaseline>

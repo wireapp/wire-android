@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Wire
-  ~ Copyright (C) 2023 Wire Swiss GmbH
+  ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  ~
-  ~
   -->
 <resources>
     <string name="app_version">Alkalmazás verzió</string>
@@ -596,6 +594,7 @@
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Az MLS csoportkulcs tudtunkon kívül frissült. Ezt a kiszolgálók közötti üzenetvesztés vagy programhiba okozhatta. Automatikusan újracsatlakoztunk a beszélgetéshez, de Önnek elveszhettek üzenetei.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Ön nem frissítette idejében az applikációt. Néhány üzenet hiányozhat innen.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">A titkosítási eljárás megváltoztatása törölve.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">A titkosítási eljárás megváltoztatása elkezdődött. Gondoskodjon összes Wire-kliense frissítéséről.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">A titkosítási eljárás megváltoztatása befejeződött. A nem frissített Wire-kliensek többé nem fogadnak üzeneteket.</string>
     <string name="label_system_message_receipt_mode_on">be</string>
@@ -630,6 +629,10 @@
     <plurals name="last_message_self_removed_users">
         <item quantity="one">Eltávolított 1 személyt a beszélgetésből</item>
         <item quantity="other">Eltávolított %1$d személyt a beszélgetésből</item>
+    </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Ön el lett távolítva a beszélgetésből</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -1299,6 +1302,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>

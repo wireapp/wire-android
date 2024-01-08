@@ -1,7 +1,6 @@
-package com.wire.android.gradle.version
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +14,8 @@ package com.wire.android.gradle.version
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.gradle.version
 
 import java.time.Duration
 import java.time.LocalDateTime

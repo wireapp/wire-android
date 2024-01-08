@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -45,7 +43,6 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState
@@ -65,8 +62,10 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -111,6 +110,8 @@ internal class MessageComposerViewModelArrangement {
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
+        coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
+        coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
     }
 
     @MockK
@@ -191,6 +192,12 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
 
+    @MockK
+    lateinit var setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase
+
+    @MockK
+    lateinit var observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -218,7 +225,9 @@ internal class MessageComposerViewModelArrangement {
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
-            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase
+            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
+            setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
+            observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
         )
     }
 
@@ -265,6 +274,16 @@ internal class MessageComposerViewModelArrangement {
                 any()
             )
         } returns Either.Right(Unit)
+    }
+    fun withFailedSendTextMessage(failure: CoreFailure) = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Left(failure)
     }
 
     fun withSuccessfulSendEditTextMessage() = apply {
@@ -318,6 +337,14 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(flag)
     }
 
+    fun withObserveConversationUnderLegalHoldNotified(flag: Boolean) = apply {
+        coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(flag)
+    }
+
+    fun withSuccessfulRetryFailedMessage() = apply {
+        coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+    }
+
     fun arrange() = this to viewModel
 }
 
@@ -338,7 +365,6 @@ internal fun withMockConversationDetailsOneOnOne(
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
     },
-    legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
     lastMessage = null,
     unreadEventCount = emptyMap()
@@ -350,7 +376,6 @@ internal fun mockConversationDetailsGroup(
 ) = ConversationDetails.Group(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),
-    legalHoldStatus = mockk(),
     hasOngoingCall = false,
     lastMessage = null,
     isSelfUserCreator = true,

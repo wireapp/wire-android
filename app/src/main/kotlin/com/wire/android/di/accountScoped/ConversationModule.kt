@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,12 +40,14 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
@@ -274,4 +276,16 @@ class ConversationModule {
         conversationScope: ConversationScope
     ): ObserveDegradedConversationNotifiedUseCase =
         conversationScope.observeInformAboutVerificationBeforeMessagingFlagUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetUserNotifiedAboutConversationUnderLegalHoldUseCase(
+        conversationScope: ConversationScope,
+    ): SetNotifiedAboutConversationUnderLegalHoldUseCase = conversationScope.setNotifiedAboutConversationUnderLegalHold
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldWithChangeNotifiedForConversationUseCase(
+        conversationScope: ConversationScope,
+    ): ObserveConversationUnderLegalHoldNotifiedUseCase = conversationScope.observeConversationUnderLegalHoldNotified
 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ fun MarkdownParagraph(
     clickable: Boolean,
     onMentionsUpdate: (List<DisplayMention>) -> Unit
 ) {
-        val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
+        val padding = if (paragraph.parent is Document) dimensions().spacing4x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
             val annotatedString = buildAnnotatedString {
                 pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())

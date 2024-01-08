@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui
@@ -99,7 +97,6 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
-import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -208,10 +205,7 @@ class WireActivity : AppCompatActivity() {
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete)
                         handleScreenshotCensoring()
-                        handleDialogs(
-                            navigator::navigate,
-                            viewModel.currentUserId.value
-                        )
+                        handleDialogs(navigator::navigate)
                     }
                 }
             }
@@ -266,8 +260,8 @@ class WireActivity : AppCompatActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit, userId: UserId?) {
-        LaunchedEffect(userId) {
+    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
+        LaunchedEffect(Unit) {
             featureFlagNotificationViewModel.loadInitialSync()
         }
         val context = LocalContext.current

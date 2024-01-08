@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ fun LegalHoldSubjectConnectionDialog(
 ) {
     LegalHoldSubjectBaseDialog(
         name = userName,
-        isConversation = false,
+        withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_cancel),
         dialogDismissed = dialogDismissed,
         action = stringResource(id = R.string.connection_label_connect) to connectClicked,

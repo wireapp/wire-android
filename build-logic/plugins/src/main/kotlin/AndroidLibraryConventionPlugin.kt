@@ -1,14 +1,6 @@
-import com.android.build.gradle.LibraryExtension
-import com.wire.android.gradle.configureAndroidKotlinTests
-import com.wire.android.gradle.configureCompose
-import com.wire.android.gradle.configureKotlinAndroid
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
-
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +15,14 @@ import org.gradle.kotlin.dsl.configure
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+import com.android.build.gradle.LibraryExtension
+import com.wire.android.gradle.configureAndroidKotlinTests
+import com.wire.android.gradle.configureCompose
+import com.wire.android.gradle.configureKotlinAndroid
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+
 class AndroidLibraryConventionPlugin: Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager){

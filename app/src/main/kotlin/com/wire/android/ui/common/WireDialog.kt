@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("MultiLineIfElse")
@@ -31,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -200,21 +199,27 @@ private fun WireDialogContent(
                 }
             }
             text?.let {
-                ClickableText(
-                    text = text,
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(
-                        top = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                        bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                    ),
-                    onClick = { offset ->
-                        text.getStringAnnotations(
-                            tag = MarkdownConstants.TAG_URL,
-                            start = offset,
-                            end = offset,
-                        ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                LazyColumn(modifier = Modifier
+                    .weight(1f, fill = false)
+                    .fillMaxWidth()) {
+                    item {
+                        ClickableText(
+                            text = text,
+                            style = MaterialTheme.wireTypography.body01,
+                            modifier = Modifier.padding(
+                                top = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                                bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                            ),
+                            onClick = { offset ->
+                                text.getStringAnnotations(
+                                    tag = MarkdownConstants.TAG_URL,
+                                    start = offset,
+                                    end = offset,
+                                ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                            }
+                        )
                     }
-                )
+                }
             }
             content?.let {
                 Box {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Wire
-  ~ Copyright (C) 2023 Wire Swiss GmbH
+  ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  ~
-  ~
   -->
 <resources>
     <string name="app_version">App-Version</string>
@@ -581,7 +579,7 @@
     <string name="label_system_message_renamed_the_conversation">%1$s hat die Unterhaltung umbenannt\n%2$s</string>
     <plurals name="label_system_message_team_member_left">
         <item quantity="one">%1$s wurde aus dem Team entfernt</item>
-        <item quantity="other">%1$s werden aus dem Team entfernt</item>
+        <item quantity="other">%1$s wurden aus dem Team entfernt</item>
     </plurals>
     <string name="label_system_message_user_not_available">Dieser Benutzer ist nicht mehr verfügbar</string>
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
@@ -597,6 +595,7 @@
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
@@ -631,6 +630,10 @@
     <plurals name="last_message_self_removed_users">
         <item quantity="one">Sie haben 1 Person aus der Unterhaltung entfernt</item>
         <item quantity="other">Sie haben %1$d Personen aus der Unterhaltung entfernt</item>
+    </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 Person wurde aus dem Team entfernt</item>
+        <item quantity="other">%1$d Personen wurden aus dem Team entfernt</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Sie wurden aus der Unterhaltung entfernt</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -1300,6 +1303,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_subject_dialog_title">%1$s unterliegt der gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_subject_dialog_description">Alle Nachrichten, Bilder und Dokumente werden für den späteren Zugriff aufbewahrt. Dies gilt auch für gelöschte, bearbeitete und selbstlöschende Nachrichten.</string>
     <string name="legal_hold_subject_dialog_description_group">Mindestens eine Person dieser Unterhaltung unterliegt der gesetzlichen Aufbewahrung.</string>
+    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Trotzdem senden</string>
     <string name="legal_hold_subject_to">Unterliegt der %1$s.</string>
     <string name="legal_hold_label">gesetzlichen Aufbewahrung</string>

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -25,7 +23,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -168,24 +165,25 @@ fun MessageItem(
 
         Box(
             backgroundColorModifier
-                .clickable(enabled = isContentClickable, onClick = {
-                    onMessageClick(message.header.messageId)
-                })
+                .combinedClickable(enabled = true, onClick = {
+                    if (isContentClickable) {
+                        onMessageClick(message.header.messageId)
+                    }
+                },
+                    onLongClick = remember(message) {
+                        {
+                            if (!isContentClickable) {
+                                onLongClicked(message)
+                            }
+                        }
+                    }
+                )
         ) {
             // padding needed to have same top padding for avatar and rest composables in message item
             val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .apply {
-                        if (!isContentClickable) {
-                            combinedClickable(
-                                enabled = message.isAvailable,
-                                onClick = { },
-                                onLongClick = remember(message) { { onLongClicked(message) } }
-                            )
-                        }
-                    }
                     .padding(
                         end = dimensions().messageItemHorizontalPadding,
                         top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
@@ -297,6 +295,7 @@ fun MessageItem(
                                 }
                             }
                             if (shouldDisplayFooter) {
+                                VerticalSpace.x4()
                                 MessageFooter(
                                     messageFooter = messageFooter,
                                     onReactionClicked = onReactionClicked
@@ -348,6 +347,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
 @Composable
 fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
     when (messageContent) {
+        is UIMessageContent.Location,
         is UIMessageContent.TextMessage -> {
             StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
         }

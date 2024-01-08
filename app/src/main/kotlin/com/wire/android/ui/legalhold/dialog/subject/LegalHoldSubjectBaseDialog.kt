@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,8 @@
  */
 package com.wire.android.ui.legalhold.dialog.subject
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -33,22 +29,21 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.legalhold.dialog.common.LearnMoreAboutLegalHoldButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LegalHoldSubjectBaseDialog(
     name: String,
-    isConversation: Boolean,
+    customInfo: String? = null,
+    withDefaultInfo: Boolean,
     cancelText: String,
     dialogDismissed: () -> Unit,
     action: Pair<String, () -> Unit>? = null,
-    bottomDescriptionText: String? = null,
 ) {
-    val text = stringResource(id = R.string.legal_hold_subject_dialog_description).let {
-        if (isConversation) stringResource(id = R.string.legal_hold_subject_dialog_description_group) + "\n\n" + it
-        else it
-    }
+    val text = listOfNotNull(
+        customInfo,
+        if (withDefaultInfo) stringResource(id = R.string.legal_hold_subject_dialog_description) else null
+    ).joinToString("\n\n")
     WireDialog(
         title = stringResource(id = R.string.legal_hold_subject_dialog_title, name),
         text = text,
@@ -67,19 +62,9 @@ fun LegalHoldSubjectBaseDialog(
             )
         },
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.dialogTextsSpacing),
+        LearnMoreAboutLegalHoldButton(
             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
-        ) {
-            LearnMoreAboutLegalHoldButton()
-            if (!bottomDescriptionText.isNullOrEmpty()) {
-                Text(
-                    text = bottomDescriptionText,
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+        )
     }
 }
 
@@ -87,6 +72,6 @@ fun LegalHoldSubjectBaseDialog(
 @PreviewMultipleThemes
 fun PreviewLegalHoldSubjectBaseDialog() {
     WireTheme {
-        LegalHoldSubjectBaseDialog("username", true, "cancel", {}, Pair("send anyway", {}), "Send anyway?")
+        LegalHoldSubjectBaseDialog("username", null, true, "cancel", {}, Pair("send anyway", {}))
     }
 }

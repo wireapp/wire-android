@@ -27,6 +27,7 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -102,11 +103,13 @@ class GlobalObserversManager @Inject constructor(
 
     private fun CoroutineScope.handleLogouts() {
         callbackFlow<Unit> {
-            val callback: LogoutCallback = { userId, logoutReason ->
-                notificationManager.stopObservingOnLogout(userId)
-                notificationChannelsManager.deleteChannelGroup(userId)
-                if (logoutReason != LogoutReason.SELF_SOFT_LOGOUT) {
-                    userDataStoreProvider.getOrCreate(userId).clear()
+            val callback: LogoutCallback = object : LogoutCallback {
+                override suspend fun invoke(userId: UserId, reason: LogoutReason) {
+                    notificationManager.stopObservingOnLogout(userId)
+                    notificationChannelsManager.deleteChannelGroup(userId)
+                    if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
+                        userDataStoreProvider.getOrCreate(userId).clear()
+                    }
                 }
             }
             coreLogic.getGlobalScope().logoutCallbackManager.register(callback)

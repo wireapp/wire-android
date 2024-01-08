@@ -196,10 +196,7 @@ class WireActivity : AppCompatActivity() {
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
                         setUpNavigation(navigator.navController, onComplete)
                         handleScreenshotCensoring()
-                        handleDialogs(
-                            navigator::navigate,
-                            viewModel.currentUserId.value
-                        )
+                        handleDialogs(navigator::navigate)
                     }
                 }
             }
@@ -253,10 +250,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit, userId: UserId?) {
-        LaunchedEffect(userId) {
-            featureFlagNotificationViewModel.loadInitialSync()
-        }
+    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(

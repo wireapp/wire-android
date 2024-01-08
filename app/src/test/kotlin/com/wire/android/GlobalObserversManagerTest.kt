@@ -3,6 +3,7 @@ package com.wire.android
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
@@ -80,12 +81,16 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var notificationManager: WireNotificationManager
 
+        @MockK
+        lateinit var userDataStoreProvider: UserDataStoreProvider
+
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
                 notificationChannelsManager = notificationChannelsManager,
-                notificationManager = notificationManager
+                notificationManager = notificationManager,
+                userDataStoreProvider = userDataStoreProvider,
             )
         }
 

@@ -18,11 +18,12 @@
 package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -60,15 +61,15 @@ class DisableAppLockUseCaseTest {
         lateinit var dataStore: GlobalDataStore
 
         @MockK
-        lateinit var isAppLockEditableUseCase: IsAppLockEditableUseCase
+        lateinit var observeIsAppLockEditableUseCase: ObserveIsAppLockEditableUseCase
 
         private val useCase = DisableAppLockUseCase(
             dataStore,
-            isAppLockEditableUseCase
+            observeIsAppLockEditableUseCase
         )
 
         fun withAppLockEditable(result: Boolean) = apply {
-            coEvery { isAppLockEditableUseCase() } returns result
+            coEvery { observeIsAppLockEditableUseCase() } returns flowOf(result)
         }
 
         fun withClearAppLockPasscode() = apply {

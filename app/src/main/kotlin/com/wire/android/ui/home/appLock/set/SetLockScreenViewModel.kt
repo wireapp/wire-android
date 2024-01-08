@@ -29,9 +29,10 @@ import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -42,8 +43,7 @@ class SetLockScreenViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val dispatchers: DispatcherProvider,
     private val observeAppLockConfig: ObserveAppLockConfigUseCase,
-    private val isAppLockEditable: IsAppLockEditableUseCase,
-    private val isAppLockEditableUseCase: IsAppLockEditableUseCase,
+    private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase,
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
@@ -52,14 +52,15 @@ class SetLockScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val isEditable = isAppLockEditable()
-            observeAppLockConfig()
-                .collectLatest {
-                    state = state.copy(
-                        timeout = it.timeout,
-                        isEditable = isEditable
-                    )
-                }
+            combine(
+                observeAppLockConfig(),
+                observeIsAppLockEditable()
+            ) { config, isEditable ->
+                SetLockCodeViewState(
+                    timeout = config.timeout,
+                    isEditable = isEditable
+                )
+            }.collectLatest { state = it }
         }
     }
 
@@ -85,7 +86,7 @@ class SetLockScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     withContext(dispatchers.io()) {
                         with(globalDataStore) {
-                            val source = if (isAppLockEditableUseCase()) {
+                            val source = if (state.isEditable) {
                                 AppLockSource.Manual
                             } else {
                                 AppLockSource.TeamEnforced

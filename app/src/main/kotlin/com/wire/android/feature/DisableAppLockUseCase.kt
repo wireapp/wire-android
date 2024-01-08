@@ -18,16 +18,17 @@
 package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 @ViewModelScoped
 class DisableAppLockUseCase @Inject constructor(
     private val dataStore: GlobalDataStore,
-    private val isAppLockEditableUseCase: IsAppLockEditableUseCase
+    private val observeIsAppLockEditableUseCase: ObserveIsAppLockEditableUseCase
 ) {
-    suspend operator fun invoke(): Boolean = if (isAppLockEditableUseCase()) {
+    suspend operator fun invoke(): Boolean = if (observeIsAppLockEditableUseCase().firstOrNull() == true) {
         dataStore.clearAppLockPasscode()
         true
     } else {

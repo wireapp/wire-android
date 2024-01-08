@@ -155,8 +155,8 @@ sealed class SwitchAccountParam {
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
     data object Clear : SwitchAccountParam()
     private fun toLogMap(): Map<String, String> = when (this) {
-        is Clear ->  mutableMapOf("value" to "CLEAR")
-        is SwitchToAccount ->  mutableMapOf("value" to "SWITCH_TO_ACCOUNT", "userId" to userId.toLogString())
+        is Clear -> mutableMapOf("value" to "CLEAR")
+        is SwitchToAccount -> mutableMapOf("value" to "SWITCH_TO_ACCOUNT", "userId" to userId.toLogString())
         is TryToSwitchToNextAccount -> mutableMapOf("value" to "TRY_TO_SWITCH_TO_NEXT_ACCOUNT")
     }
     fun toLogString(): String = Json.encodeToString(toLogMap())

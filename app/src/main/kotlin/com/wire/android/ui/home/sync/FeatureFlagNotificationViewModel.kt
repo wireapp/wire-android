@@ -87,7 +87,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     is CurrentSessionResult.Failure -> {
                         currentUserId = null
                         appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                        featureFlagState = FeatureFlagState(  // no session, clear feature flag state to default and set NO_USER
+                        featureFlagState = FeatureFlagState( // no session, clear feature flag state to default and set NO_USER
                             fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
                         )
                     }

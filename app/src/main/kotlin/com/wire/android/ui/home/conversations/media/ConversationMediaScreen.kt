@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,25 +18,54 @@
 
 package com.wire.android.ui.home.conversations.media
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.TabItem
+import com.wire.android.ui.common.WireTabRow
+import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
+import com.wire.android.ui.home.conversations.DownloadedAssetDialog
+import com.wire.android.ui.home.conversations.MessageComposerViewModel
+import com.wire.android.ui.home.conversations.SnackBarMessage
+import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
@@ -44,9 +73,13 @@ import com.wire.kalium.logic.data.id.ConversationId
     style = PopUpNavigationAnimation::class
 )
 @Composable
-fun ConversationMediaScreen(navigator: Navigator) {
-    val viewModel: ConversationAssetMessagesViewModel = hiltViewModel()
-    val state: ConversationAssetMessagesViewState = viewModel.viewState
+fun ConversationMediaScreen(
+    navigator: Navigator,
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = hiltViewModel()
+) {
+    val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
 
     Content(
         state = state,
@@ -63,37 +96,107 @@ fun ConversationMediaScreen(navigator: Navigator) {
                 )
             )
         },
-        continueAssetLoading = { shouldContinue ->
-            viewModel.continueLoading(shouldContinue)
-        }
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
+        onAudioItemClicked = conversationMessagesViewModel::audioClick,
+    )
+
+    DownloadedAssetDialog(
+        downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
+        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
+        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+    )
+
+    SnackBarMessage(
+        messageComposerViewModel.infoMessage,
+        conversationMessagesViewModel.infoMessage
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    continueAssetLoading: (shouldContinue: Boolean) -> Unit
+    audioMessagesState: Map<String, AudioState> = emptyMap(),
+    onAudioItemClicked: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val lazyListStates: List<LazyListState> = ConversationMediaScreenTabItem.entries.map { rememberLazyListState() }
+    val initialPageIndex = ConversationMediaScreenTabItem.PICTURES.ordinal
+    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { ConversationMediaScreenTabItem.entries.size })
+    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
+    val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
+    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
+
     WireScaffold(
         modifier = Modifier
             .background(color = colorsScheme().backgroundVariant),
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
+                elevation = elevationState,
                 title = stringResource(id = R.string.label_conversation_media),
                 navigationIconType = NavigationIconType.Back,
-                onNavigationPressed = onNavigationPressed
+                onNavigationPressed = onNavigationPressed,
+                bottomContent = {
+                    WireTabRow(
+                        tabs = ConversationMediaScreenTabItem.entries,
+                        selectedTabIndex = currentTabState,
+                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } }
+                    )
+                }
             )
         },
     ) { padding ->
-        // TODO implement tab here for https://wearezeta.atlassian.net/browse/WPB-5378
-        AssetGrid(
-            uiAssetMessageList = state.messages,
-            modifier = Modifier.padding(padding),
-            onImageFullScreenMode = onImageFullScreenMode,
-            continueAssetLoading = continueAssetLoading
+        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(padding)
+            ) { pageIndex ->
+                when (ConversationMediaScreenTabItem.entries[pageIndex]) {
+                    ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
+                        imageMessageList = state.imageMessages,
+                        onImageFullScreenMode = onImageFullScreenMode
+                    )
+                    ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
+                        groupedAssetMessageList = state.assetMessages,
+                        audioMessagesState = audioMessagesState,
+                        onAudioItemClicked = onAudioItemClicked,
+                        onAssetItemClicked = onAssetItemClicked
+                    )
+                }
+            }
+
+            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                    focusedTabIndex = pagerState.currentPage
+                }
+            }
+        }
+    }
+}
+
+enum class ConversationMediaScreenTabItem(@StringRes override val titleResId: Int) : TabItem {
+    PICTURES(R.string.label_conversation_pictures),
+    FILES(R.string.label_conversation_files);
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewConversationMediaScreenEmptyContent() {
+    WireTheme {
+        Content(
+            state = ConversationAssetMessagesViewState(),
+            onImageFullScreenMode = { _, _, _ -> },
+            onAudioItemClicked = { },
+            onAssetItemClicked = { }
         )
     }
 }

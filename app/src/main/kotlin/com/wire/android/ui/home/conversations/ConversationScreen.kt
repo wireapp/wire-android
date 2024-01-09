@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -132,6 +130,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
@@ -430,9 +429,17 @@ fun ConversationScreen(
 
     SureAboutMessagingInDegradedConversationDialog(
         dialogState = messageComposerViewModel.sureAboutMessagingDialogState,
-        sendAnyway = messageComposerViewModel::sureAboutSendingMessage,
-        hideDialog = messageComposerViewModel::hideSureAboutSendingMessage
+        sendAnyway = messageComposerViewModel::acceptSureAboutSendingMessage,
+        hideDialog = messageComposerViewModel::dismissSureAboutSendingMessage
     )
+
+    (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
+            LegalHoldSubjectMessageDialog(
+                conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
+                dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
+                sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
+            )
+        }
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {
@@ -775,7 +782,7 @@ private fun ConversationScreenContent(
 }
 
 @Composable
-private fun SnackBarMessage(
+fun SnackBarMessage(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>
 ) {

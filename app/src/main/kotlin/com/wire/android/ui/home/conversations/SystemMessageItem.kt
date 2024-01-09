@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 @file:Suppress("TooManyFunctions")
 
@@ -263,6 +261,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.HistoryLostProtocolChanged,
         is SystemMessage.NewConversationReceiptMode,
         is SystemMessage.ConversationProtocolChanged,
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing,
         is SystemMessage.ConversationMessageTimerActivated,
         is SystemMessage.ConversationMessageCreated,
         is SystemMessage.ConversationStartedWithMembers,
@@ -558,6 +557,7 @@ private val SystemMessage.expandable
         is SystemMessage.HistoryLost -> false
         is SystemMessage.HistoryLostProtocolChanged -> false
         is SystemMessage.ConversationProtocolChanged -> false
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing -> false
         is SystemMessage.ConversationMessageTimerActivated -> false
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
@@ -650,6 +650,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.ConversationVerified -> arrayOf()
         is SystemMessage.HistoryLostProtocolChanged -> arrayOf()
         is SystemMessage.ConversationProtocolChanged -> arrayOf()
+        is SystemMessage.ConversationProtocolChangedWithCallOngoing -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
             author.asString(res).markdownBold(),
             selfDeletionDuration.longLabel.asString(res).markdownBold()

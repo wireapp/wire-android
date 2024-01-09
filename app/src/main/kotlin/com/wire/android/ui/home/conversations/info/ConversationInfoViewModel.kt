@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.info
@@ -119,7 +117,8 @@ class ConversationInfoViewModel @Inject constructor(
             conversationType = conversationDetails.conversation.type,
             protocolInfo = conversationDetails.conversation.protocol,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
-            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus
+            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
         )
     }
 

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.framework
@@ -23,7 +21,6 @@ package com.wire.android.framework
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.type.UserType
 
 object TestConversationDetails {
@@ -42,7 +39,6 @@ object TestConversationDetails {
     val CONVERSATION_ONE_ONE = ConversationDetails.OneOne(
         TestConversation.ONE_ON_ONE,
         TestUser.OTHER_USER,
-        LegalHoldStatus.DISABLED,
         UserType.EXTERNAL,
         lastMessage = null,
         unreadEventCount = emptyMap()
@@ -50,12 +46,10 @@ object TestConversationDetails {
 
     val GROUP = ConversationDetails.Group(
         TestConversation.ONE_ON_ONE,
-        LegalHoldStatus.DISABLED,
         lastMessage = null,
         isSelfUserCreator = true,
         isSelfUserMember = true,
         unreadEventCount = emptyMap(),
         selfRole = Conversation.Member.Role.Member
     )
-
 }

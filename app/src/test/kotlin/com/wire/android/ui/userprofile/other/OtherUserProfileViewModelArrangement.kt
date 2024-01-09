@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.other
@@ -32,8 +30,8 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
@@ -96,7 +94,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var observeClientList: ObserveClientsByUserIdUseCase
 
     @MockK
-    lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
+    lateinit var fetchUsersClientsFromRemote: FetchUsersClientsFromRemoteUseCase
 
     @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
@@ -118,7 +116,7 @@ internal class OtherUserProfileViewModelArrangement {
             removeMemberFromConversationUseCase,
             updateConversationMemberRoleUseCase,
             observeClientList,
-            persistOtherUserClientsUseCase,
+            fetchUsersClientsFromRemote,
             clearConversationContent,
             updateConversationArchivedStatus,
             savedStateHandle

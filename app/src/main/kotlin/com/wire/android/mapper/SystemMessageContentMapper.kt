@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -70,6 +68,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationVerifiedProteus -> mapConversationVerified(Conversation.Protocol.PROTEUS)
         is MessageContent.FederationStopped -> mapFederationMessage(content)
         is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
+        is MessageContent.ConversationProtocolChangedDuringACall -> mapConversationProtocolChangedDuringACall()
         is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
     }
@@ -118,9 +117,11 @@ class SystemMessageContentMapper @Inject constructor(
 
     private fun mapConversationProtocolChanged(
         content: MessageContent.ConversationProtocolChanged
-    ): UIMessageContent.SystemMessage {
-        return UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
-    }
+    ): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationProtocolChanged(content.protocol)
+
+    private fun mapConversationProtocolChangedDuringACall(): UIMessageContent.SystemMessage =
+        UIMessageContent.SystemMessage.ConversationProtocolChangedWithCallOngoing
 
     private fun mapResetSession(
         senderUserId: UserId,

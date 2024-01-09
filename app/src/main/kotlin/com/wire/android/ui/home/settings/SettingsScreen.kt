@@ -114,12 +114,11 @@ fun SettingsScreenContent(
                     }
                     add(SettingsItem.NetworkSettings)
 
+                    appLogger.d("AppLockConfig " +
+                            "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}")
                     add(SettingsItem.AppLock(
                         when (settingsState.isAppLockEditable) {
                             true -> {
-                                appLogger.d("AppLockConfig isAooLockEditable: ${settingsState.isAppLockEditable}")
-
-                                appLogger.d("AppLockConfig isAppLockEnabled: ${settingsState.isAppLockEnabled}")
                                 SwitchState.Enabled(
                                     value = settingsState.isAppLockEnabled,
                                     isOnOffVisible = true,
@@ -128,12 +127,8 @@ fun SettingsScreenContent(
                             }
 
                             false -> {
-                                appLogger.d("AppLockConfig isAooLockEditable: ${settingsState.isAppLockEditable}")
-
-                                appLogger.d("AppLockConfig isAppLockEnabled: ${settingsState.isAppLockEnabled}")
-                                SwitchState.Disabled(
+                                SwitchState.TextOnly(
                                     value = settingsState.isAppLockEnabled,
-                                    isOnOffVisible = true,
                                 )
                             }
                         }

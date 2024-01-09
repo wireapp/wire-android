@@ -22,27 +22,22 @@ package com.wire.android.util.permission
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.os.Looper
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.wire.android.appLogger
 import com.wire.android.util.extension.checkPermission
-import java.util.concurrent.TimeUnit
+import com.wire.android.util.orDefault
 
 @Composable
 fun rememberCurrentLocationFlow(
-    onPermissionAllowed: (Location?) -> Unit,
+    onPermissionAllowed: (GeoLocatedAddress) -> Unit,
     onPermissionDenied: () -> Unit
 ): CurrentLocationRequestFlow {
     val context = LocalContext.current
@@ -64,7 +59,7 @@ fun rememberCurrentLocationFlow(
 
 class CurrentLocationRequestFlow(
     private val context: Context,
-    private val onPermissionAllowed: (Location?) -> Unit,
+    private val onPermissionAllowed: (GeoLocatedAddress) -> Unit,
     private val locationPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
 ) {
     fun launch() {
@@ -88,39 +83,34 @@ private fun checkLocationPermissions(
         context.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
 @SuppressLint("MissingPermission")
-private fun getCurrentLocation(onPermissionAllowed: (Location?) -> Unit, context: Context) {
+private fun getCurrentLocation(onPermissionAllowed: (GeoLocatedAddress) -> Unit, context: Context) {
     val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-//    val singleRequest = CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
-//    locationProvider.getCurrentLocation(singleRequest, null).addOnSuccessListener { location ->
-//        appLogger.d("Single Location updated to: $location")
-//        onPermissionAllowed(location)
-//
-//        val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).orEmpty()
-//        address.first()?.let {
-//            appLogger.d("Single Location: ${it.featureName}, ${it.postalCode}, ${it.countryCode}")
+//    val locationCallback: LocationCallback = object : LocationCallback() {
+//        override fun onLocationResult(result: LocationResult) {
+//            val lastLocation = result.locations.last()
+//            val address = Geocoder(context).getFromLocation(lastLocation!!.latitude, lastLocation.longitude, 1).orEmpty()
+//            onPermissionAllowed(GeoLocatedAddress(address.firstOrNull(), lastLocation))
 //        }
 //    }
 
-    val locationCallback: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(result: LocationResult) {
-            appLogger.d("Regular Location updated to: ${result.lastLocation}")
-            onPermissionAllowed(result.lastLocation)
-
-            val address = Geocoder(context).getFromLocation(result.lastLocation!!.latitude, result.lastLocation!!.longitude, 1).orEmpty()
-            address.first()?.let {
-                appLogger.d("Regular Location: ${it.featureName}, ${it.postalCode}, ${it.countryCode}")
-            }
-        }
+    //todo implement later the updates of this
+//    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(50)).build()
+//    locationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    locationProvider.lastLocation.addOnSuccessListener { lastLocation ->
+        val address = Geocoder(context).getFromLocation(lastLocation!!.latitude, lastLocation.longitude, 1).orEmpty()
+        onPermissionAllowed(GeoLocatedAddress(address.firstOrNull(), lastLocation))
     }
-    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(50)).build()
-    locationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-    locationProvider.lastLocation.addOnSuccessListener { location ->
-        appLogger.d("Last Location updated to: $location")
-        onPermissionAllowed(location)
+}
 
-        val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).orEmpty()
-        address.first()?.let {
-            appLogger.d("Last Location: ${it.featureName}, ${it.postalCode}, ${it.countryCode}")
-        }
+data class GeoLocatedAddress(
+    val address: Address?,
+    val location: Location
+) {
+
+    fun getFormattedAddress(): String {
+        return address?.let {
+            "${address.featureName.orDefault(address.adminArea.orEmpty())}, ${address.postalCode.orDefault(address.adminArea.orEmpty())}, ${address.countryCode}"
+        } ?: "${location.latitude}, ${location.longitude}"
     }
+
 }

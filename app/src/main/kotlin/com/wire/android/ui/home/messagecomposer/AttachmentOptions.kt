@@ -207,7 +207,7 @@ private fun CaptureVideoFlow(
 private fun ShareCurrentLocationFlow() =
     rememberCurrentLocationFlow(
         onPermissionAllowed = {
-            appLogger.d("Current Location is: ${it.let { location -> location?.latitude to location?.longitude }} }}")
+            appLogger.d("Current Location is: ${it.getFormattedAddress()}")
         },
         onPermissionDenied = { appLogger.w("Location permissions not granted") }
     )

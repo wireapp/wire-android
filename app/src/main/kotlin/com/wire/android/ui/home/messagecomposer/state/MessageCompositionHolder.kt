@@ -448,8 +448,8 @@ sealed class ComposableMessageBundle : MessageBundle {
 
     data class LocationPickedBundle(
         val locationName: String,
-        val latitude: Double,
-        val longitude: Double,
+        val latitude: Float,
+        val longitude: Float,
         val zoom: Int = 20
     ) : ComposableMessageBundle()
 }

@@ -27,8 +27,8 @@ import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.search.SearchResultState
-import com.wire.android.ui.home.conversations.search.SearchResultTitle
+import com.wire.android.ui.home.conversations.search.addMemberToConversation.SearchResultState
+import com.wire.android.ui.home.conversations.search.addMemberToConversation.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.model.Contact

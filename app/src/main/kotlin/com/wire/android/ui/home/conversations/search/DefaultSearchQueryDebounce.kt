@@ -14,24 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
  */
+
 package com.wire.android.ui.home.conversations.search
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.onStart
-
-@OptIn(ExperimentalCoroutinesApi::class)
-abstract class SearchServicesViewModel : SearchPeopleViewModel() {
-
-    protected val servicesSearchQueryFlow = mutableSearchQueryFlow
-        .flatMapLatest { searchTerm ->
-            searchServices(searchTerm)
-                .onStart {
-                    emit(SearchResultState.InProgress)
-                }
-        }
-
-    abstract suspend fun searchServices(searchTerm: String): Flow<SearchResultState>
-}
+const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L

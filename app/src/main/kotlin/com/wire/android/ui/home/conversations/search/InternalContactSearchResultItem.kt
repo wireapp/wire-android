@@ -52,8 +52,7 @@ fun InternalContactSearchResultItem(
     membership: Membership,
     searchQuery: String,
     connectionState: ConnectionState,
-    addToGroup: () -> Unit,
-    removeFromGroup: () -> Unit,
+    onCheckChange: (Boolean) -> Unit,
     isAddedToGroup: Boolean,
     clickable: Clickable,
     modifier: Modifier = Modifier
@@ -63,7 +62,7 @@ fun InternalContactSearchResultItem(
             Row {
                 WireCheckbox(
                     checked = isAddedToGroup,
-                    onCheckedChange = { if (it) addToGroup() else removeFromGroup() }
+                    onCheckedChange = onCheckChange
                 )
                 UserProfileAvatar(avatarData)
             }

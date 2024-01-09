@@ -27,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
@@ -35,49 +37,48 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun SearchAllServicesScreen(
     searchQuery: String,
-    searchResult: SearchResultState,
-    initialServices: SearchResultState,
     onServiceClicked: (Contact) -> Unit,
+    searchServicesViewModel: SearchServicesViewModel = hiltViewModel(),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     SearchAllServicesContent(
         searchQuery = searchQuery,
         onServiceClicked = onServiceClicked,
-        result = if (searchQuery.isEmpty()) initialServices else searchResult,
-        lazyListState = lazyListState
+        result = searchServicesViewModel.state.result,
+        lazyListState = lazyListState,
+        error = searchServicesViewModel.state.error,
+        isLoading = searchServicesViewModel.state.isLoading
     )
 }
 
 @Composable
 private fun SearchAllServicesContent(
     searchQuery: String,
-    result: SearchResultState,
+    result: ImmutableList<Contact>,
+    isLoading: Boolean,
+    error: Boolean,
     onServiceClicked: (Contact) -> Unit,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    when (result) {
-        SearchResultState.Initial, SearchResultState.InProgress -> {
-            CenteredCircularProgressBarIndicator()
-        }
+    when {
+        isLoading -> CenteredCircularProgressBarIndicator()
+        error -> SearchFailureBox(failureMessage = R.string.label_general_error)
 
-        is SearchResultState.Failure -> {
-            SearchFailureBox(failureMessage = result.failureString)
-        }
-
-        // TODO: what to do when user team has no services?
-        SearchResultState.EmptyResult -> {
+        // TODO(user experience): what to do when user team has no services?
+        result.isEmpty() -> {
             EmptySearchQueryScreen()
         }
 
-        is SearchResultState.Success -> {
+        else -> {
             SuccessServicesList(
                 searchQuery = searchQuery,
                 onServiceClicked = onServiceClicked,
-                services = result.result,
+                services = result,
                 lazyListState = lazyListState
             )
         }

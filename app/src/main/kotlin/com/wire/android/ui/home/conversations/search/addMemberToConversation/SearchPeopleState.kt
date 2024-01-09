@@ -14,30 +14,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.conversations.search
+package com.wire.android.ui.home.conversations.search.addMemberToConversation
 
-import androidx.annotation.StringRes
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.newconversation.model.Contact
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
 
+@Deprecated("will be deleted")
 data class SearchPeopleState(
     val initialContacts: SearchResultState = SearchResultState.Initial,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: ImmutableMap<SearchResultTitle, ContactSearchResult> = persistentMapOf(),
+//    val searchQuery: TextFieldValue = TextFieldValue(""),
+//    val searchResult: ImmutableMap<SearchResultTitle, ContactSearchResult> = persistentMapOf(),
     val noneSearchSucceed: Boolean = false,
     val contactsAddedToGroup: ImmutableList<Contact> = persistentListOf(),
     val isGroupCreationContext: Boolean = true,
     val servicesInitialContacts: SearchResultState = SearchResultState.Initial,
     val servicesSearchResult: SearchResultState = SearchResultState.Initial,
-    val isServicesAllowed: Boolean = false
+//    val isServicesAllowed: Boolean = false
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {
@@ -52,14 +47,10 @@ sealed class ContactSearchResult(val searchResultState: SearchResultState) {
         )
 }
 
-sealed class SearchResultState {
-    object Initial : SearchResultState()
-    object InProgress : SearchResultState()
-    data class Failure(@StringRes val failureString: Int) : SearchResultState()
-
-    object EmptyResult : SearchResultState()
-
-    data class Success(val result: ImmutableList<Contact>) : SearchResultState()
+sealed interface SearchResultState {
+    object Initial : SearchResultState
+    object InProgress : SearchResultState
+    data object Failure : SearchResultState
+    object EmptyResult : SearchResultState
+    data class Success(val result: ImmutableList<Contact>) : SearchResultState
 }
-
-data class SearchResultTitle(@StringRes val stringRes: Int)

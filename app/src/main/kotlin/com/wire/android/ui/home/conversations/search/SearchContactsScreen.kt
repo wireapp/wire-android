@@ -49,6 +49,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
+import com.wire.android.ui.home.conversations.search.addMemberToConversation.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -65,8 +66,7 @@ fun SearchContactsScreen(
     allKnownContactResult: SearchResultState,
     contactsAddedToGroup: List<Contact>,
     onOpenUserProfile: (Contact) -> Unit,
-    onAddToGroup: (Contact) -> Unit,
-    onRemoveFromGroup: (Contact) -> Unit
+    onUserCheck: (Boolean, Contact) -> Unit,
 ) {
     when (allKnownContactResult) {
         SearchResultState.Initial, SearchResultState.InProgress -> {
@@ -90,14 +90,19 @@ fun SearchContactsScreen(
                         items = allKnownContactResult.result.associateBy { it.id }
                     ) { contact ->
                         with(contact) {
+                            val onClick: (Boolean) -> Unit = remember {
+                                { isChecked: Boolean ->
+                                    onUserCheck(isChecked, this)
+                                }
+                            }
+
                             ContactItem(
                                 name = name,
                                 avatarData = avatarData,
                                 membership = membership,
                                 connectionState = connectionState,
                                 belongsToGroup = contactsAddedToGroup.contains(this),
-                                addToGroup = { onAddToGroup(this) },
-                                removeFromGroup = { onRemoveFromGroup(this) },
+                                onCheckChanged = onClick,
                                 openUserProfile = { onOpenUserProfile(this) },
                                 isMetadataNotAvailable = isMetadataEmpty()
                             )
@@ -108,7 +113,7 @@ fun SearchContactsScreen(
         }
 
         is SearchResultState.Failure -> {
-            SearchFailureBox(failureMessage = allKnownContactResult.failureString)
+            SearchFailureBox(failureMessage = TODO())
         }
 
         SearchResultState.EmptyResult -> {
@@ -142,8 +147,7 @@ private fun ContactItem(
     membership: Membership,
     belongsToGroup: Boolean,
     connectionState: ConnectionState,
-    addToGroup: () -> Unit,
-    removeFromGroup: () -> Unit,
+    onCheckChanged: (Boolean) -> Unit,
     openUserProfile: () -> Unit,
     isMetadataNotAvailable: Boolean = false
 ) {
@@ -160,7 +164,8 @@ private fun ContactItem(
             Row {
                 WireCheckbox(
                     checked = belongsToGroup,
-                    onCheckedChange = { isChecked -> if (isChecked) addToGroup() else removeFromGroup() })
+                    onCheckedChange = onCheckChanged
+                )
                 UserProfileAvatar(avatarData)
             }
         },
@@ -206,8 +211,7 @@ fun PreviewContactItem() {
             membership = Membership.Admin,
             belongsToGroup = true,
             connectionState = ConnectionState.ACCEPTED,
-            addToGroup = { },
-            removeFromGroup = { },
+            onCheckChanged = { },
             openUserProfile = { }
         )
     }
@@ -232,8 +236,7 @@ fun PreviewSearchContactsScreen() {
             ),
             contactsAddedToGroup = listOf(),
             onOpenUserProfile = { },
-            onAddToGroup = { },
-            onRemoveFromGroup = { }
+            onUserCheck = { _, _ -> }
         )
     }
 }
@@ -246,8 +249,7 @@ fun PreviewSearchContactsScreenEmpty() {
             allKnownContactResult = SearchResultState.EmptyResult,
             contactsAddedToGroup = listOf(),
             onOpenUserProfile = { },
-            onAddToGroup = { },
-            onRemoveFromGroup = { }
+            onUserCheck = { _, _ -> }
         )
     }
 }

@@ -35,7 +35,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetai
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -53,13 +53,13 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -145,7 +145,7 @@ class ConversationListViewModel @Inject constructor(
                 }
             }
         }
-        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null

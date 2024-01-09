@@ -445,6 +445,13 @@ sealed class ComposableMessageBundle : MessageBundle {
     data class AudioMessageBundle(
         val attachmentUri: UriAsset
     ) : ComposableMessageBundle()
+
+    data class LocationPickedBundle(
+        val locationName: String,
+        val latitude: Double,
+        val longitude: Double,
+        val zoom: Int = 20
+    ) : ComposableMessageBundle()
 }
 
 object Ping : MessageBundle

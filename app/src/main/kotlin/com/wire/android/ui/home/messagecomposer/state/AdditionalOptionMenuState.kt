@@ -34,6 +34,7 @@ enum class AdditionalOptionSubMenuState {
     AttachFile,
     AttachImage,
     Emoji,
+    Location,
     Gif;
 }
 

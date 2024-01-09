@@ -20,9 +20,7 @@ package com.wire.android.util.permission
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Address
 import android.location.Geocoder
-import android.location.Location
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,8 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.location.LocationServices
+import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.util.extension.checkPermission
-import com.wire.android.util.orDefault
 
 @Composable
 fun rememberCurrentLocationFlow(
@@ -98,17 +96,4 @@ private fun getCurrentLocation(onPermissionAllowed: (GeoLocatedAddress) -> Unit,
         val address = Geocoder(context).getFromLocation(lastLocation!!.latitude, lastLocation.longitude, 1).orEmpty()
         onPermissionAllowed(GeoLocatedAddress(address.firstOrNull(), lastLocation))
     }
-}
-
-data class GeoLocatedAddress(
-    val address: Address?,
-    val location: Location
-) {
-
-    fun getFormattedAddress(): String {
-        return address?.let {
-            "${address.featureName.orDefault(address.adminArea.orEmpty())}, ${address.postalCode.orDefault(address.adminArea.orEmpty())}, ${address.countryCode}"
-        } ?: "${location.latitude}, ${location.longitude}"
-    }
-
 }

@@ -1,6 +1,5 @@
 package com.wire.android.navigation
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavDestination
 import com.datadog.android.compose.ExperimentalTrackingApi

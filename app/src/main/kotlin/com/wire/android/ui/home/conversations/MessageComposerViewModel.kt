@@ -268,7 +268,8 @@ class MessageComposerViewModel @Inject constructor(
 
             is ComposableMessageBundle.LocationPickedBundle -> {
                 with(messageBundle) {
-                    TODO("implement location sending usecase")
+                    appLogger.d("Sending location message: $locationName, $location")
+                    TODO("implement location sending use case")
                 }
             }
 

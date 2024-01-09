@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
+import android.location.Location
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
@@ -448,8 +449,7 @@ sealed class ComposableMessageBundle : MessageBundle {
 
     data class LocationPickedBundle(
         val locationName: String,
-        val latitude: Float,
-        val longitude: Float,
+        val location: Location,
         val zoom: Int = 20
     ) : ComposableMessageBundle()
 }

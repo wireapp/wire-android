@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,6 +52,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -303,9 +305,17 @@ class WireNotificationManager @Inject constructor(
     ) {
         appLogger.d("$TAG observe incoming calls")
 
-        coreLogic.getSessionScope(userId)
-            .calls
-            .getIncomingCalls()
+        coreLogic.getSessionScope(userId).observeE2EIRequired()
+            .map { it is E2EIRequiredResult.NoGracePeriod }
+            .distinctUntilChanged()
+            .flatMapLatest { isBlockedByE2EIRequired ->
+                if (isBlockedByE2EIRequired) {
+                    appLogger.d("$TAG calls were blocked as E2EI is required")
+                    flowOf(listOf())
+                } else {
+                    coreLogic.getSessionScope(userId).calls.getIncomingCalls()
+                }
+            }
             .collect { calls ->
                 callNotificationManager.handleIncomingCallNotifications(calls, userId)
             }
@@ -329,33 +339,37 @@ class WireNotificationManager @Inject constructor(
             .distinctUntilChanged()
             .stateIn(scope)
 
+        val isBlockedByE2EIRequiredState = coreLogic.getSessionScope(userId).observeE2EIRequired()
+            .map { it is E2EIRequiredResult.NoGracePeriod }
+            .distinctUntilChanged()
+            .stateIn(scope)
+
         coreLogic.getSessionScope(userId)
             .messages
             .getNotifications()
             .cancellable()
-            .map { newNotifications ->
-                // we don't want to display notifications for the Conversation that user currently in.
-                val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
-                    currentScreenState.value,
-                    userId,
-                    newNotifications
-                )
-
+            .onEach { newNotifications ->
                 playPingSoundIfNeeded(
                     currentScreen = currentScreenState.value,
                     notifications = newNotifications
                 )
-                val userName = selfUserNameState.value
-
-                // combining all the data that is necessary for Notifications into small data class,
-                // just to make it more readable than
-                // Triple<List<LocalNotification>, QualifiedID, String>
-                MessagesNotificationsData(notificationsList, userId, userName)
+            }
+            .map { newNotifications ->
+                // we don't want to display notifications for the Conversation that user currently in.
+                filterAccordingToScreenAndUpdateNotifyDate(
+                    currentScreenState.value,
+                    userId,
+                    newNotifications
+                )
             }
             .cancellable()
-            .collect { (newNotifications, userId, userName) ->
+            .collect { newNotifications ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
-                messagesNotificationManager.handleNotification(newNotifications, userId, userName)
+                if (isBlockedByE2EIRequiredState.value) {
+                    appLogger.d("$TAG notifications were skipped as E2EI is required")
+                } else {
+                    messagesNotificationManager.handleNotification(newNotifications, userId, selfUserNameState.value)
+                }
                 markMessagesAsNotified(userId)
                 markConnectionAsNotified(userId)
             }

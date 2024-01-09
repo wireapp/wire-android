@@ -61,8 +61,8 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -217,9 +217,11 @@ class MessageComposerViewModel @Inject constructor(
             when {
                 shouldInformAboutDegradedBeforeSendingMessage() ->
                     sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
+
                 shouldInformAboutUnderLegalHoldBeforeSendingMessage() ->
                     sureAboutMessagingDialogState =
                         SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle)
+
                 else -> sendMessage(messageBundle)
             }
         }
@@ -262,6 +264,12 @@ class MessageComposerViewModel @Inject constructor(
                     ).handleLegalHoldFailureAfterSendingMessage()
                 }
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
+            }
+
+            is ComposableMessageBundle.LocationPickedBundle -> {
+                with(messageBundle) {
+                    TODO("implement location sending usecase")
+                }
             }
 
             Ping -> {
@@ -374,8 +382,10 @@ class MessageComposerViewModel @Inject constructor(
             sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(this.messageId)
         }
     }
+
     private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage() =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage() }
+
     private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage() = also {
         if (it is ScheduleNewAssetMessageResult.Failure) {
             it.coreFailure.handleLegalHoldFailureAfterSendingMessage()
@@ -500,8 +510,10 @@ class MessageComposerViewModel @Inject constructor(
                 when (it) {
                     is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                         trySendMessage(it.messageBundleToSend)
+
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending ->
                         trySendMessage(it.messageBundleToSend)
+
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending ->
                         retrySendingMessage(it.messageId)
                 }
@@ -525,7 +537,8 @@ class MessageComposerViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> { /* do nothing */ }
+            SureAboutMessagingDialogState.Hidden -> { /* do nothing */
+            }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }

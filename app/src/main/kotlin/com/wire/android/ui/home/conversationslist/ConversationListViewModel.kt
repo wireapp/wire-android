@@ -46,6 +46,7 @@ import com.wire.android.ui.home.conversationslist.model.SearchQuery
 import com.wire.android.ui.home.conversationslist.model.SearchQueryUpdate
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -533,7 +534,7 @@ class ConversationListViewModel @Inject constructor(
     }
 }
 
-fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
+fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
 
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(

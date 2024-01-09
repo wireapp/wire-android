@@ -25,10 +25,10 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
-import com.wire.kalium.logic.feature.search.UserSearchDetails
 import javax.inject.Inject
 
 class ContactMapper
@@ -75,7 +75,7 @@ class ContactMapper
             return Contact(
                 id = id.value,
                 domain = id.domain,
-                name = name ?: TODO(),
+                name = name ?: String.EMPTY,
                 label = String.EMPTY,
                 avatarData = UserAvatarData(
                     asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }

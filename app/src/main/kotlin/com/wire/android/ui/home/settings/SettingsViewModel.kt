@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.settings
@@ -26,27 +24,32 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.kalium.logic.feature.featureConfig.IsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
-    private val isAppLockEditableUseCase: IsAppLockEditableUseCase
+    private val observeIsAppLockEditable: ObserveIsAppLockEditableUseCase
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
 
     init {
         viewModelScope.launch {
-            isAppLockEditableUseCase().let {
-                state = state.copy(isAppLockEditable = it)
-            }
-            globalDataStore.isAppLockPasscodeSetFlow().collect {
-                state = state.copy(isAppLockEnabled = it)
-            }
+            combine(
+                observeIsAppLockEditable(),
+                globalDataStore.isAppLockPasscodeSetFlow()
+            ) {
+                isAppLockEditable, isAppLockEnabled ->
+                SettingsState(
+                    isAppLockEditable = isAppLockEditable,
+                    isAppLockEnabled = isAppLockEnabled
+                )
+            }.collect { state = it }
         }
     }
 

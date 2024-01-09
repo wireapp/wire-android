@@ -38,11 +38,11 @@ androidx-browser = "1.5.0"
 androidx-biometric = "1.1.0"
 
 # Compose
-composeBom = "2023.10.00" # TODO check if in new version [anchoredDraggable] is available
-compose-activity = "1.8.0"
+composeBom = "2023.10.01" # TODO check if in new version [anchoredDraggable] is available
+compose-activity = "1.8.2"
 compose-compiler = "1.5.2"
 compose-constraint = "1.0.1"
-compose-navigation = "2.7.3" # adjusted to work with compose-destinations "1.9.54"
+compose-navigation = "2.7.6" # adjusted to work with compose-destinations "1.9.54"
 compose-destinations = "1.9.54"
 
 # Hilt
@@ -190,7 +190,6 @@ compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:
 # Accompanist
 accompanist-systemUI = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 accompanist-placeholder = { module = "com.google.accompanist:accompanist-placeholder", version.ref = "accompanist" }
-accompanist-navAnimation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist" }
 
 # Image Loading
 coil-core = { module = "io.coil-kt:coil", version.ref = "coil" }

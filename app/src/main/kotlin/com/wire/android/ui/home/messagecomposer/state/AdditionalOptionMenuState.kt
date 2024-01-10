@@ -40,6 +40,7 @@ enum class AdditionalOptionSubMenuState {
 
 enum class AdditionalOptionSelectItem {
     RichTextEditing,
+
     // it's only used to show keyboard after self deleting bottom sheet collapses
     SelfDeleting,
     AttachFile,
@@ -73,9 +74,10 @@ class AdditionalOptionStateHolder {
 
     fun toLocationPicker() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Location
+        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }
 
-    fun hideAudioRecording() {
+    fun toInitialAttachmentOptionsMenu() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }

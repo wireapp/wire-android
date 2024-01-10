@@ -129,8 +129,8 @@ class MessageComposerStateHolder(
         additionalOptionStateHolder.toLocationPicker()
     }
 
-    fun toCloseAudioRecording() {
-        additionalOptionStateHolder.hideAudioRecording()
+    fun toInitialAttachmentOptions() {
+        additionalOptionStateHolder.toInitialAttachmentOptionsMenu()
     }
 
     fun cancelEdit() {

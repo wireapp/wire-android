@@ -447,7 +447,7 @@ sealed class ComposableMessageBundle : MessageBundle {
         val attachmentUri: UriAsset
     ) : ComposableMessageBundle()
 
-    data class LocationPickedBundle(
+    data class LocationBundle(
         val locationName: String,
         val location: Location,
         val zoom: Int = 20

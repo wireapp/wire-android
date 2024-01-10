@@ -17,14 +17,32 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Geocoder
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.wire.android.appLogger
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.dimensions
+import com.wire.android.util.permission.rememberCurrentLocationFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /**
  * Component to pick the current location to send.
@@ -33,19 +51,69 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationPickerComponent(
-    sheetState: WireModalSheetState = WireModalSheetState(initialValue = SheetValue.Expanded),
-    onPickedLocation: (GeoLocatedAddress) -> Unit,
-    onCloseLocation: () -> Unit
+    onLocationPicked: (GeoLocatedAddress) -> Unit,
+    onLocationClosed: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberWireModalSheetState(initialValue = SheetValue.Expanded)
 
-    WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
+    val locationFlow = LocationFlow(
+        onCurrentLocationPicked = {
+            appLogger.d("LocationPickerComponent: onCurrentLocationPicked: $it")
+        },
+        LocalContext.current,
+        coroutineScope
+    )
+
+    SideEffect {
+        locationFlow.launch()
+    }
+
+    LaunchedEffect(sheetState.isVisible) {
+        if (!sheetState.isVisible) {
+            onLocationClosed()
+        }
+    }
+
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        coroutineScope = coroutineScope
+    ) {
         MenuModalSheetContent(
             menuItems = buildList {
                 add {
-                    Text(text = "LocationPickerComponent")
+                    Column(modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing200x)) {
+                        Text(text = "LocationPickerComponent")
+                    }
                 }
             }
         )
     }
 }
+
+/**
+ * Choosing the best location estimate by docs.
+ * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
+ */
+@SuppressLint("MissingPermission")
+private fun getCurrentLocation(onCurrentLocationPicked: (GeoLocatedAddress) -> Unit, context: Context, coroutineScope: CoroutineScope) {
+    val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+    coroutineScope.launch {
+        val currentLocation = locationProvider.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            CancellationTokenSource().token,
+        ).await()
+        val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
+        onCurrentLocationPicked(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+    }
+}
+
+@Composable
+private fun LocationFlow(onCurrentLocationPicked: (GeoLocatedAddress) -> Unit, context: Context, coroutineScope: CoroutineScope) =
+    rememberCurrentLocationFlow(
+        onPermissionAllowed = {
+            getCurrentLocation(onCurrentLocationPicked, context, coroutineScope)
+        },
+        onPermissionDenied = {}//todo show dialog error.
+    )
+

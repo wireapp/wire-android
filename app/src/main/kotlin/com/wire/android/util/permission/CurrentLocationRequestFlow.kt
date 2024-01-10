@@ -18,22 +18,18 @@
 
 package com.wire.android.util.permission
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Geocoder
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.google.android.gms.location.LocationServices
-import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun rememberCurrentLocationFlow(
-    onPermissionAllowed: (GeoLocatedAddress) -> Unit,
+    onPermissionAllowed: () -> Unit,
     onPermissionDenied: () -> Unit
 ): CurrentLocationRequestFlow {
     val context = LocalContext.current
@@ -42,25 +38,25 @@ fun rememberCurrentLocationFlow(
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val allPermissionGranted = permissions.all { it.value }
             if (allPermissionGranted) {
-                getCurrentLocation(onPermissionAllowed, context)
+                onPermissionAllowed()
             } else {
                 onPermissionDenied()
             }
         }
 
     return remember {
-        CurrentLocationRequestFlow(context, onPermissionAllowed, requestPermissionLauncher)
+        CurrentLocationRequestFlow(context, requestPermissionLauncher, onPermissionAllowed)
     }
 }
 
 class CurrentLocationRequestFlow(
     private val context: Context,
-    private val onPermissionAllowed: (GeoLocatedAddress) -> Unit,
-    private val locationPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
+    private val locationPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>,
+    private val onPermissionAllowed: () -> Unit
 ) {
     fun launch() {
         if (checkLocationPermissions(context)) {
-            getCurrentLocation(onPermissionAllowed, context)
+            onPermissionAllowed()
         } else {
             locationPermissionLauncher.launch(getLocationPermissions())
         }
@@ -77,23 +73,3 @@ private fun checkLocationPermissions(
     context: Context
 ): Boolean = context.checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) &&
         context.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-
-@SuppressLint("MissingPermission")
-private fun getCurrentLocation(onPermissionAllowed: (GeoLocatedAddress) -> Unit, context: Context) {
-    val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-//    val locationCallback: LocationCallback = object : LocationCallback() {
-//        override fun onLocationResult(result: LocationResult) {
-//            val lastLocation = result.locations.last()
-//            val address = Geocoder(context).getFromLocation(lastLocation!!.latitude, lastLocation.longitude, 1).orEmpty()
-//            onPermissionAllowed(GeoLocatedAddress(address.firstOrNull(), lastLocation))
-//        }
-//    }
-
-    //todo implement later the updates of this
-//    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(50)).build()
-//    locationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-    locationProvider.lastLocation.addOnSuccessListener { lastLocation ->
-        val address = Geocoder(context).getFromLocation(lastLocation!!.latitude, lastLocation.longitude, 1).orEmpty()
-        onPermissionAllowed(GeoLocatedAddress(address.firstOrNull(), lastLocation))
-    }
-}

@@ -43,7 +43,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -53,7 +52,6 @@ import com.wire.android.util.permission.UseCameraAndWriteStorageRequestFlow
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
-import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
@@ -206,15 +204,6 @@ private fun CaptureVideoFlow(
 }
 
 @Composable
-private fun ShareCurrentLocationFlow() =
-    rememberCurrentLocationFlow(
-        onPermissionAllowed = {
-            appLogger.d("Current Location is: ${it.getFormattedAddress()}")
-        },
-        onPermissionDenied = { appLogger.w("Location permissions not granted") }
-    )
-
-@Composable
 private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
@@ -227,7 +216,6 @@ private fun buildAttachmentOptionItems(
     val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val cameraFlow = TakePictureFlow(tempWritableImageUri, remember { { onFilePicked(UriAsset(it, false)) } })
     val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, remember { { onFilePicked(UriAsset(it, true)) } })
-    val shareCurrentLocationFlow = ShareCurrentLocationFlow()
 
     return buildList {
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -277,7 +265,6 @@ private fun buildAttachmentOptionItems(
                         text = R.string.attachment_share_location,
                         icon = R.drawable.ic_location
                     ) {
-                        shareCurrentLocationFlow.launch()
                         onLocationPickerClicked()
                     }
                 )

@@ -266,10 +266,9 @@ class MessageComposerViewModel @Inject constructor(
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
 
-            is ComposableMessageBundle.LocationPickedBundle -> {
+            is ComposableMessageBundle.LocationBundle -> {
                 with(messageBundle) {
-                    appLogger.d("Sending location message: $locationName, $location")
-                    TODO("implement location sending use case")
+                    appLogger.w("todo, implement, sending location message: $locationName, $location")
                 }
             }
 

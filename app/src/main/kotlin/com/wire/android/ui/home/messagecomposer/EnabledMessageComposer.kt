@@ -52,6 +52,7 @@ import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
@@ -73,6 +74,7 @@ fun EnabledMessageComposer(
     onSendButtonClicked: () -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
+    onLocationPicked: (GeoLocatedAddress) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
@@ -264,10 +266,11 @@ fun EnabledMessageComposer(
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
-                            onCloseRecordAudio = ::toCloseAudioRecording,
+                            onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                             onLocationPickerClicked = ::toLocationPicker,
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,
+                            onLocationPicked = onLocationPicked,
                             tempWritableImageUri = tempWritableImageUri,
                             tempWritableVideoUri = tempWritableVideoUri,
                             modifier = Modifier

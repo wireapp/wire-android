@@ -591,12 +591,13 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **ki**kapcsolta az önmegsemmisítő üzenetek időzítőjét mindenki számára</string>
     <string name="label_system_message_deactivated">deaktivált</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Az MLS csoportkulcs tudtunkon kívül frissült. Ezt a kiszolgálók közötti üzenetvesztés vagy programhiba okozhatta. Automatikusan újracsatlakoztunk a beszélgetéshez, de Önnek elveszhettek üzenetei.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">You haven’t updated this device for a while. In the meantime, the standard messaging protocol changed from Proteus to Messaging Layer Security (MLS). Due to this change, some messages may not appear here.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Ön nem frissítette idejében az applikációt. Néhány üzenet hiányozhat innen.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">A titkosítási eljárás megváltoztatása törölve.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">A titkosítási eljárás megváltoztatása elkezdődött. Gondoskodjon összes Wire-kliense frissítéséről.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">A titkosítási eljárás megváltoztatása befejeződött. A nem frissített Wire-kliensek többé nem fogadnak üzeneteket.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">This conversation now uses the new Messaging Layer Security (MLS) protocol. To communicate seamlessly, always use the latest version of Wire on your devices.</string>
+    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">be</string>
     <string name="label_system_message_receipt_mode_off">ki</string>
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
@@ -706,7 +707,8 @@
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
     <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_links">Links</string>
+    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">NÉVJEGYEK</string>
     <string name="label_new_group">Új csoport</string>
@@ -1225,11 +1227,11 @@ Kérjük, próbálja meg újra.</string>
     <string name="delete_acount_dialog_title">Fiók törlése</string>
     <string name="delete_acount_dialog_text">Ha továbblép, küldünk egy e-mailt. Fiókja végleges törléséhez nyissa meg a kapott linket.</string>
     <string name="end_to_end_identity_required_dialog_title">Végpontok közötti azonosító tanúsítvány</string>
-    <string name="end_to_end_identity_required_dialog_text">Mostantól az Ön csapata végpontok közötti azonosítást alkalmaz, hogy a Wire-t még biztonságosabbá és használhatóbbá tegye. Az eszközellenőrzés automatikusan történik egy tanúsítvány segítségével, és felváltja a korábbi kézi eljárást. Így Önök a legmagasabb fokú biztonsággal kommunikálnak.\n\nA következő lépésben adja meg az azonosítószolgáltatójához használt azonosítóit, így automatikusan megkapja az azonosító tanúsítványt ehhez az eszközhöz.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Mostantól az Ön csapata végpontok közötti azonosítást alkalmaz, hogy a Wire használatát még biztonságosabbá tegye. Az eszközellenőrzés automatikusan történik egy tanúsítvány segítségével.\n\nA következő lépésben adja meg az azonosítószolgáltatójához használt azonosítóit, így automatikusan megkapja az azonosító tanúsítványt ehhez az eszközhöz.</string>
+    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Tanúsítvány beszerzése</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Emlékeztessen később</string>
-    <string name="end_to_end_identity_snooze_dialog_text">A tanúsítványhoz a következő %1$s során juthat hozzá a Wire beállításaiban. Nyissa meg az Eszközöket, és válassza a Tanúsítvány beszerzése lehetőséget.\nHogy fennakadás nélkül használhassa a Wire-t, szerezze be időben – nem tart sokáig.</string>
+    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire Settings during the next %1$s.\nOpen Devices and select Get Certificate for your current device. </string>
     <string name="end_to_end_identity_renew_dialog_title">Update certificate</string>
     <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>

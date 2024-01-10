@@ -71,6 +71,10 @@ class AdditionalOptionStateHolder {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.RecordAudio
     }
 
+    fun toLocationPicker() {
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Location
+    }
+
     fun hideAudioRecording() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu

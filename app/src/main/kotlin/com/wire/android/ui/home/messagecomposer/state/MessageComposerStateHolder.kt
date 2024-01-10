@@ -124,6 +124,11 @@ class MessageComposerStateHolder(
         additionalOptionStateHolder.toAudioRecording()
     }
 
+    fun toLocationPicker() {
+        messageCompositionInputStateHolder.showOptions()
+        additionalOptionStateHolder.toLocationPicker()
+    }
+
     fun toCloseAudioRecording() {
         additionalOptionStateHolder.hideAudioRecording()
     }

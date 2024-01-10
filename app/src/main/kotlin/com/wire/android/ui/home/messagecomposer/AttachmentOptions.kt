@@ -65,7 +65,8 @@ fun AttachmentOptionsComponent(
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    onLocationPickerClicked: () -> Unit
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
@@ -75,7 +76,8 @@ fun AttachmentOptionsComponent(
         tempWritableImageUri,
         tempWritableVideoUri,
         onAttachmentPicked,
-        onRecordAudioMessageClicked
+        onRecordAudioMessageClicked,
+        onLocationPickerClicked
     )
 
     val labelStyle = MaterialTheme.wireTypography.button03
@@ -218,7 +220,8 @@ private fun buildAttachmentOptionItems(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFilePicked: (UriAsset) -> Unit,
-    onRecordAudioMessageClicked: () -> Unit
+    onRecordAudioMessageClicked: () -> Unit,
+    onLocationPickerClicked: () -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })
@@ -273,7 +276,10 @@ private fun buildAttachmentOptionItems(
                     AttachmentOptionItem(
                         text = R.string.attachment_share_location,
                         icon = R.drawable.ic_location
-                    ) { shareCurrentLocationFlow.launch() }
+                    ) {
+                        shareCurrentLocationFlow.launch()
+                        onLocationPickerClicked()
+                    }
                 )
             }
         }
@@ -296,6 +302,7 @@ fun PreviewAttachmentComponents() {
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
         onRecordAudioMessageClicked = {},
+        onLocationPickerClicked = {}
     )
 }
 
@@ -313,6 +320,7 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
+                onLocationPickerClicked = {}
             )
         }
     }
@@ -332,6 +340,7 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
+                onLocationPickerClicked = {}
             )
         }
     }
@@ -351,6 +360,7 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
+                onLocationPickerClicked = {}
             )
         }
     }

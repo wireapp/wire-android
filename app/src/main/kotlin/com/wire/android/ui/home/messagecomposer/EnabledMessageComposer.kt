@@ -265,6 +265,7 @@ fun EnabledMessageComposer(
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseRecordAudio = ::toCloseAudioRecording,
+                            onLocationPickerClicked = ::toLocationPicker,
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,
                             tempWritableImageUri = tempWritableImageUri,

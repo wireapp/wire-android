@@ -20,8 +20,9 @@ package com.wire.android.ui.home.messagecomposer.location
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -77,8 +78,13 @@ fun LocationPickerComponent(
                 MenuModalSheetContent(
                     menuItems = buildList {
                         add {
-                            Column(modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing200x)) {
-                                Text(text = locationName)
+                            Row(
+                                modifier = Modifier
+                                    .defaultMinSize(minHeight = dimensions().spacing200x)
+                                    .align(alignment = androidx.compose.ui.Alignment.CenterHorizontally)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(text = locationName, modifier = Modifier.fillMaxWidth())
                             }
                         }
                     }
@@ -122,9 +128,7 @@ private fun LocationFlow(
     coroutineScope: CoroutineScope
 ) =
     rememberCurrentLocationFlow(
-        onPermissionAllowed = {
-
-        },
+        onPermissionAllowed = onCurrentLocationPicked,
         onPermissionDenied = {}//todo show dialog error.
     )
 

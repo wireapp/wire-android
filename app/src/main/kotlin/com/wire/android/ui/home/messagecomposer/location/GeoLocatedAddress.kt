@@ -28,7 +28,7 @@ data class GeoLocatedAddress(
 
     fun getFormattedAddress(): String {
         return address?.let {
-            "${address.featureName.orDefault(address.adminArea.orEmpty())}, ${address.postalCode.orDefault(address.adminArea.orEmpty())}, ${address.countryCode}"
+            "> ${address.featureName.orDefault(address.adminArea.orEmpty())}, ${address.postalCode.orDefault(address.adminArea.orEmpty())}, ${address.countryCode}"
         } ?: "${location.latitude}, ${location.longitude}"
     }
 

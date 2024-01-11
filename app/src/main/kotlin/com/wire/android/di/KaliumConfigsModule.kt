@@ -55,6 +55,7 @@ class KaliumConfigsModule {
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
             isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
+            ignoreSSLCertificatesForUnboundCalls = BuildConfig.IGNORE_SSL_CERTIFICATES,
             encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
             guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK,
             selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES,

@@ -53,7 +53,7 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
             .map { sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
                 val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
-                val allParticipants = sortedMemberList.getOrDefault(false, listOf()).limit(limit)
+                val allParticipants = sortedMemberList.getOrDefault(false, listOf())
                 val visibleParticipants = allParticipants.limit(limit)
 
                 val visibleUserIds = visibleParticipants.map { it.userId }

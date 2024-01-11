@@ -68,6 +68,9 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -101,6 +104,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val fetchUsersClients: FetchUsersClientsFromRemoteUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    private val getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -127,6 +131,16 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     init {
         observeUserInfoAndUpdateViewState()
         persistClients()
+        getMLSVerificationStatus()
+    }
+
+    private fun getMLSVerificationStatus() {
+        viewModelScope.launch(dispatchers.io()) {
+            val isMLSVerified = getUserE2eiCertificateStatus(userId).let {
+                it is GetUserE2eiCertificateStatusResult.Success && it.status == CertificateStatus.VALID
+            }
+            state = state.copy(isMLSVerified = isMLSVerified)
+        }
     }
 
     override fun observeClientList() {

@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.details.participants.usecase
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.ui.home.conversations.userId
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
@@ -28,6 +29,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -35,6 +37,7 @@ import javax.inject.Inject
 
 class ObserveParticipantsForConversationUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase,
     private val uiParticipantMapper: UIParticipantMapper,
     private val dispatchers: DispatcherProvider
 ) {
@@ -47,13 +50,21 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     isAdmin && !isService
                 }
             }
-
             .map { sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
+                val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
                 val allParticipants = sortedMemberList.getOrDefault(false, listOf())
+                val visibleParticipants = allParticipants.limit(limit)
+
+                val visibleUserIds = visibleParticipants.map { it.userId }
+                    .plus(visibleAdminsWithoutServices.map { it.userId })
+
+                val mlsVerificationMap = getMembersE2EICertificateStatuses(conversationId, visibleUserIds)
                 ConversationParticipantsData(
-                    admins = allAdminsWithoutServices.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
-                    participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
+                    admins = visibleAdminsWithoutServices
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
+                    participants = visibleParticipants
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser }

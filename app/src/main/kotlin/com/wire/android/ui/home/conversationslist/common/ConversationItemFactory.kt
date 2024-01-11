@@ -30,8 +30,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.common.MLSVerifiedIcon
-import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
@@ -144,15 +142,7 @@ private fun GeneralConversationItem(
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                             isLegalHold = conversation.isLegalHold,
-                            searchQuery = searchQuery,
-                            badges = {
-                                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-                                    ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
-                                }
-                                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-                                    MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
-                                }
-                            }
+                            searchQuery = searchQuery
                         )
                     },
                     subTitle = subTitle,

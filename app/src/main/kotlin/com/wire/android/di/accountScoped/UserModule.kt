@@ -27,6 +27,8 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -224,4 +226,14 @@ class UserModule {
     @Provides
     fun provideGetE2EICertificateUseCase(userScope: UserScope): GetE2eiCertificateUseCase =
         userScope.getE2EICertificate
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): GetUserE2eiCertificateStatusUseCase =
+        userScope.getUserE2eiCertificateStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetMembersE2EICertificateStatusesUseCase(userScope: UserScope): GetMembersE2EICertificateStatusesUseCase =
+        userScope.getMembersE2EICertificateStatuses
 }

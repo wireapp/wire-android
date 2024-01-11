@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversationslist
@@ -53,7 +51,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
-import com.wire.kalium.logic.data.user.LegalHoldStatus
+import com.wire.kalium.logic.data.conversation.Conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
@@ -547,7 +545,7 @@ private fun ConversationDetails.toConversationItem(
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 conversation.mutedStatus,
@@ -578,7 +576,7 @@ private fun ConversationDetails.toConversationItem(
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,

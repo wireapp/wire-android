@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -49,11 +47,13 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
 import com.wire.android.ui.common.ConversationVerificationIcons
+import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
@@ -140,6 +140,10 @@ private fun ConversationScreenTopAppBarContent(
                     conversationInfoViewState.mlsVerificationStatus,
                     conversationInfoViewState.proteusVerificationStatus
                 )
+                if (conversationInfoViewState.legalHoldStatus == Conversation.LegalHoldStatus.ENABLED) {
+                    HorizontalSpace.x4()
+                    LegalHoldIndicator()
+                }
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -373,6 +377,32 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
             mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
+        onJoinCallButtonClick = {},
+        onPermanentPermissionDecline = {},
+        isInteractionEnabled = true,
+        isSearchEnabled = false
+    )
+}
+
+@Preview("Topbar with a short conversation title and verified")
+@Composable
+fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
+    val conversationId = QualifiedID("", "")
+    ConversationScreenTopAppBarContent(
+        ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId),
+            protocolInfo = Conversation.ProtocolInfo.Proteus,
+            legalHoldStatus = Conversation.LegalHoldStatus.ENABLED,
         ),
         onBackButtonClick = {},
         onDropDownClick = {},

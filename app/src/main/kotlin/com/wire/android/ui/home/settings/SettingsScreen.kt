@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.settings
@@ -116,12 +114,11 @@ fun SettingsScreenContent(
                     }
                     add(SettingsItem.NetworkSettings)
 
+                    appLogger.d("AppLockConfig " +
+                            "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}")
                     add(SettingsItem.AppLock(
                         when (settingsState.isAppLockEditable) {
                             true -> {
-                                appLogger.d("AppLockConfig isAooLockEditable: ${settingsState.isAppLockEditable}")
-
-                                appLogger.d("AppLockConfig isAppLockEnabled: ${settingsState.isAppLockEnabled}")
                                 SwitchState.Enabled(
                                     value = settingsState.isAppLockEnabled,
                                     isOnOffVisible = true,
@@ -130,12 +127,8 @@ fun SettingsScreenContent(
                             }
 
                             false -> {
-                                appLogger.d("AppLockConfig isAooLockEditable: ${settingsState.isAppLockEditable}")
-
-                                appLogger.d("AppLockConfig isAppLockEnabled: ${settingsState.isAppLockEnabled}")
-                                SwitchState.Disabled(
+                                SwitchState.TextOnly(
                                     value = settingsState.isAppLockEnabled,
-                                    isOnOffVisible = true,
                                 )
                             }
                         }

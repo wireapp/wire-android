@@ -17,6 +17,14 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+
+@OptIn(ExperimentalMaterial3Api::class)
 data class LocationPickerState(
-    val name: String = "",
+    val locationName: String = "",
+    val isLocationLoading: Boolean = false,
+    val isPermissionsAllowed: Boolean = false,
+    val wireModalSheetState: WireModalSheetState = WireModalSheetState(SheetValue.Hidden)
 )

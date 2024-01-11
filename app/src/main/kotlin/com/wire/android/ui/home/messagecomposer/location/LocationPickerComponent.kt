@@ -27,14 +27,13 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.wire.android.appLogger
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -54,40 +53,44 @@ fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     onLocationClosed: () -> Unit
 ) {
+    val viewModel = hiltViewModel<LocationPickerViewModel>()
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberWireModalSheetState(initialValue = SheetValue.Expanded)
 
     val locationFlow = LocationFlow(
-        onCurrentLocationPicked = {
-            appLogger.d("LocationPickerComponent: onCurrentLocationPicked: $it")
-        },
-        LocalContext.current,
+        onCurrentLocationPicked = { viewModel.setPermissionsAllowed(true) },
+        context,
         coroutineScope
     )
-
-    SideEffect {
+    LaunchedEffect(Unit) {
         locationFlow.launch()
+    }
+
+    with(viewModel.state) {
+        if (isPermissionsAllowed) {
+            getCurrentLocation(viewModel::onLocationPicked, context, coroutineScope)
+            WireModalSheetLayout(
+                sheetState = sheetState,
+                coroutineScope = coroutineScope
+            ) {
+                MenuModalSheetContent(
+                    menuItems = buildList {
+                        add {
+                            Column(modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing200x)) {
+                                Text(text = locationName)
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
 
     LaunchedEffect(sheetState.isVisible) {
         if (!sheetState.isVisible) {
             onLocationClosed()
         }
-    }
-
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        coroutineScope = coroutineScope
-    ) {
-        MenuModalSheetContent(
-            menuItems = buildList {
-                add {
-                    Column(modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing200x)) {
-                        Text(text = "LocationPickerComponent")
-                    }
-                }
-            }
-        )
     }
 }
 
@@ -96,7 +99,11 @@ fun LocationPickerComponent(
  * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
  */
 @SuppressLint("MissingPermission")
-private fun getCurrentLocation(onCurrentLocationPicked: (GeoLocatedAddress) -> Unit, context: Context, coroutineScope: CoroutineScope) {
+private fun getCurrentLocation(
+    onCurrentLocationPicked: (GeoLocatedAddress) -> Unit,
+    context: Context,
+    coroutineScope: CoroutineScope
+) {
     val locationProvider = LocationServices.getFusedLocationProviderClient(context)
     coroutineScope.launch {
         val currentLocation = locationProvider.getCurrentLocation(
@@ -109,10 +116,14 @@ private fun getCurrentLocation(onCurrentLocationPicked: (GeoLocatedAddress) -> U
 }
 
 @Composable
-private fun LocationFlow(onCurrentLocationPicked: (GeoLocatedAddress) -> Unit, context: Context, coroutineScope: CoroutineScope) =
+private fun LocationFlow(
+    onCurrentLocationPicked: () -> Unit,
+    context: Context,
+    coroutineScope: CoroutineScope
+) =
     rememberCurrentLocationFlow(
         onPermissionAllowed = {
-            getCurrentLocation(onCurrentLocationPicked, context, coroutineScope)
+
         },
         onPermissionDenied = {}//todo show dialog error.
     )

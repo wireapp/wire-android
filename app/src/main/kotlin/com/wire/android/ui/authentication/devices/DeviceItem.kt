@@ -181,6 +181,7 @@ private fun DeviceItemTexts(
         )
         if (shouldShowVerifyLabel) {
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
+            // TODO MLS icons here
             if (device.isVerifiedProteus) ProteusVerifiedIcon(Modifier.wrapContentWidth().align(Alignment.CenterVertically))
         }
     }

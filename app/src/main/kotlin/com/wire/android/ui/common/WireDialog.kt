@@ -372,7 +372,6 @@ fun PreviewWireDialogWith2OptionButtons() {
     }
 }
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable

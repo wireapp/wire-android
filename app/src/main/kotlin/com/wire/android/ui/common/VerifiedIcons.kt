@@ -19,12 +19,14 @@ package com.wire.android.ui.common
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -71,9 +73,11 @@ fun ProteusVerifiedIcon(
     modifier: Modifier = Modifier,
     @StringRes contentDescriptionId: Int = R.string.label_client_verified
 ) {
+    val iconId = if (isSystemInDarkTheme()) R.drawable.ic_certificate_valid_proteus_dark
+    else R.drawable.ic_certificate_valid_proteus
     Image(
         modifier = modifier.padding(start = dimensions().spacing4x),
-        painter = painterResource(id = R.drawable.ic_certificate_valid_proteus),
+        painter = painterResource(id = iconId),
         contentDescription = stringResource(contentDescriptionId)
     )
 }
@@ -86,6 +90,7 @@ fun MLSVerifiedIcon(
     Image(
         modifier = modifier.padding(start = dimensions().spacing4x),
         painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
-        contentDescription = stringResource(contentDescriptionId)
+        contentDescription = stringResource(contentDescriptionId),
+        colorFilter = ColorFilter.tint(colorsScheme().validE2eiStatusColor)
     )
 }

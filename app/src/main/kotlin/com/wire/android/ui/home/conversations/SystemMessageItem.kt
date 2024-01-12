@@ -26,6 +26,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -79,6 +80,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.markdownBold
 import com.wire.android.util.ui.markdownText
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlin.math.roundToInt
 
 @Suppress("ComplexMethod")
@@ -125,8 +127,12 @@ fun SystemMessageItem(
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
+                val iconId = if (isSystemInDarkTheme() && message.messageContent.darkIconResId != null)
+                    message.messageContent.darkIconResId
+                else message.messageContent.iconResId
+
                 Image(
-                    painter = painterResource(id = message.messageContent.iconResId),
+                    painter = painterResource(id = iconId),
                     contentDescription = null,
                     colorFilter = getColorFilter(message.messageContent),
                     modifier = Modifier.size(
@@ -537,6 +543,54 @@ fun PreviewSystemMessageLegalHoldDisabledConversation() {
 fun PreviewSystemMessageLegalHoldEnabledConversation() {
     WireTheme {
         SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Enabled.Conversation))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationVerifiedProteus() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationVerified(Conversation.Protocol.PROTEUS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationVerifiedMLS() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationVerified(Conversation.Protocol.MLS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationDegradedProteus() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationDegraded(Conversation.Protocol.PROTEUS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationDegradedMLS() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationDegraded(Conversation.Protocol.MLS)
+            )
+        )
     }
 }
 

@@ -21,7 +21,11 @@
         android:viewportWidth="16"
         android:viewportHeight="16">
     <path
-            android:fillColor="#1D7833"
+            android:fillColor="#54A6FF"
             android:fillType="evenOdd"
-            android:pathData="M15,8V1.872L8,0L1,2V8C1,12 4.007,15.098 8,16C12.034,15.098 15,12 15,8ZM13,5.346L6.852,12L3,7.846L4.231,6.5L6.852,9.309L11.769,4L13,5.346Z" />
+            android:pathData="M15,1.872V8C15,12 12.034,15.098 8,16C4.007,15.098 1,12 1,8V2L8,0L15,1.872Z" />
+    <path
+            android:fillColor="#326499"
+            android:fillType="evenOdd"
+            android:pathData="M8,16C4.007,15.098 1,12 1,8V2L8,0C8,0 8,13 8,16Z" />
 </vector>

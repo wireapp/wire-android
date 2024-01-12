@@ -282,14 +282,16 @@ sealed class UIMessageContent {
         open val stringResId: LocalizedStringResource,
         @StringRes val learnMoreResId: Int? = null,
         val isSmallIcon: Boolean = true,
+        @DrawableRes val darkIconResId: Int? = null,
     ) : UIMessageContent() {
 
         constructor(
             @DrawableRes iconResId: Int?,
             @StringRes stringResId: Int,
             isSmallIcon: Boolean = true,
-            @StringRes learnMoreResId: Int? = null
-        ) : this(iconResId, LocalizedStringResource.StringResource(stringResId), learnMoreResId, isSmallIcon)
+            @StringRes learnMoreResId: Int? = null,
+            @DrawableRes darkIconResId: Int? = null,
+        ) : this(iconResId, LocalizedStringResource.StringResource(stringResId), learnMoreResId, isSmallIcon, darkIconResId)
 
         constructor(
             @DrawableRes iconResId: Int?,
@@ -297,12 +299,14 @@ sealed class UIMessageContent {
             quantity: Int,
             formatArgs: List<UIText>,
             isSmallIcon: Boolean = true,
-            @StringRes learnMoreResId: Int? = null
+            @StringRes learnMoreResId: Int? = null,
+            @DrawableRes darkIconResId: Int? = null,
         ) : this(
             iconResId,
             LocalizedStringResource.PluralResource(stringResId, quantity, formatArgs.toTypedArray()),
             learnMoreResId,
-            isSmallIcon
+            isSmallIcon,
+            darkIconResId
         )
 
         data class Knock(val author: UIText, val isSelfTriggered: Boolean) : SystemMessage(
@@ -474,6 +478,7 @@ sealed class UIMessageContent {
                 Conversation.Protocol.MLS -> R.string.label_system_message_learn_more_about_mls_link
             }
         )
+
         data object ConversationProtocolChangedWithCallOngoing : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_protocol_changed_during_a_call
@@ -523,17 +528,21 @@ sealed class UIMessageContent {
         }
 
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
-            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_shield_holo,
-            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
-            else R.string.label_system_message_conversation_degraded_proteus
+            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
+            else R.string.label_system_message_conversation_degraded_proteus,
+            darkIconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls_dark
+            else R.drawable.ic_shield_holo_dark
         )
 
         data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
-            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
             else R.drawable.ic_certificate_valid_proteus,
-            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
-            else R.string.label_system_message_conversation_verified_proteus
+            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+            else R.string.label_system_message_conversation_verified_proteus,
+            darkIconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls_dark
+            else R.drawable.ic_certificate_valid_proteus_dark
         )
 
         data object ConversationMessageCreatedUnverifiedWarning : SystemMessage(

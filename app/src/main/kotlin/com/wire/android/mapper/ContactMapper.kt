@@ -76,7 +76,7 @@ class ContactMapper
                 id = id.value,
                 domain = id.domain,
                 name = name ?: String.EMPTY,
-                label = String.EMPTY,
+                label = handle ?: String.EMPTY,
                 avatarData = UserAvatarData(
                     asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
                 ),

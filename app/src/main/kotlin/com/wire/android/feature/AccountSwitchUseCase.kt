@@ -20,6 +20,7 @@
 
 package com.wire.android.feature
 
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
@@ -40,6 +41,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -64,11 +67,12 @@ class AccountSwitchUseCase @Inject constructor(
         }
 
     suspend operator fun invoke(params: SwitchAccountParam): SwitchAccountResult {
-        val current = currentAccount
+        val current = currentAccount.await()
+        appLogger.i("$TAG Switching account invoked: ${params.toLogString()}, current account: ${current?.userId?.toLogString() ?: "-"}")
         return when (params) {
-            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current.await())
-            SwitchAccountParam.TryToSwitchToNextAccount -> getNextAccountIfPossibleAndSwitch(current.await())
-            SwitchAccountParam.Clear -> switch(null, current.await())
+            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current)
+            SwitchAccountParam.TryToSwitchToNextAccount -> getNextAccountIfPossibleAndSwitch(current)
+            SwitchAccountParam.Clear -> switch(null, current)
         }
     }
 
@@ -83,6 +87,8 @@ class AccountSwitchUseCase @Inject constructor(
                     }?.userId
             }
         }
+        if (nextSessionId == null) appLogger.i("$TAG No next account to switch to")
+        else appLogger.i("$TAG Switching to next account: ${nextSessionId.toLogString()}")
         return switch(nextSessionId, current)
     }
 
@@ -104,6 +110,7 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun updateAuthServer(current: UserId) {
+        appLogger.i("$TAG Updating auth server config for account: ${current.toLogString()}")
         serverConfigForAccountUseCase(current).let {
             when (it) {
                 is ServerConfigForAccountUseCase.Result.Success -> authServerConfigProvider.updateAuthServer(it.config)
@@ -126,6 +133,7 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun handleInvalidSession(invalidAccount: AccountInfo.Invalid) {
+        appLogger.i("$TAG Handling invalid account: ${invalidAccount.userId.toLogString()}")
         when (invalidAccount.logoutReason) {
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 deleteSession(invalidAccount.userId)
@@ -137,14 +145,21 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private companion object {
+        const val TAG = "AccountSwitch"
         const val DELETE_USER_SESSION_TIMEOUT = 3000L
     }
 }
 
 sealed class SwitchAccountParam {
-    object TryToSwitchToNextAccount : SwitchAccountParam()
+    data object TryToSwitchToNextAccount : SwitchAccountParam()
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
     data object Clear : SwitchAccountParam()
+    private fun toLogMap(): Map<String, String> = when (this) {
+        is Clear -> mutableMapOf("value" to "CLEAR")
+        is SwitchToAccount -> mutableMapOf("value" to "SWITCH_TO_ACCOUNT", "userId" to userId.toLogString())
+        is TryToSwitchToNextAccount -> mutableMapOf("value" to "TRY_TO_SWITCH_TO_NEXT_ACCOUNT")
+    }
+    fun toLogString(): String = Json.encodeToString(toLogMap())
 }
 
 sealed class SwitchAccountResult {

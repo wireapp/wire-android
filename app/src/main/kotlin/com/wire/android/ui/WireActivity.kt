@@ -261,10 +261,13 @@ class WireActivity : AppCompatActivity() {
     @Suppress("ComplexMethod")
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
+<<<<<<< HEAD
         LaunchedEffect(Unit) {
             featureFlagNotificationViewModel.loadInitialSync()
         }
         val context = LocalContext.current
+=======
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(

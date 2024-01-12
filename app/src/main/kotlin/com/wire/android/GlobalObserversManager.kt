@@ -18,18 +18,25 @@
 
 package com.wire.android
 
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +50,12 @@ class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
+<<<<<<< HEAD
     private val notificationChannelsManager: NotificationChannelsManager
+=======
+    private val notificationChannelsManager: NotificationChannelsManager,
+    private val userDataStoreProvider: UserDataStoreProvider,
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
@@ -56,6 +68,7 @@ class GlobalObserversManager @Inject constructor(
                 }
             }
         }
+        scope.handleLogouts()
     }
 
     private suspend fun setUpNotifications() {
@@ -88,5 +101,21 @@ class GlobalObserversManager @Inject constructor(
                 // it would be nice to call all the notification observations in one place,
                 // but we can't start PersistentWebSocketService here, to avoid ForegroundServiceStartNotAllowedException
             }
+    }
+
+    private fun CoroutineScope.handleLogouts() {
+        callbackFlow<Unit> {
+            val callback: LogoutCallback = object : LogoutCallback {
+                override suspend fun invoke(userId: UserId, reason: LogoutReason) {
+                    notificationManager.stopObservingOnLogout(userId)
+                    notificationChannelsManager.deleteChannelGroup(userId)
+                    if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
+                        userDataStoreProvider.getOrCreate(userId).clear()
+                    }
+                }
+            }
+            coreLogic.getGlobalScope().logoutCallbackManager.register(callback)
+            awaitClose { coreLogic.getGlobalScope().logoutCallbackManager.unregister(callback) }
+        }.launchIn(this)
     }
 }

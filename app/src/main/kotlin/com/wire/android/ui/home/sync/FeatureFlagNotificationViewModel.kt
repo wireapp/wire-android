@@ -38,15 +38,22 @@ import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+<<<<<<< HEAD
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+=======
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
+<<<<<<< HEAD
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collect
+=======
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
@@ -63,7 +70,10 @@ import javax.inject.Inject
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
+<<<<<<< HEAD
     private val currentSessionUseCase: CurrentSessionUseCase,
+=======
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
     private val disableAppLockUseCase: DisableAppLockUseCase,
@@ -75,6 +85,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private var currentUserId by mutableStateOf<UserId?>(null)
 
+    init {
+        viewModelScope.launch { initialSync() }
+    }
+
     /**
      * The FeatureFlagNotificationViewModel is an attempt to encapsulate the logic regarding the different user feature flags, like for
      * example the file sharing one. This means that this VM could be invoked as an extension from outside the general app lifecycle (for
@@ -84,6 +98,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
      * it until the sync state is live. Once the sync state is live, it sets whether the file sharing feature is enabled or not on the VM
      * state.
      */
+<<<<<<< HEAD
     fun loadInitialSync() {
         val validUserIdFlow = getValidUserIdFlow().shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
@@ -113,11 +128,52 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     currentUserId = userId
                     userId
                 }
+=======
+    private suspend fun initialSync() {
+        currentSessionFlow()
+            .distinctUntilChanged()
+            .collectLatest { currentSessionResult ->
+                when (currentSessionResult) {
+                    is CurrentSessionResult.Failure -> {
+                        currentUserId = null
+                        appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
+                        featureFlagState = FeatureFlagState( // no session, clear feature flag state to default and set NO_USER
+                            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
+                        )
+                    }
+
+                    is CurrentSessionResult.Success -> {
+                        featureFlagState = FeatureFlagState() // new session, clear feature flag state to default and wait until synced
+                        val userId = currentSessionResult.accountInfo.userId
+                        currentUserId = userId
+                        coreLogic.getSessionScope(userId).observeSyncState()
+                            .firstOrNull { it == SyncState.Live }?.let {
+                                observeStatesAfterInitialSync(userId)
+                            }
+                    }
+                }
+            }
+    }
+
+    private suspend fun observeStatesAfterInitialSync(userId: UserId) {
+        coroutineScope {
+            launch { setFileSharingState(userId) }
+            launch { observeTeamSettingsSelfDeletionStatus(userId) }
+            launch { setGuestRoomLinkFeatureFlag(userId) }
+            launch { setE2EIRequiredState(userId) }
+            launch { setTeamAppLockFeatureFlag(userId) }
+            launch { observeCallEndedBecauseOfConversationDegraded(userId) }
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         }
         .filterNotNull()
 
+<<<<<<< HEAD
     private fun setFileSharingState(userId: UserId) =
         coreLogic.getSessionScope(userId).observeFileSharingStatus().onEach { fileSharingStatus ->
+=======
+    private suspend fun setFileSharingState(userId: UserId) {
+        coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
             fileSharingStatus.state?.let {
                 // TODO: handle restriction when sending assets
                 val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.EnabledAll) {
@@ -136,6 +192,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             }
         }
 
+<<<<<<< HEAD
     private suspend fun setGuestRoomLinkFeatureFlag(userId: UserId) =
         coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
             .onEach { guestRoomLinkStatus ->
@@ -157,12 +214,58 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     } else {
                         (!isUserAppLockSet() && appLockConfig.isEnforced)
                     }
+=======
+    private suspend fun setGuestRoomLinkFeatureFlag(userId: UserId) {
+            coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
+                .collect { guestRoomLinkStatus ->
+                    guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                        featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+                    }
+                    guestRoomLinkStatus.isStatusChanged?.let {
+                        featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+                    }
+                }
+        }
+
+    private suspend fun setTeamAppLockFeatureFlag(userId: UserId) {
+            coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
+                .distinctUntilChanged()
+                .collectLatest { appLockConfig ->
+                    appLockConfig?.isStatusChanged?.let { isStatusChanged ->
+                        val shouldBlockApp = if (isStatusChanged) {
+                            true
+                        } else {
+                            (!isUserAppLockSet() && appLockConfig.isEnforced)
+                        }
+
+                        featureFlagState = featureFlagState.copy(
+                            isTeamAppLockEnabled = appLockConfig.isEnforced,
+                            shouldShowTeamAppLockDialog = shouldBlockApp
+                        )
+                    }
+                }
+        }
+
+    private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
+            coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus()
+                .collect { teamSettingsSelfDeletingStatus ->
+                    val areSelfDeletedMessagesEnabled =
+                        teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
+                    val shouldShowSelfDeletingMessagesDialog =
+                        teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false
+                    val enforcedTimeoutDuration: SelfDeletionDuration =
+                        with(teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer) {
+                            when (this) {
+                                TeamSelfDeleteTimer.Disabled,
+                                TeamSelfDeleteTimer.Enabled -> SelfDeletionDuration.None
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
 
                     featureFlagState = featureFlagState.copy(
                         isTeamAppLockEnabled = appLockConfig.isEnforced,
                         shouldShowTeamAppLockDialog = shouldBlockApp
                     )
                 }
+<<<<<<< HEAD
             }
 
     private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) =
@@ -190,6 +293,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setE2EIRequiredState(userId: UserId) =
         coreLogic.getSessionScope(userId).observeE2EIRequired().onEach { result ->
+=======
+        }
+
+    private suspend fun setE2EIRequiredState(userId: UserId) {
+        coreLogic.getSessionScope(userId).observeE2EIRequired().collect { result ->
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
             val state = when (result) {
                 E2EIRequiredResult.NoGracePeriod.Create -> FeatureFlagState.E2EIRequired.NoGracePeriod.Create
                 E2EIRequiredResult.NoGracePeriod.Renew -> FeatureFlagState.E2EIRequired.NoGracePeriod.Renew
@@ -250,10 +359,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun markTeamAppLockStatusAsNot() {
         viewModelScope.launch {
+<<<<<<< HEAD
             val currentSession = currentSessionUseCase()
             if (currentSession is CurrentSessionResult.Success) {
                 coreLogic.getSessionScope(currentSession.accountInfo.userId)
                     .markTeamAppLockStatusAsNotified()
+=======
+            currentUserId?.let {
+                coreLogic.getSessionScope(it).markTeamAppLockStatusAsNotified()
+>>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
             }
         }
     }

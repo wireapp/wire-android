@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -53,6 +52,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -129,8 +129,9 @@ fun LocationPickerComponent(
                             ) {
                                 WirePrimaryButton(
                                     onClick = { onLocationPicked(geoLocatedAddress!!) },
-                                    leadingIcon = Icons.Filled.Send.Icon(modifier = Modifier.padding(end = 8.dp)),
-                                    text = stringResource(id = R.string.content_description_send_button)
+                                    leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
+                                    text = stringResource(id = R.string.content_description_send_button),
+                                    state = if (geoLocatedAddress == null) WireButtonState.Disabled else WireButtonState.Default
                                 )
                                 VerticalSpace.x16()
                             }

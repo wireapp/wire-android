@@ -14,6 +14,7 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": true,
+            "ignore_ssl_certificates": true,
             "mls_support_enabled": true,
             "firebase_push_sender_id": "723990470614",
             "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
@@ -26,7 +27,6 @@
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
-
             "is_password_protected_guest_link_enabled": true
         },
         "staging": {
@@ -76,6 +76,7 @@
     "file_restriction_enabled": false,
     "file_restriction_list": "3gpp, aac, amr, avi, bmp, css, csv, dib, doc, docx, eml, flac, gif, html, ico, jfif, jpeg, jpg, jpg-large, key, m4a, m4v, md, midi, mkv, mov, mp3, mp4, mpeg, mpeg3, mpg, msg, ods, odt, ogg, pdf, pjp, pjpeg, png, pps, ppt, pptx, psd, pst, rtf, sql, svg, tex, tiff, txt, vcf, vid, wav, webm, webp, wmv, xls, xlsx, xml",
     "force_constant_bitrate_calls": false,
+    "ignore_ssl_certificates": false,
     "mls_support_enabled": true,
     "encrypt_proteus_storage": false,
     "self_deleting_messages": true,

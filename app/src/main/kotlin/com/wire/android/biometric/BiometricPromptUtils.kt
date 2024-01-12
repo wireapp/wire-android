@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.biomitric
+package com.wire.android.biometric
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity

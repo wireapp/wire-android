@@ -43,6 +43,9 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -102,6 +105,9 @@ internal class OtherUserProfileViewModelArrangement {
     @MockK
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
+    @MockK
+    lateinit var getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase
+
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             TestDispatcherProvider(),
@@ -119,6 +125,7 @@ internal class OtherUserProfileViewModelArrangement {
             fetchUsersClientsFromRemote,
             clearConversationContent,
             updateConversationArchivedStatus,
+            getUserE2eiCertificateStatus,
             savedStateHandle
         )
     }
@@ -147,6 +154,7 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)
         )
+        coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns GetUserE2eiCertificateStatusResult.Success(CertificateStatus.VALID)
     }
 
     suspend fun withBlockUserResult(result: BlockUserResult) = apply {

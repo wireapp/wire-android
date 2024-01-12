@@ -29,6 +29,7 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -37,13 +38,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ObserveParticipantsForConversationUseCaseTest {
 
     @Test
-    fun `given a group members, when solving the participants list with limit, then limited sizes are passed`() = runTest {
+    fun givenGroupMembers_whenSolvingTheParticipantsListWithLimit_thenLimitedSizesArePassed() = runTest {
         // Given
         val limit = 4
         val members = buildList {
@@ -57,13 +59,13 @@ class ObserveParticipantsForConversationUseCaseTest {
         // When - Then
         useCase(ConversationId("", ""), limit).test {
             val data = awaitItem()
-            assert(data.participants.size == limit)
-            assert(data.allParticipantsCount == members.size)
+            assertEquals(limit, data.participants.size)
+            assertEquals(members.size, data.allParticipantsCount)
         }
     }
 
     @Test
-    fun `given a group members, when solving the participants list without limit, then all lists are passed`() = runTest {
+    fun givenGroupMembers_whenSolvingTheParticipantsListWithoutLimit_thenAllListsArePassed() = runTest {
         // Given
         val members: List<MemberDetails> = buildList {
             for (i in 1..20) {
@@ -86,6 +88,10 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
 
     @MockK
     lateinit var observeConversationMembersUseCase: ObserveConversationMembersUseCase
+
+    @MockK
+    lateinit var getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase
+
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
     private val uIParticipantMapper by lazy { UIParticipantMapper(UserTypeMapper(), wireSessionImageLoader) }
@@ -93,6 +99,7 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
     private val useCase by lazy {
         ObserveParticipantsForConversationUseCase(
             observeConversationMembersUseCase,
+            getMembersE2EICertificateStatuses,
             uIParticipantMapper,
             dispatchers = TestDispatcherProvider()
         )
@@ -103,6 +110,7 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         // Default empty values
         coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
+        coEvery { getMembersE2EICertificateStatuses(any(), any()) } returns mapOf()
     }
 
     suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): ObserveParticipantsForConversationUseCaseArrangement {

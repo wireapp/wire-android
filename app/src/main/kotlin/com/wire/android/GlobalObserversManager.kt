@@ -50,12 +50,8 @@ class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
-<<<<<<< HEAD
-    private val notificationChannelsManager: NotificationChannelsManager
-=======
     private val notificationChannelsManager: NotificationChannelsManager,
     private val userDataStoreProvider: UserDataStoreProvider,
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 

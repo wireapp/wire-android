@@ -66,10 +66,6 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Failure.SessionNotFound))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertEquals(
@@ -84,10 +80,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertEquals(
@@ -102,10 +94,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
             .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
         viewModel.dismissGuestRoomLinkDialog()
         advanceUntilIdle()
@@ -123,10 +111,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertEquals(
@@ -140,10 +124,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
         viewModel.dismissSelfDeletingMessagesDialog()
         advanceUntilIdle()
@@ -159,11 +139,6 @@ class FeatureFlagNotificationViewModelTest {
             .withIsAppLockSetup(false)
             .withTeamAppLockEnforce(AppLockTeamConfig(true, Duration.ZERO, false))
             .arrange()
-<<<<<<< HEAD
-
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertTrue(viewModel.featureFlagState.shouldShowTeamAppLockDialog)
@@ -174,10 +149,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Create, viewModel.featureFlagState.e2EIRequired)
@@ -189,10 +160,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
@@ -222,10 +189,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Renew)
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, viewModel.featureFlagState.e2EIRequired)
@@ -237,10 +200,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
@@ -270,11 +229,6 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withEndCallDialog()
             .arrange()
-<<<<<<< HEAD
-
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
@@ -287,10 +241,6 @@ class FeatureFlagNotificationViewModelTest {
             .withAppLockSource(AppLockSource.TeamEnforced)
             .withDisableAppLockUseCase()
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         viewModel.confirmAppLockNotEnforced()
@@ -305,10 +255,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))))
             .withAppLockSource(AppLockSource.Manual)
             .arrange()
-<<<<<<< HEAD
-        viewModel.loadInitialSync()
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         advanceUntilIdle()
 
         viewModel.confirmAppLockNotEnforced()
@@ -324,7 +270,6 @@ class FeatureFlagNotificationViewModelTest {
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .withCurrentSessionsFlow(currentSessionsFlow)
             .arrange()
-        viewModel.loadInitialSync()
 
         currentSessionsFlow.emit(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
         advanceUntilIdle()
@@ -340,19 +285,6 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     private inner class Arrangement {
-<<<<<<< HEAD
-        init {
-            MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
-            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
-        }
-=======
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
-
-        @MockK
-        lateinit var currentSession: CurrentSessionFlowUseCase
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
@@ -378,29 +310,18 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
-<<<<<<< HEAD
-        val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
-            coreLogic = coreLogic,
-            currentSessionUseCase = currentSession,
-            currentSessionFlow = currentSessionFlow,
-            globalDataStore = globalDataStore,
-            disableAppLockUseCase = disableAppLockUseCase,
-            dispatcherProvider = TestDispatcherProvider()
-        )
-
-=======
         val viewModel: FeatureFlagNotificationViewModel by lazy {
             FeatureFlagNotificationViewModel(
                 coreLogic = coreLogic,
-                currentSessionFlow = currentSession,
+                currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
-                disableAppLockUseCase = disableAppLockUseCase
+                disableAppLockUseCase = disableAppLockUseCase,
+                dispatcherProvider = TestDispatcherProvider()
             )
         }
->>>>>>> 6cb0a6eb2 (fix: missing ServerConfig crashes after session expired / logout [WPB-5960] (#2570))
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { currentSession() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
@@ -412,10 +333,6 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
-        }
-
-        fun withCurrentSessions(result: CurrentSessionResult) = apply {
-            coEvery { currentSession() } returns flowOf(result)
         }
 
         fun withCurrentSessionsFlow(result: Flow<CurrentSessionResult>) = apply {

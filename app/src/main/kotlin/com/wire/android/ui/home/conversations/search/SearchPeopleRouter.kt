@@ -244,6 +244,11 @@ private fun SearchAllPeopleOrContactsScreen(
     onContactChecked: (Boolean, Contact) -> Unit,
     searchUserViewModel: SearchUserViewModel = hiltViewModel(),
 ) {
+
+    LaunchedEffect(key1 = searchQuery) {
+        searchUserViewModel.search(searchQuery)
+    }
+
     val lazyState = rememberLazyListState()
     SearchAllPeopleScreen(
         searchQuery = searchQuery,
@@ -257,8 +262,4 @@ private fun SearchAllPeopleOrContactsScreen(
         isSearchActive = isSearchActive,
         isLoading = isLoading
     )
-
-    LaunchedEffect(key1 = searchQuery) {
-        searchUserViewModel.search(searchQuery)
-    }
 }

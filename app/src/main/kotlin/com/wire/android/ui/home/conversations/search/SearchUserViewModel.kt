@@ -26,12 +26,14 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,7 +45,7 @@ class SearchUserViewModel @Inject constructor(
 
     @Suppress("TooGenericExceptionCaught")
     private val addMembersSearchNavArgs: AddMembersSearchNavArgs? = try {
-        savedStateHandle.navArgs()
+        savedStateHandle.navArgs<AddMembersSearchNavArgs>()
     } catch (e: RuntimeException) {
         null
     }
@@ -51,23 +53,12 @@ class SearchUserViewModel @Inject constructor(
     var state: SearchUserState by mutableStateOf(SearchUserState())
         private set
 
-    init {
-        viewModelScope.launch {
-            searchUserUseCase(
-                "",
-                customDomain = null,
-                excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId
-            ).also { userSearchEntities ->
-                state = state.copy(
-                    contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                    publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
-                )
-            }
-        }
+    fun search(query: String) = viewModelScope.launch {
+        safeSearch(query)
     }
 
-    fun search(query: String) {
-        viewModelScope.launch {
+    @VisibleForTesting
+    suspend fun safeSearch(query: String) {
             searchUserUseCase(
                 query,
                 excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,
@@ -79,7 +70,6 @@ class SearchUserViewModel @Inject constructor(
                 )
             }
         }
-    }
 }
 
 data class SearchUserState(

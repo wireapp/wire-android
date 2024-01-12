@@ -23,7 +23,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 
 @OptIn(ExperimentalMaterial3Api::class)
 data class LocationPickerState(
-    val locationName: String = "",
+    val geoLocatedAddress: GeoLocatedAddress? = null,
     val isLocationLoading: Boolean = false,
     val isPermissionsAllowed: Boolean = false,
     val wireModalSheetState: WireModalSheetState = WireModalSheetState(SheetValue.Hidden)

@@ -21,12 +21,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,8 +39,7 @@ import javax.inject.Inject
 class SearchServicesViewModel @Inject constructor(
     private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
-    private val searchServicesByName: SearchServicesByNameUseCase,
-    savedStateHandle: SavedStateHandle
+    private val searchServicesByName: SearchServicesByNameUseCase
 ) : ViewModel() {
     var state: SearchServicesState by mutableStateOf(SearchServicesState())
         private set

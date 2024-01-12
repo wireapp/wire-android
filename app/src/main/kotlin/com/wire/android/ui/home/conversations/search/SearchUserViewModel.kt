@@ -41,6 +41,7 @@ class SearchUserViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    @Suppress("TooGenericExceptionCaught")
     private val addMembersSearchNavArgs: AddMembersSearchNavArgs? = try {
         savedStateHandle.navArgs()
     } catch (e: RuntimeException) {
@@ -52,7 +53,11 @@ class SearchUserViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchUserUseCase("", customDomain = null, excludingMembersOfConversation = null).also { userSearchEntities ->
+            searchUserUseCase(
+                "",
+                customDomain = null,
+                excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId
+            ).also { userSearchEntities ->
                 state = state.copy(
                     contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
                     publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()

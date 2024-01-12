@@ -21,9 +21,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
+import com.wire.android.ui.navArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,8 +33,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor() : ViewModel() {
-    var state: SearchState by mutableStateOf(SearchState())
+class SearchViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    @Suppress("TooGenericExceptionCaught")
+    private val addMembersSearchNavArgs: AddMembersSearchNavArgs? = try {
+        savedStateHandle.navArgs()
+    } catch (e: RuntimeException) {
+        null
+    }
+
+    var state: SearchState by mutableStateOf(SearchState(
+        isServicesAllowed = addMembersSearchNavArgs?.isServicesAllowed ?: false,
+        isGroupCreationContext = addMembersSearchNavArgs == null
+    ))
         private set
 
     private val _userSearchSignal: MutableSharedFlow<String> = MutableSharedFlow()
@@ -45,7 +59,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     fun onServiceSearchQueryChanged(query: TextFieldValue) {
-        appLogger.d("onServiceSearchQueryChanged: ${query.text}")
         state = state.copy(serviceSearchQuery = query)
         viewModelScope.launch {
             _serviceSearchSignal.emit(query.text)
@@ -53,7 +66,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onUserSearchQueryChanged(query: TextFieldValue) {
-        appLogger.d("onUserSearchQueryChanged: ${query.text}")
         state = state.copy(userSearchQuery = query)
         viewModelScope.launch {
             _userSearchSignal.emit(query.text)

@@ -44,13 +44,13 @@ fun SearchAllServicesScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
     searchServicesViewModel: SearchServicesViewModel = hiltViewModel(),
-    lazyListState: LazyListState = rememberLazyListState()
 ) {
+    val lazyState = rememberLazyListState()
     SearchAllServicesContent(
         searchQuery = searchQuery,
         onServiceClicked = onServiceClicked,
         result = searchServicesViewModel.state.result,
-        lazyListState = lazyListState,
+        lazyListState = lazyState,
         error = searchServicesViewModel.state.error,
         isLoading = searchServicesViewModel.state.isLoading
     )

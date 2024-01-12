@@ -29,7 +29,6 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -89,9 +88,10 @@ fun SearchUsersAndServicesScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val lazyListStates: List<LazyListState> = SearchPeopleTabItem.entries.map { rememberLazyListState() }
     val initialPageIndex = SearchPeopleTabItem.PEOPLE.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { SearchPeopleTabItem.entries.size })
+    val pagerState = rememberPagerState(
+        initialPage = initialPageIndex,
+        pageCount = { if (searchState.isServicesAllowed) SearchPeopleTabItem.entries.size else 1 })
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
 
     CollapsingTopBarScaffold(
@@ -164,7 +164,6 @@ fun SearchUsersAndServicesScreen(
                                         searchQuery = userSearchSignal.value,
                                         contactsAddedToGroup = selectedContacts,
                                         onOpenUserProfile = onOpenUserProfile,
-                                        lazyListState = lazyListStates[pageIndex],
                                         onContactChecked = onContactChecked,
                                         isSearchActive = isSearchActive,
                                         isLoading = false // TODO: update correctly
@@ -175,7 +174,6 @@ fun SearchUsersAndServicesScreen(
                                     SearchAllServicesScreen(
                                         searchQuery = serviceSearchSignal.value,
                                         onServiceClicked = onServiceClicked,
-                                        lazyListState = lazyListStates[pageIndex]
                                     )
                                 }
                             }
@@ -244,9 +242,9 @@ private fun SearchAllPeopleOrContactsScreen(
     isSearchActive: Boolean,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
-    lazyListState: LazyListState = rememberLazyListState(),
     searchUserViewModel: SearchUserViewModel = hiltViewModel(),
 ) {
+    val lazyState = rememberLazyListState()
     SearchAllPeopleScreen(
         searchQuery = searchQuery,
         noneSearchSucceed = searchUserViewModel.state.noneSearchSucceeded,
@@ -255,7 +253,7 @@ private fun SearchAllPeopleOrContactsScreen(
         contactsAddedToGroup = contactsAddedToGroup,
         onChecked = onContactChecked,
         onOpenUserProfile = onOpenUserProfile,
-        lazyListState = lazyListState,
+        lazyListState = lazyState,
         isSearchActive = isSearchActive,
         isLoading = isLoading
     )

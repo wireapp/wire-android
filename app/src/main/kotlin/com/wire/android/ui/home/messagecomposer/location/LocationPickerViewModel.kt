@@ -17,11 +17,20 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Geocoder
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,6 +44,20 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
 
     fun onLocationPicked(geoLocatedAddress: GeoLocatedAddress) {
         state = state.copy(geoLocatedAddress = geoLocatedAddress)
+    }
+
+    /**
+     * Choosing the best location estimate by docs.
+     * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
+     */
+    @SuppressLint("MissingPermission")
+    fun getCurrentLocation(onCurrentLocationPicked: (GeoLocatedAddress) -> Unit, context: Context) {
+        val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+        viewModelScope.launch {
+            val currentLocation = locationProvider.getCurrentLocation(PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
+            val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
+            onCurrentLocationPicked(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+        }
     }
 
 }

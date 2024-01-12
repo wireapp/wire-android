@@ -17,9 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.location.Geocoder
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -42,9 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -60,9 +54,6 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.rememberCurrentLocationFlow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 /**
  * Component to pick the current location to send.
@@ -81,7 +72,7 @@ fun LocationPickerComponent(
 
     val locationFlow = LocationFlow(
         onCurrentLocationPicked = {
-            getCurrentLocation(viewModel::onLocationPicked, context, coroutineScope)
+            viewModel.getCurrentLocation(viewModel::onLocationPicked, context)
             viewModel.setPermissionsAllowed(true)
         },
         onLocationDenied = { /*todo: show toast location could not be shared*/ }
@@ -146,27 +137,6 @@ fun LocationPickerComponent(
         if (!sheetState.isVisible) {
             onLocationClosed()
         }
-    }
-}
-
-/**
- * Choosing the best location estimate by docs.
- * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
- */
-@SuppressLint("MissingPermission")
-private fun getCurrentLocation(
-    onCurrentLocationPicked: (GeoLocatedAddress) -> Unit,
-    context: Context,
-    coroutineScope: CoroutineScope
-) {
-    val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-    coroutineScope.launch {
-        val currentLocation = locationProvider.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            CancellationTokenSource().token,
-        ).await()
-        val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
-        onCurrentLocationPicked(GeoLocatedAddress(address.firstOrNull(), currentLocation))
     }
 }
 

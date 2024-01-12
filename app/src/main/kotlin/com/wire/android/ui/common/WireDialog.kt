@@ -198,9 +198,11 @@ private fun WireDialogContent(
                 }
             }
             text?.let {
-                LazyColumn(modifier = Modifier
-                    .weight(1f, fill = false)
-                    .fillMaxWidth()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth()
+                ) {
                     item {
                         ClickableText(
                             text = text,

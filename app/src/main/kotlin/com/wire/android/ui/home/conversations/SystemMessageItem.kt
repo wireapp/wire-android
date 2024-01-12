@@ -127,9 +127,11 @@ fun SystemMessageItem(
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
-                val iconId = if (isSystemInDarkTheme() && message.messageContent.darkIconResId != null)
+                val iconId = if (isSystemInDarkTheme() && message.messageContent.darkIconResId != null) {
                     message.messageContent.darkIconResId
-                else message.messageContent.iconResId
+                } else {
+                    message.messageContent.iconResId
+                }
 
                 Image(
                     painter = painterResource(id = iconId),

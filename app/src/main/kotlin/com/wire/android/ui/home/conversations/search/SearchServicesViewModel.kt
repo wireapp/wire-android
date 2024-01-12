@@ -39,7 +39,7 @@ import javax.inject.Inject
 class SearchServicesViewModel @Inject constructor(
     private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
-    private val searchServicesByName: SearchServicesByNameUseCase
+    private val searchServicesByName: SearchServicesByNameUseCase,
 ) : ViewModel() {
     var state: SearchServicesState by mutableStateOf(SearchServicesState())
         private set

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,10 @@ fun SearchAllServicesScreen(
     onServiceClicked: (Contact) -> Unit,
     searchServicesViewModel: SearchServicesViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(key1 = searchQuery) {
+        searchServicesViewModel.search(searchQuery)
+    }
+
     val lazyState = rememberLazyListState()
     SearchAllServicesContent(
         searchQuery = searchQuery,
@@ -54,6 +59,7 @@ fun SearchAllServicesScreen(
         error = searchServicesViewModel.state.error,
         isLoading = searchServicesViewModel.state.isLoading
     )
+
 }
 
 @Composable

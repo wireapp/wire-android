@@ -92,10 +92,7 @@ fun LocationPickerComponent(
 
     with(viewModel.state) {
         if (isPermissionsAllowed) {
-            WireModalSheetLayout(
-                sheetState = sheetState,
-                coroutineScope = coroutineScope
-            ) {
+            WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
                 MenuModalSheetContent(
                     header = MenuModalSheetHeader.Visible(title = stringResource(R.string.attachment_share_location)),
                     menuItems = buildList {
@@ -181,4 +178,3 @@ private fun LocationFlow(
         onPermissionAllowed = onCurrentLocationPicked,
         onPermissionDenied = onLocationDenied
     )
-

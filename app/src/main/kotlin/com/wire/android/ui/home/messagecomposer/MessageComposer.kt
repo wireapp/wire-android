@@ -138,6 +138,8 @@ fun MessageComposer(
                     onTypingEvent = onTypingEvent
                 )
             }
+
+            else -> { /* do nothing */ }
         }
     }
 }

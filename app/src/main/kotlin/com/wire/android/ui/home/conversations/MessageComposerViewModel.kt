@@ -71,6 +71,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -118,6 +119,7 @@ class MessageComposerViewModel @Inject constructor(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
+    private val sendLocation: SendLocationUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -268,11 +270,12 @@ class MessageComposerViewModel @Inject constructor(
 
             is ComposableMessageBundle.LocationBundle -> {
                 with(messageBundle) {
-                    appLogger.w("todo, implement, sending location message: $locationName, $location")
+                    sendLocation(conversationId, location.latitude.toFloat(), location.longitude.toFloat(), locationName, zoom)
+                        .handleLegalHoldFailureAfterSendingMessage()
                 }
             }
 
-            Ping -> {
+            is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                 sendKnockUseCase(conversationId = conversationId, hotKnock = false)
             }

@@ -19,17 +19,15 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.location.Address
 import android.location.Location
-import com.wire.android.util.orDefault
 
 data class GeoLocatedAddress(
     val address: Address?,
     val location: Location
 ) {
+    fun getFormattedAddress() = address?.getAddressLine(DEFAULT_ADDRESS_LINE_INDEX) ?: "${location.latitude}, ${location.longitude}"
 
-    fun getFormattedAddress(): String {
-        return address?.let {
-            "${address.featureName.orDefault(address.adminArea.orEmpty())}, ${address.postalCode.orDefault(address.adminArea.orEmpty())}, ${address.countryCode}"
-        } ?: "${location.latitude}, ${location.longitude}"
+    private companion object {
+        private const val DEFAULT_ADDRESS_LINE_INDEX = 0
     }
 
 }

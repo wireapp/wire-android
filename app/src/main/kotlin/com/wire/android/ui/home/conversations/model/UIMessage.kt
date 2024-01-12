@@ -71,6 +71,7 @@ sealed interface UIMessage {
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
+        val isLocation: Boolean = messageContent is UIMessageContent.Location
     }
 
     data class System(

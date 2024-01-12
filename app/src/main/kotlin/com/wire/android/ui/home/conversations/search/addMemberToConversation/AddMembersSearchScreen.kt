@@ -31,7 +31,7 @@ import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
-import com.wire.android.ui.home.conversations.search.SearchViewModel
+import com.wire.android.ui.home.conversations.search.SearchBarViewModel
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -46,18 +46,18 @@ fun AddMembersSearchScreen(
     navigator: Navigator,
     navArgs: AddMembersSearchNavArgs,
     addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
-    searchViewModel: SearchViewModel = hiltViewModel()
+    searchBarViewModel: SearchBarViewModel = hiltViewModel()
 ) {
-    val userSearchSignal = searchViewModel.userSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
-    val serviceSearchSignal = searchViewModel.serviceSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
+    val userSearchSignal = searchBarViewModel.userSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
+    val serviceSearchSignal = searchBarViewModel.serviceSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
     SearchUsersAndServicesScreen(
-        searchState = searchViewModel.state,
+        searchState = searchBarViewModel.state,
         searchTitle = stringResource(id = R.string.label_add_participants),
         actionButtonTitle = stringResource(id = R.string.label_continue),
         userSearchSignal = userSearchSignal,
         serviceSearchSignal = serviceSearchSignal,
-        onServicesSearchQueryChanged = searchViewModel::onServiceSearchQueryChanged,
-        onUsersSearchQueryChanged = searchViewModel::onUserSearchQueryChanged,
+        onServicesSearchQueryChanged = searchBarViewModel::onServiceSearchQueryChanged,
+        onUsersSearchQueryChanged = searchBarViewModel::onUserSearchQueryChanged,
         onOpenUserProfile = { contact: Contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }

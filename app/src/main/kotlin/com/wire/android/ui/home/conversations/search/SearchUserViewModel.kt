@@ -26,7 +26,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList

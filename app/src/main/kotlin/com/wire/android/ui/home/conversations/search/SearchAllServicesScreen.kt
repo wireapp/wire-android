@@ -59,7 +59,6 @@ fun SearchAllServicesScreen(
         error = searchServicesViewModel.state.error,
         isLoading = searchServicesViewModel.state.isLoading
     )
-
 }
 
 @Composable

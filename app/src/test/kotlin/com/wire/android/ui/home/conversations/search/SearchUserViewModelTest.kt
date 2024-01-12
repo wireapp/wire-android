@@ -113,7 +113,8 @@ class SearchUserViewModelTest {
                         completeAssetId = null,
                         type = UserType.INTERNAL,
                         connectionStatus = ConnectionState.ACCEPTED,
-                        previewAssetId = null
+                        previewAssetId = null,
+                        handle = "handle"
                     )
                 ),
                 notConnected = listOf(
@@ -123,7 +124,8 @@ class SearchUserViewModelTest {
                         completeAssetId = null,
                         type = UserType.INTERNAL,
                         connectionStatus = ConnectionState.BLOCKED,
-                        previewAssetId = null
+                        previewAssetId = null,
+                        handle = "handle"
                     )
                 )
             )

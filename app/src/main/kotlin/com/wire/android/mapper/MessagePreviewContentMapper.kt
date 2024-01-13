@@ -280,9 +280,6 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         else R.string.last_message_other_user_shared_location
                     )
                 )
-
-                is WithUser.ConversationMembersRemoved -> TODO()
-                is WithUser.TeamMembersRemoved -> TODO()
             }
         }
 

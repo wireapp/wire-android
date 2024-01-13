@@ -175,7 +175,7 @@ class SearchUserViewModelTest {
                     id = id.value,
                     domain = id.domain,
                     name = name ?: String.EMPTY,
-                    label = String.EMPTY,
+                    label = user.handle ?: String.EMPTY,
                     avatarData = UserAvatarData(asset = null),
                     membership = when (user.type) {
                         UserType.GUEST -> Membership.Guest

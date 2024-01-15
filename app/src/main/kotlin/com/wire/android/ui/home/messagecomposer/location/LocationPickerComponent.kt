@@ -104,6 +104,7 @@ fun LocationPickerComponent(
                                     progressColor = Color.Black,
                                     modifier = Modifier.align(alignment = Alignment.CenterVertically)
                                 )
+                                HorizontalSpace.x8()
                                 Text(
                                     text = stringResource(R.string.location_loading_label),
                                     modifier = Modifier.wrapContentWidth(),
@@ -115,6 +116,7 @@ fun LocationPickerComponent(
                                     id = R.drawable.ic_location,
                                     contentDescription = stringResource(R.string.attachment_share_location)
                                 )
+                                HorizontalSpace.x8()
                                 Text(
                                     text = geoLocatedAddress?.getFormattedAddress()
                                         .orDefault(stringResource(R.string.location_loading_label)),

@@ -49,7 +49,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberDismissibleWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -74,7 +74,7 @@ fun LocationPickerComponent(
     val viewModel = hiltViewModel<LocationPickerViewModel>()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberWireModalSheetState(initialValue = SheetValue.Expanded)
+    val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
     val locationFlow = LocationFlow(
         onCurrentLocationPicked = { viewModel.getCurrentLocation(context) },
@@ -158,12 +158,6 @@ fun LocationPickerComponent(
         },
         onOpenSettings = { context.openAppInfoScreen() }
     )
-
-    LaunchedEffect(sheetState.isVisible) {
-        if (!sheetState.isVisible) {
-            onLocationClosed()
-        }
-    }
 }
 
 // todo: this is a good candidate to refactor as a common component and unify with record audio.

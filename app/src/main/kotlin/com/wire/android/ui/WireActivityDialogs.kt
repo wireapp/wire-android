@@ -24,6 +24,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -294,6 +295,7 @@ private fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAwa
         title = stringResource(id = title),
         text = text,
         onDismiss = remember { { } },
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
         optionButton1Properties = WireDialogButtonProperties(
             text = stringResource(R.string.label_ok),
             onClick = navigateAway,

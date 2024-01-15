@@ -28,7 +28,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.wire.android.appLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -38,10 +37,6 @@ import javax.inject.Inject
 class LocationPickerViewModel @Inject constructor() : ViewModel() {
     var state: LocationPickerState by mutableStateOf(LocationPickerState())
         private set
-
-    init {
-        appLogger.d("LocationPickerViewModel init")
-    }
 
     fun onPermissionsDialogDiscarded() {
         state = state.copy(showPermissionDeniedDialog = false)

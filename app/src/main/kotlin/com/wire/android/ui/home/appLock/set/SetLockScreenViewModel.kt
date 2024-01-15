@@ -56,7 +56,7 @@ class SetLockScreenViewModel @Inject constructor(
                 observeAppLockConfig(),
                 observeIsAppLockEditable()
             ) { config, isEditable ->
-                SetLockCodeViewState(
+                state.copy(
                     timeout = config.timeout,
                     isEditable = isEditable
                 )

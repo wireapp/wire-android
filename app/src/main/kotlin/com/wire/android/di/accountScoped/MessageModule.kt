@@ -192,5 +192,4 @@ class MessageModule {
     @Provides
     fun provideSendLocationUseCase(messageScope: MessageScope): SendLocationUseCase =
         messageScope.sendLocation
-
 }

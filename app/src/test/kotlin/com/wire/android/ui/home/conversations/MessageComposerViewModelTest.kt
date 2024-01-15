@@ -51,6 +51,7 @@ import kotlin.time.toDuration
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
+@Suppress("LargeClass")
 class MessageComposerViewModelTest {
 
     @Test
@@ -817,5 +818,4 @@ class MessageComposerViewModelTest {
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
         }
-
 }

@@ -117,7 +117,7 @@ fun LocationPickerComponent(
                                 )
                                 Text(
                                     text = geoLocatedAddress?.getFormattedAddress()
-                                        .orDefault(stringResource(R.string.settings_forgot_lock_screen_please_wait_label)), //change string
+                                        .orDefault(stringResource(R.string.location_loading_label)),
                                     modifier = Modifier.wrapContentWidth(),
                                     style = MaterialTheme.wireTypography.body01,
                                     textAlign = TextAlign.Start
@@ -140,7 +140,11 @@ fun LocationPickerComponent(
                                 },
                                 leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
                                 text = stringResource(id = R.string.content_description_send_button),
-                                state = if (isLocationLoading || geoLocatedAddress == null) WireButtonState.Disabled else WireButtonState.Default
+                                state = if (isLocationLoading || geoLocatedAddress == null) {
+                                    WireButtonState.Disabled
+                                } else {
+                                    WireButtonState.Default
+                                }
                             )
                             VerticalSpace.x16()
                         }

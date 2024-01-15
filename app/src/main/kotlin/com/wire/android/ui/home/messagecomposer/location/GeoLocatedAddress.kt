@@ -29,5 +29,4 @@ data class GeoLocatedAddress(
     private companion object {
         private const val DEFAULT_ADDRESS_LINE_INDEX = 0
     }
-
 }

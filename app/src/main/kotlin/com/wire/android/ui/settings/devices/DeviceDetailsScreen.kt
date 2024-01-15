@@ -60,6 +60,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.CopyButton
+import com.wire.android.ui.common.MLSVerificationIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -304,6 +305,9 @@ private fun DeviceDetailsTopBar(
                     style = MaterialTheme.wireTypography.title01,
                     maxLines = 2
                 )
+                
+                MLSVerificationIcon(device.e2eiCertificateStatus)
+
                 if (!isCurrentDevice && device.isVerifiedProteus) {
                     ProteusVerifiedIcon(Modifier.align(Alignment.CenterVertically))
                 }

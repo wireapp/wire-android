@@ -38,12 +38,20 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
     var state: LocationPickerState by mutableStateOf(LocationPickerState())
         private set
 
-    fun setPermissionsAllowed(isAllowed: Boolean) {
-        state = state.copy(isPermissionsAllowed = isAllowed)
+    fun onPermissionsDialogDiscarded() {
+        state = state.copy(showPermissionDeniedDialog = false)
     }
 
-    fun onLocationPicked(geoLocatedAddress: GeoLocatedAddress) {
-        state = state.copy(geoLocatedAddress = geoLocatedAddress)
+    fun onPermissionsDenied() {
+        state = state.copy(showPermissionDeniedDialog = true)
+    }
+
+    private fun toStartLoadingLocationState() {
+        state = state.copy(isLocationLoading = true, geoLocatedAddress = null)
+    }
+
+    private fun toLocationLoadedState(geoLocatedAddress: GeoLocatedAddress) {
+        state = state.copy(geoLocatedAddress = geoLocatedAddress, isLocationLoading = false)
     }
 
     /**
@@ -51,13 +59,13 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
      * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
      */
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation(onCurrentLocationPicked: (GeoLocatedAddress) -> Unit, context: Context) {
-        val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+    fun getCurrentLocation(context: Context) {
         viewModelScope.launch {
+            toStartLoadingLocationState()
+            val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation = locationProvider.getCurrentLocation(PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
             val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
-            onCurrentLocationPicked(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+            toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), currentLocation))
         }
     }
-
 }

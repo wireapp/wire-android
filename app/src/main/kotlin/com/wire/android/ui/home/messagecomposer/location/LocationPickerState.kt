@@ -25,6 +25,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 data class LocationPickerState(
     val geoLocatedAddress: GeoLocatedAddress? = null,
     val isLocationLoading: Boolean = false,
-    val isPermissionsAllowed: Boolean = false,
+    val isPermissionDiscarded: Boolean = false,
+    val showPermissionDeniedDialog: Boolean = false,
     val wireModalSheetState: WireModalSheetState = WireModalSheetState(SheetValue.Hidden)
 )

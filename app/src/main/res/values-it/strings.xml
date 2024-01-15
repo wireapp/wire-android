@@ -575,10 +575,13 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_renamed_the_conversation">%1$s ha rinominato la conversazione
 %2$s</string>
     <plurals name="label_system_message_team_member_left">
-        <item quantity="one">%1$s was removed from the team</item>
-        <item quantity="other">%1$s were removed from the team</item>
+        <item quantity="one">%1$s è stato rimosso dal team</item>
+        <item quantity="other">%1$s sono stati rimossi dal team</item>
     </plurals>
     <string name="label_system_message_user_not_available">Questo utente non &#232; pi&#249; disponibile</string>
+    <string name="label_system_message_unsupported_protocol">La conversazione sta utilizzando un protocollo crittografico
+        non supportato da questo dispositivo. Alcuni dispositivi dal coinvolgimento degli utenti potrebbero necessitare dell\'aggiornamento.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
@@ -589,12 +592,13 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
     <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">La chiave del gruppo MLS è stata aggiornata a nostra insaputa. Ciò potrebbe verificarsi a causa di messaggi perduti tra i backend, o di un bug. Ci siamo riuniti automaticamente alla conversazione, ma potresti aver perso dei messaggi.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Non hai aggiornato questo dispositivo per un po\'. Nel mentre, il protocollo standard di messaggistica è cambiato da Proteus a Messaging Layer Security (MLS). A causa di questo cambiamento, alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Non hai aggiornato la tua app in tempo. Alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migrazione del protocollo crittografico annullata.</string>
-    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">A causa della migrazione a MLS, potresti riscontrare dei problemi con la tua chiamata corrente. In tal caso, riaggancia e richiama.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migrazione del protocollo crittografico avviata. Assicurati che tutti i tuoi client di Wire siano aggiornati.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migrazione del protocollo crittografico completata. I client di Wire che non sono stati aggiornati smetteranno di ricevere messaggi.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Ora, questa conversazione utilizza il nuovo protocollo Messaging Layer Security (MLS). Per comunicare senza problemi, utilizza sempre la versione più recente di Wire sui tuoi dispositivi.</string>
+    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
@@ -629,8 +633,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="other">Hai rimosso %1$d partecipanti dalla conversazione</item>
     </plurals>
     <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 person was removed form the team</item>
-        <item quantity="other">%1$d people were removed from the team</item>
+        <item quantity="one">1 persona è stata rimossa dal team</item>
+        <item quantity="other">%1$d persone sono state rimosse dal team</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Sei stato rimosso dalla conversazione</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -704,7 +708,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
     <string name="label_conversation_files">File</string>
-    <string name="label_conversation_links">Link</string>
+    <string name="label_conversation_pictures_empty">Nessuna immagine è stata ancora condivisa in questa conversazione 🥲</string>
+    <string name="label_conversation_files_empty">Ancora nessun file è stato condiviso in questa conversazione 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -1226,11 +1231,11 @@ registrato. Sei pregato di riprovare.</string>
     <string name="delete_acount_dialog_title">Elimina il profilo</string>
     <string name="delete_acount_dialog_text">Se continui, invieremo un messaggio via email. Segui il link per eliminare permanentemente il tuo profilo.</string>
     <string name="end_to_end_identity_required_dialog_title">Certificato d\'identità end-to-end</string>
-    <string name="end_to_end_identity_required_dialog_text">Ad oggi, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro e praticabile. La verifica del dispositivo si verifica automaticamente utilizzando un certificato e sostituisce il precedente processo manuale. Così, comunichi con lo standard di sicurezza più elevato.\n\nInserisci le credenziali del tuo fornitore d\'identità nel prossimo passaggio per ottenere automaticamente un certificato di convalida per questo dispositivo.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Il tuo team, ora, utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro. La verifica del dispositivo avviene automaticamente utilizzando un certificato.\n\nInserisci le credenziali del tuo fornitore d\'identità nel prossimo passaggio per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
+    <string name="end_to_end_identity_required_dialog_text">Ad oggi, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro e praticabile.\n\nInserisci le credenziali del tuo fornitore di identità nel prossimo passaggio per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Ora, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro.\n\nInserisci le credenziali del tuo fornitore di identità nel prossimo passaggio, per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Ottieni il certificato</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Ricordamelo più tardi</string>
-    <string name="end_to_end_identity_snooze_dialog_text">Puoi ottenere il certificato nelle tue impostazioni di Wire durante il prossiimo %1$s. Apri Dispositivi e seleziona Ottieni certificato per il tuo dispositivo corrente.\nPer continuare a utilizzare Wire senza interruziioni, recuperalo in tempo: non ci vuole molto.</string>
+    <string name="end_to_end_identity_snooze_dialog_text">Puoi ottenere il certificato nelle tue Impostazioni di Wire durante il prossimo %1$s.\nApri Dispositivi e seleziona Ottieni Certificato per il tuo dispositivo corrente. </string>
     <string name="end_to_end_identity_renew_dialog_title">Aggiorna il certificato</string>
     <string name="end_to_end_identity_renew_dialog_text">Il certificato di identità end-to-end per questo dispositivo scadrà presto. Per mantenere sicura la tua comunicazione, aggiornalo ora.\n\nInserisci le credenziali del tuo forntore di identità nel prossimo passaggio per aggiornare il certificato automaticamente.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">Il certificato di identità end-to-end per questo dispositivo è scaduto.\n\nInserisci le credenziali del fornitore della tua identità nel prossimo passaggio per aggiornare automaticamente il certificato.</string>
@@ -1303,7 +1308,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="legal_hold_subject_dialog_title">%1$s è soggetto alla sospensione legale</string>
     <string name="legal_hold_subject_dialog_description">Tutti i messaggi, le immagini e i documenti saranno conservati per l\'accesso futuro. Include i messaggi eliminati, modificati e a eliminazione automatica.</string>
     <string name="legal_hold_subject_dialog_description_group">Almeno una persona in questa conversazone è soggetta alla sospensione legale.</string>
-    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
+    <string name="legal_hold_subject_dialog_description_message">Desideri comunque inviare il tuo messaggio?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Invia comunque</string>
     <string name="legal_hold_subject_to">Soggetto a %1$s.</string>
     <string name="legal_hold_label">sospensione legale</string>

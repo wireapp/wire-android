@@ -94,14 +94,14 @@
     <string name="content_description_add_to_favourite">Ajouter aux favoris</string>
     <string name="content_description_move_to_folder">Déplacer vers le dossier</string>
     <string name="content_description_move_to_archive">Déplacer vers l\'archive</string>
-    <string name="content_description_unarchive">Unarchive</string>
+    <string name="content_description_unarchive">Restaurer</string>
     <string name="content_description_block_the_user">Bloquer</string>
     <string name="content_description_unblock_the_user">Débloquer</string>
     <string name="content_description_leave_the_group">Quitter le groupe</string>
     <string name="content_description_delete_the_group">Supprimer le groupe</string>
     <string name="content_description_conversation_phone_icon">Passer un appel audio</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Search icon</string>
+    <string name="content_description_conversation_search_icon">Icône Recherche</string>
     <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Bouton activer le mode texte enrichi</string>
     <string name="content_description_conversation_rich_text_header">En-tête de mise en forme de texte enrichi</string>
@@ -134,7 +134,7 @@
     <string name="content_description_more_options">Plus d\'options</string>
     <string name="content_description_add_contact">Ajouter un contact</string>
     <string name="content_description_image_message">Image</string>
-    <string name="content_description_file_message">File message</string>
+    <string name="content_description_file_message">Message de fichier</string>
     <string name="content_description_ping_everyone">Faire un signe</string>
     <string name="content_description_self_deleting_message_timer">Définir la minuterie pour les messages auto-supprimés</string>
     <string name="content_description_calling_hang_up_call">Raccrocher l\'appel</string>
@@ -163,21 +163,21 @@
     <string name="content_description_message_sending_status">Statut d\'envoi du message</string>
     <string name="content_description_message_sent_status">Statut du message envoyé</string>
     <string name="content_description_message_error_status">Statut d\'erreur du message</string>
-    <string name="content_description_message_delivered_status">Message delivered status</string>
+    <string name="content_description_message_delivered_status">Statut de la livraison du message</string>
     <string name="content_description_message_read_status">Statut de lecture du message</string>
     <string name="content_description_record_audio_button_start">Enregistrer l\' Audio</string>
     <string name="content_description_record_audio_button_stop">Arrêter l\'enregistrement audio</string>
     <string name="content_description_record_audio_button_send">Envoyer un message audio</string>
     <string name="content_description_mls_certificate_valid">Tous les appareils de tous les participants ont un certificat MLS valide</string>
     <string name="content_description_proteus_certificate_valid">Tous les participants sont vérifiés (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
-    <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_jump_to_last_message">Faites défiler vers le bas jusqu\'au dernier message, bouton</string>
+    <string name="content_description_location_icon">Élément de l\'emplacement</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Coffre-fort</string>
     <string name="archive_screen_title">Archives</string>
-    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
-    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
+    <string name="archive_screen_empty_state_title">Rien d\'archivé pour le moment 👻</string>
+    <string name="archive_screen_empty_state_description">Pour garder votre liste de conversations bien rangée, déplacez les conversations inutilisées ici. Vous pouvez toujours les désarchiver plus tard.</string>
     <string name="user_profile_screen_title">Profil utilisateur</string>
     <string name="settings_screen_title">Paramètres</string>
     <string name="app_settings_screen_title">Paramètres de l\'application</string>
@@ -211,13 +211,13 @@
     <string name="welcome_screen_carousel_item_message_5">Wire est audité indépendamment et conforme ISO, CCPA, GDPR, SOX </string>
     <string name="welcome_button_create_team">Créer une équipe</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-    <string name="server_details_dialog_title">On-premises Backend</string>
+    <string name="server_details_dialog_title">Serveurs sur site</string>
     <string name="welcome_migration_dialog_title">Bienvenue sur notre nouvelle application Android 👋</string>
-    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
+    <string name="welcome_migration_dialog_content">Nous avons reconstruit l\'application pour la rendre plus utilisable pour tout le monde.\n\nEn savoir plus sur l\'application reconnue de Wire: de nouvelles options et une meilleure accessibilité, avec la même sécurité.</string>
     <string name="welcome_migration_dialog_continue">Commencez à utiliser Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Mise à jour requise</string>
-    <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
+    <string name="api_versioning_client_update_required_message">Vous manquez de nouvelles fonctionnalités. Mettez à jour vers la dernière version de Wire pour continuer à utiliser l\'application avec ce compte.</string>
     <string name="api_versioning_server_version_not_supported_title">La version du serveur n\'est pas supportée</string>
     <string name="api_versioning_server_version_not_supported_message">Votre serveur Wire doit être mis à jour. Veuillez informer votre administrateur système.</string>
     <!-- Migration -->
@@ -279,16 +279,16 @@
     <string name="remove_device_invalid_password">Mot de passe incorrect</string>
     <string name="remove_device_details_description">Supprimez cet appareil si vous avez cessé de l’utiliser. Vous serez déconnecté de cet appareil immédiatement.</string>
     <string name="remove_device_details_description_with_wipe">Supprimez votre appareil si vous avez cessé de l\'utiliser. Selon les paramètres de sécurité de votre équipe, l\'historique de vos conversations sera également supprimé.</string>
-    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
-    <string name="item_subtitle_status_e2ei_certificate">Status</string>
-    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
-    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
-    <string name="get_e2ei_certificate_button">Get Certificate</string>
-    <string name="update_e2ei_certificat_button">Update Certificate</string>
-    <string name="e2ei_certificat_status_valid">Valid</string>
-    <string name="e2ei_certificat_status_expired">Expired</string>
-    <string name="e2ei_certificat_status_revoked">Revoked</string>
-    <string name="e2ei_certificat_status_not_activated">Not activated</string>
+    <string name="item_title_e2ei_certificate">Certificat d\'identité de bout en bout</string>
+    <string name="item_subtitle_status_e2ei_certificate">Statut</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">Numéro de série</string>
+    <string name="show_e2ei_certificate_details_button">Afficher les détails du certificat</string>
+    <string name="get_e2ei_certificate_button">Obtenir un certificat</string>
+    <string name="update_e2ei_certificat_button">Mettre à jour le certificat</string>
+    <string name="e2ei_certificat_status_valid">Valide</string>
+    <string name="e2ei_certificat_status_expired">Expiré</string>
+    <string name="e2ei_certificat_status_revoked">Révoqué</string>
+    <string name="e2ei_certificat_status_not_activated">Pas activé</string>
     <!-- Register Device -->
     <string name="register_device_title">Ajouter cet appareil</string>
     <string name="register_device_text">Entrez votre mot de passe pour utiliser Wire sur cet appareil.</string>
@@ -307,18 +307,18 @@
     <!-- Create Account -->
     <string name="create_personal_account_title">Créer un compte personnel</string>
     <string name="create_personal_account_summary_title">Compte personnel créé</string>
-    <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
-    <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
-    <string name="create_personal_account_details_text">Enter your personal details:</string>
-    <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
-    <string name="create_team_title">Create a Team</string>
-    <string name="create_team_summary_title">Team Created</string>
-    <string name="create_team_content_title">Wire for Free</string>
-    <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
-    <string name="create_team_learn_more">Learn more about plans and pricing</string>
-    <string name="create_team_email_text">Enter your email to create your team:</string>
-    <string name="create_team_details_text">Enter your email to create your team:</string>
-    <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
+    <string name="create_personal_account_text">Discutez en toute sécurité avec vos amis et votre famille en utilisant le serveur cloud public de Wire.</string>
+    <string name="create_personal_account_email_text">Entrez votre adresse e-mail pour commencer à utiliser la plateforme de collaboration la plus sécurisée.</string>
+    <string name="create_personal_account_details_text">Saisissez vos informations personnelles:</string>
+    <string name="create_personal_account_summary_text">Vous avez créé votre compte personnel. Commencez à communiquer en toute sécurité – où que vous soyez!</string>
+    <string name="create_team_title">Créer une équipe</string>
+    <string name="create_team_summary_title">Équipe créée</string>
+    <string name="create_team_content_title">Wire gratuit</string>
+    <string name="create_team_text">Messagerie pour les petites organisations ou les cabinets de consultation individuels.\n</string>
+    <string name="create_team_learn_more">En savoir plus sur les forfaits et les prix</string>
+    <string name="create_team_email_text">Entrez votre adresse e-mail pour créer votre équipe:</string>
+    <string name="create_team_details_text">Entrez votre adresse e-mail pour créer votre équipe:</string>
+    <string name="create_team_summary_text">Vous avez créé votre compte d’équipe. Commencez à communiquer en toute sécurité – où que vous soyez!</string>
     <string name="create_account_email_placeholder">jane@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Already have an account? </string>
@@ -570,6 +570,9 @@
         <item quantity="other">%1$s were removed from the team</item>
     </plurals>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
+    <string name="label_system_message_unsupported_protocol">The conversation is using an encryption protocol that is
+        not supported by this device. Some devices from the involve users might need updating.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
@@ -580,12 +583,13 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">You haven’t updated this device for a while. In the meantime, the standard messaging protocol changed from Proteus to Messaging Layer Security (MLS). Due to this change, some messages may not appear here.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">This conversation now uses the new Messaging Layer Security (MLS) protocol. To communicate seamlessly, always use the latest version of Wire on your devices.</string>
+    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -695,7 +699,8 @@
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
     <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_links">Links</string>
+    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -1213,11 +1218,11 @@
     <string name="delete_acount_dialog_title">Delete Account</string>
     <string name="delete_acount_dialog_text">If you continue, we will send a message via email. Follow the link to permanently delete your account.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
-    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable. The device verification takes place automatically using a certificate and replaces the previous manual process. This way, you communicate with the highest security standard.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure. The device verification takes place automatically using a certificate.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
-    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire settings during the next %1$s. Open Devices and select Get Certificate for your current device.\nTo continue using Wire without interruption, retrieve it in time – it doesn’t take long.</string>
+    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire Settings during the next %1$s.\nOpen Devices and select Get Certificate for your current device. </string>
     <string name="end_to_end_identity_renew_dialog_title">Update certificate</string>
     <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>

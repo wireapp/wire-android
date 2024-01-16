@@ -19,16 +19,18 @@ package com.wire.android.util.permission
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.util.extension.openAppInfoScreen
 
 /**
  * Allows to show a dialog to the user when the permission is denied.
- * Suggesting him to go to app settings and handle manually the permission.
+ * Suggesting, to go to app settings and handle manually the permission.
  *
  * Useful for when an action is not possible without the permission.
  */
@@ -38,9 +40,9 @@ fun PermissionsDeniedRequestDialog(
     @StringRes body: Int,
     @StringRes positiveButton: Int = R.string.app_permission_dialog_settings_positive_button,
     @StringRes negativeButton: Int = R.string.app_permission_dialog_settings_negative_button,
-    onDismiss: () -> Unit,
-    onOpenSettings: () -> Unit
+    onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     WireDialog(
         title = stringResource(id = title),
         text = stringResource(id = body),
@@ -51,7 +53,7 @@ fun PermissionsDeniedRequestDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onOpenSettings,
+            onClick = context::openAppInfoScreen,
             text = stringResource(id = positiveButton),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Default

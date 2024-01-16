@@ -55,7 +55,6 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.permission.rememberCurrentLocationFlow
@@ -139,8 +138,7 @@ fun LocationPickerComponent(
             onDismiss = {
                 viewModel.onPermissionsDialogDiscarded()
                 onLocationClosed()
-            },
-            onOpenSettings = context::openAppInfoScreen
+            }
         )
     }
 }

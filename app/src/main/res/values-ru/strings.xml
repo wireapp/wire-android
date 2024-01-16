@@ -77,7 +77,7 @@
     <string name="label_value_copied">%s скопирован</string>
     <string name="label_disable">Отключить</string>
     <string name="folder_label_access">Доступ</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
+    <string name="folder_label_protocol_details">Информация о протоколе</string>
     <string name="folder_label_messaging">Обмен сообщениями</string>
     <string name="label_user_blocked">Заблокирован(-а)</string>
     <string name="label_and">и</string>

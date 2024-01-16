@@ -43,9 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -60,6 +57,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.orDefault
+import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.permission.rememberCurrentLocationFlow
 
 /**
@@ -135,14 +133,17 @@ fun LocationPickerComponent(
         }
     }
 
-    PermissionsDeniedDialog(
-        shouldShowDialog = viewModel.state.showPermissionDeniedDialog,
-        onDismiss = {
-            viewModel.onPermissionsDialogDiscarded()
-            onLocationClosed()
-        },
-        onOpenSettings = { context.openAppInfoScreen() }
-    )
+    if (viewModel.state.showPermissionDeniedDialog) {
+        PermissionsDeniedRequestDialog(
+            body = R.string.location_app_permission_dialog_body,
+            onDismiss = {
+                viewModel.onPermissionsDialogDiscarded()
+                onLocationClosed()
+            },
+            onOpenSettings = context::openAppInfoScreen
+        )
+    }
+
 }
 
 @Composable
@@ -174,37 +175,6 @@ private fun RowScope.LoadingLocation() {
         style = MaterialTheme.wireTypography.body01,
         textAlign = TextAlign.Start
     )
-}
-
-// todo: this is a good candidate to refactor as a common component and unify with record audio.
-@Composable
-fun PermissionsDeniedDialog(
-    shouldShowDialog: Boolean, // managed by vm state
-    title: String = stringResource(id = R.string.app_permission_dialog_title),
-    body: String = stringResource(id = R.string.location_app_permission_dialog_body),
-    positiveButton: String = stringResource(id = R.string.app_permission_dialog_settings_positive_button),
-    negativeButton: String = stringResource(id = R.string.app_permission_dialog_settings_negative_button),
-    onDismiss: () -> Unit,
-    onOpenSettings: () -> Unit
-) {
-    if (shouldShowDialog) {
-        WireDialog(
-            title = title,
-            text = body,
-            onDismiss = onDismiss,
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = onDismiss,
-                text = negativeButton,
-                state = WireButtonState.Default
-            ),
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = onOpenSettings,
-                text = positiveButton,
-                type = WireDialogButtonType.Primary,
-                state = WireButtonState.Default
-            )
-        )
-    }
 }
 
 @Composable

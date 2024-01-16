@@ -344,7 +344,7 @@ private val DarkWireColorScheme = WireColorScheme(
     recordAudioStopColor = WireColorPalette.LightRed500,
     scrollToBottomButtonColor = WireColorPalette.Gray60,
     onScrollToBottomButtonColor = Color.Black,
-    validE2eiStatusColor = WireColorPalette.DarkGreen550,
+    validE2eiStatusColor = WireColorPalette.DarkGreen500,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
     selectedMessageHighlightColor = WireColorPalette.DarkBlue50
 )

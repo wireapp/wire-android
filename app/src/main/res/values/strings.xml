@@ -596,6 +596,9 @@
         <item quantity="other">%1$s were removed from the team</item>
     </plurals>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
+    <string name="label_system_message_unsupported_protocol">The conversation is using an encryption protocol that is
+        not supported by this device. Some devices from the involve users might need updating.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>

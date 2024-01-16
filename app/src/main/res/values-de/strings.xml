@@ -75,7 +75,7 @@
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
     <string name="folder_label_access">Zugang</string>
-    <string name="folder_label_protocol_details">Details zum Protokoll (Beta)</string>
+    <string name="folder_label_protocol_details">Protocol details</string>
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
@@ -362,7 +362,7 @@
     <string name="create_account_username_label">BENUTZERNAME</string>
     <string name="create_account_username_text">Geben Sie Ihren Benutzernamen ein. Andere können Sie so leichter in Wire finden und sich mit Ihnen verbinden.</string>
     <string name="create_account_username_taken_error">Dieser Benutzername ist bereits vergeben. Bitte wählen Sie einen anderen.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
+    <string name="create_account_username_description">Mindestens 2 Zeichen, a-z, 0-9, “_”, “-” und “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">VERPASSTE ANRUFE</string>
     <string name="calls_label_calls_history">ANRUFLISTE</string>
@@ -582,6 +582,9 @@
         <item quantity="other">%1$s wurden aus dem Team entfernt</item>
     </plurals>
     <string name="label_system_message_user_not_available">Dieser Benutzer ist nicht mehr verfügbar</string>
+    <string name="label_system_message_unsupported_protocol">The conversation is using an encryption protocol that is
+        not supported by this device. Some devices from the involve users might need updating.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
@@ -592,12 +595,13 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s hat selbstlöschende Nachrichten für alle **ausgeschaltet**</string>
     <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">The MLS group key was updated without our knowledge. This could happen due to lost messages between backends, or a bug. We have automatically rejoined the conversation, but you may have lost messages.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Sie haben dieses Gerät schon seit einiger Zeit nicht mehr aktualisiert. In der Zwischenzeit wurde das Standard-Nachrichtenprotokoll von Proteus auf Messaging-Layer-Security (MLS) umgestellt. Aufgrund dieser Änderung werden einige Nachrichten hier möglicherweise nicht angezeigt.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
-    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migration of encryption protocol is completed. Wire clients which haven\'t been updated will stop receiving messages.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Diese Unterhaltung verwendet jetzt das neue Protokoll namens Messaging-Layer-Security (MLS). Um eine reibungslose Kommunikation zu gewährleisten, verwenden Sie immer die neueste Wire-Version auf Ihren Geräten.</string>
+    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
@@ -707,7 +711,8 @@
     <string name="label_conversation_media">Medien</string>
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Dateien</string>
-    <string name="label_conversation_links">Links</string>
+    <string name="label_conversation_pictures_empty">Es wurden noch keine Bilder in dieser Unterhaltung geteilt 🙀</string>
+    <string name="label_conversation_files_empty">Es wurden noch keine Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
@@ -935,7 +940,7 @@
     <string name="settings_send_read_receipts_description">Wenn diese Option deaktiviert ist, sehen Sie keine Lesebestätigungen von anderen. Gilt nicht für Gruppen.</string>
     <string name="settings_censor_screenshots">Aufnahme von Screenshots verhindern</string>
     <string name="settings_censor_screenshots_description">Wenn diese Option aktiviert ist, werden Ihre Screenshots oder Bildschirmaufnahmen in Wire ohne Inhalt schwarz dargestellt.</string>
-    <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
+    <string name="settings_censor_screenshots_enforced_by_team_description">Dies wird durch die Team-Einstellung für selbstlöschende Nachrichten erzwungen und kann nicht geändert werden.\nDer Nachrichteninhalt ist auf Bildschirmfoto oder -aufzeichnung nicht sichtbar.</string>
     <string name="settings_show_typing_indicator_title">Eingabeanzeige</string>
     <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
     <string name="settings_app_lock_title">Mit Kennwort sperren</string>
@@ -963,7 +968,7 @@
     <string name="settings_forgot_lock_screen_warning">Wenn Sie Ihr Gerät entfernen, verlieren Sie dauerhaft alle lokalen Daten und Nachrichten für alle Benutzerkonten auf diesem Gerät.</string>
     <string name="settings_forgot_lock_screen_reset_device">Gerät entfernen</string>
     <string name="settings_forgot_lock_screen_reset_device_description">Geben Sie Ihr Passwort für das Benutzerkonto %s ein, um die Löschung aller Daten für alle Konten auf diesem Gerät zu bestätigen. Nachdem Sie Ihr Gerät entfernt haben, können Sie sich mit Ihren Zugangsdaten anmelden.</string>
-    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Confirm the deletion of all data for all accounts on this device. After removing your device, you can log in with your account credentials.</string>
+    <string name="settings_forgot_lock_screen_reset_device_without_password_description">Bestätigen Sie die Löschung aller Daten für alle Konten auf diesem Gerät. Nachdem Sie Ihr Gerät entfernt haben, können Sie sich mit Ihren Zugangsdaten anmelden.</string>
     <string name="settings_forgot_lock_screen_please_wait_label">Bitte warten…</string>
     <!--Devices -->
     <string name="devices_title">Ihre Geräte</string>
@@ -975,12 +980,12 @@
     <string name="unblock_user_dialog_confirm_button">Freigeben</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
-        <item quantity="one">one account active</item>
-        <item quantity="other">%1$d accounts active</item>
+        <item quantity="one">ein aktives Konto</item>
+        <item quantity="other">%1$d aktive Konten</item>
     </plurals>
     <plurals name="max_account_reached_dialog_message">
-        <item quantity="one">You can only be logged in with one account at once. Log out from one to add another.</item>
-        <item quantity="other">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
+        <item quantity="one">Sie können nur mit einem Konto angemeldet sein. Melden Sie sich von einem Konto ab, um ein anderes hinzuzufügen.</item>
+        <item quantity="other">Sie können nur mit %1$d Konten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
@@ -1226,14 +1231,14 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="delete_acount_dialog_title">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_text">Wenn Sie fortfahren, erhalten Sie eine E-Mail von Wire. Folgen Sie dem Link, um Ihr Konto dauerhaft zu löschen.</string>
     <string name="end_to_end_identity_required_dialog_title">Ende-zu-Ende-Identitätszertifikat</string>
-    <string name="end_to_end_identity_required_dialog_text">Ihr Team verwendet von heute an Ende-zu-Ende-Identität, um die Nutzung von Wire sicherer und praktikabler zu machen. Die Geräteüberprüfung erfolgt automatisch mit einem Zertifikat und ersetzt den vorherigen manuellen Prozess. Auf diese Weise kommunizieren Sie mit dem höchsten Sicherheitsstandard.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um automatisch ein Zertifikat für dieses Gerät zu erhalten.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure. The device verification takes place automatically using a certificate.\n\nEnter the credentials of your identity provider in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text">Ihr Team verwendet von heute an Ende-zu-Ende-Identität, um die Nutzung von Wire sicherer und praktikabler zu machen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um automatisch ein Zertifikat für dieses Gerät zu erhalten.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Zertifikat erhalten</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Später erinnern</string>
-    <string name="end_to_end_identity_snooze_dialog_text">Sie können das Zertifikat während der nächsten %1$s in Ihren Wire-Einstellungen abrufen. Öffnen Sie Geräte und wählen Sie Zertifikat erhalten für Ihr aktuelles Gerät.\nUm Wire weiterhin ohne Unterbrechung nutzen zu können, rufen Sie es rechtzeitig ab – es dauert nicht lange.</string>
+    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire Settings during the next %1$s.\nOpen Devices and select Get Certificate for your current device. </string>
     <string name="end_to_end_identity_renew_dialog_title">Zertifikat aktualisieren</string>
-    <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
-    <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
+    <string name="end_to_end_identity_renew_dialog_text">Das Ende-zu-Ende-Identitätszertifikat für dieses Gerät läuft bald ab. Um Ihre Kommunikation auf dem höchsten Sicherheitsniveau zu halten, aktualisieren Sie Ihr Zertifikat jetzt.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um das Zertifikat automatisch zu aktualisieren.</string>
+    <string name="end_to_end_identity_renew_dialog_text_no_snooze">Das Ende-zu-Ende-Identitätszertifikat für dieses Gerät ist abgelaufen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um das Zertifikat automatisch zu aktualisieren.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">Zertifikat aktualisieren</string>
     <string name="end_to_end_identity_renew_error_dialog_title">Zertifikat konnte nicht aktualisiert werden.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">Sie können jetzt erneut versuchen, das Zertifikat zu aktualisieren, oder Sie erhalten später eine Erinnerung.</string>
@@ -1273,7 +1278,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Passwort eingeben</string>
     <string name="generate_password_button_text">Passwort generieren</string>
     <string name="password_protected_link_banner_description">Personen, die über den Gäste-Link an der Unterhaltung teilnehmen möchten, müssen zuerst dieses Passwort eingeben.\nPasswort vergessen? Widerrufen Sie den Link und erstellen Sie einen neuen.</string>
-    <string name="password_protected_link_banner_title">Link is password secured</string>
+    <string name="password_protected_link_banner_title">Link ist passwortgeschützt</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Passwort in Zwischenablage kopiert</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Verwenden Sie mindestens 8 Zeichen mit einem Kleinbuchstaben, einem Großbuchstaben, einer Zahl und einem Sonderzeichen.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Neues Passwort generiert</string>
@@ -1288,7 +1293,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="e2ei_certificate_details_download">Herunterladen</string>
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Zertifikat in Zwischenablage kopiert</string>
     <string name="call_ended_because_of_verification_title">Unterhaltung nicht mehr überprüft</string>
-    <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+    <string name="call_ended_because_of_verification_message">Der Anruf wurde unterbrochen, weil mindestens ein Teilnehmer kein verifizierter Kontakt mehr ist.</string>
     <!-- legal hold -->
     <string name="legal_hold_requested_dialog_title">Gesetzliche Aufbewahrung ersucht</string>
     <string name="legal_hold_requested_dialog_description_device">Aufbewahrung aller künftigen Nachrichten vom Gerät mit Fingerabdruck:</string>
@@ -1303,7 +1308,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_subject_dialog_title">%1$s unterliegt der gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_subject_dialog_description">Alle Nachrichten, Bilder und Dokumente werden für den späteren Zugriff aufbewahrt. Dies gilt auch für gelöschte, bearbeitete und selbstlöschende Nachrichten.</string>
     <string name="legal_hold_subject_dialog_description_group">Mindestens eine Person dieser Unterhaltung unterliegt der gesetzlichen Aufbewahrung.</string>
-    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
+    <string name="legal_hold_subject_dialog_description_message">Möchten Sie Ihre Nachricht trotzdem senden?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Trotzdem senden</string>
     <string name="legal_hold_subject_to">Unterliegt der %1$s.</string>
     <string name="legal_hold_label">gesetzlichen Aufbewahrung</string>

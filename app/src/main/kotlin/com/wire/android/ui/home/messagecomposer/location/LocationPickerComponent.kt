@@ -19,6 +19,7 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -99,31 +100,9 @@ fun LocationPickerComponent(
                                 .fillMaxWidth()
                         ) {
                             HorizontalSpace.x4()
-                            if (isLocationLoading) {
-                                WireCircularProgressIndicator(
-                                    progressColor = Color.Black,
-                                    modifier = Modifier.align(alignment = Alignment.CenterVertically)
-                                )
-                                HorizontalSpace.x8()
-                                Text(
-                                    text = stringResource(R.string.location_loading_label),
-                                    modifier = Modifier.wrapContentWidth(),
-                                    style = MaterialTheme.wireTypography.body01,
-                                    textAlign = TextAlign.Start
-                                )
-                            } else {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_location,
-                                    contentDescription = stringResource(R.string.attachment_share_location)
-                                )
-                                HorizontalSpace.x8()
-                                Text(
-                                    text = geoLocatedAddress?.getFormattedAddress()
-                                        .orDefault(stringResource(R.string.location_loading_label)),
-                                    modifier = Modifier.wrapContentWidth(),
-                                    style = MaterialTheme.wireTypography.body01,
-                                    textAlign = TextAlign.Start
-                                )
+                            when (isLocationLoading) {
+                                true -> LoadingLocation()
+                                false -> LocationInformation(geoLocatedAddress = geoLocatedAddress)
                             }
                         }
                     }
@@ -163,6 +142,37 @@ fun LocationPickerComponent(
             onLocationClosed()
         },
         onOpenSettings = { context.openAppInfoScreen() }
+    )
+}
+
+@Composable
+private fun LocationInformation(geoLocatedAddress: GeoLocatedAddress?) {
+    MenuItemIcon(
+        id = R.drawable.ic_location,
+        contentDescription = stringResource(R.string.attachment_share_location)
+    )
+    HorizontalSpace.x8()
+    Text(
+        text = geoLocatedAddress?.getFormattedAddress()
+            .orDefault(stringResource(R.string.location_loading_label)),
+        modifier = Modifier.wrapContentWidth(),
+        style = MaterialTheme.wireTypography.body01,
+        textAlign = TextAlign.Start
+    )
+}
+
+@Composable
+private fun RowScope.LoadingLocation() {
+    WireCircularProgressIndicator(
+        progressColor = Color.Black,
+        modifier = Modifier.align(alignment = Alignment.CenterVertically)
+    )
+    HorizontalSpace.x8()
+    Text(
+        text = stringResource(R.string.location_loading_label),
+        modifier = Modifier.wrapContentWidth(),
+        style = MaterialTheme.wireTypography.body01,
+        textAlign = TextAlign.Start
     )
 }
 

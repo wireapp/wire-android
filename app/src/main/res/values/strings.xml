@@ -485,7 +485,7 @@
     <string name="attachment_take_photo">Camera</string>
     <string name="attachment_record_video">Video</string>
     <string name="attachment_voice_message">Audio</string>
-    <string name="attachment_share_location">Share Location</string>
+    <string name="attachment_share_location">Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>

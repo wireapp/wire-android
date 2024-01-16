@@ -63,6 +63,8 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
@@ -93,6 +95,7 @@ class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
+    private val doesValidSessionExist: DoesValidSessionExistUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -113,6 +116,7 @@ class WireActivityViewModel @Inject constructor(
         private set
 
     private val observeUserId = currentSessionFlow()
+        .distinctUntilChanged()
         .onEach {
             if (it is CurrentSessionResult.Success) {
                 if (it.accountInfo.isValid().not()) {
@@ -130,7 +134,10 @@ class WireActivityViewModel @Inject constructor(
             } else {
                 null
             }
-        }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
@@ -284,7 +291,13 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissNewClientsDialog(userId: UserId) {
         globalAppState = globalAppState.copy(newClientDialog = null)
-        viewModelScope.launch { clearNewClientsForUser(userId) }
+        viewModelScope.launch {
+            doesValidSessionExist(userId).let {
+                if (it is DoesValidSessionExistResult.Success && it.doesValidSessionExist) {
+                    clearNewClientsForUser(userId)
+                }
+            }
+        }
     }
 
     fun switchAccount(userId: UserId, actions: SwitchAccountActions, onComplete: () -> Unit) {

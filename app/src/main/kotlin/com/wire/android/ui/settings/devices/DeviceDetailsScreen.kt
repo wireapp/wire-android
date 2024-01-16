@@ -305,7 +305,7 @@ private fun DeviceDetailsTopBar(
                     style = MaterialTheme.wireTypography.title01,
                     maxLines = 2
                 )
-                
+
                 MLSVerificationIcon(device.e2eiCertificateStatus)
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {

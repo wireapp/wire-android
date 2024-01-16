@@ -474,6 +474,7 @@ sealed class UIMessageContent {
                 Conversation.Protocol.MLS -> R.string.label_system_message_learn_more_about_mls_link
             }
         )
+
         data object ConversationProtocolChangedWithCallOngoing : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_protocol_changed_during_a_call
@@ -523,16 +524,16 @@ sealed class UIMessageContent {
         }
 
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
-            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_shield_holo,
-            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
+            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
             else R.string.label_system_message_conversation_degraded_proteus
         )
 
         data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
-            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
             else R.drawable.ic_certificate_valid_proteus,
-            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
             else R.string.label_system_message_conversation_verified_proteus
         )
 

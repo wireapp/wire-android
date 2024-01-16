@@ -71,6 +71,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -105,6 +106,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase,
+    private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -144,9 +146,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun observeClientList() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             observeClientList(userId)
                 .collect {
+                    val e2eiCertificates = getUserE2eiCertificates(userId)
                     when (it) {
                         is ObserveClientsByUserIdUseCase.Result.Failure -> {
                             /* no-op */
@@ -154,7 +157,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             state = state.copy(otherUserDevices = it.clients.map { item ->
-                                Device(item)
+                                Device(item, e2eiCertificates[item.id.value]?.status)
                             })
                         }
                     }

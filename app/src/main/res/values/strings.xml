@@ -75,7 +75,7 @@
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
     <string name="folder_label_access">Access</string>
-    <string name="folder_label_protocol_details">Protocol details (beta)</string>
+    <string name="folder_label_protocol_details">Protocol details</string>
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blocked</string>
     <string name="label_and">and</string>

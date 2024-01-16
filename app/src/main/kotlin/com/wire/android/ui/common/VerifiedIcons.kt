@@ -122,8 +122,7 @@ fun MLSRevokedIcon(
     Image(
         modifier = modifier.padding(start = dimensions().spacing4x),
         painter = painterResource(id = R.drawable.ic_certificate_revoked_mls),
-        contentDescription = stringResource(contentDescriptionId),
-        colorFilter = ColorFilter.tint(colorsScheme().error)
+        contentDescription = stringResource(contentDescriptionId)
     )
 }
 
@@ -135,7 +134,6 @@ fun MLSNotVerifiedIcon(
     Image(
         modifier = modifier.padding(start = dimensions().spacing4x),
         painter = painterResource(id = R.drawable.ic_certificate_not_activated_mls),
-        contentDescription = stringResource(contentDescriptionId),
-        colorFilter = ColorFilter.tint(colorsScheme().error)
+        contentDescription = stringResource(contentDescriptionId)
     )
 }

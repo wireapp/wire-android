@@ -52,7 +52,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
-import com.wire.android.ui.common.MLSVerificationIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
@@ -180,9 +179,9 @@ private fun DeviceItemTexts(
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
         )
-        MLSVerificationIcon(device.e2eiCertificateStatus)
         if (shouldShowVerifyLabel) {
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
+            // TODO MLS icons here
             if (device.isVerifiedProteus) ProteusVerifiedIcon(Modifier.wrapContentWidth().align(Alignment.CenterVertically))
         }
     }

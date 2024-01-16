@@ -118,12 +118,12 @@ private fun SearchResult(
 
     val sendConnectionRequest: (UserId) -> Unit = remember {
         { userId: UserId ->
-            val defrredResult = sendConnectionRequestViewModel.addContact(userId)
-            defrredResult.invokeOnCompletion { throwable ->
+            val deferredResult = sendConnectionRequestViewModel.addContact(userId)
+            deferredResult.invokeOnCompletion { throwable ->
                 if (throwable != null) {
                     return@invokeOnCompletion
                 }
-                if (defrredResult.getCompleted()) {
+                if (deferredResult.getCompleted()) {
                     scope.launch {
                         snackbarHostState.showSnackbar(context.getString(R.string.connection_request_sent))
                     }
@@ -139,7 +139,6 @@ private fun SearchResult(
                 .weight(1f),
         ) {
             if (contactsSearchResult.isNotEmpty()) {
-                appLogger.d("cccc contactsSearchResult: ${contactsSearchResult.size}")
                 internalSearchResults(
                     searchTitle = context.getString(R.string.label_contacts),
                     searchQuery = searchQuery,

@@ -170,6 +170,8 @@ fun E2EISuccessDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
+
                 Image(
                     modifier = Modifier
                         .width(MaterialTheme.wireDimensions.spacing64x)

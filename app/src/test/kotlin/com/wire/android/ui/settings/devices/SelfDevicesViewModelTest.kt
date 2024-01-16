@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import io.mockk.coEvery
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -66,6 +67,9 @@ class SelfDevicesViewModelTest {
         @MockK
         lateinit var fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase
 
+        @MockK
+        lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
+
         val selfId = UserId("selfId", "domain")
 
         private val viewModel by lazy {
@@ -73,7 +77,8 @@ class SelfDevicesViewModelTest {
                 observeClientList = observeClientsByUserId,
                 currentAccountId = selfId,
                 currentClientIdUseCase = currentClientId,
-                fetchSelfClientsFromRemote = fetchSelfClientsFromRemote
+                fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
+                getUserE2eiCertificates = getUserE2eiCertificates
             )
         }
 
@@ -89,6 +94,7 @@ class SelfDevicesViewModelTest {
                     )
                 )
             )
+            coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
         }
 
         fun arrange() = this to viewModel

@@ -26,7 +26,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -127,14 +126,8 @@ fun SystemMessageItem(
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.messageContent.iconResId != null) {
-                val iconId = if (isSystemInDarkTheme() && message.messageContent.darkIconResId != null) {
-                    message.messageContent.darkIconResId
-                } else {
-                    message.messageContent.iconResId
-                }
-
                 Image(
-                    painter = painterResource(id = iconId),
+                    painter = painterResource(id = message.messageContent.iconResId),
                     contentDescription = null,
                     colorFilter = getColorFilter(message.messageContent),
                     modifier = Modifier.size(

@@ -85,7 +85,7 @@ fun LocationPickerComponent(
     with(viewModel.state) {
         WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
             MenuModalSheetContent(
-                header = MenuModalSheetHeader.Visible(title = stringResource(R.string.attachment_share_location)),
+                header = MenuModalSheetHeader.Visible(title = stringResource(R.string.location_attachment_share_title)),
                 menuItems = buildList {
                     add {
                         Row(

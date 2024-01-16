@@ -143,7 +143,6 @@ fun LocationPickerComponent(
             onOpenSettings = context::openAppInfoScreen
         )
     }
-
 }
 
 @Composable

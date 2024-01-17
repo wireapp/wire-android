@@ -459,7 +459,7 @@
     <string name="attachment_take_photo">රූගතය</string>
     <string name="attachment_record_video">දෘශ්‍යකය</string>
     <string name="attachment_voice_message">හඬ පණිවිඩය</string>
-    <string name="attachment_share_location">ස්ථානය බෙදාගන්න</string>
+    <string name="attachment_share_location">Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">පරිශ්‍රීලක පැතිකඩ</string>
     <string name="user_profile_close_description">පරිශ්‍රීලක පැතිකඩ වසන්න</string>
@@ -1312,4 +1312,12 @@
     <string name="sure_about_calling_in_degraded_dialog_title">සංවාදය තවදුරටත් සත්‍යාපිත නොවේ</string>
     <string name="sure_about_calling_in_degraded_dialog_body">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරයි හෝ වලංගු නොවන සහතිකයක් ඇත.\n\nඔබට තවමත් ඇමතීමට වුවමනා ද?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">කෙසේ වුවත් අමතන්න</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App permissions</string>
+    <string name="app_permission_dialog_settings_positive_button">Settings</string>
+    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Share Location</string>
+    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
+    <string name="location_loading_label">Please wait...</string>
 </resources>

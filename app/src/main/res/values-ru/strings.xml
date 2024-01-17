@@ -77,7 +77,7 @@
     <string name="label_value_copied">%s скопирован</string>
     <string name="label_disable">Отключить</string>
     <string name="folder_label_access">Доступ</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
+    <string name="folder_label_protocol_details">Информация о протоколе</string>
     <string name="folder_label_messaging">Обмен сообщениями</string>
     <string name="label_user_blocked">Заблокирован(-а)</string>
     <string name="label_and">и</string>
@@ -471,7 +471,7 @@
     <string name="attachment_take_photo">Сделать фото</string>
     <string name="attachment_record_video">Видео</string>
     <string name="attachment_voice_message">Аудио</string>
-    <string name="attachment_share_location">Поделиться местоположением</string>
+    <string name="attachment_share_location">Местоположение</string>
     <!-- User Profile -->
     <string name="user_profile_title">Профиль пользователя</string>
     <string name="user_profile_close_description">Закрыть профиль пользователя</string>
@@ -1382,4 +1382,12 @@
     <string name="sure_about_calling_in_degraded_dialog_title">Беседа больше не является верифицированной</string>
     <string name="sure_about_calling_in_degraded_dialog_body">По крайней мере, один из участников начал использовать новое устройство или имеет недействительный сертификат.\n\nВы все еще хотите позвонить?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Все равно позвонить</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">Разрешения приложения</string>
+    <string name="app_permission_dialog_settings_positive_button">Настройки</string>
+    <string name="app_permission_dialog_settings_negative_button">Не сейчас</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Поделиться местоположением</string>
+    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
+    <string name="location_loading_label">Пожалуйста, подождите...</string>
 </resources>

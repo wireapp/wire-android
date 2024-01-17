@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -39,6 +40,7 @@ import javax.inject.Inject
 class SearchUserViewModel @Inject constructor(
     private val searchUserUseCase: SearchUsersUseCase,
     private val contactMapper: ContactMapper,
+    private val federatedSearchParser: FederatedSearchParser,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -58,17 +60,19 @@ class SearchUserViewModel @Inject constructor(
 
     @VisibleForTesting
     suspend fun safeSearch(query: String) {
-            searchUserUseCase(
-                query,
-                excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,
-                customDomain = null
-            ).also { userSearchEntities ->
-                state = state.copy(
-                    contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                    publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
-                )
-            }
+        val (searchTerm, domain) = federatedSearchParser(query)
+
+        searchUserUseCase(
+            searchTerm,
+            excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,
+            customDomain = domain
+        ).also { userSearchEntities ->
+            state = state.copy(
+                contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
+                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
+            )
         }
+    }
 }
 
 data class SearchUserState(

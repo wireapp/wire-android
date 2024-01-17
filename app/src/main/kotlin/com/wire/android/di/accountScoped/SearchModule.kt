@@ -21,6 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.SearchScope
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.Module
@@ -28,6 +29,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+
 @Module
 @InstallIn(ViewModelComponent::class)
 class SearchModule {
@@ -42,4 +44,8 @@ class SearchModule {
     @ViewModelScoped
     @Provides
     fun provideSearchUsersUseCase(searchScope: SearchScope): SearchUsersUseCase = searchScope.searchUsersUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideFederatedSearchParser(searchScope: SearchScope): FederatedSearchParser = searchScope.federatedSearchParser
 }

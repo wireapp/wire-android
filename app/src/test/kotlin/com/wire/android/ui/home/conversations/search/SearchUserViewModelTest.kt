@@ -31,12 +31,14 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -48,6 +50,7 @@ class SearchUserViewModelTest {
 
     @Test
     fun `given addMembersSearchNavArgs are null, when calling the searchUseCase, then excludingMembersOfConversation is null`() = runTest {
+        val query = "query"
 
         val (arrangement, viewModel) = Arrangement()
             .withAddMembersSearchNavArgsThatThrowsException()
@@ -57,24 +60,34 @@ class SearchUserViewModelTest {
                     notConnected = listOf()
                 )
             )
+            .withFederatedSearchParserResult(
+                FederatedSearchParser.Result(
+                    searchTerm = query,
+                    domain = "domain"
+                )
+            )
             .arrange()
 
-        val query = "query"
 
         viewModel.safeSearch(query)
-
         coVerify(exactly = 1) {
             arrangement.searchUsersUseCase(
                 query,
                 excludingMembersOfConversation = null,
-                customDomain = null
+                customDomain = "domain"
             )
         }
+
+        verify(exactly = 1) {
+            arrangement.federatedSearchParser(any())
+        }
+
     }
 
     @Test
     fun `given addMembersSearchNavArgs are not null, when calling the searchUseCase, then excludingMembersOfConversation is not null`() =
         runTest {
+            val query = "query"
 
             val conversationId = ConversationId("id", "domain")
             val (arrangement, viewModel) = Arrangement()
@@ -85,9 +98,14 @@ class SearchUserViewModelTest {
                         notConnected = listOf()
                     )
                 )
+                .withFederatedSearchParserResult(
+                    FederatedSearchParser.Result(
+                        searchTerm = query,
+                        domain = "domain"
+                    )
+                )
                 .arrange()
 
-            val query = "query"
 
             viewModel.safeSearch(query)
 
@@ -95,9 +113,14 @@ class SearchUserViewModelTest {
                 arrangement.searchUsersUseCase(
                     query,
                     excludingMembersOfConversation = conversationId,
-                    customDomain = null
+                    customDomain = "domain"
                 )
             }
+
+            verify(exactly = 1) {
+                arrangement.federatedSearchParser(any())
+            }
+
         }
 
     @Test
@@ -128,13 +151,19 @@ class SearchUserViewModelTest {
                     )
                 )
             )
+            val query = "query"
 
             val (arrangement, viewModel) = Arrangement()
                 .withAddMembersSearchNavArgsThatThrowsException()
                 .withSearchResult(result)
+                .withFederatedSearchParserResult(
+                    FederatedSearchParser.Result(
+                        searchTerm = query,
+                        domain = "domain"
+                    )
+                )
                 .arrange()
 
-            val query = "query"
 
             viewModel.safeSearch(query)
 
@@ -142,8 +171,12 @@ class SearchUserViewModelTest {
                 arrangement.searchUsersUseCase(
                     query,
                     excludingMembersOfConversation = null,
-                    customDomain = null
+                    customDomain = "domain"
                 )
+            }
+
+            verify(exactly = 1) {
+                arrangement.federatedSearchParser(any())
             }
 
             assertEquals(result.connected.map(arrangement::fromSearchUserResult), viewModel.state.contactsResult)
@@ -160,6 +193,9 @@ class SearchUserViewModelTest {
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
+
+        @MockK
+        lateinit var federatedSearchParser: FederatedSearchParser
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -206,12 +242,17 @@ class SearchUserViewModelTest {
             coEvery { searchUsersUseCase(any(), any(), any()) } returns result
         }
 
+        fun withFederatedSearchParserResult(result: FederatedSearchParser.Result) = apply {
+            coEvery { federatedSearchParser(any()) } returns result
+        }
+
         private lateinit var searchUserViewModel: SearchUserViewModel
 
         fun arrange() = apply {
             searchUserViewModel = SearchUserViewModel(
                 searchUsersUseCase,
                 contactMapper,
+                federatedSearchParser,
                 savedStateHandle
             )
         }.run {

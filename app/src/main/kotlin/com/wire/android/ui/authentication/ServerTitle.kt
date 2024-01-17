@@ -44,9 +44,11 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import java.net.URL
@@ -93,24 +95,48 @@ fun ServerTitle(
         )
 
         if (serverFullDetailsDialogState) {
-            WireDialog(
-                title = stringResource(id = R.string.server_details_dialog_title),
-                text = LocalContext.current.resources.stringWithStyledArgs(
-                    R.string.server_details_dialog_body,
-                    MaterialTheme.wireTypography.body02,
-                    MaterialTheme.wireTypography.body02,
-                    normalColor = colorsScheme().secondaryText,
-                    argsColor = colorsScheme().onBackground,
-                    serverLinks.title,
-                    serverLinks.api
-                ),
-                onDismiss = { serverFullDetailsDialogState = false },
-                optionButton1Properties = WireDialogButtonProperties(
-                    stringResource(id = R.string.label_ok),
-                    onClick = { serverFullDetailsDialogState = false },
-                    type = WireDialogButtonType.Primary
-                )
+            ServerEnrollmentDialogContent(
+                serverLinks = serverLinks,
+                onClick = { serverFullDetailsDialogState = false },
+                onDismiss = { serverFullDetailsDialogState = false }
             )
         }
+
     }
+}
+
+@Composable
+private fun ServerEnrollmentDialogContent(
+    serverLinks: ServerConfig.Links,
+    onDismiss: () -> Unit,
+    onClick: () -> Unit,
+) {
+    WireDialog(
+        title = stringResource(id = R.string.server_details_dialog_title),
+        text = LocalContext.current.resources.stringWithStyledArgs(
+            R.string.server_details_dialog_body,
+            MaterialTheme.wireTypography.body02,
+            MaterialTheme.wireTypography.body02,
+            normalColor = colorsScheme().secondaryText,
+            argsColor = colorsScheme().onBackground,
+            serverLinks.title,
+            serverLinks.api
+        ),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            stringResource(id = R.string.label_ok),
+            onClick = onClick,
+            type = WireDialogButtonType.Primary
+        )
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewServerEnrollmentDialog() = WireTheme {
+    ServerEnrollmentDialogContent(
+        serverLinks = ServerConfig.DEFAULT,
+        onClick = { },
+        onDismiss = { }
+    )
 }

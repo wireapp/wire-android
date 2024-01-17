@@ -34,6 +34,7 @@ import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -55,6 +56,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -286,6 +288,26 @@ class WireActivityViewModel @Inject constructor(
                     onProceed()
                 }
             }
+        }
+    }
+
+    fun doHardLogout(
+        clearUserData: (userId: UserId) -> Unit,
+        switchAccountActions: SwitchAccountActions
+    ) {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().session.currentSession().takeIf {
+                it is CurrentSessionResult.Success
+            }?.let {
+                val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                clearUserData(currentUserId)
+            }
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
+                if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
+                    globalDataStore.clearAppLockPasscode()
+                }
+            }.callAction(switchAccountActions)
         }
     }
 

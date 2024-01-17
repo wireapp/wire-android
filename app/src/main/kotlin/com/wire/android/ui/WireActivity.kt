@@ -55,6 +55,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -65,6 +66,7 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -77,6 +79,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
@@ -90,6 +93,8 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
@@ -323,6 +328,25 @@ class WireActivity : AppCompatActivity() {
                         areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
                         enforcedTimeout = enforcedTimeoutDuration,
                         hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
+                    )
+                }
+                val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
+
+                LogoutOptionsDialog(
+                    dialogState = logoutOptionsDialogState,
+                    logout = {
+                        viewModel.doHardLogout(
+                            { UserDataStore(context, it) },
+                            NavigationSwitchAccountActions(navigate)
+                        )
+                        logoutOptionsDialogState.dismiss()
+                    }
+                )
+
+                if (shouldShowE2eiCertificateRevokedDialog) {
+                    E2EICertificateRevokedDialog(
+                        onLogout = { logoutOptionsDialogState.show(LogoutOptionsDialogState(shouldWipeData = true)) },
+                        onContinue = featureFlagNotificationViewModel::dismissE2EICertificateRevokedDialog,
                     )
                 }
 

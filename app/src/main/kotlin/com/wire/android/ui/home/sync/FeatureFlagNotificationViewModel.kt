@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource

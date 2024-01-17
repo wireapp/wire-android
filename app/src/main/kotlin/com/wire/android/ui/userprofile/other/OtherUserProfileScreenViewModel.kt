@@ -137,7 +137,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     private fun getMLSVerificationStatus() {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch {
             val isMLSVerified = getUserE2eiCertificateStatus(userId).let {
                 it is GetUserE2eiCertificateStatusResult.Success && it.status == CertificateStatus.VALID
             }

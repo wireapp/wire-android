@@ -133,6 +133,7 @@ fun EditMessageMenuItems(
             isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
             isUploading = message.isPending,
             isComposite = isComposite,
+            isLocation = message.isLocation,
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
             onReactionClick = onReactionItemClick,

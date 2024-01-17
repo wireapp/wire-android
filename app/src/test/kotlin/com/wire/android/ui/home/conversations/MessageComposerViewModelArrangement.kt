@@ -72,6 +72,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -198,6 +199,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase
 
+    @MockK
+    lateinit var sendLocation: SendLocationUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -228,6 +232,7 @@ internal class MessageComposerViewModelArrangement {
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
+            sendLocation = sendLocation
         )
     }
 
@@ -275,6 +280,7 @@ internal class MessageComposerViewModelArrangement {
             )
         } returns Either.Right(Unit)
     }
+
     fun withFailedSendTextMessage(failure: CoreFailure) = apply {
         coEvery {
             sendTextMessage(
@@ -289,6 +295,18 @@ internal class MessageComposerViewModelArrangement {
     fun withSuccessfulSendEditTextMessage() = apply {
         coEvery {
             sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendLocationMessage() = apply {
+        coEvery {
+            sendLocation(
                 any(),
                 any(),
                 any(),

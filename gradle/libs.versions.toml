@@ -13,6 +13,7 @@ ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
 google-gms = "4.4.0"
+gms-location = "21.0.1"
 android-gradlePlugin = "8.1.2"
 desugaring = "2.0.4"
 firebaseBOM = "32.5.0"
@@ -112,6 +113,7 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-gradlePlugin" }
 hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
+googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
 
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }

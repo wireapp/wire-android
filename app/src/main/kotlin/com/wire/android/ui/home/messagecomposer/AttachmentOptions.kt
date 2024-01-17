@@ -52,7 +52,6 @@ import com.wire.android.util.permission.UseCameraAndWriteStorageRequestFlow
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
-import com.wire.android.util.permission.rememberCurrentLocationFlow
 import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
@@ -64,7 +63,8 @@ fun AttachmentOptionsComponent(
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    onLocationPickerClicked: () -> Unit
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
@@ -74,7 +74,8 @@ fun AttachmentOptionsComponent(
         tempWritableImageUri,
         tempWritableVideoUri,
         onAttachmentPicked,
-        onRecordAudioMessageClicked
+        onRecordAudioMessageClicked,
+        onLocationPickerClicked
     )
 
     val labelStyle = MaterialTheme.wireTypography.button03
@@ -203,25 +204,18 @@ private fun CaptureVideoFlow(
 }
 
 @Composable
-private fun ShareCurrentLocationFlow() =
-    rememberCurrentLocationFlow(
-        onLocationPicked = { /*TODO*/ },
-        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-    )
-
-@Composable
 private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFilePicked: (UriAsset) -> Unit,
-    onRecordAudioMessageClicked: () -> Unit
+    onRecordAudioMessageClicked: () -> Unit,
+    onLocationPickerClicked: () -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })
     val cameraFlow = TakePictureFlow(tempWritableImageUri, remember { { onFilePicked(UriAsset(it, false)) } })
     val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, remember { { onFilePicked(UriAsset(it, true)) } })
-    val shareCurrentLocationFlow = ShareCurrentLocationFlow()
 
     return buildList {
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -270,7 +264,9 @@ private fun buildAttachmentOptionItems(
                     AttachmentOptionItem(
                         text = R.string.attachment_share_location,
                         icon = R.drawable.ic_location
-                    ) { shareCurrentLocationFlow.launch() }
+                    ) {
+                        onLocationPickerClicked()
+                    }
                 )
             }
         }
@@ -293,6 +289,7 @@ fun PreviewAttachmentComponents() {
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
         onRecordAudioMessageClicked = {},
+        onLocationPickerClicked = {}
     )
 }
 
@@ -310,6 +307,7 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
+                onLocationPickerClicked = {}
             )
         }
     }
@@ -329,6 +327,7 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
+                onLocationPickerClicked = {}
             )
         }
     }
@@ -348,6 +347,7 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
+                onLocationPickerClicked = {}
             )
         }
     }

@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -40,7 +41,8 @@ class SelfDevicesViewModel @Inject constructor(
     @CurrentAccount val currentAccountId: UserId,
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
-    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase
+    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
+    private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
 ) : ViewModel() {
 
     var state: SelfDevicesState by mutableStateOf(
@@ -61,13 +63,14 @@ class SelfDevicesViewModel @Inject constructor(
                     is ObserveClientsByUserIdUseCase.Result.Failure -> state.copy(isLoadingClientsList = false)
                     is ObserveClientsByUserIdUseCase.Result.Success -> {
                         val currentClientId = currentClientIdUseCase().firstOrNull()
+                        val e2eiCertificates = getUserE2eiCertificates(currentAccountId)
                         state.copy(
                             isLoadingClientsList = false,
                             currentDevice = result.clients
-                                .firstOrNull { it.id == currentClientId }?.let { Device(it) },
+                                .firstOrNull { it.id == currentClientId }?.let { Device(it, e2eiCertificates[it.id.value]?.status) },
                             deviceList = result.clients
                                 .filter { it.id != currentClientId }
-                                .map { Device(it) }
+                                .map { Device(it, e2eiCertificates[it.id.value]?.status) }
                         )
                     }
                 }

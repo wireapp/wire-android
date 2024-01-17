@@ -26,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.util.inWholeWeeks
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
@@ -37,16 +38,18 @@ data class Device(
     val lastActiveInWholeWeeks: Int? = null,
     val isValid: Boolean = true,
     val isVerifiedProteus: Boolean = false,
-    val mlsPublicKeys: Map<String, String>? = null
+    val mlsPublicKeys: Map<String, String>? = null,
+    val e2eiCertificateStatus: CertificateStatus? = null
 ) {
-    constructor(client: Client) : this(
+    constructor(client: Client, e2eiCertificateStatus: CertificateStatus? = null) : this(
         name = client.displayName(),
         clientId = client.id,
         registrationTime = client.registrationTime?.toIsoDateTimeString(),
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
         isVerifiedProteus = client.isVerified,
-        mlsPublicKeys = client.mlsPublicKeys
+        mlsPublicKeys = client.mlsPublicKeys,
+        e2eiCertificateStatus = e2eiCertificateStatus
     )
 }
 

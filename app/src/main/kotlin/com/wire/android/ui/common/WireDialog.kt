@@ -192,16 +192,17 @@ fun WireDialogContent(
                 Text(
                     text = title,
                     style = MaterialTheme.wireTypography.title02,
-                    modifier = Modifier.weight(1f)
                 )
                 if (titleLoading) {
                     WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
                 }
             }
             text?.let {
-                LazyColumn(modifier = Modifier
-                    .weight(1f, fill = false)
-                    .fillMaxWidth()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth()
+                ) {
                     item {
                         ClickableText(
                             text = text,
@@ -365,6 +366,50 @@ fun PreviewWireDialogWith2OptionButtons() {
                     value = password,
                     onValueChange = { password = it },
                     autofill = true
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Preview(showBackground = true)
+@Composable
+fun PreviewWireDialogCentered() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                centerContent = true,
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
+                },
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = false
                 )
             }
         }

@@ -261,9 +261,6 @@ class WireActivity : AppCompatActivity() {
     @Suppress("ComplexMethod")
     @Composable
     private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
-        LaunchedEffect(Unit) {
-            featureFlagNotificationViewModel.loadInitialSync()
-        }
         val context = LocalContext.current
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {

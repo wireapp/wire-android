@@ -75,7 +75,7 @@
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
     <string name="folder_label_access">Zugang</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
+    <string name="folder_label_protocol_details">Details zum Protokoll</string>
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
@@ -470,7 +470,7 @@
     <string name="attachment_take_photo">Kamera</string>
     <string name="attachment_record_video">Video</string>
     <string name="attachment_voice_message">Audio</string>
-    <string name="attachment_share_location">Standort teilen</string>
+    <string name="attachment_share_location">Standort</string>
     <!-- User Profile -->
     <string name="user_profile_title">Benutzerprofil</string>
     <string name="user_profile_close_description">Benutzerprofil schließen</string>
@@ -596,7 +596,7 @@
     <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Sie haben dieses Gerät schon seit einiger Zeit nicht mehr aktualisiert. In der Zwischenzeit wurde das Standard-Nachrichtenprotokoll von Proteus auf Messaging-Layer-Security (MLS) umgestellt. Aufgrund dieser Änderung werden einige Nachrichten hier möglicherweise nicht angezeigt.</string>
-    <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
+    <string name="label_system_message_conversation_history_lost_protocol_changed">Sie haben Ihre App nicht rechtzeitig aktualisiert. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
@@ -1235,7 +1235,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Zertifikat erhalten</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Später erinnern</string>
-    <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire Settings during the next %1$s.\nOpen Devices and select Get Certificate for your current device. </string>
+    <string name="end_to_end_identity_snooze_dialog_text">Sie können das Zertifikat in Ihren Wire Einstellungen in der/den nächsten %1$s erhalten.\nÖffnen Sie Geräte und wählen Sie Zertifikat erhalten für Ihr aktuelles Gerät. </string>
     <string name="end_to_end_identity_renew_dialog_title">Zertifikat aktualisieren</string>
     <string name="end_to_end_identity_renew_dialog_text">Das Ende-zu-Ende-Identitätszertifikat für dieses Gerät läuft bald ab. Um Ihre Kommunikation auf dem höchsten Sicherheitsniveau zu halten, aktualisieren Sie Ihr Zertifikat jetzt.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um das Zertifikat automatisch zu aktualisieren.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">Das Ende-zu-Ende-Identitätszertifikat für dieses Gerät ist abgelaufen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um das Zertifikat automatisch zu aktualisieren.</string>
@@ -1328,4 +1328,12 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie trotzdem anrufen?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Trotzdem anrufen</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App-Berechtigungen</string>
+    <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
+    <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Standort teilen</string>
+    <string name="location_app_permission_dialog_body">Erlauben Sie Wire den Zugriff auf Ihren Gerätestandort, um Ihren Standort zu senden.</string>
+    <string name="location_loading_label">Bitte warten…</string>
 </resources>

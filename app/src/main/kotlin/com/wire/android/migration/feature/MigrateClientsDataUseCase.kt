@@ -103,6 +103,18 @@ class MigrateClientsDataUseCase @Inject constructor(
                                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                                 }
                         }
+                    is RegisterClientResult.E2EICertificateRequired->
+                        withTimeoutOrNull(SYNC_START_TIMEOUT) {
+                            syncManager.waitUntilStartedOrFailure()
+                        }.let {
+                            it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
+                        }.flatMap {
+                            syncManager.waitUntilLiveOrFailure()
+                                .onSuccess {
+                                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                                    TODO() //TODO: ask question about this!
+                                }
+                        }
                 }
             }
         }

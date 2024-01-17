@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
@@ -72,10 +73,12 @@ class LoginEmailViewModel @Inject constructor(
     )
 
     @Suppress("LongMethod")
-    fun login(onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
+        appLogger.i("### login happens")
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
+            appLogger.e("### auth scope")
 
             val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
             val loginResult = withContext(dispatchers.io()) {
@@ -116,6 +119,7 @@ class LoginEmailViewModel @Inject constructor(
                     password = loginState.password.text,
                 )
             }.let {
+                appLogger.e("### e2ei result: $it")
                 when (it) {
                     is RegisterClientResult.Failure -> {
                         updateEmailLoginError(it.toLoginError())
@@ -123,7 +127,12 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId))
+                        onSuccess(isInitialSyncCompleted(storedUserId), false)
+                    }
+
+                    is RegisterClientResult.E2EICertificateRequired -> {
+                        onSuccess(isInitialSyncCompleted(storedUserId), true)
+                        return@launch
                     }
                 }
             }
@@ -215,7 +224,7 @@ class LoginEmailViewModel @Inject constructor(
         loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 
-    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
             login(onSuccess)

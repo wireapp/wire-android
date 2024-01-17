@@ -160,7 +160,7 @@ fun WireDialog(
 }
 
 @Composable
-private fun WireDialogContent(
+fun WireDialogContent(
     title: String,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,

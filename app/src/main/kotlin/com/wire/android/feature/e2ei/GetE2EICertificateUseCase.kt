@@ -22,6 +22,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.getActivity
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.functional.Either
@@ -40,10 +41,10 @@ class GetE2EICertificateUseCase @Inject constructor(
     private lateinit var initialEnrollmentResult: E2EIEnrollmentResult.Initialized
     lateinit var enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
 
-    operator fun invoke(context: Context, enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit) {
+    operator fun invoke(context: Context, clientId:ClientId?=null, enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit) {
         this.enrollmentResultHandler = enrollmentResultHandler
         scope.launch {
-            enrollE2EI.initialEnrollment().fold({
+            enrollE2EI.initialEnrollment(clientId).fold({
                 enrollmentResultHandler(Either.Left(it))
             }, {
                 if (it is E2EIEnrollmentResult.Initialized) {

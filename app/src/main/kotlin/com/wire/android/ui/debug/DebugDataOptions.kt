@@ -147,6 +147,7 @@ class DebugDataOptionsViewModel
         state = state.copy(
             showCertificate = false,
         )
+
     }
 
     fun forceUpdateApiVersions() {

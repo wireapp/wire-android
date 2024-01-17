@@ -58,6 +58,7 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.dialogErrorStrings
@@ -73,9 +74,14 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     val state: RemoveDeviceState = viewModel.state
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
 
-    fun navigateAfterSuccess(initialSyncCompleted: Boolean) = navigator.navigate(
+    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
-            destination = if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+            destination = if (isE2EIRequired)
+                E2EIEnrollmentScreenDestination("")
+            else if (initialSyncCompleted)
+                HomeScreenDestination
+            else
+                InitialSyncScreenDestination,
             backStackMode = BackStackMode.CLEAR_WHOLE
         )
     )
@@ -84,9 +90,9 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     RemoveDeviceContent(
         state = state,
         clearSessionState = clearSessionState,
-        onItemClicked = { viewModel.onItemClicked(it) { navigateAfterSuccess(it) } },
+        onItemClicked = { viewModel.onItemClicked(it, ::navigateAfterSuccess) },
         onPasswordChange = viewModel::onPasswordChange,
-        onRemoveConfirm = { viewModel.onRemoveConfirmed { navigateAfterSuccess(it) } },
+        onRemoveConfirm = { viewModel.onRemoveConfirmed(::navigateAfterSuccess) },
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,

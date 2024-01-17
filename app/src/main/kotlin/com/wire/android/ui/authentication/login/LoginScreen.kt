@@ -74,6 +74,7 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
@@ -98,10 +99,12 @@ fun LoginScreen(
 
     LoginContent(
         navigator::navigateBack,
-        { initialSyncCompleted ->
+        { initialSyncCompleted, isE2EIRequired ->
             navigator.navigate(
                 NavigationCommand(
-                    if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+                    if (isE2EIRequired)
+                        E2EIEnrollmentScreenDestination("")
+                    else if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
                     BackStackMode.CLEAR_WHOLE
                 )
             )
@@ -117,7 +120,7 @@ fun LoginScreen(
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
@@ -146,7 +149,7 @@ private fun LoginContent(
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
@@ -353,6 +356,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme {
-        MainLoginContent({}, {}, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent({}, { _, _ -> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

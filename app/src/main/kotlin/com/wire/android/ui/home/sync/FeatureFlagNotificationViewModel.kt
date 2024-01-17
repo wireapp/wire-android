@@ -35,6 +35,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -270,11 +271,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
 
-    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
+    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context,clientId: ClientId?=null) {
         featureFlagState = featureFlagState.copy(isE2EILoading = true)
         currentUserId?.let { userId ->
-            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(context) { result ->
+            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(context, clientId!!) { result ->
                 result.fold({
+                    appLogger.i("e2ei error:$it")
                     featureFlagState = featureFlagState.copy(
                         isE2EILoading = false,
                         e2EIRequired = null,

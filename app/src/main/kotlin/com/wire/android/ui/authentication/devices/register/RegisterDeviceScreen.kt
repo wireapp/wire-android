@@ -61,6 +61,7 @@ import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
@@ -81,7 +82,9 @@ fun RegisterDeviceScreen(navigator: Navigator) {
         is RegisterDeviceFlowState.Success -> {
             navigator.navigate(
                 NavigationCommand(
-                    destination = if (flowState.initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+                    destination = if (flowState.isE2EIRequired)
+                        E2EIEnrollmentScreenDestination(flowState.clientId.value)
+                    else if (flowState.initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
                     backStackMode = BackStackMode.CLEAR_WHOLE
                 )
             )

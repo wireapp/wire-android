@@ -68,7 +68,6 @@ class SearchUserViewModelTest {
             )
             .arrange()
 
-
         viewModel.safeSearch(query)
         coVerify(exactly = 1) {
             arrangement.searchUsersUseCase(
@@ -81,7 +80,6 @@ class SearchUserViewModelTest {
         verify(exactly = 1) {
             arrangement.federatedSearchParser(any())
         }
-
     }
 
     @Test
@@ -106,7 +104,6 @@ class SearchUserViewModelTest {
                 )
                 .arrange()
 
-
             viewModel.safeSearch(query)
 
             coVerify(exactly = 1) {
@@ -120,7 +117,6 @@ class SearchUserViewModelTest {
             verify(exactly = 1) {
                 arrangement.federatedSearchParser(any())
             }
-
         }
 
     @Test
@@ -163,7 +159,6 @@ class SearchUserViewModelTest {
                     )
                 )
                 .arrange()
-
 
             viewModel.safeSearch(query)
 

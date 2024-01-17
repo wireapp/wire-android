@@ -53,12 +53,13 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
+import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -80,7 +81,7 @@ class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
-    private val getSelfTeam: GetSelfTeamUseCase,
+    private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
@@ -135,23 +136,19 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val selfTeam = getSelfTeam().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+            val selfTeam = getSelfTeam().getOrNull()
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            combine(
-                self,
-                selfTeam,
-                validAccounts
-            ) { selfUser: SelfUser, team: Team?, list: List<Pair<SelfUser, Team?>> ->
-                Triple(
+
+            combine(self, validAccounts) { selfUser: SelfUser, list: List<Pair<SelfUser, Team?>> ->
+                Pair(
                     selfUser,
-                    team,
                     list.filter { it.first.id != selfUser.id }
                         .map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
                 )
             }
                 .distinctUntilChanged()
-                .collect { (selfUser, selfTeam, otherAccounts) ->
+                .collect { (selfUser, otherAccounts) ->
                     with(selfUser) {
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }

@@ -51,6 +51,7 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.LocationBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
@@ -141,6 +142,7 @@ fun MessageComposer(
                     onPingOptionClicked = { onSendMessageBundle(Ping) },
                     onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
                     onAudioRecorded = { onSendMessageBundle(AudioMessageBundle(it)) },
+                    onLocationPicked = { onSendMessageBundle(LocationBundle(it.getFormattedAddress(), it.location)) },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,

@@ -24,11 +24,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
@@ -86,34 +89,46 @@ fun AdditionalOptionsMenu(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    onLocationPickerClicked: () -> Unit,
+    onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
-    onCloseRecordAudio: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
+    onLocationPicked: (GeoLocatedAddress) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     modifier: Modifier
 ) {
     Box(modifier = modifier) {
+        AttachmentOptionsComponent(
+            onAttachmentPicked = onAttachmentPicked,
+            tempWritableImageUri = tempWritableImageUri,
+            tempWritableVideoUri = tempWritableVideoUri,
+            isFileSharingEnabled = isFileSharingEnabled,
+            onRecordAudioMessageClicked = onRecordAudioMessageClicked,
+            onLocationPickerClicked = onLocationPickerClicked
+        )
         when (additionalOptionsState) {
             AdditionalOptionSubMenuState.AttachFile -> {
-                AttachmentOptionsComponent(
-                    onAttachmentPicked = onAttachmentPicked,
-                    tempWritableImageUri = tempWritableImageUri,
-                    tempWritableVideoUri = tempWritableVideoUri,
-                    isFileSharingEnabled = isFileSharingEnabled,
-                    onRecordAudioMessageClicked = onRecordAudioMessageClicked
-                )
+                /* DO NOTHING, ALREADY DISPLAYED AS PARENT */
             }
 
             AdditionalOptionSubMenuState.RecordAudio -> {
                 RecordAudioComponent(
                     onAudioRecorded = onAudioRecorded,
-                    onCloseRecordAudio = onCloseRecordAudio
+                    onCloseRecordAudio = onCloseAdditionalAttachment
+                )
+            }
+
+            AdditionalOptionSubMenuState.Location -> {
+                LocationPickerComponent(
+                    onLocationPicked = onLocationPicked,
+                    onLocationClosed = onCloseAdditionalAttachment
                 )
             }
             // non functional for now

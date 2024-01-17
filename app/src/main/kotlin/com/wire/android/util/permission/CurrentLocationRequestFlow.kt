@@ -29,34 +29,47 @@ import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun rememberCurrentLocationFlow(
-    onLocationPicked: () -> Unit, // TODO: this will change accordingly to maps intent
+    onPermissionAllowed: () -> Unit,
     onPermissionDenied: () -> Unit
 ): CurrentLocationRequestFlow {
     val context = LocalContext.current
 
-    val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                // TODO: launch map location picker using openstreetmap? (have in mind f-droid aka. no gms)
+    val requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allPermissionGranted = permissions.all { it.value }
+            if (allPermissionGranted) {
+                onPermissionAllowed()
             } else {
                 onPermissionDenied()
             }
         }
 
     return remember {
-        CurrentLocationRequestFlow(context, requestPermissionLauncher)
+        CurrentLocationRequestFlow(context, requestPermissionLauncher, onPermissionAllowed)
     }
 }
 
 class CurrentLocationRequestFlow(
     private val context: Context,
-    private val locationPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
+    private val locationPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>,
+    private val onPermissionAllowed: () -> Unit
 ) {
     fun launch() {
-        if (context.checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-            // TODO: launch map location picker using openstreetmap? (have in mind f-droid aka. no gms)
+        if (checkLocationPermissions(context)) {
+            onPermissionAllowed()
         } else {
-            locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            locationPermissionLauncher.launch(getLocationPermissions())
         }
     }
 }
+
+private fun getLocationPermissions() =
+    arrayOf(
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+private fun checkLocationPermissions(
+    context: Context
+): Boolean = context.checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) &&
+        context.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)

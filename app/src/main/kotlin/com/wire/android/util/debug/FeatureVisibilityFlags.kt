@@ -46,7 +46,7 @@ object FeatureVisibilityFlags {
     const val AppSettings = false
     const val BackUpSettings = true
     const val AudioMessagesIcon = true
-    const val ShareLocationIcon = false
+    const val ShareLocationIcon = true
     const val RichTextIcon = true
     const val EmojiIcon = false
     const val GifIcon = false

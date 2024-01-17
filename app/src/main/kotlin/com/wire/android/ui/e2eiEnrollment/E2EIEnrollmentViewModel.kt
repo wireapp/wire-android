@@ -46,51 +46,45 @@ import javax.inject.Inject
 
 data class E2EIEnrollmentState(
     val certificate: String = "null",
-    val showCertificate: Boolean = false
+    val showCertificate: Boolean = false,
+    val isLoading: Boolean = false,
+    val isCertificateEnrollError: Boolean = false,
+    val isCertificateEnrollSuccess: Boolean = false
 )
 
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val observeSyncState: ObserveSyncStateUseCase,
-    private val userDataStoreProvider: UserDataStoreProvider,
-    @CurrentAccount private val userId: UserId,
-    private val dispatchers: DispatcherProvider,
-    private val e2eiCertificateUseCase: GetE2EICertificateUseCase
+    private val e2eiCertificateUseCase: GetE2EICertificateUseCase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    var state by mutableStateOf(
-        E2EIEnrollmentState()
-    )
-    val e2EIEnrollmentNavArgs: E2EIEnrollmentNavArgs = savedStateHandle.navArgs()
+    var state by mutableStateOf(E2EIEnrollmentState())
+
+    private val e2EIEnrollmentNavArgs: E2EIEnrollmentNavArgs = savedStateHandle.navArgs()
 
     fun enrollE2EICertificate(context: Context) {
+        state = state.copy(isLoading = true)
         e2eiCertificateUseCase(context, ClientId(e2EIEnrollmentNavArgs.clientId)) { result ->
             result.fold({
                 state = state.copy(
-                    certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true
+                    isLoading = false,
+                    isCertificateEnrollError = true
                 )
             }, {
                 if (it is E2EIEnrollmentResult.Finalized) {
                     state = state.copy(
-                        certificate = it.certificate, showCertificate = true
+                        certificate = it.certificate,
+                        isCertificateEnrollSuccess = true,
+                        isCertificateEnrollError = false,
+                        isLoading = false
                     )
                 }
             })
         }
     }
-    fun dismissCertificateDialog() {
+
+    fun dismissErrorDialog() {
         state = state.copy(
-            showCertificate = false,
+            isCertificateEnrollError = false,
         )
-    }
-    fun waitUntilSyncIsCompleted(onCompleted: () -> Unit) {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                observeSyncState().firstOrNull { it is SyncState.Live }
-            }?.let {
-                userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
-                onCompleted()
-            }
-        }
     }
 }

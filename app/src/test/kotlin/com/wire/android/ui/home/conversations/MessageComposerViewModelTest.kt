@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.location.Location
 import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
@@ -50,6 +51,7 @@ import kotlin.time.toDuration
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
+@Suppress("LargeClass")
 class MessageComposerViewModelTest {
 
     @Test
@@ -793,6 +795,27 @@ class MessageComposerViewModelTest {
             advanceUntilIdle()
             // then
             coVerify(exactly = 1) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
+            assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+        }
+
+    @Test
+    fun `given that user sends a location message and valid, then message is sent to use case`() =
+        runTest {
+            // given
+            val messageBundle = ComposableMessageBundle.LocationBundle(
+                "mocked-location-message",
+                Location("mocked-provider")
+            )
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendLocationMessage()
+                .arrange()
+            viewModel.trySendMessage(messageBundle)
+
+            // when
+            advanceUntilIdle()
+            // then
+            coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
         }
 }

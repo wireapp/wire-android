@@ -18,40 +18,46 @@
 
 package com.wire.android.ui.common.dialogs
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireItemLabel
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CustomServerDialog(
-    serverLinksTitle: String,
-    serverLinksApi: String,
+    serverLinks: ServerConfig.Links,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    var showDetails by remember { mutableStateOf(false) }
     WireDialog(
         title = stringResource(R.string.custom_backend_dialog_title),
-        text = LocalContext.current.resources.stringWithStyledArgs(
-            R.string.custom_backend_dialog_body,
-            MaterialTheme.wireTypography.body01,
-            MaterialTheme.wireTypography.body02,
-            colorsScheme().onBackground,
-            colorsScheme().onBackground,
-            serverLinksTitle,
-            serverLinksApi
-        ),
-
+        text = stringResource(R.string.custom_backend_dialog_body),
         buttonsHorizontalAlignment = true,
         properties = wireDialogPropertiesBuilder(
             dismissOnBackPress = false,
@@ -69,8 +75,110 @@ internal fun CustomServerDialog(
             type = WireDialogButtonType.Primary,
             state =
             WireButtonState.Default
-        )
+        ),
+        content = {
+            Column {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth()
+                ) {
+                    item {
+                        CustomServerPropertyInfo(
+                            title = stringResource(id = R.string.custom_backend_dialog_body_backend_name),
+                            value = serverLinks.title
+                        )
+                    }
+                    item {
+                        CustomServerPropertyInfo(
+                            title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                            value = serverLinks.api
+                        )
+                    }
+                    item {
+                        if (showDetails) {
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 11"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 22"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 33"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 33"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 33"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 33"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 33"
+                            )
+                            CustomServerPropertyInfo(
+                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                                value = "@@@@@AS 33"
+                            )
+                        }
+                    }
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = dimensions().spacing8x)
+                        ) {
+                            WireItemLabel(
+                                text = if (showDetails) "Hide Details" else "Show Details",
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .clickable {
+                                        showDetails = !showDetails
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun CustomServerPropertyInfo(
+    title: String,
+    value: String
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.wireTypography.body01,
+        color = colorsScheme().onBackground,
+    )
+    VerticalSpace.x4()
+    Text(
+        text = value,
+        style = MaterialTheme.wireTypography.body02,
+        color = colorsScheme().onBackground,
     )
 }
 
 data class CustomServerDialogState(val serverLinks: ServerConfig.Links)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCustomServerDialog() = WireTheme {
+    CustomServerDialog(
+        serverLinks = ServerConfig.DEFAULT,
+        onConfirm = { },
+        onDismiss = { }
+    )
+}

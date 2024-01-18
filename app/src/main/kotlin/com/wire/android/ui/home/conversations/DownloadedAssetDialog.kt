@@ -48,12 +48,12 @@ fun DownloadedAssetDialog(
             text = stringResource(R.string.asset_download_dialog_text),
             buttonsHorizontalAlignment = false,
             onDismiss = { hideOnAssetDownloadedDialog() },
-            optionButton2Properties = WireDialogButtonProperties(
+            optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
                 onClick = { onOpenFileWithExternalApp(messageId) }
             ),
-            optionButton1Properties = WireDialogButtonProperties(
+            optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),
                 type = WireDialogButtonType.Primary,
                 onClick = onSaveFileWriteStorageRequest::launch

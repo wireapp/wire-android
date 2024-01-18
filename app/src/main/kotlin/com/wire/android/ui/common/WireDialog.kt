@@ -221,8 +221,8 @@ private fun WireDialogContent(
                         )
                     }
                 }
-                item {
-                    content?.let {
+                content?.let {
+                    item {
                         Box {
                             it.invoke()
                         }

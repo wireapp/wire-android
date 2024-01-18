@@ -350,7 +350,8 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
-            every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns markNotifyForRevokedCertificateAsNotified
+            every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
+                    markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
         }
 

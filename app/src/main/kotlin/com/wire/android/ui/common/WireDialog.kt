@@ -197,12 +197,12 @@ private fun WireDialogContent(
                     WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
                 }
             }
-            text?.let {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                ) {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .fillMaxWidth()
+            ) {
+                text?.let {
                     item {
                         ClickableText(
                             text = text,
@@ -221,10 +221,12 @@ private fun WireDialogContent(
                         )
                     }
                 }
-            }
-            content?.let {
-                Box {
-                    it.invoke()
+                item {
+                    content?.let {
+                        Box {
+                            it.invoke()
+                        }
+                    }
                 }
             }
 

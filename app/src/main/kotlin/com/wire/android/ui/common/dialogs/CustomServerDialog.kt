@@ -22,7 +22,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,75 +77,35 @@ internal fun CustomServerDialog(
         ),
         content = {
             Column {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                ) {
-                    item {
-                        CustomServerPropertyInfo(
-                            title = stringResource(id = R.string.custom_backend_dialog_body_backend_name),
-                            value = serverLinks.title
-                        )
-                    }
-                    item {
+                CustomServerPropertyInfo(
+                    title = stringResource(id = R.string.custom_backend_dialog_body_backend_name),
+                    value = serverLinks.title
+                )
+                CustomServerPropertyInfo(
+                    title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
+                    value = serverLinks.api
+                )
+                if (showDetails) {
+                    for (link in 0..11) {
                         CustomServerPropertyInfo(
                             title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                            value = serverLinks.api
+                            value = "link.url $link"
                         )
                     }
-                    item {
-                        if (showDetails) {
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 11"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 22"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 33"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 33"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 33"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 33"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 33"
-                            )
-                            CustomServerPropertyInfo(
-                                title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                                value = "@@@@@AS 33"
-                            )
-                        }
-                    }
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = dimensions().spacing8x)
-                        ) {
-                            WireItemLabel(
-                                text = if (showDetails) "Hide Details" else "Show Details",
-                                modifier = Modifier
-                                    .align(Alignment.End)
-                                    .clickable {
-                                        showDetails = !showDetails
-                                    }
-                            )
-                        }
-                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dimensions().spacing8x)
+                ) {
+                    WireItemLabel(
+                        text = if (showDetails) "Hide Details" else "Show Details",
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .clickable {
+                                showDetails = !showDetails
+                            }
+                    )
                 }
             }
         }

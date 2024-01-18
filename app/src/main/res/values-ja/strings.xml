@@ -74,7 +74,7 @@
     <string name="label_value_copied">%sをコピーしました</string>
     <string name="label_disable">無効</string>
     <string name="folder_label_access">アクセス</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
+    <string name="folder_label_protocol_details">プロトコルの詳細</string>
     <string name="folder_label_messaging">メッセージ</string>
     <string name="label_user_blocked">ブロック中</string>
     <string name="label_and">と</string>
@@ -83,57 +83,57 @@
     <string name="content_description_app_logo">アプリのロゴ</string>
     <string name="content_description_reveal_password">パスワードを表示</string>
     <string name="content_description_hide_password">パスワードを非表示</string>
-    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_search_back">検索に戻るアイコン</string>
     <string name="content_description_clear_content">内容を消去</string>
     <string name="content_description_user_avatar">プロフィール画像</string>
-    <string name="content_description_muted_conversation">Muted conversation</string>
-    <string name="content_description_check">Check mark</string>
-    <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
-    <string name="content_description_add_to_favourite">Add to Favorites</string>
-    <string name="content_description_move_to_folder">Move to folder</string>
-    <string name="content_description_move_to_archive">Move to archive</string>
-    <string name="content_description_unarchive">Unarchive</string>
-    <string name="content_description_block_the_user">Block</string>
-    <string name="content_description_unblock_the_user">Unblock</string>
-    <string name="content_description_leave_the_group">Leave the group</string>
-    <string name="content_description_delete_the_group">Delete the group</string>
-    <string name="content_description_conversation_phone_icon">Start audio call</string>
+    <string name="content_description_muted_conversation">ミュートした会話</string>
+    <string name="content_description_check">チェックマーク</string>
+    <string name="content_description_download_icon">ダウンロードアイコン</string>
+    <string name="content_description_open_asset_icon">開くアイコン</string>
+    <string name="content_description_add_to_favourite">お気に入りに追加</string>
+    <string name="content_description_move_to_folder">フォルダーに移動</string>
+    <string name="content_description_move_to_archive">アーカイブに移動</string>
+    <string name="content_description_unarchive">アーカイブを解除</string>
+    <string name="content_description_block_the_user">ブロック</string>
+    <string name="content_description_unblock_the_user">ブロック解除</string>
+    <string name="content_description_leave_the_group">グループから退出</string>
+    <string name="content_description_delete_the_group">グループを削除</string>
+    <string name="content_description_conversation_phone_icon">音声通話を開始</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Search icon</string>
-    <string name="content_description_conversation_search_input">Search input</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
-    <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
-    <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
-    <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
-    <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
-    <string name="content_description_conversation_send_gif">Send GIF button</string>
-    <string name="content_description_conversation_mention_someone">Mention someone</string>
-    <string name="content_description_new_conversation">Start a new conversation</string>
-    <string name="content_description_back_button">Back button</string>
-    <string name="content_description_send_button">Send</string>
-    <string name="content_description_timed_message_button">Self-deleting messages, button</string>
-    <string name="content_description_close_button">Close button</string>
-    <string name="content_description_menu_button">Main navigation</string>
-    <string name="content_description_drop_down_icon">Drop down arrow</string>
-    <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
-    <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
-    <string name="content_description_avatar_preview">Preview of profile picture</string>
-    <string name="content_description_choose_from_gallery">Choose from gallery</string>
-    <string name="content_description_take_a_picture">Take a picture</string>
-    <string name="content_description_right_arrow">Right arrow</string>
-    <string name="content_description_left_arrow">Go back</string>
-    <string name="content_description_mention_icon">Mention icon</string>
-    <string name="content_description_attachment_item">Attach new item to conversation</string>
-    <string name="content_description_open_message_details">Open Message Details</string>
-    <string name="content_description_copy_the_message">Copy the message</string>
-    <string name="content_description_share_the_file">Share the selected file with other app</string>
-    <string name="content_description_delete_the_message">Delete the message</string>
-    <string name="content_description_edit_the_message">Edit the message</string>
-    <string name="content_description_more_options">More options</string>
-    <string name="content_description_add_contact">Add contact</string>
-    <string name="content_description_image_message">Image message</string>
-    <string name="content_description_file_message">File message</string>
+    <string name="content_description_conversation_search_icon">検索アイコン</string>
+    <string name="content_description_conversation_search_input">検索入力</string>
+    <string name="content_description_conversation_enable_rich_text_mode">リッチテキストモードボタンを有効にする</string>
+    <string name="content_description_conversation_rich_text_header">リッチテキスト書式のヘッダー</string>
+    <string name="content_description_conversation_rich_text_bold">リッチテキスト書式の太字</string>
+    <string name="content_description_conversation_rich_text_italic">リッチテキスト書式の斜体</string>
+    <string name="content_description_conversation_send_emoticon">絵文字送信ボタン</string>
+    <string name="content_description_conversation_send_gif">GIF送信ボタン</string>
+    <string name="content_description_conversation_mention_someone">他のユーザーをメンション</string>
+    <string name="content_description_new_conversation">新しいチャットを開始</string>
+    <string name="content_description_back_button">戻るボタン</string>
+    <string name="content_description_send_button">送信</string>
+    <string name="content_description_timed_message_button">自動削除メッセージボタン</string>
+    <string name="content_description_close_button">閉じるボタン</string>
+    <string name="content_description_menu_button">メインナビゲーション</string>
+    <string name="content_description_drop_down_icon">ドロップダウンの矢印</string>
+    <string name="content_description_remove_devices_screen_device_item_icon">デバイス項目</string>
+    <string name="content_description_remove_devices_screen_remove_icon">デバイスを削除</string>
+    <string name="content_description_avatar_preview">プロフィール画像のプレビュー</string>
+    <string name="content_description_choose_from_gallery">ギャラリーから選択</string>
+    <string name="content_description_take_a_picture">写真を撮影</string>
+    <string name="content_description_right_arrow">右矢印</string>
+    <string name="content_description_left_arrow">戻る</string>
+    <string name="content_description_mention_icon">メンションアイコン</string>
+    <string name="content_description_attachment_item">新しいアイテムをチャットに添付</string>
+    <string name="content_description_open_message_details">メッセージの詳細を開く</string>
+    <string name="content_description_copy_the_message">メッセージをコピー</string>
+    <string name="content_description_share_the_file">選択したファイルを他のアプリと共有する</string>
+    <string name="content_description_delete_the_message">メッセージを削除</string>
+    <string name="content_description_edit_the_message">メッセージを編集</string>
+    <string name="content_description_more_options">その他のオプション</string>
+    <string name="content_description_add_contact">連絡先を追加</string>
+    <string name="content_description_image_message">画像メッセージ</string>
+    <string name="content_description_file_message">ファイルメッセージ</string>
     <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_self_deleting_message_timer">自動削除メッセージのタイマーを設定します</string>
     <string name="content_description_calling_hang_up_call">通話を切る</string>
@@ -159,39 +159,39 @@
     <string name="content_description_calling_call_paused_camera">カメラが停止しました</string>
     <string name="content_description_more_emojis">その他の絵文字</string>
     <string name="content_description_self_deletion_selector_button">自己削除モードの切り替えボタン</string>
-    <string name="content_description_message_sending_status">Message sending status</string>
-    <string name="content_description_message_sent_status">Message sent status</string>
-    <string name="content_description_message_error_status">Message error status</string>
-    <string name="content_description_message_delivered_status">Message delivered status</string>
-    <string name="content_description_message_read_status">Message read status</string>
-    <string name="content_description_record_audio_button_start">Record Audio</string>
-    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
-    <string name="content_description_record_audio_button_send">Send Audio Message</string>
-    <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
-    <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_message_sending_status">メッセージ送信中の状態</string>
+    <string name="content_description_message_sent_status">メッセージ送信後の状態</string>
+    <string name="content_description_message_error_status">メッセージのエラー状態</string>
+    <string name="content_description_message_delivered_status">メッセージの配信状態</string>
+    <string name="content_description_message_read_status">メッセージの既読状態</string>
+    <string name="content_description_record_audio_button_start">録音</string>
+    <string name="content_description_record_audio_button_stop">録音を停止</string>
+    <string name="content_description_record_audio_button_send">音声メッセージを送信</string>
+    <string name="content_description_mls_certificate_valid">すべての参加者のすべてのデバイスには有効なMLS証明書があります</string>
+    <string name="content_description_proteus_certificate_valid">すべての参加者が検証されます(Proteus)</string>
+    <string name="content_description_jump_to_last_message">最後のメッセージにスクロールするボタン</string>
     <string name="content_description_location_icon">Location item</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
-    <string name="vault_screen_title">Vault</string>
-    <string name="archive_screen_title">Archive</string>
-    <string name="archive_screen_empty_state_title">Nothing archived yet 👻</string>
-    <string name="archive_screen_empty_state_description">To keep your conversation list tidy, move unused conversations here. You can always unarchive those later.</string>
-    <string name="user_profile_screen_title">User Profile</string>
-    <string name="settings_screen_title">Settings</string>
-    <string name="app_settings_screen_title">App Settings</string>
-    <string name="give_feedback_screen_title">Give Feedback</string>
-    <string name="report_bug_screen_title">Report Bug</string>
-    <string name="debug_settings_screen_title">Debug Settings</string>
-    <string name="support_screen_title">Support</string>
-    <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
-    <string name="search_bar_conversations_hint">Search conversations</string>
-    <string name="search_no_results">No matches found</string>
+    <string name="vault_screen_title">保管庫</string>
+    <string name="archive_screen_title">アーカイブ</string>
+    <string name="archive_screen_empty_state_title">アーカイブはありません</string>
+    <string name="archive_screen_empty_state_description">会話リストを整理するには、ここで使用していない会話を移動します。後でいつでもアーカイブを解除することができます。</string>
+    <string name="user_profile_screen_title">ユーザープロフィール</string>
+    <string name="settings_screen_title">設定</string>
+    <string name="app_settings_screen_title">アプリ設定</string>
+    <string name="give_feedback_screen_title">フィードバックを送信</string>
+    <string name="report_bug_screen_title">不具合の報告</string>
+    <string name="debug_settings_screen_title">デバッグ設定</string>
+    <string name="support_screen_title">サポート</string>
+    <string name="backup_and_restore_screen_title">会話のバックアップと復元</string>
+    <string name="search_bar_conversations_hint">会話の検索</string>
+    <string name="search_no_results">一致するものが見つかりません</string>
     <!--Whats New -->
-    <string name="whats_new_screen_title">What\'s new</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
-    <string name="whats_new_release_notes_group_title">Release Notes</string>
-    <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
+    <string name="whats_new_screen_title">更新情報</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋Wireの新しいAndroidアプリへようこそ！</string>
+    <string name="whats_new_release_notes_group_title">更新履歴</string>
+    <string name="whats_new_android_release_notes_label">全てのAndroidの更新履歴</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Other</string>
@@ -214,58 +214,58 @@
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">Start Using Wire</string>
     <!-- API Versioning Dialogs -->
-    <string name="api_versioning_client_update_required_title">Update required</string>
-    <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
-    <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <string name="api_versioning_client_update_required_title">更新が必要です</string>
+    <string name="api_versioning_client_update_required_message">新機能が利用できない状態です。このアカウントでアプリを使うにはWireを最新のバージョンにアップデートしてください。</string>
+    <string name="api_versioning_server_version_not_supported_title">サポートされていないサーバーのバージョン</string>
+    <string name="api_versioning_server_version_not_supported_message">このWireサーバーをアップデートする必要があります。システム管理者にお問い合わせください。</string>
     <!-- Migration -->
-    <string name="migration_title">Setting up Wire</string>
-    <string name="migration_message">Please wait while we set up the app for you</string>
-    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_accounts_message">Migrating your accounts...</string>
-    <string name="migration_messages_message">Migrating your messages...</string>
-    <string name="migration_title_step">Step %1$d/%2$d</string>
-    <string name="migration_title_almost_done">Almost done!</string>
-    <string name="migration_title_updated">Setting up Wire</string>
-    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
-    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
+    <string name="migration_title">Wireをセットアップ</string>
+    <string name="migration_message">アプリを設定中です。しばらくお待ちください</string>
+    <string name="migration_message_unknown">データの移行中です。しばらくお待ちください</string>
+    <string name="migration_accounts_message">アカウントの移行中…</string>
+    <string name="migration_messages_message">メッセージの移行中…</string>
+    <string name="migration_title_step">ステップ%1$d/%2$d</string>
+    <string name="migration_title_almost_done">もうすぐ完了です！</string>
+    <string name="migration_title_updated">Wireをセットアップ</string>
+    <string name="migration_login_required">古いバージョンのWireからメッセージを移行するには、アカウントにログインする必要があります。</string>
+    <string name="migration_login_required_specific_account">古いバージョンのWireからメッセージを移行するには、アカウント%sにログインする必要があります。</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
-    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
-    <string name="migration_cancel_title">Cancel migration</string>
-    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
+    <string name="migration_messages_failure">申し訳ありませんが、古いバージョンのWireとの互換性が無いため、一部のメッセージと会話は移行できませんでした(エラーコード: %s)</string>
+    <string name="migration_cancel_title">移行をキャンセル</string>
+    <string name="migration_cancel_message">アプリを閉じて進行中の移行をキャンセルしてもよろしいですか？</string>
     <!-- Login -->
-    <string name="login_title">Log in</string>
-    <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
-    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
-    <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
-        Please verify your details and try again.
+    <string name="login_title">ログイン</string>
+    <string name="login_forgot_password">パスワードをお忘れですか？</string>
+    <string name="login_user_identifier_placeholder">jane@example.com または jane.doe</string>
+    <string name="login_user_identifier_label">メールアドレスまたはユーザー名</string>
+    <string name="login_proxy_identifier_label">プロキシメールまたはユーザー名</string>
+    <string name="login_error_invalid_credentials_title">無効な情報</string>
+    <string name="login_error_invalid_credentials_message">アカウントの認証情報が正しくありません。
+        詳細を確認してもう一度お試しください。
     </string>
-    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
-        verify and try again.
+    <string name="login_error_invalid_user_identifier">このメールアドレスまたはユーザー名が無効です。
+        確認して再度お試しください。
     </string>
-    <string name="login_error_user_already_logged_in_title">Account in use</string>
-    <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
-    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
-    <string name="login_password_placeholder">Password</string>
-    <string name="login_password_label">PASSWORD</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">SSO LOGIN</string>
-    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
-    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
-    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
-    <string name="deleted_user_error_title">Deleted account</string>
-    <string name="deleted_user_error_message">You were logged out because your account was
-        deleted.
+    <string name="login_error_user_already_logged_in_title">使用中のアカウント</string>
+    <string name="login_error_user_already_logged_in_message">既にこのデバイスではこの認証情報でログインしています。</string>
+    <string name="login_sso_error_invalid_cookie_title">無効なクッキーです！</string>
+    <string name="login_sso_error_invalid_cookie_message">セッションが無効または期限切れです！ログインするにはもう一度お試しください。</string>
+    <string name="login_password_placeholder">パスワード</string>
+    <string name="login_password_label">パスワード</string>
+    <string name="login_tab_email">メールアドレス</string>
+    <string name="login_tab_sso">シングルサインオンでのログイン</string>
+    <string name="login_sso_code_label">シングルサインオンのコードまたはメール</string>
+    <string name="login_error_invalid_sso_code">有効なシングルサインオンコードを入力してください。</string>
+    <string name="login_error_invalid_sso_code_format">有効なシングルサインオンのコードを入力してください</string>
+    <string name="deleted_user_error_title">削除されたアカウント</string>
+    <string name="deleted_user_error_message">あなたのアカウントが削除されたため
+        ログアウトしました。
     </string>
-    <string name="removed_client_error_title">Removed Device</string>
-    <string name="removed_client_error_message">You were logged out because your device was
-        removed.
+    <string name="removed_client_error_title">削除されたデバイス</string>
+    <string name="removed_client_error_message">あなたのデバイスが削除されたため
+        ログアウトしました。
     </string>
-    <string name="session_expired_error_title">Session expired</string>
+    <string name="session_expired_error_title">セッションの有効期限が切れました</string>
     <string name="session_expired_error_message">The application did not communicate with the server
         for a long period of time, or your session has been remotely invalidated.
     </string>
@@ -468,7 +468,7 @@
     <string name="attachment_take_photo">Camera</string>
     <string name="attachment_record_video">Video</string>
     <string name="attachment_voice_message">Audio</string>
-    <string name="attachment_share_location">Share Location</string>
+    <string name="attachment_share_location">Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
@@ -1298,4 +1298,12 @@
     <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
     <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App permissions</string>
+    <string name="app_permission_dialog_settings_positive_button">Settings</string>
+    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Share Location</string>
+    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
+    <string name="location_loading_label">Please wait...</string>
 </resources>

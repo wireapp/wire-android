@@ -463,7 +463,7 @@
     <string name="attachment_take_photo">Camera</string>
     <string name="attachment_record_video">Videozapis</string>
     <string name="attachment_voice_message">Zvuk</string>
-    <string name="attachment_share_location">Podijelite lokaciju</string>
+    <string name="attachment_share_location">Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">Korisnički profil</string>
     <string name="user_profile_close_description">Close User profile</string>
@@ -1347,4 +1347,12 @@
     <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
     <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App permissions</string>
+    <string name="app_permission_dialog_settings_positive_button">Settings</string>
+    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Share Location</string>
+    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
+    <string name="location_loading_label">Please wait...</string>
 </resources>

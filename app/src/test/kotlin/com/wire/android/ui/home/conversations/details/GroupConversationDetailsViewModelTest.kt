@@ -51,9 +51,10 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeU
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -627,7 +628,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
     @MockK
-    lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
+    lateinit var getSelfTeamUseCase: GetUpdatedSelfTeamUseCase
 
     @MockK
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
@@ -693,7 +694,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
-        coEvery { getSelfTeamUseCase() } returns flowOf(null)
+        coEvery { getSelfTeamUseCase() } returns Either.Right(null)
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
@@ -716,7 +717,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
-        coEvery { getSelfTeamUseCase() } returns flowOf(result)
+        coEvery { getSelfTeamUseCase() } returns Either.Right(result)
     }
 
     suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {

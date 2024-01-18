@@ -291,6 +291,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    // TODO: needs to be covered with test once hard logout is validated to be used
     fun doHardLogout(
         clearUserData: (userId: UserId) -> Unit,
         switchAccountActions: SwitchAccountActions

@@ -334,6 +334,7 @@ class WireActivity : AppCompatActivity() {
 
                 LogoutOptionsDialog(
                     dialogState = logoutOptionsDialogState,
+                    checkboxEnabled = false,
                     logout = {
                         viewModel.doHardLogout(
                             { UserDataStore(context, it) },

@@ -84,9 +84,9 @@ class RegisterDeviceViewModel @Inject constructor(
             is RegisterClientResult.Failure.TooManyClients ->
                 updateFlowState(RegisterDeviceFlowState.TooManyDevices)
             is RegisterClientResult.Success ->
-                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first(), false, registerDeviceResult.client.id))
+                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first(), false, registerDeviceResult.client.id ))
             is RegisterClientResult.E2EICertificateRequired ->
-                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first(), true, registerDeviceResult.client.id))
+                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first(), true, registerDeviceResult.client.id, registerDeviceResult.userId))
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 continueEnabled = true,
                 flowState = RegisterDeviceFlowState.Error.GenericError(registerDeviceResult.genericFailure)

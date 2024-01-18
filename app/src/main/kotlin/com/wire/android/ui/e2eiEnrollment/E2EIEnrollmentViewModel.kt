@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -32,10 +33,14 @@ import com.wire.android.ui.debug.DebugDataOptionsState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.E2EIFailure
+import com.wire.kalium.logic.data.client.ClientRepository
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.RegisterMLSClientUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.feature.session.UpgradeCurrentSessionUseCase
+import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,8 +60,9 @@ data class E2EIEnrollmentState(
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
     private val e2eiCertificateUseCase: GetE2EICertificateUseCase,
-    savedStateHandle: SavedStateHandle
-) : ViewModel() {
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    savedStateHandle: SavedStateHandle,
+    ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
 
     private val e2EIEnrollmentNavArgs: E2EIEnrollmentNavArgs = savedStateHandle.navArgs()
@@ -79,6 +85,13 @@ class E2EIEnrollmentViewModel @Inject constructor(
                     )
                 }
             })
+        }
+    }
+
+    fun finishUp() {
+        viewModelScope.launch {
+            val clientScope = clientScopeProviderFactory.create(UserId(e2EIEnrollmentNavArgs.userId, e2EIEnrollmentNavArgs.userDomain)).clientScope
+            clientScope.getOrRegister.invoke(ClientId(e2EIEnrollmentNavArgs.clientId))
         }
     }
 

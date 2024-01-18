@@ -83,7 +83,7 @@ fun RegisterDeviceScreen(navigator: Navigator) {
             navigator.navigate(
                 NavigationCommand(
                     destination = if (flowState.isE2EIRequired)
-                        E2EIEnrollmentScreenDestination(flowState.clientId.value)
+                        E2EIEnrollmentScreenDestination(flowState.clientId.value, flowState.userId!!.value, flowState.userId.domain)
                     else if (flowState.initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
                     backStackMode = BackStackMode.CLEAR_WHOLE
                 )

@@ -78,11 +78,14 @@ import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
+import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentNavArgs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -99,11 +102,11 @@ fun LoginScreen(
 
     LoginContent(
         navigator::navigateBack,
-        { initialSyncCompleted, isE2EIRequired ->
+        { initialSyncCompleted, isE2EIRequired, clientId , userId->
             navigator.navigate(
                 NavigationCommand(
                     if (isE2EIRequired)
-                        E2EIEnrollmentScreenDestination("")
+                        E2EIEnrollmentScreenDestination(E2EIEnrollmentNavArgs( clientId.value, userId!!.value, userId.domain))
                     else if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
                     BackStackMode.CLEAR_WHOLE
                 )
@@ -120,7 +123,7 @@ fun LoginScreen(
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
@@ -149,7 +152,7 @@ private fun LoginContent(
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
@@ -356,6 +359,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme {
-        MainLoginContent({}, { _, _ -> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent({}, { _, _, _ , _-> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

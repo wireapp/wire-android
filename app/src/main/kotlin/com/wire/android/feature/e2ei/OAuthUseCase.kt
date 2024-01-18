@@ -41,6 +41,7 @@ import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.browser.BrowserAllowList
 import net.openid.appauth.browser.VersionedBrowserMatcher
 import net.openid.appauth.connectivity.ConnectionBuilder
+import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
@@ -52,7 +53,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: String?) {
+class OAuthUseCase(context: Context, private val authUrl: String, private val keyAuth: String, private val acmeAud: String, oAuthState: String?) {
     private var authState: AuthState = oAuthState?.let {
         AuthState.jsonDeserialize(it)
     } ?: AuthState()
@@ -177,6 +178,17 @@ class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: St
         AuthorizationRequest.Scope.EMAIL,
         AuthorizationRequest.Scope.PROFILE,
         AuthorizationRequest.Scope.OFFLINE_ACCESS
+    ).setClaims(
+        JSONObject(
+            """
+        {
+            "id_token": {
+                "keyauth": { "essential": true, "value": "$keyAuth" },
+                "acme_aud": { "essential": true, "value": "$acmeAud" }
+            }
+        }
+    """.trimIndent()
+        )
     ).build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {

@@ -62,6 +62,8 @@ import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.dialogErrorStrings
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.UserId
 
 @RootNavGraph
 @Destination(
@@ -74,10 +76,10 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     val state: RemoveDeviceState = viewModel.state
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
 
-    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
+    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired)
-                E2EIEnrollmentScreenDestination("")
+                E2EIEnrollmentScreenDestination(clientId.value, userId!!.value, userId.domain)
             else if (initialSyncCompleted)
                 HomeScreenDestination
             else

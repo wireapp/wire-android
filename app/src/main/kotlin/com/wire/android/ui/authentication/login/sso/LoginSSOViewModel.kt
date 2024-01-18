@@ -34,6 +34,8 @@ import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
@@ -202,7 +204,7 @@ class LoginSSOViewModel @Inject constructor(
     fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
-        onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+        onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit
     ) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
@@ -255,7 +257,7 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId), false)
+                        onSuccess(isInitialSyncCompleted(storedUserId), false, it.client.id,null)
                     }
 
                     is RegisterClientResult.Failure -> {
@@ -264,7 +266,7 @@ class LoginSSOViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId), true)
+                        onSuccess(isInitialSyncCompleted(storedUserId), true, it.client.id, it.userId)
                     }
                 }
             }
@@ -282,16 +284,16 @@ class LoginSSOViewModel @Inject constructor(
 
     fun handleSSOResult(
         ssoLoginResult: DeepLinkResult.SSOLogin?,
-        onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+        onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit
     ) =
         when (ssoLoginResult) {
-        is DeepLinkResult.SSOLogin.Success -> {
-            establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, onSuccess)
-        }
+            is DeepLinkResult.SSOLogin.Success -> {
+                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, onSuccess)
+            }
 
-        is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
-        null -> {}
-    }
+            is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
+            null -> {}
+        }
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {

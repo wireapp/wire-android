@@ -126,7 +126,7 @@ class WireApplication : Application(), Configuration.Provider {
             // 1. Datadog should be initialized first
             ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore)
             // 2. Initialize our internal logging framework
-            val isLoggingEnabled = globalDataStore.isLoggingEnabled().first()
+            val isLoggingEnabled =true
             val config = if (isLoggingEnabled) {
                 KaliumLogger.Config.DEFAULT.apply {
                     setLogLevel(KaliumLogLevel.VERBOSE)

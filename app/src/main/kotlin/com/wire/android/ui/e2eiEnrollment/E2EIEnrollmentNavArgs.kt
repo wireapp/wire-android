@@ -18,9 +18,12 @@
 package com.wire.android.ui.e2eiEnrollment
 
 import android.os.Parcelable
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class E2EIEnrollmentNavArgs(
-    val clientId: String
+    val clientId: String,
+    val userId: String,
+    val userDomain: String
 ) : Parcelable

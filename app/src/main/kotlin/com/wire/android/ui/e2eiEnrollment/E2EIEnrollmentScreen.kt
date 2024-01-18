@@ -55,6 +55,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
@@ -77,11 +78,13 @@ fun E2EIEnrollmentScreen(
 
     E2EIEnrollmentScreenContent(state = state,
         dismissSuccess = {
+            viewModel.finishUp()
             navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
         enrollE2EICertificate = { viewModel.enrollE2EICertificate(context) },
         openCertificateDetails = {
+            viewModel.finishUp()
             navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
         }
     )

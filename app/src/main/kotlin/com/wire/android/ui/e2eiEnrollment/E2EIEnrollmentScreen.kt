@@ -33,11 +33,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -129,13 +131,14 @@ private fun E2EIEnrollmentScreenContent(
                 .padding(PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
-                    style = MaterialTheme.wireTypography.title02,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            Text(
+                text = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
+                style = MaterialTheme.wireTypography.title02,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(dimensions().spacing16x))
             val text = buildAnnotatedString {
                 val style = SpanStyle(
                     color = colorsScheme().onBackground,

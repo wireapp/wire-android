@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import com.wire.kalium.logic.feature.user.MarkEnablingE2EIAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.e2ei.MarkNotifyForRevokedCertificateAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -284,6 +285,19 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(null, viewModel.featureFlagState.e2EIRequired)
     }
 
+    @Test
+    fun givenADisplayedDialog_whenDismissingIt_thenInvokeMarkFileSharingStatusAsNotifiedUseCaseOnce() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
+            .arrange()
+        coEvery { arrangement.markNotifyForRevokedCertificateAsNotified() } returns Unit
+
+        viewModel.dismissE2EICertificateRevokedDialog()
+
+        assertEquals(false, viewModel.featureFlagState.shouldShowE2eiCertificateRevokedDialog)
+        coVerify(exactly = 1) { arrangement.markNotifyForRevokedCertificateAsNotified() }
+    }
+
     private inner class Arrangement {
 
         @MockK
@@ -310,6 +324,9 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var markNotifyForRevokedCertificateAsNotified: MarkNotifyForRevokedCertificateAsNotifiedUseCase
+
         val viewModel: FeatureFlagNotificationViewModel by lazy {
             FeatureFlagNotificationViewModel(
                 coreLogic = coreLogic,
@@ -332,6 +349,8 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
+            every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
         }
 

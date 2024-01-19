@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSel
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
@@ -309,6 +310,11 @@ class UseCaseModule {
     @Provides
     fun provideObserveValidAccountsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveValidAccountsUseCase =
         coreLogic.getGlobalScope().observeValidAccounts
+
+    @ViewModelScoped
+    @Provides
+    fun provideDoesValidSessionExistsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidSessionExistUseCase =
+        coreLogic.getGlobalScope().doesValidSessionExist
 
     @ViewModelScoped
     @Provides

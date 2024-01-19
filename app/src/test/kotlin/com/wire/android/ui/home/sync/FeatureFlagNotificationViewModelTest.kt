@@ -14,8 +14,8 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import com.wire.kalium.logic.feature.user.MarkEnablingE2EIAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
@@ -47,7 +47,6 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertEquals(
@@ -62,7 +61,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertEquals(
@@ -77,7 +75,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
         viewModel.dismissGuestRoomLinkDialog()
         advanceUntilIdle()
@@ -95,7 +92,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertEquals(
@@ -109,7 +105,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
         viewModel.dismissSelfDeletingMessagesDialog()
         advanceUntilIdle()
@@ -125,8 +120,6 @@ class FeatureFlagNotificationViewModelTest {
             .withIsAppLockSetup(false)
             .withTeamAppLockEnforce(AppLockTeamConfig(true, Duration.ZERO, false))
             .arrange()
-
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertTrue(viewModel.featureFlagState.shouldShowTeamAppLockDialog)
@@ -137,7 +130,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Create, viewModel.featureFlagState.e2EIRequired)
@@ -149,7 +141,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
@@ -179,7 +170,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Renew)
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, viewModel.featureFlagState.e2EIRequired)
@@ -191,7 +181,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
@@ -221,8 +210,6 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withEndCallDialog()
             .arrange()
-
-        viewModel.initialSync()
         advanceUntilIdle()
 
         assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
@@ -235,7 +222,6 @@ class FeatureFlagNotificationViewModelTest {
             .withAppLockSource(AppLockSource.TeamEnforced)
             .withDisableAppLockUseCase()
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         viewModel.confirmAppLockNotEnforced()
@@ -250,7 +236,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withAppLockSource(AppLockSource.Manual)
             .arrange()
-        viewModel.initialSync()
         advanceUntilIdle()
 
         viewModel.confirmAppLockNotEnforced()
@@ -260,15 +245,9 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     private inner class Arrangement {
-        init {
-            MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
-            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
-            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
-        }
 
         @MockK
-        lateinit var currentSession: CurrentSessionUseCase
+        lateinit var currentSession: CurrentSessionFlowUseCase
 
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -291,14 +270,19 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
-        val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
-            coreLogic = coreLogic,
-            currentSessionUseCase = currentSession,
-            globalDataStore = globalDataStore,
-            disableAppLockUseCase = disableAppLockUseCase
-        )
-
+        val viewModel: FeatureFlagNotificationViewModel by lazy {
+            FeatureFlagNotificationViewModel(
+                coreLogic = coreLogic,
+                currentSessionFlow = currentSession,
+                globalDataStore = globalDataStore,
+                disableAppLockUseCase = disableAppLockUseCase
+            )
+        }
         init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { currentSession() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
+            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
             every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
             every { coreLogic.getSessionScope(any()).markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
@@ -311,7 +295,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {
-            coEvery { currentSession() } returns result
+            coEvery { currentSession() } returns flowOf(result)
         }
 
         fun withIsAppLockSetup(result: Boolean) = apply {

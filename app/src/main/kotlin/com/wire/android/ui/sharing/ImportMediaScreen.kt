@@ -81,8 +81,6 @@ fun ImportMediaScreen(
     navigator: Navigator,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
 ) {
-    featureFlagNotificationViewModel.loadInitialSync()
-
     when (val fileSharingRestrictedState =
         featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
         FeatureFlagState.SharingRestrictedState.NO_USER -> {

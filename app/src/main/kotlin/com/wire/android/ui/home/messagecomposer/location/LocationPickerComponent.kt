@@ -112,41 +112,31 @@ fun LocationPickerComponent(
                         }
                     }
                     add {
-                        Column(
+                        Box(
                             modifier = Modifier
-                                .align(alignment = Alignment.Start)
-                                .padding(horizontal = dimensions().spacing16x)
                                 .wrapContentHeight()
                                 .fillMaxWidth()
                         ) {
-                            WirePrimaryButton(
-                                onClick = {
-                                    onLocationPicked(geoLocatedAddress!!)
-                                    onLocationClosed()
-                                },
-                                leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
-                                text = stringResource(id = R.string.content_description_send_button),
-                                state = if (isLocationLoading || geoLocatedAddress == null) {
-                                    WireButtonState.Disabled
-                                } else {
-                                    WireButtonState.Default
+                            if (showLocationSharingError) {
+                                LocationErrorMessage {
+                                    coroutineScope.launch {
+                                        sheetState.hide()
+                                        viewModel.onLocationSharingErrorDialogDiscarded()
+                                        onLocationClosed()
+                                    }
                                 }
-                            )
-                            VerticalSpace.x16()
+                            } else {
+                                SendLocationButton(
+                                    isLocationLoading = isLocationLoading,
+                                    geoLocatedAddress = geoLocatedAddress,
+                                    onLocationPicked = onLocationPicked,
+                                    onLocationClosed = onLocationClosed
+                                )
+                            }
                         }
                     }
                 }
             )
-
-            if (showLocationSharingError) {
-                LocationErrorMessage {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        viewModel.onLocationSharingErrorDialogDiscarded()
-                        onLocationClosed()
-                    }
-                }
-            }
 
             if (showPermissionDeniedDialog) {
                 PermissionsDeniedRequestDialog(
@@ -158,6 +148,36 @@ fun LocationPickerComponent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SendLocationButton(
+    isLocationLoading: Boolean,
+    geoLocatedAddress: GeoLocatedAddress?,
+    onLocationPicked: (GeoLocatedAddress) -> Unit,
+    onLocationClosed: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = dimensions().spacing16x)
+            .wrapContentHeight()
+            .fillMaxWidth()
+    ) {
+        WirePrimaryButton(
+            onClick = {
+                onLocationPicked(geoLocatedAddress!!)
+                onLocationClosed()
+            },
+            leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
+            text = stringResource(id = R.string.content_description_send_button),
+            state = if (isLocationLoading || geoLocatedAddress == null) {
+                WireButtonState.Disabled
+            } else {
+                WireButtonState.Default
+            }
+        )
+        VerticalSpace.x16()
     }
 }
 

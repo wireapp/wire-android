@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -30,9 +31,14 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
@@ -58,6 +65,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.permission.rememberCurrentLocationFlow
+import kotlinx.coroutines.launch
 
 /**
  * Component to pick the current location to send.
@@ -129,17 +137,47 @@ fun LocationPickerComponent(
                     }
                 }
             )
+
+            if (showLocationSharingError) {
+                LocationErrorMessage {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                        viewModel.onLocationSharingErrorDialogDiscarded()
+                        onLocationClosed()
+                    }
+                }
+            }
+
+            if (showPermissionDeniedDialog) {
+                PermissionsDeniedRequestDialog(
+                    body = R.string.location_app_permission_dialog_body,
+                    onDismiss = {
+                        viewModel.onPermissionsDialogDiscarded()
+                        onLocationClosed()
+                    }
+                )
+            }
         }
     }
+}
 
-    if (viewModel.state.showPermissionDeniedDialog) {
-        PermissionsDeniedRequestDialog(
-            body = R.string.location_app_permission_dialog_body,
-            onDismiss = {
-                viewModel.onPermissionsDialogDiscarded()
-                onLocationClosed()
+@Composable
+private fun LocationErrorMessage(
+    message: String = stringResource(id = R.string.location_could_not_be_shared),
+    onLocationClosed: () -> Unit
+) {
+    Box(Modifier.zIndex(Float.MAX_VALUE), contentAlignment = Alignment.BottomCenter) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        LaunchedEffect(snackbarHostState) {
+            val result = snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
+            when (result) {
+                SnackbarResult.Dismissed -> onLocationClosed()
+                SnackbarResult.ActionPerformed -> {
+                    /* do nothing */
+                }
             }
-        )
+        }
+        SnackbarHost(hostState = snackbarHostState)
     }
 }
 

@@ -31,3 +31,11 @@ fun Context.openAppInfoScreen() {
         startActivity(it)
     }
 }
+
+fun Context.openLocationSettings() {
+    Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }.let {
+        startActivity(it)
+    }
+}

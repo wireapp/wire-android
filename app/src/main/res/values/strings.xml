@@ -1360,4 +1360,5 @@
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

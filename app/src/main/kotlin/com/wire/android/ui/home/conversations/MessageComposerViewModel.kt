@@ -61,8 +61,8 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -71,6 +71,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -118,6 +119,7 @@ class MessageComposerViewModel @Inject constructor(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
+    private val sendLocation: SendLocationUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -217,9 +219,11 @@ class MessageComposerViewModel @Inject constructor(
             when {
                 shouldInformAboutDegradedBeforeSendingMessage() ->
                     sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
+
                 shouldInformAboutUnderLegalHoldBeforeSendingMessage() ->
                     sureAboutMessagingDialogState =
                         SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle)
+
                 else -> sendMessage(messageBundle)
             }
         }
@@ -264,7 +268,14 @@ class MessageComposerViewModel @Inject constructor(
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
 
-            Ping -> {
+            is ComposableMessageBundle.LocationBundle -> {
+                with(messageBundle) {
+                    sendLocation(conversationId, location.latitude.toFloat(), location.longitude.toFloat(), locationName, zoom)
+                        .handleLegalHoldFailureAfterSendingMessage()
+                }
+            }
+
+            is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                 sendKnockUseCase(conversationId = conversationId, hotKnock = false)
             }
@@ -374,8 +385,10 @@ class MessageComposerViewModel @Inject constructor(
             sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(this.messageId)
         }
     }
+
     private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage() =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage() }
+
     private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage() = also {
         if (it is ScheduleNewAssetMessageResult.Failure) {
             it.coreFailure.handleLegalHoldFailureAfterSendingMessage()
@@ -500,8 +513,10 @@ class MessageComposerViewModel @Inject constructor(
                 when (it) {
                     is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                         trySendMessage(it.messageBundleToSend)
+
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending ->
                         trySendMessage(it.messageBundleToSend)
+
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending ->
                         retrySendingMessage(it.messageId)
                 }
@@ -525,7 +540,8 @@ class MessageComposerViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> { /* do nothing */ }
+            SureAboutMessagingDialogState.Hidden -> { /* do nothing */
+            }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }

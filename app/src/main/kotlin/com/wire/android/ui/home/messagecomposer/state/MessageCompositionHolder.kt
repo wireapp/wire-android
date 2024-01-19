@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
+import android.location.Location
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
@@ -444,6 +445,12 @@ sealed class ComposableMessageBundle : MessageBundle {
 
     data class AudioMessageBundle(
         val attachmentUri: UriAsset
+    ) : ComposableMessageBundle()
+
+    data class LocationBundle(
+        val locationName: String,
+        val location: Location,
+        val zoom: Int = 20
     ) : ComposableMessageBundle()
 }
 

@@ -28,6 +28,7 @@ fun TextMessageEditMenuItems(
     isEphemeral: Boolean,
     isUploading: Boolean,
     isComposite: Boolean,
+    isLocation: Boolean,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onReplyClick: () -> Unit,
@@ -41,7 +42,7 @@ fun TextMessageEditMenuItems(
             add { MessageDetailsMenuOption(onDetailsClick) }
             onCopyClick?.also { add { CopyItemMenuOption(it) } }
             if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
-            if (!isEphemeral && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
+            if (!isEphemeral && !isLocation && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
         }
         add { DeleteItemMenuOption(onDeleteClick) }
     }

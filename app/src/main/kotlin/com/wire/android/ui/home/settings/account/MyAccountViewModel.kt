@@ -28,16 +28,14 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -51,7 +49,7 @@ import kotlin.properties.Delegates
 class MyAccountViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getSelf: GetSelfUserUseCase,
-    private val getSelfTeam: GetSelfTeamUseCase,
+    private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
@@ -108,19 +106,18 @@ class MyAccountViewModel @Inject constructor(
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
+            val selfTeam = getSelfTeam().getOrNull()
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val selfTeam = getSelfTeam().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
 
-            combine(self, selfTeam) { selfUser: SelfUser, team: Team? -> selfUser to team }
-                .collect { (user, team) ->
-                    myAccountState = myAccountState.copy(
-                        fullName = user.name.orEmpty(),
-                        userName = user.handle.orEmpty(),
-                        email = user.email.orEmpty(),
-                        teamName = team?.name.orEmpty(),
-                        domain = user.id.domain
-                    )
-                }
+            self.collect { user ->
+                myAccountState = myAccountState.copy(
+                    fullName = user.name.orEmpty(),
+                    userName = user.handle.orEmpty(),
+                    email = user.email.orEmpty(),
+                    teamName = selfTeam?.name.orEmpty(),
+                    domain = user.id.domain
+                )
+            }
         }
     }
 

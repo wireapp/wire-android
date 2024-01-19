@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -111,6 +112,7 @@ class AddMembersToConversationViewModelTest {
                         isServicesAllowed = false
                     )
                 )
+                withAddMemberToConversationUseCase(AddMemberToConversationUseCase.Result.Success)
             }
 
         val expected = Contact(
@@ -154,6 +156,10 @@ class AddMembersToConversationViewModelTest {
 
         fun withAddMembersSearchNavArgs(navArgs: AddMembersSearchNavArgs) {
             every { savedStateHandle.navArgs<AddMembersSearchNavArgs>() } returns navArgs
+        }
+
+        fun withAddMemberToConversationUseCase(result: AddMemberToConversationUseCase.Result) {
+            coEvery { addMemberToConversionUseCase(any(), any()) } returns result
         }
 
         fun arrange(block: Arrangement.() -> Unit): Pair<Arrangement, AddMembersToConversationViewModel> = apply(block).let {

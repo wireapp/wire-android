@@ -26,14 +26,11 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
-import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.workmanager.WireWorkerFactory
@@ -83,23 +80,19 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableStrictMode()
 
-        if (this.isGoogleServicesAvailable()) {
-            val firebaseOptions = FirebaseOptions.Builder()
-                .setApplicationId(BuildConfig.FIREBASE_APP_ID)
-                .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
-                .setApiKey(BuildConfig.GOOGLE_API_KEY)
-                .setProjectId(BuildConfig.FCM_PROJECT_ID)
-                .build()
-            FirebaseApp.initializeApp(this, firebaseOptions)
+        globalAppScope.launch {
+            initializeApplicationLoggingFrameworks()
+
+            appLogger.i("$TAG app lifecycle")
+            connectionPolicyManager.startObservingAppLifecycle()
+
+            appLogger.i("$TAG api version update")
+            // TODO: Can be handled in one of Sync steps
+            coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+
+            appLogger.i("$TAG global observers")
+            globalObserversManager.observe()
         }
-
-        initializeApplicationLoggingFrameworks()
-        connectionPolicyManager.startObservingAppLifecycle()
-
-        // TODO: Can be handled in one of Sync steps
-        coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
-
-        globalObserversManager.observe()
     }
 
     private fun enableStrictMode() {
@@ -123,29 +116,27 @@ class WireApplication : Application(), Configuration.Provider {
         }
     }
 
-    private fun initializeApplicationLoggingFrameworks() {
-        globalAppScope.launch {
-            // 1. Datadog should be initialized first
-            ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore)
-            // 2. Initialize our internal logging framework
-            val isLoggingEnabled = globalDataStore.isLoggingEnabled().first()
-            val config = if (isLoggingEnabled) {
-                KaliumLogger.Config.DEFAULT.apply {
-                    setLogLevel(KaliumLogLevel.VERBOSE)
-                    setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
-                }
-            } else {
-                KaliumLogger.Config.disabled()
+    private suspend fun initializeApplicationLoggingFrameworks() {
+        // 1. Datadog should be initialized first
+        ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore)
+        // 2. Initialize our internal logging framework
+        val isLoggingEnabled = globalDataStore.isLoggingEnabled().first()
+        val config = if (isLoggingEnabled) {
+            KaliumLogger.Config.DEFAULT.apply {
+                setLogLevel(KaliumLogLevel.VERBOSE)
+                setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
             }
-            // 2. Initialize our internal logging framework
-            AppLogger.init(config)
-            CoreLogger.init(config)
-            // 3. Initialize our internal FILE logging framework
-            logFileWriter.start()
-            // 4. Everything ready, now we can log device info
-            appLogger.i("Logger enabled")
-            logDeviceInformation()
+        } else {
+            KaliumLogger.Config.disabled()
         }
+        // 2. Initialize our internal logging framework
+        AppLogger.init(config)
+        CoreLogger.init(config)
+        // 3. Initialize our internal FILE logging framework
+        logFileWriter.start()
+        // 4. Everything ready, now we can log device info
+        appLogger.i("Logger enabled")
+        logDeviceInformation()
     }
 
     private fun logDeviceInformation() {
@@ -192,5 +183,7 @@ class WireApplication : Application(), Configuration.Provider {
                     values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
+
+        private const val TAG = "WireApplication"
     }
 }

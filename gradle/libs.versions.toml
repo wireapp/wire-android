@@ -35,6 +35,7 @@ androidx-splashscreen = "1.0.1"
 androidx-workManager = "2.8.1"
 androidx-browser = "1.5.0"
 androidx-biometric = "1.1.0"
+androidx-startup = "1.1.1"
 
 # Compose
 composeBom = "2023.10.00" # TODO check if in new version [anchoredDraggable] is available
@@ -152,6 +153,7 @@ androidx-exifInterface = { module = "androidx.exifinterface:exifinterface", vers
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 androidx-profile-installer = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "androidx-biometric" }
+androidx-startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidx-startup" }
 
 # Dependency Injection
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }

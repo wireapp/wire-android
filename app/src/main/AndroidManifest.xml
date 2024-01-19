@@ -199,16 +199,33 @@
             </intent-filter>
         </activity>
 
+        <!--
+        We make a custom Firebase init, because the app selects the Firebase project at a runtime,
+        so we need to remove default FirebaseInitProvider and create our custom FirebaseInitializer.
+         -->
+        <provider
+                android:name="com.google.firebase.provider.FirebaseInitProvider"
+                android:authorities="${applicationId}.firebaseinitprovider"
+                tools:node="remove" />
+
         <provider
                 android:name="androidx.startup.InitializationProvider"
                 android:authorities="${applicationId}.androidx-startup"
                 android:exported="false"
                 tools:node="merge">
 
+            <!--
+            We create custom WorkManager Configuration.Provider and initialize on-demand,
+            so we need to remove default WorkManagerInitializer.
+             -->
             <meta-data
                     android:name="androidx.work.WorkManagerInitializer"
                     android:value="androidx.startup"
                     tools:node="remove" />
+
+            <meta-data
+                    android:name="com.wire.android.initializer.FirebaseInitializer"
+                    android:value="androidx.startup" />
 
         </provider>
 
@@ -270,28 +287,6 @@
                 android:name=".services.OngoingCallService"
                 android:exported="false"
                 android:foregroundServiceType="phoneCall" />
-
-        <!-- If you want to disable android.startup completely. -->
-        <provider
-                android:name="androidx.startup.InitializationProvider"
-                android:authorities="${applicationId}.androidx-startup"
-                tools:node="remove" />
-
-        <provider
-                android:name="com.google.firebase.provider.FirebaseInitProvider"
-                android:authorities="${applicationId}.firebaseinitprovider"
-                tools:node="remove" />
-        <provider
-                android:name="androidx.startup.InitializationProvider"
-                android:authorities="${applicationId}.androidx-startup"
-                android:exported="false"
-                tools:node="merge">
-            <!-- If you are using androidx.startup to initialize other components -->
-            <meta-data
-                    android:name="androidx.work.WorkManagerInitializer"
-                    android:value="androidx.startup"
-                    tools:node="remove" />
-        </provider>
 
     </application>
 

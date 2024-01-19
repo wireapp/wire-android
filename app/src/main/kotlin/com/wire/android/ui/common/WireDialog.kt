@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -159,6 +160,7 @@ fun WireDialog(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun WireDialogContent(
     title: String,
@@ -203,7 +205,7 @@ private fun WireDialogContent(
                     .fillMaxWidth()
             ) {
                 text?.let {
-                    item {
+                    stickyHeader {
                         ClickableText(
                             text = text,
                             style = MaterialTheme.wireTypography.body01,
@@ -221,6 +223,7 @@ private fun WireDialogContent(
                         )
                     }
                 }
+
                 content?.let {
                     item {
                         Box {

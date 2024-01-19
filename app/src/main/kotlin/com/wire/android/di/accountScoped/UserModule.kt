@@ -33,8 +33,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.DeleteAccountUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
@@ -183,20 +181,6 @@ class UserModule {
         userScope: UserScope
     ): GetKnownUserUseCase =
         userScope.getKnownUser
-
-    @ViewModelScoped
-    @Provides
-    fun provideSearchUsersUseCase(
-        userScope: UserScope
-    ): SearchPublicUsersUseCase =
-        userScope.searchUsers
-
-    @ViewModelScoped
-    @Provides
-    fun provideSearchKnownUsersUseCase(
-        userScope: UserScope
-    ): SearchKnownUsersUseCase =
-        userScope.searchKnownUsers
 
     @ViewModelScoped
     @Provides

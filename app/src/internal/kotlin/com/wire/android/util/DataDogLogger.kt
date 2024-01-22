@@ -29,8 +29,8 @@ object DataDogLogger : LogWriter() {
 
     private val logger = Logger.Builder()
         .setNetworkInfoEnabled(true)
-        .setLogcatLogsEnabled(true)
         .setLogcatLogsEnabled(false) // we already use platformLogWriter() along with DataDogLogger, don't need duplicates in LogCat
+        .setDatadogLogsEnabled(true)
         .setBundleWithTraceEnabled(true)
         .setLoggerName("DATADOG")
         .build()

@@ -14,17 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
  */
-import com.wire.android.gradle.version.Versionizer
 
-object AndroidSdk {
-    const val min = 26
-    const val compile = 34
-    const val target = compile
-}
+package com.wire.android.ui.home.conversations.search
 
-object AndroidApp {
-    const val id = "com.wire.android"
-    const val versionName = "4.7.0"
-    val versionCode = Versionizer().versionCode
-}
+const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L

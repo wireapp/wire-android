@@ -30,9 +30,8 @@ on:
             - closed
 
 env:
-
     TARGET_BRANCH: develop
-#    SUBMODULE_NAME:
+    SUBMODULE_NAME: kalium
 
 jobs:
     cherry-pick:

@@ -403,8 +403,8 @@
     <string name="asset_message_saved_externally_text">Mentve</string>
     <string name="asset_message_failed_download_text">A fájl nem elérhető</string>
     <string name="asset_message_failed_upload_text">A fájl feltöltése nem sikerült</string>
-    <string name="asset_download_dialog_text">Megnyitja a fájlt, vagy menti
-        eszköze letöltési mappájába?
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
  </string>
     <string name="asset_download_dialog_open_text">Megnyitás</string>
     <string name="asset_download_dialog_save_text">Mentés</string>
@@ -609,8 +609,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_degraded_mls">Ez a beszélgetés többé nem ellenőrzött, mivel valaki legalább egy eszközt érvényes végpontok közötti azonosító tanúsítvány nélkül használ.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Ez a beszélgetés többé nem ellenőrzött, mivel valaki legalább egy eszközt érvényes végpontok közötti azonosító tanúsítvány nélkül használ.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
     <string name="label_system_message_conversation_verified_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
     <string name="label_system_message_conversation_verified_proteus">Minden ujjlenyomat ellenőrizve (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">A Wire-ben a kommunikáció mindig titkos a végpontok között. Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a csoport résztvevői számára hozzáférhető.\n**Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.**</string>

@@ -711,8 +711,8 @@
     <string name="label_conversation_media">Medien</string>
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Dateien</string>
-    <string name="label_conversation_pictures_empty">Es wurden noch keine Bilder in dieser Unterhaltung geteilt 🙀</string>
-    <string name="label_conversation_files_empty">Es wurden noch keine Dateien in dieser Unterhaltung geteilt 🙀</string>
+    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>

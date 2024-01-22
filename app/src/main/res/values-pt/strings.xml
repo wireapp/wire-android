@@ -403,7 +403,9 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="asset_message_saved_externally_text">Salvo</string>
     <string name="asset_message_failed_download_text">Arquivo não disponível</string>
     <string name="asset_message_failed_upload_text">Falha ao enviar o arquivo</string>
-    <string name="asset_download_dialog_text">Você quer abrir o arquivo ou salvá-lo na pasta de download do dispositivo?</string>
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
+ </string>
     <string name="asset_download_dialog_open_text">Abrir</string>
     <string name="asset_download_dialog_save_text">Salvar</string>
     <string name="member_name_deleted_label">Conta deletada</string>

@@ -742,7 +742,7 @@
     <string name="label_conversation_pictures">Изображения</string>
     <string name="label_conversation_files">Файлы</string>
     <string name="label_conversation_pictures_empty">В этой беседе пока нет изображений 🥲</string>
-    <string name="label_conversation_files_empty">В этой беседе пока нет файлов 🥲</string>
+    <string name="label_conversation_files_empty">В этой беседе пока нет файлов 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>

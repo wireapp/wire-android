@@ -403,7 +403,7 @@
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
-    <string name="asset_download_dialog_text">Do you want to open the file or save it to your
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
         device\'s download folder?
  </string>
     <string name="asset_download_dialog_open_text">Open</string>
@@ -1328,8 +1328,8 @@
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
     <!-- Go to app settings permissions dialog -->
     <string name="app_permission_dialog_title">App permissions</string>
-    <string name="app_permission_dialog_settings_positive_button">Settings</string>
-    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="app_permission_dialog_settings_positive_button">Inställningar</string>
+    <string name="app_permission_dialog_settings_negative_button">Inte nu</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>

@@ -372,8 +372,7 @@ internal class AssetImageFetcherTest {
             getPublicAsset = getPublicAsset,
             getPrivateAsset = getPrivateAsset,
             deleteAsset = deleteAsset,
-            drawableResultWrapper = drawableResultWrapper,
-            context = mockContext
+            drawableResultWrapper = drawableResultWrapper
         )
     }
 

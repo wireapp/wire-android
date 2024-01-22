@@ -36,7 +36,6 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 
 internal class AssetImageFetcher(
-    private val context: Context,
     private val assetFetcherParameters: AssetFetcherParameters,
     private val getPublicAsset: GetAvatarAssetUseCase,
     private val getPrivateAsset: GetMessageAssetUseCase,
@@ -79,15 +78,7 @@ internal class AssetImageFetcher(
                     }
                 }
 
-                is ImageAsset.LocalImageAsset -> {
-                    data.dataUri.toDrawable(context)?.let {
-                        DrawableResult(
-                            drawable = it,
-                            isSampled = true,
-                            dataSource = DataSource.DISK
-                        )
-                    }
-                }
+                is ImageAsset.LocalImageAsset -> drawableResultWrapper.toFetchResult(data.dataPath)
             }
         }
     }
@@ -103,7 +94,6 @@ internal class AssetImageFetcher(
         private val getPrivateAssetUseCase: GetMessageAssetUseCase,
         private val deleteAssetUseCase: DeleteAssetUseCase,
         private val drawableResultWrapper: DrawableResultWrapper,
-        private val context: Context
     ) : Fetcher.Factory<ImageAsset> {
         override fun create(
             data: ImageAsset,
@@ -115,7 +105,6 @@ internal class AssetImageFetcher(
             getPrivateAsset = getPrivateAssetUseCase,
             deleteAsset = deleteAssetUseCase,
             drawableResultWrapper = drawableResultWrapper,
-            context = context
         )
     }
 }

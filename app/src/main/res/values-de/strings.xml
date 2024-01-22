@@ -610,8 +610,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="label_system_message_conversation_verified_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Kommunikation in Wire ist immer Ende-zu-Ende verschlüsselt. Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Gruppenteilnehmer zugänglich.\n**Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.**</string>
@@ -711,8 +711,8 @@
     <string name="label_conversation_media">Medien</string>
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Dateien</string>
-    <string name="label_conversation_pictures_empty">Es wurden noch keine Bilder in dieser Unterhaltung geteilt 🙀</string>
-    <string name="label_conversation_files_empty">Es wurden noch keine Dateien in dieser Unterhaltung geteilt 🙀</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>

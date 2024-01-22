@@ -403,7 +403,7 @@
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
-    <string name="asset_download_dialog_text">Do you want to open the file or save it to your
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
         device\'s download folder?
  </string>
     <string name="asset_download_dialog_open_text">Open</string>
@@ -609,8 +609,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
@@ -710,8 +710,8 @@
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Filer</string>
-    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
-    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTER</string>
     <string name="label_new_group">Ny grupp</string>
@@ -1328,8 +1328,8 @@
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
     <!-- Go to app settings permissions dialog -->
     <string name="app_permission_dialog_title">App permissions</string>
-    <string name="app_permission_dialog_settings_positive_button">Settings</string>
-    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="app_permission_dialog_settings_positive_button">Inställningar</string>
+    <string name="app_permission_dialog_settings_negative_button">Inte nu</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>

@@ -18,15 +18,11 @@
 
 package com.wire.android.util.ui
 
-import android.content.Context
 import coil.ImageLoader
-import coil.decode.DataSource
-import coil.fetch.DrawableResult
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.request.Options
 import com.wire.android.model.ImageAsset
-import com.wire.android.util.toDrawable
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase

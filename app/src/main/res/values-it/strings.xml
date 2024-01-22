@@ -466,7 +466,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="attachment_take_photo">Scatta Foto</string>
     <string name="attachment_record_video">Registra un video</string>
     <string name="attachment_voice_message">Messaggio vocale</string>
-    <string name="attachment_share_location">Condividi posizione</string>
+    <string name="attachment_share_location">Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">Profilo Utente</string>
     <string name="user_profile_close_description">Chiudi profilo utente</string>
@@ -1328,4 +1328,12 @@ registrato. Sei pregato di riprovare.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversazione non più verificata</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo o ha un certificato non valido.\n\nDesideri comunque avviare la chiamata?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chiama comunque</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App permissions</string>
+    <string name="app_permission_dialog_settings_positive_button">Settings</string>
+    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Share Location</string>
+    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
+    <string name="location_loading_label">Please wait...</string>
 </resources>

@@ -112,7 +112,8 @@ class DeviceDetailsViewModel @Inject constructor(
                 state.copy(
                     isE2eiCertificateActivated = true,
                     e2eiCertificate = certificate.certificate,
-                    isLoadingCertificate = false
+                    isLoadingCertificate = false,
+                    device = state.device.updateE2EICertificateStatus(certificate.certificate.status)
                 )
             } else {
                 state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
@@ -162,7 +163,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
                     is GetClientDetailsResult.Success -> {
                         state.copy(
-                            device = Device(result.client),
+                            device = state.device.updateFromClient(result.client),
                             isCurrentDevice = result.isCurrentClient,
                             removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
                             canBeRemoved = !result.isCurrentClient && isSelfClient && result.client.type == ClientType.Permanent,

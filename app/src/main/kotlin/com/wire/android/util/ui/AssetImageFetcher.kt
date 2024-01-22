@@ -18,15 +18,11 @@
 
 package com.wire.android.util.ui
 
-import android.content.Context
 import coil.ImageLoader
-import coil.decode.DataSource
-import coil.fetch.DrawableResult
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.request.Options
 import com.wire.android.model.ImageAsset
-import com.wire.android.util.toDrawable
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
@@ -36,7 +32,6 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 
 internal class AssetImageFetcher(
-    private val context: Context,
     private val assetFetcherParameters: AssetFetcherParameters,
     private val getPublicAsset: GetAvatarAssetUseCase,
     private val getPrivateAsset: GetMessageAssetUseCase,
@@ -79,15 +74,7 @@ internal class AssetImageFetcher(
                     }
                 }
 
-                is ImageAsset.LocalImageAsset -> {
-                    data.dataUri.toDrawable(context)?.let {
-                        DrawableResult(
-                            drawable = it,
-                            isSampled = true,
-                            dataSource = DataSource.DISK
-                        )
-                    }
-                }
+                is ImageAsset.LocalImageAsset -> drawableResultWrapper.toFetchResult(data.dataPath)
             }
         }
     }
@@ -103,7 +90,6 @@ internal class AssetImageFetcher(
         private val getPrivateAssetUseCase: GetMessageAssetUseCase,
         private val deleteAssetUseCase: DeleteAssetUseCase,
         private val drawableResultWrapper: DrawableResultWrapper,
-        private val context: Context
     ) : Fetcher.Factory<ImageAsset> {
         override fun create(
             data: ImageAsset,
@@ -115,7 +101,6 @@ internal class AssetImageFetcher(
             getPrivateAsset = getPrivateAssetUseCase,
             deleteAsset = deleteAssetUseCase,
             drawableResultWrapper = drawableResultWrapper,
-            context = context
         )
     }
 }

@@ -30,8 +30,9 @@ on:
             - closed
 
 env:
+
     TARGET_BRANCH: develop
-    SUBMODULE_NAME: kalium
+#    SUBMODULE_NAME:
 
 jobs:
     cherry-pick:
@@ -108,6 +109,14 @@ jobs:
                   CHERRY_PICK_COMMIT=$(git rev-parse HEAD)
                   echo "cherryPickCommit=$CHERRY_PICK_COMMIT" >> $GITHUB_ENV
 
+            - name: Get Original Author
+              id: get-author
+              if: env.shouldCherryPick == 'true'
+              run: |
+                  ORIGINAL_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>' ${{ github.event.pull_request.merge_commit_sha }})
+                  echo "Original author: $ORIGINAL_AUTHOR"
+                  echo "originalAuthor=$ORIGINAL_AUTHOR" >> $GITHUB_ENV
+
             - name: Cherry-pick commits
               id: commit-cherry-pick
               if: env.shouldCherryPick == 'true'
@@ -117,12 +126,12 @@ jobs:
                   git checkout -b ${{ env.newBranchName }}
                   OUTPUT=$(git cherry-pick ${{ env.cherryPickCommit }} || true)
                   
-                  # Handle conflicts
-                  CONFLICTED_FILES=$(git diff --name-only --diff-filter=U | awk 'ORS="\\\\n"' | sed 's/\\\\n$/\\n/')
-                  echo "Captured conflicted files: $CONFLICTED_FILES"
+                  # If conflicts exist, resolve them
                   if [[ "$OUTPUT" == *"CONFLICT"* ]]; then
-                      # Commit the remaining conflicts
-                      git commit -am "Commit with unresolved merge conflicts outside of ${{ env.SUBMODULE_NAME }}"
+                      git add .
+                      git commit --author "${{ env.originalAuthor }}" -am "Commit with unresolved merge conflicts outside of ${{ env.SUBMODULE_NAME }}"
+                  else
+                      git commit --author "${{ env.originalAuthor }}" --amend --no-edit
                   fi
                   
                   # Push branch and remove temp

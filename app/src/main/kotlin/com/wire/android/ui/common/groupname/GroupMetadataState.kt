@@ -19,10 +19,14 @@
 package com.wire.android.ui.common.groupname
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 
 data class GroupMetadataState(
     val originalGroupName: String = "",
+    val selectedUsers: ImmutableSet<Contact> = persistentSetOf(),
     val groupName: TextFieldValue = TextFieldValue(""),
     var groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val animatedGroupNameError: Boolean = false,

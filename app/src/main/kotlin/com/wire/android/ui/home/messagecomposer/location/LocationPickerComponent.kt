@@ -125,14 +125,13 @@ fun LocationPickerComponent(
                                         onLocationClosed()
                                     }
                                 }
-                            } else {
-                                SendLocationButton(
-                                    isLocationLoading = isLocationLoading,
-                                    geoLocatedAddress = geoLocatedAddress,
-                                    onLocationPicked = onLocationPicked,
-                                    onLocationClosed = onLocationClosed
-                                )
                             }
+                            SendLocationButton(
+                                isLocationLoading = isLocationLoading,
+                                geoLocatedAddress = geoLocatedAddress,
+                                onLocationPicked = onLocationPicked,
+                                onLocationClosed = onLocationClosed
+                            )
                         }
                     }
                 }

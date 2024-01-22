@@ -58,11 +58,18 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun toStartLoadingLocationState() {
-        state = state.copy(isLocationLoading = true, geoLocatedAddress = null)
+        state = state.copy(
+            showLocationSharingError = false,
+            isLocationLoading = true,
+            geoLocatedAddress = null
+        )
     }
 
     private fun toLocationLoadedState(geoLocatedAddress: GeoLocatedAddress) {
-        state = state.copy(isLocationLoading = false, geoLocatedAddress = geoLocatedAddress)
+        state = state.copy(
+            isLocationLoading = false,
+            geoLocatedAddress = geoLocatedAddress
+        )
     }
 
     private fun toLocationError() {

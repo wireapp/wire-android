@@ -120,7 +120,7 @@ internal fun CustomServerDialog(
                             color = MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier
-                            .align(Alignment.End)
+                            .align(Alignment.Start)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,

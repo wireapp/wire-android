@@ -39,8 +39,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
-import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -75,12 +73,10 @@ class LoginEmailViewModel @Inject constructor(
     )
 
     @Suppress("LongMethod")
-    fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit) {
-        appLogger.i("### login happens")
+    fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
-            appLogger.e("### auth scope")
 
             val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
             val loginResult = withContext(dispatchers.io()) {
@@ -121,7 +117,6 @@ class LoginEmailViewModel @Inject constructor(
                     password = loginState.password.text,
                 )
             }.let {
-                appLogger.e("### e2ei result: $it")
                 when (it) {
                     is RegisterClientResult.Failure -> {
                         updateEmailLoginError(it.toLoginError())
@@ -129,11 +124,11 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId), false, it.client.id,null)
+                        onSuccess(isInitialSyncCompleted(storedUserId), false)
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId), true, it.client.id,it.userId)
+                        onSuccess(isInitialSyncCompleted(storedUserId), true)
                         return@launch
                     }
                 }
@@ -226,7 +221,7 @@ class LoginEmailViewModel @Inject constructor(
         loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 
-    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit) {
+    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
             login(onSuccess)

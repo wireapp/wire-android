@@ -76,10 +76,10 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     val state: RemoveDeviceState = viewModel.state
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
 
-    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) = navigator.navigate(
+    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired)
-                E2EIEnrollmentScreenDestination(clientId.value, userId!!.value, userId.domain)
+                E2EIEnrollmentScreenDestination
             else if (initialSyncCompleted)
                 HomeScreenDestination
             else

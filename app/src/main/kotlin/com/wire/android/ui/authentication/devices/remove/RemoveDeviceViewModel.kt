@@ -28,8 +28,6 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
-import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
@@ -94,7 +92,7 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit) {
+    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -115,7 +113,7 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit) {
+    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(password, null)
         ).also { result ->
@@ -127,8 +125,8 @@ class RemoveDeviceViewModel @Inject constructor(
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
-                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first(), false, result.client.id,null)
-                is RegisterClientResult.E2EICertificateRequired -> onCompleted(userDataStore.initialSyncCompleted.first(), true, result.client.id, result.userId)
+                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first(), false)
+                is RegisterClientResult.E2EICertificateRequired -> onCompleted(userDataStore.initialSyncCompleted.first(), true)
             }
         }
     }
@@ -136,7 +134,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private suspend fun deleteClient(
         password: String?,
         device: Device,
-        onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit
+        onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
     ) {
         when (val deleteResult = deleteClientUseCase(DeleteClientParam(password, device.clientId))) {
             is DeleteClientResult.Failure.Generic -> {
@@ -154,7 +152,7 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit) {
+    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = true, removeEnabled = false)) }
             viewModelScope.launch {

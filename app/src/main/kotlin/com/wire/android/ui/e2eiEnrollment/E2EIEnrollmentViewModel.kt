@@ -21,32 +21,21 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.appLogger
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.debug.DebugDataOptionsState
-import com.wire.android.ui.navArgs
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.E2EIFailure
-import com.wire.kalium.logic.data.client.ClientRepository
-import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.client.RegisterMLSClientUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.session.UpgradeCurrentSessionUseCase
-import com.wire.kalium.logic.functional.flatMap
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.functional.fold
-import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class E2EIEnrollmentState(
@@ -54,22 +43,52 @@ data class E2EIEnrollmentState(
     val showCertificate: Boolean = false,
     val isLoading: Boolean = false,
     val isCertificateEnrollError: Boolean = false,
-    val isCertificateEnrollSuccess: Boolean = false
+    val isCertificateEnrollSuccess: Boolean = false,
+    val showCancelLoginDialog: Boolean = false
 )
 
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
     private val e2eiCertificateUseCase: GetE2EICertificateUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    savedStateHandle: SavedStateHandle,
-    ) : ViewModel() {
+    private val currentSession: CurrentSessionUseCase,
+    private val deleteSession: DeleteSessionUseCase,
+    private val switchAccount: AccountSwitchUseCase
+) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
+    fun onBackButtonClicked() {
+        state = state.copy(showCancelLoginDialog = true)
+    }
 
-    private val e2EIEnrollmentNavArgs: E2EIEnrollmentNavArgs = savedStateHandle.navArgs()
-
+    fun onProceedLoginClicked() {
+        state = state.copy(showCancelLoginDialog = false)
+    }
+    fun onCancelLoginClicked(switchAccountActions: SwitchAccountActions) {
+        state = state.copy(showCancelLoginDialog = false)
+        viewModelScope.launch {
+            currentSession().let {
+                when (it) {
+                    is CurrentSessionResult.Success -> {
+                        deleteSession(it.accountInfo.userId)
+                    }
+                    is CurrentSessionResult.Failure.Generic -> {
+                        appLogger.e("failed to delete session")
+                    }
+                    CurrentSessionResult.Failure.SessionNotFound -> {
+                        appLogger.e("session not found")
+                    }
+                }
+            }
+        }.invokeOnCompletion {
+            viewModelScope.launch {
+                switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+                    .callAction(switchAccountActions)
+            }
+        }
+    }
     fun enrollE2EICertificate(context: Context) {
         state = state.copy(isLoading = true)
-        e2eiCertificateUseCase(context, ClientId(e2EIEnrollmentNavArgs.clientId)) { result ->
+        e2eiCertificateUseCase(context) { result ->
             result.fold({
                 state = state.copy(
                     isLoading = false,
@@ -85,13 +104,6 @@ class E2EIEnrollmentViewModel @Inject constructor(
                     )
                 }
             })
-        }
-    }
-
-    fun finishUp() {
-        viewModelScope.launch {
-            val clientScope = clientScopeProviderFactory.create(UserId(e2EIEnrollmentNavArgs.userId, e2EIEnrollmentNavArgs.userDomain)).clientScope
-            clientScope.getOrRegister.invoke(ClientId(e2EIEnrollmentNavArgs.clientId))
         }
     }
 

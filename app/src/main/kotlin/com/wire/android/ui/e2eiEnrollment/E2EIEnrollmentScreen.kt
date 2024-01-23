@@ -17,78 +17,80 @@
  */
 package com.wire.android.ui.e2eiEnrollment
 
-import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
+import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
-@Destination(navArgsDelegate = E2EIEnrollmentNavArgs::class)
+@Destination(
+    style = PopUpNavigationAnimation::class
+)
 @Composable
 fun E2EIEnrollmentScreen(
     navigator: Navigator,
-    viewModel: E2EIEnrollmentViewModel = hiltViewModel()
+    viewModel: E2EIEnrollmentViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
     val context = LocalContext.current
 
     E2EIEnrollmentScreenContent(state = state,
         dismissSuccess = {
-            viewModel.finishUp()
             navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
         enrollE2EICertificate = { viewModel.enrollE2EICertificate(context) },
         openCertificateDetails = {
-            viewModel.finishUp()
             navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
-        }
+        },
+        onBackButtonClicked = viewModel::onBackButtonClicked,
+        onCancelLoginClicked = { viewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
+        onProceedLoginClicked = viewModel::onProceedLoginClicked
     )
 }
 
@@ -98,15 +100,44 @@ private fun E2EIEnrollmentScreenContent(
     dismissSuccess: () -> Unit,
     dismissErrorDialog: () -> Unit,
     enrollE2EICertificate: () -> Unit,
-    openCertificateDetails: () -> Unit
+    openCertificateDetails: () -> Unit,
+    onBackButtonClicked: () -> Unit,
+    onCancelLoginClicked: () -> Unit,
+    onProceedLoginClicked: () -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
-
+    BackHandler {
+        onBackButtonClicked()
+    }
+    val cancelLoginDialogState = rememberVisibilityState<CancelLoginDialogState>()
+    CancelLoginDialogContent(
+        dialogState = cancelLoginDialogState,
+        onActionButtonClicked = {
+            onCancelLoginClicked()
+        },
+        onProceedButtonClicked = {
+            onProceedLoginClicked()
+        }
+    )
+    if (state.showCancelLoginDialog) {
+        cancelLoginDialogState.show(
+            cancelLoginDialogState.savedState ?: CancelLoginDialogState
+        )
+    } else {
+        cancelLoginDialogState.dismiss()
+    }
     WireScaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = onBackButtonClicked
+            )
+        },
         bottomBar = {
             Column(
                 Modifier
-                    .background(MaterialTheme.wireColorScheme.surface)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             ) {
                 WirePrimaryButton(
@@ -123,22 +154,13 @@ private fun E2EIEnrollmentScreenContent(
                 )
             }
         }
-    ) {
+    ) {internalPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding)),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.padding(PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding))
         ) {
-            Text(
-                text = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
-                style = MaterialTheme.wireTypography.title02,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(dimensions().spacing16x))
+            Spacer(modifier = Modifier.height(internalPadding.calculateTopPadding()))
             val text = buildAnnotatedString {
                 val style = SpanStyle(
                     color = colorsScheme().onBackground,
@@ -187,7 +209,7 @@ private fun E2EIEnrollmentScreenContent(
 @Composable
 fun previewE2EIEnrollmentScreenContent() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(), {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(E2EIEnrollmentState(), {}, {}, {}, {}, {}, {}) { }
     }
 }
 
@@ -195,7 +217,7 @@ fun previewE2EIEnrollmentScreenContent() {
 @Composable
 fun previewE2EIEnrollmentScreenContentWithSuccess() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollSuccess = true), {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollSuccess = true), {}, {}, {}, {}, {}, {}) { }
     }
 }
 
@@ -203,7 +225,7 @@ fun previewE2EIEnrollmentScreenContentWithSuccess() {
 @Composable
 fun previewE2EIEnrollmentScreenContentWithError() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}, {}, {}, {}) { }
     }
 }
 

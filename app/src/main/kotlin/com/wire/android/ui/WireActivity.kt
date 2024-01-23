@@ -66,6 +66,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
@@ -148,6 +149,7 @@ class WireActivity : AppCompatActivity() {
         val startDestination = when (viewModel.initialAppState) {
             InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
             InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+            InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
             InitialAppState.LOGGED_IN -> HomeScreenDestination
         }
         setComposableContent(startDestination) {

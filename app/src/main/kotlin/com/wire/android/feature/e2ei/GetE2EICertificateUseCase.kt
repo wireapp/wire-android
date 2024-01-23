@@ -41,10 +41,10 @@ class GetE2EICertificateUseCase @Inject constructor(
     private lateinit var initialEnrollmentResult: E2EIEnrollmentResult.Initialized
     lateinit var enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
 
-    operator fun invoke(context: Context, clientId:ClientId?=null, enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit) {
+    operator fun invoke(context: Context, enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit) {
         this.enrollmentResultHandler = enrollmentResultHandler
         scope.launch {
-            enrollE2EI.initialEnrollment(clientId).fold({
+            enrollE2EI.initialEnrollment().fold({
                 enrollmentResultHandler(Either.Left(it))
             }, {
                 if (it is E2EIEnrollmentResult.Initialized) {

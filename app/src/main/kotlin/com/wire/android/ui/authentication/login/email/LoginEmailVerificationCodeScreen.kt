@@ -43,12 +43,10 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.typography
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, clientId: ClientId, userId: UserId?) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     viewModel: LoginEmailViewModel = hiltViewModel()
 ) = LoginEmailVerificationCodeContent(
     viewModel.secondFactorVerificationCodeState,

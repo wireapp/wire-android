@@ -31,6 +31,7 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
+import com.wire.android.di.ObserverE2EIRequiredUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
@@ -110,6 +111,7 @@ class WireActivityViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
+    private val ovserverE2EI: ObserverE2EIRequiredUseCaseProvider.Factory
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -142,12 +144,16 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
+    private val _observeE2EIState: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
+
     init {
         observeSyncState()
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
+        observerE2EIState()
     }
 
     private fun observeAppThemeState() {
@@ -159,6 +165,18 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
     }
+
+    fun observerE2EIState() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeUserId
+                .flatMapLatest {
+                    it?.let { ovserverE2EI.create(it).observerE2EIState() } ?: flowOf(null)
+                }
+                .distinctUntilChanged()
+                .collect { _observeE2EIState.emit(it) }
+        }
+    }
+
 
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
@@ -233,6 +251,7 @@ class WireActivityViewModel @Inject constructor(
         get() = when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
+            blockedByE2EI() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
 
@@ -391,6 +410,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
+    fun blockedByE2EI(): Boolean {
+        return observeE2EIState.value == true
+    }
+
     private fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
         currentSessionFlow().first().let {
@@ -510,5 +533,5 @@ data class GlobalAppState(
 )
 
 enum class InitialAppState {
-    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN
+    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }

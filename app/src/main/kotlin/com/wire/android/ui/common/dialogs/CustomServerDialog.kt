@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.dialogs
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,12 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireItemLabel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -86,25 +87,45 @@ internal fun CustomServerDialog(
                     value = serverLinks.api
                 )
                 if (showDetails) {
-                    for (link in 0..11) {
-                        CustomServerPropertyInfo(
-                            title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
-                            value = "link.url $link"
-                        )
-                    }
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_websocket),
+                        value = serverLinks.webSocket
+                    )
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_blacklist),
+                        value = serverLinks.blackList
+                    )
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_teams),
+                        value = serverLinks.teams
+                    )
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_accounts),
+                        value = serverLinks.accounts
+                    )
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_website),
+                        value = serverLinks.website
+                    )
                 }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensions().spacing8x)
                 ) {
-                    WireItemLabel(
-                        text = if (showDetails) "Hide Details" else "Show Details",
+                    Text(
+                        text = stringResource(id = if (showDetails) R.string.label_hide_details else R.string.label_show_details),
+                        style = MaterialTheme.wireTypography.body02.copy(
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary
+                        ),
                         modifier = Modifier
                             .align(Alignment.End)
-                            .clickable {
-                                showDetails = !showDetails
-                            }
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { showDetails = !showDetails }
+                            )
                     )
                 }
             }
@@ -128,6 +149,7 @@ private fun CustomServerPropertyInfo(
         style = MaterialTheme.wireTypography.body02,
         color = colorsScheme().onBackground,
     )
+    VerticalSpace.x16()
 }
 
 data class CustomServerDialogState(val serverLinks: ServerConfig.Links)

@@ -14,19 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
  */
-package com.wire.android.ui.home.messagecomposer.location
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetValue
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+package com.wire.android.ui.home.conversations.search
 
-@OptIn(ExperimentalMaterial3Api::class)
-data class LocationPickerState(
-    val geoLocatedAddress: GeoLocatedAddress? = null,
-    val isLocationLoading: Boolean = false,
-    val isPermissionDiscarded: Boolean = false,
-    val showPermissionDeniedDialog: Boolean = false,
-    val showLocationSharingError: Boolean = false,
-    val wireModalSheetState: WireModalSheetState = WireModalSheetState(SheetValue.Hidden)
-)
+const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L

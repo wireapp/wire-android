@@ -26,6 +26,7 @@ import android.location.LocationManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationServices
@@ -40,6 +41,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationPickerViewModel @Inject constructor() : ViewModel() {
+
     var state: LocationPickerState by mutableStateOf(LocationPickerState())
         private set
 
@@ -47,16 +49,36 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
         state = state.copy(showPermissionDeniedDialog = false)
     }
 
+    fun onLocationSharingErrorDialogDiscarded() {
+        state = state.copy(showLocationSharingError = false)
+    }
+
     fun onPermissionsDenied() {
         state = state.copy(showPermissionDeniedDialog = true)
     }
 
     private fun toStartLoadingLocationState() {
-        state = state.copy(isLocationLoading = true, geoLocatedAddress = null)
+        state = state.copy(
+            showLocationSharingError = false,
+            isLocationLoading = true,
+            geoLocatedAddress = null
+        )
     }
 
     private fun toLocationLoadedState(geoLocatedAddress: GeoLocatedAddress) {
-        state = state.copy(isLocationLoading = false, geoLocatedAddress = geoLocatedAddress)
+        state = state.copy(
+            showLocationSharingError = false,
+            isLocationLoading = false,
+            geoLocatedAddress = geoLocatedAddress
+        )
+    }
+
+    private fun toLocationError() {
+        state = state.copy(
+            showLocationSharingError = true,
+            isLocationLoading = false,
+            geoLocatedAddress = null,
+        )
     }
 
     fun getCurrentLocation(context: Context) {
@@ -74,23 +96,36 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
     @SuppressLint("MissingPermission")
     private fun getLocationWithGms(context: Context) = viewModelScope.launch {
         appLogger.d("Getting location with GMS")
-        val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-        val currentLocation = locationProvider.getCurrentLocation(PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
-        val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
-        toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+        if (isLocationServicesEnabled(context)) {
+            val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+            val currentLocation = locationProvider.getCurrentLocation(PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
+            val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
+            toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+        } else {
+            toLocationError()
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun getLocationWithoutGms(context: Context) = viewModelScope.launch {
         appLogger.d("Getting location without GMS")
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val networkLocationListener: LocationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).orEmpty()
-                toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), location))
-                locationManager.removeUpdates(this) // important step, otherwise it will keep listening for location changes
+        if (isLocationServicesEnabled(context)) {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val networkLocationListener: LocationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).orEmpty()
+                    toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), location))
+                    locationManager.removeUpdates(this) // important step, otherwise it will keep listening for location changes
+                }
             }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, networkLocationListener)
+        } else {
+            toLocationError()
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, networkLocationListener)
+    }
+
+    private fun isLocationServicesEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return LocationManagerCompat.isLocationEnabled(locationManager)
     }
 }

@@ -18,22 +18,22 @@
 package com.wire.android.ui.home.newconversation.search
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
-import com.wire.android.ui.home.conversations.search.SearchPeopleScreen
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
+import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
+import com.wire.android.ui.home.conversations.search.SearchBarViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
@@ -44,32 +44,27 @@ import com.wire.kalium.logic.data.id.QualifiedID
 fun NewConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
+    searchBarViewModel: SearchBarViewModel = hiltViewModel()
 ) {
-    val searchAllPeopleViewModel = newConversationViewModel as SearchAllPeopleViewModel
-    SearchPeopleScreen(
-        searchPeopleState = searchAllPeopleViewModel.state,
+    val userSearchSignal = searchBarViewModel.userSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
+    val serviceSearchSignal = searchBarViewModel.serviceSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
+    SearchUsersAndServicesScreen(
+        searchState = searchBarViewModel.state,
+        userSearchSignal = userSearchSignal,
+        serviceSearchSignal = serviceSearchSignal,
         searchTitle = stringResource(id = R.string.label_new_conversation),
         actionButtonTitle = stringResource(id = R.string.label_new_group),
-        onSearchQueryChanged = searchAllPeopleViewModel::searchQueryChanged,
+        onServicesSearchQueryChanged = searchBarViewModel::onServiceSearchQueryChanged,
+        onUsersSearchQueryChanged = searchBarViewModel::onUserSearchQueryChanged,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
-        onAddContactToGroup = searchAllPeopleViewModel::addContactToGroup,
-        onRemoveContactFromGroup = searchAllPeopleViewModel::removeContactFromGroup,
-        onAddContact = searchAllPeopleViewModel::addContact,
+        onContactChecked = newConversationViewModel::updateSelectedContacts,
         onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         onClose = navigator::navigateBack,
         onServiceClicked = { },
-        screenType = SearchPeopleScreenType.NEW_CONVERSATION
+        screenType = SearchPeopleScreenType.NEW_CONVERSATION,
+        selectedContacts = newConversationViewModel.newGroupState.selectedUsers
     )
-
-    val context = LocalContext.current
-    val snackbarHostState = LocalSnackbarHostState.current
-
-    LaunchedEffect(Unit) {
-        searchAllPeopleViewModel.infoMessage.collect {
-            snackbarHostState.showSnackbar(it.asString(context.resources))
-        }
-    }
 }

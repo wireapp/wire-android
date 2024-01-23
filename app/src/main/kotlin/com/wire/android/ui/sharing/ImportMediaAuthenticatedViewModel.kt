@@ -37,7 +37,7 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -110,7 +110,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private val searchQueryFlow = mutableSearchQueryFlow
         .asStateFlow()
-        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()

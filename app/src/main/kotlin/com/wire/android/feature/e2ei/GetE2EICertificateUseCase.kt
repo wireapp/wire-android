@@ -22,7 +22,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.getActivity
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.functional.Either

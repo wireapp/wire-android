@@ -80,7 +80,6 @@ fun CreateAccountCodeScreen(
     createAccountCodeViewModel: CreateAccountCodeViewModel = hiltViewModel()
 ) {
     with(createAccountCodeViewModel) {
-        //todo: e2ei is required!
         fun navigateToSummaryScreen() = navigator.navigate(
             NavigationCommand(
                 CreateAccountSummaryScreenDestination(CreateAccountSummaryNavArgs(createAccountNavArgs.flowType)),

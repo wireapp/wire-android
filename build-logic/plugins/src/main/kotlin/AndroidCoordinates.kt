@@ -25,6 +25,6 @@ object AndroidSdk {
 
 object AndroidApp {
     const val id = "com.wire.android"
-    const val versionName = "4.6.0"
+    const val versionName = "4.7.0"
     val versionCode = Versionizer().versionCode
 }

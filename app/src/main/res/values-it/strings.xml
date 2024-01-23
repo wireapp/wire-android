@@ -401,7 +401,9 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="asset_message_saved_externally_text">Salvato</string>
     <string name="asset_message_failed_download_text">File non disponibile</string>
     <string name="asset_message_failed_upload_text">Caricamento del file non riuscito</string>
-    <string name="asset_download_dialog_text">Vuoi aprire il file o salvarlo nella cartella dei download del tuo dispositivo?</string>
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
+ </string>
     <string name="asset_download_dialog_open_text">Apri</string>
     <string name="asset_download_dialog_save_text">Salva</string>
     <string name="member_name_deleted_label">Account eliminato</string>
@@ -607,8 +609,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_failed_add_members_summary">Impossibile aggiungere %1$s **partecipanti** al gruppo.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Impossibile aggiungere %1$s al gruppo.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Impossibile aggiungere %1$s al gruppo.</string>
-    <string name="label_system_message_conversation_degraded_mls">Questa conversazione non è più verificata, poiché alcuni utenti utilizzano almeno un dispositivo privo del certificato di identità end-to-end.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Questa conversazione non è più verificata, poiché alcuni utenti utilizzano almeno un dispositivo privo del certificato di identità end-to-end.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">Tutti i dispositivi sono verificati (identità end-to-end)</string>
     <string name="label_system_message_conversation_verified_proteus">Tutte le impronte digitali sono verificate (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">La comunicazione su Wire è sempre crittografata end-to-end. Tutto ciò che invii e ricevi in questa conversazione è accessibile soltanto a te e agli altri partecipanti del gruppo.\n**Ti preghiamo di prestare comunque attenzione a con chi condividi le informazioni sensibili.**</string>
@@ -708,8 +710,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
     <string name="label_conversation_files">File</string>
-    <string name="label_conversation_pictures_empty">Nessuna immagine è stata ancora condivisa in questa conversazione 🥲</string>
-    <string name="label_conversation_files_empty">Ancora nessun file è stato condiviso in questa conversazione 🙀</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -1336,4 +1338,5 @@ registrato. Sei pregato di riprovare.</string>
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

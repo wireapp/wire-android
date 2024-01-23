@@ -1,6 +1,8 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues>
+    <ID>ModifierOrder:LocationPickerHelper.kt$LocationPickerHelper$@SuppressLint("MissingPermission") inline suspend</ID>
+  </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>CommentSpacing:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:40</ID>
     <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:47</ID>

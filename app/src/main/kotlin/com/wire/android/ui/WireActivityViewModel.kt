@@ -153,13 +153,14 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun observeUpdateAppState() {
-        viewModelScope.launch(dispatchers.io()) {
-            observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
-                .distinctUntilChanged()
-                .collect {
-                    globalAppState = globalAppState.copy(updateAppDialog = it)
-                }
-        }
+        appLogger.d("bring me back")
+//        viewModelScope.launch(dispatchers.io()) {
+//            observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
+//                .distinctUntilChanged()
+//                .collect {
+//                    globalAppState = globalAppState.copy(updateAppDialog = it)
+//                }
+//        }
     }
 
     private fun observeNewClientState() {

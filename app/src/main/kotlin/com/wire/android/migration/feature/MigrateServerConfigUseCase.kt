@@ -29,7 +29,7 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.failure.ServerConfigFailure
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.StoreServerConfigResult
 import com.wire.kalium.logic.functional.Either
@@ -68,12 +68,13 @@ class MigrateServerConfigUseCase @Inject constructor(
     }
 
     private suspend fun ServerConfig.Links.fetchApiVersionAndStore(): Either<CoreFailure, ServerConfig> =
-        coreLogic.getGlobalScope().fetchApiVersion(this).let { // it also already stores the fetched config
+        // scala did not support proxy mode so we can pass null here
+        coreLogic.versionedAuthenticationScope(this)(null).let { // it also already stores the fetched config
             when (it) {
-                is FetchApiVersionResult.Success -> Either.Right(it.serverConfig)
-                FetchApiVersionResult.Failure.TooNewVersion -> Either.Left(ServerConfigFailure.NewServerVersion)
-                FetchApiVersionResult.Failure.UnknownServerVersion -> Either.Left(ServerConfigFailure.UnknownServerVersion)
-                is FetchApiVersionResult.Failure.Generic -> Either.Left(it.genericFailure)
+                is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> Either.Left(it.genericFailure)
+                AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> Either.Left(ServerConfigFailure.NewServerVersion)
+                AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> Either.Left(ServerConfigFailure.UnknownServerVersion)
+                is AutoVersionAuthScopeUseCase.Result.Success -> Either.Right(TODO())
             }
         }
 

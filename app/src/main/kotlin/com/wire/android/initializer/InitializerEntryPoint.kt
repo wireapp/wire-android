@@ -15,18 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.location
+package com.wire.android.initializer
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetValue
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import android.content.Context
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
-@OptIn(ExperimentalMaterial3Api::class)
-data class LocationPickerState(
-    val geoLocatedAddress: GeoLocatedAddress? = null,
-    val isLocationLoading: Boolean = false,
-    val isPermissionDiscarded: Boolean = false,
-    val showPermissionDeniedDialog: Boolean = false,
-    val showLocationSharingError: Boolean = false,
-    val wireModalSheetState: WireModalSheetState = WireModalSheetState(SheetValue.Hidden)
-)
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface InitializerEntryPoint {
+
+    companion object {
+        // a helper method to resolve the InitializerEntryPoint from the context
+        fun resolve(context: Context): InitializerEntryPoint {
+            val appContext = context.applicationContext ?: throw IllegalStateException()
+            return EntryPointAccessors.fromApplication(appContext, InitializerEntryPoint::class.java)
+        }
+    }
+}

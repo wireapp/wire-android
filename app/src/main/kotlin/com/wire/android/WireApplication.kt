@@ -37,6 +37,7 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
+import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -48,29 +49,29 @@ class WireApplication : Application(), Configuration.Provider {
 
     @Inject
     @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    lateinit var coreLogic: Lazy<CoreLogic>
 
     @Inject
-    lateinit var logFileWriter: LogFileWriter
+    lateinit var logFileWriter: Lazy<LogFileWriter>
 
     @Inject
-    lateinit var connectionPolicyManager: ConnectionPolicyManager
+    lateinit var connectionPolicyManager: Lazy<ConnectionPolicyManager>
 
     @Inject
-    lateinit var wireWorkerFactory: WireWorkerFactory
+    lateinit var wireWorkerFactory: Lazy<WireWorkerFactory>
 
     @Inject
-    lateinit var globalObserversManager: GlobalObserversManager
+    lateinit var globalObserversManager: Lazy<GlobalObserversManager>
 
     @Inject
-    lateinit var globalDataStore: GlobalDataStore
+    lateinit var globalDataStore: Lazy<GlobalDataStore>
 
     @Inject
     @ApplicationScope
     lateinit var globalAppScope: CoroutineScope
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
-            .setWorkerFactory(wireWorkerFactory)
+            .setWorkerFactory(wireWorkerFactory.get())
             .build()
     }
 
@@ -79,15 +80,19 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableStrictMode()
 
-        this.initGoogleFirebase()
+        globalAppScope.launch {
+            initializeApplicationLoggingFrameworks()
 
-        initializeApplicationLoggingFrameworks()
-        connectionPolicyManager.startObservingAppLifecycle()
+            appLogger.i("$TAG app lifecycle")
+            connectionPolicyManager.get().startObservingAppLifecycle()
 
-        // TODO: Can be handled in one of Sync steps
-        coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+            appLogger.i("$TAG api version update")
+            // TODO: Can be handled in one of Sync steps
+            coreLogic.get().updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
 
-        globalObserversManager.observe()
+            appLogger.i("$TAG global observers")
+            globalObserversManager.get().observe()
+        }
     }
 
     private fun enableStrictMode() {
@@ -111,29 +116,27 @@ class WireApplication : Application(), Configuration.Provider {
         }
     }
 
-    private fun initializeApplicationLoggingFrameworks() {
-        globalAppScope.launch {
-            // 1. Datadog should be initialized first
-            ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore)
-            // 2. Initialize our internal logging framework
-            val isLoggingEnabled = globalDataStore.isLoggingEnabled().first()
-            val config = if (isLoggingEnabled) {
-                KaliumLogger.Config.DEFAULT.apply {
-                    setLogLevel(KaliumLogLevel.VERBOSE)
-                    setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
-                }
-            } else {
-                KaliumLogger.Config.disabled()
+    private suspend fun initializeApplicationLoggingFrameworks() {
+        // 1. Datadog should be initialized first
+        ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore.get())
+        // 2. Initialize our internal logging framework
+        val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
+        val config = if (isLoggingEnabled) {
+            KaliumLogger.Config.DEFAULT.apply {
+                setLogLevel(KaliumLogLevel.VERBOSE)
+                setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
             }
-            // 2. Initialize our internal logging framework
-            AppLogger.init(config)
-            CoreLogger.init(config)
-            // 3. Initialize our internal FILE logging framework
-            logFileWriter.start()
-            // 4. Everything ready, now we can log device info
-            appLogger.i("Logger enabled")
-            logDeviceInformation()
+        } else {
+            KaliumLogger.Config.disabled()
         }
+        // 2. Initialize our internal logging framework
+        AppLogger.init(config)
+        CoreLogger.init(config)
+        // 3. Initialize our internal FILE logging framework
+        logFileWriter.get().start()
+        // 4. Everything ready, now we can log device info
+        appLogger.i("Logger enabled")
+        logDeviceInformation()
     }
 
     private fun logDeviceInformation() {
@@ -159,7 +162,7 @@ class WireApplication : Application(), Configuration.Provider {
     override fun onLowMemory() {
         super.onLowMemory()
         appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
-        logFileWriter.stop()
+        logFileWriter.get().stop()
     }
 
     private companion object {
@@ -180,5 +183,6 @@ class WireApplication : Application(), Configuration.Provider {
                     values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
+        private const val TAG = "WireApplication"
     }
 }

@@ -35,7 +35,7 @@ class LocationPickerViewModelTest {
     fun `given user has device location disabled, when sharing location, then an error message will be shown`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
-            .withGetGeoLocationErrorFrom()
+            .withGetGeoLocationError()
             .arrange()
 
         // when
@@ -77,7 +77,7 @@ class LocationPickerViewModelTest {
             }
         }
 
-        fun withGetGeoLocationErrorFrom() = apply {
+        fun withGetGeoLocationError() = apply {
             coEvery {
                 locationPickerHelper.getLocation(
                     capture(onEngineStartSuccess),

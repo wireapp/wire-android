@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ "$RUN_DETEKT" = true ]; then
+   echo "Running detekt"
+   ./gradlew detektAll
+fi
+
 if [ "$RUN_APP_UNIT_TESTS" = true ] ; then
     echo "Running App Unit Tests"
     ./gradlew :app:${FLAVOR_TYPE}runUnitTest

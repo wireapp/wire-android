@@ -28,5 +28,8 @@
         <meta-data
             android:name="com.google.android.gms.version"
             tools:node="remove" />
+        <service
+            android:name=".services.WireFirebaseMessagingService"
+            tools:node="remove" />
     </application>
 </manifest>

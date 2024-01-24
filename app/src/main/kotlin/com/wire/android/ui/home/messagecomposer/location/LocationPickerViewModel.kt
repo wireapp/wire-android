@@ -70,17 +70,9 @@ class LocationPickerViewModel @Inject constructor(private val locationPickerHelp
 
     fun getCurrentLocation() = viewModelScope.launch {
         toStartLoadingLocationState()
-        when (locationPickerHelper.isGoogleServicesAvailable()) {
-            true -> locationPickerHelper.getLocationWithGms(
-                onSuccess = { toLocationLoadedState(it) },
-                onError = ::toLocationError
-            )
-
-            false -> locationPickerHelper.getLocationWithoutGms(
-                onSuccess = { toLocationLoadedState(it) },
-                onError = ::toLocationError
-            )
-        }
+        locationPickerHelper.getLocation(
+            onSuccess = { toLocationLoadedState(it) },
+            onError = ::toLocationError
+        )
     }
-
 }

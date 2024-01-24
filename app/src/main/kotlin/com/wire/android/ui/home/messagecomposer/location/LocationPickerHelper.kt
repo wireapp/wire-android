@@ -36,8 +36,18 @@ import javax.inject.Singleton
 @Singleton
 class LocationPickerHelper @Inject constructor(@ApplicationContext val context: Context) {
 
-    fun isGoogleServicesAvailable(): Boolean {
-        return context.isGoogleServicesAvailable()
+    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+        if (context.isGoogleServicesAvailable()) {
+            getLocationWithGms(
+                onSuccess = onSuccess,
+                onError = onError
+            )
+        } else {
+            getLocationWithoutGms(
+                onSuccess = onSuccess,
+                onError = onError
+            )
+        }
     }
 
     /**
@@ -45,7 +55,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
      * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
      */
     @SuppressLint("MissingPermission")
-    suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+    private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
             val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation =
@@ -58,7 +68,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
     }
 
     @SuppressLint("MissingPermission")
-    fun getLocationWithoutGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+    private fun getLocationWithoutGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val networkLocationListener: LocationListener = object : LocationListener {
@@ -74,7 +84,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
         }
     }
 
-    fun isLocationServicesEnabled(): Boolean {
+    private fun isLocationServicesEnabled(): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return LocationManagerCompat.isLocationEnabled(locationManager)
     }

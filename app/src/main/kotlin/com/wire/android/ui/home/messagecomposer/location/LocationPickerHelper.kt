@@ -88,5 +88,4 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return LocationManagerCompat.isLocationEnabled(locationManager)
     }
-
 }

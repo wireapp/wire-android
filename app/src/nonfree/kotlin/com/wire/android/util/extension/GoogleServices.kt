@@ -29,15 +29,3 @@ fun Context.isGoogleServicesAvailable(): Boolean {
     val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
     return status == ConnectionResult.SUCCESS
 }
-
-fun Context.initGoogleFirebase() {
-    if (this.isGoogleServicesAvailable()) {
-        val firebaseOptions = FirebaseOptions.Builder()
-            .setApplicationId(BuildConfig.FIREBASE_APP_ID)
-            .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
-            .setApiKey(BuildConfig.GOOGLE_API_KEY)
-            .setProjectId(BuildConfig.FCM_PROJECT_ID)
-            .build()
-        FirebaseApp.initializeApp(this, firebaseOptions)
-    }
-}

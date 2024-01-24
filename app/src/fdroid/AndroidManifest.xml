@@ -31,5 +31,9 @@
         <service
             android:name=".services.WireFirebaseMessagingService"
             tools:node="remove" />
+        <meta-data
+            android:name="com.wire.android.initializer.FirebaseInitializer"
+            tools:node="remove" />
+
     </application>
 </manifest>

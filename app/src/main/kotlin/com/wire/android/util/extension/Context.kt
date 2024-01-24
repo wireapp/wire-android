@@ -25,8 +25,7 @@ import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
+import com.wire.android.util.extension._isGoogleServicesAvailable
 
 fun Context.checkPermission(permission: String): Boolean {
     return ContextCompat.checkSelfPermission(this, permission) ==
@@ -34,8 +33,7 @@ fun Context.checkPermission(permission: String): Boolean {
 }
 
 fun Context.isGoogleServicesAvailable(): Boolean {
-    val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
-    return status == ConnectionResult.SUCCESS
+    return _isGoogleServicesAvailable()
 }
 
 fun Context.getActivity(): AppCompatActivity? = when (this) {

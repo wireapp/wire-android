@@ -63,6 +63,14 @@
             "application_is_private_build": true,
             "development_api_enabled": false,
             "mls_support_enabled": true
+        },
+        "fdroid": {
+            "application_id": "com.wire",
+            "developer_features_enabled": false,
+            "logging_enabled": false,
+            "application_is_private_build": false,
+            "development_api_enabled": false,
+            "mls_support_enabled": false
         }
     },
     "application_name": "Wire",

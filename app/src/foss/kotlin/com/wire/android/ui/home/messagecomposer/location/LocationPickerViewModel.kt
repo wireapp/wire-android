@@ -42,6 +42,10 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
         state = state.copy(showPermissionDeniedDialog = false)
     }
 
+    fun onLocationSharingErrorDialogDiscarded() {
+        state = state.copy(showLocationSharingError = false)
+    }
+
     fun onPermissionsDenied() {
         state = state.copy(showPermissionDeniedDialog = true)
     }
@@ -52,6 +56,14 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
 
     private fun toLocationLoadedState(geoLocatedAddress: GeoLocatedAddress) {
         state = state.copy(isLocationLoading = false, geoLocatedAddress = geoLocatedAddress)
+    }
+
+    private fun toLocationError() {
+        state = state.copy(
+            showLocationSharingError = true,
+            isLocationLoading = false,
+            geoLocatedAddress = null,
+        )
     }
 
     fun getCurrentLocation(context: Context) {
@@ -75,5 +87,10 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
         } else {
             toLocationError()
         }
+    }
+
+    private fun isLocationServicesEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return LocationManagerCompat.isLocationEnabled(locationManager)
     }
 }

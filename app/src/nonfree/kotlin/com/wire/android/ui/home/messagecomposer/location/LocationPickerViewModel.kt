@@ -79,18 +79,4 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
         val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
         toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), currentLocation))
     }
-
-    @SuppressLint("MissingPermission")
-    private fun getLocationWithoutGms(context: Context) = viewModelScope.launch {
-        appLogger.d("Getting location without GMS")
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val networkLocationListener: LocationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                val address = Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).orEmpty()
-                toLocationLoadedState(GeoLocatedAddress(address.firstOrNull(), location))
-                locationManager.removeUpdates(this) // important step, otherwise it will keep listening for location changes
-            }
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, networkLocationListener)
-    }
 }

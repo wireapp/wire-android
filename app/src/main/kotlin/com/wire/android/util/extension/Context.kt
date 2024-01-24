@@ -23,15 +23,10 @@ import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.wire.android.util.extension._isGoogleServicesAvailable
 
 fun Context.checkPermission(permission: String): Boolean {
     return ContextCompat.checkSelfPermission(this, permission) ==
             PackageManager.PERMISSION_GRANTED
-}
-
-fun Context.isGoogleServicesAvailable(): Boolean {
-    return _isGoogleServicesAvailable()
 }
 
 fun Context.getActivity(): AppCompatActivity? = when (this) {

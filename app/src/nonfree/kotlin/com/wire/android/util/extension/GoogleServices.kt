@@ -20,12 +20,25 @@
 
 package com.wire.android.util.extension
 
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import android.content.Context
 
-fun Context._isGoogleServicesAvailable(): Boolean {
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+
+
+fun isGoogleServicesAvailable(): Boolean {
     val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
     return status == ConnectionResult.SUCCESS
 }
 
+fun Context.initGoogleFirebase() {
+    if (this.isGoogleServicesAvailable()) {
+        val firebaseOptions = FirebaseOptions.Builder()
+            .setApplicationId(BuildConfig.FIREBASE_APP_ID)
+            .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
+            .setApiKey(BuildConfig.GOOGLE_API_KEY)
+            .setProjectId(BuildConfig.FCM_PROJECT_ID)
+            .build()
+        FirebaseApp.initializeApp(this, firebaseOptions)
+    }
+}

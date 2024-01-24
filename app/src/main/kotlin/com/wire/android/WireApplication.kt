@@ -24,14 +24,12 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
-import com.wire.android.util.extension.isGoogleServicesAvailable
+import com.wire.android.util.extension.initGoogleFirebase
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.workmanager.WireWorkerFactory
@@ -81,15 +79,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableStrictMode()
 
-        if (this.isGoogleServicesAvailable()) {
-            val firebaseOptions = FirebaseOptions.Builder()
-                .setApplicationId(BuildConfig.FIREBASE_APP_ID)
-                .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
-                .setApiKey(BuildConfig.GOOGLE_API_KEY)
-                .setProjectId(BuildConfig.FCM_PROJECT_ID)
-                .build()
-            FirebaseApp.initializeApp(this, firebaseOptions)
-        }
+        this.initGoogleFirebase()
 
         initializeApplicationLoggingFrameworks()
         connectionPolicyManager.startObservingAppLifecycle()

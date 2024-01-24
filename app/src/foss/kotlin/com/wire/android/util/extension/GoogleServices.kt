@@ -20,7 +20,6 @@
 
 package com.wire.android.util.extension
 
-// Stub _isGoogleServicesAvailable to disable it
-fun _isGoogleServicesAvailable(): Boolean {
-    return false
-}
+import android.content.Context
+
+fun Context.initGoogleFirebase() {}

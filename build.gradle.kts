@@ -25,7 +25,7 @@ buildscript {
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
-        var fdroidBuild = gradle.startParameter.taskRequests.toString().toLowerCase().contains("fdroid")
+        var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
 	    if (fdroidBuild) {
             println("Not including gms")
         } else {

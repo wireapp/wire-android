@@ -26,5 +26,5 @@ fun Context.isGoogleServicesAvailable(): Boolean {
     val returnValue: Boolean = false
     return returnValue
 }
-
-fun Context.initGoogleFirebase() {}
+x
+fun Context.initGoogleFirebase() { /* Stub for compatibility */ }

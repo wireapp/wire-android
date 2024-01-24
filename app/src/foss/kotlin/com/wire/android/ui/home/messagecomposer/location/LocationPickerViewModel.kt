@@ -72,7 +72,8 @@ class LocationPickerViewModel @Inject constructor() : ViewModel() {
                 }
             }
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, networkLocationListener)
-    } else {
-        toLocationError()
+        } else {
+            toLocationError()
+        }
     }
 }

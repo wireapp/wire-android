@@ -58,7 +58,28 @@ android {
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
     android.buildFeatures.buildConfig = true
+
+    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+    sourceSets {
+        // Add the "foss" sourceSets for the fdroid flavor
+        if(fdroidBuild) {
+            getByName("main") {
+                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                resources.srcDirs("src/prod/res")
+                println("supsup")
+            }
+        // For all other flavors use the "nonfree" sourceSets
+        } else {
+            getByName("main") {
+                java.srcDirs("src/nonfree/kotlin")
+                println("supsup1")
+            }
+        }
+    }
 }
+
+
+
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")

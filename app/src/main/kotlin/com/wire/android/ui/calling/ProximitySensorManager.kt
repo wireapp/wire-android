@@ -31,6 +31,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import dagger.Lazy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,8 +40,8 @@ import javax.inject.Singleton
 @Singleton
 class ProximitySensorManager @Inject constructor(
     private val context: Context,
-    private val currentSession: CurrentSessionUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val currentSession: Lazy<CurrentSessionUseCase>,
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     @ApplicationScope private val appCoroutineScope: CoroutineScope
 ) {
 
@@ -69,11 +70,11 @@ class ProximitySensorManager @Inject constructor(
 
         override fun onSensorChanged(event: SensorEvent) {
             appCoroutineScope.launch {
-                coreLogic.globalScope {
-                    when (val currentSession = currentSession()) {
+                coreLogic.get().globalScope {
+                    when (val currentSession = currentSession.get().invoke()) {
                         is CurrentSessionResult.Success -> {
                             val userId = currentSession.accountInfo.userId
-                            val isCallRunning = coreLogic.getSessionScope(userId).calls.isCallRunning()
+                            val isCallRunning = coreLogic.get().getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
                             val shouldTurnOffScreen = distance == NEAR_DISTANCE && isCallRunning
                             appLogger.i(

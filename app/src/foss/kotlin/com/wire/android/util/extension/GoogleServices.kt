@@ -23,7 +23,8 @@ package com.wire.android.util.extension
 import android.content.Context
 
 fun Context.isGoogleServicesAvailable(): Boolean {
-    return false
+    val returnValue: Boolean = false
+    return returnValue
 }
 
 fun Context.initGoogleFirebase() {}

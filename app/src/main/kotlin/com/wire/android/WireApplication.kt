@@ -29,7 +29,6 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
-import com.wire.android.util.extension.initGoogleFirebase
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.workmanager.WireWorkerFactory

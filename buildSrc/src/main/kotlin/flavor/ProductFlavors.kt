@@ -18,6 +18,7 @@ sealed class ProductFlavors(
     object Beta : ProductFlavors("beta", "Wire Beta")
     object Internal : ProductFlavors("internal", "Wire Internal")
     object Production : ProductFlavors("prod", "Wire", shareduserId = "com.waz.userid")
+    object Fdroid : ProductFlavors("fdroid", "Wire", shareduserId = "com.waz.userid")
 
     companion object {
         val all: Collection<ProductFlavors> = setOf(
@@ -26,6 +27,7 @@ sealed class ProductFlavors(
             Beta,
             Internal,
             Production,
+            Fdroid,
         )
     }
 }

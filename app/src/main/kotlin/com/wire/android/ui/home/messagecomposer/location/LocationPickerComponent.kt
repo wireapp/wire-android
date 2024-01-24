@@ -81,7 +81,7 @@ fun LocationPickerComponent(
     val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
     val locationFlow = LocationFlow(
-        onCurrentLocationPicked = { viewModel.getCurrentLocation() },
+        onCurrentLocationPicked = viewModel::getCurrentLocation,
         onLocationDenied = viewModel::onPermissionsDenied
     )
     LaunchedEffect(Unit) {

@@ -44,6 +44,16 @@ class LocationPickerViewModel @Inject constructor(private val locationPickerHelp
         state = state.copy(showPermissionDeniedDialog = true)
     }
 
+    fun getCurrentLocation() {
+        viewModelScope.launch {
+            toStartLoadingLocationState()
+            locationPickerHelper.getLocation(
+                onSuccess = { toLocationLoadedState(it) },
+                onError = ::toLocationError
+            )
+        }
+    }
+
     private fun toStartLoadingLocationState() {
         state = state.copy(
             showLocationSharingError = false,
@@ -65,14 +75,6 @@ class LocationPickerViewModel @Inject constructor(private val locationPickerHelp
             showLocationSharingError = true,
             isLocationLoading = false,
             geoLocatedAddress = null,
-        )
-    }
-
-    fun getCurrentLocation() = viewModelScope.launch {
-        toStartLoadingLocationState()
-        locationPickerHelper.getLocation(
-            onSuccess = { toLocationLoadedState(it) },
-            onError = ::toLocationError
         )
     }
 }

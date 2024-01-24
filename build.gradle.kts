@@ -25,7 +25,13 @@ buildscript {
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
-        classpath(libs.googleGms.gradlePlugin)
+        var fdroidBuild = gradle.startParameter.taskRequests.toString().toLowerCase().contains("fdroid")
+	    if (fdroidBuild) {
+            println("Not including gms")
+        } else {
+            println("Including gms")
+            classpath(libs.googleGms.gradlePlugin)
+        }
         classpath(libs.aboutLibraries.gradlePlugin)
     }
 }
@@ -44,3 +50,4 @@ plugins {
     id(ScriptPlugins.infrastructure)
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
 }
+

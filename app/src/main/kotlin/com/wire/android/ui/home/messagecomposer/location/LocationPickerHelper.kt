@@ -45,7 +45,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
      * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
      */
     @SuppressLint("MissingPermission")
-    suspend inline fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+    suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
             val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation =
@@ -58,7 +58,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
     }
 
     @SuppressLint("MissingPermission")
-    inline fun getLocationWithoutGms(crossinline onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+    fun getLocationWithoutGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val networkLocationListener: LocationListener = object : LocationListener {

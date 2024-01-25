@@ -29,6 +29,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.appLogger
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.removeQueryParams
+import kotlinx.serialization.json.JsonObject
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
@@ -55,7 +56,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class OAuthUseCase(context: Context, private val authUrl: String, private val keyAuth: String, private val acmeAud: String, oAuthState: String?) {
+class OAuthUseCase(context: Context, private val authUrl: String, private val claims: JsonObject, oAuthState: String?) {
     private var authState: AuthState = oAuthState?.let {
         AuthState.jsonDeserialize(it)
     } ?: AuthState()
@@ -180,18 +181,8 @@ class OAuthUseCase(context: Context, private val authUrl: String, private val ke
         AuthorizationRequest.Scope.EMAIL,
         AuthorizationRequest.Scope.PROFILE,
         AuthorizationRequest.Scope.OFFLINE_ACCESS
-    ).setClaims(
-        JSONObject(
-            """
-        {
-            "id_token": {
-                "keyauth": {    "essential": true, "value": "$keyAuth" },
-                "acme_aud": { "essential": true, "value": "$acmeAud" }
-            }
-        }
-    """.trimIndent()
-        )
-    ).build()
+    ).setClaims(JSONObject(claims.toString()))
+        .build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
         val codeVerifier = getCodeVerifier()

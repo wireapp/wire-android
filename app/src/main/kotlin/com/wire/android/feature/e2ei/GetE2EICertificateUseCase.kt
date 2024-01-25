@@ -52,7 +52,7 @@ class GetE2EICertificateUseCase @Inject constructor(
             }, {
                 if (it is E2EIEnrollmentResult.Initialized) {
                     initialEnrollmentResult = it
-                    OAuthUseCase(context, it.target, it.keyAuth,it.acmeAud, it.oAuthState).launch(
+                    OAuthUseCase(context, it.target, it.oAuthClaims, it.oAuthState).launch(
                         context.getActivity()!!.activityResultRegistry,
                         ::oAuthResultHandler
                     )

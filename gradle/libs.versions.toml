@@ -69,7 +69,7 @@ openIdAppAuth = "0.11.1"
 # Other Tools
 aboutLibraries = "10.8.0"
 leakCanary = "2.7"
-ksp = "1.9.0-1.0.12"
+ksp = "1.9.22-1.0.17"
 
 # Benchmark
 benchmark-macro-junit4 = "1.2.0-beta05"

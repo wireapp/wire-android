@@ -123,7 +123,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun enrollE2eiCertificate(context: Context) {
         state = state.copy(isLoadingCertificate = true)
-        enrolE2EICertificateUseCase(context) { result ->
+        enrolE2EICertificateUseCase(context, false) { result ->
             result.fold({
                 state = state.copy(
                     isLoadingCertificate = false,

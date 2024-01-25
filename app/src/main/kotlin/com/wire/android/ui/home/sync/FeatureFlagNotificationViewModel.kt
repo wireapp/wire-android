@@ -275,7 +275,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
         featureFlagState = featureFlagState.copy(isE2EILoading = true)
         currentUserId?.let { userId ->
-            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(context) { result ->
+            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(
+                context,
+                isNewClient = false
+            ) { result ->
                 result.fold({
                     featureFlagState = featureFlagState.copy(
                         isE2EILoading = false,

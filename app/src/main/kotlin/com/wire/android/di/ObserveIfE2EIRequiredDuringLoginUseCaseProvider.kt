@@ -23,15 +23,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class ObserverE2EIRequiredUseCaseProvider @AssistedInject constructor(
+class ObserveIfE2EIRequiredDuringLoginUseCaseProvider @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     @Assisted
     private val userId: UserId
 ) {
-    suspend fun observerE2EIState() = coreLogic.getSessionScope(userId).observerE2EiBlocked()
+    suspend fun observeIfE2EIIsRequiredDuringLogin() = coreLogic.getSessionScope(userId).observeIfE2EIRequiredDuringLogin()
 
     @AssistedFactory
     interface Factory {
-        fun create(userId: UserId): ObserverE2EIRequiredUseCaseProvider
+        fun create(userId: UserId): ObserveIfE2EIRequiredDuringLoginUseCaseProvider
     }
 }

@@ -81,6 +81,7 @@ fun E2EIEnrollmentScreen(
     E2EIEnrollmentScreenContent(state = state,
         dismissSuccess = {
             navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+            viewModel.finalizeMLSClient()
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
         enrollE2EICertificate = { viewModel.enrollE2EICertificate(context) },
@@ -88,8 +89,8 @@ fun E2EIEnrollmentScreen(
             navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
         },
         onBackButtonClicked = viewModel::onBackButtonClicked,
-        onCancelLoginClicked = { viewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
-        onProceedLoginClicked = viewModel::onProceedLoginClicked
+        onCancelEnrollmentClicked = { viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate)) },
+        onProceedEnrollmentClicked = viewModel::onProceedEnrollmentClicked
     )
 }
 
@@ -101,8 +102,8 @@ private fun E2EIEnrollmentScreenContent(
     enrollE2EICertificate: () -> Unit,
     openCertificateDetails: () -> Unit,
     onBackButtonClicked: () -> Unit,
-    onCancelLoginClicked: () -> Unit,
-    onProceedLoginClicked: () -> Unit
+    onCancelEnrollmentClicked: () -> Unit,
+    onProceedEnrollmentClicked: () -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
     BackHandler {
@@ -112,10 +113,10 @@ private fun E2EIEnrollmentScreenContent(
     CancelLoginDialogContent(
         dialogState = cancelLoginDialogState,
         onActionButtonClicked = {
-            onCancelLoginClicked()
+            onCancelEnrollmentClicked()
         },
         onProceedButtonClicked = {
-            onProceedLoginClicked()
+            onProceedEnrollmentClicked()
         }
     )
     if (state.showCancelLoginDialog) {

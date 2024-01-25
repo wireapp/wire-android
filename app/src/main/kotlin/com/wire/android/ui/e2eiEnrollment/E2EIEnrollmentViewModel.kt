@@ -24,11 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.di.ClientScopeProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -50,20 +50,28 @@ data class E2EIEnrollmentState(
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
     private val e2eiCertificateUseCase: GetE2EICertificateUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollment,
     private val currentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
     private val switchAccount: AccountSwitchUseCase
 ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())
+
+    fun finalizeMLSClient() {
+        viewModelScope.launch {
+            finalizeMLSClientAfterE2EIEnrollment.invoke()
+        }
+    }
+
     fun onBackButtonClicked() {
         state = state.copy(showCancelLoginDialog = true)
     }
 
-    fun onProceedLoginClicked() {
+    fun onProceedEnrollmentClicked() {
         state = state.copy(showCancelLoginDialog = false)
     }
-    fun onCancelLoginClicked(switchAccountActions: SwitchAccountActions) {
+
+    fun onCancelEnrollmentClicked(switchAccountActions: SwitchAccountActions) {
         state = state.copy(showCancelLoginDialog = false)
         viewModelScope.launch {
             currentSession().let {
@@ -88,7 +96,7 @@ class E2EIEnrollmentViewModel @Inject constructor(
     }
     fun enrollE2EICertificate(context: Context) {
         state = state.copy(isLoading = true)
-        e2eiCertificateUseCase(context) { result ->
+        e2eiCertificateUseCase(context, true) { result ->
             result.fold({
                 state = state.copy(
                     isLoading = false,

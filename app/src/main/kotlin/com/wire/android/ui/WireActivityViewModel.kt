@@ -29,9 +29,9 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
-import com.wire.android.di.ObserverE2EIRequiredUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
@@ -111,7 +111,7 @@ class WireActivityViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
-    private val ovserverE2EI: ObserverE2EIRequiredUseCaseProvider.Factory
+    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -145,7 +145,7 @@ class WireActivityViewModel @Inject constructor(
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
     private val _observeE2EIState: MutableStateFlow<Boolean?> = MutableStateFlow(null)
-    val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
+    private val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
 
     init {
         observeSyncState()
@@ -170,7 +170,8 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
-                    it?.let { ovserverE2EI.create(it).observerE2EIState() } ?: flowOf(null)
+                    it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
+                        ?: flowOf(null)
                 }
                 .distinctUntilChanged()
                 .collect { _observeE2EIState.emit(it) }

@@ -403,8 +403,8 @@
     <string name="asset_message_saved_externally_text">Mentve</string>
     <string name="asset_message_failed_download_text">A fájl nem elérhető</string>
     <string name="asset_message_failed_upload_text">A fájl feltöltése nem sikerült</string>
-    <string name="asset_download_dialog_text">Megnyitja a fájlt, vagy menti
-        eszköze letöltési mappájába?
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
  </string>
     <string name="asset_download_dialog_open_text">Megnyitás</string>
     <string name="asset_download_dialog_save_text">Mentés</string>
@@ -609,8 +609,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_degraded_mls">Ez a beszélgetés többé nem ellenőrzött, mivel valaki legalább egy eszközt érvényes végpontok közötti azonosító tanúsítvány nélkül használ.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Ez a beszélgetés többé nem ellenőrzött, mivel valaki legalább egy eszközt érvényes végpontok közötti azonosító tanúsítvány nélkül használ.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
     <string name="label_system_message_conversation_verified_proteus">Minden ujjlenyomat ellenőrizve (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">A Wire-ben a kommunikáció mindig titkos a végpontok között. Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a csoport résztvevői számára hozzáférhető.\n**Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.**</string>
@@ -710,8 +710,8 @@
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
     <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
-    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">NÉVJEGYEK</string>
     <string name="label_new_group">Új csoport</string>
@@ -989,7 +989,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Profil megnyitása</string>
     <string name="cant_switch_account_in_call">Nem válthat fiókot hívás közben</string>
     <string name="custom_backend_dialog_title">Átirányítja egy helyi kiszolgálóra?</string>
-    <string name="custom_backend_dialog_body">Ha továbblép, a kliense átirányításra kerül a következő helyi kiszolgálóra:\n\nKiszolgáló neve:\n%1$s\n\nKiszolgáló URL-je:\n%2$s</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Új üzenetek lekérdezése</string>
     <string name="label_text_copied">Szöveg a vágólapra másolva</string>
     <string name="label_logs_option_title">Naplók</string>
@@ -1335,4 +1342,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

@@ -614,8 +614,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку кто-то из пользователей использует по крайней мере одно устройство без действительного сертификата сквозной идентификации.</string>
+    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
+    <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Общение в Wire всегда ведется с использованием сквозного шифрования. Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам группы.\n**Пожалуйста, будьте осторожны с теми, кому вы сообщаете конфиденциальную информацию.**</string>
@@ -741,8 +741,8 @@
     <string name="label_conversation_media">Медиа</string>
     <string name="label_conversation_pictures">Изображения</string>
     <string name="label_conversation_files">Файлы</string>
-    <string name="label_conversation_pictures_empty">В этой беседе пока нет изображений 🥲</string>
-    <string name="label_conversation_files_empty">В этой беседе пока нет файлов 🥲</string>
+    <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
+    <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>
@@ -1024,7 +1024,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>
-    <string name="custom_backend_dialog_body">В случае продолжения клиент будет перенаправлен на следующий локальный бэкэнд:\n\nНазвание бэкэнда:\n%1$s\n\nURL бэкэнда:\n%2$s</string>
+    <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
+    <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>
@@ -1390,4 +1397,5 @@
     <string name="location_attachment_share_title">Поделиться местоположением</string>
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
+    <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
 </resources>

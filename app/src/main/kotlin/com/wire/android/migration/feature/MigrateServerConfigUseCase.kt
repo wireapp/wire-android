@@ -77,5 +77,4 @@ class MigrateServerConfigUseCase @Inject constructor(
                 is AutoVersionAuthScopeUseCase.Result.Success -> Either.Right(TODO())
             }
         }
-
 }

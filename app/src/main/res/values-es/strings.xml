@@ -401,7 +401,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="asset_message_saved_externally_text">Guardado</string>
     <string name="asset_message_failed_download_text">Archivo no disponible</string>
     <string name="asset_message_failed_upload_text">Error al cargar archivo</string>
-    <string name="asset_download_dialog_text">&#191;Desea abrir el archivo o guardarlo en la carpeta de descargas de su dispositivo?</string>
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
+ </string>
     <string name="asset_download_dialog_open_text">Abrir</string>
     <string name="asset_download_dialog_save_text">Guardar</string>
     <string name="member_name_deleted_label">Cuenta eliminada</string>
@@ -607,8 +609,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s no pudieron ser añadidos a la conversación.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s no pudo ser añadido a la conversación.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
@@ -708,8 +710,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
     <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
-    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
     <string name="label_new_group">Nuevo Grupo</string>
@@ -984,13 +986,14 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="max_account_reached_dialog_button_open_profile">Abrir perfil</string>
     <string name="cant_switch_account_in_call">No puedes cambiar de cuenta mientras est&#225;s en una llamada</string>
     <string name="custom_backend_dialog_title">&#191;Redirigir a un backend local?</string>
-    <string name="custom_backend_dialog_body">Si contin&#250;as, tu cliente ser&#225; redirigido al siguiente backend local:
-
-Nombre del backend:
-%1$s
-
-URL del backend:
-%2$s</string>
+    <string name="custom_backend_dialog_body">Si continúa, su cliente será redirigido al siguiente servidor local:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Recibiendo nuevos mensajes</string>
     <string name="label_text_copied">Texto copiado al portapapeles</string>
     <string name="label_logs_option_title">Registros</string>
@@ -1337,4 +1340,5 @@ URL del backend:
     <string name="location_attachment_share_title">Compartir ubicación</string>
     <string name="location_app_permission_dialog_body">Permite a Wire acceder a la ubicación del dispositivo para enviar tu ubicación.</string>
     <string name="location_loading_label">Un momento...</string>
+    <string name="location_could_not_be_shared">No se pudo compartir la ubicación</string>
 </resources>

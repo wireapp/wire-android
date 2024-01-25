@@ -98,6 +98,7 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
+import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -118,7 +119,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var proximitySensorManager: ProximitySensorManager
 
     @Inject
-    lateinit var lockCodeTimeManager: LockCodeTimeManager
+    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
 
     private val viewModel: WireActivityViewModel by viewModels()
 
@@ -134,27 +135,39 @@ class WireActivity : AppCompatActivity() {
     private var shouldKeepSplashOpen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        appLogger.i("$TAG splash install")
         // We need to keep the splash screen open until the first screen is drawn.
         // Otherwise a white screen is displayed.
         // It's an API limitation, at some point we may need to remove it
-        installSplashScreen().setKeepOnScreenCondition {
-            shouldKeepSplashOpen
-        }
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        proximitySensorManager.initialize()
+        splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+
         lifecycle.addObserver(currentScreenManager)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        viewModel.observePersistentConnectionStatus()
-        val startDestination = when (viewModel.initialAppState) {
-            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
-            InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
+        appLogger.i("$TAG proximity sensor")
+        proximitySensorManager.initialize()
+
+        lifecycleScope.launch {
+
+            appLogger.i("$TAG persistent connection status")
+            viewModel.observePersistentConnectionStatus()
+
+            appLogger.i("$TAG start destination")
+            val startDestination = when (viewModel.initialAppState) {
+                InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
+                InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+                InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
             InitialAppState.LOGGED_IN -> HomeScreenDestination
         }
-        setComposableContent(startDestination) {
-            shouldKeepSplashOpen = false
-            handleDeepLink(intent, savedInstanceState)
+            appLogger.i("$TAG composable content")
+            setComposableContent(startDestination) {
+                appLogger.i("$TAG splash hide")
+                shouldKeepSplashOpen = false
+                handleDeepLink(intent, savedInstanceState)
+            }
         }
     }
 
@@ -414,7 +427,7 @@ class WireActivity : AppCompatActivity() {
         super.onResume()
 
         lifecycleScope.launch {
-            lockCodeTimeManager.observeAppLock()
+            lockCodeTimeManager.get().observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .first().let {
@@ -508,6 +521,7 @@ class WireActivity : AppCompatActivity() {
 
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
+        private const val TAG = "WireActivity"
     }
 }
 

@@ -1009,7 +1009,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
+    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
@@ -1360,4 +1367,5 @@
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

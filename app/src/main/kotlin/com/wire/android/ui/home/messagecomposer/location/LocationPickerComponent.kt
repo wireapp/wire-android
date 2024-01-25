@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
@@ -60,6 +59,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
@@ -217,7 +217,7 @@ private fun LocationInformation(geoLocatedAddress: GeoLocatedAddress?) {
 @Composable
 private fun RowScope.LoadingLocation() {
     WireCircularProgressIndicator(
-        progressColor = Color.Black,
+        progressColor = MaterialTheme.wireColorScheme.primary,
         modifier = Modifier.align(alignment = Alignment.CenterVertically)
     )
     HorizontalSpace.x8()

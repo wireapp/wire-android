@@ -9,23 +9,6 @@ if [ "$RUN_APP_UNIT_TESTS" = true ] ; then
     echo "Running App Unit Tests"
     ./gradlew :app:${FLAVOR_TYPE}runUnitTest
 fi
-#else
-   #echo "App Unit Tests will be skipped"
-#fi
-#
-#if [ "$RUN_STORAGE_UNIT_TESTS" = true ] ; then
-    #echo "Running Storage Unit Tests"
-    #./gradlew :storage:test${FLAVOR_TYPE}${BUILD_TYPE}UnitTest
-#else
-    #echo "Storage Unit Tests will be skipped"
-#fi
-#
-#if [ "$RUN_ZMESSAGE_UNIT_TESTS" = true ] ; then
-   #echo "Running ZMessaging Unit Tests"
-   #./gradlew :zmessage:test${BUILD_TYPE}UnitTest
-#else
-   #echo "ZMessaging Unit Tests will be skipped"
-#fi
 
 buildOption=''
 if [ "$BUILD_WITH_STACKTRACE" = true ] ; then

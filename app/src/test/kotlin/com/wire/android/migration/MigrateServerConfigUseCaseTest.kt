@@ -29,7 +29,6 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.StoreServerConfigResult
 import com.wire.kalium.logic.functional.Either
@@ -61,7 +60,6 @@ class MigrateServerConfigUseCaseTest {
             .arrange()
         val result = useCase()
         coVerify(exactly = 1) { arrangement.globalKaliumScope.storeServerConfig(expected.links, versionInfo) }
-        coVerify { arrangement.globalKaliumScope.fetchApiVersion(any()) wasNot Called }
         assert(result.isRight())
         assertEquals(expected, (result as Either.Right).value)
     }
@@ -71,10 +69,8 @@ class MigrateServerConfigUseCaseTest {
         val expected = Arrangement.serverConfig
         val (arrangement, useCase) = Arrangement()
             .withScalaServerConfig(ScalaServerConfig.Links(expected.links))
-            .withFetchApiVersionResult(FetchApiVersionResult.Success(expected))
             .arrange()
         val result = useCase()
-        coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchApiVersion(expected.links) }
         assert(result.isRight())
         assertEquals(expected, (result as Either.Right).value)
     }
@@ -86,11 +82,9 @@ class MigrateServerConfigUseCaseTest {
         val (arrangement, useCase) = Arrangement()
             .withScalaServerConfig(ScalaServerConfig.ConfigUrl(customConfigUrl))
             .withFetchServerConfigFromDeepLinkResult(GetServerConfigResult.Success(expected.links))
-            .withFetchApiVersionResult(FetchApiVersionResult.Success(expected))
             .arrange()
         val result = useCase()
         coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchServerConfigFromDeepLink(customConfigUrl) }
-        coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchApiVersion(expected.links) }
         assert(result.isRight())
         assertEquals(expected, (result as Either.Right).value)
     }
@@ -133,10 +127,6 @@ class MigrateServerConfigUseCaseTest {
         }
         fun withFetchServerConfigFromDeepLinkResult(result : GetServerConfigResult): Arrangement {
             coEvery { globalKaliumScope.fetchServerConfigFromDeepLink(any()) } returns result
-            return this
-        }
-        fun withFetchApiVersionResult(result : FetchApiVersionResult): Arrangement {
-            coEvery { globalKaliumScope.fetchApiVersion(any()) } returns result
             return this
         }
 

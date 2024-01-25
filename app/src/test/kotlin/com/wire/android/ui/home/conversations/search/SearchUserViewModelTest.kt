@@ -77,7 +77,7 @@ class SearchUserViewModelTest {
             )
         }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             arrangement.federatedSearchParser(any())
         }
     }
@@ -114,7 +114,7 @@ class SearchUserViewModelTest {
                 )
             }
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 arrangement.federatedSearchParser(any())
             }
         }
@@ -170,7 +170,7 @@ class SearchUserViewModelTest {
                 )
             }
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 arrangement.federatedSearchParser(any())
             }
 

@@ -1028,11 +1028,11 @@
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>

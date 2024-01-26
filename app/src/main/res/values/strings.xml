@@ -214,7 +214,7 @@
     <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-    <string name="server_details_with_proxy_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s \n\nProxy URL:\n%3$s \n\n\Proxy Authentication:\n%4$s</string>
+    <string name="server_details_with_proxy_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s \n\nProxy URL:\n%3$s \n\n\Proxy authentication:\n%4$s</string>
 
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>

@@ -96,7 +96,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
             state = state.performAction()
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Success -> {
-                    _infoMessage.tryEmit(UIText.StringResource(R.string.connection_request_sent))
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
                 }
 
                 is SendConnectionRequestResult.Failure.MissingLegalHoldConsent -> {

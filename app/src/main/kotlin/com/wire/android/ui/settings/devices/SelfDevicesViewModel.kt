@@ -67,7 +67,8 @@ class SelfDevicesViewModel @Inject constructor(
                         state.copy(
                             isLoadingClientsList = false,
                             currentDevice = result.clients
-                                .firstOrNull { it.id == currentClientId }?.let { Device(it, e2eiCertificates[it.id.value]?.status) },
+                                .firstOrNull { it.id == currentClientId }
+                                ?.let { Device(it, e2eiCertificates[it.id.value]?.status) },
                             deviceList = result.clients
                                 .filter { it.id != currentClientId }
                                 .map { Device(it, e2eiCertificates[it.id.value]?.status) }

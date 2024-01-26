@@ -990,14 +990,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
-    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
-    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend-URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist-URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams-URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts-URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website-URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend-WSURL:</string>
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
     <string name="label_logs_option_title">Protokolle</string>
@@ -1254,6 +1254,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Zertifikat wurde aktualisiert und Ihr Gerät wurde überprüft.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Zertifikatsdetails</string>
     <string name="end_to_end_identity_ceritifcate">Zertifikatsdetails</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">Ende-zu-Ende-Identitätszertifikat widerrufen</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Melden Sie sich ab, um Sicherheitsrisiken zu verringern. Melden Sie sich dann erneut an, laden Sie ein neues Zertifikat herunter und setzen Sie Ihr Passwort zurück.\n\nWenn Sie dieses Gerät weiter verwenden, sind Ihre Unterhaltungen nicht mehr überprüft.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Abmelden</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Mit diesem Gerät fortfahren</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
     <string name="record_audio_recording_label">Audio-Aufnahme…</string>

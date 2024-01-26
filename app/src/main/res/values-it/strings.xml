@@ -989,11 +989,11 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Ricezione nuovi messaggi in corso</string>
     <string name="label_text_copied">Testo copiato negli appunti</string>
     <string name="label_logs_option_title">Registri</string>
@@ -1250,6 +1250,10 @@ registrato. Sei pregato di riprovare.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Il certificato è aggiornato e il tuo dispositivo è verificato.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Dettagli del certificato</string>
     <string name="end_to_end_identity_ceritifcate">Dettagli del certificato</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Avvia la registrazione</string>
     <string name="record_audio_recording_label">Registrazione audio…</string>

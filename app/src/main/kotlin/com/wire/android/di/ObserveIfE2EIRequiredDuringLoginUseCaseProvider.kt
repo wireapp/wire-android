@@ -15,16 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-import com.wire.android.gradle.version.Versionizer
+package com.wire.android.di
 
-object AndroidSdk {
-    const val min = 26
-    const val compile = 34
-    const val target = compile
-}
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.user.UserId
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
-object AndroidApp {
-    const val id = "com.wire.android"
-    const val versionName = "4.7.0"
-    val versionCode = Versionizer().versionCode
+class ObserveIfE2EIRequiredDuringLoginUseCaseProvider @AssistedInject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @Assisted
+    private val userId: UserId
+) {
+    suspend fun observeIfE2EIIsRequiredDuringLogin() = coreLogic.getSessionScope(userId).observeIfE2EIRequiredDuringLogin()
+
+    @AssistedFactory
+    interface Factory {
+        fun create(userId: UserId): ObserveIfE2EIRequiredDuringLoginUseCaseProvider
+    }
 }

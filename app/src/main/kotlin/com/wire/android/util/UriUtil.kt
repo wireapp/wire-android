@@ -61,3 +61,8 @@ fun sanitizeUrl(url: String): String {
         return url // Return the original URL if any errors occur
     }
 }
+
+fun URI.removeQueryParams(): URI {
+    val regex = Regex("[?&][^=]+=[^&]*")
+    return URI(this.toString().replace(regex, ""))
+}

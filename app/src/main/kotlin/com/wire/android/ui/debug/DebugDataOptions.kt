@@ -128,7 +128,7 @@ class DebugDataOptionsViewModel
     }
 
     fun enrollE2EICertificate(context: Context) {
-        e2eiCertificateUseCase(context) { result ->
+        e2eiCertificateUseCase(context, false) { result ->
             result.fold({
                 state = state.copy(
                     certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true

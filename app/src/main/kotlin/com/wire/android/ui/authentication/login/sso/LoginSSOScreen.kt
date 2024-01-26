@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun LoginSSOScreen(
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()

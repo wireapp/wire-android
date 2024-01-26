@@ -69,8 +69,8 @@ class LocationPickerViewModelTest {
         fun withGetGeoLocationSuccess() = apply {
             coEvery {
                 locationPickerHelper.getLocation(
-                    capture(onPickedLocationSuccess),
-                    capture(onPickedLocationFailure)
+                    capture(onEngineStartSuccess),
+                    capture(onEngineStartFailure)
                 )
             } coAnswers {
                 firstArg<PickedGeoLocation>().invoke(successResponse)
@@ -80,8 +80,8 @@ class LocationPickerViewModelTest {
         fun withGetGeoLocationError() = apply {
             coEvery {
                 locationPickerHelper.getLocation(
-                    capture(onPickedLocationSuccess),
-                    capture(onPickedLocationFailure)
+                    capture(onEngineStartSuccess),
+                    capture(onEngineStartFailure)
                 )
             } coAnswers {
                 secondArg<() -> Unit>().invoke()
@@ -92,8 +92,8 @@ class LocationPickerViewModelTest {
     }
 
     private companion object {
-        val onPickedLocationSuccess = slot<PickedGeoLocation>()
-        val onPickedLocationFailure = slot<() -> Unit>()
+        val onEngineStartSuccess = slot<PickedGeoLocation>()
+        val onEngineStartFailure = slot<() -> Unit>()
         val successResponse = GeoLocatedAddress(null, Location("dummy-location"))
     }
 }

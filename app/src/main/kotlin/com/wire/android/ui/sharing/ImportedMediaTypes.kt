@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.sharing
 
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -70,7 +69,6 @@ sealed class ImportedMediaAsset(
     open val size: Long,
     open val mimeType: String,
     open val dataPath: Path,
-    open val dataUri: Uri,
     open val key: String
 ) {
     class GenericAsset(
@@ -78,9 +76,8 @@ sealed class ImportedMediaAsset(
         override val size: Long,
         override val mimeType: String,
         override val dataPath: Path,
-        override val dataUri: Uri,
         override val key: String
-    ) : ImportedMediaAsset(name, size, mimeType, dataPath, dataUri, key)
+    ) : ImportedMediaAsset(name, size, mimeType, dataPath, key)
 
     class Image(
         val width: Int,
@@ -89,10 +86,9 @@ sealed class ImportedMediaAsset(
         override val size: Long,
         override val mimeType: String,
         override val dataPath: Path,
-        override val dataUri: Uri,
         override val key: String,
         val wireSessionImageLoader: WireSessionImageLoader
-    ) : ImportedMediaAsset(name, size, mimeType, dataPath, dataUri, key) {
-        val localImageAsset = ImageAsset.LocalImageAsset(wireSessionImageLoader, dataUri, key)
+    ) : ImportedMediaAsset(name, size, mimeType, dataPath, key) {
+        val localImageAsset = ImageAsset.LocalImageAsset(wireSessionImageLoader, dataPath, key)
     }
 }

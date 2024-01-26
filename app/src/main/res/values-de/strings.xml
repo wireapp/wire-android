@@ -610,8 +610,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **Teilnehmer** konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s konnten der Gruppe nicht hinzugefügt werden.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s konnte der Gruppe nicht hinzugefügt werden.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
+    <string name="label_system_message_conversation_degraded_proteus">Diese Unterhaltung ist nicht mehr überprüft, da mindestens ein Teilnehmer ein neues Gerät verwendet oder ein ungültiges Zertifikat hat.</string>
     <string name="label_system_message_conversation_verified_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
     <string name="label_system_message_conversation_verified_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Kommunikation in Wire ist immer Ende-zu-Ende verschlüsselt. Alles, was Sie in dieser Unterhaltung senden und empfangen, ist nur für Sie und andere Gruppenteilnehmer zugänglich.\n**Bitte seien Sie dennoch vorsichtig, mit wem Sie vertrauliche Informationen teilen.**</string>
@@ -711,8 +711,8 @@
     <string name="label_conversation_media">Medien</string>
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Dateien</string>
-    <string name="label_conversation_pictures_empty">Es wurden noch keine Bilder in dieser Unterhaltung geteilt 🙀</string>
-    <string name="label_conversation_files_empty">Es wurden noch keine Dateien in dieser Unterhaltung geteilt 🙀</string>
+    <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
+    <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
@@ -990,7 +990,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
-    <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client auf das folgende Backend weitergeleitet:\n\nBackend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
+    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
     <string name="label_logs_option_title">Protokolle</string>
@@ -1336,4 +1343,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_attachment_share_title">Standort teilen</string>
     <string name="location_app_permission_dialog_body">Erlauben Sie Wire den Zugriff auf Ihren Gerätestandort, um Ihren Standort zu senden.</string>
     <string name="location_loading_label">Bitte warten…</string>
+    <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
 </resources>

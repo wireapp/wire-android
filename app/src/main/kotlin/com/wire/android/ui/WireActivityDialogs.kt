@@ -219,8 +219,7 @@ fun CustomBackendDialog(
 ) {
     if (globalAppState.customBackendDialog != null) {
         CustomServerDialog(
-            serverLinksTitle = globalAppState.customBackendDialog.serverLinks.title,
-            serverLinksApi = globalAppState.customBackendDialog.serverLinks.api,
+            serverLinks = globalAppState.customBackendDialog.serverLinks,
             onDismiss = onDismiss,
             onConfirm = onConfirm
         )

@@ -136,7 +136,6 @@ class WireSessionImageLoader(
                                 getPrivateAssetUseCase = getPrivateAsset,
                                 deleteAssetUseCase = deleteAsset,
                                 drawableResultWrapper = DrawableResultWrapper(resources),
-                                context = context
                             )
                         )
                         if (SDK_INT >= 28) {

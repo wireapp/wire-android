@@ -55,6 +55,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -65,6 +66,7 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
@@ -77,6 +79,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
@@ -90,6 +93,8 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
@@ -97,6 +102,7 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
+import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -117,7 +123,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var proximitySensorManager: ProximitySensorManager
 
     @Inject
-    lateinit var lockCodeTimeManager: LockCodeTimeManager
+    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
 
     private val viewModel: WireActivityViewModel by viewModels()
 
@@ -133,26 +139,39 @@ class WireActivity : AppCompatActivity() {
     private var shouldKeepSplashOpen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        appLogger.i("$TAG splash install")
         // We need to keep the splash screen open until the first screen is drawn.
         // Otherwise a white screen is displayed.
         // It's an API limitation, at some point we may need to remove it
-        installSplashScreen().setKeepOnScreenCondition {
-            shouldKeepSplashOpen
-        }
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        proximitySensorManager.initialize()
+        splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+
         lifecycle.addObserver(currentScreenManager)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        viewModel.observePersistentConnectionStatus()
-        val startDestination = when (viewModel.initialAppState) {
-            InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
-            InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
-            InitialAppState.LOGGED_IN -> HomeScreenDestination
-        }
-        setComposableContent(startDestination) {
-            shouldKeepSplashOpen = false
-            handleDeepLink(intent, savedInstanceState)
+        appLogger.i("$TAG proximity sensor")
+        proximitySensorManager.initialize()
+
+        lifecycleScope.launch {
+
+            appLogger.i("$TAG persistent connection status")
+            viewModel.observePersistentConnectionStatus()
+
+            appLogger.i("$TAG start destination")
+            val startDestination = when (viewModel.initialAppState) {
+                InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
+                InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
+                InitialAppState.LOGGED_IN -> HomeScreenDestination
+            }
+
+            appLogger.i("$TAG composable content")
+            setComposableContent(startDestination) {
+                appLogger.i("$TAG splash hide")
+                shouldKeepSplashOpen = false
+                handleDeepLink(intent, savedInstanceState)
+            }
         }
     }
 
@@ -325,6 +344,26 @@ class WireActivity : AppCompatActivity() {
                         hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
                     )
                 }
+                val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
+
+                LogoutOptionsDialog(
+                    dialogState = logoutOptionsDialogState,
+                    checkboxEnabled = false,
+                    logout = {
+                        viewModel.doHardLogout(
+                            { UserDataStore(context, it) },
+                            NavigationSwitchAccountActions(navigate)
+                        )
+                        logoutOptionsDialogState.dismiss()
+                    }
+                )
+
+                if (shouldShowE2eiCertificateRevokedDialog) {
+                    E2EICertificateRevokedDialog(
+                        onLogout = { logoutOptionsDialogState.show(LogoutOptionsDialogState(shouldWipeData = true)) },
+                        onContinue = featureFlagNotificationViewModel::dismissE2EICertificateRevokedDialog,
+                    )
+                }
 
                 e2EIRequired?.let {
                     E2EIRequiredDialog(
@@ -412,7 +451,7 @@ class WireActivity : AppCompatActivity() {
         super.onResume()
 
         lifecycleScope.launch {
-            lockCodeTimeManager.observeAppLock()
+            lockCodeTimeManager.get().observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .first().let {
@@ -506,6 +545,7 @@ class WireActivity : AppCompatActivity() {
 
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
+        private const val TAG = "WireActivity"
     }
 }
 

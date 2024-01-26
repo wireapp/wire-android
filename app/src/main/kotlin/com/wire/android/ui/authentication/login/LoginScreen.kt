@@ -99,15 +99,12 @@ fun LoginScreen(
 
     LoginContent(
         navigator::navigateBack,
-        { initialSyncCompleted, isE2EIRequired->
-            navigator.navigate(
-                NavigationCommand(
-                    if (isE2EIRequired)
-                        E2EIEnrollmentScreenDestination
-                    else if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
+        { initialSyncCompleted, isE2EIRequired ->
+            val destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
+            else if (initialSyncCompleted) HomeScreenDestination
+            else InitialSyncScreenDestination
+            
+            navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
         { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
         loginViewModel,
@@ -356,6 +353,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme {
-        MainLoginContent({}, { _, _-> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent({}, { _, _ -> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

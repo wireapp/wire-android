@@ -197,7 +197,7 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "LongMethod")
     @VisibleForTesting
     fun establishSSOSession(
         cookie: String,

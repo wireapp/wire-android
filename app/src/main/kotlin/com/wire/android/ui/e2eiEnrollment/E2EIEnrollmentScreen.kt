@@ -78,7 +78,8 @@ fun E2EIEnrollmentScreen(
     val state = viewModel.state
     val context = LocalContext.current
 
-    E2EIEnrollmentScreenContent(state = state,
+    E2EIEnrollmentScreenContent(
+        state = state,
         dismissSuccess = {
             navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
             viewModel.finalizeMLSClient()
@@ -154,7 +155,7 @@ private fun E2EIEnrollmentScreenContent(
                 )
             }
         }
-    ) {internalPadding ->
+    ) { internalPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
@@ -228,5 +229,3 @@ fun previewE2EIEnrollmentScreenContentWithError() {
         E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}, {}, {}, {}) { }
     }
 }
-
-

@@ -116,7 +116,7 @@ class LoginEmailViewModelTest {
     private lateinit var authenticationScope: AuthenticationScope
 
     @MockK(relaxed = true)
-    private lateinit var onSuccess: (Boolean) -> Unit
+    private lateinit var onSuccess: (Boolean, Boolean) -> Unit
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -210,7 +210,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(true) }
+        coVerify(exactly = 1) { onSuccess(true, false) }
     }
 
     @Test
@@ -233,7 +233,7 @@ class LoginEmailViewModelTest {
             advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(false) }
+        coVerify(exactly = 1) { onSuccess(false, false) }
     }
 
     @Test
@@ -440,7 +440,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(any()) }
+        coVerify(exactly = 1) { onSuccess(any(), any()) }
     }
 
     @Test

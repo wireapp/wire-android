@@ -178,7 +178,6 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
             observeUserId
@@ -283,8 +282,10 @@ class WireActivityViewModel @Inject constructor(
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, already handled by initialAppState
                 }
+
                 result is DeepLinkResult.JoinConversation ->
                     onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+
                 result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }

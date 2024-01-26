@@ -26,6 +26,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
@@ -588,6 +589,10 @@ class WireActivityViewModelTest {
     }
 
     private class Arrangement {
+
+        // TODO add tests for cases when observeIfE2EIIsRequiredDuringLogin emits semothing
+        private val observeIfE2EIIsRequiredDuringLogin = MutableSharedFlow<Boolean?>()
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -608,6 +613,8 @@ class WireActivityViewModelTest {
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
+            coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
+                    observeIfE2EIIsRequiredDuringLogin
         }
 
         @MockK
@@ -664,6 +671,9 @@ class WireActivityViewModelTest {
         private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
 
         @MockK
+        private lateinit var observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK(relaxed = true)
@@ -691,7 +701,8 @@ class WireActivityViewModelTest {
                 clearNewClientsForUser = clearNewClientsForUser,
                 currentScreenManager = currentScreenManager,
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
-                globalDataStore = globalDataStore
+                globalDataStore = globalDataStore,
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory
             )
         }
 

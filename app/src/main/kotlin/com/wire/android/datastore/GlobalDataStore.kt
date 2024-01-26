@@ -70,7 +70,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
-    fun isLoggingEnabled(): Flow<Boolean> = getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
+    // TODO: revert me
+    fun isLoggingEnabled(): Flow<Boolean> = getBooleanPreference(IS_LOGGING_ENABLED, true)
 
     suspend fun setLoggingEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }

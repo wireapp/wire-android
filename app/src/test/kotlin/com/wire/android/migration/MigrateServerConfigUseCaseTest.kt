@@ -103,8 +103,10 @@ class MigrateServerConfigUseCaseTest {
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
+
         @MockK
         lateinit var scalaServerConfigDAO: ScalaServerConfigDAO
+
         @MockK
         lateinit var globalKaliumScope: GlobalKaliumScope
 
@@ -121,11 +123,13 @@ class MigrateServerConfigUseCaseTest {
             every { scalaServerConfigDAO.scalaServerConfig } returns scalaServerConfig
             return this
         }
-        fun withStoreServerConfigResult(result : StoreServerConfigResult): Arrangement {
+
+        fun withStoreServerConfigResult(result: StoreServerConfigResult): Arrangement {
             coEvery { globalKaliumScope.storeServerConfig(any(), any()) } returns result
             return this
         }
-        fun withFetchServerConfigFromDeepLinkResult(result : GetServerConfigResult): Arrangement {
+
+        fun withFetchServerConfigFromDeepLinkResult(result: GetServerConfigResult): Arrangement {
             coEvery { globalKaliumScope.fetchServerConfigFromDeepLink(any()) } returns result
             return this
         }

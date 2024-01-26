@@ -29,6 +29,8 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.StoreServerConfigResult
 import com.wire.kalium.logic.functional.Either
@@ -69,7 +71,9 @@ class MigrateServerConfigUseCaseTest {
         val expected = Arrangement.serverConfig
         val (arrangement, useCase) = Arrangement()
             .withScalaServerConfig(ScalaServerConfig.Links(expected.links))
+            .withCurrentServerConfig(expected)
             .arrange()
+
         val result = useCase()
         assert(result.isRight())
         assertEquals(expected, (result as Either.Right).value)
@@ -82,6 +86,8 @@ class MigrateServerConfigUseCaseTest {
         val (arrangement, useCase) = Arrangement()
             .withScalaServerConfig(ScalaServerConfig.ConfigUrl(customConfigUrl))
             .withFetchServerConfigFromDeepLinkResult(GetServerConfigResult.Success(expected.links))
+            .withCurrentServerConfig(expected)
+
             .arrange()
         val result = useCase()
         coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchServerConfigFromDeepLink(customConfigUrl) }
@@ -114,9 +120,21 @@ class MigrateServerConfigUseCaseTest {
             MigrateServerConfigUseCase(coreLogic, scalaServerConfigDAO)
         }
 
+        @MockK
+        lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
+
+        @MockK
+        lateinit var authScope: AuthenticationScope
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getGlobalScope() } returns globalKaliumScope
+            every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+            coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authScope)
+        }
+
+        fun withCurrentServerConfig(serverConfig: ServerConfig) = apply {
+            every { authScope.currentServerConfig() } returns serverConfig
         }
 
         fun withScalaServerConfig(scalaServerConfig: ScalaServerConfig): Arrangement {

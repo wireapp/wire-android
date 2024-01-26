@@ -87,8 +87,8 @@ class MigrateServerConfigUseCaseTest {
             .withScalaServerConfig(ScalaServerConfig.ConfigUrl(customConfigUrl))
             .withFetchServerConfigFromDeepLinkResult(GetServerConfigResult.Success(expected.links))
             .withCurrentServerConfig(expected)
-
             .arrange()
+
         val result = useCase()
         coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchServerConfigFromDeepLink(customConfigUrl) }
         assert(result.isRight())

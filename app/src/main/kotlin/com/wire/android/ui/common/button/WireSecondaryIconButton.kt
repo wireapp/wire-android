@@ -43,6 +43,7 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun WireSecondaryIconButton(
     onButtonClicked: () -> Unit,
+    loading: Boolean = false,
     @DrawableRes iconResource: Int,
     @StringRes contentDescription: Int,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
@@ -57,7 +58,8 @@ fun WireSecondaryIconButton(
 ) {
     WireSecondaryButton(
         onClick = onButtonClicked,
-        leadingIcon = {
+        loading = loading,
+        trailingIcon = {
             Icon(
                 painter = painterResource(id = iconResource),
                 contentDescription = stringResource(contentDescription),
@@ -68,7 +70,7 @@ fun WireSecondaryIconButton(
         minSize = minSize,
         minClickableSize = minClickableSize,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
-        leadingIconAlignment = IconAlignment.Center,
+        trailingIconAlignment = IconAlignment.Center,
         state = state,
         colors = colors,
         clickBlockParams = clickBlockParams,
@@ -80,11 +82,15 @@ fun WireSecondaryIconButton(
 @Preview
 @Composable
 fun PreviewWireSecondaryIconButton() {
-    WireSecondaryIconButton({}, R.drawable.ic_add, 0)
+    WireSecondaryIconButton({}, false, R.drawable.ic_add, 0)
 }
-
+@Preview
+@Composable
+fun PreviewWireSecondaryIconButtonLoading() {
+    WireSecondaryIconButton({}, true, R.drawable.ic_add, 0)
+}
 @Preview
 @Composable
 fun PreviewWireSecondaryIconButtonRound() {
-    WireSecondaryIconButton({}, R.drawable.ic_add, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))
+    WireSecondaryIconButton({}, false, R.drawable.ic_add, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))
 }

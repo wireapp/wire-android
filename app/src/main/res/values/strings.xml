@@ -1330,6 +1330,8 @@
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
     <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>

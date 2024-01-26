@@ -39,12 +39,25 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 internal fun CustomServerDialog(
     serverLinksTitle: String,
     serverLinksApi: String,
+    serverProxy: ServerConfig.ApiProxy?,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    WireDialog(
-        title = stringResource(R.string.custom_backend_dialog_title),
-        text = LocalContext.current.resources.stringWithStyledArgs(
+
+    val text = if (serverProxy != null) {
+        LocalContext.current.resources.stringWithStyledArgs(
+            R.string.custom_backend_with_proxy_dialog_body,
+            MaterialTheme.wireTypography.body01,
+            MaterialTheme.wireTypography.body02,
+            colorsScheme().onBackground,
+            colorsScheme().onBackground,
+            serverLinksTitle,
+            serverLinksApi,
+            serverProxy.host,
+            serverProxy.needsAuthentication.toString()
+        )
+    } else {
+        LocalContext.current.resources.stringWithStyledArgs(
             R.string.custom_backend_dialog_body,
             MaterialTheme.wireTypography.body01,
             MaterialTheme.wireTypography.body02,
@@ -52,7 +65,11 @@ internal fun CustomServerDialog(
             colorsScheme().onBackground,
             serverLinksTitle,
             serverLinksApi
-        ),
+        )
+    }
+    WireDialog(
+        title = stringResource(R.string.custom_backend_dialog_title),
+        text = text,
 
         buttonsHorizontalAlignment = true,
         properties = wireDialogPropertiesBuilder(

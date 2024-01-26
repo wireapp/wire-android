@@ -95,9 +95,20 @@ fun ServerTitle(
         )
 
         if (serverFullDetailsDialogState) {
-            WireDialog(
-                title = stringResource(id = R.string.server_details_dialog_title),
-                text = LocalContext.current.resources.stringWithStyledArgs(
+            val bodyText = if (serverLinks.apiProxy != null) {
+                LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.server_details_with_proxy_dialog_body,
+                    MaterialTheme.wireTypography.body02,
+                    MaterialTheme.wireTypography.body02,
+                    normalColor = colorsScheme().secondaryText,
+                    argsColor = colorsScheme().onBackground,
+                    serverLinks.title,
+                    serverLinks.api,
+                    serverLinks.apiProxy!!.host,
+                    serverLinks.apiProxy!!.needsAuthentication.toString()
+                )
+            } else {
+                LocalContext.current.resources.stringWithStyledArgs(
                     R.string.server_details_dialog_body,
                     MaterialTheme.wireTypography.body02,
                     MaterialTheme.wireTypography.body02,
@@ -105,7 +116,12 @@ fun ServerTitle(
                     argsColor = colorsScheme().onBackground,
                     serverLinks.title,
                     serverLinks.api
-                ),
+                )
+            }
+
+            WireDialog(
+                title = stringResource(id = R.string.server_details_dialog_title),
+                text = bodyText,
                 onDismiss = { serverFullDetailsDialogState = false },
                 optionButton1Properties = WireDialogButtonProperties(
                     stringResource(id = R.string.label_ok),

@@ -103,7 +103,7 @@ fun LoginScreen(
             val destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
             else if (initialSyncCompleted) HomeScreenDestination
             else InitialSyncScreenDestination
-            
+
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
         { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },

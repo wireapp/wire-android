@@ -120,6 +120,13 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             launch { setE2EIRequiredState(userId) }
             launch { setTeamAppLockFeatureFlag(userId) }
             launch { observeCallEndedBecauseOfConversationDegraded(userId) }
+            launch { observeShouldNotifyForRevokedCertificate(userId) }
+        }
+    }
+
+    private suspend fun observeShouldNotifyForRevokedCertificate(userId: UserId) {
+        coreLogic.getSessionScope(userId).observeShouldNotifyForRevokedCertificate().collect {
+            featureFlagState = featureFlagState.copy(shouldShowE2eiCertificateRevokedDialog = it)
         }
     }
 
@@ -228,6 +235,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         viewModelScope.launch {
             currentUserId?.let {
                 coreLogic.getSessionScope(it).markSelfDeletingMessagesAsNotified()
+            }
+        }
+    }
+
+    fun dismissE2EICertificateRevokedDialog() {
+        featureFlagState = featureFlagState.copy(shouldShowE2eiCertificateRevokedDialog = false)
+        currentUserId?.let {
+            viewModelScope.launch {
+                coreLogic.getSessionScope(it).markNotifyForRevokedCertificateAsNotified()
             }
         }
     }

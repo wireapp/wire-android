@@ -445,7 +445,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
-                    dataUri = uri,
                     key = assetKey,
                     width = imgWidth,
                     height = imgHeight,
@@ -460,7 +459,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
-                    dataUri = uri,
                     key = assetKey
                 )
             }

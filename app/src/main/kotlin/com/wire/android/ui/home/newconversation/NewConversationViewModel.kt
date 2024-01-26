@@ -22,29 +22,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
-import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
-import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
-import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,24 +47,9 @@ import javax.inject.Inject
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
-    isSelfATeamMember: IsSelfATeamMemberUseCase,
-    getAllKnownUsers: GetAllContactsUseCase,
-    searchKnownUsers: SearchKnownUsersUseCase,
-    searchPublicUsers: SearchPublicUsersUseCase,
-    getAllServices: ObserveAllServicesUseCase,
-    contactMapper: ContactMapper,
-    isMLSEnabled: IsMLSEnabledUseCase,
-    dispatchers: DispatcherProvider,
-    sendConnectionRequest: SendConnectionRequestUseCase
-) : SearchAllPeopleViewModel(
-    getAllKnownUsers = getAllKnownUsers,
-    sendConnectionRequest = sendConnectionRequest,
-    searchKnownUsers = searchKnownUsers,
-    searchPublicUsers = searchPublicUsers,
-    contactMapper = contactMapper,
-    dispatcher = dispatchers,
-    getAllServices = getAllServices
-) {
+    private val isSelfATeamMember: IsSelfATeamMemberUseCase,
+    isMLSEnabled: IsMLSEnabledUseCase
+) : ViewModel() {
 
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState(
@@ -84,6 +64,17 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             val isSelfTeamMember = isSelfATeamMember()
             newGroupState = newGroupState.copy(isSelfTeamMember = isSelfTeamMember)
+        }
+    }
+
+    fun updateSelectedContacts(selected: Boolean, contact: Contact) {
+        if (selected) {
+            newGroupState = newGroupState.copy(selectedUsers = (newGroupState.selectedUsers + contact).toImmutableSet())
+        } else {
+            newGroupState = newGroupState.copy(selectedUsers = newGroupState.selectedUsers.filterNot {
+                it.id == contact.id &&
+                        it.domain == contact.domain
+            }.toImmutableSet())
         }
     }
 
@@ -126,27 +117,28 @@ class NewConversationViewModel @Inject constructor(
 
     private fun removeGuestsIfNotAllowed() {
         if (!groupOptionsState.isAllowGuestEnabled) {
-            val contactsToRemove = state
-                .contactsAddedToGroup
+            val newList = newGroupState
+                .selectedUsers
                 .filter {
-                    it.membership in setOf(Membership.Guest, Membership.Federated)
-                }.toSet()
-            removeContactsFromGroup(contactsToRemove)
+                    it.membership != Membership.Guest &&
+                            it.membership != Membership.Federated
+                }.toImmutableSet()
+
+            newGroupState = newGroupState.copy(selectedUsers = newList)
         }
     }
 
     private fun checkIfGuestAdded(): Boolean {
-        if (!groupOptionsState.isAllowGuestEnabled) {
-            for (item in state.contactsAddedToGroup) {
-                if (item.membership == Membership.Guest ||
-                    item.membership == Membership.Federated
-                ) {
-                    groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
-                    return true
-                }
-            }
+        if (groupOptionsState.isAllowGuestEnabled) return false
+
+        val isGuestSelected = newGroupState.selectedUsers.none {
+            it.membership == Membership.Guest ||
+                    it.membership == Membership.Federated
         }
-        return false
+        if (isGuestSelected) {
+            groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
+        }
+        return isGuestSelected
     }
 
     fun createGroup(onCreated: (ConversationId) -> Unit) {
@@ -165,8 +157,7 @@ class NewConversationViewModel @Inject constructor(
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
                 name = newGroupState.groupName.text,
-                // TODO: change the id in Contact to UserId instead of String
-                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = ConversationOptions().copy(
                     protocol = ConversationOptions.Protocol.PROTEUS,
                     accessRole = Conversation.defaultGroupAccessRoles,
@@ -184,7 +175,7 @@ class NewConversationViewModel @Inject constructor(
             val result = createGroupConversation(
                 name = newGroupState.groupName.text,
                 // TODO: change the id in Contact to UserId instead of String
-                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = ConversationOptions().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,

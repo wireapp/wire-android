@@ -33,9 +33,13 @@ import com.wire.android.util.QueryMatchExtractor
 @Composable
 fun HighlightSubtitle(
     subTitle: String,
-    searchQuery: String = "",
+    searchQuery: String = String.EMPTY,
     suffix: String = "@"
 ) {
+    if (subTitle.isBlank()) {
+        return
+    }
+
     val queryWithoutSuffix = searchQuery.removeQueryPrefix()
 
     val highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(

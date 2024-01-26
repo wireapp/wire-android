@@ -28,12 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun SearchFailureBox(@StringRes failureMessage: Int){
+fun SearchFailureBox(@StringRes failureMessage: Int) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -45,4 +46,10 @@ fun SearchFailureBox(@StringRes failureMessage: Int){
             style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.secondaryText)
         )
     }
+}
+
+@Preview
+@Composable
+fun SearchFailureBoxPreview() {
+    SearchFailureBox(failureMessage = com.wire.android.R.string.label_no_results_found)
 }

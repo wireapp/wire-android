@@ -27,5 +27,6 @@ data class LocationPickerState(
     val isLocationLoading: Boolean = false,
     val isPermissionDiscarded: Boolean = false,
     val showPermissionDeniedDialog: Boolean = false,
+    val showLocationSharingError: Boolean = false,
     val wireModalSheetState: WireModalSheetState = WireModalSheetState(SheetValue.Hidden)
 )

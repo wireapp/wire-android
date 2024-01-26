@@ -25,6 +25,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -33,7 +34,7 @@ import javax.inject.Inject
 class ContactMapper
 @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
 ) {
 
     fun fromOtherUser(otherUser: OtherUser): Contact {
@@ -65,6 +66,22 @@ class ContactMapper
                 ),
                 membership = Membership.Service,
                 connectionState = ConnectionState.ACCEPTED
+            )
+        }
+    }
+
+    fun fromSearchUserResult(user: UserSearchDetails): Contact {
+        with(user) {
+            return Contact(
+                id = id.value,
+                domain = id.domain,
+                name = name ?: String.EMPTY,
+                label = handle ?: String.EMPTY,
+                avatarData = UserAvatarData(
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
+                ),
+                membership = userTypeMapper.toMembership(type),
+                connectionState = connectionStatus
             )
         }
     }

@@ -188,29 +188,25 @@ private fun WireDialogContent(
                 .padding(contentPadding),
             horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.wireTypography.title02,
-                )
-                if (titleLoading) {
-                    WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
-                }
-            }
-            text?.let {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                ) {
+            // Title
+            TitleDialogSection(title, titleLoading)
+
+            // Dynamic sized body content
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .padding(
+                        top = MaterialTheme.wireDimensions.dialogTextsSpacing,
+                        bottom = MaterialTheme.wireDimensions.dialogTextsSpacing
+                    )
+                    .fillMaxWidth()
+            ) {
+                text?.let {
                     item {
                         ClickableText(
                             text = text,
                             style = MaterialTheme.wireTypography.body01,
-                            modifier = Modifier.padding(
-                                top = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                                bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                            ),
+                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
                             onClick = { offset ->
                                 text.getStringAnnotations(
                                     tag = MarkdownConstants.TAG_URL,
@@ -221,42 +217,66 @@ private fun WireDialogContent(
                         )
                     }
                 }
-            }
-            content?.let {
-                Box {
-                    it.invoke()
+
+                content?.let {
+                    item {
+                        Box {
+                            it.invoke()
+                        }
+                    }
                 }
             }
 
-            val containsAnyButton = dismissButtonProperties != null || optionButton1Properties != null || optionButton2Properties != null
-            val dialogButtonsSpacing = if (containsAnyButton) dimensions().dialogButtonsSpacing else dimensions().spacing0x
-            if (buttonsHorizontalAlignment) {
-                Row(Modifier.padding(top = dialogButtonsSpacing)) {
-                    dismissButtonProperties.getButton(Modifier.weight(1f))
-                    if (dismissButtonProperties != null) {
-                        Spacer(Modifier.width(dialogButtonsSpacing))
-                    }
-                    optionButton1Properties.getButton(Modifier.weight(1f))
-                    if (optionButton2Properties != null) {
-                        Spacer(Modifier.width(dialogButtonsSpacing))
-                    }
-                    optionButton2Properties.getButton(Modifier.weight(1f))
-                }
-            } else {
-                Column(Modifier.padding(top = dialogButtonsSpacing)) {
-                    optionButton1Properties.getButton()
+            // Buttons actions
+            DialogButtonsSection(dismissButtonProperties, optionButton1Properties, optionButton2Properties, buttonsHorizontalAlignment)
+        }
+    }
+}
 
-                    if (optionButton2Properties != null) {
-                        Spacer(Modifier.height(dialogButtonsSpacing))
-                    }
-                    optionButton2Properties.getButton()
+@Composable
+private fun TitleDialogSection(title: String, titleLoading: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(text = title, style = MaterialTheme.wireTypography.title02)
+        if (titleLoading) {
+            WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
+        }
+    }
+}
 
-                    if (dismissButtonProperties != null) {
-                        Spacer(Modifier.height(dialogButtonsSpacing))
-                    }
-                    dismissButtonProperties.getButton()
-                }
+@Composable
+private fun DialogButtonsSection(
+    dismissButtonProperties: WireDialogButtonProperties?,
+    optionButton1Properties: WireDialogButtonProperties?,
+    optionButton2Properties: WireDialogButtonProperties?,
+    buttonsHorizontalAlignment: Boolean
+) {
+    val containsAnyButton = dismissButtonProperties != null || optionButton1Properties != null || optionButton2Properties != null
+    val dialogButtonsSpacing = if (containsAnyButton) dimensions().dialogButtonsSpacing else dimensions().spacing0x
+    if (buttonsHorizontalAlignment) {
+        Row(Modifier.padding(top = dialogButtonsSpacing)) {
+            dismissButtonProperties.getButton(Modifier.weight(1f))
+            if (dismissButtonProperties != null) {
+                Spacer(Modifier.width(dialogButtonsSpacing))
             }
+            optionButton1Properties.getButton(Modifier.weight(1f))
+            if (optionButton2Properties != null) {
+                Spacer(Modifier.width(dialogButtonsSpacing))
+            }
+            optionButton2Properties.getButton(Modifier.weight(1f))
+        }
+    } else {
+        Column(Modifier.padding(top = dialogButtonsSpacing)) {
+            optionButton1Properties.getButton()
+
+            if (optionButton2Properties != null) {
+                Spacer(Modifier.height(dialogButtonsSpacing))
+            }
+            optionButton2Properties.getButton()
+
+            if (dismissButtonProperties != null) {
+                Spacer(Modifier.height(dialogButtonsSpacing))
+            }
+            dismissButtonProperties.getButton()
         }
     }
 }

@@ -405,7 +405,7 @@
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
     <string name="asset_message_failed_upload_text">File upload failed</string>
-    <string name="asset_download_dialog_text">Do you want to open the file or save it to your
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
         device\'s download folder?
  </string>
     <string name="asset_download_dialog_open_text">Open</string>
@@ -615,8 +615,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **participants** could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s could not be added to the group.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s could not be added to the group.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as some user uses at least one device without a valid end-to-end identity certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">All devices are verified (end-to-end identity)</string>
     <string name="label_system_message_conversation_verified_proteus">All fingerprints are verified (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Communication in Wire is always end-to-end encrypted. Everything you send and receive in this conversation is only accessible to you and other group participants.\n**Please still be careful with who you share sensitive information.**</string>
@@ -742,8 +742,8 @@
     <string name="label_conversation_media">Media</string>
     <string name="label_conversation_pictures">Pictures</string>
     <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_pictures_empty">No pictures have been shared in this conversation yet 🥲</string>
-    <string name="label_conversation_files_empty">No files have been shared in this conversation yet 🙀</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -1025,7 +1025,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
+    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>
@@ -1390,4 +1397,5 @@
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

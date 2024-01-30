@@ -109,7 +109,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneMinuteAndTenPointNineSeconds_whenGettingTheUpdateInterval_ThenIsEqualToTenPointNineSeconds() = runTest(dispatcher) {
+    fun givenTimeLeftIsEqualTo1Min10SecAnd900Millis_whenGettingTheUpdateInterval_ThenIsEqualTo10SecAnd900Millis() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.minutes + 10.seconds + 900.milliseconds,

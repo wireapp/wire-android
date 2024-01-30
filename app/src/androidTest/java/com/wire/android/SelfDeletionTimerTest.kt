@@ -21,6 +21,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -29,12 +38,25 @@ import kotlin.time.Duration.Companion.seconds
 
 class SelfDeletionTimerTest {
 
-    private val selfDeletionTimer = SelfDeletionTimerHelper(
-        context = InstrumentationRegistry.getInstrumentation().targetContext
-    )
+    private val selfDeletionTimer by lazy {
+        SelfDeletionTimerHelper(context = InstrumentationRegistry.getInstrumentation().targetContext)
+    }
+    private val dispatcher = StandardTestDispatcher()
+    private fun currentTime(): Instant = Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
+
+    @Before
+    fun setUp() {
+        mockkObject(SelfDeletionTimerHelper.Companion)
+        every { SelfDeletionTimerHelper.Companion.currentTime() } answers { currentTime() }
+    }
+
+    @After
+    fun cleanUp() {
+        unmockkObject(SelfDeletionTimerHelper.Companion)
+    }
 
     @Test
-    fun givenTimeLeftIsAboveOneHour_whenGettingTheUpdateInterval_ThenIsEqualToMinutesLeftTillWholeHour() {
+    fun givenTimeLeftIsAboveOneHour_whenGettingTheUpdateInterval_ThenIsEqualToMinutesLeftTillWholeHour() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 23.hours + 30.minutes,
@@ -47,7 +69,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun givenTimeLeftIsEqualToWholeHour_whenGettingTheUpdateInterval_ThenIsEqualToOneMinute() {
+    fun givenTimeLeftIsEqualToWholeHour_whenGettingTheUpdateInterval_ThenIsEqualToOneMinute() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 23.hours,
@@ -60,7 +82,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneHour_whenGettingTheUpdateInterval_ThenIsEqualToOneMinute() {
+    fun givenTimeLeftIsEqualToOneHour_whenGettingTheUpdateInterval_ThenIsEqualToOneMinute() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.hours,
@@ -73,7 +95,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneMinute_whenGettingTheUpdateInterval_ThenIsEqualToOneSeconds() {
+    fun givenTimeLeftIsEqualToOneMinute_whenGettingTheUpdateInterval_ThenIsEqualToOneSeconds() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.minutes,
@@ -99,7 +121,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun givenTimeLeftIsEqualToFiftyDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() {
+    fun givenTimeLeftIsEqualToFiftyDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 50.days,
@@ -107,12 +129,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "4 weeks left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentySevenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() {
+    fun givenTimeLeftIsEqualToTwentySevenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 27.days,
@@ -120,12 +142,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "4 weeks left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentySevenDaysAndTwelveHours_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() {
+    fun givenTimeLeftIsEqualToTwentySevenDaysAndTwelveHours_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 27.days + 12.hours,
@@ -133,12 +155,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "4 weeks left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentySevenDaysAndOneSecond_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() {
+    fun givenTimeLeftIsEqualToTwentySevenDaysAndOneSecond_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 27.days + 1.seconds,
@@ -146,12 +168,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "4 weeks left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentyEightDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() {
+    fun givenTimeLeftIsEqualToTwentyEightDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourWeeksLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 28.days,
@@ -159,12 +181,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "4 weeks left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentyOneDays_whenGettingThTimeLeftFormatted_ThenIsEqualToTwentyOneLeft() {
+    fun givenTimeLeftIsEqualToTwentyOneDays_whenGettingThTimeLeftFormatted_ThenIsEqualToTwentyOneLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 21.days,
@@ -172,12 +194,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "21 days left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToFourTeenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourTeenDaysLeft() {
+    fun givenTimeLeftIsEqualToFourTeenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToFourTeenDaysLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 14.days,
@@ -185,12 +207,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "14 days left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentyDays_whenGettingThTimeLeftFormatted_ThenIsEqualToTwentyDaysLeft() {
+    fun givenTimeLeftIsEqualToTwentyDays_whenGettingThTimeLeftFormatted_ThenIsEqualToTwentyDaysLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 20.days,
@@ -198,12 +220,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "20 days left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToSevenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() {
+    fun givenTimeLeftIsEqualToSevenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 7.days,
@@ -211,12 +233,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 week left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToSixDays_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() {
+    fun givenTimeLeftIsEqualToSixDays_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 6.days,
@@ -224,12 +246,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 week left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToSixDaysAnd12Hours_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() {
+    fun givenTimeLeftIsEqualToSixDaysAnd12Hours_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 6.days + 12.hours,
@@ -237,12 +259,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 week left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToSixDaysAndOneSecond_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() {
+    fun givenTimeLeftIsEqualToSixDaysAndOneSecond_whenGettingThTimeLeftFormatted_ThenIsEqualToOneWeekLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 6.days + 1.seconds,
@@ -250,12 +272,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 week left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToThirteenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToThirteenDays() {
+    fun givenTimeLeftIsEqualToThirteenDays_whenGettingThTimeLeftFormatted_ThenIsEqualToThirteenDays() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 13.days,
@@ -263,12 +285,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "13 days left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneDay_whenGettingThTimeLeftFormatted_ThenIsEqualToOneDayLeft() {
+    fun givenTimeLeftIsEqualToOneDay_whenGettingThTimeLeftFormatted_ThenIsEqualToOneDayLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.days,
@@ -276,12 +298,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 day left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentyFourHours_whenGettingThTimeLeftFormatted_ThenIsEqualToOneDayLeft() {
+    fun givenTimeLeftIsEqualToTwentyFourHours_whenGettingThTimeLeftFormatted_ThenIsEqualToOneDayLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 24.hours,
@@ -289,12 +311,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 day left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentyThreeHours_whenGettingThTimeLeftFormatted_ThenIsEqualToTwentyThreeHourLeft() {
+    fun givenTimeLeftIsEqualToTwentyThreeHours_whenGettingThTimeLeftFormatted_ThenIsEqualToTwentyThreeHourLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 23.hours,
@@ -302,12 +324,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "23 hours left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToSixtyMinutes_whenGettingThTimeLeftFormatted_ThenIsEqualToOneHourLeft() {
+    fun givenTimeLeftIsEqualToSixtyMinutes_whenGettingThTimeLeftFormatted_ThenIsEqualToOneHourLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 60.minutes,
@@ -315,12 +337,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 hour left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneMinute_whenGettingThTimeLeftFormatted_ThenIsEqualToOneMinuteLeft() {
+    fun givenTimeLeftIsEqualToOneMinute_whenGettingThTimeLeftFormatted_ThenIsEqualToOneMinuteLeft() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.minutes,
@@ -328,12 +350,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 minute left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOFiftyNineMinutes_whenGettingThTimeLeftFormatted_ThenIsEqualToFiftyNineMinutes() {
+    fun givenTimeLeftIsEqualToOFiftyNineMinutes_whenGettingThTimeLeftFormatted_ThenIsEqualToFiftyNineMinutes() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 59.minutes,
@@ -341,12 +363,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "59 minutes left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToSixtySeconds_whenGettingThTimeLeftFormatted_ThenIsEqualToOneMinute() {
+    fun givenTimeLeftIsEqualToSixtySeconds_whenGettingThTimeLeftFormatted_ThenIsEqualToOneMinute() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 60.seconds,
@@ -354,12 +376,12 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
         assert(timeLeftLabel == "1 minute left")
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneDayAndTwelveHours_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
+    fun givenTimeLeftIsEqualToOneDayAndTwelveHours_whenRecalculatingTimeAfterIntervals_thenTimeLeftIsEqualToExpected() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.days + 12.hours,
@@ -367,17 +389,19 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-        assert(selfDeletionTimer.timeLeftFormatted() == "1 day left")
+        with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "1 day left")
 
-        selfDeletionTimer.decreaseTimeLeft(selfDeletionTimer.updateInterval())
-        assert(selfDeletionTimer.timeLeftFormatted() == "23 hours left")
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "23 hours left")
+        }
     }
 
     @Test
-    fun givenTimeLeftIsEqualToTwentyThreeHoursAndTwentyThreeMinutes_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpeceted() {
+    fun givenTimeLeftIsEqualToTwentyThreeHoursAndTwentyThreeMinutes_whenRecalculatingTimeAfterIntervals_thenTimeLeftIsEqualToExpected() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 23.hours + 23.minutes,
@@ -385,16 +409,15 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-
-        val timeLeftLabel = selfDeletionTimer.timeLeftFormatted()
-        assert(timeLeftLabel == "23 hours left")
+        with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "23 hours left")
+        }
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneHourAndTwelveMinutes_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
+    fun givenTimeLeftIsEqualToOneHourAndTwelveMinutes_whenRecalculatingTimeAfterIntervals_thenTimeLeftIsEqualToExpected() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.hours + 12.minutes,
@@ -402,18 +425,19 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-        assert(selfDeletionTimer.timeLeftFormatted() == "1 hour left")
-        selfDeletionTimer.decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-        assert(selfDeletionTimer.timeLeftFormatted() == "59 minutes left")
+        with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "1 hour left")
+
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "59 minutes left")
+        }
     }
 
     @Test
-    fun givenTimeLeftIsEqualToOneHourAndTwentyThreeSeconds_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
+    fun givenTimeLeftIsEqualToOneHourAndTwentyThreeSeconds_whenRecalculatingTimeAfterIntervals_thenTimeLeftIsEqualToExpected() = runTest(dispatcher) {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.minutes + 23.seconds,
@@ -421,13 +445,14 @@ class SelfDeletionTimerTest {
             )
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-        assert(selfDeletionTimer.timeLeftFormatted() == "1 minute left")
-        selfDeletionTimer.decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-        assert(selfDeletionTimer.timeLeftFormatted() == "59 seconds left")
+        with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "1 minute left")
+
+            advanceTimeBy(updateInterval())
+            recalculateTimeLeft()
+            assert(selfDeletionTimer.timeLeftFormatted == "59 seconds left")
+        }
     }
 }

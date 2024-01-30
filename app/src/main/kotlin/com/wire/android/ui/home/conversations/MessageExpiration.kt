@@ -111,6 +111,7 @@ class SelfDeletionTimerHelper(private val context: Context) {
 
             var timeLeft by mutableStateOf(calculateTimeLeft())
                 private set
+            @Suppress("MagicNumber", "ComplexMethod")
             val timeLeftFormatted: String by derivedStateOf {
                 when {
                     timeLeft > 28.days ->

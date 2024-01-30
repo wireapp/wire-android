@@ -132,8 +132,9 @@ class GlobalObserversManager @Inject constructor(
                             .distinctUntilChanged()
                             .filter { it is CurrentSessionResult.Success && it.accountInfo.isValid() }
                             .map { (it as CurrentSessionResult.Success).accountInfo.userId }
+                    } else {
+                        emptyFlow()
                     }
-                    else emptyFlow()
                 }
                 .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
         }

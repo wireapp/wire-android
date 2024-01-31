@@ -213,7 +213,12 @@ fun MessageImage(
             }
 
             asset != null -> {
-                if (isImportedMediaAsset) ImportedImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight, shouldFillMaxWidth)
+                if (isImportedMediaAsset) ImportedImageMessage(
+                    asset,
+                    imgParams.normalizedWidth,
+                    imgParams.normalizedHeight,
+                    shouldFillMaxWidth
+                )
                 else DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             }
 

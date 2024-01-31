@@ -129,9 +129,8 @@ private fun LazyListScope.folderDeviceItems(
             item,
             background = MaterialTheme.wireColorScheme.surface,
             placeholder = false,
-            onRemoveDeviceClick = onDeviceClick,
-            leadingIcon = Icons.Filled.ChevronRight.Icon(),
-            leadingIconBorder = 0.dp,
+            onClickAction = onDeviceClick,
+            icon = Icons.Filled.ChevronRight.Icon(),
             isWholeItemClickable = true,
             shouldShowVerifyLabel = shouldShowVerifyLabel
         )

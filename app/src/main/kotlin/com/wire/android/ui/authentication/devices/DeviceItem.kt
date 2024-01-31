@@ -20,17 +20,19 @@ package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,22 +42,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
+import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.MLSVerificationIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.button.getMinTouchMargins
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.WireTheme
@@ -74,18 +74,16 @@ fun DeviceItem(
     placeholder: Boolean,
     shouldShowVerifyLabel: Boolean,
     background: Color? = null,
-    leadingIcon: @Composable (() -> Unit),
-    leadingIconBorder: Dp = 1.dp,
+    icon: @Composable (() -> Unit),
     isWholeItemClickable: Boolean = false,
-    onRemoveDeviceClick: ((Device) -> Unit)? = null
+    onClickAction: ((Device) -> Unit)? = null
 ) {
     DeviceItemContent(
         device = device,
         placeholder = placeholder,
         background = background,
-        leadingIcon = leadingIcon,
-        leadingIconBorder = leadingIconBorder,
-        onRemoveDeviceClick = onRemoveDeviceClick,
+        icon = icon,
+        onClickAction = onClickAction,
         isWholeItemClickable = isWholeItemClickable,
         shouldShowVerifyLabel = shouldShowVerifyLabel
     )
@@ -96,9 +94,8 @@ private fun DeviceItemContent(
     device: Device,
     placeholder: Boolean,
     background: Color? = null,
-    leadingIcon: @Composable (() -> Unit),
-    leadingIconBorder: Dp,
-    onRemoveDeviceClick: ((Device) -> Unit)?,
+    icon: @Composable (() -> Unit),
+    onClickAction: ((Device) -> Unit)?,
     isWholeItemClickable: Boolean,
     shouldShowVerifyLabel: Boolean
 ) {
@@ -107,7 +104,7 @@ private fun DeviceItemContent(
         modifier = (if (background != null) Modifier.background(color = background) else Modifier)
             .clickable(enabled = isWholeItemClickable) {
                 if (isWholeItemClickable) {
-                    onRemoveDeviceClick?.invoke(device)
+                    onClickAction?.invoke(device)
                 }
             }
     ) {
@@ -128,30 +125,26 @@ private fun DeviceItemContent(
                     .weight(1f)
             ) { DeviceItemTexts(device, placeholder, shouldShowVerifyLabel) }
         }
-        val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
-            .let {
-                // default button touch area [48x48] is higher than button size [40x32] so it will have margins, we have to subtract
-                // these margins from the default item padding so that all elements are the same distance from the edge
-                Pair(
-                    MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateTopPadding(),
-                    MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
+        if (!placeholder) {
+            if (onClickAction != null && !isWholeItemClickable) {
+                WireSecondaryButton(
+                    modifier = Modifier.testTag("remove device button"),
+                    onClick = { onClickAction(device) },
+                    leadingIcon = icon,
+                    fillMaxWidth = false,
+                    minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = wireSecondaryButtonColors().copy(
+                        enabled = background ?: MaterialTheme.wireColorScheme.secondaryButtonEnabled
+                    )
                 )
+            } else {
+                Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)) {
+                    icon()
+                }
             }
-        if (!placeholder && onRemoveDeviceClick != null) {
-            WireSecondaryButton(
-                modifier = Modifier.testTag("remove device button"),
-                onClick = { onRemoveDeviceClick(device) },
-                leadingIcon = leadingIcon,
-                fillMaxWidth = false,
-                minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
-                contentPadding = PaddingValues(0.dp),
-                borderWidth = leadingIconBorder,
-                colors = wireSecondaryButtonColors().copy(
-                    enabled = background ?: MaterialTheme.wireColorScheme.secondaryButtonEnabled
-                )
-            )
         }
     }
 }
@@ -183,7 +176,10 @@ private fun DeviceItemTexts(
         MLSVerificationIcon(device.e2eiCertificateStatus)
         if (shouldShowVerifyLabel) {
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
-            if (device.isVerifiedProteus) ProteusVerifiedIcon(Modifier.wrapContentWidth().align(Alignment.CenterVertically))
+            if (device.isVerifiedProteus) ProteusVerifiedIcon(
+                Modifier
+                    .wrapContentWidth()
+                    .align(Alignment.CenterVertically))
         }
     }
 
@@ -249,7 +245,7 @@ private fun DeviceItemTexts(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewDeviceItem() {
+fun PreviewDeviceItemWithActionIcon() {
     WireTheme {
         DeviceItem(
             device = Device(name = UIText.DynamicString("name"), isVerifiedProteus = true),
@@ -257,6 +253,21 @@ fun PreviewDeviceItem() {
             shouldShowVerifyLabel = true,
             background = null,
             { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
+        ) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewDeviceItem() {
+    WireTheme {
+        DeviceItem(
+            device = Device(name = UIText.DynamicString("name"), isVerifiedProteus = true),
+            placeholder = false,
+            shouldShowVerifyLabel = true,
+            background = null,
+            isWholeItemClickable = true,
+            icon = Icons.Filled.ChevronRight.Icon()
         ) {}
     }
 }

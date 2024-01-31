@@ -1024,14 +1024,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="custom_backend_dialog_title">Перенаправить на локальный бэкэнд?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
-    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
-    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
+    <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">URL черного списка:</string>
+    <string name="custom_backend_dialog_body_backend_teams">URL команды:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">URL аккаунта:</string>
+    <string name="custom_backend_dialog_body_backend_website">URL веб-сайта:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">WSURL бэкэнда:</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>
@@ -1308,6 +1308,10 @@
     <string name="end_to_end_identity_renew_success_dialog_text">Сертификат обновлен, а устройство верифицировано.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
     <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">Сертификат сквозной идентификации отозван</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши разговоры больше не будут являться верифицированными.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Выйти</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Продолжить использование этого устройства</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
@@ -1371,6 +1375,8 @@
     <string name="legal_hold_subject_dialog_description_group">По крайней мере, один из участников этой беседы находится под юридическим ограничением.</string>
     <string name="legal_hold_subject_dialog_description_message">Вы все еще хотите отправить ваше сообщение?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Отправить в любом случае</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
     <string name="legal_hold_subject_to">Субъект - %1$s.</string>
     <string name="legal_hold_label">юридические ограничения</string>
     <string name="legal_hold_is_active_label">Юридические ограничения активны</string>

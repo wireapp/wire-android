@@ -41,6 +41,7 @@ import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBa
 import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -102,12 +103,12 @@ fun InternalContactSearchResultItem(
 @Composable
 fun ExternalContactSearchResultItem(
     avatarData: UserAvatarData,
+    userId: UserId,
     name: String,
     label: String,
     membership: Membership,
     searchQuery: String,
     connectionState: ConnectionState,
-    onAddContactClicked: () -> Unit,
     clickable: Clickable,
     modifier: Modifier = Modifier
 ) {
@@ -140,7 +141,7 @@ fun ExternalContactSearchResultItem(
         actions = {
             when (connectionState) {
                 ConnectionState.NOT_CONNECTED, ConnectionState.CANCELLED ->
-                    AddContactButton(onAddContactClicked)
+                    AddContactButton(userId, name)
                 ConnectionState.PENDING, ConnectionState.IGNORED ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
                 ConnectionState.SENT ->

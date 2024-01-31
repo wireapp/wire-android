@@ -34,22 +34,18 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
-import com.wire.android.ui.home.newconversation.SendConnectionRequestViewModel
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.extension.folderWithElements
@@ -57,7 +53,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
-import kotlinx.coroutines.launch
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -107,29 +102,11 @@ private fun SearchResult(
     contactsAddedToGroup: ImmutableSet<Contact>,
     onChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    sendConnectionRequestViewModel: SendConnectionRequestViewModel = hiltViewModel(),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackbarHostState.current
-    val scope = rememberCoroutineScope()
 
-    val sendConnectionRequest: (UserId) -> Unit = remember {
-        { userId: UserId ->
-            val deferredResult = sendConnectionRequestViewModel.addContact(userId)
-            deferredResult.invokeOnCompletion { throwable ->
-                if (throwable != null) {
-                    return@invokeOnCompletion
-                }
-                if (deferredResult.getCompleted()) {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.connection_request_sent))
-                    }
-                }
-            }
-        }
-    }
     Column {
         LazyColumn(
             state = lazyListState,
@@ -160,7 +137,6 @@ private fun SearchResult(
                     showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllPublicResult,
                     onOpenUserProfile = onOpenUserProfile,
-                    onAddContactClicked = sendConnectionRequest
                 )
             }
         }
@@ -208,7 +184,6 @@ private fun LazyListScope.externalSearchResults(
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    onAddContactClicked: (UserId) -> Unit
 ) {
     when {
         isLoading -> {
@@ -223,7 +198,6 @@ private fun LazyListScope.externalSearchResults(
                 searchQuery = searchQuery,
                 onShowAllButtonClicked = onShowAllButtonClicked,
                 onOpenUserProfile = onOpenUserProfile,
-                onAddContactClicked = onAddContactClicked
             )
         }
     }
@@ -290,7 +264,6 @@ private fun LazyListScope.externalSuccessItem(
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
-    onAddContactClicked: (UserId) -> Unit,
 ) {
     val itemsList =
         if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
@@ -302,13 +275,13 @@ private fun LazyListScope.externalSuccessItem(
         with(contact) {
             ExternalContactSearchResultItem(
                 avatarData = avatarData,
+                userId = UserId(id, domain),
                 name = name,
                 label = label,
                 membership = membership,
                 connectionState = connectionState,
                 searchQuery = searchQuery,
-                clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } },
-                onAddContactClicked = { onAddContactClicked(UserId(contact.id, contact.domain)) }
+                clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } }
             )
         }
     }

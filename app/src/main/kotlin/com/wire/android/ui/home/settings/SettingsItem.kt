@@ -60,7 +60,7 @@ fun SettingsItem(
     @DrawableRes trailingIcon: Int? = null,
     switchState: SwitchState = SwitchState.None,
     onRowPressed: Clickable = Clickable(false),
-    onIconPressed: Clickable = Clickable(false)
+    onIconPressed: Clickable? = null
 ) {
     RowItemTemplate(
         title = {

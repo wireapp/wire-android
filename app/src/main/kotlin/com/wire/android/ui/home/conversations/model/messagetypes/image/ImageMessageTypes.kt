@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -98,6 +99,8 @@ fun AsyncImageMessage(
 @Composable
 fun ImportedImageMessage(
     imageData: ImageAsset,
+    width: Dp,
+    height: Dp,
     shouldFillMaxWidth: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -105,11 +108,9 @@ fun ImportedImageMessage(
         painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
         modifier = if (!shouldFillMaxWidth) modifier
-            .width(dimensions().importedMediaAssetSize)
-            .height(dimensions().importedMediaAssetSize)
+            .size(width, height)
         else modifier
-            .fillMaxWidth()
-            .height(dimensions().importedMediaAssetSize),
+            .size(width, height),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )

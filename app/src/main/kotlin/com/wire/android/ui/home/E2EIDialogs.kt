@@ -363,9 +363,39 @@ private fun E2EIRenewNoSnoozeDialog(isLoading: Boolean, updateCertificate: () ->
     )
 }
 
+@Composable
+fun E2EICertificateRevokedDialog(
+    onLogout: () -> Unit,
+    onContinue: () -> Unit
+) {
+    WireDialog(
+        title = stringResource(id = R.string.end_to_end_identity_certificate_revoked_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_certificate_revoked_dialog_description),
+        onDismiss = onContinue,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onLogout,
+            text = stringResource(id = R.string.end_to_end_identity_certificate_revoked_dialog_button_logout),
+            type = WireDialogButtonType.Primary
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = onContinue,
+            text = stringResource(id = R.string.end_to_end_identity_certificate_revoked_dialog_button_continue),
+            type = WireDialogButtonType.Secondary,
+        ),
+        buttonsHorizontalAlignment = false,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIdRequiredWithSnoozeDialog() {
+fun PreviewE2EICertificateRevokedDialog() {
+    E2EICertificateRevokedDialog({}, {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewE2EIdRequiredWithSnoozeDialog() {
     WireTheme {
         E2EIRequiredWithSnoozeDialog(false, {}) {}
     }
@@ -373,7 +403,7 @@ fun previewE2EIdRequiredWithSnoozeDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIdRequiredNoSnoozeDialog() {
+fun PreviewE2EIdRequiredNoSnoozeDialog() {
     WireTheme {
         E2EIRequiredNoSnoozeDialog(false) {}
     }
@@ -381,7 +411,7 @@ fun previewE2EIdRequiredNoSnoozeDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIdRenewRequiredWithSnoozeDialog() {
+fun PreviewE2EIdRenewRequiredWithSnoozeDialog() {
     WireTheme {
         E2EIRenewWithSnoozeDialog(false, {}) {}
     }
@@ -389,7 +419,7 @@ fun previewE2EIdRenewRequiredWithSnoozeDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIdRenewRequiredNoSnoozeDialog() {
+fun PreviewE2EIdRenewRequiredNoSnoozeDialog() {
     WireTheme {
         E2EIRenewNoSnoozeDialog(false) {}
     }
@@ -397,7 +427,7 @@ fun previewE2EIdRenewRequiredNoSnoozeDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIdSnoozeDialog() {
+fun PreviewE2EIdSnoozeDialog() {
     WireTheme {
         E2EISnoozeDialog(2.seconds) {}
     }
@@ -405,7 +435,7 @@ fun previewE2EIdSnoozeDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIRenewErrorDialogNoGracePeriod() {
+fun PreviewE2EIRenewErrorDialogNoGracePeriod() {
     WireTheme {
         E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, false, { }) {}
     }
@@ -413,7 +443,7 @@ fun previewE2EIRenewErrorDialogNoGracePeriod() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIRenewErrorDialogWithGracePeriod() {
+fun PreviewE2EIRenewErrorDialogWithGracePeriod() {
     WireTheme {
         E2EIRenewErrorDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(2.days), false, { }) {}
     }
@@ -421,7 +451,7 @@ fun previewE2EIRenewErrorDialogWithGracePeriod() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EISuccessDialog() {
+fun PreviewE2EISuccessDialog() {
     WireTheme {
         E2EISuccessDialog({ }) {}
     }
@@ -429,7 +459,7 @@ fun previewE2EISuccessDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIRenewErrorNoSnoozeDialog() {
+fun PreviewE2EIRenewErrorNoSnoozeDialog() {
     WireTheme {
         E2EIErrorNoSnoozeDialog(false) { }
     }
@@ -437,7 +467,7 @@ fun previewE2EIRenewErrorNoSnoozeDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewE2EIRenewErrorWithSnoozeDialog() {
+fun PreviewE2EIRenewErrorWithSnoozeDialog() {
     WireTheme {
         E2EIErrorWithSnoozeDialog(isE2EILoading = false, updateCertificate = {}) { }
     }

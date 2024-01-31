@@ -46,6 +46,7 @@ fun WireLabelledCheckbox(
     overflow: TextOverflow = TextOverflow.Visible,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     contentPadding: PaddingValues = PaddingValues(dimensions().spacing0x),
+    checkboxEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -55,12 +56,17 @@ fun WireLabelledCheckbox(
             .toggleable(
                 value = checked,
                 role = Role.Checkbox,
-                onValueChange = { onCheckClicked(!checked) }
+                onValueChange = {
+                    if (checkboxEnabled) {
+                        onCheckClicked(!checked)
+                    }
+                }
             )
             .padding(contentPadding)
     ) {
         Checkbox(
             checked = checked,
+            enabled = checkboxEnabled,
             onCheckedChange = null // null since we are handling the click on parent
         )
 

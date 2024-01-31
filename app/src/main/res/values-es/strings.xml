@@ -986,14 +986,14 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="max_account_reached_dialog_button_open_profile">Abrir perfil</string>
     <string name="cant_switch_account_in_call">No puedes cambiar de cuenta mientras est&#225;s en una llamada</string>
     <string name="custom_backend_dialog_title">&#191;Redirigir a un backend local?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body">Si continúa, su cliente será redirigido al siguiente servidor local:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Recibiendo nuevos mensajes</string>
     <string name="label_text_copied">Texto copiado al portapapeles</string>
     <string name="label_logs_option_title">Registros</string>
@@ -1251,6 +1251,10 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1314,6 +1318,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
     <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
@@ -1340,5 +1346,5 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="location_attachment_share_title">Compartir ubicación</string>
     <string name="location_app_permission_dialog_body">Permite a Wire acceder a la ubicación del dispositivo para enviar tu ubicación.</string>
     <string name="location_loading_label">Un momento...</string>
-    <string name="location_could_not_be_shared">Location could not be shared</string>
+    <string name="location_could_not_be_shared">No se pudo compartir la ubicación</string>
 </resources>

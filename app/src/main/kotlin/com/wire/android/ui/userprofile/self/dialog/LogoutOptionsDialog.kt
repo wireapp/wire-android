@@ -41,7 +41,8 @@ import com.wire.android.ui.common.visbility.VisibilityState
 @Composable
 fun LogoutOptionsDialog(
     dialogState: VisibilityState<LogoutOptionsDialogState>,
-    logout: (Boolean) -> Unit
+    logout: (Boolean) -> Unit,
+    checkboxEnabled: Boolean = true
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
@@ -61,15 +62,16 @@ fun LogoutOptionsDialog(
             )
         ) {
             WireLabelledCheckbox(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = dimensions().spacing16x)
+                    .clip(RoundedCornerShape(size = dimensions().spacing4x)),
                 label = stringResource(R.string.dialog_logout_wipe_data_checkbox),
                 checked = state.shouldWipeData,
                 onCheckClicked = remember { { dialogState.show(state.copy(shouldWipeData = it)) } },
                 horizontalArrangement = Arrangement.Center,
                 contentPadding = PaddingValues(vertical = dimensions().spacing4x),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = dimensions().spacing16x)
-                    .clip(RoundedCornerShape(size = dimensions().spacing4x))
+                checkboxEnabled = checkboxEnabled
             )
         }
     }

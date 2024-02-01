@@ -34,6 +34,7 @@ import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -286,6 +287,27 @@ class WireActivityViewModel @Inject constructor(
                     onProceed()
                 }
             }
+        }
+    }
+
+    // TODO: needs to be covered with test once hard logout is validated to be used
+    fun doHardLogout(
+        clearUserData: (userId: UserId) -> Unit,
+        switchAccountActions: SwitchAccountActions
+    ) {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().session.currentSession().takeIf {
+                it is CurrentSessionResult.Success
+            }?.let {
+                val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                clearUserData(currentUserId)
+            }
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
+                if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
+                    globalDataStore.clearAppLockPasscode()
+                }
+            }.callAction(switchAccountActions)
         }
     }
 

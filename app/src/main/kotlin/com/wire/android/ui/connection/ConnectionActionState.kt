@@ -15,17 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.connection
 
-package com.wire.android.model
+import com.wire.kalium.logic.data.user.UserId
 
-/**
- * Wrapper for view model states with additional [isPerformingAction] which informs UI that action is being performed,
- * like:
- * - blocking button action when some action is already triggered
- */
-data class ActionableState(
-    val isPerformingAction: Boolean = false
-)
+data class ConnectionActionState(
+    val isPerformingAction: Boolean = false,
+    val missingLegalHoldConsentDialogState: MissingLegalHoldConsentDialogState = MissingLegalHoldConsentDialogState.Hidden,
+) {
+    fun performAction() = copy(isPerformingAction = true)
+    fun finishAction() = copy(isPerformingAction = false)
+}
 
-fun ActionableState.performAction(): ActionableState = this.copy(isPerformingAction = true)
-fun ActionableState.finishAction(): ActionableState = this.copy(isPerformingAction = false)
+sealed class MissingLegalHoldConsentDialogState {
+    data object Hidden : MissingLegalHoldConsentDialogState()
+    data class Visible(val userId: UserId) : MissingLegalHoldConsentDialogState()
+}

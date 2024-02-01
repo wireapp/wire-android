@@ -123,6 +123,25 @@ class ConnectionActionButtonViewModelTest {
     }
 
     @Test
+    fun `given a legal hold failure, when sending a connection request, then edit the state properly`() = runTest {
+        // given
+        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            .withSendConnectionRequest(SendConnectionRequestResult.Failure.MissingLegalHoldConsent)
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.onSendConnectionRequest()
+
+            // then
+            expectNoEvents() // we don't want  to show any info message like snackbar
+            assertEquals(viewModel.state.missingLegalHoldConsentDialogState, MissingLegalHoldConsentDialogState.Visible(TestUser.USER_ID))
+            coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+        }
+    }
+
+    @Test
     fun `given success, when ignoring a connection request, then calls onIgnoreSuccess`() =
         runTest {
             // given

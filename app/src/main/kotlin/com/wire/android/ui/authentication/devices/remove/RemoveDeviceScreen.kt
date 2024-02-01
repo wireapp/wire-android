@@ -185,9 +185,9 @@ private fun RemoveDeviceItemsList(
                 DeviceItem(
                     device = device,
                     placeholder = placeholders,
-                    onRemoveDeviceClick = onItemClicked,
+                    onClickAction = onItemClicked,
                     shouldShowVerifyLabel = false,
-                    leadingIcon = {
+                    icon = {
                         Icon(
                             painterResource(id = R.drawable.ic_remove),
                             stringResource(R.string.content_description_remove_devices_screen_remove_icon)

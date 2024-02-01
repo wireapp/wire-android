@@ -56,7 +56,7 @@ fun rememberOpenFileBrowserFlow(
             } else {
                 context.getActivity()?.let {
                     it.checkStoragePermission(onPermissionDenied) {
-                        onPermissionPermanentlyDenied(PermissionDenialType.File)
+                        onPermissionPermanentlyDenied(PermissionDenialType.ReadFile)
                     }
                 }
             }

@@ -59,7 +59,6 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.isArchive
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
-import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId

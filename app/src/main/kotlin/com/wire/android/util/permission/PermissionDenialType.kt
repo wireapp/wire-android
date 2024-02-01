@@ -22,6 +22,7 @@ sealed class PermissionDenialType {
     data object TakePicture : PermissionDenialType()
     data object CallingCamera : PermissionDenialType()
     data object CallingMicrophone : PermissionDenialType()
-    data object File : PermissionDenialType()
+    data object WriteFile : PermissionDenialType()
+    data object ReadFile : PermissionDenialType()
     data object Gallery : PermissionDenialType()
 }

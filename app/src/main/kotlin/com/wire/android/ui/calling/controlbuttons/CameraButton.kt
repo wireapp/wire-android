@@ -98,7 +98,6 @@ private fun CameraPermissionCheckFlow(
     onPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
-
 @Preview
 @Composable
 fun PreviewComposableCameraButton() {

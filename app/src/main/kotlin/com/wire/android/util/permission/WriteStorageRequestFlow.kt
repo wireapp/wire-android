@@ -62,7 +62,7 @@ fun rememberWriteStorageRequestFlow(
                 context.getActivity()?.let {
                     it.checkWriteStoragePermission(onPermissionDenied) {
                         onPermissionPermanentlyDenied(
-                            PermissionDenialType.File
+                            PermissionDenialType.WriteFile
                         )
                     }
                 }

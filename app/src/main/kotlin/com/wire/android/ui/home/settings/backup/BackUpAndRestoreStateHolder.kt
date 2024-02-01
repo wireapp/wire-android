@@ -57,7 +57,6 @@ class BackUpAndRestoreStateHolder {
     fun hidePermissionPermanentlyDeniedDialog() {
         permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
-
 }
 
 @Composable
@@ -72,4 +71,3 @@ sealed class BackupAndRestoreDialog {
     object CreateBackup : BackupAndRestoreDialog()
     object RestoreBackup : BackupAndRestoreDialog()
 }
-

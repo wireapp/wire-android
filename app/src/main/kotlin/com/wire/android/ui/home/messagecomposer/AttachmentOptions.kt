@@ -155,12 +155,12 @@ private fun calculateGridParams(
 @Composable
 fun FileBrowserFlow(
     onFilePicked: (Uri) -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): UseStorageRequestFlow {
     return rememberOpenFileBrowserFlow(
         onFileBrowserItemPicked = onFilePicked,
         onPermissionDenied = { /* Nothing to do */ },
-        onPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 }
 
@@ -205,7 +205,7 @@ private fun CaptureVideoFlow(
 ): UseCameraAndWriteStorageRequestFlow? {
     tempWritableVideoUri?.let { uri ->
         return rememberCaptureVideoFlow(
-            onVideoRecorded = { onVideoCaptured(uri)},
+            onVideoRecorded = { onVideoCaptured(uri) },
             targetVideoFileUri = uri,
             onPermissionDenied = { /** Nothing to do here when permission is denied once */ },
             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
@@ -222,25 +222,25 @@ private fun buildAttachmentOptionItems(
     onFilePicked: (UriAsset) -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     onLocationPickerClicked: () -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(
         remember { { onFilePicked(UriAsset(it, false)) } },
-        onCaptureVideoPermissionPermanentlyDenied
+        onPermissionPermanentlyDenied
     )
     val galleryFlow = GalleryFlow(
         remember { { onFilePicked(UriAsset(it, false)) } },
-        onCaptureVideoPermissionPermanentlyDenied
+        onPermissionPermanentlyDenied
     )
     val cameraFlow = TakePictureFlow(
         tempWritableImageUri,
         remember { { onFilePicked(UriAsset(it, false)) } },
-        onCaptureVideoPermissionPermanentlyDenied
+        onPermissionPermanentlyDenied
     )
     val captureVideoFlow = CaptureVideoFlow(
         tempWritableVideoUri,
         remember { { onFilePicked(UriAsset(it, true)) } },
-        onCaptureVideoPermissionPermanentlyDenied
+        onPermissionPermanentlyDenied
     )
 
     return buildList {

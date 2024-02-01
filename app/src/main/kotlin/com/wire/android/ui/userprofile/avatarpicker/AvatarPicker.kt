@@ -93,7 +93,7 @@ fun AvatarPickerScreen(
         },
         targetPictureFileUri = targetAvatarUri,
         onPermissionPermanentlyDenied = {
-            val (title, description) = when(it) {
+            val (title, description) = when (it) {
                 PermissionDenialType.Gallery -> {
                     R.string.app_permission_dialog_title to R.string.open_gallery_permission_dialog_description
                 }

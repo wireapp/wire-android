@@ -1373,6 +1373,7 @@
     <string name="attach_file_permission_dialog_description">To attach a file, allow Wire to access your Storage in your device settings.</string>
     <string name="save_asset_permission_dialog_description">To save an asset, allow Wire to access your Storage in your device settings.</string>
     <string name="save_file_permission_dialog_description">To save a file, allow Wire to access your Storage in your device settings.</string>
+    <string name="restore_backup_permission_dialog_description">To restore conversations, allow Wire to access your Storage in your device settings.</string>
     <string name="camera_permission_dialog_description">To turn camera on, allow Wire to access your Camera in your device settings.</string>
 
     <!-- Share Location -->

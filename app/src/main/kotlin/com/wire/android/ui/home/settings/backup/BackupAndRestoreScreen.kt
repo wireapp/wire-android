@@ -153,7 +153,7 @@ fun BackupAndRestoreContent(
                     onCancelBackupCreation()
                 },
                 onPermissionPermanentlyDenied = {
-                    if (it == PermissionDenialType.File) {
+                    if (it == PermissionDenialType.WriteFile) {
                         backupAndRestoreStateHolder.showPermissionPermanentlyDeniedDialog(
                             R.string.app_permission_dialog_title,
                             R.string.save_file_permission_dialog_description
@@ -172,7 +172,15 @@ fun BackupAndRestoreContent(
                     backupAndRestoreStateHolder.dismissDialog()
                     onCancelBackupRestore()
                 },
-                onOpenConversations = onOpenConversations
+                onOpenConversations = onOpenConversations,
+                onPermissionPermanentlyDenied = {
+                    if (it == PermissionDenialType.ReadFile) {
+                        backupAndRestoreStateHolder.showPermissionPermanentlyDeniedDialog(
+                            R.string.app_permission_dialog_title,
+                            R.string.restore_backup_permission_dialog_description
+                        )
+                    }
+                }
             )
         }
 

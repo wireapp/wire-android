@@ -75,7 +75,7 @@ import kotlinx.coroutines.launch
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     onLocationClosed: () -> Unit,
-    viewModel : LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
+    viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)

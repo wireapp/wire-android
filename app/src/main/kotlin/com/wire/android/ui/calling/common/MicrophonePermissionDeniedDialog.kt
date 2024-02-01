@@ -24,30 +24,19 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun MicrophonePermissionDeniedDialog(
     shouldShow: Boolean,
-    onDismiss: () -> Unit,
-    onOpenSettings: () -> Unit
+    onDismiss: () -> Unit
 ) {
     if (shouldShow) {
-        WireDialog(
-            title = stringResource(id = R.string.call_permission_dialog_title),
-            text = stringResource(id = R.string.call_permission_dialog_description),
-            onDismiss = onDismiss,
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = onDismiss,
-                text = stringResource(id = R.string.label_not_now),
-                state = WireButtonState.Default
-            ),
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = onOpenSettings,
-                text = stringResource(id = R.string.record_audio_permission_denied_dialog_settings_button),
-                type = WireDialogButtonType.Primary,
-                state = WireButtonState.Default
-            )
+        PermissionsDeniedRequestDialog(
+            title = R.string.app_permission_dialog_title,
+            body = R.string.call_permission_dialog_description,
+            onDismiss = onDismiss
         )
     }
 }
@@ -56,7 +45,6 @@ fun MicrophonePermissionDeniedDialog(
 fun PreviewMicrophonePermissionDeniedDialog() {
     MicrophonePermissionDeniedDialog(
         shouldShow = true,
-        onDismiss = {},
-        onOpenSettings = {}
+        onDismiss = {}
     )
 }

@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.util.extension.getActivity
 
 /**
  * Flow that will launch file browser to select a file.
@@ -36,27 +37,38 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun rememberOpenFileBrowserFlow(
     onFileBrowserItemPicked: (Uri) -> Unit,
-    onPermissionDenied: () -> Unit
+    onPermissionDenied: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): UseStorageRequestFlow {
     val context = LocalContext.current
 
-    val openFileBrowserLauncher: ManagedActivityResultLauncher<String, Uri?> = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { onChosenFileUri ->
-        onChosenFileUri?.let { onFileBrowserItemPicked(it) }
-    }
+    val openFileBrowserLauncher: ManagedActivityResultLauncher<String, Uri?> =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { onChosenFileUri ->
+            onChosenFileUri?.let { onFileBrowserItemPicked(it) }
+        }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 openFileBrowserLauncher.launch(MIME_TYPE)
             } else {
-                onPermissionDenied()
+                context.getActivity()?.let {
+                    it.checkStoragePermission(onPermissionDenied) {
+                        onPermissionPermanentlyDenied(PermissionDenialType.File)
+                    }
+                }
             }
         }
 
     return remember {
-        UseStorageRequestFlow(MIME_TYPE, context, openFileBrowserLauncher, requestPermissionLauncher)
+        UseStorageRequestFlow(
+            MIME_TYPE,
+            context,
+            openFileBrowserLauncher,
+            requestPermissionLauncher
+        )
     }
 }
 

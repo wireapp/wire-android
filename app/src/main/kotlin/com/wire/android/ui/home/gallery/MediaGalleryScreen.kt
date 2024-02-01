@@ -40,6 +40,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
@@ -66,9 +67,20 @@ fun MediaGalleryScreen(
         onGranted = {
             mediaGalleryScreenState.showContextualMenu(false)
             mediaGalleryViewModel.saveImageToExternalStorage()
-        }, onDenied = {
-            // TODO
-        })
+        },
+        onPermissionDenied = { /** Nothing to do **/ },
+        onPermissionPermanentlyDenied = {
+            mediaGalleryViewModel.showPermissionPermanentlyDeniedDialog(
+                title = R.string.app_permission_dialog_title,
+                description = R.string.save_asset_permission_dialog_description
+            )
+        }
+    )
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = mediaGalleryViewModel.permissionPermanentlyDeniedDialogState,
+        hideDialog = mediaGalleryViewModel::hidePermissionPermanentlyDeniedDialog
+    )
 
     with(viewModelState) {
         WireScaffold(

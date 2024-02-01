@@ -111,14 +111,6 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    fun showPermissionDialog() {
-        incomingCallState = incomingCallState.copy(shouldShowPermissionDialog = true)
-    }
-
-    fun dismissPermissionDialog() {
-        incomingCallState = incomingCallState.copy(shouldShowPermissionDialog = false)
-    }
-
     private fun showJoinCallAnywayDialog() {
         incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = true)
     }

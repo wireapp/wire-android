@@ -32,6 +32,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
@@ -92,6 +93,10 @@ class ConversationMessagesViewModel @Inject constructor(
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
+
+    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
+        PermissionPermanentlyDeniedDialogState.Hidden
+    )
 
     var conversationViewState by mutableStateOf(
         ConversationMessagesViewState(
@@ -333,6 +338,16 @@ class ConversationMessagesViewModel @Inject constructor(
             }
         }
         return null
+    }
+
+    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
+        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
+            title = title,
+            description = description
+        )
+    }
+    fun hidePermissionPermanentlyDeniedDialog() {
+        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 
     override fun onCleared() {

@@ -54,6 +54,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -61,6 +62,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -89,7 +91,22 @@ fun AvatarPickerScreen(
         onPictureTaken = {
             onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel)
         },
-        targetPictureFileUri = targetAvatarUri
+        targetPictureFileUri = targetAvatarUri,
+        onPermissionPermanentlyDenied = {
+            val (title, description) = when(it) {
+                PermissionDenialType.Gallery -> {
+                    R.string.app_permission_dialog_title to R.string.open_gallery_permission_dialog_description
+                }
+                PermissionDenialType.TakePicture -> {
+                    R.string.app_permission_dialog_title to R.string.take_picture_permission_dialog_description
+                }
+                else -> { 0 to 0 }
+            }
+            viewModel.showPermissionPermanentlyDeniedDialog(
+                title = title,
+                description = description
+            )
+        }
     )
 
     AvatarPickerContent(
@@ -102,6 +119,11 @@ fun AvatarPickerScreen(
                 resultNavigator.navigateBack()
             }
         }
+    )
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = viewModel.permissionPermanentlyDeniedDialogState,
+        hideDialog = viewModel::hidePermissionPermanentlyDeniedDialog
     )
 }
 

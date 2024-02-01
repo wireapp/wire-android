@@ -31,6 +31,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.SnackBarMessage
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.toByteArray
@@ -76,6 +77,10 @@ class AvatarPickerViewModel @Inject constructor(
     val temporaryAvatarUri: Uri = avatarImageManager.getShareableTempAvatarUri(defaultAvatarPath)
 
     private lateinit var currentAvatarUri: Uri
+
+    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
+        PermissionPermanentlyDeniedDialogState.Hidden
+    )
 
     init {
         loadInitialAvatarState()
@@ -128,6 +133,17 @@ class AvatarPickerViewModel @Inject constructor(
 
     private suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
+    }
+
+    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
+        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
+            title = title,
+            description = description
+        )
+    }
+
+    fun hidePermissionPermanentlyDeniedDialog() {
+        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 
     @Stable

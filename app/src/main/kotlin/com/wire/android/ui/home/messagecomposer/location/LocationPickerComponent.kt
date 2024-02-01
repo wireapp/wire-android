@@ -74,16 +74,18 @@ import kotlinx.coroutines.launch
 @Composable
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
-    onLocationClosed: () -> Unit
+    onLocationClosed: () -> Unit,
+    viewModel : LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
 ) {
-    val viewModel = hiltViewModel<LocationPickerViewModel>()
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
-    val locationFlow = LocationFlow(
-        onCurrentLocationPicked = viewModel::getCurrentLocation,
-        onLocationDenied = viewModel::onPermissionsDenied
+    val locationFlow = rememberCurrentLocationFlow(
+        onPermissionAllowed = viewModel::getCurrentLocation,
+        onPermissionDenied = { /* do nothing */ },
+        onPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
+
     LaunchedEffect(Unit) {
         locationFlow.launch()
     }
@@ -228,13 +230,3 @@ private fun RowScope.LoadingLocation() {
         textAlign = TextAlign.Start
     )
 }
-
-@Composable
-private fun LocationFlow(
-    onCurrentLocationPicked: () -> Unit,
-    onLocationDenied: () -> Unit,
-) =
-    rememberCurrentLocationFlow(
-        onPermissionAllowed = onCurrentLocationPicked,
-        onPermissionDenied = onLocationDenied
-    )

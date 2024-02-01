@@ -52,6 +52,7 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -105,7 +106,18 @@ fun ConversationMediaScreen(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
         onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
         onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
-        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
+        onPermissionPermanentlyDenied = {
+            conversationMessagesViewModel.showPermissionPermanentlyDeniedDialog(
+                title = R.string.app_permission_dialog_title,
+                description = R.string.save_asset_permission_dialog_description
+            )
+        }
+    )
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = conversationMessagesViewModel.permissionPermanentlyDeniedDialogState,
+        hideDialog = conversationMessagesViewModel::hidePermissionPermanentlyDeniedDialog
     )
 
     SnackBarMessage(

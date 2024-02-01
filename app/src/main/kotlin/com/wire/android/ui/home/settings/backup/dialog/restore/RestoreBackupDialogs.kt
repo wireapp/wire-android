@@ -53,7 +53,9 @@ fun PickRestoreFileDialog(
     onChooseBackupFile: (Uri) -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
-    val fileFlow = FileBrowserFlow(onChooseBackupFile)
+    val fileFlow = FileBrowserFlow(onChooseBackupFile, {
+
+    })
 
     WireDialog(
         title = stringResource(R.string.backup_dialog_restore_backup_title),

@@ -32,6 +32,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -149,6 +150,10 @@ class ConversationListViewModel @Inject constructor(
     var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
 
+    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
+        PermissionPermanentlyDeniedDialogState.Hidden
+    )
+
     private suspend fun observeEstablishedCall() {
         observeEstablishedCalls()
             .distinctUntilChanged()
@@ -209,16 +214,14 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun showCallingPermissionDialog() {
-        conversationListCallState = conversationListCallState.copy(
-            shouldShowCallingPermissionDialog = true
+    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
+        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
+            title = title,
+            description = description
         )
     }
-
-    fun dismissCallingPermissionDialog() {
-        conversationListCallState = conversationListCallState.copy(
-            shouldShowCallingPermissionDialog = false
-        )
+    fun hidePermissionPermanentlyDeniedDialog() {
+        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 
     // Mateusz : First iteration, just filter stuff

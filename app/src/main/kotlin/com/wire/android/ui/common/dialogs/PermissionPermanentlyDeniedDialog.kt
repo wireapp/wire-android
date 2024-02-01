@@ -15,12 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.common.dialogs
 
-package com.wire.android.ui.home.conversations.call
+import androidx.compose.runtime.Composable
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 
-data class ConversationCallViewState(
-    val participantsCount: Int = 0,
-    val hasOngoingCall: Boolean = false,
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false
-)
+@Composable
+fun PermissionPermanentlyDeniedDialog(
+    dialogState: PermissionPermanentlyDeniedDialogState,
+    hideDialog: () -> Unit
+) {
+    if (dialogState is PermissionPermanentlyDeniedDialogState.Visible) {
+        PermissionsDeniedRequestDialog(
+            title = dialogState.title,
+            body = dialogState.description,
+            onDismiss = hideDialog
+        )
+    }
+}

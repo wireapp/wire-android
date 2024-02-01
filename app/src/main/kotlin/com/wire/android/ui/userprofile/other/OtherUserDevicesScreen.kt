@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
@@ -121,9 +120,8 @@ private fun OtherUserDevicesContent(
                     placeholder = false,
                     background = MaterialTheme.wireColorScheme.surface,
                     isWholeItemClickable = true,
-                    onRemoveDeviceClick = onDeviceClick,
-                    leadingIcon = Icons.Filled.ChevronRight.Icon(),
-                    leadingIconBorder = 0.dp,
+                    onClickAction = onDeviceClick,
+                    icon = Icons.Filled.ChevronRight.Icon(),
                     shouldShowVerifyLabel = true
                 )
                 if (index < otherUserDevices.lastIndex) WireDivider()

@@ -48,19 +48,19 @@ import kotlin.time.toDuration
 
 @Composable
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimerHelper.SelfDeletionTimerState {
-    val stringResourceHelper = stringResourceHelper()
+    val stringResourceProvider: StringResourceProvider = stringResourceProvider()
     val currentTimeProvider: CurrentTimeProvider = { Clock.System.now() }
 
     return remember((expirationStatus as? ExpirationStatus.Expirable)?.selfDeletionStatus ?: true) {
-        SelfDeletionTimerHelper(stringResourceHelper, currentTimeProvider)
+        SelfDeletionTimerHelper(stringResourceProvider, currentTimeProvider)
             .fromExpirationStatus(expirationStatus)
     }
 }
 
 @Composable
-private fun stringResourceHelper(): StringResourceHelper {
+private fun stringResourceProvider(): StringResourceProvider {
     with(LocalContext.current.resources) {
-        return object : StringResourceHelper {
+        return object : StringResourceProvider {
             override fun quantityString(type: StringResourceType, quantity: Int): String =
                 getQuantityString(
                     when (type) {
@@ -75,14 +75,14 @@ private fun stringResourceHelper(): StringResourceHelper {
     }
 }
 
-class SelfDeletionTimerHelper(private val stringResourceHelper: StringResourceHelper, private val currentTime: CurrentTimeProvider) {
+class SelfDeletionTimerHelper(private val stringResourceProvider: StringResourceProvider, private val currentTime: CurrentTimeProvider) {
 
     fun fromExpirationStatus(expirationStatus: ExpirationStatus): SelfDeletionTimerState {
         return if (expirationStatus is ExpirationStatus.Expirable) {
             with(expirationStatus) {
                 val expireAt = calculateExpireAt(selfDeletionStatus, expireAfter)
                 SelfDeletionTimerState.Expirable(
-                    stringResourceHelper,
+                    stringResourceProvider,
                     expireAfter,
                     expireAt,
                     currentTime
@@ -106,7 +106,7 @@ class SelfDeletionTimerHelper(private val stringResourceHelper: StringResourceHe
     sealed class SelfDeletionTimerState {
 
         class Expirable(
-            private val stringResourceHelper: StringResourceHelper,
+            private val stringResourceProvider: StringResourceProvider,
             private val expireAfter: Duration,
             private val expireAt: Instant,
             private val currentTime: CurrentTimeProvider,
@@ -135,28 +135,28 @@ class SelfDeletionTimerHelper(private val stringResourceHelper: StringResourceHe
             val timeLeftFormatted: String by derivedStateOf {
                 when {
                     timeLeft > 28.days ->
-                        stringResourceHelper.quantityString(StringResourceType.WEEKS, 4)
+                        stringResourceProvider.quantityString(StringResourceType.WEEKS, 4)
                     // 4 weeks
                     timeLeft >= 27.days && timeLeft <= 28.days ->
-                        stringResourceHelper.quantityString(StringResourceType.WEEKS, 4)
+                        stringResourceProvider.quantityString(StringResourceType.WEEKS, 4)
                     // days below 4 weeks
                     timeLeft <= 27.days && timeLeft > 7.days ->
-                        stringResourceHelper.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt())
+                        stringResourceProvider.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt())
                     // one week
                     timeLeft >= 6.days && timeLeft <= 7.days ->
-                        stringResourceHelper.quantityString(StringResourceType.WEEKS, 1)
+                        stringResourceProvider.quantityString(StringResourceType.WEEKS, 1)
                     // days below 1 week
                     timeLeft < 7.days && timeLeft >= 1.days ->
-                        stringResourceHelper.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt())
+                        stringResourceProvider.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt())
                     // hours below one day
                     timeLeft >= 1.hours && timeLeft < 24.hours ->
-                        stringResourceHelper.quantityString(StringResourceType.HOURS, timeLeft.inWholeHours.toInt())
+                        stringResourceProvider.quantityString(StringResourceType.HOURS, timeLeft.inWholeHours.toInt())
                     // minutes below hour
                     timeLeft >= 1.minutes && timeLeft < 60.minutes ->
-                        stringResourceHelper.quantityString(StringResourceType.MINUTES, timeLeft.inWholeMinutes.toInt())
+                        stringResourceProvider.quantityString(StringResourceType.MINUTES, timeLeft.inWholeMinutes.toInt())
                     // seconds below minute
                     timeLeft < 60.seconds ->
-                        stringResourceHelper.quantityString(StringResourceType.SECONDS, timeLeft.inWholeSeconds.toInt())
+                        stringResourceProvider.quantityString(StringResourceType.SECONDS, timeLeft.inWholeSeconds.toInt())
 
                     else -> throw IllegalStateException("Not possible state for a time left label")
                 }
@@ -319,6 +319,6 @@ class SelfDeletionTimerHelper(private val stringResourceHelper: StringResourceHe
 
 typealias CurrentTimeProvider = () -> Instant
 enum class StringResourceType { WEEKS, DAYS, HOURS, MINUTES, SECONDS; }
-interface StringResourceHelper {
+interface StringResourceProvider {
     fun quantityString(type: StringResourceType, quantity: Int): String
 }

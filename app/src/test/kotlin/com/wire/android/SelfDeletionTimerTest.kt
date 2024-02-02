@@ -19,7 +19,7 @@ package com.wire.android
 
 import com.wire.android.ui.home.conversations.CurrentTimeProvider
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
-import com.wire.android.ui.home.conversations.StringResourceHelper
+import com.wire.android.ui.home.conversations.StringResourceProvider
 import com.wire.android.ui.home.conversations.StringResourceType
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
@@ -134,7 +134,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 4))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 4))
     }
 
     @Test
@@ -148,7 +148,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 4))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 4))
     }
 
     @Test
@@ -162,7 +162,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 4))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 4))
     }
 
     @Test
@@ -176,7 +176,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 4))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 4))
     }
 
     @Test
@@ -190,7 +190,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 4))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 4))
     }
 
     @Test
@@ -204,7 +204,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 21))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 21))
     }
 
     @Test
@@ -218,7 +218,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 14))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 14))
     }
 
     @Test
@@ -232,7 +232,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 20))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 20))
     }
 
     @Test
@@ -246,7 +246,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 1))
     }
 
     @Test
@@ -260,7 +260,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 1))
     }
 
     @Test
@@ -274,7 +274,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 1))
     }
 
     @Test
@@ -288,7 +288,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.WEEKS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.WEEKS, 1))
     }
 
     @Test
@@ -302,7 +302,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 13))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 13))
     }
 
     @Test
@@ -316,7 +316,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 1))
     }
 
     @Test
@@ -330,7 +330,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 1))
     }
 
     @Test
@@ -344,7 +344,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.HOURS, 23))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.HOURS, 23))
     }
 
     @Test
@@ -358,7 +358,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.HOURS, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.HOURS, 1))
     }
 
     @Test
@@ -372,7 +372,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.MINUTES, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.MINUTES, 1))
     }
 
     @Test
@@ -386,7 +386,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.MINUTES, 59))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.MINUTES, 59))
     }
 
     @Test
@@ -400,7 +400,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted
-        assert(timeLeftLabel == arrangement.stringResourceHelper.quantityString(StringResourceType.MINUTES, 1))
+        assert(timeLeftLabel == arrangement.stringsProvider.quantityString(StringResourceType.MINUTES, 1))
     }
 
     @Test
@@ -416,11 +416,11 @@ class SelfDeletionTimerTest {
         with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.DAYS, 1))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.DAYS, 1))
 
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.HOURS, 23))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.HOURS, 23))
         }
     }
 
@@ -437,7 +437,7 @@ class SelfDeletionTimerTest {
         with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.HOURS, 23))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.HOURS, 23))
         }
     }
 
@@ -454,11 +454,11 @@ class SelfDeletionTimerTest {
         with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.HOURS, 1))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.HOURS, 1))
 
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.MINUTES, 59))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.MINUTES, 59))
         }
     }
 
@@ -475,22 +475,22 @@ class SelfDeletionTimerTest {
         with(selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.MINUTES, 1))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.MINUTES, 1))
 
             advanceTimeBy(updateInterval())
             recalculateTimeLeft()
-            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringResourceHelper.quantityString(StringResourceType.SECONDS, 59))
+            assert(selfDeletionTimer.timeLeftFormatted == arrangement.stringsProvider.quantityString(StringResourceType.SECONDS, 59))
         }
     }
 
     internal class Arrangement(val dispatcher: TestDispatcher) {
 
-        val stringResourceHelper: StringResourceHelper = object : StringResourceHelper {
+        val stringsProvider: StringResourceProvider = object : StringResourceProvider {
             override fun quantityString(type: StringResourceType, quantity: Int): String = "${type.name}: $quantity"
         }
         private val currentTime: CurrentTimeProvider = { Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime) }
 
-        private val selfDeletionTimerHelper by lazy { SelfDeletionTimerHelper(stringResourceHelper, currentTime) }
+        private val selfDeletionTimerHelper by lazy { SelfDeletionTimerHelper(stringsProvider, currentTime) }
         fun arrange() = this to selfDeletionTimerHelper
     }
 }

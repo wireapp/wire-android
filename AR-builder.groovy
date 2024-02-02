@@ -263,7 +263,7 @@ pipeline {
 
         stage('Connect Emulators') {
             parallel {
-                stage('Emulator 10.0') {
+                stage('Emulator 14.0') {
                     when {
                         expression { params.RUN_ACCEPTANCE_TESTS }
                     }

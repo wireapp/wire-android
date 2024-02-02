@@ -97,9 +97,8 @@ fun SystemMessageItem(
         !message.isPending &&
         !message.sendingFailed
     ) {
-        startDeletionTimer(
+        selfDeletionTimerState.startDeletionTimer(
             message = message,
-            expirableTimer = selfDeletionTimerState,
             onStartMessageSelfDeletion = onSelfDeletingMessageRead
         )
     }

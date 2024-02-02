@@ -92,7 +92,8 @@ jobs:
                   cd ..
                   git add ${{ env.SUBMODULE_NAME }}
                   git commit -m "Update submodule ${{ env.SUBMODULE_NAME }} to latest from ${{ env.TARGET_BRANCH }}"
-                  echo "lastCommitMessage=$LAST_COMMIT_MESSAGE" >> $GITHUB_ENV
+                  # Base64 encode the commit message to avoid issues with newlines and special characters
+                  echo "lastCommitMessageBase64=$(echo "$LAST_COMMIT_MESSAGE" | base64)" >> $GITHUB_ENV
 
             - name: Get Cherry-pick commit
               id: get-cherry
@@ -101,7 +102,9 @@ jobs:
                   if [[ -n "${{ env.SUBMODULE_NAME }}" ]]; then
                     # If SUBMODULE_NAME is set
                     git reset --soft HEAD~2
-                    git commit -m "${{ env.lastCommitMessage }}"
+                    # Decode the base64-encoded string
+                    LAST_COMMIT_MESSAGE=$(echo "${{ env.lastCommitMessageBase64 }}" | base64 --decode)
+                    git commit -m "$LAST_COMMIT_MESSAGE"
                   fi
                   
                   # Get the SHA of the current commit (either squashed or not based on the condition above)

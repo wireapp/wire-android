@@ -103,7 +103,9 @@ jobs:
                   if [[ -n "${{ env.SUBMODULE_NAME }}" ]]; then
                     # If SUBMODULE_NAME is set
                     git reset --soft HEAD~2
-                    git commit -m "${{ env.lastCommitMessage }}"
+                    # Decode the base64-encoded string
+                    LAST_COMMIT_MESSAGE=$(echo "${{ env.lastCommitMessageBase64 }}" | base64 --decode)
+                    git commit -m "$LAST_COMMIT_MESSAGE"
                   fi
                   
                   # Get the SHA of the current commit (either squashed or not based on the condition above)

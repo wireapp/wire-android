@@ -475,7 +475,6 @@ fun PreviewSelfUserProfileScreen() {
             isUserInCall = { false }
         )
     }
-
 }
 
 @PreviewMultipleThemes

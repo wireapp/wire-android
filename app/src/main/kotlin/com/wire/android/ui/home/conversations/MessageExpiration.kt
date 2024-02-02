@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.home.conversations
 
-import android.content.Context
-import android.content.res.Resources
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,23 +48,44 @@ import kotlin.time.toDuration
 
 @Composable
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimerHelper.SelfDeletionTimerState {
-    val context = LocalContext.current
+    val stringResourceHelper = stringResourceHelper()
+    val currentTimeProvider: CurrentTimeProvider = { Clock.System.now() }
 
-    return remember(
-        (expirationStatus as? ExpirationStatus.Expirable)?.selfDeletionStatus ?: true
-    ) { SelfDeletionTimerHelper(context).fromExpirationStatus(expirationStatus) }
+    return remember((expirationStatus as? ExpirationStatus.Expirable)?.selfDeletionStatus ?: true) {
+        SelfDeletionTimerHelper(stringResourceHelper, currentTimeProvider)
+            .fromExpirationStatus(expirationStatus)
+    }
 }
 
-class SelfDeletionTimerHelper(private val context: Context) {
+@Composable
+private fun stringResourceHelper(): StringResourceHelper {
+    with(LocalContext.current.resources) {
+        return object : StringResourceHelper {
+            override fun quantityString(type: StringResourceType, quantity: Int): String =
+                getQuantityString(
+                    when (type) {
+                        StringResourceType.WEEKS -> R.plurals.weeks_left
+                        StringResourceType.DAYS -> R.plurals.days_left
+                        StringResourceType.HOURS -> R.plurals.hours_left
+                        StringResourceType.MINUTES -> R.plurals.minutes_left
+                        StringResourceType.SECONDS -> R.plurals.seconds_left
+                    }, quantity, quantity
+                )
+        }
+    }
+}
+
+class SelfDeletionTimerHelper(private val stringResourceHelper: StringResourceHelper, private val currentTime: CurrentTimeProvider) {
 
     fun fromExpirationStatus(expirationStatus: ExpirationStatus): SelfDeletionTimerState {
         return if (expirationStatus is ExpirationStatus.Expirable) {
             with(expirationStatus) {
                 val expireAt = calculateExpireAt(selfDeletionStatus, expireAfter)
                 SelfDeletionTimerState.Expirable(
-                    context.resources,
+                    stringResourceHelper,
                     expireAfter,
                     expireAt,
+                    currentTime
                 )
             }
         } else {
@@ -87,9 +106,10 @@ class SelfDeletionTimerHelper(private val context: Context) {
     sealed class SelfDeletionTimerState {
 
         class Expirable(
-            private val resources: Resources,
+            private val stringResourceHelper: StringResourceHelper,
             private val expireAfter: Duration,
             private val expireAt: Instant,
+            private val currentTime: CurrentTimeProvider,
         ) : SelfDeletionTimerState() {
             companion object {
                 /**
@@ -115,60 +135,28 @@ class SelfDeletionTimerHelper(private val context: Context) {
             val timeLeftFormatted: String by derivedStateOf {
                 when {
                     timeLeft > 28.days ->
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            4,
-                            4
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.WEEKS, 4)
                     // 4 weeks
                     timeLeft >= 27.days && timeLeft <= 28.days ->
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            4,
-                            4
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.WEEKS, 4)
                     // days below 4 weeks
                     timeLeft <= 27.days && timeLeft > 7.days ->
-                        resources.getQuantityString(
-                            R.plurals.days_left,
-                            timeLeft.inWholeDays.toInt(),
-                            timeLeft.inWholeDays.toInt()
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt())
                     // one week
                     timeLeft >= 6.days && timeLeft <= 7.days ->
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            1,
-                            1
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.WEEKS, 1)
                     // days below 1 week
                     timeLeft < 7.days && timeLeft >= 1.days ->
-                        resources.getQuantityString(
-                            R.plurals.days_left,
-                            timeLeft.inWholeDays.toInt(),
-                            timeLeft.inWholeDays.toInt()
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.DAYS, timeLeft.inWholeDays.toInt())
                     // hours below one day
                     timeLeft >= 1.hours && timeLeft < 24.hours ->
-                        resources.getQuantityString(
-                            R.plurals.hours_left,
-                            timeLeft.inWholeHours.toInt(),
-                            timeLeft.inWholeHours.toInt()
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.HOURS, timeLeft.inWholeHours.toInt())
                     // minutes below hour
                     timeLeft >= 1.minutes && timeLeft < 60.minutes ->
-                        resources.getQuantityString(
-                            R.plurals.minutes_left,
-                            timeLeft.inWholeMinutes.toInt(),
-                            timeLeft.inWholeMinutes.toInt()
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.MINUTES, timeLeft.inWholeMinutes.toInt())
                     // seconds below minute
                     timeLeft < 60.seconds ->
-                        resources.getQuantityString(
-                            R.plurals.seconds_left,
-                            timeLeft.inWholeSeconds.toInt(),
-                            timeLeft.inWholeSeconds.toInt()
-                        )
+                        stringResourceHelper.quantityString(StringResourceType.SECONDS, timeLeft.inWholeSeconds.toInt())
 
                     else -> throw IllegalStateException("Not possible state for a time left label")
                 }
@@ -327,8 +315,10 @@ class SelfDeletionTimerHelper(private val context: Context) {
 
         object NotExpirable : SelfDeletionTimerState()
     }
+}
 
-    companion object {
-        fun currentTime(): Instant = Clock.System.now()
-    }
+typealias CurrentTimeProvider = () -> Instant
+enum class StringResourceType { WEEKS, DAYS, HOURS, MINUTES, SECONDS; }
+interface StringResourceHelper {
+    fun quantityString(type: StringResourceType, quantity: Int): String
 }

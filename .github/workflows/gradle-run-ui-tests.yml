@@ -15,7 +15,7 @@ jobs:
     runs-on: buildjet-8vcpu-ubuntu-2204
     strategy:
       matrix:
-        api-level: [29]
+        api-level: [34]
 
     steps:
       - name: Checkout

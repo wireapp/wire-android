@@ -185,13 +185,13 @@ pipeline {
                     }
                 }
 
-                stage('Spawn Emulator 10.0') {
+                stage('Spawn Emulator 14.0') {
                     when {
                         expression { params.RUN_ACCEPTANCE_TESTS }
                     }
                     steps {
-                        sh '''docker rm ${emulatorPrefix}_10 || true
-                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" -e DATAPARTITION="2g" --name ${emulatorPrefix}-${BUILD_NUMBER}_10 budtmo/docker-android-x86-10.0'''
+                        sh '''docker rm ${emulatorPrefix}_14 || true
+                  docker run --privileged --network build-machine -d -e DEVICE="Nexus 5" -e DATAPARTITION="2g" --name ${emulatorPrefix}-${BUILD_NUMBER}_14 budtmo/docker-android:emulator_14.0'''
                     }
                 }
             }
@@ -268,7 +268,7 @@ pipeline {
                         expression { params.RUN_ACCEPTANCE_TESTS }
                     }
                     steps {
-                        sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_10:${adbPort}'
+                        sh 'adb connect ${emulatorPrefix}-${BUILD_NUMBER}_14:${adbPort}'
                     }
                 }
 
@@ -549,8 +549,8 @@ pipeline {
         }
 
         always {
-            sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
-            sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_10 || true'
+            sh 'docker stop ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_14 || true'
+            sh 'docker rm ${emulatorPrefix}-${BUILD_NUMBER}_9 ${emulatorPrefix}-${BUILD_NUMBER}_14 || true'
         }
     }
 }

@@ -30,7 +30,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class LocationPickerHelperTest {
@@ -45,12 +44,11 @@ class LocationPickerHelperTest {
         // when - then
         locationHelper.getLocation(
             onSuccess = {
-
+                assertTrue(false) // this should not be called, so it will fail the test otherwise.
             },
             onError = { assertTrue(true) }
         )
     }
-
 
     @Test
     fun `given user has device location enabled, when sharing location, then on success lambda is called`() = runTest {
@@ -89,8 +87,6 @@ class LocationPickerHelperTest {
             }
         }
 
-
         fun arrange() = this to LocationPickerHelper(context)
     }
-
 }

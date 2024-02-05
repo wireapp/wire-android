@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -52,7 +51,7 @@ fun LegalHoldBaseBanner(
                 color = colorsScheme().error
             )
             .clickable(onClick = onClick)
-            .heightIn(min = 26.dp)
+            .heightIn(min = dimensions().legalHoldBannerMinHeight)
             .padding(
                 horizontal = dimensions().spacing12x,
                 vertical = dimensions().spacing4x

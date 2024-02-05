@@ -24,6 +24,8 @@ import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 import kotlinx.coroutines.flow.Flow
@@ -67,11 +69,17 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
                 startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE).toLong()
             ).map { pagingData ->
                 pagingData.flatMap { messageItem ->
-                    observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
-                        .mapLatest { usersList ->
-                            messageMapper.toUIMessage(usersList, messageItem)?.let { listOf(it) }
-                                ?: emptyList()
-                        }.first()
+                    val listWithSender: List<User> = (messageItem as? Message)?.sender?.let { listOf(it) } ?: listOf()
+                    val otherUserIdList = messageMapper.memberIdList(listOf(messageItem))
+
+                    if(otherUserIdList.isNotEmpty()) {
+                        observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
+                            .mapLatest { usersList ->
+                                messageMapper.toUIMessage(listWithSender.plus(usersList), messageItem)?.let { listOf(it) } ?: emptyList()
+                            }.first()
+                    } else {
+                        messageMapper.toUIMessage(listWithSender, messageItem)?.let { listOf(it) } ?: emptyList()
+                    }
                 }
             }.flowOn(dispatchers.io())
         } else {

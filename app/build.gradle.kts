@@ -164,6 +164,7 @@ dependencies {
     testImplementation(libs.kluent.core)
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
+    testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)
 

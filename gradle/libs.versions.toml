@@ -239,6 +239,7 @@ androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents"
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 junit5-core = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit5-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }
 kluent-android = { module = "org.amshove.kluent:kluent-android", version.ref = "kluent" }
 kluent-core = { module = "org.amshove.kluent:kluent", version.ref = "kluent" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }

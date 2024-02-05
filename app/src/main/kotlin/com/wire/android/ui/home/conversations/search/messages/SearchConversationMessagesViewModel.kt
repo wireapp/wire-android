@@ -96,7 +96,7 @@ class SearchConversationMessagesViewModel @Inject constructor(
         )
         if (textQueryChanged && searchQuery.text.isNotBlank()) {
             viewModelScope.launch {
-                mutableSearchQueryFlow.emit(searchQuery.text.trim())
+                mutableSearchQueryFlow.emit(searchQuery.text)
             }
         }
     }

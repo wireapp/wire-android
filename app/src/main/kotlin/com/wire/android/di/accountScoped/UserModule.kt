@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
+import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
@@ -116,6 +117,11 @@ class UserModule {
     @Provides
     fun provideEnrollE2EIUseCase(userScope: UserScope): EnrollE2EIUseCase =
         userScope.enrollE2EI
+
+    @ViewModelScoped
+    @Provides
+    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollment =
+        userScope.finalizeMLSClientAfterE2EIEnrollment
 
     @ViewModelScoped
     @Provides

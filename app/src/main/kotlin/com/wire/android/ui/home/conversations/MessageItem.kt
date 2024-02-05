@@ -126,9 +126,8 @@ fun MessageItem(
             !message.isPending &&
             !message.sendingFailed
         ) {
-            startDeletionTimer(
+            selfDeletionTimerState.startDeletionTimer(
                 message = message,
-                expirableTimer = selfDeletionTimerState,
                 onStartMessageSelfDeletion = onSelfDeletingMessageRead
             )
         }
@@ -227,7 +226,7 @@ fun MessageItem(
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
+                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver

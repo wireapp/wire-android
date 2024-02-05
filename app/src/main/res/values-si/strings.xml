@@ -395,7 +395,9 @@
     <string name="asset_message_saved_externally_text">සුරැකිණි</string>
     <string name="asset_message_failed_download_text">ගොනුව නොතිබේ</string>
     <string name="asset_message_failed_upload_text">ගොනුව උඩුගත නොවිණි</string>
-    <string name="asset_download_dialog_text">ඔබට ගොනුව ඇරීමට හෝ එය ඔබගේ උපාංගයේ බාගැනීම් බහාලුමට සුරැකීමට වුවමනා ද?</string>
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
+ </string>
     <string name="asset_download_dialog_open_text">අරින්න</string>
     <string name="asset_download_dialog_save_text">සුරකින්න</string>
     <string name="member_name_deleted_label">මකාදැමූ ගිණුමකි</string>
@@ -597,8 +599,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">**සහභාගීන්** %1$s ක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
-    <string name="label_system_message_conversation_degraded_mls">ඇතැම් පරිශ්‍රීලකයින් වලංගු අන්ත අනන්‍යතා සහතිකයක් නැතිව අවම වශයෙන් එක් උපාංගයක් භාවිතා කරන බැවින් මෙම සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
-    <string name="label_system_message_conversation_degraded_proteus">ඇතැම් පරිශ්‍රීලකයින් වලංගු අන්ත අනන්‍යතා සහතිකයක් නැතිව අවම වශයෙන් එක් උපාංගයක් භාවිතා කරන බැවින් මෙම සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">සියලු උපාංග සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <string name="label_system_message_conversation_verified_proteus">සියලු ඇඟිලි සටහන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="label_system_message_conversation_started_sensitive_information">වයර් සන්නිවේදනය සෑම විටම අන්ත සංකේතිතයි. මෙම සංවාදයේ ඔබ යවන සහ ලැබෙන සෑම දෙයක්ම ඔබට සහ වෙනත් සමූහ සහභාගීන්ට පමණක් ප්‍රවේශ වීමට හැකිය.\n**ඔබ සංවේදී තොරතුරු බෙදාගන්නේ කවුරුන් සමඟ දැයි තවදුරටත් සැලකිලිමත් වන්න.**</string>
@@ -698,8 +700,8 @@
     <string name="label_conversation_media">මාධ්‍ය</string>
     <string name="label_conversation_pictures">ඡායාරූප</string>
     <string name="label_conversation_files">ගොනු</string>
-    <string name="label_conversation_pictures_empty">මෙම සංවාදයේ ඡායාරූප කිසිවක් බෙදාගෙන නැත 🥲</string>
-    <string name="label_conversation_files_empty">මෙම සංවාදයේ ගොනු කිසිවක් බෙදාගෙන නැත 🥲</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">සබඳතා</string>
     <string name="label_new_group">නව සමූහයක්</string>
@@ -975,7 +977,14 @@
     <string name="max_account_reached_dialog_button_open_profile">පැතිකඩ අරින්න</string>
     <string name="cant_switch_account_in_call">ඇමතුමක් ඇත්නම් ගිණුම් අතර මාරු වීමට නොහැකිය</string>
     <string name="custom_backend_dialog_title">පරිශ්‍රයක සේවාදායකයකට හරවා යවන්නද?</string>
-    <string name="custom_backend_dialog_body">ඔබ ඉදිරියට ගියහොත්, ඔබගේ අනුග්‍රාහකය පහත පරිශ්‍රයේ සේවාදායකයට හරවා යවනු ලැබේ:\n\nසේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">නව පණිවිඩ ලැබෙමින්</string>
     <string name="label_text_copied">පෙළ පසුරු පුවරුවට පිටපත් විය</string>
     <string name="label_logs_option_title">සටහන්</string>
@@ -1320,4 +1329,5 @@
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

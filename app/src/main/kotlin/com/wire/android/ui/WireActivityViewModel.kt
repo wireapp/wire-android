@@ -29,11 +29,13 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -110,6 +112,7 @@ class WireActivityViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
+    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -142,12 +145,16 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
+    private val _observeE2EIState: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    private val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
+
     init {
         observeSyncState()
         observeUpdateAppState()
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
+        observerE2EIState()
     }
 
     private fun observeAppThemeState() {
@@ -157,6 +164,18 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
                 }
+        }
+    }
+
+    fun observerE2EIState() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeUserId
+                .flatMapLatest {
+                    it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
+                        ?: flowOf(null)
+                }
+                .distinctUntilChanged()
+                .collect { _observeE2EIState.emit(it) }
         }
     }
 
@@ -233,6 +252,7 @@ class WireActivityViewModel @Inject constructor(
         get() = when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
+            blockedByE2EI() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
 
@@ -263,8 +283,10 @@ class WireActivityViewModel @Inject constructor(
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, already handled by initialAppState
                 }
+
                 result is DeepLinkResult.JoinConversation ->
                     onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+
                 result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
@@ -286,6 +308,27 @@ class WireActivityViewModel @Inject constructor(
                     onProceed()
                 }
             }
+        }
+    }
+
+    // TODO: needs to be covered with test once hard logout is validated to be used
+    fun doHardLogout(
+        clearUserData: (userId: UserId) -> Unit,
+        switchAccountActions: SwitchAccountActions
+    ) {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().session.currentSession().takeIf {
+                it is CurrentSessionResult.Success
+            }?.let {
+                val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                clearUserData(currentUserId)
+            }
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
+                if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
+                    globalDataStore.clearAppLockPasscode()
+                }
+            }.callAction(switchAccountActions)
         }
     }
 
@@ -390,6 +433,10 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
+
+    fun blockedByE2EI(): Boolean {
+        return observeE2EIState.value == true
+    }
 
     private fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
@@ -510,5 +557,5 @@ data class GlobalAppState(
 )
 
 enum class InitialAppState {
-    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN
+    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }

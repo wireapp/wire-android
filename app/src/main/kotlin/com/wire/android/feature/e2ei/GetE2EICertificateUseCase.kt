@@ -40,15 +40,19 @@ class GetE2EICertificateUseCase @Inject constructor(
     private lateinit var initialEnrollmentResult: E2EIEnrollmentResult.Initialized
     lateinit var enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
 
-    operator fun invoke(context: Context, enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit) {
+    operator fun invoke(
+        context: Context,
+        isNewClient: Boolean,
+        enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit
+    ) {
         this.enrollmentResultHandler = enrollmentResultHandler
         scope.launch {
-            enrollE2EI.initialEnrollment().fold({
+            enrollE2EI.initialEnrollment(isNewClientRegistration = isNewClient).fold({
                 enrollmentResultHandler(Either.Left(it))
             }, {
                 if (it is E2EIEnrollmentResult.Initialized) {
                     initialEnrollmentResult = it
-                    OAuthUseCase(context, it.target, it.oAuthState).launch(
+                    OAuthUseCase(context, it.target, it.oAuthClaims, it.oAuthState).launch(
                         context.getActivity()!!.activityResultRegistry,
                         ::oAuthResultHandler
                     )

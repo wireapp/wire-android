@@ -17,42 +17,47 @@
  */
 package com.wire.android.ui.legalhold.banner
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.stringWithStyledArgs
 
 @Composable
-fun LegalHoldSubjectBanner(
+fun LegalHoldPendingBanner(
     onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LegalHoldBaseBanner(onClick = onClick, modifier = modifier) {
-        val resources = LocalContext.current.resources
-        Text(
-            text = resources.stringWithStyledArgs(
-                stringResId = R.string.legal_hold_subject_to,
-                normalStyle = typography().label01,
-                argsStyle = typography().label02.copy(textDecoration = TextDecoration.Underline),
-                normalColor = colorsScheme().onSurface,
-                argsColor = colorsScheme().onSurface,
-                resources.getString(R.string.legal_hold_label)
-            ),
-        )
+        Row {
+            Text(
+                text = stringResource(id = R.string.legal_hold_is_pending_label),
+                style = typography().label01,
+                color = colorsScheme().onSurface,
+            )
+            Text(
+                text = stringResource(id = R.string.legal_hold_accept),
+                style = typography().label02,
+                textDecoration = TextDecoration.Underline,
+                color = colorsScheme().onSurface,
+                modifier = Modifier.padding(start = dimensions().spacing2x),
+            )
+        }
     }
 }
 
 @Composable
 @PreviewMultipleThemes
-fun PreviewLegalHoldSubjectBanner() {
+fun PreviewLegalHoldPendingBanner() {
     WireTheme {
-        LegalHoldSubjectBanner()
+        LegalHoldPendingBanner()
     }
 }

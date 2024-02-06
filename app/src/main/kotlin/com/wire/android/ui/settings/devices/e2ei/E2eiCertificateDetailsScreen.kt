@@ -154,4 +154,4 @@ fun E2eiCertificateDetailsContent(
     )
 }
 
-const val CERTIFICATE_FILE_NAME = "certificate.pem"
+const val CERTIFICATE_FILE_NAME = "certificate.txt"

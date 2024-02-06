@@ -77,7 +77,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginEmailScreen(
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState()

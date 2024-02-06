@@ -46,7 +46,7 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     viewModel: LoginEmailViewModel = hiltViewModel()
 ) = LoginEmailVerificationCodeContent(
     viewModel.secondFactorVerificationCodeState,

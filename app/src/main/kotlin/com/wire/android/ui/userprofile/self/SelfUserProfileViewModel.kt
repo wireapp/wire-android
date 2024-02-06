@@ -37,6 +37,7 @@ import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -53,6 +54,9 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldState
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldForSelfUserUseCase
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -63,6 +67,7 @@ import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -85,6 +90,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
+    private val observeLegalHoldRequest: ObserveLegalHoldRequestUseCase,
+    private val observeLegalHoldForSelfUser: ObserveLegalHoldForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -110,6 +117,7 @@ class SelfUserProfileViewModel @Inject constructor(
             fetchSelfUser()
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
+            observeLegalHoldStatus()
         }
     }
 
@@ -165,6 +173,23 @@ class SelfUserProfileViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun observeLegalHoldStatus() {
+        viewModelScope.launch {
+            combine(
+                observeLegalHoldRequest(),
+                observeLegalHoldForSelfUser()
+            ) { legalHoldRequestStatus: ObserveLegalHoldRequestUseCase.Result, legalHoldStatus: LegalHoldState ->
+                when {
+                    legalHoldRequestStatus is ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable -> LegalHoldUIState.Pending
+                    legalHoldStatus is LegalHoldState.Enabled -> LegalHoldUIState.Active
+                    else -> LegalHoldUIState.None
+                }
+            }
+                .distinctUntilChanged()
+                .collectLatest { userProfileState = userProfileState.copy(legalHoldStatus = it) }
         }
     }
 

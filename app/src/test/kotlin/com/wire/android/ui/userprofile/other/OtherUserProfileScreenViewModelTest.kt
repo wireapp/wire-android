@@ -40,6 +40,7 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
+import com.wire.kalium.logic.feature.legalhold.LegalHoldState
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import io.mockk.Called
 import io.mockk.coVerify
@@ -201,6 +202,28 @@ class OtherUserProfileScreenViewModelTest {
 
         // then
         assertEquals(null, viewModel.state.conversationSheetContent)
+    }
+
+    @Test
+    fun `given legal hold enabled, then isUnderLegalHold is true`() = runTest {
+        // given
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withUserInfo(GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM))
+            .withLegalHoldState(LegalHoldState.Enabled)
+            .arrange()
+        // then
+        assertEquals(true, viewModel.state.isUnderLegalHold)
+    }
+
+    @Test
+    fun `given legal hold disabled, then isUnderLegalHold is false`() = runTest {
+        // given
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withUserInfo(GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.NOT_CONNECTED), TEAM))
+            .withLegalHoldState(LegalHoldState.Disabled)
+            .arrange()
+        // then
+        assertEquals(false, viewModel.state.isUnderLegalHold)
     }
 
     companion object {

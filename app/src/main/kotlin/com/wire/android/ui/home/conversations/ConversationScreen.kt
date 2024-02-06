@@ -375,28 +375,33 @@ fun ConversationScreen(
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onPermissionPermanentlyDenied = {
-            val (title, description) = when (it) {
+            val description = when (it) {
                 is PermissionDenialType.CaptureVideo -> {
-                    R.string.app_permission_dialog_title to R.string.record_video_permission_dialog_description
+                    R.string.record_video_permission_dialog_description
                 }
+
                 is PermissionDenialType.TakePicture -> {
-                   R.string.app_permission_dialog_title to R.string.take_picture_permission_dialog_description
+                    R.string.take_picture_permission_dialog_description
                 }
+
                 is PermissionDenialType.Gallery -> {
-                    R.string.app_permission_dialog_title to R.string.open_gallery_permission_dialog_description
+                    R.string.open_gallery_permission_dialog_description
                 }
+
                 is PermissionDenialType.ReadFile -> {
-                   R.string.app_permission_dialog_title to R.string.attach_file_permission_dialog_description
+                    R.string.attach_file_permission_dialog_description
                 }
+
                 is PermissionDenialType.CallingMicrophone -> {
-                   R.string.app_permission_dialog_title to R.string.call_permission_dialog_description
+                    R.string.call_permission_dialog_description
                 }
+
                 else -> {
-                    R.string.app_permission_dialog_title to R.string.app_permission_dialog_title
+                    R.string.app_permission_dialog_title
                 }
             }
             messageComposerViewModel.showPermissionPermanentlyDeniedDialog(
-                title = title,
+                title = R.string.app_permission_dialog_title,
                 description = description
             )
        },

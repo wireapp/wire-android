@@ -33,9 +33,9 @@ class GetUsersForMessageUseCase @Inject constructor(
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(messageItem: Message): List<User> {
-        val listWithSender: List<User> = messageItem.sender?.let { listOf(it) } ?: listOf()
-        val otherUserIdList = messageMapper.memberIdList(listOf(messageItem))
+    suspend operator fun invoke(message: Message): List<User> {
+        val listWithSender: List<User> = message.sender?.let { listOf(it) } ?: listOf()
+        val otherUserIdList = messageMapper.memberIdList(listOf(message))
 
         return if (otherUserIdList.isNotEmpty()) {
             observeMemberDetailsByIds(otherUserIdList)

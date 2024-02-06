@@ -45,6 +45,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -171,17 +172,23 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatar() {
-    UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
+    WireTheme {
+        UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatarWithLegalHold() {
-    UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), withLegalHoldIndicator = true)
+    WireTheme {
+        UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), withLegalHoldIndicator = true)
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewLargeUserProfileAvatarWithLegalHold() {
-    UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), size = 48.dp, withLegalHoldIndicator = true)
+    WireTheme {
+        UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), 48.dp, withLegalHoldIndicator = true)
+    }
 }

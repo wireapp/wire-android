@@ -72,7 +72,7 @@ fun MediaGalleryScreen(
         onPermissionPermanentlyDenied = {
             mediaGalleryViewModel.showPermissionPermanentlyDeniedDialog(
                 title = R.string.app_permission_dialog_title,
-                description = R.string.save_asset_permission_dialog_description
+                description = R.string.save_permission_dialog_description
             )
         }
     )

@@ -156,7 +156,7 @@ fun BackupAndRestoreContent(
                     if (it == PermissionDenialType.WriteFile) {
                         backupAndRestoreStateHolder.showPermissionPermanentlyDeniedDialog(
                             R.string.app_permission_dialog_title,
-                            R.string.save_file_permission_dialog_description
+                            R.string.save_backup_file_permission_dialog_description
                         )
                     }
                 }

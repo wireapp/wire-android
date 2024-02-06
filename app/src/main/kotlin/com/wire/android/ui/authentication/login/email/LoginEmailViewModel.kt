@@ -72,7 +72,7 @@ class LoginEmailViewModel @Inject constructor(
     )
 
     @Suppress("LongMethod")
-    fun login(onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
@@ -123,7 +123,12 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId))
+                        onSuccess(isInitialSyncCompleted(storedUserId), false)
+                    }
+
+                    is RegisterClientResult.E2EICertificateRequired -> {
+                        onSuccess(isInitialSyncCompleted(storedUserId), true)
+                        return@launch
                     }
                 }
             }
@@ -215,7 +220,7 @@ class LoginEmailViewModel @Inject constructor(
         loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 
-    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
             login(onSuccess)

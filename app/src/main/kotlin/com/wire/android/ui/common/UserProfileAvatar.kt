@@ -19,10 +19,8 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -42,26 +40,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlin.math.sqrt
 
 @Composable
 fun UserProfileAvatar(
     avatarData: UserAvatarData = UserAvatarData(),
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
-    statusBorderSize: PaddingValues = PaddingValues(all = dimensions().avatarStatusBorderSize),
     modifier: Modifier = Modifier,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
-    showStatusIndicator: Boolean = true
+    showStatusIndicator: Boolean = true,
+    withLegalHoldIndicator: Boolean = false,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -79,18 +79,51 @@ fun UserProfileAvatar(
             painter = painter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
-                .padding(statusBorderSize)
-                .background(MaterialTheme.wireColorScheme.divider, CircleShape)
-                .size(size)
-                .border(width = dimensions().spacing1x, shape = CircleShape, color = MaterialTheme.wireColorScheme.outline)
+                // we need to take borders into account
+                .size(size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2))
+                .let {
+                    if (withLegalHoldIndicator) {
+                        it
+                            .border(
+                                width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
+                                shape = CircleShape,
+                                color = colorsScheme().error.copy(alpha = 0.3f)
+                            )
+                            .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
+                            .border(
+                                width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
+                                shape = CircleShape,
+                                color = colorsScheme().error.copy(alpha = 1.0f)
+                            )
+                            .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
+                    } else {
+                        it
+                            // this is to make the border of the avatar to be the same size as with the legal hold indicator
+                            .padding(dimensions().avatarLegalHoldIndicatorBorderSize - dimensions().spacing1x)
+                            .border(
+                                width = dimensions().spacing1x,
+                                shape = CircleShape,
+                                color = colorsScheme().outline
+                            )
+                            .padding(dimensions().spacing1x)
+
+                    }
+                }
                 .clip(CircleShape)
                 .testTag("User avatar"),
             contentScale = ContentScale.Crop
         )
         if (showStatusIndicator) {
+            val avatarWithLegalHoldRadius = (size.value / 2f) + dimensions().avatarLegalHoldIndicatorBorderSize.value
+            val statusRadius = (dimensions().userAvatarStatusSize - dimensions().avatarStatusBorderSize).value / 2f
+            // calculated using the trigonometry so that the status is always in the right place according to the avatar
+            val paddingToAlignWithAvatar = ((sqrt(2f) - 1f) * avatarWithLegalHoldRadius + (1f - sqrt(2f)) * statusRadius) / sqrt(2f)
             UserStatusIndicator(
                 status = avatarData.availabilityStatus,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier
+                    // on designs the status border extends beyond the avatar's perimeter so we need to subtract it's size from the padding
+                    .padding(paddingToAlignWithAvatar.dp - dimensions().avatarStatusBorderSize)
+                    .align(Alignment.BottomEnd)
             )
         }
     }
@@ -141,3 +174,16 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
 fun PreviewUserProfileAvatar() {
     UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
 }
+
+@Preview
+@Composable
+fun PreviewUserProfileAvatarWithLegalHold() {
+    UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), withLegalHoldIndicator = true)
+}
+
+@Preview
+@Composable
+fun PreviewLargeUserProfileAvatarWithLegalHold() {
+    UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), size = 48.dp, withLegalHoldIndicator = true)
+}
+

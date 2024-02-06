@@ -28,15 +28,14 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.legalhold.ObserveLegalHoldStatusForCurrentUserUseCase
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.legalhold.LegalHoldState
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldForSelfUserUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -63,9 +62,7 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var logout: LogoutUseCase
     @MockK
-    lateinit var observeLegalHoldRequest: ObserveLegalHoldRequestUseCase
-    @MockK
-    lateinit var observeLegalHoldForSelfUser: ObserveLegalHoldForSelfUserUseCase
+    lateinit var observeLegalHoldStatusForCurrentUser: ObserveLegalHoldStatusForCurrentUserUseCase
     @MockK
     lateinit var dispatchers: DispatcherProvider
     @MockK
@@ -102,8 +99,7 @@ class SelfUserProfileViewModelArrangement {
             observeValidAccounts = observeValidAccounts,
             updateStatus = updateStatus,
             logout = logout,
-            observeLegalHoldRequest = observeLegalHoldRequest,
-            observeLegalHoldForSelfUser = observeLegalHoldForSelfUser,
+            observeLegalHoldStatusForCurrentUser = observeLegalHoldStatusForCurrentUser,
             dispatchers = TestDispatcherProvider(),
             wireSessionImageLoader = wireSessionImageLoader,
             authServerConfigProvider = authServerConfigProvider,
@@ -130,12 +126,8 @@ class SelfUserProfileViewModelArrangement {
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
     }
-
-    fun withLegalHoldRequest(result: ObserveLegalHoldRequestUseCase.Result) = apply {
-        coEvery { observeLegalHoldRequest.invoke() } returns flowOf(result)
-    }
-    fun withLegalHold(result: LegalHoldState) = apply {
-        coEvery { observeLegalHoldForSelfUser.invoke() } returns flowOf(result)
+    fun withLegalHoldStatus(result: LegalHoldUIState) = apply {
+        coEvery { observeLegalHoldStatusForCurrentUser.invoke() } returns flowOf(result)
     }
     fun arrange() = this to viewModel
 }

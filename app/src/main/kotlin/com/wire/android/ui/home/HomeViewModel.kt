@@ -27,10 +27,13 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.legalhold.ObserveLegalHoldStatusForCurrentUserUseCase
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,6 +45,7 @@ class HomeViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
+    private val observeLegalHoldStatusForCurrentUser: ObserveLegalHoldStatusForCurrentUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
@@ -51,6 +55,14 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadUserAvatar()
+        observeLegalHoldStatus()
+    }
+
+    private fun observeLegalHoldStatus() {
+        viewModelScope.launch {
+            observeLegalHoldStatusForCurrentUser()
+                .collectLatest { homeState = homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldUIState.None) }
+        }
     }
 
     fun checkRequirements(onRequirement: (HomeRequirement) -> Unit) {
@@ -76,9 +88,9 @@ class HomeViewModel @Inject constructor(
     private fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                homeState = HomeState(
-                    selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    selfUser.availabilityStatus
+                homeState = homeState.copy(
+                    avatarAsset = selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                    status = selfUser.availabilityStatus
                 )
             }
         }

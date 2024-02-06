@@ -20,8 +20,6 @@ package com.wire.android.ui.userprofile.self
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
-import com.wire.kalium.logic.feature.legalhold.LegalHoldState
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -34,22 +32,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SelfUserProfileViewModelTest {
 
     @Test
-    fun `given legal hold request available, then isUnderLegalHold is pending`() = runTest {
+    fun `given legal hold request pending, then isUnderLegalHold is pending`() = runTest {
         // given
         val (_, viewModel) = SelfUserProfileViewModelArrangement()
-            .withLegalHold(LegalHoldState.Enabled)
-            .withLegalHoldRequest(ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable("fingerprint".toByteArray()))
+            .withLegalHoldStatus(LegalHoldUIState.Pending)
             .arrange()
         // then
         assertEquals(LegalHoldUIState.Pending, viewModel.userProfileState.legalHoldStatus)
     }
 
     @Test
-    fun `given legal hold enabled, then isUnderLegalHold is active`() = runTest {
+    fun `given legal hold active, then isUnderLegalHold is active`() = runTest {
         // given
         val (_, viewModel) = SelfUserProfileViewModelArrangement()
-            .withLegalHold(LegalHoldState.Enabled)
-            .withLegalHoldRequest(ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest)
+            .withLegalHoldStatus(LegalHoldUIState.Active)
             .arrange()
         // then
         assertEquals(LegalHoldUIState.Active, viewModel.userProfileState.legalHoldStatus)
@@ -59,8 +55,7 @@ class SelfUserProfileViewModelTest {
     fun `given legal hold disabled and no request available, then isUnderLegalHold is none`() = runTest {
         // given
         val (_, viewModel) = SelfUserProfileViewModelArrangement()
-            .withLegalHold(LegalHoldState.Disabled)
-            .withLegalHoldRequest(ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest)
+            .withLegalHoldStatus(LegalHoldUIState.None)
             .arrange()
         // then
         assertEquals(LegalHoldUIState.None, viewModel.userProfileState.legalHoldStatus)

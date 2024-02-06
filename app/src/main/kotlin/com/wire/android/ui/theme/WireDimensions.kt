@@ -192,7 +192,9 @@ data class WireDimensions(
     // Conversation options
     val conversationOptionsItemMinHeight: Dp,
     // Import media
-    val importedMediaAssetSize: Dp
+    val importedMediaAssetSize: Dp,
+    // legal hold banner
+    val legalHoldBannerMinHeight: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -334,7 +336,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     ongoingCallLabelHeight = 28.dp,
     audioMessageHeight = 48.dp,
     importedMediaAssetSize = 120.dp,
-    typingIndicatorHeight = 24.dp
+    typingIndicatorHeight = 24.dp,
+    legalHoldBannerMinHeight = 26.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

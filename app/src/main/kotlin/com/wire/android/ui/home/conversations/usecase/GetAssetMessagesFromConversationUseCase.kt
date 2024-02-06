@@ -26,15 +26,10 @@ import com.wire.android.ui.common.monthYearHeader
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -43,7 +38,7 @@ import kotlin.math.max
 
 class GetAssetMessagesFromConversationUseCase @Inject constructor(
     private val getAssetMessages: GetPaginatedFlowOfAssetMessageByConversationIdUseCase,
-    private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
+    private val getUsersForMessage: GetUsersForMessageUseCase,
     private val messageMapper: MessageMapper,
     private val dispatchers: DispatcherProvider
 ) {
@@ -71,24 +66,10 @@ class GetAssetMessagesFromConversationUseCase @Inject constructor(
         ).map { pagingData ->
             val currentTime = TimeZone.currentSystemDefault()
             val uiMessagePagingData: PagingData<UIPagingItem> = pagingData.flatMap { messageItem ->
-                val listWithSender: List<User> = (messageItem as? Message)?.sender?.let { listOf(it) } ?: listOf()
-                val otherUserIdList = messageMapper.memberIdList(listOf(messageItem))
-
-                if(otherUserIdList.isNotEmpty()) {
-                    observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
-                        .mapLatest { usersList ->
-                            messageMapper.toUIMessage(listWithSender.plus(usersList), messageItem)?.let { listOf(it) } ?: emptyList()
-                        }.first()
-                } else {
-                    messageMapper.toUIMessage(listWithSender, messageItem)?.let { listOf(it) } ?: emptyList()
-                }
-
-                observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
-                    .mapLatest { usersList ->
-                        messageMapper.toUIMessage(usersList, messageItem)
-                            ?.let { listOf(UIPagingItem.Message(it, Instant.parse(messageItem.date))) }
-                            ?: emptyList()
-                    }.first()
+                val usersForMessage = getUsersForMessage(messageItem)
+                messageMapper.toUIMessage(usersForMessage, messageItem)
+                    ?.let { listOf(UIPagingItem.Message(it, Instant.parse(messageItem.date))) }
+                    ?: emptyList()
             }.insertSeparators { before: UIPagingItem.Message?, after: UIPagingItem.Message? ->
                 if (before == null && after != null) {
                     val localDateTime = after.date.toLocalDateTime(currentTime)

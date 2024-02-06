@@ -24,22 +24,17 @@ import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.user.User
-import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
 import kotlin.math.max
 
 class GetConversationMessagesFromSearchUseCase @Inject constructor(
     private val getMessagesSearch: GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase,
-    private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
+    private val getUsersForMessage: GetUsersForMessageUseCase,
     private val messageMapper: MessageMapper,
     private val dispatchers: DispatcherProvider
 ) {
@@ -69,17 +64,8 @@ class GetConversationMessagesFromSearchUseCase @Inject constructor(
                 startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE).toLong()
             ).map { pagingData ->
                 pagingData.flatMap { messageItem ->
-                    val listWithSender: List<User> = (messageItem as? Message)?.sender?.let { listOf(it) } ?: listOf()
-                    val otherUserIdList = messageMapper.memberIdList(listOf(messageItem))
-
-                    if(otherUserIdList.isNotEmpty()) {
-                        observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
-                            .mapLatest { usersList ->
-                                messageMapper.toUIMessage(listWithSender.plus(usersList), messageItem)?.let { listOf(it) } ?: emptyList()
-                            }.first()
-                    } else {
-                        messageMapper.toUIMessage(listWithSender, messageItem)?.let { listOf(it) } ?: emptyList()
-                    }
+                    val usersForMessage = getUsersForMessage(messageItem)
+                    messageMapper.toUIMessage(usersForMessage, messageItem)?.let { listOf(it) } ?: emptyList()
                 }
             }.flowOn(dispatchers.io())
         } else {

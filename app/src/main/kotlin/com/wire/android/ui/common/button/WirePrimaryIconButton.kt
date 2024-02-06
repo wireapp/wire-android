@@ -42,6 +42,7 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun WirePrimaryIconButton(
     onButtonClicked: () -> Unit,
+    loading: Boolean = false,
     @DrawableRes iconResource: Int,
     @StringRes contentDescription: Int,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
@@ -54,7 +55,8 @@ fun WirePrimaryIconButton(
 ) {
     WirePrimaryButton(
         onClick = onButtonClicked,
-        leadingIcon = {
+        loading = loading,
+        trailingIcon = {
             Icon(
                 painter = painterResource(id = iconResource),
                 contentDescription = stringResource(contentDescription),
@@ -65,7 +67,7 @@ fun WirePrimaryIconButton(
         minSize = minSize,
         minClickableSize = minClickableSize,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
-        leadingIconAlignment = IconAlignment.Center,
+        trailingIconAlignment = IconAlignment.Center,
         state = state,
         colors = colors,
         clickBlockParams = clickBlockParams,
@@ -77,10 +79,15 @@ fun WirePrimaryIconButton(
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButton() {
-    WirePrimaryIconButton({}, R.drawable.ic_add, 0)
+    WirePrimaryIconButton({}, false, R.drawable.ic_add, 0)
+}
+@Preview
+@Composable
+fun PreviewWirePrimaryIconButtonLoading() {
+    WirePrimaryIconButton({}, true, R.drawable.ic_add, 0)
 }
 @Preview
 @Composable
 fun PreviewWirePrimaryIconButtonRound() {
-    WirePrimaryIconButton({}, R.drawable.ic_add, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))
+    WirePrimaryIconButton({}, false, R.drawable.ic_add, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))
 }

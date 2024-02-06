@@ -42,6 +42,14 @@ object DataDogLogger : LogWriter() {
                 "clientId" to userClientData.clientId,
             )
         } ?: emptyMap<String, Any?>()
-        logger.log(severity.ordinal, message, throwable, attributes)
+
+        when (severity) {
+            Severity.Debug -> logger.d(message, throwable, attributes)
+            Severity.Info -> logger.i(message, throwable, attributes)
+            Severity.Warn -> logger.w(message, throwable, attributes)
+            Severity.Error -> logger.e(message, throwable, attributes)
+            Severity.Assert,
+            Severity.Verbose -> logger.v(message, throwable, attributes)
+        }
     }
 }

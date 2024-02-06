@@ -95,7 +95,7 @@ class ObserveLegalHoldStatusForCurrentUserUseCaseTest {
         assertEquals(LegalHoldUIState.None, useCase.invoke().first())
     }
 
-    internal class Arrangement() {
+    internal class Arrangement {
 
         @MockK
         private lateinit var coreLogic: CoreLogic
@@ -108,7 +108,7 @@ class ObserveLegalHoldStatusForCurrentUserUseCaseTest {
         }
         fun arrange() = this to useCase
         fun withCurrentSession(result: CurrentSessionResult) = apply {
-            coEvery {  coreLogic.getGlobalScope().session.currentSessionFlow.invoke() } returns flowOf(result)
+            coEvery { coreLogic.getGlobalScope().session.currentSessionFlow.invoke() } returns flowOf(result)
         }
         fun withLegalHoldRequest(result: ObserveLegalHoldRequestUseCase.Result) = apply {
             coEvery { coreLogic.getSessionScope(any()).observeLegalHoldRequest.invoke() } returns flowOf(result)

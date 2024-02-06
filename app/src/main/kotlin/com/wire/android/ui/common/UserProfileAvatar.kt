@@ -106,7 +106,6 @@ fun UserProfileAvatar(
                                 color = colorsScheme().outline
                             )
                             .padding(dimensions().spacing1x)
-
                     }
                 }
                 .clip(CircleShape)
@@ -186,4 +185,3 @@ fun PreviewUserProfileAvatarWithLegalHold() {
 fun PreviewLargeUserProfileAvatarWithLegalHold() {
     UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), size = 48.dp, withLegalHoldIndicator = true)
 }
-

@@ -47,7 +47,7 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "ComplexMethod")
     suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> =
         scalaUserDBProvider.clientDAO(userId.value).flatMap { clientDAO ->
             val clientId = clientDAO.clientInfo()?.clientId?.let { ClientId(it) }
@@ -101,6 +101,19 @@ class MigrateClientsDataUseCase @Inject constructor(
                             syncManager.waitUntilLiveOrFailure()
                                 .onSuccess {
                                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                                }
+                        }
+
+                    is RegisterClientResult.E2EICertificateRequired ->
+                        withTimeoutOrNull(SYNC_START_TIMEOUT) {
+                            syncManager.waitUntilStartedOrFailure()
+                        }.let {
+                            it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
+                        }.flatMap {
+                            syncManager.waitUntilLiveOrFailure()
+                                .onSuccess {
+                                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                                    TODO() // TODO: ask question about this!
                                 }
                         }
                 }

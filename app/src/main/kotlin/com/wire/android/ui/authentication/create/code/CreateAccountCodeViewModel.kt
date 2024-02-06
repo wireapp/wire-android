@@ -187,6 +187,11 @@ class CreateAccountCodeViewModel @Inject constructor(
                     is RegisterClientResult.Success -> {
                         onSuccess()
                     }
+
+                    is RegisterClientResult.E2EICertificateRequired -> {
+                        // TODO
+                        onSuccess()
+                    }
                 }
             }
         }

@@ -51,6 +51,20 @@ data class Device(
         mlsPublicKeys = client.mlsPublicKeys,
         e2eiCertificateStatus = e2eiCertificateStatus
     )
+
+    fun updateFromClient(client: Client): Device = copy(
+        name = client.displayName(),
+        clientId = client.id,
+        registrationTime = client.registrationTime?.toIsoDateTimeString(),
+        lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
+        isValid = client.isValid,
+        isVerifiedProteus = client.isVerified,
+        mlsPublicKeys = client.mlsPublicKeys,
+    )
+
+    fun updateE2EICertificateStatus(e2eiCertificateStatus: CertificateStatus): Device = copy(
+        e2eiCertificateStatus = e2eiCertificateStatus
+    )
 }
 
 /**

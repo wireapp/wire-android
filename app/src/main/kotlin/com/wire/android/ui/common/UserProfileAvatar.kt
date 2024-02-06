@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -47,6 +46,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlin.math.sqrt
@@ -169,19 +169,19 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
         R.drawable.ic_default_user_avatar
     }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatar() {
     UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatarWithLegalHold() {
     UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), withLegalHoldIndicator = true)
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewLargeUserProfileAvatarWithLegalHold() {
     UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), size = 48.dp, withLegalHoldIndicator = true)

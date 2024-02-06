@@ -28,10 +28,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.appLogger
 import com.wire.android.util.deeplink.DeepLinkProcessor
-<<<<<<< HEAD
-=======
 import com.wire.android.util.removeQueryParams
->>>>>>> 8afc503e5 (feat(e2ei): respect e2ei during login and mls client creation (WPB-5851) (#2621))
 import kotlinx.serialization.json.JsonObject
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState

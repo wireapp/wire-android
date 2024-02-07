@@ -22,6 +22,8 @@ import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Instant
@@ -31,7 +33,7 @@ data class ConversationMessagesViewState(
     val firstUnreadInstant: Instant? = null,
     val firstuUnreadEventIndex: Int = 0,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val audioMessagesState: Map<String, AudioState> = emptyMap(),
+    val audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     val searchedMessageId: String? = null
 )
 

@@ -64,19 +64,19 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: report
-          path: app/build/reports/jacoco
+          path: app/build/reports/kover
 
       - name: Download Test Reports Folder
         uses: actions/download-artifact@v4
         with:
           name: report
-          path: app/build/reports/jacoco
+          path: app/build/reports/kover
           merge-multiple: true
 
       - name: Upload Test Report
         uses: codecov/codecov-action@v4
         with:
-          files: "app/build/reports/jacoco/jacocoReport/jacocoReport.xml"
+          files: "app/build/reports/kover/report.xml"
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

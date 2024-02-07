@@ -93,7 +93,7 @@ jobs:
                   git add ${{ env.SUBMODULE_NAME }}
                   git commit -m "Update submodule ${{ env.SUBMODULE_NAME }} to latest from ${{ env.TARGET_BRANCH }}"
                   # Base64 encode the commit message to avoid issues with newlines and special characters
-                  echo "lastCommitMessageBase64=$(echo "$LAST_COMMIT_MESSAGE" | base64)" >> $GITHUB_ENV
+                  echo "lastCommitMessageBase64=$(echo "$LAST_COMMIT_MESSAGE" | base64 -w 0 )" >> $GITHUB_ENV
 
             - name: Get Cherry-pick commit
               id: get-cherry

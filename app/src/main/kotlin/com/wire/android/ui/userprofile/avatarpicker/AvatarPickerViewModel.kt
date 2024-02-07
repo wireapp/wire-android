@@ -81,6 +81,7 @@ class AvatarPickerViewModel @Inject constructor(
         loadInitialAvatarState()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun loadInitialAvatarState() {
         viewModelScope.launch {
             initialPictureLoadingState = InitialPictureLoadingState.Loading
@@ -139,7 +140,7 @@ class AvatarPickerViewModel @Inject constructor(
     }
 
     @Stable
-    private sealed class InitialPictureLoadingState() {
+    private sealed class InitialPictureLoadingState {
         data object None : InitialPictureLoadingState()
         data object Loading : InitialPictureLoadingState()
         data class Loaded(val avatarUri: Uri) : InitialPictureLoadingState()
@@ -154,8 +155,7 @@ class AvatarPickerViewModel @Inject constructor(
     }
 
     sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
-        object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
-        object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))
+        data object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
+        data object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))
     }
 }
-

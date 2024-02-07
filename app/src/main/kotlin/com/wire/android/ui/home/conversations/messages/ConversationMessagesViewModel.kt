@@ -34,6 +34,8 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
@@ -109,6 +111,19 @@ class ConversationMessagesViewModel @Inject constructor(
         loadPaginatedMessages()
         loadLastMessageInstant()
         observeAudioPlayerState()
+    }
+
+    fun navigateToReplyOriginalMessage(message: UIMessage) {
+        if (message.messageContent is UIMessageContent.TextMessage) {
+            val originalMessageId =
+                ((message.messageContent as UIMessageContent.TextMessage)
+                    .messageBody.quotedMessage as UIQuotedMessage.UIQuotedData)
+                    .messageId
+            conversationViewState = conversationViewState.copy(
+                searchedMessageId = originalMessageId
+            )
+            loadPaginatedMessages()
+        }
     }
 
     private fun clearOrphanedTypingEvents() {

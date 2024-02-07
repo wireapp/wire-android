@@ -126,7 +126,8 @@ private fun AssetMessagesListContent(
                                 defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
                                 shouldDisplayFooter = false,
-                                onLinkClick = { }
+                                onLinkClick = { },
+                                onReplyClickable = null
                             )
                         }
 

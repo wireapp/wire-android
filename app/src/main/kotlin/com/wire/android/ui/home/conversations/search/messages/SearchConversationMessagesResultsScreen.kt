@@ -68,7 +68,8 @@ fun SearchConversationMessagesResultsScreen(
                         shouldDisplayMessageStatus = false,
                         shouldDisplayFooter = false,
                         isContentClickable = true,
-                        onMessageClick = onMessageClick
+                        onMessageClick = onMessageClick,
+                        onReplyClickable = null,
                     )
                 }
                 is UIMessage.System -> { }

@@ -72,7 +72,6 @@ class GetUsersForMessageUseCaseTest {
             .withMemberList(listOf(otherUser.id))
             .arrange()
 
-
         val result = useCase(userWithoutOtherUsers)
 
         assertTrue(result.first().equals(user1))

@@ -28,6 +28,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.appLogger
 import com.wire.android.util.deeplink.DeepLinkProcessor
+import com.wire.android.util.removeQueryParams
 import kotlinx.serialization.json.JsonObject
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
@@ -44,6 +45,7 @@ import net.openid.appauth.browser.VersionedBrowserMatcher
 import net.openid.appauth.connectivity.ConnectionBuilder
 import org.json.JSONObject
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -119,7 +121,7 @@ class OAuthUseCase(context: Context, private val authUrl: String, private val cl
             handleActivityResult(result, resultHandler)
         }
         AuthorizationServiceConfiguration.fetchFromUrl(
-            Uri.parse(authUrl.plus(IDP_CONFIGURATION_PATH)),
+            Uri.parse(URI(authUrl).removeQueryParams().toString().plus(IDP_CONFIGURATION_PATH)),
             { configuration, ex ->
                 if (ex == null) {
                     authServiceConfig = configuration!!

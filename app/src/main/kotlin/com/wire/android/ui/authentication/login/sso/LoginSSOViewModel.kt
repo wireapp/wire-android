@@ -197,9 +197,13 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "LongMethod")
     @VisibleForTesting
-    fun establishSSOSession(cookie: String, serverConfigId: String, onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun establishSSOSession(
+        cookie: String,
+        serverConfigId: String,
+        onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+    ) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             val authScope =
@@ -251,12 +255,16 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId))
+                        onSuccess(isInitialSyncCompleted(storedUserId), false)
                     }
 
                     is RegisterClientResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
                         return@launch
+                    }
+
+                    is RegisterClientResult.E2EICertificateRequired -> {
+                        onSuccess(isInitialSyncCompleted(storedUserId), true)
                     }
                 }
             }
@@ -272,15 +280,18 @@ class LoginSSOViewModel @Inject constructor(
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
-    fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?, onSuccess: (initialSyncCompleted: Boolean) -> Unit) =
+    fun handleSSOResult(
+        ssoLoginResult: DeepLinkResult.SSOLogin?,
+        onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+    ) =
         when (ssoLoginResult) {
-        is DeepLinkResult.SSOLogin.Success -> {
-            establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, onSuccess)
-        }
+            is DeepLinkResult.SSOLogin.Success -> {
+                establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId, onSuccess)
+            }
 
-        is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
-        null -> {}
-    }
+            is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
+            null -> {}
+        }
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {

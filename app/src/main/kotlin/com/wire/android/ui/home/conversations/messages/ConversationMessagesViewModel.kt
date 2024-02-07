@@ -123,7 +123,6 @@ class ConversationMessagesViewModel @Inject constructor(
                 searchedMessageId = originalMessageId
             )
             loadPaginatedMessages()
-
         }
     }
 

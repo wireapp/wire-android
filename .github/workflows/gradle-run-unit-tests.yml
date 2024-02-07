@@ -73,7 +73,7 @@ jobs:
           path: app/build/reports/kover
           merge-multiple: true
 
-      - name: Upload Code coverage to codecov
+      - name: Upload code coverage to codecov
         uses: codecov/codecov-action@v4
         env:
             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -37,7 +37,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
         getLocationWithoutGms(
             onSuccess = onSuccess,
             onError = onError
-        
+        )
     }
 
     @SuppressLint("MissingPermission")

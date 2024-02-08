@@ -34,6 +34,4 @@ data class Contact(
     fun isMetadataEmpty(): Boolean {
         return name.isEmpty()
     }
-
-    fun fullyQualifiedHandle() = "$label@$domain"
 }

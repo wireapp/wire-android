@@ -30,7 +30,8 @@ import com.wire.kalium.logic.data.user.UserId
 data class HomeState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val shouldDisplayWelcomeMessage: Boolean = false
+    val shouldDisplayWelcomeMessage: Boolean = false,
+    val shouldDisplayLegalHoldIndicator: Boolean = false,
 )
 
 sealed class HomeRequirement {

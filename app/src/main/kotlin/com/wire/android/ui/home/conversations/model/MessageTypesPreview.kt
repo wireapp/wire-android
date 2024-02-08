@@ -524,7 +524,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None,
                 showAuthor = false,
-                audioMessagesState = emptyMap(),
+                audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},

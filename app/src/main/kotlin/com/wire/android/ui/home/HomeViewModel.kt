@@ -27,10 +27,10 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.legalhold.ObserveLegalHoldStatusForCurrentUserUseCase
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
-    private val observeLegalHoldStatusForCurrentUser: ObserveLegalHoldStatusForCurrentUserUseCase,
+    private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
@@ -60,8 +60,8 @@ class HomeViewModel @Inject constructor(
 
     private fun observeLegalHoldStatus() {
         viewModelScope.launch {
-            observeLegalHoldStatusForCurrentUser()
-                .collectLatest { homeState = homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldUIState.None) }
+            observeLegalHoldStatusForSelfUser()
+                .collectLatest { homeState = homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled) }
         }
     }
 

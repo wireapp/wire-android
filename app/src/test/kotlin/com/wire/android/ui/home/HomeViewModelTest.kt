@@ -22,12 +22,12 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
-import com.wire.android.ui.legalhold.ObserveLegalHoldStatusForCurrentUserUseCase
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -48,16 +48,16 @@ class HomeViewModelTest {
     fun `given legal hold request pending, then shouldDisplayLegalHoldIndicator is true`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
-            .withLegalHoldStatus(flowOf(LegalHoldUIState.Pending))
+            .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.PendingRequest))
             .arrange()
         // then
         assertEquals(true, viewModel.homeState.shouldDisplayLegalHoldIndicator)
     }
     @Test
-    fun `given legal hold active, then shouldDisplayLegalHoldIndicator is true`() = runTest {
+    fun `given legal hold enabled, then shouldDisplayLegalHoldIndicator is true`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
-            .withLegalHoldStatus(flowOf(LegalHoldUIState.Active))
+            .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Enabled))
             .arrange()
         // then
         assertEquals(true, viewModel.homeState.shouldDisplayLegalHoldIndicator)
@@ -66,17 +66,17 @@ class HomeViewModelTest {
     fun `given legal hold disabled and no request available, then shouldDisplayLegalHoldIndicator is false`() = runTest {
         // given
         val (_, viewModel) = Arrangement()
-            .withLegalHoldStatus(flowOf(LegalHoldUIState.None))
+            .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Disabled))
             .arrange()
         // then
         assertEquals(false, viewModel.homeState.shouldDisplayLegalHoldIndicator)
     }
     @Test
-    fun `given legal hold active, when user status changes, then shouldDisplayLegalHoldIndicator should keep the same`() = runTest {
+    fun `given legal hold enabled, when user status changes, then shouldDisplayLegalHoldIndicator should keep the same`() = runTest {
         // given
         val selfFlow = MutableStateFlow(TestUser.SELF_USER.copy(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
         val (_, viewModel) = Arrangement()
-            .withLegalHoldStatus(flowOf(LegalHoldUIState.Active))
+            .withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Enabled))
             .withGetSelf(selfFlow)
             .arrange()
         // when
@@ -96,7 +96,7 @@ class HomeViewModelTest {
         @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
         @MockK
-        lateinit var observeLegalHoldStatusForCurrentUser: ObserveLegalHoldStatusForCurrentUserUseCase
+        lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
         @MockK
         lateinit var wireSessionImageLoader: WireSessionImageLoader
         @MockK
@@ -108,7 +108,7 @@ class HomeViewModelTest {
                 globalDataStore = globalDataStore,
                 getSelf = getSelf,
                 needsToRegisterClient = needsToRegisterClient,
-                observeLegalHoldStatusForCurrentUser = observeLegalHoldStatusForCurrentUser,
+                observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 wireSessionImageLoader = wireSessionImageLoader,
                 shouldTriggerMigrationForUser = shouldTriggerMigrationForUser
             )
@@ -120,8 +120,8 @@ class HomeViewModelTest {
         fun withGetSelf(result: Flow<SelfUser>) = apply {
             coEvery { getSelf.invoke() } returns result
         }
-        fun withLegalHoldStatus(result: Flow<LegalHoldUIState>) = apply {
-            coEvery { observeLegalHoldStatusForCurrentUser.invoke() } returns result
+        fun withLegalHoldStatus(result: Flow<LegalHoldStateForSelfUser>) = apply {
+            coEvery { observeLegalHoldStatusForSelfUser.invoke() } returns result
         }
         fun arrange() = this to viewModel
     }

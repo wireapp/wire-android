@@ -19,7 +19,6 @@
 package com.wire.android.ui.common.topappbar
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -30,7 +29,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -185,53 +183,7 @@ class CommonTopAppBarViewModelTest {
         val state = commonTopAppBarViewModel.state
 
         state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
-        state.legalHoldState shouldBeInstanceOf LegalHoldUIState.None::class
     }
-
-    private fun testLegalHoldRequestInfo(
-        currentScreen: CurrentScreen,
-        result: ObserveLegalHoldRequestUseCase.Result,
-        expectedState: LegalHoldUIState,
-    ) = runTest {
-        val (_, commonTopAppBarViewModel) = Arrangement()
-            .withCurrentSessionExist()
-            .withCurrentScreen(currentScreen)
-            .withLegalHoldRequestResult(result)
-            .arrange()
-
-        advanceUntilIdle()
-        val state = commonTopAppBarViewModel.state
-
-        state.legalHoldState shouldBeInstanceOf expectedState::class
-    }
-
-    @Test
-    fun givenNoLegalHoldRequest_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
-        currentScreen = CurrentScreen.Home,
-        result = ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest,
-        expectedState = LegalHoldUIState.None
-    )
-
-    @Test
-    fun givenLegalHoldRequestAndHomeScreen_whenGettingState_thenShouldHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
-        currentScreen = CurrentScreen.Home,
-        result = ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(byteArrayOf()),
-        expectedState = LegalHoldUIState.Pending
-    )
-
-    @Test
-    fun givenLegalHoldRequestAndCallScreen_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
-        currentScreen = CurrentScreen.OngoingCallScreen(mockk()),
-        result = ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(byteArrayOf()),
-        expectedState = LegalHoldUIState.None
-    )
-
-    @Test
-    fun givenLegalHoldRequestAndAuthRelatedScreen_whenGettingState_thenShouldNotHaveLegalHoldRequestInfo() = testLegalHoldRequestInfo(
-        currentScreen = CurrentScreen.AuthRelated,
-        result = ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable(byteArrayOf()),
-        expectedState = LegalHoldUIState.None
-    )
 
     private class Arrangement {
 
@@ -280,7 +232,6 @@ class CommonTopAppBarViewModelTest {
 
             withSyncState(SyncState.Live)
             withoutActiveCall()
-            withLegalHoldRequestResult(ObserveLegalHoldRequestUseCase.Result.NoLegalHoldRequest)
         }
 
         private val commonTopAppBarViewModel by lazy {
@@ -323,10 +274,6 @@ class CommonTopAppBarViewModelTest {
 
         fun withCurrentScreen(currentScreen: CurrentScreen) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(currentScreen)
-        }
-
-        fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCase.Result) = apply {
-            every { coreLogic.getSessionScope(any()).observeLegalHoldRequest() } returns flowOf(result)
         }
 
         fun arrange() = this to commonTopAppBarViewModel

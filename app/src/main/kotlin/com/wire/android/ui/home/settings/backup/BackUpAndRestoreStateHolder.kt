@@ -23,16 +23,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 
 class BackUpAndRestoreStateHolder {
 
     var dialogState: BackupAndRestoreDialog by mutableStateOf(
         BackupAndRestoreDialog.None
-    )
-
-    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
-        PermissionPermanentlyDeniedDialogState.Hidden
     )
 
     fun showBackupDialog() {
@@ -45,17 +40,6 @@ class BackUpAndRestoreStateHolder {
 
     fun dismissDialog() {
         dialogState = BackupAndRestoreDialog.None
-    }
-
-    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
-            title = title,
-            description = description
-        )
-    }
-
-    fun hidePermissionPermanentlyDeniedDialog() {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 }
 

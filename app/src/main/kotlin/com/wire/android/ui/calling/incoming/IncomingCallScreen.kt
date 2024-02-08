@@ -57,7 +57,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
@@ -75,13 +77,16 @@ fun IncomingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onAcceptCall = incomingCallViewModel::acceptCall,
         onPermanentPermissionDecline = {
-            sharedCallingViewModel.showPermissionPermanentlyDeniedDialog(
-                title = R.string.app_permission_dialog_title,
-                description = R.string.call_permission_dialog_description
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.call_permission_dialog_description
+                )
             )
         }
     )
@@ -120,9 +125,11 @@ fun IncomingCallScreen(
             onSelfClearVideoPreview = ::clearVideoPreview,
             onPermissionPermanentlyDenied = {
                 if (it is PermissionDenialType.CallingCamera) {
-                    sharedCallingViewModel.showPermissionPermanentlyDeniedDialog(
-                        title = R.string.app_permission_dialog_title,
-                        description = R.string.camera_permission_dialog_description
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            title = R.string.app_permission_dialog_title,
+                            description = R.string.camera_permission_dialog_description
+                        )
                     )
                 }
             }
@@ -130,8 +137,8 @@ fun IncomingCallScreen(
     }
 
     PermissionPermanentlyDeniedDialog(
-        dialogState = sharedCallingViewModel.permissionPermanentlyDeniedDialogState,
-        hideDialog = sharedCallingViewModel::hidePermissionPermanentlyDeniedDialog
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 }
 

@@ -31,7 +31,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.toByteArray
@@ -76,28 +75,27 @@ class AvatarPickerViewModel @Inject constructor(
 
     val temporaryAvatarUri: Uri = avatarImageManager.getShareableTempAvatarUri(defaultAvatarPath)
 
-    private lateinit var currentAvatarUri: Uri
-
-    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
-        PermissionPermanentlyDeniedDialogState.Hidden
-    )
-
     init {
         loadInitialAvatarState()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun loadInitialAvatarState() {
         viewModelScope.launch {
+            initialPictureLoadingState = InitialPictureLoadingState.Loading
             try {
                 dataStore.avatarAssetId.first()?.apply {
                     val qualifiedAsset = qualifiedIdMapper.fromStringToQualifiedID(this)
                     val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).assetPath
-                    currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
-
-                    pictureState = PictureState.Initial(currentAvatarUri)
+                    val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
+                    initialPictureLoadingState = InitialPictureLoadingState.Loaded(currentAvatarUri)
+                    if (pictureState is PictureState.Empty) {
+                        pictureState = PictureState.Initial(currentAvatarUri)
+                    }
                 }
-            } catch (e: ClassCastException) {
+            } catch (e: Exception) {
                 appLogger.e("There was an error loading the user avatar", e)
+                initialPictureLoadingState = InitialPictureLoadingState.None
             }
         }
     }
@@ -114,7 +112,6 @@ class AvatarPickerViewModel @Inject constructor(
 
             val avatarPath = defaultAvatarPath
             val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
-
             when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
                 is UploadAvatarResult.Success -> {
                     dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
@@ -125,7 +122,12 @@ class AvatarPickerViewModel @Inject constructor(
                         is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
                         else -> showInfoMessage(InfoMessageType.UploadAvatarError)
                     }
-                    pictureState = PictureState.Initial(currentAvatarUri)
+                    with(initialPictureLoadingState) {
+                        pictureState = when (this) {
+                            is InitialPictureLoadingState.Loaded -> PictureState.Initial(avatarUri)
+                            else -> PictureState.Empty
+                        }
+                    }
                 }
             }
         }
@@ -135,15 +137,11 @@ class AvatarPickerViewModel @Inject constructor(
         _infoMessage.emit(type.uiText)
     }
 
-    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
-            title = title,
-            description = description
-        )
-    }
-
-    fun hidePermissionPermanentlyDeniedDialog() {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
+    @Stable
+    private sealed class InitialPictureLoadingState {
+        data object None : InitialPictureLoadingState()
+        data object Loading : InitialPictureLoadingState()
+        data class Loaded(val avatarUri: Uri) : InitialPictureLoadingState()
     }
 
     @Stable
@@ -151,11 +149,11 @@ class AvatarPickerViewModel @Inject constructor(
         data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
-        object Empty : PictureState("".toUri())
+        data object Empty : PictureState("".toUri())
     }
 
     sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
-        object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
-        object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))
+        data object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
+        data object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))
     }
 }

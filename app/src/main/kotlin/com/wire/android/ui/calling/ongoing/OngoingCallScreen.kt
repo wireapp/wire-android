@@ -78,6 +78,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -98,6 +100,9 @@ fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
             OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
@@ -131,9 +136,11 @@ fun OngoingCallScreen(
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
             onPermissionPermanentlyDenied = {
                 if (it is PermissionDenialType.CallingCamera) {
-                    sharedCallingViewModel.showPermissionPermanentlyDeniedDialog(
-                        title = R.string.app_permission_dialog_title,
-                        description = R.string.camera_permission_dialog_description
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            title = R.string.app_permission_dialog_title,
+                            description = R.string.camera_permission_dialog_description
+                        )
                     )
                 }
             }
@@ -142,8 +149,8 @@ fun OngoingCallScreen(
     }
 
     PermissionPermanentlyDeniedDialog(
-        dialogState = sharedCallingViewModel.permissionPermanentlyDeniedDialogState,
-        hideDialog = sharedCallingViewModel::hidePermissionPermanentlyDeniedDialog
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 }
 

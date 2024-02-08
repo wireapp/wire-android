@@ -18,19 +18,24 @@
 package com.wire.android.ui.common.dialogs
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 
 @Composable
 fun PermissionPermanentlyDeniedDialog(
-    dialogState: PermissionPermanentlyDeniedDialogState,
+    dialogState: VisibilityState<PermissionPermanentlyDeniedDialogState>,
     hideDialog: () -> Unit
 ) {
-    if (dialogState is PermissionPermanentlyDeniedDialogState.Visible) {
-        PermissionsDeniedRequestDialog(
-            title = dialogState.title,
-            body = dialogState.description,
-            onDismiss = hideDialog
-        )
+    VisibilityState(dialogState) { state ->
+        if (state is PermissionPermanentlyDeniedDialogState.Visible) {
+            PermissionsDeniedRequestDialog(
+                title = state.title,
+                body = state.description,
+                onDismiss = hideDialog
+            )
+        }
     }
 }

@@ -96,6 +96,7 @@ import com.wire.android.ui.common.dialogs.calling.SureAboutCallingInDegradedConv
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.InitiatingCallScreenDestination
@@ -194,6 +195,9 @@ fun ConversationScreen(
         messageComposerViewState = messageComposerViewState,
         modalBottomSheetState = conversationScreenState.modalBottomSheetState
     )
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
 
     // this is to prevent from double navigating back after user deletes a group on group details screen
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
@@ -400,9 +404,11 @@ fun ConversationScreen(
                     R.string.app_permission_dialog_title
                 }
             }
-            messageComposerViewModel.showPermissionPermanentlyDeniedDialog(
-                title = R.string.app_permission_dialog_title,
-                description = description
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = description
+                )
             )
        },
         conversationScreenState = conversationScreenState,
@@ -434,9 +440,11 @@ fun ConversationScreen(
         onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
         hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
         onPermissionPermanentlyDenied = {
-            messageComposerViewModel.showPermissionPermanentlyDeniedDialog(
-                title = R.string.app_permission_dialog_title,
-                description = R.string.save_permission_dialog_description
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.save_permission_dialog_description
+                )
             )
         }
     )
@@ -455,8 +463,8 @@ fun ConversationScreen(
     )
 
     PermissionPermanentlyDeniedDialog(
-        dialogState = messageComposerViewModel.permissionPermanentlyDeniedDialogState,
-        hideDialog = messageComposerViewModel::hidePermissionPermanentlyDeniedDialog
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
     SureAboutMessagingInDegradedConversationDialog(

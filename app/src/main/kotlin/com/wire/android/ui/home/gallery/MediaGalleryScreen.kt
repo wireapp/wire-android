@@ -42,7 +42,9 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
@@ -59,6 +61,9 @@ fun MediaGalleryScreen(
     mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
@@ -70,16 +75,18 @@ fun MediaGalleryScreen(
         },
         onPermissionDenied = { /** Nothing to do **/ },
         onPermissionPermanentlyDenied = {
-            mediaGalleryViewModel.showPermissionPermanentlyDeniedDialog(
-                title = R.string.app_permission_dialog_title,
-                description = R.string.save_permission_dialog_description
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.save_permission_dialog_description
+                )
             )
         }
     )
 
     PermissionPermanentlyDeniedDialog(
-        dialogState = mediaGalleryViewModel.permissionPermanentlyDeniedDialogState,
-        hideDialog = mediaGalleryViewModel::hidePermissionPermanentlyDeniedDialog
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
     with(viewModelState) {

@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
-import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
@@ -73,10 +72,6 @@ class MediaGalleryViewModel @Inject constructor(
         mediaGalleryNavArgs.messageId,
         mediaGalleryNavArgs.isSelfAsset,
         mediaGalleryNavArgs.isEphemeral
-    )
-
-    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
-        PermissionPermanentlyDeniedDialogState.Hidden
     )
 
     private val messageId = imageAsset.messageId
@@ -198,15 +193,5 @@ class MediaGalleryViewModel @Inject constructor(
         (mediaGalleryViewState.deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
             mediaGalleryViewState = mediaGalleryViewState.copy(deleteMessageDialogsState = newValue(it))
         }
-    }
-
-    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
-            title = title,
-            description = description
-        )
-    }
-    fun hidePermissionPermanentlyDeniedDialog() {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 }

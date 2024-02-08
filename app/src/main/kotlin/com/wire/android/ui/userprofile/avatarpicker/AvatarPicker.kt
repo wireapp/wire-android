@@ -59,6 +59,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 import com.wire.android.util.ImageUtil
@@ -78,6 +80,9 @@ fun AvatarPickerScreen(
     viewModel: AvatarPickerViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<String?>
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val context = LocalContext.current
 
     val targetAvatarPath = viewModel.defaultAvatarPath
@@ -102,9 +107,11 @@ fun AvatarPickerScreen(
                 }
                 else -> { 0 to 0 }
             }
-            viewModel.showPermissionPermanentlyDeniedDialog(
-                title = title,
-                description = description
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = title,
+                    description = description
+                )
             )
         }
     )
@@ -122,8 +129,8 @@ fun AvatarPickerScreen(
     )
 
     PermissionPermanentlyDeniedDialog(
-        dialogState = viewModel.permissionPermanentlyDeniedDialogState,
-        hideDialog = viewModel::hidePermissionPermanentlyDeniedDialog
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 }
 

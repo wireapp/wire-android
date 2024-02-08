@@ -32,7 +32,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
-import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -59,7 +58,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -150,10 +148,6 @@ class ConversationListViewModel @Inject constructor(
     var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
 
-    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
-        PermissionPermanentlyDeniedDialogState.Hidden
-    )
-
     private suspend fun observeEstablishedCall() {
         observeEstablishedCalls()
             .distinctUntilChanged()
@@ -212,16 +206,6 @@ class ConversationListViewModel @Inject constructor(
                     conversationListState = it
                 }
         }
-    }
-
-    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
-            title = title,
-            description = description
-        )
-    }
-    fun hidePermissionPermanentlyDeniedDialog() {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 
     // Mateusz : First iteration, just filter stuff

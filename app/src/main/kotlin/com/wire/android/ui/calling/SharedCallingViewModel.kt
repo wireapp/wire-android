@@ -30,7 +30,6 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -97,10 +96,6 @@ class SharedCallingViewModel @Inject constructor(
     val conversationId: QualifiedID = callingNavArgs.conversationId
 
     var callState by mutableStateOf(CallState(conversationId))
-
-    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
-        PermissionPermanentlyDeniedDialogState.Hidden
-    )
 
     init {
         viewModelScope.launch {
@@ -313,15 +308,5 @@ class SharedCallingViewModel @Inject constructor(
                 turnLoudSpeakerOff()
             }
         }
-    }
-
-    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
-            title = title,
-            description = description
-        )
-    }
-    fun hidePermissionPermanentlyDeniedDialog() {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 }

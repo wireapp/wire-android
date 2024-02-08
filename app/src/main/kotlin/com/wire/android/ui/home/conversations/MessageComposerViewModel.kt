@@ -171,10 +171,6 @@ class MessageComposerViewModel @Inject constructor(
         InvalidLinkDialogState.Hidden
     )
 
-    var permissionPermanentlyDeniedDialogState: PermissionPermanentlyDeniedDialogState by mutableStateOf(
-        PermissionPermanentlyDeniedDialogState.Hidden
-    )
-
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
         SureAboutMessagingDialogState.Hidden
     )
@@ -502,15 +498,6 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideInvalidLinkError() {
         invalidLinkDialogState = InvalidLinkDialogState.Hidden
-    }
-    fun showPermissionPermanentlyDeniedDialog(title: Int, description: Int) {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Visible(
-            title = title,
-            description = description
-        )
-    }
-    fun hidePermissionPermanentlyDeniedDialog() {
-        permissionPermanentlyDeniedDialogState = PermissionPermanentlyDeniedDialogState.Hidden
     }
 
     fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {

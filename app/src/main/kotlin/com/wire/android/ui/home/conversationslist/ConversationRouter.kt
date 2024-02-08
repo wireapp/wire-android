@@ -47,6 +47,7 @@ import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestina
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -80,6 +81,9 @@ fun ConversationRouterHomeBridge(
     isBottomSheetVisible: () -> Boolean,
     conversationsSource: ConversationsSource = ConversationsSource.MAIN
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val viewModel: ConversationListViewModel = hiltViewModel()
 
     LaunchedEffect(conversationsSource) {
@@ -210,9 +214,11 @@ fun ConversationRouterHomeBridge(
                         onJoinedCall = onJoinedCall,
                         onPermissionPermanentlyDenied = {
                             if (it == PermissionDenialType.CallingMicrophone) {
-                                viewModel.showPermissionPermanentlyDeniedDialog(
-                                    R.string.app_permission_dialog_title,
-                                    R.string.call_permission_dialog_description
+                                permissionPermanentlyDeniedDialogState.show(
+                                    PermissionPermanentlyDeniedDialogState.Visible(
+                                        R.string.app_permission_dialog_title,
+                                        R.string.call_permission_dialog_description
+                                    )
                                 )
                             }
                         }
@@ -254,8 +260,8 @@ fun ConversationRouterHomeBridge(
         }
 
         PermissionPermanentlyDeniedDialog(
-            dialogState = viewModel.permissionPermanentlyDeniedDialogState,
-            hideDialog = viewModel::hidePermissionPermanentlyDeniedDialog
+            dialogState = permissionPermanentlyDeniedDialogState,
+            hideDialog = permissionPermanentlyDeniedDialogState::dismiss
         )
 
         BlockUserDialogContent(

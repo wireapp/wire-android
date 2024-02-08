@@ -60,6 +60,7 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -134,7 +135,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             conversationAudioMessagePlayer.observableAudioMessagesState.collect {
                 conversationViewState = conversationViewState.copy(
-                    audioMessagesState = it
+                    audioMessagesState = it.toPersistentMap()
                 )
             }
         }

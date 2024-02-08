@@ -77,6 +77,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -694,7 +695,8 @@ private fun ConversationScreen(
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
-                    onTypingEvent = onTypingEvent
+                    onTypingEvent = onTypingEvent,
+                    onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage
                 )
             }
         }
@@ -738,7 +740,8 @@ private fun ConversationScreenContent(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
-    onTypingEvent: (TypingIndicatorMode) -> Unit
+    onTypingEvent: (TypingIndicatorMode) -> Unit,
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -769,7 +772,8 @@ private fun ConversationScreenContent(
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                 onLinkClick = onLinkClick,
-                selectedMessageId = selectedMessageId
+                selectedMessageId = selectedMessageId,
+                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -836,7 +840,8 @@ fun MessageList(
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit,
-    selectedMessageId: String?
+    selectedMessageId: String?,
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -908,6 +913,12 @@ fun MessageList(
                                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                                 onLinkClick = onLinkClick,
+                                onReplyClickable = Clickable(
+                                    enabled = true,
+                                    onClick = {
+                                        onNavigateToReplyOriginalMessage(message)
+                                    }
+                                ),
                                 isSelectedMessage = (message.header.messageId == selectedMessageId)
                             )
                         }

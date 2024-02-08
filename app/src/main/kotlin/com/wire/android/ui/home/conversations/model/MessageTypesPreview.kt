@@ -69,6 +69,7 @@ fun PreviewMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }
@@ -97,7 +98,8 @@ fun PreviewMessageWithReactions() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }
@@ -137,7 +139,8 @@ fun PreviewMessageWithReply() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }
@@ -167,7 +170,8 @@ fun PreviewDeletedMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -198,7 +202,8 @@ fun PreviewFailedSendMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -229,7 +234,8 @@ fun PreviewFailedDecryptionMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -250,7 +256,8 @@ fun PreviewAssetMessageWithReactions() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -339,7 +346,8 @@ fun PreviewImageMessageUploaded() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -360,7 +368,8 @@ fun PreviewImageMessageUploading() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -387,7 +396,8 @@ fun PreviewImageMessageFailedUpload() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { }
+            onSelfDeletingMessageRead = { },
+            onReplyClickable = null
         )
     }
 }
@@ -409,7 +419,8 @@ fun PreviewMessageWithSystemMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = { }
+                onSelfDeletingMessageRead = { },
+                onReplyClickable = null
             )
             SystemMessageItem(
                 mockMessageWithKnock.copy(
@@ -453,7 +464,8 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }
@@ -475,7 +487,8 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {}
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
             )
             MessageItem(
                 message = mockMessageWithText.copy(
@@ -497,7 +510,8 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {}
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
             )
             MessageItem(
                 message = mockMessageWithText.copy(
@@ -510,7 +524,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None,
                 showAuthor = false,
-                audioMessagesState = persistentMapOf(),
+                audioMessagesState = emptyMap(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -520,6 +534,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
+                onReplyClickable = null
             )
         }
     }
@@ -541,7 +556,8 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }
@@ -562,7 +578,8 @@ fun PreviewMessageWithMarkdownListAndImages() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }
@@ -583,7 +600,8 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            onReplyClickable = null
         )
     }
 }

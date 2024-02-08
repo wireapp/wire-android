@@ -128,7 +128,8 @@ private fun AssetMessagesListContent(
                                 onLinkClick = { },
                                 defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
-                                shouldDisplayFooter = false
+                                shouldDisplayFooter = false,
+                                onReplyClickable = null
                             )
                         }
 

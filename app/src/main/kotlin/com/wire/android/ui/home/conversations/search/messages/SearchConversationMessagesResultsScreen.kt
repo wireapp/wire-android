@@ -69,7 +69,8 @@ fun SearchConversationMessagesResultsScreen(
                         onMessageClick = onMessageClick,
                         defaultBackgroundColor = colorsScheme().backgroundVariant,
                         shouldDisplayMessageStatus = false,
-                        shouldDisplayFooter = false
+                        shouldDisplayFooter = false,
+                        onReplyClickable = null,
                     )
                 }
                 is UIMessage.System -> { }

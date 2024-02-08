@@ -36,7 +36,6 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -109,7 +108,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
         lateinit var getMessagesSearch: GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase
 
         @MockK
-        lateinit var observeMemberDetailsByIds: ObserveUserListByIdUseCase
+        lateinit var getUsersForMessages: GetUsersForMessageUseCase
 
         @MockK
         lateinit var messageMapper: MessageMapper
@@ -117,7 +116,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
         private val useCase: GetConversationMessagesFromSearchUseCase by lazy {
             GetConversationMessagesFromSearchUseCase(
                 getMessagesSearch,
-                observeMemberDetailsByIds,
+                getUsersForMessages,
                 messageMapper,
                 dispatchers = TestDispatcherProvider(),
             )
@@ -152,9 +151,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
         }
 
         suspend fun withMemberDetails() = apply {
-            coEvery { observeMemberDetailsByIds(any()) } returns flowOf(
-                listOf(user1, user2)
-            )
+            coEvery { getUsersForMessages(any()) } returns listOf(user1, user2)
         }
 
         fun withMappedMessage(user: User, message: Message.Standalone) = apply {

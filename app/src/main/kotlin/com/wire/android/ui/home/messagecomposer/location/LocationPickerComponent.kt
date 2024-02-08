@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -30,16 +31,20 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
@@ -54,10 +59,12 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.permission.rememberCurrentLocationFlow
+import kotlinx.coroutines.launch
 
 /**
  * Component to pick the current location to send.
@@ -70,12 +77,11 @@ fun LocationPickerComponent(
     onLocationClosed: () -> Unit
 ) {
     val viewModel = hiltViewModel<LocationPickerViewModel>()
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
     val locationFlow = LocationFlow(
-        onCurrentLocationPicked = { viewModel.getCurrentLocation(context) },
+        onCurrentLocationPicked = viewModel::getCurrentLocation,
         onLocationDenied = viewModel::onPermissionsDenied
     )
     LaunchedEffect(Unit) {
@@ -104,42 +110,91 @@ fun LocationPickerComponent(
                         }
                     }
                     add {
-                        Column(
+                        Box(
                             modifier = Modifier
-                                .align(alignment = Alignment.Start)
-                                .padding(horizontal = dimensions().spacing16x)
                                 .wrapContentHeight()
                                 .fillMaxWidth()
                         ) {
-                            WirePrimaryButton(
-                                onClick = {
-                                    onLocationPicked(geoLocatedAddress!!)
-                                    onLocationClosed()
-                                },
-                                leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
-                                text = stringResource(id = R.string.content_description_send_button),
-                                state = if (isLocationLoading || geoLocatedAddress == null) {
-                                    WireButtonState.Disabled
-                                } else {
-                                    WireButtonState.Default
+                            if (showLocationSharingError) {
+                                LocationErrorMessage {
+                                    coroutineScope.launch {
+                                        sheetState.hide()
+                                        viewModel.onLocationSharingErrorDialogDiscarded()
+                                        onLocationClosed()
+                                    }
                                 }
+                            }
+                            SendLocationButton(
+                                isLocationLoading = isLocationLoading,
+                                geoLocatedAddress = geoLocatedAddress,
+                                onLocationPicked = onLocationPicked,
+                                onLocationClosed = onLocationClosed
                             )
-                            VerticalSpace.x16()
                         }
                     }
                 }
             )
+
+            if (showPermissionDeniedDialog) {
+                PermissionsDeniedRequestDialog(
+                    body = R.string.location_app_permission_dialog_body,
+                    onDismiss = {
+                        viewModel.onPermissionsDialogDiscarded()
+                        onLocationClosed()
+                    }
+                )
+            }
         }
     }
+}
 
-    if (viewModel.state.showPermissionDeniedDialog) {
-        PermissionsDeniedRequestDialog(
-            body = R.string.location_app_permission_dialog_body,
-            onDismiss = {
-                viewModel.onPermissionsDialogDiscarded()
+@Composable
+private fun SendLocationButton(
+    isLocationLoading: Boolean,
+    geoLocatedAddress: GeoLocatedAddress?,
+    onLocationPicked: (GeoLocatedAddress) -> Unit,
+    onLocationClosed: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = dimensions().spacing16x)
+            .wrapContentHeight()
+            .fillMaxWidth()
+    ) {
+        WirePrimaryButton(
+            onClick = {
+                onLocationPicked(geoLocatedAddress!!)
                 onLocationClosed()
+            },
+            leadingIcon = Icons.Filled.Send.Icon(Modifier.padding(end = dimensions().spacing8x)),
+            text = stringResource(id = R.string.content_description_send_button),
+            state = if (isLocationLoading || geoLocatedAddress == null) {
+                WireButtonState.Disabled
+            } else {
+                WireButtonState.Default
             }
         )
+        VerticalSpace.x16()
+    }
+}
+
+@Composable
+private fun LocationErrorMessage(
+    message: String = stringResource(id = R.string.location_could_not_be_shared),
+    onLocationClosed: () -> Unit
+) {
+    Box(Modifier.zIndex(Float.MAX_VALUE), contentAlignment = Alignment.BottomCenter) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        LaunchedEffect(snackbarHostState) {
+            val result = snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
+            when (result) {
+                SnackbarResult.Dismissed -> onLocationClosed()
+                SnackbarResult.ActionPerformed -> {
+                    /* do nothing */
+                }
+            }
+        }
+        SnackbarHost(hostState = snackbarHostState)
     }
 }
 
@@ -162,7 +217,7 @@ private fun LocationInformation(geoLocatedAddress: GeoLocatedAddress?) {
 @Composable
 private fun RowScope.LoadingLocation() {
     WireCircularProgressIndicator(
-        progressColor = Color.Black,
+        progressColor = MaterialTheme.wireColorScheme.primary,
         modifier = Modifier.align(alignment = Alignment.CenterVertically)
     )
     HorizontalSpace.x8()

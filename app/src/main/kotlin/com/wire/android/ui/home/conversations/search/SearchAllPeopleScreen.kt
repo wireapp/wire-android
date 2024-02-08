@@ -303,7 +303,7 @@ private fun LazyListScope.externalSuccessItem(
             ExternalContactSearchResultItem(
                 avatarData = avatarData,
                 name = name,
-                label = label,
+                label = fullyQualifiedHandle(),
                 membership = membership,
                 connectionState = connectionState,
                 searchQuery = searchQuery,

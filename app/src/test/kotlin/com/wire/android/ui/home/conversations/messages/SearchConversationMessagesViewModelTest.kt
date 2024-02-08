@@ -127,6 +127,57 @@ class SearchConversationMessagesViewModelTest {
     }
 
     @Test
+    fun `given search term with space, when searching for messages, then search results are as expected`() = runTest {
+        // given
+        val searchTerm = "no "
+        val message1 = mockMessageWithText.copy(
+            messageContent = UIMessageContent.TextMessage(
+                messageBody = MessageBody(
+                    UIText.DynamicString("not a normal text")
+                )
+            )
+        )
+        val message2 = mockMessageWithText.copy(
+            messageContent = UIMessageContent.TextMessage(
+                messageBody = MessageBody(
+                    UIText.DynamicString("this message contains a no message")
+                )
+            )
+        )
+
+        val messages = listOf(
+            message1,
+            message2
+        )
+
+        val (arrangement, viewModel) = SearchConversationMessagesViewModelArrangement()
+            .withSuccessSearch(PagingData.from(messages))
+            .arrange()
+
+        // when
+        viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+        advanceUntilIdle()
+
+        // then
+        assertEquals(
+            TextFieldValue(searchTerm),
+            viewModel.searchConversationMessagesState.searchQuery
+        )
+        coVerify(exactly = 0) {
+            arrangement.getSearchMessagesForConversation(
+                searchTerm,
+                arrangement.conversationId,
+                any()
+            )
+        }
+        viewModel.searchConversationMessagesState.searchResult.test {
+            awaitItem().map {
+                it shouldBeEqualTo message2
+            }
+        }
+    }
+
+    @Test
     fun `given search term with empty space at start and at end, when searching for messages, then specific messages are returned`() =
         runTest {
             // given

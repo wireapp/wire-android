@@ -68,6 +68,7 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
@@ -159,13 +160,16 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG persistent connection status")
             viewModel.observePersistentConnectionStatus()
 
+            appLogger.i("$TAG legal hold requested status")
+            legalHoldRequestedViewModel.observeLegalHoldRequest()
+
             appLogger.i("$TAG start destination")
             val startDestination = when (viewModel.initialAppState) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
-                InitialAppState.LOGGED_IN -> HomeScreenDestination
-            }
-
+                InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
+            InitialAppState.LOGGED_IN -> HomeScreenDestination
+        }
             appLogger.i("$TAG composable content")
             setComposableContent(startDestination) {
                 appLogger.i("$TAG splash hide")

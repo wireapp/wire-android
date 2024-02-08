@@ -61,8 +61,6 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -91,9 +89,6 @@ fun UserProfileInfo(
     delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
     isProteusVerified: Boolean = false,
     isMLSVerified: Boolean = false,
-    onSearchConversationMessagesClick: () -> Unit = {},
-    onConversationMediaClick: () -> Unit = {},
-    shouldShowSearchButton: Boolean = false
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -231,14 +226,6 @@ fun UserProfileInfo(
             SecurityClassificationBannerForUser(
                 userId = it,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
-            )
-        }
-
-        if (shouldShowSearchButton) {
-            VerticalSpace.x24()
-            SearchAndMediaRow(
-                onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                onConversationMediaClick = onConversationMediaClick
             )
         }
     }

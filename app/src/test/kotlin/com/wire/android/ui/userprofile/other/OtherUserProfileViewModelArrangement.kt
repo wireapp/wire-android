@@ -47,6 +47,8 @@ import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldState
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForUserUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -66,6 +68,9 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
+
+    @MockK
+    lateinit var observeLegalHoldStateForUser: ObserveLegalHoldStateForUserUseCase
 
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -120,6 +125,7 @@ internal class OtherUserProfileViewModelArrangement {
             unblockUser,
             getOneToOneConversation,
             observeUserInfo,
+            observeLegalHoldStateForUser,
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
@@ -161,6 +167,7 @@ internal class OtherUserProfileViewModelArrangement {
         )
         coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns GetUserE2eiCertificateStatusResult.Success(CertificateStatus.VALID)
         coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
+        coEvery { observeLegalHoldStateForUser.invoke(any()) } returns flowOf(LegalHoldState.Disabled)
     }
 
     suspend fun withBlockUserResult(result: BlockUserResult) = apply {
@@ -184,6 +191,10 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
+    }
+
+    fun withLegalHoldState(result: LegalHoldState) = apply {
+        coEvery { observeLegalHoldStateForUser.invoke(any()) } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

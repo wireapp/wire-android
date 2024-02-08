@@ -91,7 +91,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
                 }
             }
 
-    init {
+    fun observeLegalHoldRequest() {
         viewModelScope.launch {
             legalHoldRequestDataStateFlow.collectLatest { legalHoldRequestData ->
                 state = when (legalHoldRequestData) {

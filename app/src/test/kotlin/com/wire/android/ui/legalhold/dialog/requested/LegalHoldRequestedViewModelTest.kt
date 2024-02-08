@@ -272,7 +272,7 @@ class LegalHoldRequestedViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).approveLegalHoldRequest(any()) } returns result
         }
 
-        fun arrange() = this to viewModel
+        fun arrange() = this to viewModel.apply { observeLegalHoldRequest() }
 
         companion object {
             val UNKNOWN_ERROR = CoreFailure.Unknown(RuntimeException("error"))

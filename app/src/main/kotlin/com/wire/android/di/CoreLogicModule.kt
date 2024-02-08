@@ -440,4 +440,19 @@ class UseCaseModule {
     fun provideObserveIsAppLockEditableUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
     ): ObserveIsAppLockEditableUseCase = coreLogic.getGlobalScope().observeIsAppLockEditableUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldRequest
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldForSelfUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldForSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldStateForUser
 }

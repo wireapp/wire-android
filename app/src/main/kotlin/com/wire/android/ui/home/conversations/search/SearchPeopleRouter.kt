@@ -178,14 +178,6 @@ fun SearchUsersAndServicesScreen(
                                 }
                             }
                         }
-
-                        LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                                keyboardController?.hide()
-                                focusManager.clearFocus()
-                                focusedTabIndex = pagerState.currentPage
-                            }
-                        }
                     }
                 } else {
                     SearchAllPeopleOrContactsScreen(

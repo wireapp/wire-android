@@ -29,7 +29,7 @@ fun LegalHoldSubjectConversationDialog(
     dialogDismissed: () -> Unit,
 ) {
     LegalHoldSubjectBaseDialog(
-        name = conversationName,
+        title = stringResource(id = R.string.legal_hold_subject_dialog_title, conversationName),
         customInfo = stringResource(id = R.string.legal_hold_subject_dialog_description_group),
         withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_close),

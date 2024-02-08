@@ -92,7 +92,7 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -113,7 +113,7 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         registerClientUseCase(
             RegisterClientUseCase.RegisterClientParam(password, null)
         ).also { result ->
@@ -125,12 +125,17 @@ class RemoveDeviceViewModel @Inject constructor(
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
-                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first())
+                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first(), false)
+                is RegisterClientResult.E2EICertificateRequired -> onCompleted(userDataStore.initialSyncCompleted.first(), true)
             }
         }
     }
 
-    private suspend fun deleteClient(password: String?, device: Device, onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    private suspend fun deleteClient(
+        password: String?,
+        device: Device,
+        onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+    ) {
         when (val deleteResult = deleteClientUseCase(DeleteClientParam(password, device.clientId))) {
             is DeleteClientResult.Failure.Generic -> {
                 state = state.copy(error = RemoveDeviceError.GenericError(deleteResult.genericFailure))
@@ -147,7 +152,7 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = true, removeEnabled = false)) }
             viewModelScope.launch {

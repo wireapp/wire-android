@@ -330,6 +330,7 @@ class WireActivity : AppCompatActivity() {
                 CustomServerDialog(
                     serverLinksTitle = globalAppState.customBackendDialog!!.serverLinks.title,
                     serverLinksApi = globalAppState.customBackendDialog!!.serverLinks.api,
+                    serverProxy = globalAppState.customBackendDialog!!.serverLinks.apiProxy,
                     onDismiss = this::dismissCustomBackendDialog,
                     onConfirm = { customBackendDialogProceedButtonClicked { navigate(NavigationCommand(WelcomeScreenDestination)) } }
                 )

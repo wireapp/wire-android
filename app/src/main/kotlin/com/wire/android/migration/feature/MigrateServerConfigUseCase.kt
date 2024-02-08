@@ -74,7 +74,7 @@ class MigrateServerConfigUseCase @Inject constructor(
                 is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> Either.Left(it.genericFailure)
                 AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> Either.Left(ServerConfigFailure.NewServerVersion)
                 AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> Either.Left(ServerConfigFailure.UnknownServerVersion)
-                is AutoVersionAuthScopeUseCase.Result.Success -> Either.Right(TODO())
+                is AutoVersionAuthScopeUseCase.Result.Success -> Either.Right(it.authenticationScope.currentServerConfig())
             }
         }
 }

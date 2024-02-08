@@ -87,6 +87,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.PersistentMap
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -98,7 +99,7 @@ fun MessageItem(
     searchQuery: String = "",
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -116,6 +117,7 @@ fun MessageItem(
     defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
+    onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false
 ) {
     with(message) {
@@ -277,7 +279,8 @@ fun MessageItem(
                                         onLongClick = onLongClick,
                                         onOpenProfile = onOpenProfile,
                                         onLinkClick = onLinkClick,
-                                        clickable = !isContentClickable
+                                        clickable = !isContentClickable,
+                                        onReplyClickable = onReplyClickable
                                     )
                                 }
                                 if (isMyMessage && shouldDisplayMessageStatus) {
@@ -507,7 +510,8 @@ private fun MessageContent(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
-    clickable: Boolean
+    clickable: Boolean,
+    onReplyClickable: Clickable? = null
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> {
@@ -528,8 +532,11 @@ private fun MessageContent(
                 messageContent.messageBody.quotedMessage?.let {
                     VerticalSpace.x4()
                     when (it) {
-                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            messageData = it,
+                            clickable = onReplyClickable
+                        )
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
                     }
                     VerticalSpace.x4()
                 }
@@ -553,8 +560,11 @@ private fun MessageContent(
                 messageContent.messageBody?.quotedMessage?.let {
                     VerticalSpace.x4()
                     when (it) {
-                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                            messageData = it,
+                            clickable = onReplyClickable
+                        )
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
                     }
                     VerticalSpace.x4()
                 }

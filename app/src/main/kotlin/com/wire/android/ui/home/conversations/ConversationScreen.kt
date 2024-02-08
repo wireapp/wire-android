@@ -77,6 +77,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -144,6 +145,7 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -434,12 +436,12 @@ fun ConversationScreen(
     )
 
     (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
-            LegalHoldSubjectMessageDialog(
-                conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
-                dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
-                sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
-            )
-        }
+        LegalHoldSubjectMessageDialog(
+            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
+            dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
+            sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
+        )
+    }
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {
@@ -693,7 +695,8 @@ private fun ConversationScreen(
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
-                    onTypingEvent = onTypingEvent
+                    onTypingEvent = onTypingEvent,
+                    onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage
                 )
             }
         }
@@ -713,7 +716,7 @@ private fun ConversationScreenContent(
     conversationId: ConversationId,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
@@ -737,7 +740,8 @@ private fun ConversationScreenContent(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
-    onTypingEvent: (TypingIndicatorMode) -> Unit
+    onTypingEvent: (TypingIndicatorMode) -> Unit,
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -768,7 +772,8 @@ private fun ConversationScreenContent(
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                 onLinkClick = onLinkClick,
-                selectedMessageId = selectedMessageId
+                selectedMessageId = selectedMessageId,
+                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -820,7 +825,7 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
@@ -835,7 +840,8 @@ fun MessageList(
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit,
-    selectedMessageId: String?
+    selectedMessageId: String?,
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -907,6 +913,12 @@ fun MessageList(
                                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                                 onLinkClick = onLinkClick,
+                                onReplyClickable = Clickable(
+                                    enabled = true,
+                                    onClick = {
+                                        onNavigateToReplyOriginalMessage(message)
+                                    }
+                                ),
                                 isSelectedMessage = (message.header.messageId == selectedMessageId)
                             )
                         }

@@ -44,7 +44,7 @@ class SearchModule {
 
     @ViewModelScoped
     @Provides
-    fun provideSearchUsersUseCase(searchScope: SearchScope): SearchUsersUseCase = searchScope.searchUsersUseCase
+    fun provideSearchUsersUseCase(searchScope: SearchScope): SearchUsersUseCase = searchScope.searchUsers
 
     @ViewModelScoped
     @Provides

@@ -92,7 +92,8 @@ fun ParticipantTile(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
-    onClearSelfUserVideoPreview: () -> Unit
+    onClearSelfUserVideoPreview: () -> Unit,
+    defaultUserName: String = "DEFAULT"
 ) {
     val alpha =
         if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
@@ -154,7 +155,7 @@ fun ParticipantTile(
                         end.linkTo((parent.end))
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
-                name = participantTitleState.name,
+                name = participantTitleState.name ?: defaultUserName,
                 isSpeaking = participantTitleState.isSpeaking,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )

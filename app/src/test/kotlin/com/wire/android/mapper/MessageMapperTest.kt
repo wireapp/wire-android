@@ -60,16 +60,14 @@ class MessageMapperTest {
     fun givenMessagesList_whenGettingMemberIdList_thenReturnCorrectList() = runTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
-        val clientMessageAuthor = UserId("client-id", "client-domain")
-        val serverMessageAuthor = UserId("server-id", "server-domain")
+        val removedUserId = UserId("server-id", "server-domain")
         val messages = listOf(
-            TestMessage.TEXT_MESSAGE.copy(senderUserId = clientMessageAuthor),
+            TestMessage.TEXT_MESSAGE,
             TestMessage.MEMBER_REMOVED_MESSAGE.copy(
-                senderUserId = serverMessageAuthor,
-                content = MessageContent.MemberChange.Removed(listOf(serverMessageAuthor))
+                content = MessageContent.MemberChange.Removed(listOf(removedUserId))
             )
         )
-        val expected = listOf(clientMessageAuthor, serverMessageAuthor)
+        val expected = listOf(removedUserId)
         // When
         val list = mapper.memberIdList(messages)
         // Then

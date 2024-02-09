@@ -245,6 +245,7 @@ fun HomeContent(
                                     status = homeState.status,
                                     title = stringResource(currentNavigationItem.title),
                                     elevation = elevation,
+                                    withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
                                     onHamburgerMenuClick = ::openDrawer,
                                     onNavigateToSelfUserProfile = onSelfUserClick
                                 )

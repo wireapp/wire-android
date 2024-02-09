@@ -200,6 +200,8 @@
     <string name="welcome_screen_carousel_item_message_5">Wire wird unabhängig geprüft und ist ISO-, CCPA-, DSGVO- und SOX-konform</string>
     <string name="welcome_button_create_team">Team erstellen</string>
     <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
+    <string name="server_details_with_proxy_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s \n\nProxy-URL:\n%3$s \n\n\Proxy-Authentifizierung:\n%4$s</string>
+
     <string name="server_details_dialog_title">Lokales Backend</string>
     <string name="welcome_migration_dialog_title">Willkommen in unserer neuen App 👋</string>
     <string name="welcome_migration_dialog_content">Wir haben die App überarbeitet, um sie für alle benutzerfreundlicher zu machen.\n\nErfahren Sie mehr über die neu gestaltete App – zusätzliche Optionen und verbesserte Barrierefreiheit bei gleichbleibend hoher Sicherheit.</string>
@@ -868,6 +870,8 @@
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
     <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client auf das folgende Backend weitergeleitet:\n\nBackend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
+    <string name="custom_backend_with_proxy_dialog_body">Wenn Sie fortfahren, wird Ihr Client auf das folgende Backend weitergeleitet:\n\nBackend-Name:\n%1$s\n\nBackend-URL:\n%2$s \n\nProxy-URL:\n%3$s \n\nProxy-Authentifizierung:\n%4$s</string>
+
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
     <string name="label_logs_option_title">Protokolle</string>

@@ -92,7 +92,9 @@ class LoginSSOViewModel @Inject constructor(
             if (loginState.customServerDialogState != null) {
                 authServerConfigProvider.updateAuthServer(loginState.customServerDialogState!!.serverLinks)
 
-                val authScope = coreLogic.versionedAuthenticationScope(loginState.customServerDialogState!!.serverLinks)().let {
+                // sso does not support proxy
+                // TODO: add proxy support
+                val authScope = coreLogic.versionedAuthenticationScope(loginState.customServerDialogState!!.serverLinks)(null).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
                         AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
@@ -136,7 +138,9 @@ class LoginSSOViewModel @Inject constructor(
             val defaultAuthScope: AuthenticationScope =
                 coreLogic.versionedAuthenticationScope(
                     authServerConfigProvider.defaultServerLinks()
-                )().let {
+                    // domain lockup does not support proxy
+                    // TODO: add proxy support
+                )(null).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
                         AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
@@ -170,7 +174,8 @@ class LoginSSOViewModel @Inject constructor(
     private fun ssoLoginWithCodeFlow() {
         viewModelScope.launch {
             val authScope =
-                authScope().let {
+                // sso does not support proxy
+                coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -205,7 +210,7 @@ class LoginSSOViewModel @Inject constructor(
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             val authScope =
-                authScope().let {
+                coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

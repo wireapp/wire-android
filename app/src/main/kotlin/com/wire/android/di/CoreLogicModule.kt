@@ -65,8 +65,8 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
@@ -319,16 +319,6 @@ class UseCaseModule {
     @Provides
     fun provideGetServerConfigUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().fetchServerConfigFromDeepLink
-
-    @ViewModelScoped
-    @Provides
-    fun provideFetchApiVersionUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().fetchApiVersion
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observeServerConfig
 
     @ViewModelScoped
     @Provides

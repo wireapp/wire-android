@@ -145,7 +145,7 @@ class LoginSSOViewModelTest {
         authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
 
         coEvery {
-            autoVersionAuthScopeUseCase()
+            autoVersionAuthScopeUseCase(null)
         } returns AutoVersionAuthScopeUseCase.Result.Success(
             authenticationScope
         )

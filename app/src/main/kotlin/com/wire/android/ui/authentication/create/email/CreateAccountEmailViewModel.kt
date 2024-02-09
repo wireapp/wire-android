@@ -33,8 +33,6 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,7 +42,6 @@ import javax.inject.Inject
 class CreateAccountEmailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val authServerConfigProvider: AuthServerConfigProvider,
-    private val fetchApiVersion: FetchApiVersionUseCase,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
@@ -69,25 +66,6 @@ class CreateAccountEmailViewModel @Inject constructor(
     fun onEmailContinue(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            fetchApiVersion(authServerConfigProvider.authServer.value).let {
-                when (it) {
-                    is FetchApiVersionResult.Success -> {}
-                    is FetchApiVersionResult.Failure.UnknownServerVersion -> {
-                        emailState = emailState.copy(showServerVersionNotSupportedDialog = true)
-                        return@launch
-                    }
-
-                    is FetchApiVersionResult.Failure.TooNewVersion -> {
-                        emailState = emailState.copy(showClientUpdateDialog = true)
-                        return@launch
-                    }
-
-                    is FetchApiVersionResult.Failure.Generic -> {
-                        return@launch
-                    }
-                }
-            }
-
             val emailError =
                 if (validateEmail(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
                 else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
@@ -106,7 +84,7 @@ class CreateAccountEmailViewModel @Inject constructor(
     fun onTermsAccept(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(TODO()).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

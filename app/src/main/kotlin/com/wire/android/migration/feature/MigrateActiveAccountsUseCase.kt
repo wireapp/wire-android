@@ -30,8 +30,8 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AccountTokens
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
@@ -117,7 +117,11 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     private suspend fun handleMissingData(
         serverConfig: ServerConfig,
         refreshToken: String,
-    ): Either<CoreFailure, AccountTokens> = coreLogic.authenticationScope(serverConfig) {
+    ): Either<CoreFailure, AccountTokens> = coreLogic.authenticationScope(
+        serverConfig,
+        // scala did not support proxy mode so we can pass null
+        proxyCredentials = null
+    ) {
         ssoLoginScope.getLoginSession(refreshToken)
     }.let {
         when (it) {

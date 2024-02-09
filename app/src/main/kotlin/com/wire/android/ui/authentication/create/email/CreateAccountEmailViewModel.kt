@@ -84,7 +84,7 @@ class CreateAccountEmailViewModel @Inject constructor(
     fun onTermsAccept(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(TODO()).let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

@@ -54,9 +54,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.legalhold.LegalHoldState
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldForSelfUserUseCase
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -72,6 +71,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -90,8 +90,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
-    private val observeLegalHoldRequest: ObserveLegalHoldRequestUseCase,
-    private val observeLegalHoldForSelfUser: ObserveLegalHoldForSelfUserUseCase,
+    private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -178,17 +177,14 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun observeLegalHoldStatus() {
         viewModelScope.launch {
-            combine(
-                observeLegalHoldRequest(),
-                observeLegalHoldForSelfUser()
-            ) { legalHoldRequestStatus: ObserveLegalHoldRequestUseCase.Result, legalHoldStatus: LegalHoldState ->
-                when {
-                    legalHoldRequestStatus is ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable -> LegalHoldUIState.Pending
-                    legalHoldStatus is LegalHoldState.Enabled -> LegalHoldUIState.Active
-                    else -> LegalHoldUIState.None
+            observeLegalHoldStatusForSelfUser()
+                .map { legalHoldState ->
+                    when (legalHoldState) {
+                        is LegalHoldStateForSelfUser.Enabled -> LegalHoldUIState.Active
+                        is LegalHoldStateForSelfUser.PendingRequest -> LegalHoldUIState.Pending
+                        is LegalHoldStateForSelfUser.Disabled -> LegalHoldUIState.None
+                    }
                 }
-            }
-                .distinctUntilChanged()
                 .collectLatest { userProfileState = userProfileState.copy(legalHoldStatus = it) }
         }
     }

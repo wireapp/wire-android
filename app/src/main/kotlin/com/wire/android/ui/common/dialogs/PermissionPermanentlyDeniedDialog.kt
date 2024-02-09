@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
-import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 
 @Composable

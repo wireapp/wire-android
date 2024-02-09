@@ -189,7 +189,7 @@ class SearchUserViewModelTest {
             val query = "query"
             val (arrangement, viewModel) = Arrangement()
                 .withAddMembersSearchNavArgsThatThrowsException()
-                .withSearchResult(
+                .withSearchByHandleResult(
                     SearchUserResult(
                         connected = listOf(),
                         notConnected = listOf()

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -209,7 +210,8 @@ class CreateAccountCodeViewModel @Inject constructor(
         clientScopeProviderFactory.create(userId).clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
-                capabilities = null
+                capabilities = null,
+                modelPostfix = if(BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )
 

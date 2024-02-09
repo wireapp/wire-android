@@ -17,10 +17,4 @@
  */
 package com.wire.android.ui.home.conversations.search
 
-fun String.removeQueryPrefix(): String {
-    return if (startsWith("@")) {
-        removePrefix("@")
-    } else {
-        this
-    }
-}
+fun String.removeQueryPrefix(): String = removePrefix("@")

@@ -225,6 +225,8 @@
     <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_with_proxy_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s \n\nProxy URL:\n%3$s \n\n\Proxy authentication:\n%4$s</string>
+
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
@@ -980,6 +982,8 @@
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="custom_backend_with_proxy_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s \n\nProxy URL:\n%3$s \n\nProxy Authentication:\n%4$s</string>
+
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>

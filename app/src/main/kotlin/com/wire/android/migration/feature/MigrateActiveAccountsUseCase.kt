@@ -117,7 +117,11 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     private suspend fun handleMissingData(
         serverConfig: ServerConfig,
         refreshToken: String,
-    ): Either<CoreFailure, AccountTokens> = coreLogic.authenticationScope(serverConfig) {
+    ): Either<CoreFailure, AccountTokens> = coreLogic.authenticationScope(
+        serverConfig,
+        // scala did not support proxy mode so we can pass null
+        proxyCredentials = null
+    ) {
         ssoLoginScope.getLoginSession(refreshToken)
     }.let {
         when (it) {

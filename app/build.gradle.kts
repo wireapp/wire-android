@@ -203,6 +203,8 @@ dependencies {
     betaImplementation(libs.dataDog.compose)
     stagingImplementation(libs.dataDog.compose)
 
+    implementation ("com.google.guava:guava:31.0.1-android")
+
     implementation(project(":ksp"))
     ksp(project(":ksp"))
 }

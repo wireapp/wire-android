@@ -29,6 +29,7 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.type.UserType
 import javax.inject.Inject
 
 class ContactMapper
@@ -76,13 +77,23 @@ class ContactMapper
                 id = id.value,
                 domain = id.domain,
                 name = name ?: String.EMPTY,
-                label = handle ?: String.EMPTY,
+                label = mapUserHandle(user),
                 avatarData = UserAvatarData(
                     asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
                 ),
                 membership = userTypeMapper.toMembership(type),
                 connectionState = connectionStatus
             )
+        }
+    }
+
+    /**
+     * Adds the fully qualified handle to the contact label in case of federated users.
+     */
+    private fun mapUserHandle(user: UserSearchDetails): String {
+        return when (user.type) {
+            UserType.FEDERATED -> "${user.handle}@${user.id.domain}"
+            else -> user.handle ?: String.EMPTY
         }
     }
 }

@@ -67,6 +67,8 @@ class AvatarPickerViewModel @Inject constructor(
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
         private set
 
+    private var initialPictureLoadingState by mutableStateOf<InitialPictureLoadingState>(InitialPictureLoadingState.None)
+
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 

@@ -68,6 +68,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -139,7 +141,7 @@ private fun Content(
     state: ConversationAssetMessagesViewState,
     onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    audioMessagesState: Map<String, AudioState> = emptyMap(),
+    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
 ) {

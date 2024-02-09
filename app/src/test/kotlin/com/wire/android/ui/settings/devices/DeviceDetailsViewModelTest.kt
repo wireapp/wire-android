@@ -279,7 +279,7 @@ class DeviceDetailsViewModelTest {
             viewModel.enrollE2eiCertificate(arrangement.context)
 
             coVerify {
-                arrangement.enrolE2EICertificateUseCase(any(), any())
+                arrangement.enrolE2EICertificateUseCase(any(), any(), any())
             }
             assertTrue(viewModel.state.isLoadingCertificate)
         }

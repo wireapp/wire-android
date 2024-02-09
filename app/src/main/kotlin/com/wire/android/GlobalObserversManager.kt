@@ -22,11 +22,13 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -35,8 +37,12 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,6 +58,7 @@ class GlobalObserversManager @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val userDataStoreProvider: UserDataStoreProvider,
+    private val currentScreenManager: CurrentScreenManager,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
@@ -65,6 +72,7 @@ class GlobalObserversManager @Inject constructor(
             }
         }
         scope.handleLogouts()
+        scope.handleDeleteEphemeralMessageEndDate()
     }
 
     private suspend fun setUpNotifications() {
@@ -113,5 +121,22 @@ class GlobalObserversManager @Inject constructor(
             coreLogic.getGlobalScope().logoutCallbackManager.register(callback)
             awaitClose { coreLogic.getGlobalScope().logoutCallbackManager.unregister(callback) }
         }.launchIn(this)
+    }
+
+    private fun CoroutineScope.handleDeleteEphemeralMessageEndDate() {
+        launch {
+            currentScreenManager.isAppVisibleFlow()
+                .flatMapLatest { isAppVisible ->
+                    if (isAppVisible) {
+                        coreLogic.getGlobalScope().session.currentSessionFlow()
+                            .distinctUntilChanged()
+                            .filter { it is CurrentSessionResult.Success && it.accountInfo.isValid() }
+                            .map { (it as CurrentSessionResult.Success).accountInfo.userId }
+                    } else {
+                        emptyFlow()
+                    }
+                }
+                .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
+        }
     }
 }

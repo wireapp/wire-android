@@ -120,6 +120,13 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             launch { setE2EIRequiredState(userId) }
             launch { setTeamAppLockFeatureFlag(userId) }
             launch { observeCallEndedBecauseOfConversationDegraded(userId) }
+            launch { observeShouldNotifyForRevokedCertificate(userId) }
+        }
+    }
+
+    private suspend fun observeShouldNotifyForRevokedCertificate(userId: UserId) {
+        coreLogic.getSessionScope(userId).observeShouldNotifyForRevokedCertificate().collect {
+            featureFlagState = featureFlagState.copy(shouldShowE2eiCertificateRevokedDialog = it)
         }
     }
 
@@ -232,6 +239,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
+    fun dismissE2EICertificateRevokedDialog() {
+        featureFlagState = featureFlagState.copy(shouldShowE2eiCertificateRevokedDialog = false)
+        currentUserId?.let {
+            viewModelScope.launch {
+                coreLogic.getSessionScope(it).markNotifyForRevokedCertificateAsNotified()
+            }
+        }
+    }
+
     fun dismissFileSharingDialog() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
@@ -275,7 +291,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
         featureFlagState = featureFlagState.copy(isE2EILoading = true)
         currentUserId?.let { userId ->
-            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(context) { result ->
+            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(
+                context,
+                isNewClient = false
+            ) { result ->
                 result.fold({
                     featureFlagState = featureFlagState.copy(
                         isE2EILoading = false,

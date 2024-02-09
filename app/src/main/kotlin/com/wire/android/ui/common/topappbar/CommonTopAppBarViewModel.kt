@@ -24,15 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -76,23 +73,13 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
-    private fun legalHoldStatusFlow(userId: UserId) = coreLogic.sessionScope(userId) {
-        observeLegalHoldRequest() // TODO combine with legal hold status
-            .map { legalHoldRequestResult ->
-                when (legalHoldRequestResult) {
-                    is ObserveLegalHoldRequestUseCase.Result.LegalHoldRequestAvailable -> LegalHoldStatus.PENDING
-                    else -> LegalHoldStatus.DISABLED
-                }
-            }
-    }
-
     init {
         viewModelScope.launch {
             coreLogic.globalScope {
                 session.currentSessionFlow().flatMapLatest {
                     when (it) {
                         is CurrentSessionResult.Failure.Generic,
-                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.None to LegalHoldUIState.None)
+                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.None)
 
                         is CurrentSessionResult.Success -> {
                             val userId = it.accountInfo.userId
@@ -100,15 +87,12 @@ class CommonTopAppBarViewModel @Inject constructor(
                                 activeCallFlow(userId),
                                 currentScreenFlow(),
                                 connectivityFlow(userId),
-                                legalHoldStatusFlow(userId),
-                            ) { activeCall, currentScreen, connectivity, legalHoldStatus ->
-                                mapToConnectivityUIState(currentScreen, connectivity, activeCall) to
-                                        mapToLegalHoldUIState(currentScreen, legalHoldStatus)
+                            ) { activeCall, currentScreen, connectivity ->
+                                mapToConnectivityUIState(currentScreen, connectivity, activeCall)
                             }
                         }
                     }
-                }.collectLatest { (connectivityUIState, legalHoldUIState) ->
-                    state = state.copy(legalHoldState = legalHoldUIState)
+                }.collectLatest { connectivityUIState ->
                     /**
                      * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
                      * hided in a short time when the user hangs up the call
@@ -147,19 +131,6 @@ class CommonTopAppBarViewModel @Inject constructor(
         } else {
             ConnectivityUIState.None
         }
-    }
-
-    private fun mapToLegalHoldUIState(
-        currentScreen: CurrentScreen,
-        legalHoldStatus: LegalHoldStatus
-    ): LegalHoldUIState = when (legalHoldStatus) {
-        LegalHoldStatus.ENABLED -> LegalHoldUIState.Active
-        LegalHoldStatus.PENDING -> LegalHoldUIState.Pending
-        LegalHoldStatus.DISABLED,
-        LegalHoldStatus.NO_CONSENT -> LegalHoldUIState.None
-    }.let { legalHoldUIState ->
-        if (currentScreen is CurrentScreen.AuthRelated || currentScreen is CurrentScreen.CallScreen) LegalHoldUIState.None
-        else legalHoldUIState
     }
 
     private companion object {

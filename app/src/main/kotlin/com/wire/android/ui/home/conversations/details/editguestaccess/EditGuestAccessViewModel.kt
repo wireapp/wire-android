@@ -174,7 +174,11 @@ class EditGuestAccessViewModel @Inject constructor(
                         )
                     )
 
-                    is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
+                    is UpdateConversationAccessRoleUseCase.Result.Success -> updateState(
+                        editGuestAccessState.copy(
+                            isGuestAccessAllowed = shouldEnableGuestAccess
+                        )
+                    )
                 }
                 updateState(editGuestAccessState.copy(isUpdatingGuestAccess = false))
             }

@@ -1274,6 +1274,10 @@
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1333,14 +1337,18 @@
     <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
     <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
     <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_self_dialog_title">You are subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
     <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
     <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_accept">Accept</string>
     <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
     <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
     <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>

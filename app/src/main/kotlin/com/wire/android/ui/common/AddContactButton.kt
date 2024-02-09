@@ -18,49 +18,92 @@
 
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.button.IconAlignment
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
+import com.wire.android.ui.connection.ConnectionActionButtonArgs
+import com.wire.android.ui.connection.ConnectionActionButtonViewModel
+import com.wire.android.ui.connection.ConnectionActionButtonViewModelImpl
+import com.wire.android.ui.connection.ConnectionActionState
+import com.wire.android.ui.connection.MissingLegalHoldConsentDialogState
+import com.wire.android.ui.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun AddContactButton(
-    onIconClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    userId: UserId,
+    userName: String,
+    modifier: Modifier = Modifier,
+    viewModel: ConnectionActionButtonViewModel =
+        hiltViewModelScoped<ConnectionActionButtonViewModelImpl, ConnectionActionButtonViewModel, ConnectionActionButtonArgs>(
+            ConnectionActionButtonArgs(userId, userName)
+        ),
 ) {
-    WireSecondaryButton(
-        onClick = { onIconClicked() },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add_contact),
-                contentDescription = stringResource(R.string.content_description_add_contact),
-            )
-        },
-        leadingIconAlignment = IconAlignment.Center,
-        fillMaxWidth = false,
-        minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-        shape = RoundedCornerShape(12.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        modifier = modifier
-    )
+    val state = viewModel.actionableState()
+    LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
+
+    with(state) {
+        if (missingLegalHoldConsentDialogState is MissingLegalHoldConsentDialogState.Visible) {
+            LegalHoldSubjectConnectionFailedDialog(viewModel::onMissingLegalHoldConsentDismissed)
+        }
+
+        WireSecondaryIconButton(
+            onButtonClicked = remember(viewModel) { { if (!isPerformingAction) viewModel.onSendConnectionRequest() } },
+            iconResource = R.drawable.ic_add_contact,
+            contentDescription = R.string.content_description_add_contact,
+            loading = isPerformingAction,
+            modifier = modifier
+        )
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewAddContactButton() {
     WireTheme {
-        AddContactButton(onIconClicked = {})
+        AddContactButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            viewModel = object : ConnectionActionButtonViewModel {
+                override fun actionableState() = ConnectionActionState(isPerformingAction = false)
+            }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAddContactButtonLoading() {
+    WireTheme {
+        AddContactButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            viewModel = object : ConnectionActionButtonViewModel {
+                override fun actionableState() = ConnectionActionState(isPerformingAction = true)
+            }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAddContactButtonDialog() {
+    WireTheme {
+        AddContactButton(
+            userId = UserId("value", "domain"),
+            userName = "Username",
+            viewModel = object : ConnectionActionButtonViewModel {
+                override fun actionableState() = ConnectionActionState(
+                    missingLegalHoldConsentDialogState = MissingLegalHoldConsentDialogState.Visible(UserId("value", "domain"))
+                )
+            }
+        )
     }
 }

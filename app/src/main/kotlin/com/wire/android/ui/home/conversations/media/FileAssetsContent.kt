@@ -44,12 +44,14 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun FileAssetsContent(
     groupedAssetMessageList: Flow<PagingData<UIPagingItem>>,
-    audioMessagesState: Map<String, AudioState> = emptyMap(),
+    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
 ) {
@@ -72,7 +74,7 @@ fun FileAssetsContent(
 @Composable
 private fun AssetMessagesListContent(
     groupedAssetMessageList: LazyPagingItems<UIPagingItem>,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
 ) {
@@ -114,19 +116,20 @@ private fun AssetMessagesListContent(
                                 message = message,
                                 conversationDetailsData = ConversationDetailsData.None,
                                 audioMessagesState = audioMessagesState,
-                                onAudioClick = onAudioItemClicked,
-                                onChangeAudioPosition = { _, _ -> },
                                 onLongClicked = { },
                                 onAssetMessageClicked = onAssetItemClicked,
+                                onAudioClick = onAudioItemClicked,
+                                onChangeAudioPosition = { _, _ -> },
                                 onImageMessageClicked = { _, _ -> },
                                 onOpenProfile = { _ -> },
                                 onReactionClicked = { _, _ -> },
                                 onResetSessionClicked = { _, _ -> },
                                 onSelfDeletingMessageRead = { },
+                                onLinkClick = { },
                                 defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
                                 shouldDisplayFooter = false,
-                                onLinkClick = { }
+                                onReplyClickable = null
                             )
                         }
 

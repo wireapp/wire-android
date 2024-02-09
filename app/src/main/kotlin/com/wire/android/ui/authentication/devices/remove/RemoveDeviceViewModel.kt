@@ -116,8 +116,10 @@ class RemoveDeviceViewModel @Inject constructor(
 
     private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         registerClientUseCase(
-            RegisterClientUseCase.RegisterClientParam(password, null,
-                modelPostfix = if(BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null)
+            RegisterClientUseCase.RegisterClientParam(
+                password, null,
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+            )
         ).also { result ->
             when (result) {
                 is RegisterClientResult.Failure.PasswordAuthRequired -> {

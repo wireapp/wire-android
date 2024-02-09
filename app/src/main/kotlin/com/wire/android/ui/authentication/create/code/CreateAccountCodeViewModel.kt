@@ -211,7 +211,7 @@ class CreateAccountCodeViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = null,
-                modelPostfix = if(BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )
 

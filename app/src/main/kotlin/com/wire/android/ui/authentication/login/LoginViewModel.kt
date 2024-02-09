@@ -85,8 +85,8 @@ open class LoginViewModel @Inject constructor(
             userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
             password = TextFieldValue(String.EMPTY),
             isProxyAuthRequired =
-                if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
-                else false,
+            if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
+            else false,
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
@@ -138,7 +138,7 @@ open class LoginViewModel @Inject constructor(
                 password = password,
                 capabilities = capabilities,
                 secondFactorVerificationCode = secondFactorVerificationCode,
-                modelPostfix = if(BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )
     }

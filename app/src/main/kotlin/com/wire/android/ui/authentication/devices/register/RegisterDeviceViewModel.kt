@@ -80,7 +80,7 @@ class RegisterDeviceViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = null,
-                modelPostfix = if(BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )) {
             is RegisterClientResult.Failure.TooManyClients ->
@@ -115,7 +115,8 @@ class RegisterDeviceViewModel @Inject constructor(
                 flowState = RegisterDeviceFlowState.Error.InvalidCredentialsError
             )
 
-            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */ }
+            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */
+            }
         }
     }
 

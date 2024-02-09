@@ -306,7 +306,8 @@ fun appendLinksAndMentions(
                     if (highLightIndex.endIndex <= length) {
                         addStyle(
                             style = SpanStyle(
-                                background = nodeData.colorScheme.highLight.copy(alpha = 0.5f),
+                                background = nodeData.colorScheme.highlight,
+                                color = nodeData.colorScheme.onHighlight,
                                 fontFamily = nodeData.typography.body02.fontFamily,
                                 fontWeight = FontWeight.Bold
                             ),

@@ -86,6 +86,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.user.UserId
 
 // TODO: a definite candidate for a refactor and cleanup
@@ -99,6 +100,7 @@ fun MessageItem(
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     audioMessagesState: Map<String, AudioState>,
+    assetStatus: MessageAssetStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -271,6 +273,7 @@ fun MessageItem(
                                         messageContent = messageContent,
                                         searchQuery = searchQuery,
                                         audioMessagesState = audioMessagesState,
+                                        assetStatus = assetStatus,
                                         onAudioClick = onAudioClick,
                                         onChangeAudioPosition = onChangeAudioPosition,
                                         onAssetClick = currentOnAssetClicked,
@@ -354,7 +357,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus.isSaved()) {
+                statusText = if (Message.DownloadStatus.NOT_FOUND.isSaved()) { // TODO KBX
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -501,6 +504,7 @@ private fun MessageContent(
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
     audioMessagesState: Map<String, AudioState>,
+    assetStatus: MessageAssetStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onAudioClick: (String) -> Unit,
@@ -516,8 +520,8 @@ private fun MessageContent(
                 MessageImage(
                     asset = messageContent.asset,
                     imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    uploadStatus = messageContent.uploadStatus,
-                    downloadStatus = messageContent.downloadStatus,
+                    uploadStatus = assetStatus?.uploadStatus ?: Message.UploadStatus.NOT_UPLOADED,
+                    downloadStatus = assetStatus?.downloadStatus ?: Message.DownloadStatus.NOT_DOWNLOADED,
                     onImageClick = onImageClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -577,8 +581,8 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetUploadStatus = messageContent.uploadStatus,
-                    assetDownloadStatus = messageContent.downloadStatus,
+                    assetUploadStatus = assetStatus?.uploadStatus ?: Message.UploadStatus.NOT_UPLOADED,
+                    assetDownloadStatus = assetStatus?.downloadStatus ?: Message.DownloadStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)

@@ -242,8 +242,6 @@ sealed class UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 

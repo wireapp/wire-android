@@ -282,7 +282,7 @@ fun startDeletionTimer(
         is UIMessageContent.AssetMessage -> startAssetDeletion(
             expirableTimer = expirableTimer,
             onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-            downloadStatus = messageContent.downloadStatus
+            downloadStatus = Message.DownloadStatus.SAVED_INTERNALLY // TODO KBX
         )
 
         is UIMessageContent.AudioAssetMessage -> startAssetDeletion(

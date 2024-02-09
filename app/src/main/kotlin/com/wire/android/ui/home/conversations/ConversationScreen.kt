@@ -140,10 +140,12 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -668,6 +670,7 @@ private fun ConversationScreen(
                 ConversationScreenContent(
                     conversationId = conversationInfoViewState.conversationId,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                    assetStatuses = conversationMessagesViewState.assetStatuses,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
@@ -714,6 +717,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: Map<String, AudioState>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
@@ -754,6 +758,7 @@ private fun ConversationScreenContent(
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
                 audioMessagesState = audioMessagesState,
+                assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
                 onAssetItemClicked = onAssetItemClicked,
                 onAudioItemClicked = onAudioItemClicked,
@@ -821,6 +826,7 @@ fun MessageList(
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
     audioMessagesState: Map<String, AudioState>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
@@ -895,6 +901,7 @@ fun MessageList(
                                 showAuthor = showAuthor,
                                 useSmallBottomPadding = useSmallBottomPadding,
                                 audioMessagesState = audioMessagesState,
+                                assetStatus = assetStatuses[message.header.messageId],
                                 onAudioClick = onAudioItemClicked,
                                 onChangeAudioPosition = onChangeAudioPosition,
                                 onLongClicked = onShowEditingOption,

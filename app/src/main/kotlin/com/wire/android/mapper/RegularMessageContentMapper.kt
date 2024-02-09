@@ -149,8 +149,8 @@ class RegularMessageMapper @Inject constructor(
                 assetExtension = mimeType,
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                 audioMessageDurationInMs = metadata.durationMs ?: 0,
-                uploadStatus = uploadStatus,
-                downloadStatus = downloadStatus,
+                uploadStatus = Message.UploadStatus.NOT_UPLOADED,
+                downloadStatus = Message.DownloadStatus.NOT_FOUND, // TODO KBX
                 deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
             )
         }
@@ -250,8 +250,8 @@ class RegularMessageMapper @Inject constructor(
                         ),
                         width = assetMessageContentMetadata.imgWidth,
                         height = assetMessageContentMetadata.imgHeight,
-                        uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus,
+                        uploadStatus = Message.UploadStatus.NOT_UPLOADED,
+                        downloadStatus = Message.DownloadStatus.SAVED_INTERNALLY, // TODO KBX
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
@@ -263,8 +263,6 @@ class RegularMessageMapper @Inject constructor(
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
-                        uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus,
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
@@ -307,7 +305,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
     // so such asset shouldn't be shown until all the required data is received.
     fun isIncompleteImage(): Boolean = isDisplayableImage()
             // we check only assets uploaded by other clients and they have upload status NOT_UPLOADED
-            && assetMessageContent.uploadStatus == Message.UploadStatus.NOT_UPLOADED
+//            && assetMessageContent.uploadStatus == Message.UploadStatus.NOT_UPLOADED // TODO KBX
             // sometimes we can receive two asset events, we want to show the image only after we get all required data
             && !assetMessageContent.hasValidRemoteData()
 }

@@ -48,6 +48,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
@@ -58,6 +59,7 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -78,6 +80,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
+    private val observeAssetStatusesUseCase: ObserveAssetStatusesUseCase,
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
@@ -109,6 +112,7 @@ class ConversationMessagesViewModel @Inject constructor(
         loadPaginatedMessages()
         loadLastMessageInstant()
         observeAudioPlayerState()
+        observeAssetStatuses()
     }
 
     private fun clearOrphanedTypingEvents() {
@@ -120,6 +124,16 @@ class ConversationMessagesViewModel @Inject constructor(
             conversationAudioMessagePlayer.observableAudioMessagesState.collect {
                 conversationViewState = conversationViewState.copy(
                     audioMessagesState = it
+                )
+            }
+        }
+    }
+
+    private fun observeAssetStatuses() {
+        viewModelScope.launch {
+            observeAssetStatusesUseCase().collect {
+                conversationViewState = conversationViewState.copy(
+                    assetStatuses = it.toPersistentMap()
                 )
             }
         }
@@ -225,7 +239,7 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
+//                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId) // TODO KBX
                 null
             }
         }
@@ -244,7 +258,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
-                    updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId)
+//                    updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId) // TODO KBX
                     onFileSavedToExternalStorage(savedFileName)
                     hideOnAssetDownloadedDialog()
                 }

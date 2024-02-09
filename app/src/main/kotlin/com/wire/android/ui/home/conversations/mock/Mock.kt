@@ -289,9 +289,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
         assetId = UserAssetId("asset", "domain"),
-        assetSizeInBytes = 21957335,
-        uploadStatus = uploadStatus,
-        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
+        assetSizeInBytes = 21957335
     ),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self

@@ -174,7 +174,6 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun observeUpdateAppState() {
-        appLogger.d("bring me back")
         viewModelScope.launch {
             observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()

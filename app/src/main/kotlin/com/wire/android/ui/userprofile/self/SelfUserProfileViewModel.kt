@@ -218,7 +218,6 @@ class SelfUserProfileViewModel @Inject constructor(
             }
 
             notificationManager.stopObservingOnLogout(selfUserId)
-            notificationChannelsManager.deleteChannelGroup(selfUserId)
             accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
                 if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
                     globalDataStore.clearAppLockPasscode()

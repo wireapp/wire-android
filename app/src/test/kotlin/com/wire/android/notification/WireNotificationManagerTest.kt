@@ -55,6 +55,7 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
@@ -83,6 +84,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
@@ -696,6 +698,51 @@ class WireNotificationManagerTest {
             }
         }
 
+    @Test
+    fun givenSessionExistsForTheUserAndNoActiveJobs_whenGettingUsersToObserve_thenReturnThatUser() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = provideUserId()
+            val (_, manager) = Arrangement()
+                .withDoesValidSessionExistResult(userId, DoesValidSessionExistResult.Success(true))
+                .arrange()
+            val hasActiveJobs: (UserId) -> Boolean = { false }
+            // when
+            val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
+            // then
+            assertEquals(listOf(userId), result)
+        }
+
+    @Test
+    fun givenSessionExistsForTheUserButWithActiveJobs_whenGettingUsersToObserve_thenDoNotReturnThatUser() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = provideUserId()
+            val (_, manager) = Arrangement()
+                .withDoesValidSessionExistResult(userId, DoesValidSessionExistResult.Success(true))
+                .arrange()
+            val hasActiveJobs: (UserId) -> Boolean = { true }
+            // when
+            val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
+            // then
+            assertEquals(listOf(), result)
+        }
+
+    @Test
+    fun givenSessionDoesNotExistForTheUserAndNoActiveJobs_whenGettingUsersToObserve_thenDoNotReturnThatUser() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = provideUserId()
+            val (_, manager) = Arrangement()
+                .withDoesValidSessionExistResult(userId, DoesValidSessionExistResult.Success(false))
+                .arrange()
+            val hasActiveJobs: (UserId) -> Boolean = { false }
+            // when
+            val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
+            // then
+            assertEquals(listOf(), result)
+        }
+
     private inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -813,6 +860,7 @@ class WireNotificationManagerTest {
             every { servicesManager.startOngoingCallService() } returns Unit
             every { servicesManager.stopOngoingCallService() } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit
+            coEvery { globalKaliumScope.doesValidSessionExist.invoke(any()) } returns DoesValidSessionExistResult.Success(true)
         }
 
         private fun mockSpecificUserSession(
@@ -888,6 +936,10 @@ class WireNotificationManagerTest {
 
         fun withObserveE2EIRequired(result: E2EIRequiredResult) = apply {
             coEvery { observeE2EIRequired.invoke() } returns flowOf(result)
+        }
+
+        fun withDoesValidSessionExistResult(userId: UserId, result: DoesValidSessionExistResult) = apply {
+            coEvery { globalKaliumScope.doesValidSessionExist.invoke(userId) } returns result
         }
 
         fun arrange() = this to wireNotificationManager

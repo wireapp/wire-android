@@ -40,7 +40,7 @@ class LocationPickerViewModel @Inject constructor(private val locationPickerHelp
         state = state.copy(showLocationSharingError = false)
     }
 
-    fun onPermissionsDenied() {
+    fun onPermissionPermanentlyDenied() {
         state = state.copy(showPermissionDeniedDialog = true)
     }
 

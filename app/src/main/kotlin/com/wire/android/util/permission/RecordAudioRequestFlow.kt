@@ -27,11 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.util.extension.checkPermission
+import com.wire.android.util.extension.getActivity
 
 @Composable
 fun rememberRecordAudioRequestFlow(
     onPermissionAllowed: () -> Unit,
-    onPermissionDenied: () -> Unit
+    onPermissionDenied: () -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit
 ): RecordAudioRequestFlow {
     val context = LocalContext.current
 
@@ -41,7 +43,17 @@ fun rememberRecordAudioRequestFlow(
             if (allPermissionGranted) {
                 onPermissionAllowed()
             } else {
-                onPermissionDenied()
+                context.getActivity()?.let {
+                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO) ||
+                        (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && it.shouldShowRequestPermissionRationale(
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        ))
+                    ) {
+                        onPermissionDenied()
+                    } else {
+                        onAudioPermissionPermanentlyDenied()
+                    }
+                }
             }
         }
 

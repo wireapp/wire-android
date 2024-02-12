@@ -26,11 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.util.extension.checkPermission
+import com.wire.android.util.extension.getActivity
 
 @Composable
 fun rememberCurrentLocationFlow(
     onPermissionAllowed: () -> Unit,
-    onPermissionDenied: () -> Unit
+    onPermissionDenied: () -> Unit,
+    onPermissionPermanentlyDenied: () -> Unit
 ): CurrentLocationRequestFlow {
     val context = LocalContext.current
 
@@ -40,7 +42,15 @@ fun rememberCurrentLocationFlow(
             if (allPermissionGranted) {
                 onPermissionAllowed()
             } else {
-                onPermissionDenied()
+                context.getActivity()?.let {
+                    if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION) ||
+                        it.shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    ) {
+                        onPermissionDenied()
+                    } else {
+                        onPermissionPermanentlyDenied()
+                    }
+                }
             }
         }
 

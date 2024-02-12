@@ -105,5 +105,6 @@
     "is_password_protected_guest_link_enabled": false,
     "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android",
     "team_app_lock": false,
-    "team_app_lock_timeout": 60
+    "team_app_lock_timeout": 60,
+    "max_remote_search_result_count": 30
 }

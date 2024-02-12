@@ -31,7 +31,11 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
+import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -54,7 +58,7 @@ class SearchUserViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withAddMembersSearchNavArgsThatThrowsException()
             .withSearchResult(
-                SearchUsersUseCase.Result(
+                SearchUserResult(
                     connected = listOf(),
                     notConnected = listOf()
                 )
@@ -65,6 +69,7 @@ class SearchUserViewModelTest {
                     domain = "domain"
                 )
             )
+            .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
             .arrange()
 
         viewModel.safeSearch(query)
@@ -90,7 +95,7 @@ class SearchUserViewModelTest {
             val (arrangement, viewModel) = Arrangement()
                 .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
                 .withSearchResult(
-                    SearchUsersUseCase.Result(
+                    SearchUserResult(
                         connected = listOf(),
                         notConnected = listOf()
                     )
@@ -101,6 +106,7 @@ class SearchUserViewModelTest {
                         domain = "domain"
                     )
                 )
+                .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
                 .arrange()
 
             viewModel.safeSearch(query)
@@ -122,7 +128,7 @@ class SearchUserViewModelTest {
     fun `given searchUserUseCase returns a list of connected users, when calling the searchUseCase, then contactsResult is set`() =
         runTest {
 
-            val result = SearchUsersUseCase.Result(
+            val result = SearchUserResult(
                 connected = listOf(
                     UserSearchDetails(
                         id = UserId("connected", "domain"),
@@ -157,6 +163,7 @@ class SearchUserViewModelTest {
                         domain = "domain"
                     )
                 )
+                .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
                 .arrange()
 
             viewModel.safeSearch(query)
@@ -177,6 +184,40 @@ class SearchUserViewModelTest {
             assertEquals(result.notConnected.map(arrangement::fromSearchUserResult), viewModel.state.publicResult)
         }
 
+    @Test
+    fun `given search term is a valid handle, when searching, then search by handle`() = runTest {
+            val query = "query"
+            val (arrangement, viewModel) = Arrangement()
+                .withAddMembersSearchNavArgsThatThrowsException()
+                .withSearchByHandleResult(
+                    SearchUserResult(
+                        connected = listOf(),
+                        notConnected = listOf()
+                    )
+                )
+                .withFederatedSearchParserResult(
+                    FederatedSearchParser.Result(
+                        searchTerm = query,
+                        domain = "domain"
+                    )
+                )
+                .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+                .arrange()
+
+            viewModel.safeSearch(query)
+            coVerify(exactly = 1) {
+                arrangement.searchByHandleUseCase.invoke(
+                    query,
+                    excludingConversation = null,
+                    customDomain = "domain"
+                )
+            }
+
+            coVerify(exactly = 1) {
+                arrangement.federatedSearchParser(any())
+            }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -191,6 +232,11 @@ class SearchUserViewModelTest {
         @MockK
         lateinit var federatedSearchParser: FederatedSearchParser
 
+        @MockK
+        lateinit var validateUserHandle: ValidateUserHandleUseCase
+
+        @MockK
+        lateinit var searchByHandleUseCase: SearchByHandleUseCase
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { contactMapper.fromSearchUserResult(any()) } answers {
@@ -232,7 +278,7 @@ class SearchUserViewModelTest {
             }
         }
 
-        fun withSearchResult(result: SearchUsersUseCase.Result) = apply {
+        fun withSearchResult(result: SearchUserResult) = apply {
             coEvery { searchUsersUseCase(any(), any(), any()) } returns result
         }
 
@@ -240,13 +286,23 @@ class SearchUserViewModelTest {
             coEvery { federatedSearchParser(any()) } returns result
         }
 
+        fun withIsValidHandleResult(result: ValidateUserHandleResult) = apply {
+            coEvery { validateUserHandle(any()) } returns result
+        }
+
+        fun withSearchByHandleResult(result: SearchUserResult) = apply {
+            coEvery { searchByHandleUseCase(any(), any(), any()) } returns result
+        }
+
         private lateinit var searchUserViewModel: SearchUserViewModel
 
         fun arrange() = apply {
             searchUserViewModel = SearchUserViewModel(
                 searchUsersUseCase,
+                searchByHandleUseCase,
                 contactMapper,
                 federatedSearchParser,
+                validateUserHandle,
                 savedStateHandle
             )
         }.run {

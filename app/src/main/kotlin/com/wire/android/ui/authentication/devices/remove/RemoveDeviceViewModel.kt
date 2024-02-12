@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.ClientType
@@ -115,7 +116,10 @@ class RemoveDeviceViewModel @Inject constructor(
 
     private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         registerClientUseCase(
-            RegisterClientUseCase.RegisterClientParam(password, null)
+            RegisterClientUseCase.RegisterClientParam(
+                password, null,
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+            )
         ).also { result ->
             when (result) {
                 is RegisterClientResult.Failure.PasswordAuthRequired -> {

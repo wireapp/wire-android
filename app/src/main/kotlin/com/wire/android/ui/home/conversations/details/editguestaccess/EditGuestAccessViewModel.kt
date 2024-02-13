@@ -31,6 +31,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -64,6 +65,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     private val canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase,
+    private val syncConversationCode: SyncConversationCodeUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -80,10 +82,17 @@ class EditGuestAccessViewModel @Inject constructor(
     )
 
     init {
+        updateConversationCode()
         observeConversationDetails()
         startObservingGuestRoomLink()
         observeGuestRoomLinkFeature()
         checkIfUserCanCreatePasswordProtectedLinks()
+    }
+
+    private fun updateConversationCode() {
+        viewModelScope.launch {
+            syncConversationCode(conversationId)
+        }
     }
 
     private fun checkIfUserCanCreatePasswordProtectedLinks() {

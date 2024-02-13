@@ -133,7 +133,6 @@ class OAuthUseCase(
 
     private fun handleAuthorizationResponse(intent: Intent, resultHandler: (OAuthResult) -> Unit) {
         val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
-//        val clientAuth: ClientAuthentication = ClientSecretBasic(CLIENT_SECRET)
         val clientAuth: ClientAuthentication = AuthState().clientAuthentication
 
         val error = AuthorizationException.fromIntent(intent)

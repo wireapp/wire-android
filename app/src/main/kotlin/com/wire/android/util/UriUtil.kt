@@ -67,6 +67,7 @@ fun URI.removeQueryParams(): URI {
     return URI(this.toString().replace(regex, ""))
 }
 
+@Suppress("TooGenericExceptionCaught")
 fun URI.findParameterValue(parameterName: String): String? {
     return try {
         rawQuery.split('&').map {

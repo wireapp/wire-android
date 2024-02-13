@@ -92,9 +92,9 @@ fun ParticipantTile(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
-    onClearSelfUserVideoPreview: () -> Unit,
-    defaultUserName: String = "DEFAULT"
+    onClearSelfUserVideoPreview: () -> Unit
 ) {
+    val defaultUserName = stringResource(id = R.string.calling_participant_tile_default_user_name)
     val alpha =
         if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(

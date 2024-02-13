@@ -201,7 +201,6 @@ class ForgotLockScreenViewModel @Inject constructor(
     // TODO: we should have a dedicated manager to perform these required actions in AR after every LogoutUseCase call
     private suspend fun hardLogoutAccount(userId: UserId) {
         notificationManager.stopObservingOnLogout(userId)
-        notificationChannelsManager.deleteChannelGroup(userId)
         coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
         userDataStoreProvider.getOrCreate(userId).clear()
     }

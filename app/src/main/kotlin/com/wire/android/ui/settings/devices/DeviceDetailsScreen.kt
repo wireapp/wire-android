@@ -52,6 +52,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
@@ -139,7 +140,7 @@ fun DeviceDetailsContent(
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
-        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice) },
+        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice, state.isE2EIEnabled) },
         bottomBar = {
             Column(
                 Modifier
@@ -187,17 +188,19 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-            item {
-                EndToEndIdentityCertificateItem(
-                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                    certificate = state.e2eiCertificate,
-                    isCurrentDevice = state.isCurrentDevice,
-                    isLoadingCertificate = state.isLoadingCertificate,
-                    enrollE2eiCertificate = { enrollE2eiCertificate(context) },
-                    updateE2eiCertificate = {},
-                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
-                )
-                Divider(color = colorsScheme().background)
+            appLogger.i("#### ${state.isE2EIEnabled}")
+            if (state.isE2EIEnabled) {
+                item {
+                    EndToEndIdentityCertificateItem(
+                        isE2eiCertificateActivated = state.isE2eiCertificateActivated,
+                        certificate = state.e2eiCertificate,
+                        isCurrentDevice = state.isCurrentDevice,
+                        isLoadingCertificate = state.isLoadingCertificate,
+                        enrollE2eiCertificate = { enrollE2eiCertificate(context) },
+                        showCertificate = onNavigateToE2eiCertificateDetailsScreen
+                    )
+                    Divider(color = colorsScheme().background)
+                }
             }
             item {
                 FolderHeader(
@@ -293,7 +296,8 @@ fun DeviceDetailsContent(
 private fun DeviceDetailsTopBar(
     onNavigateBack: () -> Unit,
     device: Device,
-    isCurrentDevice: Boolean
+    isCurrentDevice: Boolean,
+    shouldShowE2EIInfo: Boolean
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
@@ -306,7 +310,9 @@ private fun DeviceDetailsTopBar(
                     maxLines = 2
                 )
 
-                MLSVerificationIcon(device.e2eiCertificateStatus)
+                if (shouldShowE2EIInfo) {
+                    MLSVerificationIcon(device.e2eiCertificateStatus)
+                }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {
                     ProteusVerifiedIcon(Modifier.align(Alignment.CenterVertically))

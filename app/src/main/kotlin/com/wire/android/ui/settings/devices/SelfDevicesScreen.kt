@@ -94,6 +94,7 @@ fun SelfDevicesScreenContent(
                                 items = listOf(currentDevice),
                                 shouldShowVerifyLabel = true,
                                 isCurrentClient = true,
+                                isE2EIEnabled = state.isE2EIEnabled,
                                 onDeviceClick = onDeviceClick,
 
                             )
@@ -103,6 +104,7 @@ fun SelfDevicesScreenContent(
                             items = state.deviceList,
                             shouldShowVerifyLabel = true,
                             isCurrentClient = false,
+                            isE2EIEnabled = state.isE2EIEnabled,
                             onDeviceClick = onDeviceClick
                         )
                     }
@@ -117,6 +119,7 @@ private fun LazyListScope.folderDeviceItems(
     items: List<Device>,
     shouldShowVerifyLabel: Boolean,
     isCurrentClient: Boolean,
+    isE2EIEnabled: Boolean,
     onDeviceClick: (Device) -> Unit = {}
 ) {
     folderWithElements(
@@ -137,7 +140,8 @@ private fun LazyListScope.folderDeviceItems(
             icon = Icons.Filled.ChevronRight.Icon(),
             isWholeItemClickable = true,
             shouldShowVerifyLabel = shouldShowVerifyLabel,
-            isCurrentClient = isCurrentClient
+            isCurrentClient = isCurrentClient,
+            shouldShowE2EIInfo = isE2EIEnabled
         )
     }
 }

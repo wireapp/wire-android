@@ -71,8 +71,9 @@ class ProximitySensorManager @Inject constructor(
         override fun onSensorChanged(event: SensorEvent) {
             appCoroutineScope.launch {
                 coreLogic.get().globalScope {
-                    when (val currentSession = currentSession.get().invoke()) {
-                        is CurrentSessionResult.Success -> {
+                    val currentSession = currentSession.get().invoke()
+                    when {
+                        currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid() -> {
                             val userId = currentSession.accountInfo.userId
                             val isCallRunning = coreLogic.get().getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
@@ -92,8 +93,10 @@ class ProximitySensorManager @Inject constructor(
                             }
                         }
 
-                        else -> {
-                            // NO SESSION - Nothing to do
+                        else -> { // NO SESSION - just release in case it's still held
+                            if (wakeLock.isHeld) {
+                                wakeLock.release()
+                            }
                         }
                     }
                 }

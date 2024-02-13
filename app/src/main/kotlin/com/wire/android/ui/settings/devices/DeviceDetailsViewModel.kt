@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.functional.fold
@@ -68,14 +69,20 @@ class DeviceDetailsViewModel @Inject constructor(
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val e2eiCertificate: GetE2eiCertificateUseCase,
-    private val enrolE2EICertificateUseCase: GetE2EICertificateUseCase
+    private val enrolE2EICertificateUseCase: GetE2EICertificateUseCase,
+    isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
     private val deviceId: ClientId = deviceDetailsNavArgs.clientId
     private val userId: UserId = deviceDetailsNavArgs.userId
 
-    var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(isSelfClient = isSelfClient))
+    var state: DeviceDetailsState by mutableStateOf(
+        DeviceDetailsState(
+            isSelfClient = isSelfClient,
+            isE2EIEnabled = isE2EIEnabledUseCase()
+        )
+    )
         private set
 
     init {

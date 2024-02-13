@@ -75,7 +75,7 @@ fun URI.findParameterValue(parameterName: String): String? {
             val value = parts.drop(1).firstOrNull() ?: ""
             Pair(name, value)
         }.firstOrNull { it.first == parameterName }?.second
-    } catch (e: Exception) {
+    } catch (e: NullPointerException) {
         appLogger.w("Error finding parameter value: $parameterName", e)
         null
     }

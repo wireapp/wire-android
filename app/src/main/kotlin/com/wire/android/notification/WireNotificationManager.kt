@@ -18,6 +18,7 @@
 
 package com.wire.android.notification
 
+import androidx.annotation.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import kotlinx.coroutines.CoroutineScope
@@ -244,9 +246,8 @@ class WireNotificationManager @Inject constructor(
             return
         }
 
-        // start observing notifications only for new users
-        userIds
-            .filter { observingJobs.userJobs[it]?.isAllActive() != true }
+        // start observing notifications only for new users with valid session and without active jobs
+        newUsersWithValidSessionAndWithoutActiveJobs(userIds) { observingJobs.userJobs[it]?.isAllActive() == true }
             .forEach { userId ->
                 val jobs = UserObservingJobs(
                     currentScreenJob = scope.launch(dispatcherProvider.default()) {
@@ -270,6 +271,20 @@ class WireNotificationManager @Inject constructor(
             observingJobs.ongoingCallJob.set(job)
         }
     }
+
+    @VisibleForTesting
+    internal suspend fun newUsersWithValidSessionAndWithoutActiveJobs(
+        userIds: List<UserId>,
+        hasActiveJobs: (UserId) -> Boolean
+    ): List<UserId> = userIds
+        .filter { !hasActiveJobs(it) }
+        .filter {
+            // double check if the valid session for the given user still exists
+            when (val result = coreLogic.getGlobalScope().doesValidSessionExist(it)) {
+                is DoesValidSessionExistResult.Success -> result.doesValidSessionExist
+                else -> false
+            }
+        }
 
     private fun stopObservingForUser(userId: UserId, observingJobs: ObservingJobs) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)

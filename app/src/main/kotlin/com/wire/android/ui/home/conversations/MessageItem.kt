@@ -147,7 +147,7 @@ fun MessageItem(
         }
 
         val colorAnimation = remember { Animatable(Color.Transparent) }
-        val highlightColor = colorsScheme().selectedMessageHighlightColor
+        val highlightColor = colorsScheme().primaryVariant
         val transparentColor = colorsScheme().primary.copy(alpha = 0F)
         LaunchedEffect(isSelectedMessage) {
             if (isSelectedMessage) {
@@ -172,7 +172,7 @@ fun MessageItem(
                 },
                     onLongClick = remember(message) {
                         {
-                            if (!isContentClickable) {
+                            if (!isContentClickable && !message.isDeleted) {
                                 onLongClicked(message)
                             }
                         }

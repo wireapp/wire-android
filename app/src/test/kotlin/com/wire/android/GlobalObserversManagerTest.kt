@@ -146,6 +146,23 @@ class GlobalObserversManagerTest {
         coVerify(exactly = 0) { arrangement.messageScope.deleteEphemeralMessageEndDate() }
     }
 
+    @Test
+    fun `given validAccounts and persistentStatuses are out of sync, when setting up notifications, then ignore invalid users`() {
+        val validAccountsList = listOf(TestUser.SELF_USER)
+        val persistentStatusesList = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withValidAccounts(validAccountsList.map { it to null })
+            .withPersistentWebSocketConnectionStatuses(persistentStatusesList)
+            .arrange()
+        manager.observe()
+        coVerify(exactly = 1) {
+            arrangement.notificationChannelsManager.createUserNotificationChannels(listOf(TestUser.SELF_USER))
+        }
+    }
+
     private class Arrangement {
 
         @MockK

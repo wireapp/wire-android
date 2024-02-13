@@ -83,10 +83,9 @@ class OAuthUseCase(
     ) {
         authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
             if (exception != null) {
-                Log.e(
-                    "OAuthTokenRefreshManager",
-                    "Error refreshing tokens, continue with login!",
-                    exception
+                appLogger.e(
+                    message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!",
+                    throwable = exception
                 )
                 launchLoginFlow(activityResultRegistry, resultHandler)
             } else {

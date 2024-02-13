@@ -112,7 +112,6 @@ class GlobalObserversManager @Inject constructor(
             val callback: LogoutCallback = object : LogoutCallback {
                 override suspend fun invoke(userId: UserId, reason: LogoutReason) {
                     notificationManager.stopObservingOnLogout(userId)
-                    notificationChannelsManager.deleteChannelGroup(userId)
                     if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
                         userDataStoreProvider.getOrCreate(userId).clear()
                     }

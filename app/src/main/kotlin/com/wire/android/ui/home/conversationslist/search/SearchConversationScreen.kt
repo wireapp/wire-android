@@ -41,6 +41,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -55,7 +56,7 @@ fun SearchConversationScreen(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
         if (conversationSearchResult.values.isEmpty()) {
@@ -68,7 +69,7 @@ fun SearchConversationScreen(
                 onEditConversation = onEditConversation,
                 onOpenUserProfile = onOpenUserProfile,
                 onJoinCall = onJoinCall,
-                onPermanentPermissionDecline = onPermanentPermissionDecline
+                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
             )
         }
     }

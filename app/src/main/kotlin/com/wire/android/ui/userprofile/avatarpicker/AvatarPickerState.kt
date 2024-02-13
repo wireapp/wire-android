@@ -31,6 +31,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.imagepreview.AvatarPickerFlow
 import com.wire.android.ui.common.imagepreview.rememberPickPictureState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,13 +42,19 @@ fun rememberAvatarPickerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     onImageSelected: (Uri) -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri
 ): AvatarPickerState {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 
-    val avatarPickerFlow: AvatarPickerFlow = rememberPickPictureState(onImageSelected, onPictureTaken, targetPictureFileUri)
+    val avatarPickerFlow: AvatarPickerFlow = rememberPickPictureState(
+        onImageSelected,
+        onPictureTaken,
+        targetPictureFileUri,
+        onPermissionPermanentlyDenied
+    )
 
     return remember(avatarPickerFlow) {
         AvatarPickerState(

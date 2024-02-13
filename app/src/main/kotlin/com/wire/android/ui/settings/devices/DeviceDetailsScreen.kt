@@ -188,7 +188,7 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-            appLogger.i("#### ${state.isE2EIEnabled}")
+
             if (state.isE2EIEnabled) {
                 item {
                     EndToEndIdentityCertificateItem(

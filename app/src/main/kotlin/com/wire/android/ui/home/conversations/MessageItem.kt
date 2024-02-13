@@ -172,7 +172,7 @@ fun MessageItem(
                 },
                     onLongClick = remember(message) {
                         {
-                            if (!isContentClickable) {
+                            if (!isContentClickable && !message.isDeleted) {
                                 onLongClicked(message)
                             }
                         }

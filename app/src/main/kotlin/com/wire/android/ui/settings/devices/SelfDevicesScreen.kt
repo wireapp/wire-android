@@ -113,7 +113,7 @@ fun SelfDevicesScreenContent(
         }
     )
 }
-
+@Suppress("LongParameterList")
 private fun LazyListScope.folderDeviceItems(
     header: String,
     items: List<Device>,

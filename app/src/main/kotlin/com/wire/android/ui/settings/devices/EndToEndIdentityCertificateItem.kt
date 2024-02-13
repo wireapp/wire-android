@@ -50,7 +50,6 @@ fun EndToEndIdentityCertificateItem(
     isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
-    updateE2eiCertificate: () -> Unit,
     showCertificate: (String) -> Unit
 ) {
     Column(
@@ -206,7 +205,6 @@ fun PreviewEndToEndIdentityCertificateItem() {
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
-        updateE2eiCertificate = {},
         showCertificate = {}
     )
 }
@@ -225,7 +223,6 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
-        updateE2eiCertificate = {},
         showCertificate = {}
     )
 }

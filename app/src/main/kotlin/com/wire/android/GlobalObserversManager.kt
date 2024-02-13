@@ -91,14 +91,26 @@ class GlobalObserversManager @Inject constructor(
             }
 
         coreLogic.getGlobalScope().observeValidAccounts()
+            .combine(persistentStatusesFlow) { list, persistentStatuses ->
+                val persistentStatusesMap = persistentStatuses.associate { it.userId to it.isPersistentWebSocketEnabled }
+                /*
+                  Intersect both lists as they can be slightly out of sync because both lists can be updated at slightly different times.
+                  When user is logged out, at this time one of them can still contain this invalid user - make sure that it's ignored.
+                  When user is logged in, at this time one of them can still not contain this new user - ignore for now,
+                  the user will be handled correctly in the next iteration when the second list becomes updated as well.
+                 */
+                list.map { (selfUser, _) -> selfUser }
+                    .filter { persistentStatusesMap.containsKey(it.id) }
+                    .map { it to persistentStatusesMap.getValue(it.id) }
+            }
             .distinctUntilChanged()
-            .combine(persistentStatusesFlow, ::Pair)
-            .collect { (list, persistentStatuses) ->
-                notificationChannelsManager.createUserNotificationChannels(list.map { it.first })
+            .collectLatest {
+                // create notification channels for all valid users
+                notificationChannelsManager.createUserNotificationChannels(it.map { it.first })
 
-                list.map { it.first.id }
-                    // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
-                    .filter { userId -> persistentStatuses.none { it.userId == userId && it.isPersistentWebSocketEnabled } }
+                // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
+                it.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }
+                    .map { (selfUser, _) -> selfUser.id }
                     .run {
                         notificationManager.observeNotificationsAndCallsWhileRunning(this, scope)
                     }
@@ -112,7 +124,6 @@ class GlobalObserversManager @Inject constructor(
             val callback: LogoutCallback = object : LogoutCallback {
                 override suspend fun invoke(userId: UserId, reason: LogoutReason) {
                     notificationManager.stopObservingOnLogout(userId)
-                    notificationChannelsManager.deleteChannelGroup(userId)
                     if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
                         userDataStoreProvider.getOrCreate(userId).clear()
                     }

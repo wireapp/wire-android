@@ -455,4 +455,9 @@ class UseCaseModule {
     @Provides
     fun provideObserveLegalHoldForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeLegalHoldStateForUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
 }

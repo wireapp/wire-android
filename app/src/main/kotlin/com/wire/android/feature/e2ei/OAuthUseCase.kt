@@ -89,7 +89,7 @@ class OAuthUseCase(
         }
     }
 
-    fun launchLoginFlow(
+    private fun launchLoginFlow(
         activityResultRegistry: ActivityResultRegistry,
         resultHandler: (OAuthResult) -> Unit
     ) {

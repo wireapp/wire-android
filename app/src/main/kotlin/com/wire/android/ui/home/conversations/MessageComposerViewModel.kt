@@ -527,7 +527,10 @@ class MessageComposerViewModel @Inject constructor(
     fun dismissSureAboutSendingMessage() {
         (sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible)?.let {
             viewModelScope.launch {
-                it.markAsNotified()
+                if (it is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold) {
+                    setNotifiedAboutConversationUnderLegalHold(conversationId)
+                }
+                sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
             }
         }
     }

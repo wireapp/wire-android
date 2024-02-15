@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.sync
 
+import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
@@ -301,6 +302,9 @@ class FeatureFlagNotificationViewModelTest {
     private inner class Arrangement {
 
         @MockK
+        lateinit var context: Context
+
+        @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
         @MockK
@@ -333,7 +337,8 @@ class FeatureFlagNotificationViewModelTest {
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
                 disableAppLockUseCase = disableAppLockUseCase,
-                dispatcherProvider = TestDispatcherProvider()
+                dispatcherProvider = TestDispatcherProvider(),
+                applicationContext = context
             )
         }
         init {

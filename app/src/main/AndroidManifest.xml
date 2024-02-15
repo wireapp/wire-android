@@ -61,7 +61,11 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!--  usesCleartextTraffic is true as we need to check Certificate Revocation List in HTTP.
+    The CRL itself is signed by the issuer so there is no security issue.
+    For all other calls, we use HTTPS, and this is enforced by OkHttp using ConnectionSpecs. -->
     <application
+            android:usesCleartextTraffic="true"
             android:name=".WireApplication"
             android:allowBackup="false"
             android:fullBackupContent="false"

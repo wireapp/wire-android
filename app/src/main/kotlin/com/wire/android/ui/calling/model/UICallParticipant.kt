@@ -25,7 +25,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 data class UICallParticipant(
     val id: QualifiedID,
     val clientId: String,
-    val name: String = "",
+    val name: String? = null,
     val isMuted: Boolean,
     val isSpeaking: Boolean = false,
     val isCameraOn: Boolean,

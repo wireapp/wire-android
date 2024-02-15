@@ -40,7 +40,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -161,25 +160,5 @@ class ConversationCallViewModelTest {
         conversationCallViewModel.joinAnyway(onAnswered)
 
         coVerify(exactly = 1) { endCall(any()) }
-    }
-
-    @Test
-    fun `given permission dialog default state is false, when calling showPermissionDialog, then update the state to true`() = runTest {
-        conversationCallViewModel.conversationCallViewState =
-            conversationCallViewModel.conversationCallViewState.copy(shouldShowCallingPermissionDialog = false)
-
-        conversationCallViewModel.showCallingPermissionDialog()
-
-        assertEquals(true, conversationCallViewModel.conversationCallViewState.shouldShowCallingPermissionDialog)
-    }
-
-    @Test
-    fun `given default permission dialog state, when calling dismissPermissionDialog, then update the state to false`() = runTest {
-        conversationCallViewModel.conversationCallViewState =
-            conversationCallViewModel.conversationCallViewState.copy(shouldShowCallingPermissionDialog = true)
-
-        conversationCallViewModel.dismissCallingPermissionDialog()
-
-        assertEquals(false, conversationCallViewModel.conversationCallViewState.shouldShowCallingPermissionDialog)
     }
 }

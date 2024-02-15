@@ -46,14 +46,16 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.messagecomposer.FileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import kotlin.math.roundToInt
 
 @Composable
 fun PickRestoreFileDialog(
     onChooseBackupFile: (Uri) -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
-    val fileFlow = FileBrowserFlow(onChooseBackupFile)
+    val fileFlow = FileBrowserFlow(onChooseBackupFile, onPermissionPermanentlyDenied)
 
     WireDialog(
         title = stringResource(R.string.backup_dialog_restore_backup_title),

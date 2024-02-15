@@ -217,7 +217,6 @@ class WireActivity : AppCompatActivity() {
                             onReturnToCallClick = { establishedCall ->
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
                             },
-                            onPendingClicked = legalHoldRequestedViewModel::show,
                         )
                         NavigationGraph(
                             navigator = navigator,

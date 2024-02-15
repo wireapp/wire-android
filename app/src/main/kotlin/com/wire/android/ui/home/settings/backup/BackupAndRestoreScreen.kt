@@ -43,14 +43,18 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogFlow
 import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 
 @RootNavGraph
 @Destination
@@ -88,6 +92,9 @@ fun BackupAndRestoreContent(
     onOpenConversations: () -> Unit,
     onBackPressed: () -> Unit
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -149,6 +156,16 @@ fun BackupAndRestoreContent(
                 onCancelCreateBackup = {
                     backupAndRestoreStateHolder.dismissDialog()
                     onCancelBackupCreation()
+                },
+                onPermissionPermanentlyDenied = {
+                    if (it == PermissionDenialType.WriteFile) {
+                        permissionPermanentlyDeniedDialogState.show(
+                            PermissionPermanentlyDeniedDialogState.Visible(
+                                R.string.app_permission_dialog_title,
+                                R.string.save_backup_file_permission_dialog_description
+                            )
+                        )
+                    }
                 }
             )
         }
@@ -162,12 +179,27 @@ fun BackupAndRestoreContent(
                     backupAndRestoreStateHolder.dismissDialog()
                     onCancelBackupRestore()
                 },
-                onOpenConversations = onOpenConversations
+                onOpenConversations = onOpenConversations,
+                onPermissionPermanentlyDenied = {
+                    if (it == PermissionDenialType.ReadFile) {
+                        permissionPermanentlyDeniedDialogState.show(
+                            PermissionPermanentlyDeniedDialogState.Visible(
+                                R.string.app_permission_dialog_title,
+                                R.string.restore_backup_permission_dialog_description
+                            )
+                        )
+                    }
+                }
             )
         }
 
         BackupAndRestoreDialog.None -> {}
     }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+    )
 }
 
 @Preview

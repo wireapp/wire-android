@@ -842,6 +842,7 @@
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
+    <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
@@ -1291,8 +1292,6 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="call_permission_dialog_title">App permission</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
@@ -1370,6 +1369,15 @@
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Settings</string>
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
+    <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
+    <string name="take_picture_permission_dialog_description">To take a picture, allow Wire to access your camera in your device settings.</string>
+    <string name="open_gallery_permission_dialog_description">To send a picture, allow Wire to access Photos in your device settings.</string>
+    <string name="attach_file_permission_dialog_description">To send a file, allow Wire to access your files in your device settings.</string>
+    <string name="save_permission_dialog_description">To save this file, allow Wire to access your Downloads folder in your device settings.</string>
+    <string name="save_backup_file_permission_dialog_description">To save this backup file, allow Wire to access your Downloads folder in your device settings.</string>
+    <string name="restore_backup_permission_dialog_description">To restore conversations, allow Wire to access your files in your device settings.</string>
+    <string name="camera_permission_dialog_description">To turn the camera on, allow Wire to access your camera in your device settings.</string>
 
     <!-- Share Location -->
     <string name="location_attachment_share_title">Share Location</string>

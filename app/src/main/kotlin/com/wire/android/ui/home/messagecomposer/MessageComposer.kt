@@ -61,6 +61,7 @@ import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
@@ -78,6 +79,7 @@ fun MessageComposer(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onTypingEvent: (TypingIndicatorMode) -> Unit
@@ -146,6 +148,7 @@ fun MessageComposer(
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
+                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                     onTypingEvent = onTypingEvent
@@ -242,6 +245,7 @@ private fun BaseComposerPreview(
         onChangeSelfDeletionClicked = { },
         onSearchMentionQueryChanged = { },
         onClearMentionSearchResult = { },
+        onCaptureVideoPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,

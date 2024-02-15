@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.util.permission
 
-package com.wire.android.ui.home.conversations.call
-
-data class ConversationCallViewState(
-    val participantsCount: Int = 0,
-    val hasOngoingCall: Boolean = false,
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false
-)
+sealed class PermissionDenialType {
+    data object CaptureVideo : PermissionDenialType()
+    data object TakePicture : PermissionDenialType()
+    data object CallingCamera : PermissionDenialType()
+    data object CallingMicrophone : PermissionDenialType()
+    data object WriteFile : PermissionDenialType()
+    data object ReadFile : PermissionDenialType()
+    data object Gallery : PermissionDenialType()
+}

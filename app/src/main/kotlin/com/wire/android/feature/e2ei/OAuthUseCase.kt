@@ -39,8 +39,6 @@ import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.ClientAuthentication
 import net.openid.appauth.ResponseTypeValues
-import net.openid.appauth.browser.BrowserAllowList
-import net.openid.appauth.browser.VersionedBrowserMatcher
 import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
@@ -60,13 +58,6 @@ class OAuthUseCase(
     private lateinit var authServiceConfig: AuthorizationServiceConfiguration
 
     private var appAuthConfiguration: AppAuthConfiguration = AppAuthConfiguration.Builder()
-        .setBrowserMatcher(
-            BrowserAllowList(
-                VersionedBrowserMatcher.CHROME_CUSTOM_TAB,
-                VersionedBrowserMatcher.SAMSUNG_CUSTOM_TAB
-            )
-        )
-        .setSkipIssuerHttpsCheck(true)
         .build()
 
     init {
@@ -98,7 +89,7 @@ class OAuthUseCase(
         }
     }
 
-    private fun launchLoginFlow(
+    fun launchLoginFlow(
         activityResultRegistry: ActivityResultRegistry,
         resultHandler: (OAuthResult) -> Unit
     ) {

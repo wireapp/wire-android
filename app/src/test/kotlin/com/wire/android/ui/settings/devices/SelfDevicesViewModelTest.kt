@@ -29,6 +29,7 @@ import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import io.mockk.coEvery
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -70,6 +71,9 @@ class SelfDevicesViewModelTest {
         @MockK
         lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
 
+        @MockK
+        lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
+
         val selfId = UserId("selfId", "domain")
 
         private val viewModel by lazy {
@@ -78,7 +82,8 @@ class SelfDevicesViewModelTest {
                 currentAccountId = selfId,
                 currentClientIdUseCase = currentClientId,
                 fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
-                getUserE2eiCertificates = getUserE2eiCertificates
+                getUserE2eiCertificates = getUserE2eiCertificates,
+                isE2EIEnabledUseCase = isE2EIEnabledUseCase
             )
         }
 
@@ -95,6 +100,7 @@ class SelfDevicesViewModelTest {
                 )
             )
             coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
+            coEvery { isE2EIEnabledUseCase() } returns true
         }
 
         fun arrange() = this to viewModel

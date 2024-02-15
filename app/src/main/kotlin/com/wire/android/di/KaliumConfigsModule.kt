@@ -64,7 +64,8 @@ class KaliumConfigsModule {
             wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE,
             isWebSocketEnabledByDefault = isWebsocketEnabledByDefault(context),
             certPinningConfig = BuildConfig.CERTIFICATE_PINNING_CONFIG,
-            maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT
+            maxRemoteSearchResultCount = BuildConfig.MAX_REMOTE_SEARCH_RESULT_COUNT,
+            limitTeamMembersFetchDuringSlowSync = BuildConfig.LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC
         )
     }
 }

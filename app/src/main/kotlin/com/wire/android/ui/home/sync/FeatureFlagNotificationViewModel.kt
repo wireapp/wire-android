@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -59,7 +60,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
     private val disableAppLockUseCase: DisableAppLockUseCase,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    @ApplicationContext private val applicationContext: Context
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -288,12 +290,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
 
-    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
+    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired) {
         featureFlagState = featureFlagState.copy(isE2EILoading = true)
         currentUserId?.let { userId ->
             GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(
-                context,
-                isNewClient = false
+                context = applicationContext,
+                isNewClient = false,
             ) { result ->
                 result.fold({
                     featureFlagState = featureFlagState.copy(

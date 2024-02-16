@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
-if [ "$RUN_DETEKT" = true ]; then
-   echo "Running detekt"
+if [ "$RUN_STATIC_CODE_ANALYSIS" = true ]; then
+   echo "Running Static Code Analysis"
    ./gradlew staticCodeAnalysis
 fi
 
 if [ "$RUN_APP_UNIT_TESTS" = true ] ; then
     echo "Running App Unit Tests"
-    ./gradlew connectedAndroidTest
+    ./gradlew runUnitTests
+fi
+
+if [ "$RUN_APP_ACCEPTANCE_TESTS" = true ] ; then
+    echo "Running Acceptance Tests"
+    ./gradlew runAcceptanceTests
 fi
 
 buildOption=''

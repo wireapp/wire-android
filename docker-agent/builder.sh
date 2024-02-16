@@ -2,7 +2,7 @@
 
 if [ "$RUN_DETEKT" = true ]; then
    echo "Running detekt"
-   ./gradlew detektAll
+   ./gradlew staticCodeAnalysis
 fi
 
 if [ "$RUN_APP_UNIT_TESTS" = true ] ; then

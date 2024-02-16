@@ -126,5 +126,6 @@ fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
-        membership = conversationInfo.membership
+        membership = conversationInfo.membership,
+        unavailable = conversationInfo.isSenderUnavailable
     )

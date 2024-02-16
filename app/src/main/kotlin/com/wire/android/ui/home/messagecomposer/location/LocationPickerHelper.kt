@@ -24,12 +24,8 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.location.LocationManagerCompat
-import com.wire.android.util.extension.isGoogleServicesAvailable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import javax.inject.Singleton
-
 
 open class LocationPickerHelper @Inject constructor(@ApplicationContext val context: Context) {
 

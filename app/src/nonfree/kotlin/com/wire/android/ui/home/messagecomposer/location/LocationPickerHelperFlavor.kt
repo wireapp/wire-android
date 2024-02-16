@@ -17,12 +17,17 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Geocode
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.wire.android.util.extension.isGoogleServicesAvailable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.tasks.await
+
 
 @Singleton
 class LocationPickerHelperFlavor @Inject constructor(context: Context) : LocationPickerHelper(context) {

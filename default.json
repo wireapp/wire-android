@@ -67,9 +67,6 @@
             "application_is_private_build": false,
             "development_api_enabled": false,
             "mls_support_enabled": false
-=======
-            "development_api_enabled": false
->>>>>>> ca119300f88d3b08025f3a7213de5a76fd1289b5
         }
     },
     "application_name": "Wire",

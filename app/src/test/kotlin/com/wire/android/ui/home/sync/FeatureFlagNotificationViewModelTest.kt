@@ -21,6 +21,8 @@ import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.GetE2EICertificateUseCaseProvider
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
@@ -148,7 +150,7 @@ class FeatureFlagNotificationViewModelTest {
 
     @Test
     fun givenE2EIRequired_thenShowDialog() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .arrange()
         advanceUntilIdle()
@@ -175,7 +177,7 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenSnoozeE2EIRequiredDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
         val gracePeriod = 1.days
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
@@ -188,7 +190,7 @@ class FeatureFlagNotificationViewModelTest {
 
     @Test
     fun givenE2EIRenewRequired_thenShowDialog() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Renew)
             .arrange()
         advanceUntilIdle()
@@ -215,7 +217,7 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenSnoozeE2EIRenewDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
         val gracePeriod = 1.days
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
             .arrange()
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
@@ -268,7 +270,7 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenE2EIRequired_whenUserLoggedOut_thenHideDialog() = runTest {
         val currentSessionsFlow = MutableSharedFlow<CurrentSessionResult>(1)
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .withCurrentSessionsFlow(currentSessionsFlow)
             .arrange()
@@ -302,7 +304,7 @@ class FeatureFlagNotificationViewModelTest {
     private inner class Arrangement {
 
         @MockK
-        lateinit var context: Context
+        private lateinit var getE2EICertificateUseCaseProvider: GetE2EICertificateUseCaseProvider.Factory
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
@@ -337,8 +339,8 @@ class FeatureFlagNotificationViewModelTest {
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
                 disableAppLockUseCase = disableAppLockUseCase,
-                dispatcherProvider = TestDispatcherProvider(),
-                applicationContext = context
+                getE2EICertificateUseCaseProvider = getE2EICertificateUseCaseProvider,
+                dispatcherProvider = TestDispatcherProvider()
             )
         }
         init {

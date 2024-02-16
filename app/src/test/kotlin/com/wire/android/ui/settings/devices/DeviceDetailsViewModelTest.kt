@@ -277,18 +277,15 @@ class DeviceDetailsViewModelTest {
                 .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
                 .arrange()
 
-            viewModel.enrollE2eiCertificate(arrangement.context)
+            viewModel.enrollE2eiCertificate()
 
             coVerify {
-                arrangement.enrolE2EICertificateUseCase(any(), any(), any())
+                arrangement.enrolE2EICertificateUseCase(any(), any())
             }
             assertTrue(viewModel.state.isLoadingCertificate)
         }
 
     private class Arrangement {
-
-        @MockK
-        lateinit var context: Context
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle

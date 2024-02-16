@@ -76,7 +76,6 @@ fun E2EIEnrollmentScreen(
     viewModel: E2EIEnrollmentViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
-    val context = LocalContext.current
 
     E2EIEnrollmentScreenContent(
         state = state,
@@ -85,7 +84,7 @@ fun E2EIEnrollmentScreen(
             viewModel.finalizeMLSClient()
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
-        enrollE2EICertificate = { viewModel.enrollE2EICertificate(context) },
+        enrollE2EICertificate = { viewModel.enrollE2EICertificate() },
         openCertificateDetails = {
             navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
         },

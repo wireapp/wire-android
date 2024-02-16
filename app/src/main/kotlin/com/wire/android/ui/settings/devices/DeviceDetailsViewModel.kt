@@ -128,9 +128,9 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun enrollE2eiCertificate(context: Context) {
+    fun enrollE2eiCertificate() {
         state = state.copy(isLoadingCertificate = true)
-        enrolE2EICertificateUseCase(context, false) { result ->
+        enrolE2EICertificateUseCase(false) { result ->
             result.fold({
                 state = state.copy(
                     isLoadingCertificate = false,

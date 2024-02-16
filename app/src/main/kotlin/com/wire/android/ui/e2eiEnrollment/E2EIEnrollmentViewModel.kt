@@ -94,9 +94,9 @@ class E2EIEnrollmentViewModel @Inject constructor(
             }
         }
     }
-    fun enrollE2EICertificate(context: Context) {
+    fun enrollE2EICertificate() {
         state = state.copy(isLoading = true)
-        e2eiCertificateUseCase(context, true) { result ->
+        e2eiCertificateUseCase(true) { result ->
             result.fold({
                 state = state.copy(
                     isLoading = false,

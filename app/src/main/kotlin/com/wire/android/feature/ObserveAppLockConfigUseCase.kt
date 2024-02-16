@@ -37,12 +37,8 @@ class ObserveAppLockConfigUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<AppLockConfig> = channelFlow {
         coreLogic.getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
-            when (sessionResult) {
-                is CurrentSessionResult.Failure -> {
-                    send(AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT))
-                }
-
-                is CurrentSessionResult.Success -> {
+            when {
+                sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid() -> {
                     val userId = sessionResult.accountInfo.userId
                     val appLockTeamFeatureConfigFlow =
                         coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
@@ -66,6 +62,10 @@ class ObserveAppLockConfigUseCase @Inject constructor(
                     }.collectLatest {
                         send(it)
                     }
+                }
+
+                else -> {
+                    send(AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT))
                 }
             }
         }

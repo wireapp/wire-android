@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

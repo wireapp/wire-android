@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension

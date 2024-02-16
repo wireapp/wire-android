@@ -17,11 +17,9 @@
  */
 package com.wire.android.ui.home.sync
 
-import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.GetE2EICertificateUseCaseProvider
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase

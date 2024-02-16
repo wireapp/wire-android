@@ -370,7 +370,7 @@ class WireActivity : AppCompatActivity() {
                     E2EIRequiredDialog(
                         e2EIRequired = e2EIRequired,
                         isE2EILoading = isE2EILoading,
-                        getCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it, context) },
+                        getCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it) },
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
                     )
                 }
@@ -385,7 +385,7 @@ class WireActivity : AppCompatActivity() {
                 e2EIResult?.let {
                     E2EIResultDialog(
                         result = e2EIResult,
-                        updateCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it, context) },
+                        updateCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it) },
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
                         openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
                         dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,

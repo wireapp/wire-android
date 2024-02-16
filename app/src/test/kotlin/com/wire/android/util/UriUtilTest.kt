@@ -20,6 +20,7 @@ package com.wire.android.util
 import com.wire.android.string
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
+import java.net.URI
 import kotlin.random.Random
 
 class UriUtilTest {
@@ -85,5 +86,27 @@ class UriUtilTest {
         val input = "https://google.com/this+is+a+link+with+space"
         val actual = normalizeLink(input)
         assertEquals(input, actual)
+    }
+
+    @Test
+    fun givenLinkWithQueryParams_whenCallingFindParameterValue_thenReturnsParamValue() {
+        val parameterName = "wire_client"
+        val parameterValue = "value1"
+        val url = "https://example.com?play=value&$parameterName=$parameterValue"
+        val actual = URI(url).findParameterValue(parameterName)
+        assertEquals(parameterValue, actual)
+    }
+
+    @Test
+    fun givenLinkWithoutRequestedParam_whenCallingFindParameterValue_thenReturnsParamValue() {
+        val url = "https://example.com?play=value1"
+        val actual = URI(url).findParameterValue("wire_client")
+        assertEquals(null, actual)
+    }
+    @Test
+    fun givenLinkWithoutParams_whenCallingFindParameterValue_thenReturnsParamValue() {
+        val url = "https://example.com"
+        val actual = URI(url).findParameterValue("wire_client")
+        assertEquals(null, actual)
     }
 }

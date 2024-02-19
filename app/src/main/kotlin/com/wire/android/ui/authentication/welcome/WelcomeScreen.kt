@@ -165,13 +165,7 @@ private fun WelcomeContent(
                 ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
             }
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.weight(1f, true)
-            ) {
-                WelcomeCarousel()
-            }
+            WelcomeCarousel(modifier = Modifier.weight(1f, true))
 
             Column(
                 modifier = Modifier
@@ -230,7 +224,7 @@ private fun WelcomeContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun WelcomeCarousel() {
+private fun WelcomeCarousel(modifier: Modifier = Modifier) {
     val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
     val icons: List<Int> = typedArrayResource(id = R.array.welcome_carousel_icons).drawableResIdList()
     val texts: List<String> = stringArrayResource(id = R.array.welcome_carousel_texts).toList()
@@ -249,7 +243,7 @@ private fun WelcomeCarousel() {
     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth()
         ) { page ->
             val (pageIconResId, pageText) = circularItemsList[page]
             WelcomeCarouselItem(pageIconResId = pageIconResId, pageText = pageText)
@@ -300,6 +294,7 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Image(
             painter = painterResource(id = pageIconResId),

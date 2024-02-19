@@ -22,6 +22,7 @@ package com.wire.android.ui.authentication.login
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
+import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 
 data class LoginState(
     val userIdentifier: TextFieldValue = TextFieldValue(""),
@@ -38,7 +39,14 @@ data class LoginState(
     val loginError: LoginError = LoginError.None,
     val isProxyEnabled: Boolean = false,
     val customServerDialogState: CustomServerDialogState? = null,
-)
+) {
+    fun getProxyCredentials(): ProxyCredentials? =
+        if (proxyIdentifier.text.isNotBlank() && proxyPassword.text.isNotBlank()) {
+            ProxyCredentials(proxyIdentifier.text, proxyPassword.text)
+        } else {
+            null
+        }
+}
 
 fun LoginState.updateEmailLoginEnabled() =
     copy(

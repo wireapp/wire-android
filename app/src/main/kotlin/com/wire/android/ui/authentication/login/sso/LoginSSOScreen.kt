@@ -146,6 +146,7 @@ private fun LoginSSOContent(
         CustomServerDialog(
             serverLinksTitle = loginState.customServerDialogState.serverLinks.title,
             serverLinksApi = loginState.customServerDialogState.serverLinks.api,
+            serverProxy = loginState.customServerDialogState.serverLinks.apiProxy,
             onDismiss = onCustomServerDialogDismiss,
             onConfirm = onCustomServerDialogConfirm
         )

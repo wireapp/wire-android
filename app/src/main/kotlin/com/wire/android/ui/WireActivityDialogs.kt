@@ -223,6 +223,7 @@ fun CustomBackendDialog(
         CustomServerDialog(
             serverLinksTitle = globalAppState.customBackendDialog.serverLinks.title,
             serverLinksApi = globalAppState.customBackendDialog.serverLinks.api,
+            serverProxy = globalAppState.customBackendDialog.serverLinks.apiProxy,
             onDismiss = onDismiss,
             onConfirm = onConfirm
         )

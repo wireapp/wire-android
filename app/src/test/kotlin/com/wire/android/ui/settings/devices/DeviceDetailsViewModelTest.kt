@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -42,6 +41,7 @@ import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCas
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
@@ -276,18 +276,15 @@ class DeviceDetailsViewModelTest {
                 .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
                 .arrange()
 
-            viewModel.enrollE2eiCertificate(arrangement.context)
+            viewModel.enrollE2eiCertificate()
 
             coVerify {
-                arrangement.enrolE2EICertificateUseCase(any(), any(), any())
+                arrangement.enrolE2EICertificateUseCase(any(), any())
             }
             assertTrue(viewModel.state.isLoadingCertificate)
         }
 
     private class Arrangement {
-
-        @MockK
-        lateinit var context: Context
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -319,6 +316,9 @@ class DeviceDetailsViewModelTest {
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit
 
+        @MockK
+        lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
+
         val currentUserId = UserId("currentUserId", "currentUserDomain")
 
         val viewModel by lazy {
@@ -332,7 +332,8 @@ class DeviceDetailsViewModelTest {
                 currentUserId = currentUserId,
                 observeUserInfo = observeUserInfo,
                 e2eiCertificate = getE2eiCertificate,
-                enrolE2EICertificateUseCase = enrolE2EICertificateUseCase
+                enrolE2EICertificateUseCase = enrolE2EICertificateUseCase,
+                isE2EIEnabledUseCase = isE2EIEnabledUseCase
             )
         }
 
@@ -341,6 +342,7 @@ class DeviceDetailsViewModelTest {
             withFingerprintSuccess()
             coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
             coEvery { getE2eiCertificate(any()) } returns GetE2EICertificateUseCaseResult.Failure.NotActivated
+            coEvery { isE2EIEnabledUseCase() } returns true
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = IsPasswordRequiredUseCase.Result.Success(true)) =

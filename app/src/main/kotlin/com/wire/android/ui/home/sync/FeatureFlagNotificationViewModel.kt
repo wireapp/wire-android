@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.sync
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,10 +25,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.GetE2EICertificateUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
-import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -59,6 +58,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
     private val disableAppLockUseCase: DisableAppLockUseCase,
+    private val getE2EICertificateUseCaseProvider: GetE2EICertificateUseCaseProvider.Factory,
     private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
@@ -288,35 +288,39 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
 
-    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
+    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired) {
         featureFlagState = featureFlagState.copy(isE2EILoading = true)
         currentUserId?.let { userId ->
-            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(
-                context,
-                isNewClient = false
-            ) { result ->
-                result.fold({
-                    featureFlagState = featureFlagState.copy(
-                        isE2EILoading = false,
-                        e2EIRequired = null,
-                        e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
-                    )
-                }, {
-                    if (it is E2EIEnrollmentResult.Finalized) {
-                        featureFlagState = featureFlagState.copy(
-                            isE2EILoading = false,
-                            e2EIRequired = null,
-                            e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
-                        )
-                    } else if (it is E2EIEnrollmentResult.Failed) {
+            getE2EICertificateUseCaseProvider.create(
+                userId = userId,
+                dispatcherProvider = dispatcherProvider
+            )
+                .useCase
+                .invoke(
+                    isNewClient = false
+                ) { result ->
+                    result.fold({
                         featureFlagState = featureFlagState.copy(
                             isE2EILoading = false,
                             e2EIRequired = null,
                             e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
                         )
-                    }
-                })
-            }
+                    }, {
+                        if (it is E2EIEnrollmentResult.Finalized) {
+                            featureFlagState = featureFlagState.copy(
+                                isE2EILoading = false,
+                                e2EIRequired = null,
+                                e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
+                            )
+                        } else if (it is E2EIEnrollmentResult.Failed) {
+                            featureFlagState = featureFlagState.copy(
+                                isE2EILoading = false,
+                                e2EIRequired = null,
+                                e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
+                            )
+                        }
+                    })
+                }
         }
     }
 

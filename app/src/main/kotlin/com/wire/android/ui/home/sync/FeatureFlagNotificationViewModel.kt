@@ -302,14 +302,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                         e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
                     )
                 }, {
-                    if (it is E2EIEnrollmentResult.Finalized) {
-                        featureFlagState = featureFlagState.copy(
+                    featureFlagState = if (it is E2EIEnrollmentResult.Finalized) {
+                        featureFlagState.copy(
                             isE2EILoading = false,
                             e2EIRequired = null,
                             e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
                         )
-                    } else if (it is E2EIEnrollmentResult.Failed) {
-                        featureFlagState = featureFlagState.copy(
+                    }else {
+                        featureFlagState.copy(
                             isE2EILoading = false,
                             e2EIRequired = null,
                             e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)

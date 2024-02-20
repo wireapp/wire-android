@@ -131,12 +131,16 @@ class DebugDataOptionsViewModel
         e2eiCertificateUseCase(context, false) { result ->
             result.fold({
                 state = state.copy(
-                    certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true
+                    certificate = it.toString(), showCertificate = true
                 )
             }, {
-                if (it is E2EIEnrollmentResult.Finalized) {
-                    state = state.copy(
+                state = if (it is E2EIEnrollmentResult.Finalized) {
+                    state.copy(
                         certificate = it.certificate, showCertificate = true
+                    )
+                }else{
+                    state.copy(
+                        certificate = it.toString(), showCertificate = true
                     )
                 }
             })

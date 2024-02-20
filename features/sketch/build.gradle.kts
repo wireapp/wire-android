@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.wire.android.features.sketch"
+    namespace = "com.wire.android.feature.sketch"
 }
 
 dependencies {

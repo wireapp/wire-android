@@ -33,7 +33,7 @@ rootDir
         if (rootDirFile.name == "features") {
             rootDirFile.walk()
                 .maxDepth(1)
-                .filter { file("${it.absolutePath}/build.gradle.kts").exists() }
+                .filter { it.name != "template" && file("${it.absolutePath}/build.gradle.kts").exists() }
                 .map { "${rootDirFile.name}:${it.name}" }.toList()
         } else {
             listOf(rootDirFile.name)

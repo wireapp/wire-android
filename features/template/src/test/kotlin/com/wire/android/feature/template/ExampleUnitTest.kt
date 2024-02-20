@@ -15,15 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.feature.template
 
-import android.view.View
-import androidx.fragment.app.Fragment
+import org.junit.Test
 
-class AndroidExampleView : Fragment() {
-    private val view: View = View(context)
+import org.junit.Assert.*
 
-    fun show() {
-        R.string.module_name
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
     }
 }

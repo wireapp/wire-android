@@ -1,0 +1,14 @@
+# whether Technolinator does analysis at all; default: true
+enable: true
+# whether Technolinator shall comment vulnerability reports to pull-requests
+enablePullRequestReport: false
+analysis:
+    # whether cdxgen should scan for projects recursively in 'location' or only 'location' itself; default: true
+    recursive: true
+    # include only 'required' scoped dependencies to created BOM
+    requiredScopeOnly: false
+    # create sbom with evidence (slows down the process)
+    evidence: true
+jdk:
+    # select JDK version used by cdxgen on JVM based projects (see below)
+    version: 17

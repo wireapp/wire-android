@@ -312,7 +312,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             e2EIRequired = null,
                             e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
                         )
-                    }else {
+                    } else {
                         featureFlagState.copy(
                             isE2EILoading = false,
                             e2EIRequired = null,

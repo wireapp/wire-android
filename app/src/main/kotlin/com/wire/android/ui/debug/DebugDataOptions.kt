@@ -55,7 +55,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
@@ -137,7 +136,7 @@ class DebugDataOptionsViewModel
                     state.copy(
                         certificate = it.certificate, showCertificate = true
                     )
-                }else{
+                } else {
                     state.copy(
                         certificate = it.toString(), showCertificate = true
                     )

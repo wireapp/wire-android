@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -128,9 +127,9 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun enrollE2eiCertificate(context: Context) {
+    fun enrollE2eiCertificate() {
         state = state.copy(isLoadingCertificate = true)
-        enrolE2EICertificateUseCase(context, false) { result ->
+        enrolE2EICertificateUseCase(false) { result ->
             result.fold({
                 state = state.copy(
                     isLoadingCertificate = false,

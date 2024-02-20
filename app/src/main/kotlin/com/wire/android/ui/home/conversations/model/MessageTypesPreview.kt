@@ -31,15 +31,17 @@ import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockFooter
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
-import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownListAndImages
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTablesAndBlocks
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -271,8 +273,7 @@ fun PreviewImportedMediaAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+            assetTransferStatus = AssetTransferStatus.NOT_PROCESSED,
             shouldFillMaxWidth = false,
             isImportedMediaAsset = true
         )
@@ -288,8 +289,7 @@ fun PreviewWideImportedAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+            assetTransferStatus = AssetTransferStatus.NOT_PROCESSED,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = true
         )
@@ -305,8 +305,7 @@ fun PreviewLoadingAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
+            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = false
         )
@@ -322,8 +321,7 @@ fun PreviewFailedDownloadAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.FAILED_DOWNLOAD,
+            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = false
         )
@@ -335,9 +333,14 @@ fun PreviewFailedDownloadAssetMessage() {
 fun PreviewImageMessageUploaded() {
     WireTheme {
         MessageItem(
-            message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
+            message = mockedImageUIMessage(messageId = "assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
+            assetStatus = MessageAssetStatus(
+                "assetMessageId",
+                ConversationId("value", "domain"),
+                transferStatus = AssetTransferStatus.UPLOADED
+            ),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -357,9 +360,14 @@ fun PreviewImageMessageUploaded() {
 fun PreviewImageMessageUploading() {
     WireTheme {
         MessageItem(
-            message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
+            message = mockedImageUIMessage("assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
+            assetStatus = MessageAssetStatus(
+                "assetMessageId",
+                ConversationId("value", "domain"),
+                transferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS
+            ),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -380,7 +388,7 @@ fun PreviewImageMessageFailedUpload() {
     WireTheme {
         MessageItem(
             message = mockedImageUIMessage(
-                uploadStatus = Message.UploadStatus.FAILED_UPLOAD,
+                messageId = "assetMessageId",
                 messageStatus = MessageStatus(
                     flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
                     expirationStatus = ExpirationStatus.NotExpirable
@@ -388,6 +396,11 @@ fun PreviewImageMessageFailedUpload() {
             ),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
+            assetStatus = MessageAssetStatus(
+                "assetMessageId",
+                ConversationId("value", "domain"),
+                transferStatus = AssetTransferStatus.FAILED_UPLOAD
+            ),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},

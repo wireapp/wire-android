@@ -42,16 +42,16 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -81,7 +81,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
-    private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
+    private val updateAssetMessageDownloadStatus: UpdateAssetMessageTransferStatusUseCase,
     private val observeAssetStatusesUseCase: ObserveAssetStatusesUseCase,
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
@@ -146,7 +146,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun observeAssetStatuses() {
         viewModelScope.launch {
-            observeAssetStatusesUseCase().collect {
+            observeAssetStatusesUseCase(conversationId).collect {
                 conversationViewState = conversationViewState.copy(
                     assetStatuses = it.toPersistentMap()
                 )
@@ -254,7 +254,7 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-//                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId) // TODO KBX
+                updateAssetMessageDownloadStatus(AssetTransferStatus.FAILED_DOWNLOAD, conversationId, messageId)
                 null
             }
         }
@@ -273,7 +273,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
-//                    updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId) // TODO KBX
+                    updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(savedFileName)
                     hideOnAssetDownloadedDialog()
                 }

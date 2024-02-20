@@ -27,7 +27,7 @@ import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConve
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -96,8 +96,8 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateAssetMessageDownloadStatusUseCase(messageScope: MessageScope): UpdateAssetMessageDownloadStatusUseCase =
-        messageScope.updateAssetMessageDownloadStatus
+    fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =
+        messageScope.updateAssetMessageTransferStatus
 
     @ViewModelScoped
     @Provides

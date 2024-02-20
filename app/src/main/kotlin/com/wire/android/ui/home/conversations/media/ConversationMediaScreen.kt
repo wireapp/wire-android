@@ -165,11 +165,14 @@ private fun Content(
                 when (ConversationMediaScreenTabItem.entries[pageIndex]) {
                     ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
                         imageMessageList = state.imageMessages,
+                        assetStatuses = state.assetStatuses,
                         onImageFullScreenMode = onImageFullScreenMode
                     )
+
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages,
                         audioMessagesState = audioMessagesState,
+                        assetStatuses = state.assetStatuses,
                         onAudioItemClicked = onAudioItemClicked,
                         onAssetItemClicked = onAssetItemClicked
                     )

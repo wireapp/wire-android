@@ -50,9 +50,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageAssetStatus
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
@@ -60,6 +63,7 @@ import kotlinx.datetime.Instant
 @Composable
 fun ImageAssetsContent(
     imageMessageList: Flow<PagingData<UIImageAssetPagingItem>>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit
 ) {
 
@@ -68,6 +72,7 @@ fun ImageAssetsContent(
     if (lazyPagingMessages.itemCount > 0) {
         ImageAssetGrid(
             uiAssetMessageList = lazyPagingMessages,
+            assetStatuses = assetStatuses,
             onImageFullScreenMode = onImageFullScreenMode
         )
     } else {
@@ -80,6 +85,7 @@ fun ImageAssetsContent(
 @Composable
 private fun ImageAssetGrid(
     uiAssetMessageList: LazyPagingItems<UIImageAssetPagingItem>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     modifier: Modifier = Modifier,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit
 ) {
@@ -135,7 +141,7 @@ private fun ImageAssetGrid(
                                 asset = null,
                                 width = itemSize,
                                 height = itemSize,
-                                downloadStatus = uiAsset.downloadStatus,
+                                transferStatus = assetStatuses[uiAsset.messageId]?.transferStatus,
                                 onImageClick = currentOnImageClick,
                                 assetPath = uiAsset.assetPath
                             )
@@ -181,19 +187,23 @@ fun previewAssetGrid() {
         messageId = "msg1",
         conversationId = QualifiedID("value", "domain"),
         assetPath = null,
-        downloadStatus = Message.DownloadStatus.SAVED_EXTERNALLY,
         isSelfAsset = false
     )
     val message2 = message1.copy(
         messageId = "msg2",
         username = UIText.DynamicString("Username 2"),
-        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
         isSelfAsset = true
     )
     val message3 = message2.copy(
         messageId = "msg3",
-        downloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
     )
+
+    val messageAssetStatus = MessageAssetStatus(
+        "id",
+        ConversationId("value", "domain"),
+        transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+    )
+
     WireTheme {
         ImageAssetGrid(
             uiAssetMessageList = flowOf(
@@ -206,7 +216,21 @@ fun previewAssetGrid() {
                     )
                 )
             ).collectAsLazyPagingItems(),
-            onImageFullScreenMode = { _, _, _ -> }
+            onImageFullScreenMode = { _, _, _ -> },
+            assetStatuses = persistentMapOf(
+                message1.messageId to messageAssetStatus.copy(
+                    id = message1.messageId,
+                    transferStatus = AssetTransferStatus.SAVED_EXTERNALLY
+                ),
+                message2.messageId to messageAssetStatus.copy(
+                    id = message2.messageId,
+                    transferStatus = AssetTransferStatus.NOT_PROCESSED
+                ),
+                message3.messageId to messageAssetStatus.copy(
+                    id = message3.messageId,
+                    transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+                ),
+            )
         )
     }
 }

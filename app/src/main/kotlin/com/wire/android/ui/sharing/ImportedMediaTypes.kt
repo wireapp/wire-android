@@ -24,7 +24,7 @@ import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.util.splitFileExtension
 import okio.Path
@@ -42,8 +42,7 @@ fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean)
     MessageImage(
         asset = item.localImageAsset,
         imgParams = ImageMessageParams(item.width, item.height),
-        uploadStatus = Message.UploadStatus.NOT_UPLOADED,
-        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+        transferStatus = AssetTransferStatus.NOT_PROCESSED,
         onImageClick = Clickable(enabled = false),
         shouldFillMaxWidth = !isMultipleImport,
         isImportedMediaAsset = true
@@ -57,8 +56,7 @@ fun ImportedGenericAssetView(item: ImportedMediaAsset.GenericAsset, isMultipleIm
         assetExtension = item.name.fileExtension() ?: "",
         assetSizeInBytes = item.size,
         onAssetClick = Clickable(enabled = false),
-        assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-        assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+        assetTransferStatus = AssetTransferStatus.NOT_PROCESSED,
         shouldFillMaxWidth = !isMultipleImport,
         isImportedMediaAsset = true
     )

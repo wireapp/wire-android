@@ -85,6 +85,8 @@ import com.wire.android.ui.home.conversations.model.messagetypes.location.Locati
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -131,6 +133,7 @@ fun MessageItem(
         ) {
             selfDeletionTimerState.startDeletionTimer(
                 message = message,
+                assetTransferStatus = assetStatus?.transferStatus,
                 onStartMessageSelfDeletion = onSelfDeletingMessageRead
             )
         }
@@ -229,7 +232,7 @@ fun MessageItem(
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
+                        MessageExpireLabel(messageContent, assetStatus?.transferStatus, selfDeletionTimerState.timeLeftFormatted)
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
@@ -350,7 +353,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
 }
 
 @Composable
-fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
+fun MessageExpireLabel(messageContent: UIMessageContent?, assetTransferStatus: AssetTransferStatus?, timeLeft: String) {
     when (messageContent) {
         is UIMessageContent.Location,
         is UIMessageContent.TextMessage -> {
@@ -359,7 +362,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (Message.DownloadStatus.NOT_FOUND.isSaved()) { // TODO KBX
+                statusText = if (assetTransferStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -372,7 +375,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus.isSaved()) {
+                statusText = if (assetTransferStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -385,7 +388,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus.isSaved()) {
+                statusText = if (assetTransferStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -523,8 +526,7 @@ private fun MessageContent(
                 MessageImage(
                     asset = messageContent.asset,
                     imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    uploadStatus = assetStatus?.uploadStatus ?: Message.UploadStatus.NOT_UPLOADED,
-                    downloadStatus = assetStatus?.downloadStatus ?: Message.DownloadStatus.NOT_DOWNLOADED,
+                    transferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_PROCESSED,
                     onImageClick = onImageClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -540,6 +542,7 @@ private fun MessageContent(
                             messageData = it,
                             clickable = onReplyClickable
                         )
+
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
                     }
                     VerticalSpace.x4()
@@ -568,6 +571,7 @@ private fun MessageContent(
                             messageData = it,
                             clickable = onReplyClickable
                         )
+
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
                     }
                     VerticalSpace.x4()
@@ -590,8 +594,7 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetUploadStatus = assetStatus?.uploadStatus ?: Message.UploadStatus.NOT_UPLOADED,
-                    assetDownloadStatus = assetStatus?.downloadStatus ?: Message.DownloadStatus.NOT_DOWNLOADED,
+                    assetTransferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_PROCESSED,
                     onAssetClick = onAssetClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -689,10 +692,6 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     messageStatus.badgeText?.let {
         StatusBox(it.asString())
     }
-}
-
-private fun Message.DownloadStatus.isSaved(): Boolean {
-    return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
 }
 
 internal val DeliveryStatusContent.expandable

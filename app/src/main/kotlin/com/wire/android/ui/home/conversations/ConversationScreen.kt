@@ -276,6 +276,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
             SureAboutCallingInDegradedConversationDialog(
                 callAnyway = {
+                    conversationCallViewModel.onApplyConversationDegradation()
                     startCallIfPossible(
                         conversationCallViewModel,
                         showDialog,
@@ -288,7 +289,6 @@ fun ConversationScreen(
                 },
                 onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
             )
-            conversationCallViewModel.onConversationDegradedDialogShown()
         }
 
         ConversationScreenDialogType.NONE -> {}

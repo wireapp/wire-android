@@ -178,7 +178,7 @@ class ConversationCallViewModel @Inject constructor(
     suspend fun isConferenceCallingEnabled(conversationType: Conversation.Type): ConferenceCallingResult =
         isConferenceCallingEnabled.invoke(conversationId, conversationType)
 
-    fun onConversationDegradedDialogShown() {
+    fun onApplyConversationDegradation() {
         viewModelScope.launch {
             setUserInformedAboutVerification.invoke(conversationId)
         }

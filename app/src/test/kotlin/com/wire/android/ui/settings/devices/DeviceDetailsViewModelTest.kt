@@ -341,7 +341,7 @@ class DeviceDetailsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withFingerprintSuccess()
             coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
-            coEvery { getE2eiCertificate(any()) } returns GetE2EICertificateUseCaseResult.Failure.NotActivated
+            coEvery { getE2eiCertificate(any()) } returns GetE2EICertificateUseCaseResult.NotActivated
             coEvery { isE2EIEnabledUseCase() } returns true
         }
 

@@ -9,6 +9,10 @@ analysis:
     requiredScopeOnly: false
     # create sbom with evidence (slows down the process)
     evidence: true
+    # exclude the kalium directory because a) it throws errors that can't be resolved and b) it doesn't matter, as its
+    # scanned as its own project anyway and it would be a duplicated effort
+    excludes: 
+        - kalium
 jdk:
-    # select JDK version used by cdxgen on JVM based projects (see below)
+    # select JDK version used by cdxgen on JVM based projects
     version: 17

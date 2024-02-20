@@ -21,13 +21,14 @@
 echo "Please enter your module name: $newModule \c"
 read newModule
 
-cp -r template newModule && cd newModule
+cd ../features
+cp -r  newModule && cd newModule
 
-# change template in files
-git grep -rl template . | xargs sed -i '' 's#template#'"$name"'#g'
+# change  in files
+git grep -rl  . | xargs sed -i '' 's##'"$newModule"'#g'
 
-# change template in package names and imports
-find src/ -type f -name '*.kt' | xargs sed -i '' 's#template#'"$name"'#g'
+# change  in package names and imports
+find src/ -type f -name '*.kt' | xargs sed -i '' 's##'"$newModule"'#g'
 
 # change folder names
-find . -name "*template*" | awk '{a=$1; gsub(/template/,"'"$name"'"); printf "mv \"%s\" \"%s\"\n", a, $1}' | sh
+find . -name "**" | awk '{a=$1; gsub(//,"'"$newModule"'"); printf "mv \"%s\" \"%s\"\n", a, $1}' | sh

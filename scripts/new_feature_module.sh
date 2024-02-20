@@ -18,14 +18,16 @@
 # along with this program. If not, see http://www.gnu.org/licenses/.
 #
 
-# start from features directory
-cd features
+echo "Please enter your module name: $newModule \c"
+read newModule
+
+cp -r template newModule && cd newModule
 
 # change template in files
-git grep -rl template . | xargs sed -i 's#template#lolo#g'
+git grep -rl template . | xargs sed -i '' 's#template#'"$name"'#g'
 
 # change template in package names and imports
-find src/ -type f -name '*.kt' | xargs sed -i "" 's#template#lolo#g'
+find src/ -type f -name '*.kt' | xargs sed -i '' 's#template#'"$name"'#g'
 
 # change folder names
-find . -name "*template*" | awk '{a=$1; gsub(/template/,"lolo"); printf "mv \"%s\" \"%s\"\n", a, $1}' | sh
+find . -name "*template*" | awk '{a=$1; gsub(/template/,"'"$name"'"); printf "mv \"%s\" \"%s\"\n", a, $1}' | sh

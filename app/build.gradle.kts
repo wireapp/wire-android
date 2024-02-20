@@ -62,6 +62,9 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
 
+    // features
+    implementation(project(":features:sketch"))
+
     // Application dependencies
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core)

@@ -27,11 +27,19 @@ rootDir
     .walk()
     .maxDepth(1)
     .filter {
-        it.name != "buildSrc" && it.name != "kalium" && it.isDirectory &&
+        it.name == "features" || it.name != "buildSrc" && it.name != "kalium" && it.isDirectory &&
                 file("${it.absolutePath}/build.gradle.kts").exists()
-    }
-    .forEach {
-        include(":${it.name}")
+    }.map { rootDirFile ->
+        if (rootDirFile.name == "features") {
+            rootDirFile.walk()
+                .maxDepth(1)
+                .filter { file("${it.absolutePath}/build.gradle.kts").exists() }
+                .map { "${rootDirFile.name}:${it.name}" }.toList()
+        } else {
+            listOf(rootDirFile.name)
+        }
+    }.forEach {
+        include(it)
     }
 
 // A work-around where we define the included builds in a different file

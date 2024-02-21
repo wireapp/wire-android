@@ -38,10 +38,12 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.typography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
@@ -111,6 +113,7 @@ private fun MainContent(
 ) {
     Text(
         text = UIText.StringResource(R.string.second_factor_authentication_title).asString(),
+        color = colorsScheme().onBackground,
         style = typography().title01,
         textAlign = TextAlign.Start
     )
@@ -120,6 +123,7 @@ private fun MainContent(
             R.string.second_factor_authentication_instructions_label,
             codeState.emailUsed
         ).asString(),
+        color = colorsScheme().onBackground,
         style = typography().body01,
         textAlign = TextAlign.Start
     )
@@ -135,6 +139,7 @@ private fun MainContent(
 }
 
 @Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 internal fun LoginEmailVerificationCodeScreenPreview() = LoginEmailVerificationCodeContent(
     VerificationCodeState(

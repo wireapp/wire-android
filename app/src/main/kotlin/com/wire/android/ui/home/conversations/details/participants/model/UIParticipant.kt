@@ -42,5 +42,6 @@ data class UIParticipant(
     val isDefederated: Boolean = false,
     val isProteusVerified: Boolean = false,
     val isMLSVerified: Boolean = false,
-    val supportedProtocolList: List<SupportedProtocol> = listOf()
+    val supportedProtocolList: List<SupportedProtocol> = listOf(),
+    val isUnderLegalHold: Boolean = false,
 )

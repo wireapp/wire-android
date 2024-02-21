@@ -102,7 +102,7 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 joinCall = {},
-                onPermanentPermissionDecline = {},
+                onPermissionPermanentlyDenied = {},
                 searchQuery = ""
             )
         }
@@ -117,7 +117,7 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 joinCall = {},
-                onPermanentPermissionDecline = {},
+                onPermissionPermanentlyDenied = {},
                 searchQuery = ""
             )
         }

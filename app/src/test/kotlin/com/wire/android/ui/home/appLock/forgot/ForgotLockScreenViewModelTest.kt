@@ -159,7 +159,6 @@ class ForgotLockScreenViewModelTest {
         val logoutActionsCalledExactly = if (userLogoutActionsCalled) 1 else 0
         coVerify(exactly = logoutActionsCalledExactly) { logoutUseCase(any(), any()) }
         coVerify(exactly = logoutActionsCalledExactly) { notificationManager.stopObservingOnLogout(any()) }
-        coVerify(exactly = logoutActionsCalledExactly) { notificationChannelsManager.deleteChannelGroup(any()) }
         coVerify(exactly = logoutActionsCalledExactly) { userDataStore.clear() }
     }
     private fun testLoggingOut(

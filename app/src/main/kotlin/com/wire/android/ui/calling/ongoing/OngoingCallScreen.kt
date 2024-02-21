@@ -73,13 +73,17 @@ import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -96,6 +100,9 @@ fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
             OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
@@ -126,10 +133,25 @@ fun OngoingCallScreen(
             clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
             navigateBack = navigator::navigateBack,
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
+            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
+            onPermissionPermanentlyDenied = {
+                if (it is PermissionDenialType.CallingCamera) {
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            title = R.string.app_permission_dialog_title,
+                            description = R.string.camera_permission_dialog_description
+                        )
+                    )
+                }
+            }
         )
         BackHandler(enabled = isCameraOn, navigator::navigateBack)
     }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,6 +178,7 @@ private fun OngoingCallContent(
     clearVideoPreview: () -> Unit,
     navigateBack: () -> Unit,
     hideDoubleTapToast: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
 
@@ -200,7 +223,8 @@ private fun OngoingCallContent(
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
                 onToggleVideo = toggleVideo,
-                flipCamera = flipCamera
+                flipCamera = flipCamera,
+                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
             )
         },
     ) {
@@ -342,7 +366,8 @@ private fun CallingControls(
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit,
-    flipCamera: () -> Unit
+    flipCamera: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     Column(
         modifier = Modifier.height(dimensions().defaultSheetPeekHeight)
@@ -358,7 +383,7 @@ private fun CallingControls(
             MicrophoneButton(isMuted = isMuted) { toggleMute() }
             CameraButton(
                 isCameraOn = isCameraOn,
-                onCameraPermissionDenied = { },
+                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                 onCameraButtonClicked = onToggleVideo
             )
 

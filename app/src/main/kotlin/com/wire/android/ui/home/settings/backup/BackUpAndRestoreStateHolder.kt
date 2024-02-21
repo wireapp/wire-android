@@ -55,4 +55,3 @@ sealed class BackupAndRestoreDialog {
     object CreateBackup : BackupAndRestoreDialog()
     object RestoreBackup : BackupAndRestoreDialog()
 }
-

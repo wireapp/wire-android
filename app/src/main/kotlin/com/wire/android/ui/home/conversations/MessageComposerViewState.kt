@@ -34,18 +34,18 @@ data class MessageComposerViewState(
 )
 
 sealed class AssetTooLargeDialogState {
-    object Hidden : AssetTooLargeDialogState()
+    data object Hidden : AssetTooLargeDialogState()
     data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
 }
 
 sealed class VisitLinkDialogState {
-    object Hidden : VisitLinkDialogState()
+    data object Hidden : VisitLinkDialogState()
     data class Visible(val link: String, val openLink: () -> Unit) : VisitLinkDialogState()
 }
 
 sealed class InvalidLinkDialogState {
-    object Hidden : InvalidLinkDialogState()
-    object Visible : InvalidLinkDialogState()
+    data object Hidden : InvalidLinkDialogState()
+    data object Visible : InvalidLinkDialogState()
 }
 
 sealed class SureAboutMessagingDialogState {
@@ -57,4 +57,9 @@ sealed class SureAboutMessagingDialogState {
             data class AfterSending(val messageId: MessageId) : ConversationUnderLegalHold()
         }
     }
+}
+
+sealed class PermissionPermanentlyDeniedDialogState {
+    data object Hidden : PermissionPermanentlyDeniedDialogState()
+    data class Visible(val title: Int, val description: Int) : PermissionPermanentlyDeniedDialogState()
 }

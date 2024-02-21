@@ -35,19 +35,24 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 
 @Composable
 fun JoinButton(
     buttonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onJoinCall = buttonClick,
-        onPermanentPermissionDecline = onPermanentPermissionDecline
+        onPermanentPermissionDecline = {
+            onPermissionPermanentlyDenied(
+                PermissionDenialType.CallingMicrophone
+            )
+        }
     )
 
     WirePrimaryButton(
@@ -87,6 +92,6 @@ private fun AudioPermissionCheckFlow(
 fun PreviewJoinButton() {
     JoinButton(
         buttonClick = {},
-        onPermanentPermissionDecline = {}
+        onPermissionPermanentlyDenied = {}
     )
 }

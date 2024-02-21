@@ -86,11 +86,11 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
@@ -102,6 +102,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.InitiatingCallScreenDestination
@@ -138,8 +139,8 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.normalizeLink
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
@@ -203,6 +204,8 @@ fun ConversationScreen(
         messageComposerViewState = messageComposerViewState,
         modalBottomSheetState = conversationScreenState.modalBottomSheetState
     )
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     // this is to prevent from double navigating back after user deletes a group on group details screen
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
@@ -213,7 +216,6 @@ fun ConversationScreen(
             conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
         }
     }
-    val context = LocalContext.current
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
@@ -232,14 +234,6 @@ fun ConversationScreen(
                 onConfirm = { joinAnyway { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) } }
             )
         }
-
-        MicrophonePermissionDeniedDialog(
-            shouldShow = conversationCallViewState.shouldShowCallingPermissionDialog,
-            onDismiss = ::dismissCallingPermissionDialog,
-            onOpenSettings = {
-                context.openAppInfoScreen()
-            }
-        )
     }
 
     when (showDialog.value) {
@@ -289,6 +283,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
             SureAboutCallingInDegradedConversationDialog(
                 callAnyway = {
+                    conversationCallViewModel.onApplyConversationDegradation()
                     startCallIfPossible(
                         conversationCallViewModel,
                         showDialog,
@@ -301,7 +296,6 @@ fun ConversationScreen(
                 },
                 onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
             )
-            conversationCallViewModel.onConversationDegradedDialogShown()
         }
 
         ConversationScreenDialogType.NONE -> {}
@@ -360,7 +354,6 @@ fun ConversationScreen(
         onJoinCall = {
             conversationCallViewModel.joinOngoingCall { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
         },
-        onPermanentPermissionDecline = conversationCallViewModel::showCallingPermissionDialog,
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)
         },
@@ -393,6 +386,39 @@ fun ConversationScreen(
         onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
+        onPermissionPermanentlyDenied = {
+            val description = when (it) {
+                is PermissionDenialType.CaptureVideo -> {
+                    R.string.record_video_permission_dialog_description
+                }
+
+                is PermissionDenialType.TakePicture -> {
+                    R.string.take_picture_permission_dialog_description
+                }
+
+                is PermissionDenialType.Gallery -> {
+                    R.string.open_gallery_permission_dialog_description
+                }
+
+                is PermissionDenialType.ReadFile -> {
+                    R.string.attach_file_permission_dialog_description
+                }
+
+                is PermissionDenialType.CallingMicrophone -> {
+                    R.string.call_permission_dialog_description
+                }
+
+                else -> {
+                    R.string.app_permission_dialog_title
+                }
+            }
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = description
+                )
+            )
+       },
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { link ->
@@ -420,7 +446,15 @@ fun ConversationScreen(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
         onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
         onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
-        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
+        onPermissionPermanentlyDenied = {
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.save_permission_dialog_description
+                )
+            )
+        }
     )
     AssetTooLargeDialog(
         dialogState = messageComposerViewModel.assetTooLargeDialogState,
@@ -434,6 +468,11 @@ fun ConversationScreen(
     InvalidLinkDialog(
         dialogState = messageComposerViewModel.invalidLinkDialogState,
         hideDialog = messageComposerViewModel::hideInvalidLinkError
+    )
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
     SureAboutMessagingInDegradedConversationDialog(
@@ -577,7 +616,6 @@ private fun ConversationScreen(
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
@@ -593,6 +631,7 @@ private fun ConversationScreen(
     onFailedMessageRetryClicked: (String) -> Unit,
     requestMentions: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
@@ -654,7 +693,7 @@ private fun ConversationScreen(
                     onPhoneButtonClick = onStartCall,
                     hasOngoingCall = conversationCallViewState.hasOngoingCall,
                     onJoinCallButtonClick = onJoinCall,
-                    onPermanentPermissionDecline = onPermanentPermissionDecline,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     isInteractionEnabled = messageComposerViewState.value.interactionAvailability == InteractionAvailability.ENABLED
                 )
                 ConversationBanner(bannerMessage)
@@ -700,6 +739,7 @@ private fun ConversationScreen(
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
                     onSearchMentionQueryChanged = requestMentions,
                     onClearMentionSearchResult = onClearMentionSearchResult,
+                    onCaptureVideoPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
@@ -746,6 +786,7 @@ private fun ConversationScreenContent(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
@@ -790,6 +831,7 @@ private fun ConversationScreenContent(
         onSearchMentionQueryChanged = onSearchMentionQueryChanged,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
+        onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
         onTypingEvent = onTypingEvent
@@ -1026,7 +1068,6 @@ fun PreviewConversationScreen() {
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },
         onJoinCall = { },
-        onPermanentPermissionDecline = { },
         onReactionClick = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = { },
@@ -1044,6 +1085,7 @@ fun PreviewConversationScreen() {
         onFailedMessageRetryClicked = {},
         requestMentions = {},
         onClearMentionSearchResult = {},
+        onPermissionPermanentlyDenied = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },

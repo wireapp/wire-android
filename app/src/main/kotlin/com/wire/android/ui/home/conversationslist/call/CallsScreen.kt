@@ -102,7 +102,7 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 joinCall = { },
-                onPermanentPermissionDecline = {},
+                onPermissionPermanentlyDenied = {},
                 searchQuery = ""
             )
         }
@@ -117,7 +117,7 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 joinCall = { },
-                onPermanentPermissionDecline = {},
+                onPermissionPermanentlyDenied = {},
                 searchQuery = " "
             )
         }

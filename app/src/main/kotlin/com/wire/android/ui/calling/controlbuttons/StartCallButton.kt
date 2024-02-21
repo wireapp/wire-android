@@ -33,18 +33,23 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun StartCallButton(
     onPhoneButtonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     isCallingEnabled: Boolean
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         startCall = onPhoneButtonClick,
-        onPermanentPermissionDecline = onPermanentPermissionDecline
+        onPermanentPermissionDecline = {
+            onPermissionPermanentlyDenied(
+                PermissionDenialType.CallingMicrophone
+            )
+        }
     )
 
     WireSecondaryButton(
@@ -86,7 +91,7 @@ private fun AudioPermissionCheckFlow(
 fun PreviewStartCallButton() {
     StartCallButton(
         onPhoneButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
         isCallingEnabled = true
     )
 }

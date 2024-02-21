@@ -90,17 +90,22 @@ fun SelfDevicesScreenContent(
                     false -> {
                         state.currentDevice?.let { currentDevice ->
                             folderDeviceItems(
-                                context.getString(R.string.current_device_label),
-                                listOf(currentDevice),
-                                false,
-                                onDeviceClick
+                                header = context.getString(R.string.current_device_label),
+                                items = listOf(currentDevice),
+                                shouldShowVerifyLabel = true,
+                                isCurrentClient = true,
+                                isE2EIEnabled = state.isE2EIEnabled,
+                                onDeviceClick = onDeviceClick,
+
                             )
                         }
                         folderDeviceItems(
-                            context.getString(R.string.other_devices_label),
-                            state.deviceList,
-                            true,
-                            onDeviceClick
+                            header = context.getString(R.string.other_devices_label),
+                            items = state.deviceList,
+                            shouldShowVerifyLabel = true,
+                            isCurrentClient = false,
+                            isE2EIEnabled = state.isE2EIEnabled,
+                            onDeviceClick = onDeviceClick
                         )
                     }
                 }
@@ -108,11 +113,13 @@ fun SelfDevicesScreenContent(
         }
     )
 }
-
+@Suppress("LongParameterList")
 private fun LazyListScope.folderDeviceItems(
     header: String,
     items: List<Device>,
     shouldShowVerifyLabel: Boolean,
+    isCurrentClient: Boolean,
+    isE2EIEnabled: Boolean,
     onDeviceClick: (Device) -> Unit = {}
 ) {
     folderWithElements(
@@ -132,7 +139,9 @@ private fun LazyListScope.folderDeviceItems(
             onClickAction = onDeviceClick,
             icon = Icons.Filled.ChevronRight.Icon(),
             isWholeItemClickable = true,
-            shouldShowVerifyLabel = shouldShowVerifyLabel
+            shouldShowVerifyLabel = shouldShowVerifyLabel,
+            isCurrentClient = isCurrentClient,
+            shouldShowE2EIInfo = isE2EIEnabled
         )
     }
 }

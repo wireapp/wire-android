@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
+import SwipeableSnackbar
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -34,6 +35,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -69,6 +71,7 @@ import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.TabItem
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
@@ -104,6 +107,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -111,8 +115,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.launch
-import SwipeableSnackbar
-import androidx.compose.material3.SnackbarHost
 
 @RootNavGraph
 @Destination(
@@ -304,6 +306,7 @@ private fun GroupConversationDetailsContent(
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
     val archiveConversationDialogState = rememberVisibilityState<DialogState>()
+    val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
 
     LaunchedEffect(conversationSheetState.conversationSheetContent) {
         // on each closing BottomSheet we revert BSContent to Home.
@@ -319,6 +322,7 @@ private fun GroupConversationDetailsContent(
         leaveGroupDialogState.dismiss()
         clearConversationDialogState.dismiss()
         archiveConversationDialogState.dismiss()
+        legalHoldSubjectDialogState.dismiss()
     }
 
     Scaffold(
@@ -344,7 +348,9 @@ private fun GroupConversationDetailsContent(
                         totalParticipants = groupParticipantsState.data.allCount,
                         isLoading = isLoading,
                         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                        onConversationMediaClick = onConversationMediaClick
+                        onConversationMediaClick = onConversationMediaClick,
+                        isUnderLegalHold = it.isUnderLegalHold,
+                        onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } }
                     )
                 }
                 WireTabRow(
@@ -473,6 +479,10 @@ private fun GroupConversationDetailsContent(
             bottomSheetEventsHandler.updateConversationArchiveStatus(dialogState = it, onMessage = closeBottomSheetAndShowSnackbarMessage)
         }
     )
+
+    VisibilityState(legalHoldSubjectDialogState) {
+        LegalHoldSubjectConversationDialog(legalHoldSubjectDialogState::dismiss)
+    }
 }
 
 @Composable

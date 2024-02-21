@@ -16,7 +16,14 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <dimen name="draw_image_trim_buffer">24dp</dimen>
     <dimen name="wire__padding__regular">16dp</dimen>
+    <dimen name="color_picker_dot_size">42dp</dimen>
     <dimen name="color_picker_small_dot_radius">3dp</dimen>
+    <dimen name="color_picker_medium_dot_radius">6dp</dimen>
+    <dimen name="color_picker_large_dot_radius">9dp</dimen>
+    <dimen name="color_picker_small_ring_radius">6dp</dimen>
+    <dimen name="color_picker_medium_ring_radius">9dp</dimen>
+    <dimen name="color_picker_large_ring_radius">12dp</dimen>
+    <dimen name="color_picker_ring_size">1dp</dimen>
+    <dimen name="draw_image_trim_buffer">24dp</dimen>
 </resources>

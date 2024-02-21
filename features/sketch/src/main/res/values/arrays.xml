@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Wire
+  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <array name="selectable_accents_color">
+        <item>@color/accent_blue</item>
+        <item>@color/accent_green</item>
+        <item>@color/accent_red</item>
+        <item>@color/accent_orange</item>
+        <item>@color/accent_pink</item>
+        <item>@color/accent_magenta</item>
+    </array>
+    <array name="original_accents_color">
+        <item>@color/accent_blue</item>
+        <item>@color/accent_green</item>
+        <item>@color/accent_yellow</item>
+        <item>@color/accent_red</item>
+        <item>@color/accent_orange</item>
+        <item>@color/accent_pink</item>
+        <item>@color/accent_magenta</item>
+    </array>
+    <array name="draw_color">
+        <item>@color/draw_white</item>
+        <item>@color/draw_black</item>
+        <item>@color/accent_blue</item>
+        <item>@color/accent_green</item>
+        <item>@color/accent_yellow</item>
+        <item>@color/accent_red</item>
+        <item>@color/accent_orange</item>
+        <item>@color/accent_pink</item>
+        <item>@color/accent_magenta</item>
+        <item>@color/draw_mocha</item>
+        <item>@color/draw_brown</item>
+        <item>@color/draw_mustard</item>
+        <item>@color/draw_strawberry</item>
+        <item>@color/draw_maroon</item>
+        <item>@color/draw_sky</item>
+        <item>@color/draw_olive</item>
+        <item>@color/draw_grey</item>
+    </array>
+</resources>

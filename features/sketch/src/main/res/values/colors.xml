@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Wire
+  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <!--Sketch color picker-->
+    <color name="draw_white">@color/white</color>
+    <color name="draw_black">@color/black</color>
+    <color name="draw_mocha">#B05701</color>
+    <color name="draw_brown">#613102</color>
+    <color name="draw_mustard">#E4BC46</color>
+    <color name="draw_strawberry">#E75177</color>
+    <color name="draw_maroon">#941751</color>
+    <color name="draw_sky">#6EA6BF</color>
+    <color name="draw_olive">#999647</color>
+    <color name="draw_grey">#707070</color>
+    <color name="draw_disabled">@color/light_graphite</color>
+    <color name="accent_blue">#2492D3</color>
+    <color name="accent_green">#00C800</color>
+    <color name="accent_yellow">#FFD200</color>
+    <color name="accent_red">#FF2700</color>
+    <color name="accent_orange">#FF9600</color>
+    <color name="accent_pink">#FE5EBD</color>
+    <color name="accent_magenta">#9D00FF</color>
+
+    <color name="accent_red__40">#67FF2700</color>
+    <color name="accent_red__24">#3CFF2700</color>
+    <color name="accent_yellow__16">#28FFD200</color>
+    <color name="accent_yellow__8">#14FFD200</color>
+
+    <color name="graphite">#FF33373A</color>
+    <color name="graphite_64">#A233373A</color>
+    <color name="graphite_48">#7B33373A</color>
+    <color name="graphite_40">#6633373A</color>
+    <color name="graphite_24">#3D33373A</color>
+    <color name="graphite_16">#2833373A</color>
+    <color name="graphite_8">#1433373A</color>
+    <color name="light_graphite">#FF8D989F</color>
+    <color name="light_graphite_40">#668D989F</color>
+    <color name="light_graphite_24">#3D8D989F</color>
+    <color name="light_graphite_16">#288D989F</color>
+    <color name="light_graphite_8">#148D989F</color>
+    <color name="text__primary_light__40">@color/graphite_40</color>
+
+</resources>

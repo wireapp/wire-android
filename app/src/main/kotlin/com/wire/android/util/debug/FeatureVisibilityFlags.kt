@@ -49,7 +49,7 @@ object FeatureVisibilityFlags {
     const val ShareLocationIcon = true
     const val RichTextIcon = true
     const val EmojiIcon = false
-    const val GifIcon = false
+    const val GifIcon = true
     const val PingIcon = true
     const val ConversationSearchIcon = false
     const val UserProfileEditIcon = false

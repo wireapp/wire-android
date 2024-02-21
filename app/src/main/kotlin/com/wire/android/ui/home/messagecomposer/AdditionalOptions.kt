@@ -27,6 +27,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import com.wire.android.feature.sketch.DrawingCanvasView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
@@ -135,40 +137,45 @@ fun AdditionalOptionSubMenu(
             // non functional for now
             AdditionalOptionSubMenuState.AttachImage -> {}
             AdditionalOptionSubMenuState.Emoji -> {}
-            AdditionalOptionSubMenuState.Gif -> {}
+            AdditionalOptionSubMenuState.Gif -> {
+                AndroidView(factory = { context ->
+                    DrawingCanvasView(context)
+                }, update = { view ->
+                    view.refreshDrawableState()
+                })
+            }
         }
     }
-}
 
-@Composable
-fun AttachmentAndAdditionalOptionsMenuItems(
-    isEditing: Boolean,
-    selectedOption: AdditionalOptionSelectItem,
-    isMentionActive: Boolean,
-    onMentionButtonClicked: () -> Unit,
-    onAdditionalOptionsMenuClicked: () -> Unit = {},
-    onPingClicked: () -> Unit = {},
-    onSelfDeletionOptionButtonClicked: () -> Unit,
-    isSelfDeletingSettingEnabled: Boolean,
-    isSelfDeletingActive: Boolean,
-    onGifButtonClicked: () -> Unit = {},
-    onRichEditingButtonClicked: () -> Unit = {},
-    modifier: Modifier = Modifier
-) {
-    Column(modifier.wrapContentSize()) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
-        MessageComposeActions(
-            isEditing = isEditing,
-            selectedOption = selectedOption,
-            isMentionActive = isMentionActive,
-            onMentionButtonClicked = onMentionButtonClicked,
-            onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
-            onPingButtonClicked = onPingClicked,
-            onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-            isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-            isSelfDeletingActive = isSelfDeletingActive,
-            onGifButtonClicked = onGifButtonClicked,
-            onRichEditingButtonClicked = onRichEditingButtonClicked
-        )
+    @Composable
+    fun AttachmentAndAdditionalOptionsMenuItems(
+        isEditing: Boolean,
+        selectedOption: AdditionalOptionSelectItem,
+        isMentionActive: Boolean,
+        onMentionButtonClicked: () -> Unit,
+        onAdditionalOptionsMenuClicked: () -> Unit = {},
+        onPingClicked: () -> Unit = {},
+        onSelfDeletionOptionButtonClicked: () -> Unit,
+        isSelfDeletingSettingEnabled: Boolean,
+        isSelfDeletingActive: Boolean,
+        onGifButtonClicked: () -> Unit = {},
+        onRichEditingButtonClicked: () -> Unit = {},
+        modifier: Modifier = Modifier
+    ) {
+        Column(modifier.wrapContentSize()) {
+            Divider(color = MaterialTheme.wireColorScheme.outline)
+            MessageComposeActions(
+                isEditing = isEditing,
+                selectedOption = selectedOption,
+                isMentionActive = isMentionActive,
+                onMentionButtonClicked = onMentionButtonClicked,
+                onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
+                onPingButtonClicked = onPingClicked,
+                onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
+                isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+                isSelfDeletingActive = isSelfDeletingActive,
+                onGifButtonClicked = onGifButtonClicked,
+                onRichEditingButtonClicked = onRichEditingButtonClicked
+            )
+        }
     }
-}

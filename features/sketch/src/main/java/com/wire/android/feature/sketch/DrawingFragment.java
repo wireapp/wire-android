@@ -174,8 +174,7 @@ public class DrawingFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        FragmentDrawingBinding binding = FragmentDrawingBinding.inflate(inflater, container, false);
-        View rootView = binding.getRoot();
+        View rootView = inflater.inflate(R.layout.fragment_drawing, container, false);
 
         drawingCanvasView = ViewUtils.getView(rootView, R.id.dcv__canvas);
         drawingCanvasView.setDrawingCanvasCallback(this);

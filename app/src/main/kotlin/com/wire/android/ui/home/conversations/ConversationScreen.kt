@@ -754,8 +754,6 @@ private fun ConversationScreenContent(
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
-    appLogger.d("KBX list size ${lazyPagingMessages.itemSnapshotList.size}")
-
     val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
         LazyListState(unreadEventCount)
     }
@@ -869,8 +867,6 @@ fun MessageList(
     }
 
     LaunchedEffect(lazyListState.isScrollInProgress) {
-        appLogger.d("KBX isScrollInProgress ${lazyListState.isScrollInProgress}")
-
         if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
 
@@ -907,6 +903,7 @@ fun MessageList(
                 ) { index ->
                     val message: UIMessage = lazyPagingMessages[index]
                         ?: return@items Box(
+                            contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(dimensions().spacing56x),

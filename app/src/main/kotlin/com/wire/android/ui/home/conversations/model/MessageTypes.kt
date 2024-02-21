@@ -196,7 +196,7 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
-        // TODO Kubaz make progress in box
+        // TODO Kubaz make progress in box, but then remember to not load image with isIncompleteImage
         when {
             // Trying to upload the asset
             transferStatus == UPLOAD_IN_PROGRESS || transferStatus == DOWNLOAD_IN_PROGRESS -> {

@@ -282,9 +282,7 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
             @Composable
             private fun startAssetDeletion(onSelfDeletingMessageRead: () -> Unit, transferStatus: AssetTransferStatus) {
                 LaunchedEffect(transferStatus) {
-                    if (transferStatus == AssetTransferStatus.SAVED_EXTERNALLY
-                        || transferStatus == AssetTransferStatus.SAVED_INTERNALLY
-                    ) {
+                    if (transferStatus.isSaved()) {
                         onSelfDeletingMessageRead()
                     }
                 }

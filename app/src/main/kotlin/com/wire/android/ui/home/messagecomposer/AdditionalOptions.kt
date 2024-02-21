@@ -19,11 +19,13 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -32,13 +34,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
+import androidx.fragment.app.findFragment
+import androidx.viewbinding.ViewBinding
 import com.wire.android.feature.sketch.DrawingFragment
+import com.wire.android.feature.sketch.databinding.FragmentContainerBinding
+import com.wire.android.feature.sketch.databinding.FragmentDrawingBinding
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
@@ -137,14 +148,17 @@ fun AdditionalOptionSubMenu(
             }
 
             AdditionalOptionSubMenuState.Location -> {
-                AndroidView(factory = { context ->
-                    FragmentContainerView(context)
-                }) { view ->
-                    val fragment = DrawingFragment()
-                    fragment.childFragmentManager.commit {
-                        replace(view.id, fragment)
-                    }
-                }
+                FragmentHolderScreen(
+                    androidViewBindingFactory = FragmentContainerBinding::inflate,
+                    androidViewBindingUpdate = {
+                        with(fragmentContainerView.findFragment<DrawingFragment>()) {
+                            // Reference of AnalyticsEventsFragment is available here
+                        }
+                    },
+                    onBackPress = {
+
+                    },
+                )
             }
             // non functional for now
             AdditionalOptionSubMenuState.AttachImage -> {}
@@ -208,4 +222,29 @@ fun FragmentContainer(
         },
         update = {}
     )
+}
+
+@Composable
+fun <T : ViewBinding> FragmentHolderScreen(
+    androidViewBindingFactory: (inflater: LayoutInflater, parent: ViewGroup, attachToParent: Boolean) -> T,
+    onBackPress: () -> Unit = {},
+    androidViewBindingUpdate: T.() -> Unit = {},
+) {
+    WireScaffold(topBar = {
+        WireCenterAlignedTopAppBar(
+            elevation = 0.dp,
+            title = "",
+            navigationIconType = NavigationIconType.Close,
+            onNavigationPressed = onBackPress
+        )
+//        } else {
+//            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
+//        }
+    }) { paddingValues ->
+        AndroidViewBinding(
+            factory = androidViewBindingFactory,
+            modifier = Modifier.padding(paddingValues),
+            update = androidViewBindingUpdate,
+        )
+    }
 }

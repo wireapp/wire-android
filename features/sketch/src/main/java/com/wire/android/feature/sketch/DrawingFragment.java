@@ -166,8 +166,8 @@ public class DrawingFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
 //        backgroundImage = args.getParcelable(ARGUMENT_BACKGROUND_IMAGE);
-        drawingDestination = IDrawingController.DrawingDestination.valueOf(args.getString(ARGUMENT_DRAWING_DESTINATION));
-        drawingMethod = IDrawingController.DrawingMethod.valueOf(args.getString(ARGUMENT_DRAWING_METHOD));
+//        drawingDestination = IDrawingController.DrawingDestination.valueOf(args.getString(ARGUMENT_DRAWING_DESTINATION));
+//        drawingMethod = IDrawingController.DrawingMethod.valueOf(args.getString(ARGUMENT_DRAWING_METHOD));
         defaultTextColor = ContextCompat.getColor(getContext(), android.R.color.system_on_primary_dark);
 //        assetIntentsManager = new AssetIntentsManager(getActivity(), this, savedInstanceState);
     }

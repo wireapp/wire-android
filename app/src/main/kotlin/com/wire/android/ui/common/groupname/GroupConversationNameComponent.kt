@@ -124,7 +124,7 @@ fun GroupNameScreen(
                         WireDropDown(
                             items =
                             ConversationOptions.Protocol.values().map { it.name },
-                            defaultItemIndex = ConversationOptions.Protocol.PROTEUS.ordinal,
+                            defaultItemIndex = defaultProtocol.ordinal,
                             selectedItemIndex = groupProtocol.ordinal,
                             label = stringResource(R.string.protocol),
                             modifier = Modifier
